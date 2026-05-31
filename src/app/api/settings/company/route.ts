@@ -5,7 +5,7 @@ import { validateBody, companySettingsSchema } from '@/lib/api-validation';
 import { Permission } from '@/lib/auth/types';
 import { handleApiError } from '@/lib/api-error';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
-import { Currency } from '@prisma/client';
+import type { Currency } from '@/types/db-enums';
 
 export async function GET(request: NextRequest) {
   // Rate limiting

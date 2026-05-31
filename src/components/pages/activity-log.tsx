@@ -169,7 +169,7 @@ const mockActivities: ActivityItem[] = [
     entityId: "p1",
     details: "مشروع فيلا الشاطئ / Beach Villa Project",
     createdAt: new Date(MOCK_REF_TIME - 5 * 60000).toISOString(),
-    user: { id: "u1", name: "أحمد المطيري", EMAIL: "ahmed@example.com", avatar: "", role: "ADMIN" },
+    user: { id: "u1", name: "أحمد المطيري", EMAIL: "ahmed@***", avatar: "", role: "ADMIN" },
   },
   {
     id: "mock-2",
@@ -179,7 +179,7 @@ const mockActivities: ActivityItem[] = [
     entityId: "t1",
     details: "مهمة تصميم المخطط الأولي - تغيير الأولوية إلى عاجلة",
     createdAt: new Date(MOCK_REF_TIME - 18 * 60000).toISOString(),
-    user: { id: "u2", name: "سارة العلي", EMAIL: "sara@example.com", avatar: "", role: "PROJECT_MANAGER" },
+    user: { id: "u2", name: "سارة العلي", EMAIL: "sara@***", avatar: "", role: "PROJECT_MANAGER" },
   },
   {
     id: "mock-3",
@@ -189,7 +189,7 @@ const mockActivities: ActivityItem[] = [
     entityId: "inv1",
     details: "فاتورة رقم INV-2024-0047 بقيمة 45,000 د.إ",
     createdAt: new Date(MOCK_REF_TIME - 45 * 60000).toISOString(),
-    user: { id: "u3", name: "خالد العمري", EMAIL: "khaled@example.com", avatar: "", role: "ACCOUNTANT" },
+    user: { id: "u3", name: "خالد العمري", EMAIL: "khaled@***", avatar: "", role: "ACCOUNTANT" },
   },
   {
     id: "mock-4",
@@ -199,7 +199,7 @@ const mockActivities: ActivityItem[] = [
     entityId: "d1",
     details: "مخططات التصميم المعماري - المرحلة الثانية",
     createdAt: new Date(MOCK_REF_TIME - 2 * 3600000).toISOString(),
-    user: { id: "u4", name: "محمد الراشد", EMAIL: "mohammed@example.com", avatar: "", role: "ENGINEER" },
+    user: { id: "u4", name: "محمد الراشد", EMAIL: "mohammed@***", avatar: "", role: "ENGINEER" },
   },
   {
     id: "mock-5",
@@ -209,7 +209,7 @@ const mockActivities: ActivityItem[] = [
     entityId: "p2",
     details: "مشروع برج النخيل - تغيير الحالة إلى 'مكتمل'",
     createdAt: new Date(MOCK_REF_TIME - 3 * 3600000).toISOString(),
-    user: { id: "u1", name: "أحمد المطيري", EMAIL: "ahmed@example.com", avatar: "", role: "ADMIN" },
+    user: { id: "u1", name: "أحمد المطيري", EMAIL: "ahmed@***", avatar: "", role: "ADMIN" },
   },
   {
     id: "mock-6",
@@ -219,7 +219,7 @@ const mockActivities: ActivityItem[] = [
     entityId: "m1",
     details: "اجتماع مراجعة التصاميم الإنشائية - يوم الأحد القادم",
     createdAt: new Date(MOCK_REF_TIME - 5 * 3600000).toISOString(),
-    user: { id: "u5", name: "فاطمة الزهراني", EMAIL: "fatima@example.com", avatar: "", role: "SECRETARY" },
+    user: { id: "u5", name: "فاطمة الزهراني", EMAIL: "fatima@***", avatar: "", role: "SECRETARY" },
   },
   {
     id: "mock-7",
@@ -229,7 +229,7 @@ const mockActivities: ActivityItem[] = [
     entityId: "t2",
     details: "تعليق على مهمة الحسابات الإنشائية: 'يحتاج مراجعة إضافية'",
     createdAt: new Date(MOCK_REF_TIME - 8 * 3600000).toISOString(),
-    user: { id: "u2", name: "سارة العلي", EMAIL: "sara@example.com", avatar: "", role: "PROJECT_MANAGER" },
+    user: { id: "u2", name: "سارة العلي", EMAIL: "sara@***", avatar: "", role: "PROJECT_MANAGER" },
   },
   {
     id: "mock-8",
@@ -239,7 +239,7 @@ const mockActivities: ActivityItem[] = [
     entityId: "c1",
     details: "عقد خدمات هندسية مع شركة الأفق العقارية",
     createdAt: new Date(MOCK_REF_TIME - 12 * 3600000).toISOString(),
-    user: { id: "u6", name: "عبدالله الحربي", EMAIL: "abdullah@example.com", avatar: "", role: "MANAGER" },
+    user: { id: "u6", name: "عبدالله الحربي", EMAIL: "abdullah@***", avatar: "", role: "MANAGER" },
   },
   {
     id: "mock-9",
@@ -249,7 +249,7 @@ const mockActivities: ActivityItem[] = [
     entityId: "inv2",
     details: "فاتورة INV-2024-0042 - تحديث الحالة إلى 'مدفوعة'",
     createdAt: new Date(MOCK_REF_TIME - 1 * 86400000).toISOString(),
-    user: { id: "u3", name: "خالد العمري", EMAIL: "khaled@example.com", avatar: "", role: "ACCOUNTANT" },
+    user: { id: "u3", name: "خالد العمري", EMAIL: "khaled@***", avatar: "", role: "ACCOUNTANT" },
   },
   {
     id: "mock-10",
@@ -259,7 +259,7 @@ const mockActivities: ActivityItem[] = [
     entityId: "p3",
     details: "عرض تفاصيل مشروع مجمع الرياض السكني",
     createdAt: new Date(MOCK_REF_TIME - 1.5 * 86400000).toISOString(),
-    user: { id: "u4", name: "محمد الراشد", EMAIL: "mohammed@example.com", avatar: "", role: "ENGINEER" },
+    user: { id: "u4", name: "محمد الراشد", EMAIL: "mohammed@***", avatar: "", role: "ENGINEER" },
   },
   {
     id: "mock-11",
@@ -269,7 +269,7 @@ const mockActivities: ActivityItem[] = [
     entityId: "cl1",
     details: "إضافة عميل جديد: شركة المستقبل للتطوير العقاري",
     createdAt: new Date(MOCK_REF_TIME - 2 * 86400000).toISOString(),
-    user: { id: "u7", name: "نورة القحطاني", EMAIL: "noura@example.com", avatar: "", role: "HR" },
+    user: { id: "u7", name: "نورة القحطاني", EMAIL: "noura@***", avatar: "", role: "HR" },
   },
   {
     id: "mock-12",
@@ -279,7 +279,7 @@ const mockActivities: ActivityItem[] = [
     entityId: "d2",
     details: "حذف مستند المخططات القديمة - مشروع فيلا الواحة",
     createdAt: new Date(MOCK_REF_TIME - 3 * 86400000).toISOString(),
-    user: { id: "u1", name: "أحمد المطيري", EMAIL: "ahmed@example.com", avatar: "", role: "ADMIN" },
+    user: { id: "u1", name: "أحمد المطيري", EMAIL: "ahmed@***", avatar: "", role: "ADMIN" },
   },
   {
     id: "mock-13",
@@ -289,7 +289,7 @@ const mockActivities: ActivityItem[] = [
     entityId: "m2",
     details: "تحديث موعد اجتماع لجنة المراجعة إلى يوم الثلاثاء",
     createdAt: new Date(MOCK_REF_TIME - 4 * 86400000).toISOString(),
-    user: { id: "u5", name: "فاطمة الزهراني", EMAIL: "fatima@example.com", avatar: "", role: "SECRETARY" },
+    user: { id: "u5", name: "فاطمة الزهراني", EMAIL: "fatima@***", avatar: "", role: "SECRETARY" },
   },
   {
     id: "mock-14",
@@ -299,7 +299,7 @@ const mockActivities: ActivityItem[] = [
     entityId: "c2",
     details: "عقد pNU-2024-012 - تغيير الحالة إلى 'نشط'",
     createdAt: new Date(MOCK_REF_TIME - 5 * 86400000).toISOString(),
-    user: { id: "u6", name: "عبدالله الحربي", EMAIL: "abdullah@example.com", avatar: "", role: "MANAGER" },
+    user: { id: "u6", name: "عبدالله الحربي", EMAIL: "abdullah@***", avatar: "", role: "MANAGER" },
   },
   {
     id: "mock-15",
@@ -309,7 +309,7 @@ const mockActivities: ActivityItem[] = [
     entityId: "t3",
     details: "إضافة مهمة جديدة: إعداد تقرير الكميات - مشروع برج النخيل",
     createdAt: new Date(MOCK_REF_TIME - 6 * 86400000).toISOString(),
-    user: { id: "u2", name: "سارة العلي", EMAIL: "sara@example.com", avatar: "", role: "PROJECT_MANAGER" },
+    user: { id: "u2", name: "سارة العلي", EMAIL: "sara@***", avatar: "", role: "PROJECT_MANAGER" },
   },
 ];
 
@@ -731,7 +731,10 @@ export default function ActivityLog({ language: lang, projectId }: Props) {
                       className="relative ms-4"
                     >
                       {/* Timeline Line */}
-                      <div className="absolute top-0 bottom-0 w-px bg-gradient-to-b from-slate-200 via-slate-300 to-slate-200 dark:from-slate-700 dark:via-slate-600 dark:to-slate-700 start-[-16px]" />
+                      <div className={cn(
+                        "absolute top-0 bottom-0 w-px bg-gradient-to-b from-slate-200 via-slate-300 to-slate-200 dark:from-slate-700 dark:via-slate-600 dark:to-slate-700",
+                        isAr ? "right-[-16px]" : "left-[-16px]"
+                      )} />
 
                       <div className="space-y-3">
                         {items.map((item, index) => {
@@ -755,8 +758,9 @@ export default function ActivityLog({ language: lang, projectId }: Props) {
                             >
                               {/* Timeline Dot with gradient */}
                               <div className={cn(
-                                "absolute top-5 w-3 h-3 rounded-full border-2 border-white dark:border-slate-950 z-10 bg-gradient-to-r start-[-20px]",
-                                action.dotGradient
+                                "absolute top-5 w-3 h-3 rounded-full border-2 border-white dark:border-slate-950 z-10 bg-gradient-to-r",
+                                action.dotGradient,
+                                isAr ? "right-[-20px]" : "left-[-20px]"
                               )} />
 
                               {/* Activity Card */}

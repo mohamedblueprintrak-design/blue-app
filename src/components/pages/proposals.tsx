@@ -44,10 +44,10 @@ import {
   Award,
   Sparkles,
 } from "lucide-react";
-import { TAX_RATE } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/lib/formatters";
 import { getMutationHeaders } from "@/lib/csrf-client";
+import { VAT_RATE } from "@/lib/constants";
 
 // ===== Types =====
 interface ProposalItem {
@@ -260,7 +260,7 @@ export default function ProposalsPage({ language, projectId }: ProposalsPageProp
   const removeLineItem = (idx: number) => { if (formData.items.length <= 1) return; setFormData({ ...formData, items: formData.items.filter((_, i) => i !== idx) }); };
 
   const calcSubtotal = formData.items.reduce((s, i) => s + i.quantity * i.unitPrice, 0);
-  const calcTax = calcSubtotal * TAX_RATE;
+  const calcTax = calcSubtotal * VAT_RATE;
   const calcTotal = calcSubtotal + calcTax;
 
   const handleSave = () => {

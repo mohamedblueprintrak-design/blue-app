@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get("status");
     const assigneeId = searchParams.get("assigneeId");
 
-    const where: Record<string, unknown> = { ...orgFilter(ctx) };
+    const where: Record<string, unknown> = { deletedAt: null, ...orgFilter(ctx) };
     if (projectId) where.projectId = projectId;
     if (severity) where.severity = severity;
     if (status) where.status = status;

@@ -104,7 +104,7 @@ export default function PublicFooter() {
               </li>
               <li className="flex items-center gap-2 text-sm text-blue-200/50">
                 <Mail className="w-4 h-4 text-[#4A6FA5] shrink-0" />
-                {process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'contact@blueprint.app'}
+                info.blueprintrak@gmail.com
               </li>
             </ul>
           </div>
@@ -122,7 +122,7 @@ export default function PublicFooter() {
         href="https://wa.me/971501611234?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D8%8C%20%D8%A3%D8%B1%D9%8A%D8%AF%20%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%B9%D9%86%20%D8%AE%D8%AF%D9%85%D8%A7%D8%AA%D9%83%D9%85"
         target="_blank"
         rel="noopener noreferrer"
-        className="fixed bottom-6 start-6 z-[60] w-14 h-14 bg-[#25D366] hover:bg-[#20BD5A] rounded-full flex items-center justify-center shadow-xl shadow-[#25D366]/30 hover:shadow-[#25D366]/50 transition-all duration-300 hover:scale-110"
+        className="fixed bottom-6 left-6 z-[60] w-14 h-14 bg-[#25D366] hover:bg-[#20BD5A] rounded-full flex items-center justify-center shadow-xl shadow-[#25D366]/30 hover:shadow-[#25D366]/50 transition-all duration-300 hover:scale-110"
         aria-label={t("تواصل عبر واتساب", "Chat on WhatsApp")}
       >
         <MessageCircle className="w-7 h-7 text-white" />

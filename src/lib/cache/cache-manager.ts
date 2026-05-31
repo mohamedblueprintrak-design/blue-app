@@ -388,14 +388,31 @@ export class CacheManager {
   async invalidate(pattern: string): Promise<number> {
     let count = 0;
 
-    // Invalidate in Redis
+    // Invalidate in Redis using SCAN instead of KEYS
+    // KEYS is O(N) and blocks Redis — dangerous in production
     if (this.redisAvailable && this.redisClient) {
       try {
-        const keys = await this.redisClient.keys(pattern);
-        if (keys.length > 0) {
-          await this.redisClient.del(keys);
-          count = keys.length;
-        }
+        // Convert glob pattern to regex for SCAN matching
+        const regexPattern = new RegExp(
+          '^' + pattern.replace(/\+/g, '\\+').replace(/\*/g, '.*').replace(/\?/g, '.') + '$'
+        );
+        let cursor = 0;
+        do {
+          const result = await this.redisClient.scan(cursor, {
+            MATCH: pattern,
+            COUNT: 100,
+          });
+          cursor = result.cursor;
+          const keys = result.keys;
+          if (keys.length > 0) {
+            // Verify keys match the pattern (SCAN can return false positives)
+            const matchingKeys = keys.filter((k: string) => regexPattern.test(k));
+            if (matchingKeys.length > 0) {
+              await this.redisClient.del(matchingKeys);
+              count += matchingKeys.length;
+            }
+          }
+        } while (cursor !== 0);
       } catch (error) {
         log.warn('[CacheManager] Redis invalidate error:', { error: String(error) });
       }

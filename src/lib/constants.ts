@@ -1,8 +1,29 @@
-/**
- * Shared application constants.
- * Values read from environment variables with sensible defaults.
- */
+// Application constants — single source of truth
 
-/** UAE VAT tax rate (default 5%). Override via NEXT_PUBLIC_TAX_RATE env var. */
-export const TAX_RATE: number =
-  parseFloat(process.env.NEXT_PUBLIC_TAX_RATE || '0.05');
+/** UAE VAT rate (5%) */
+export const VAT_RATE = 0.05;
+
+/** Default currency */
+export const DEFAULT_CURRENCY = 'AED';
+
+/** Currency symbol (Arabic) */
+export const CURRENCY_SYMBOL_AR = 'د.إ';
+
+/** Currency symbol (English) */
+export const CURRENCY_SYMBOL_EN = 'AED';
+
+/** Format currency amount */
+export function formatCurrency(amount: number, currency: string = DEFAULT_CURRENCY): string {
+  return `${amount.toLocaleString()} ${currency}`;
+}
+
+/** Format VAT amount */
+export function calculateVat(subtotal: number, rate: number = VAT_RATE): number {
+  return subtotal * rate;
+}
+
+/** VAT display label (Arabic) */
+export const VAT_LABEL_AR = `الضريبة ${VAT_RATE * 100}%`;
+
+/** VAT display label (English) */
+export const VAT_LABEL_EN = `VAT (${VAT_RATE * 100}%)`;

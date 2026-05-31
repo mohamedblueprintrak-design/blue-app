@@ -11,18 +11,34 @@ export class OpenAICompatibleProvider implements AIProvider {
   private apiKey: string;
   private provider: string;
 
-  /**
-   * Redact the API key from any string so it is never leaked in error messages.
-   */
-  private redactApiKey(input: string): string {
-    if (!this.apiKey) return input;
-    return input.split(this.apiKey).join('[REDACTED]');
-  }
-
   constructor(config: OpenAICompatibleConfig) {
     this.baseUrl = config.baseUrl.replace(/\/+$/, "");
     this.apiKey = config.apiKey;
     this.provider = config.provider;
+  }
+
+  /**
+   * SECURITY: Returns a masked version of the API key for logging.
+   * Never expose the full API key in logs or error messages.
+   */
+  private getMaskedKey(): string {
+    if (!this.apiKey || this.apiKey.length < 8) return '***';
+    return `${this.apiKey.slice(0, 4)}...${this.apiKey.slice(-4)}`;
+  }
+
+  /**
+   * SECURITY: Sanitize error text to remove any accidentally exposed API keys.
+   * Some AI providers echo back the Authorization header or key in error responses.
+   */
+  private sanitizeErrorText(text: string): string {
+    let sanitized = text;
+    // Remove Bearer token patterns
+    sanitized = sanitized.replace(/Bearer\s+[A-Za-z0-9\-_]{20,}/g, 'Bearer ***');
+    // Remove raw API key if it appears in the error
+    if (this.apiKey && this.apiKey.length >= 8) {
+      sanitized = sanitized.replaceAll(this.apiKey, this.getMaskedKey());
+    }
+    return sanitized.substring(0, 300);
   }
 
   async chat(messages: ChatMessage[], options: ChatOptions): Promise<string> {
@@ -48,7 +64,7 @@ export class OpenAICompatibleProvider implements AIProvider {
 
     if (!response.ok) {
       const err = await response.text();
-      throw new Error(`[${this.provider}] API error ${response.status}: ${this.redactApiKey(err)}`);
+      throw new Error(`[${this.provider}] API error ${response.status}: ${this.sanitizeErrorText(err)}`);
     }
 
     const data = await response.json();
@@ -83,7 +99,7 @@ export class OpenAICompatibleProvider implements AIProvider {
 
     if (!response.ok) {
       const err = await response.text();
-      throw new Error(`[${this.provider}] Streaming API error ${response.status}: ${this.redactApiKey(err)}`);
+      throw new Error(`[${this.provider}] Streaming API error ${response.status}: ${this.sanitizeErrorText(err)}`);
     }
 
     const reader = response.body?.getReader();
@@ -158,7 +174,7 @@ export class OpenAICompatibleProvider implements AIProvider {
 
     if (!response.ok) {
       const err = await response.text();
-      throw new Error(`[${this.provider}] Vision API error ${response.status}: ${this.redactApiKey(err)}`);
+      throw new Error(`[${this.provider}] Vision API error ${response.status}: ${this.sanitizeErrorText(err)}`);
     }
 
     const data = await response.json();

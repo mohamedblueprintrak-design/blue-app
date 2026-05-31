@@ -21,11 +21,11 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const projectId = searchParams.get("projectId");
 
-    const where: Record<string, unknown> = { ...orgFilter(ctx) };
+    const where: Record<string, unknown> = { deletedAt: null, ...orgFilter(ctx) };
     if (projectId) where.projectId = projectId;
 
     const budgets = await db.budget.findMany({
-      where: Object.keys(where).length > 0 ? where : undefined,
+      where,
       include: {
         project: { select: { id: true, name: true, nameEn: true, number: true } },
         children: {

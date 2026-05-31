@@ -18,7 +18,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const id = idResult.id;
     const orgWhere = ctx.organizationId ? { project: { organizationId: ctx.organizationId } } : {};
     const siteVisit = await db.siteVisit.findFirst({
-      where: { id, ...orgWhere },
+      where: { id, deletedAt: null, ...orgWhere },
       include: {
         project: {
           select: { id: true, name: true, nameEn: true, number: true, client: { select: { id: true, name: true, company: true } } },
@@ -110,7 +110,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
       return NextResponse.json({ error: "Site visit not found" }, { status: 404 });
     }
 
-    await db.siteVisit.delete({ where: { id } });
+    await db.siteVisit.update({ where: { id }, data: { deletedAt: new Date() } });
     return NextResponse.json({ success: true });
   } catch (error) {
     log.error("Error deleting site visit:", error);

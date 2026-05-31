@@ -20,6 +20,7 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get("status");
 
     const where: Record<string, unknown> = {
+      deletedAt: null,
       employee: { ...orgFilter(ctx) },
     };
 

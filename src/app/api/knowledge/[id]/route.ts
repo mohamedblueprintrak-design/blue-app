@@ -24,7 +24,7 @@ export async function GET(
     const orgWhere = Object.keys(nestedFilter).length > 0
       ? { OR: [nestedFilter, { projectId: null }] }
       : {};
-    const existing = await db.knowledgeArticle.findFirst({ where: { id, ...orgWhere } });
+    const existing = await db.knowledgeArticle.findFirst({ where: { id, deletedAt: null, ...orgWhere } });
     if (!existing) {
       return NextResponse.json({ error: "Article not found" }, { status: 404 });
     }
@@ -131,7 +131,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Article not found" }, { status: 404 });
     }
 
-    await db.knowledgeArticle.delete({ where: { id } });
+    await db.knowledgeArticle.update({ where: { id }, data: { deletedAt: new Date() } });
     return NextResponse.json({ success: true });
   } catch (error) {
     log.error("Error deleting knowledge article:", error);

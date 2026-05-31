@@ -77,6 +77,7 @@ const nextConfig: NextConfig = {
     // 'jose',
     'otplib',
     'z-ai-web-dev-sdk',
+    'swagger-jsdoc',
   ],
 
   // Environment variables exposed to client

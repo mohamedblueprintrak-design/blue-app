@@ -19,8 +19,7 @@ export async function GET(
     const idResult = validateIdParam(rawId);
     if (!idResult.success) return idResult.response;
     const id = idResult.id;
-    const orgWhere = orgFilterNested(ctx, 'project');
-
+    const orgWhere = { ...orgFilterNested(ctx, 'project'), deletedAt: null };
     const order = await db.purchaseOrder.findFirst({
       where: { id, ...orgWhere },
       include: {
@@ -77,7 +76,7 @@ export async function PUT(
     const { number, supplierId, projectId, amount, status, items } = body;
 
     // Verify org access
-    const orgWhere = orgFilterNested(ctx, 'project');
+    const orgWhere = { ...orgFilterNested(ctx, 'project'), deletedAt: null };
     const existing = await db.purchaseOrder.findFirst({ where: { id, ...orgWhere } });
     if (!existing) {
       return NextResponse.json({ error: "Purchase order not found" }, { status: 404 });
@@ -143,13 +142,13 @@ export async function DELETE(
     const idResult = validateIdParam(rawId);
     if (!idResult.success) return idResult.response;
     const id = idResult.id;
-    const orgWhere = orgFilterNested(ctx, 'project');
+    const orgWhere = { ...orgFilterNested(ctx, 'project'), deletedAt: null };
     const existing = await db.purchaseOrder.findFirst({ where: { id, ...orgWhere } });
     if (!existing) {
       return NextResponse.json({ error: "Purchase order not found" }, { status: 404 });
     }
 
-    await db.purchaseOrder.delete({ where: { id } });
+    await db.purchaseOrder.update({ where: { id }, data: { deletedAt: new Date() } });
 
     return NextResponse.json({ success: true });
   } catch (error) {

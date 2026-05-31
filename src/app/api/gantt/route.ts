@@ -65,7 +65,7 @@ export async function GET(request: NextRequest) {
     const limit = Math.min(parseInt(searchParams.get("limit") || "500", 10), 2000); // Cap at 2000
     const offset = parseInt(searchParams.get("offset") || "0", 10);
 
-    const taskWhere: Record<string, unknown> = { ...(projectId ? { projectId } : {}), ...orgFilter(ctx) };
+    const taskWhere: Record<string, unknown> = { deletedAt: null, ...(projectId ? { projectId } : {}), ...orgFilter(ctx) };
 
     // Fetch tasks with pagination to prevent OOM on large datasets
     const [tasks, totalTasks] = await Promise.all([
@@ -92,7 +92,7 @@ export async function GET(request: NextRequest) {
     ]);
 
     // Fetch schedule phases
-    const phaseWhere: Record<string, unknown> = { ...(projectId ? { projectId } : {}), ...orgFilter(ctx) };
+    const phaseWhere: Record<string, unknown> = { deletedAt: null, ...(projectId ? { projectId } : {}), ...orgFilter(ctx) };
     const phases = await db.schedulePhase.findMany({
       where: phaseWhere,
       orderBy: [{ phaseOrder: "asc" }],
@@ -292,9 +292,9 @@ export async function DELETE(request: NextRequest) {
 
     if (id.startsWith("phase-")) {
       const phaseId = id.replace("phase-", "");
-      await db.schedulePhase.delete({ where: { id: phaseId } });
+      await db.schedulePhase.update({ where: { id: phaseId }, data: { deletedAt: new Date() } });
     } else {
-      await db.task.delete({ where: { id } });
+      await db.task.update({ where: { id }, data: { deletedAt: new Date() } });
     }
 
     return NextResponse.json({

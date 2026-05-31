@@ -80,7 +80,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Risk action not found" }, { status: 404 });
     }
 
-    await db.riskAction.delete({ where: { id } });
+    await db.riskAction.update({ where: { id }, data: { deletedAt: new Date() } });
     return NextResponse.json({ success: true });
   } catch (error) {
     log.error("Error deleting risk action:", error);

@@ -3,9 +3,9 @@
   "version": "0.2.0",
   "private": true,
   "scripts": {
-    "postinstall": "prisma generate && npx tsx scripts/postinstall-fix.ts",
+    "postinstall": "prisma generate",
     "setup": "npx prisma db push && npx tsx prisma/seed.ts",
-    "dev": "next dev -p 3000",
+    "dev": "next dev -p 3000 --webpack",
     "build": "next build",
     "start": "node .next/standalone/server.js",
     "lint": "eslint .",

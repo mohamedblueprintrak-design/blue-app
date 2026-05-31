@@ -25,10 +25,11 @@ beforeAll(async () => {
 });
 
 function itIfServer(name: string, fn: () => Promise<void>, timeout?: number) {
-  it(name, async () => {
-    if (!serverAvailable) return; // skip silently when server is not running
-    await fn();
-  }, timeout);
+  if (!serverAvailable) {
+    it.skip(name, fn, timeout);
+  } else {
+    it(name, fn, timeout);
+  }
 }
 
 describe('Critical API Route Tests', () => {

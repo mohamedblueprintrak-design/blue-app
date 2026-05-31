@@ -37,19 +37,20 @@ interface LoginPageProps {
   language: "ar" | "en";
 }
 
+// DEMO ONLY — these demo emails are shown for demo mode testing only
 const ROLES = [
-  { value: "admin@demo.blueprint.app", labelAr: "المدير العام", labelEn: "Admin" },
-  { value: "pm@demo.blueprint.app", labelAr: "مدير مشاريع", labelEn: "Manager" },
-  { value: "eng@demo.blueprint.app", labelAr: "مهندس معماري", labelEn: "Arch. Eng" },
-  { value: "struct@demo.blueprint.app", labelAr: "مهندس إنشائي", labelEn: "Struct. Eng" },
-  { value: "elec@demo.blueprint.app", labelAr: "مهندس كهربائي", labelEn: "Elec. Eng" },
-  { value: "site@demo.blueprint.app", labelAr: "مهندس موقع", labelEn: "Site Eng" },
-  { value: "mep@demo.blueprint.app", labelAr: "مهندس ميكانيكا", labelEn: "MEP Eng" },
-  { value: "draft@demo.blueprint.app", labelAr: "رسام", labelEn: "Draftsman" },
-  { value: "acc@demo.blueprint.app", labelAr: "محاسب", labelEn: "Accountant" },
-  { value: "sec@demo.blueprint.app", labelAr: "سكرتيرة", labelEn: "Secretary" },
-  { value: "hr@demo.blueprint.app", labelAr: "موارد بشرية", labelEn: "HR" },
-  { value: "viewer@demo.blueprint.app", labelAr: "مشاهد", labelEn: "Viewer" },
+  { value: "admin@blueprint.ae", labelAr: "المدير العام", labelEn: "Admin" },
+  { value: "pm@blueprint.ae", labelAr: "مدير مشاريع", labelEn: "Manager" },
+  { value: "eng@blueprint.ae", labelAr: "مهندس معماري", labelEn: "Arch. Eng" },
+  { value: "struct@blueprint.ae", labelAr: "مهندس إنشائي", labelEn: "Struct. Eng" },
+  { value: "elec@blueprint.ae", labelAr: "مهندس كهربائي", labelEn: "Elec. Eng" },
+  { value: "site@blueprint.ae", labelAr: "مهندس موقع", labelEn: "Site Eng" },
+  { value: "mep@blueprint.ae", labelAr: "مهندس ميكانيكا", labelEn: "MEP Eng" },
+  { value: "draft@blueprint.ae", labelAr: "رسام", labelEn: "Draftsman" },
+  { value: "acc@blueprint.ae", labelAr: "محاسب", labelEn: "Accountant" },
+  { value: "sec@blueprint.ae", labelAr: "سكرتيرة", labelEn: "Secretary" },
+  { value: "hr@blueprint.ae", labelAr: "موارد بشرية", labelEn: "HR" },
+  { value: "viewer@blueprint.ae", labelAr: "مشاهد", labelEn: "Viewer" },
 ];
 
 const FEATURES = [

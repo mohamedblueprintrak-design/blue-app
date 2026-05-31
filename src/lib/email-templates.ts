@@ -42,7 +42,7 @@ function wrapEmailTemplate(content: string, title: string): string {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${title}</title>
+  <title>${escapeHtml(title)}</title>
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -210,7 +210,7 @@ export const emailTemplates = {
         ${dueDate ? `
         <div class="info-row">
           <span class="info-label">تاريخ الاستحقاق</span>
-          <span class="info-value">${dueDate}</span>
+          <span class="info-value">${escapeHtml(dueDate)}</span>
         </div>
         ` : ''}
       </div>
@@ -222,7 +222,7 @@ export const emailTemplates = {
     return {
       subject: `فاتورة جديدة: ${escapeHtml(invoiceNumber)}`,
       html: wrapEmailTemplate(content, 'فاتورة جديدة'),
-      text: `عزيزي/عزيزتي ${escapeHtml(clientName)}،\n\nتم إنشاء فاتورة جديدة باسمك.\n\nرقم الفاتورة: ${escapeHtml(invoiceNumber)}\nالمبلغ: ${formattedAmount}\n${dueDate ? `تاريخ الاستحقاق: ${dueDate}\n` : ''}\nيرجى مراجعة الفاتورة وإتمام عملية الدفع.\n\nمع أطيب التحيات،\nفريق BluePrint`,
+      text: `عزيزي/عزيزتي ${escapeHtml(clientName)}،\n\nتم إنشاء فاتورة جديدة باسمك.\n\nرقم الفاتورة: ${escapeHtml(invoiceNumber)}\nالمبلغ: ${formattedAmount}\n${dueDate ? `تاريخ الاستحقاق: ${escapeHtml(dueDate)}\n` : ''}\nيرجى مراجعة الفاتورة وإتمام عملية الدفع.\n\nمع أطيب التحيات،\nفريق BluePrint`,
     };
   },
 
@@ -273,7 +273,7 @@ export const emailTemplates = {
         ${dueDate ? `
         <div class="info-row">
           <span class="info-label">تاريخ الاستحقاق</span>
-          <span class="info-value">${dueDate}</span>
+          <span class="info-value">${escapeHtml(dueDate)}</span>
         </div>
         ` : ''}
       </div>
@@ -285,7 +285,7 @@ export const emailTemplates = {
     return {
       subject: `مهمة جديدة: ${escapeHtml(taskTitle)}`,
       html: wrapEmailTemplate(content, 'مهمة جديدة'),
-      text: `مرحباً ${escapeHtml(userName)}，\n\nتم تعيين مهمة جديدة لك.\n\nعنوان المهمة: ${escapeHtml(taskTitle)}\nالمشروع: ${escapeHtml(projectName)}\n${priority ? `الأولوية: ${priorityLabels[priority] || priority}\n` : ''}${dueDate ? `تاريخ الاستحقاق: ${dueDate}\n` : ''}\nيرجى مراجعة المهمة والبدء في تنفيذها.\n\nمع أطيب التحيات،\nفريق BluePrint`,
+      text: `مرحباً ${escapeHtml(userName)}，\n\nتم تعيين مهمة جديدة لك.\n\nعنوان المهمة: ${escapeHtml(taskTitle)}\nالمشروع: ${escapeHtml(projectName)}\n${priority ? `الأولوية: ${priorityLabels[priority] || priority}\n` : ''}${dueDate ? `تاريخ الاستحقاق: ${escapeHtml(dueDate)}\n` : ''}\nيرجى مراجعة المهمة والبدء في تنفيذها.\n\nمع أطيب التحيات،\nفريق BluePrint`,
     };
   },
 
@@ -413,7 +413,7 @@ export const emailTemplates = {
       <p>مرحباً ${escapeHtml(userName)}，</p>
       <p>إليك رمز التحقق الخاص بك:</p>
       <div style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; padding: 20px; border-radius: 8px; text-align: center; font-size: 32px; font-weight: bold; letter-spacing: 8px; margin: 20px 0;">
-        ${code}
+        ${escapeHtml(code)}
       </div>
       <div class="warning">
         <strong>تنبيه:</strong> سينتهي هذا الرمز خلال ${expiresInMinutes} دقائق.
@@ -467,7 +467,7 @@ export const emailTemplates = {
     return {
       subject: 'تسجيل دخول جديد - BluePrint',
       html: wrapEmailTemplate(content, 'تسجيل دخول جديد'),
-      text: `مرحباً ${escapeHtml(userName)}،\n\nتم تسجيل الدخول إلى حسابك من جهاز جديد.\n\nالجهاز: ${escapeHtml(device)}\nالموقع: ${escapeHtml(location)}\nالوقت: ${time}\n\nإذا لم تكن أنت، يرجى تأمين حسابك فوراً.\n\nمع أطيب التحيات،\nفريق BluePrint`,
+      text: `مرحباً ${escapeHtml(userName)}،\n\nتم تسجيل الدخول إلى حسابك من جهاز جديد.\n\nالجهاز: ${escapeHtml(device)}\nالموقع: ${escapeHtml(location)}\nالوقت: ${escapeHtml(time)}\n\nإذا لم تكن أنت، يرجى تأمين حسابك فوراً.\n\nمع أطيب التحيات،\nفريق BluePrint`,
     };
   },
 
@@ -494,7 +494,7 @@ export const emailTemplates = {
     return {
       subject: escapeHtml(title),
       html: wrapEmailTemplate(content, escapeHtml(title)),
-      text: `مرحباً ${escapeHtml(name)}،\n\n${message}\n${link ? `\nعرض التفاصيل: ${link}\n` : ''}\nمع أطيب التحيات،\nفريق BluePrint`,
+      text: `مرحباً ${escapeHtml(name)}،\n\n${escapeHtml(message)}\n${link ? `\nعرض التفاصيل: ${link}\n` : ''}\nمع أطيب التحيات،\nفريق BluePrint`,
     };
   },
 };

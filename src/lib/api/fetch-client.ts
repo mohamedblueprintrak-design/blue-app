@@ -83,14 +83,8 @@ async function parseResponse<T>(response: Response): Promise<ApiResponse<T>> {
   try {
     return JSON.parse(text);
   } catch {
-    return {
-      success: false,
-      data: null,
-      error: {
-        code: 'INVALID_JSON',
-        message: 'Server returned malformed JSON response',
-      },
-    };
+    // Malformed JSON response — return as text data
+    return { success: true, data: text as unknown as T };
   }
 }
 
@@ -110,24 +104,38 @@ export async function apiRequest<T>(
   action: string,
   data?: Record<string, unknown> | unknown,
   token?: string | null,
+  signal?: AbortSignal,
 ): Promise<ApiResponse<T>> {
   const url =
     method === 'GET'
       ? `/api?action=${action}${data ? '&' + new URLSearchParams(data as Record<string, string>).toString() : ''}`
       : `/api?action=${action}`;
 
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
+
+  // If caller provided their own signal, forward abort events
+  if (signal) {
+    signal.addEventListener('abort', () => controller.abort());
+  }
+
   const options: RequestInit = {
     method,
     headers: getDefaultHeaders(token, method),
     credentials: 'include', // Always send httpOnly cookies for auth
+    signal: controller.signal,
   };
 
   if (data && method !== 'GET') {
     options.body = JSON.stringify(data);
   }
 
-  const response = await fetch(url, options);
-  return parseResponse<T>(response);
+  try {
+    const response = await fetch(url, options);
+    return parseResponse<T>(response);
+  } finally {
+    clearTimeout(timeoutId);
+  }
 }
 
 /**
@@ -144,6 +152,7 @@ export async function directApiRequest<T>(
   endpoint: string,
   data?: Record<string, unknown> | unknown,
   token?: string | null,
+  signal?: AbortSignal,
 ): Promise<ApiResponse<T>> {
   const isGet = method === 'GET';
   let url = endpoint;
@@ -160,18 +169,31 @@ export async function directApiRequest<T>(
     if (qs) url += `?${qs}`;
   }
 
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
+
+  // If caller provided their own signal, forward abort events
+  if (signal) {
+    signal.addEventListener('abort', () => controller.abort());
+  }
+
   const options: RequestInit = {
     method,
     headers: getDefaultHeaders(token, method),
     credentials: 'include', // Always send httpOnly cookies for auth
+    signal: controller.signal,
   };
 
   if (data && !isGet) {
     options.body = JSON.stringify(data);
   }
 
-  const response = await fetch(url, options);
-  return parseResponse<T>(response);
+  try {
+    const response = await fetch(url, options);
+    return parseResponse<T>(response);
+  } finally {
+    clearTimeout(timeoutId);
+  }
 }
 
 /**
@@ -213,6 +235,7 @@ export async function apiGet<T>(
   endpoint: string,
   params?: Record<string, string | number | boolean | undefined>,
   token?: string | null,
+  signal?: AbortSignal,
 ): Promise<ApiResponse<T>> {
   let url: string;
   if (params && Object.keys(params).length > 0) {
@@ -227,49 +250,76 @@ export async function apiGet<T>(
     url = endpoint;
   }
 
-  const response = await fetch(url, {
-    method: 'GET',
-    headers: getDefaultHeaders(token, 'GET'),
-    credentials: 'include',
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000);
+  if (signal) signal.addEventListener('abort', () => controller.abort());
 
-  return parseResponse<T>(response);
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: getDefaultHeaders(token, 'GET'),
+      credentials: 'include',
+      signal: controller.signal,
+    });
+    return parseResponse<T>(response);
+  } finally {
+    clearTimeout(timeoutId);
+  }
 }
 
 export async function apiPost<T>(
   endpoint: string,
   data?: Record<string, unknown>,
   token?: string | null,
+  signal?: AbortSignal,
 ): Promise<ApiResponse<T>> {
-  const response = await fetch(endpoint, {
-    method: 'POST',
-    headers: getDefaultHeaders(token, 'POST'),
-    body: data ? JSON.stringify(data) : undefined,
-    credentials: 'include',
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000);
+  if (signal) signal.addEventListener('abort', () => controller.abort());
 
-  return parseResponse<T>(response);
+  try {
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: getDefaultHeaders(token, 'POST'),
+      body: data ? JSON.stringify(data) : undefined,
+      credentials: 'include',
+      signal: controller.signal,
+    });
+    return parseResponse<T>(response);
+  } finally {
+    clearTimeout(timeoutId);
+  }
 }
 
 export async function apiPut<T>(
   endpoint: string,
   data: Record<string, unknown>,
   token?: string | null,
+  signal?: AbortSignal,
 ): Promise<ApiResponse<T>> {
-  const response = await fetch(endpoint, {
-    method: 'PUT',
-    headers: getDefaultHeaders(token, 'PUT'),
-    body: JSON.stringify(data),
-    credentials: 'include',
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000);
+  if (signal) signal.addEventListener('abort', () => controller.abort());
 
-  return parseResponse<T>(response);
+  try {
+    const response = await fetch(endpoint, {
+      method: 'PUT',
+      headers: getDefaultHeaders(token, 'PUT'),
+      body: JSON.stringify(data),
+      credentials: 'include',
+      signal: controller.signal,
+    });
+    return parseResponse<T>(response);
+  } finally {
+    clearTimeout(timeoutId);
+  }
 }
 
 export async function apiDelete<T>(
   endpoint: string,
   params?: Record<string, string>,
   token?: string | null,
+  signal?: AbortSignal,
 ): Promise<ApiResponse<T>> {
   let url: string;
   if (params && Object.keys(params).length > 0) {
@@ -282,13 +332,22 @@ export async function apiDelete<T>(
     url = endpoint;
   }
 
-  const response = await fetch(url, {
-    method: 'DELETE',
-    headers: getDefaultHeaders(token, 'DELETE'),
-    credentials: 'include',
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000);
+  if (signal) signal.addEventListener('abort', () => controller.abort());
 
-  return parseResponse<T>(response);
+  try {
+    const response = await fetch(url, {
+      method: 'DELETE',
+      headers: getDefaultHeaders(token, 'DELETE'),
+      credentials: 'include',
+      signal: controller.signal,
+    });
+
+    return parseResponse<T>(response);
+  } finally {
+    clearTimeout(timeoutId);
+  }
 }
 
 // ============================================

@@ -21,7 +21,7 @@ export async function GET(
     const id = idResult.id;
     const orgWhere = orgFilterNested(ctx, 'project');
     const transmittal = await db.transmittal.findFirst({
-      where: { id, ...orgWhere },
+      where: { id, deletedAt: null, ...orgWhere },
       include: {
         project: {
           select: { id: true, name: true, nameEn: true, number: true },
@@ -127,7 +127,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Transmittal not found" }, { status: 404 });
     }
 
-    await db.transmittal.delete({ where: { id } });
+    await db.transmittal.update({ where: { id }, data: { deletedAt: new Date() } });
     return NextResponse.json({ success: true });
   } catch (error) {
     log.error("Error deleting transmittal:", error);

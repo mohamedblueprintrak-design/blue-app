@@ -4,6 +4,7 @@ import { requireVerifiedPermission, orgFilterNested } from '@/app/api/utils/auth
 import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
 import { validateRequest, validateIdParam, proposalUpdateSchema } from '@/lib/api-validation';
+import { VAT_RATE } from '@/lib/constants';
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -17,7 +18,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const id = idResult.id;
     const orgWhere = orgFilterNested(ctx, 'project');
     const proposal = await db.proposal.findFirst({
-      where: { id, ...orgWhere },
+      where: { id, deletedAt: null, ...orgWhere },
       include: {
         client: { select: { id: true, name: true, company: true, email: true, phone: true } },
         project: { select: { id: true, name: true, nameEn: true, number: true } },
@@ -66,7 +67,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
     if (items && Array.isArray(items)) {
       subtotal = items.reduce((sum: number, item: { quantity: number; unitPrice: number }) => sum + (item.quantity * item.unitPrice), 0);
-      tax = subtotal * 0.05;
+      tax = subtotal * VAT_RATE;
       total = subtotal + tax;
 
       await db.proposalItem.deleteMany({ where: { proposalId: id } });
@@ -126,7 +127,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     }
 
     await db.proposalItem.deleteMany({ where: { proposalId: id } });
-    await db.proposal.delete({ where: { id } });
+    await db.proposal.update({ where: { id }, data: { deletedAt: new Date() } });
     return NextResponse.json({ success: true });
   } catch (error) {
     log.error("Error deleting proposal:", error);

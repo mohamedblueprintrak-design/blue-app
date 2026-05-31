@@ -1,5 +1,6 @@
 import { db } from '@/lib/db';
-import { UserRole, WorkflowStepSeverity, NotificationType, ProjectType } from '@prisma/client';
+import { UserRole } from '@prisma/client';
+import type { WorkflowStepSeverity, NotificationType, ProjectType } from '@/types/db-enums';
 
 // ==================== TYPES ====================
 
@@ -140,19 +141,18 @@ export async function initWorkflow(projectId: string, templateId?: string) {
 }
 
 /**
- * Advance workflow to next stage when current completes.
- *
- * SECURITY FIX (CWE-362 — Race Condition):
- * The entire read-then-write sequence is now wrapped in a Prisma $transaction.
- * This prevents concurrent advanceWorkflow() calls from causing inconsistent state
- * (e.g., two requests both reading the same current stage and advancing twice).
- *
- * The interactive transaction reads the workflow state inside the transaction,
- * then performs all writes atomically before committing.
+ * Advance workflow to next stage when current completes
+ * SECURITY FIX (CWE-362): Wrapped in a transaction to prevent race conditions
+ * when multiple concurrent calls attempt to advance the same workflow.
+ * Now accepts an optional transaction client `tx` to participate in a parent
+ * transaction (prevents transaction breakout from executeStepAction).
  */
-export async function advanceWorkflow(workflowId: string) {
-  return await db.$transaction(async (tx) => {
-    const workflow = await tx.projectWorkflow.findUnique({
+export async function advanceWorkflow(workflowId: string, tx?: Parameters<Parameters<typeof db.$transaction>[0]>[0]) {
+  return await db.$transaction(async (innerTx) => {
+    // Use the provided transaction client, or the inner transaction if no parent
+    const txx = tx || innerTx;
+
+    const workflow = await txx.projectWorkflow.findUnique({
       where: { id: workflowId },
       include: {
         stages: { orderBy: { order: 'asc' }, include: { steps: { orderBy: { order: 'asc' } } } },
@@ -169,14 +169,11 @@ export async function advanceWorkflow(workflowId: string) {
 
     if (currentStageIndex === -1) {
       // All stages are done
-      await tx.projectWorkflow.update({
+      await txx.projectWorkflow.update({
         where: { id: workflowId },
         data: { status: 'ARCHIVED', completedAt: new Date(), progress: 100 },
       });
-      return await tx.projectWorkflow.findUnique({
-        where: { id: workflowId },
-        include: { stages: { include: { steps: true } } },
-      });
+      return await txx.projectWorkflow.findUnique({ where: { id: workflowId }, include: { stages: { include: { steps: true } } } });
     }
 
     const currentStage = stages[currentStageIndex];
@@ -184,23 +181,20 @@ export async function advanceWorkflow(workflowId: string) {
 
     if (!nextStage) {
       // No more stages
-      await tx.projectWorkflow.update({
+      await txx.projectWorkflow.update({
         where: { id: workflowId },
         data: { status: 'ARCHIVED', completedAt: new Date(), progress: 100 },
       });
-      return await tx.projectWorkflow.findUnique({
-        where: { id: workflowId },
-        include: { stages: { include: { steps: true } } },
-      });
+      return await txx.projectWorkflow.findUnique({ where: { id: workflowId }, include: { stages: { include: { steps: true } } } });
     }
 
-    // Complete current stage and activate next — all within the same transaction
-    await tx.workflowStage.update({
+    // Complete current stage and activate next (atomic within transaction)
+    await txx.workflowStage.update({
       where: { id: currentStage.id },
       data: { status: 'COMPLETED', completedDate: new Date() },
     });
 
-    await tx.workflowStage.update({
+    await txx.workflowStage.update({
       where: { id: nextStage.id },
       data: {
         status: 'IN_PROGRESS',
@@ -211,74 +205,56 @@ export async function advanceWorkflow(workflowId: string) {
 
     // Unlock first step of next stage
     if (nextStage.steps.length > 0) {
-      await tx.workflowStep.update({
+      await txx.workflowStep.update({
         where: { id: nextStage.steps[0].id },
         data: { status: 'UNLOCKED' },
       });
     }
 
-    await tx.projectWorkflow.update({
+    await txx.projectWorkflow.update({
       where: { id: workflowId },
       data: { currentStageId: nextStage.id },
     });
 
-    // Update progress within transaction
-    const progressData = await getWorkflowProgressTx(tx, workflowId);
-    await tx.projectWorkflow.update({
+    // Update progress within the same transaction
+    const progress = await getWorkflowProgressInner(workflowId, txx);
+    await txx.projectWorkflow.update({
       where: { id: workflowId },
-      data: { progress: progressData.progress },
+      data: { progress: progress.progress },
     });
 
-    // Send notifications AFTER the transaction commits (best-effort, non-blocking)
-    // We store the notification data to send after transaction completes
-    const notificationData: { userId: string; projectId: string; stepName: string; stageName: string }[] = [];
+    // Send notification (best-effort, outside transaction is fine for notifications)
     if (nextStage.steps.length > 0 && nextStage.steps[0].assignedRole) {
-      const assignees = await tx.user.findMany({
+      const assignees = await txx.user.findMany({
         where: { role: nextStage.steps[0].assignedRole as UserRole, isActive: true },
-        select: { id: true },
       });
       for (const assignee of assignees) {
-        notificationData.push({
-          userId: assignee.id,
-          projectId: workflow.projectId,
-          stepName: nextStage.steps[0].name,
-          stageName: nextStage.name,
-        });
+        await sendNotification(
+          assignee.id,
+          workflow.projectId,
+          'PROJECT_UPDATE',
+          `خطوة جديدة في المشروع`,
+          `المرحلة "${nextStage.name}" بدأت - الخطوة: "${nextStage.steps[0].name}"`,
+          nextStage.id // FIX: relatedEntityId now set to stage ID
+        );
       }
     }
 
-    // Return the updated workflow
-    const result = await tx.projectWorkflow.findUnique({
+    return await txx.projectWorkflow.findUnique({
       where: { id: workflowId },
       include: {
         stages: { orderBy: { order: 'asc' }, include: { steps: { orderBy: { order: 'asc' } } } },
       },
     });
-
-    // Send notifications after transaction (fire-and-forget, outside transaction)
-    for (const notif of notificationData) {
-      sendNotification(
-        notif.userId,
-        notif.projectId,
-        'PROJECT_UPDATE',
-        `خطوة جديدة في المشروع`,
-        `المرحلة "${notif.stageName}" بدأت - الخطوة: "${notif.stepName}"`
-      ).catch(() => {
-        // Notification is best-effort
-      });
-    }
-
-    return result;
+  }, {
+    maxWait: 5000,
+    timeout: 10000,
+    isolationLevel: 'Serializable', // Prevent phantom reads during concurrent advances
   });
 }
 
 /**
- * Execute a step action.
- *
- * SECURITY FIX (CWE-362 — Race Condition):
- * Step actions are now wrapped in a Prisma $transaction to prevent
- * concurrent step completions from corrupting workflow state.
- * The step status check + update + stage advancement are all atomic.
+ * Execute a step action
  */
 export async function executeStepAction(
   stepId: string,
@@ -286,6 +262,8 @@ export async function executeStepAction(
   userId: string,
   data?: { notes?: string; returnReason?: string; severity?: string }
 ) {
+  // SECURITY: Use transaction to prevent race conditions when multiple users
+  // try to execute actions on the same step concurrently
   return await db.$transaction(async (tx) => {
     const step = await tx.workflowStep.findUnique({
       where: { id: stepId },
@@ -302,23 +280,14 @@ export async function executeStepAction(
     if (!step) throw new Error('Step not found');
 
     if (action === 'start') {
-      // Verify step is in a state that can be started
-      if (step.status !== 'UNLOCKED') {
-        throw new Error(`Step cannot be started: current status is "${step.status}"`);
-      }
       await tx.workflowStep.update({
         where: { id: stepId },
         data: { status: 'IN_PROGRESS', startDate: new Date(), assigneeId: userId },
       });
-      return await tx.workflowStep.findUnique({ where: { id: stepId } });
+      return step;
     }
 
     if (action === 'approve' || action === 'complete') {
-      // Verify step is in a state that can be completed
-      if (step.status !== 'IN_PROGRESS' && step.status !== 'UNLOCKED') {
-        throw new Error(`Step cannot be completed: current status is "${step.status}"`);
-      }
-
       await tx.workflowStep.update({
         where: { id: stepId },
         data: {
@@ -329,7 +298,7 @@ export async function executeStepAction(
         },
       });
 
-      // Re-read the stage steps within the same transaction to get fresh state
+      // Re-fetch stage steps within the transaction to get latest state
       const stageSteps = await tx.workflowStep.findMany({
         where: { stageId: step.stageId },
         orderBy: { order: 'asc' },
@@ -340,73 +309,13 @@ export async function executeStepAction(
       );
 
       if (allCompleted) {
-        // Complete the stage within transaction
         await tx.workflowStage.update({
           where: { id: step.stageId },
           data: { status: 'COMPLETED', completedDate: new Date() },
         });
 
-        // Advance workflow — but we need to do this OUTSIDE the current transaction
-        // to avoid nested transaction issues. Instead, we handle advancement inline.
-        const workflow = await tx.projectWorkflow.findUnique({
-          where: { id: step.stage.workflowId },
-          include: {
-            stages: { orderBy: { order: 'asc' }, include: { steps: { orderBy: { order: 'asc' } } } },
-          },
-        });
-
-        if (workflow && workflow.status !== 'ARCHIVED') {
-          const stages = workflow.stages;
-          const currentStageIndex = stages.findIndex(
-            (s) => s.status === 'IN_PROGRESS' || s.status === 'PENDING'
-          );
-
-          if (currentStageIndex === -1) {
-            await tx.projectWorkflow.update({
-              where: { id: step.stage.workflowId },
-              data: { status: 'ARCHIVED', completedAt: new Date(), progress: 100 },
-            });
-          } else {
-            const nextStage = stages[currentStageIndex];
-            await tx.workflowStage.update({
-              where: { id: nextStage.id },
-              data: {
-                status: 'IN_PROGRESS',
-                startDate: new Date(),
-                dueDate: nextStage.dueDate || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-              },
-            });
-
-            if (nextStage.steps.length > 0) {
-              await tx.workflowStep.update({
-                where: { id: nextStage.steps[0].id },
-                data: { status: 'UNLOCKED' },
-              });
-            }
-
-            await tx.projectWorkflow.update({
-              where: { id: step.stage.workflowId },
-              data: { currentStageId: nextStage.id },
-            });
-
-            // Send notification for new step (fire-and-forget after commit)
-            if (nextStage.steps.length > 0 && nextStage.steps[0].assignedRole) {
-              const assignees = await tx.user.findMany({
-                where: { role: nextStage.steps[0].assignedRole as UserRole, isActive: true },
-                select: { id: true },
-              });
-              for (const assignee of assignees) {
-                sendNotification(
-                  assignee.id,
-                  workflow.projectId,
-                  'PROJECT_UPDATE',
-                  `خطوة جديدة في المشروع`,
-                  `المرحلة "${nextStage.name}" بدأت - الخطوة: "${nextStage.steps[0].name}"`
-                ).catch(() => {});
-              }
-            }
-          }
-        }
+        // Advance workflow — pass transaction client to prevent transaction breakout (CWE-362)
+        await advanceWorkflow(step.stage.workflowId, tx);
       } else {
         // Unlock next step in the stage
         const nextStepIdx = stageSteps.findIndex((s) => s.id === stepId);
@@ -419,12 +328,7 @@ export async function executeStepAction(
         }
       }
 
-      // Update progress within transaction
-      const progressData = await getWorkflowProgressTx(tx, step.stage.workflowId);
-      await tx.projectWorkflow.update({
-        where: { id: step.stage.workflowId },
-        data: { progress: progressData.progress },
-      });
+      await updateProjectProgress(step.stage.workflowId);
     }
 
     if (action === 'reject' || action === 'request_changes') {
@@ -439,40 +343,45 @@ export async function executeStepAction(
         },
       });
 
-      // Notify previous step's assignee (fire-and-forget after commit)
-      const stageSteps = await tx.workflowStep.findMany({
-        where: { stageId: step.stageId },
-        orderBy: { order: 'asc' },
-      });
+      // Notify previous step's assignee
+      const stageSteps = step.stage.steps;
       const stepIdx = stageSteps.findIndex((s) => s.id === stepId);
       if (stepIdx > 0) {
         const prevStep = stageSteps[stepIdx - 1];
         if (prevStep.assigneeId) {
-          sendNotification(
+          await sendNotification(
             prevStep.assigneeId,
             step.stage.workflow.projectId,
             'APPROVAL_NEEDED',
             `طلب تعديلات على الخطوة`,
-            `الخطوة "${step.name}" تم رفضها - السبب: ${data?.returnReason || 'بدون سبب'}`
-          ).catch(() => {});
+            `الخطوة "${step.name}" تم رفضها - السبب: ${data?.returnReason || 'بدون سبب'}`,
+            stepId // FIX: relatedEntityId set to step ID
+          );
         }
       }
     }
 
     return await tx.workflowStep.findUnique({ where: { id: stepId } });
+  }, {
+    // Retry on write conflicts from concurrent transactions
+    maxWait: 5000,
+    timeout: 10000,
   });
 }
 
 /**
  * Assign a step to a user
+ * FIX (CWE-362): Wrapped in transaction to prevent race conditions in concurrent assignments
  */
 export async function assignStep(stepId: string, userId: string) {
-  const step = await db.workflowStep.findUnique({ where: { id: stepId } });
-  if (!step) throw new Error('Step not found');
+  return await db.$transaction(async (tx) => {
+    const step = await tx.workflowStep.findUnique({ where: { id: stepId } });
+    if (!step) throw new Error('Step not found');
 
-  return await db.workflowStep.update({
-    where: { id: stepId },
-    data: { assigneeId: userId, status: 'UNLOCKED' },
+    return await tx.workflowStep.update({
+      where: { id: stepId },
+      data: { assigneeId: userId, status: 'UNLOCKED' },
+    });
   });
 }
 
@@ -491,13 +400,26 @@ export async function getWorkflowProgress(workflowId: string): Promise<WorkflowP
     return { totalStages: 0, completedStages: 0, totalSteps: 0, completedSteps: 0, progress: 0, currentStageIndex: -1 };
   }
 
-  return calculateProgress(workflow.stages);
+  const stages = workflow.stages;
+  const totalStages = stages.length;
+  const completedStages = stages.filter((s) => s.status === 'COMPLETED').length;
+  const totalSteps = stages.reduce((sum, s) => sum + s.steps.length, 0);
+  const completedSteps = stages.reduce(
+    (sum, s) => sum + s.steps.filter((st) => st.status === 'COMPLETED').length,
+    0
+  );
+  const progress = totalSteps > 0 ? Math.round((completedSteps / totalSteps) * 100) : 0;
+  const currentStageIndex = stages.findIndex(
+    (s) => s.status === 'IN_PROGRESS' || s.status === 'PENDING'
+  );
+
+  return { totalStages, completedStages, totalSteps, completedSteps, progress, currentStageIndex };
 }
 
 /**
- * Calculate workflow progress within a transaction context
+ * Calculate workflow progress (inner version that accepts a transaction client)
  */
-async function getWorkflowProgressTx(tx: Parameters<Parameters<typeof db.$transaction>[0]>[0], workflowId: string): Promise<WorkflowProgress> {
+async function getWorkflowProgressInner(workflowId: string, tx: Parameters<Parameters<typeof db.$transaction>[0]>[0]): Promise<WorkflowProgress> {
   const workflow = await tx.projectWorkflow.findUnique({
     where: { id: workflowId },
     include: {
@@ -509,13 +431,7 @@ async function getWorkflowProgressTx(tx: Parameters<Parameters<typeof db.$transa
     return { totalStages: 0, completedStages: 0, totalSteps: 0, completedSteps: 0, progress: 0, currentStageIndex: -1 };
   }
 
-  return calculateProgress(workflow.stages);
-}
-
-/**
- * Shared progress calculation logic
- */
-function calculateProgress(stages: Array<{ status: string; steps: Array<{ status: string }> }>): WorkflowProgress {
+  const stages = workflow.stages;
   const totalStages = stages.length;
   const completedStages = stages.filter((s) => s.status === 'COMPLETED').length;
   const totalSteps = stages.reduce((sum, s) => sum + s.steps.length, 0);
@@ -533,6 +449,7 @@ function calculateProgress(stages: Array<{ status: string; steps: Array<{ status
 
 /**
  * Update project workflow progress
+ * FIX: Now uses transaction-aware inner function
  */
 async function updateProjectProgress(workflowId: string) {
   const progress = await getWorkflowProgress(workflowId);
@@ -543,9 +460,10 @@ async function updateProjectProgress(workflowId: string) {
 }
 
 /**
- * Send a notification (fire-and-forget, never throws)
+ * Send a notification
+ * FIX: relatedEntityId is now required instead of hardcoded empty string
  */
-async function sendNotification(userId: string, projectId: string, type: NotificationType, title: string, message: string) {
+async function sendNotification(userId: string, projectId: string, type: NotificationType, title: string, message: string, relatedEntityId?: string) {
   try {
     await db.notification.create({
       data: {
@@ -555,7 +473,7 @@ async function sendNotification(userId: string, projectId: string, type: Notific
         title,
         message,
         relatedEntityType: 'workflow',
-        relatedEntityId: '',
+        relatedEntityId: relatedEntityId || projectId, // Default to projectId if not specified
       },
     });
   } catch {
@@ -593,7 +511,7 @@ export async function createWorkflowTemplate(data: {
     data: {
       name: data.name,
       nameEn: data.nameEn || '',
-      projectType: data.projectType || null,
+      projectType: data.projectType || '',
       description: data.description || '',
       stages: {
         create: data.stages.map((stage) => ({

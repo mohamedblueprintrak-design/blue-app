@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
 
   // SECURITY: Use timing-safe comparison to prevent timing attacks
   const expectedAuth = `Bearer ${cronSecret}`;
-  if (!authHeader || authHeader.length !== expectedAuth.length || !timingSafeEqual(authHeader, expectedAuth)) {
+  if (!authHeader || authHeader.length !== expectedAuth.length || !timingSafeEqual(Buffer.from(authHeader, 'utf8'), Buffer.from(expectedAuth, 'utf8'))) {
     log.security('[Cron/Workers] Unauthorized workers start attempt', {
       ip: request.headers.get('x-forwarded-for')?.split(',')[0]?.trim(),
     });
@@ -94,7 +94,7 @@ export async function GET(request: NextRequest) {
 
   const authHeader = request.headers.get('authorization');
   const expectedAuth = `Bearer ${cronSecret}`;
-  if (!authHeader || authHeader.length !== expectedAuth.length || !timingSafeEqual(authHeader, expectedAuth)) {
+  if (!authHeader || authHeader.length !== expectedAuth.length || !timingSafeEqual(Buffer.from(authHeader, 'utf8'), Buffer.from(expectedAuth, 'utf8'))) {
     // Return 404 instead of revealing the endpoint exists
     return NextResponse.json({ error: 'Not found' }, { status: 404 });
   }
@@ -141,7 +141,7 @@ export async function DELETE(request: NextRequest) {
   }
 
   const expectedAuth = `Bearer ${cronSecret}`;
-  if (!authHeader || authHeader.length !== expectedAuth.length || !timingSafeEqual(authHeader, expectedAuth)) {
+  if (!authHeader || authHeader.length !== expectedAuth.length || !timingSafeEqual(Buffer.from(authHeader, 'utf8'), Buffer.from(expectedAuth, 'utf8'))) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

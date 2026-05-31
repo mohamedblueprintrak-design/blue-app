@@ -17,7 +17,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const id = idResult.id;
     const orgWhere = orgFilterNested(ctx, 'project');
     const inspection = await db.buildingInspection.findFirst({
-      where: { id, ...orgWhere },
+      where: { id, deletedAt: null, ...orgWhere },
       include: {
         client: {
           select: { id: true, name: true, company: true, email: true, phone: true },
@@ -166,7 +166,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
       return NextResponse.json({ error: "Inspection not found" }, { status: 404 });
     }
 
-    await db.buildingInspection.delete({ where: { id } });
+    await db.buildingInspection.update({ where: { id }, data: { deletedAt: new Date() } });
     return NextResponse.json({ success: true });
   } catch (error) {
     log.error("Error deleting inspection:", error);

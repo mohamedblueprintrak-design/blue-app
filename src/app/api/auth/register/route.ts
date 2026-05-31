@@ -183,7 +183,11 @@ async function handleRegister(
     });
     
     if (existingEmail) {
-      return errorResponse('البريد الإلكتروني مسجل مسبقاً', 'EMAIL_EXISTS', 400);
+      // SECURITY: Return a generic message to prevent email enumeration (CWE-204)
+      return NextResponse.json(
+        { success: true, message: 'إذا كان هذا البريد غير مسجل، سيتم إرسال رسالة تحقق' },
+        { status: 200 }
+      );
     }
 
     // SECURITY: Validate password strength before hashing

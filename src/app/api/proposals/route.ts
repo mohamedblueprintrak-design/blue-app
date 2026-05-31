@@ -4,6 +4,7 @@ import { validateRequest, proposalSchema } from '@/lib/api-validation';
 import { requireVerifiedPermission, orgFilter, orgCreate } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
+import { VAT_RATE } from '@/lib/constants';
 
 export async function GET(request: NextRequest) {
   try {
@@ -15,7 +16,7 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get("status");
     const projectId = searchParams.get("projectId");
 
-    const where: Record<string, unknown> = { ...orgFilter(ctx) };
+    const where: Record<string, unknown> = { deletedAt: null, ...orgFilter(ctx) };
     if (status) where.status = status;
     if (projectId) where.projectId = projectId;
 
@@ -53,7 +54,7 @@ export async function POST(request: NextRequest) {
 
     const lineItems = items || [];
     const subtotal = lineItems.reduce((sum: number, item: { quantity: number; unitPrice: number }) => sum + (item.quantity * item.unitPrice), 0);
-    const tax = subtotal * 0.05;
+    const tax = subtotal * VAT_RATE;
     const total = subtotal + tax;
 
     const proposal = await db.proposal.create({

@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { validateBody, employeeCreateSchema } from '@/lib/api-validation';
 import { requireVerifiedPermission, orgFilter, orgCreate } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
-import { canAccessHR } from '@/lib/auth/modules/authorization';
 import { log } from '@/lib/logger';
 import { sanitizeObject } from '@/lib/security/sanitize';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
@@ -26,15 +25,12 @@ export async function GET(request: NextRequest) {
     const { page, limit } = parsePaginationParams(searchParams);
 
     const where: Record<string, unknown> = {
+      deletedAt: null,
       user: { ...orgFilter(ctx) },
     };
     if (department && department !== "all") {
       where.department = department;
     }
-
-    // SECURITY: Only expose salary to privileged roles (ADMIN, HR, ACCOUNTANT)
-    // Other roles with EMPLOYEE_READ should see employee info but NOT salary
-    const userCanSeeSalary = canAccessHR(ctx.role) || ctx.role.toUpperCase() === 'ACCOUNTANT';
 
     const [employees, total] = await Promise.all([
       db.employee.findMany({
@@ -59,10 +55,11 @@ export async function GET(request: NextRequest) {
       db.employee.count({ where }),
     ]);
 
-    // Strip salary from response for non-privileged roles
-    const sanitizedEmployees = userCanSeeSalary
+    // Remove salary from response for non-HR/Admin users
+    const canSeeSalary = ctx.role === 'ADMIN' || ctx.role === 'HR';
+    const sanitizedEmployees = canSeeSalary
       ? employees
-      : employees.map(({ salary: _s, ...rest }) => rest);
+      : employees.map(({ salary: _salary, ...rest }) => rest);
 
     return NextResponse.json({ employees: sanitizedEmployees, pagination: buildPaginationMeta(page, limit, total) });
   } catch (error) {

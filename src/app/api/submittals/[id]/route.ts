@@ -17,7 +17,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const id = idResult.id;
     const orgWhere = orgFilterNested(ctx, 'project');
     const submittal = await db.submittal.findFirst({
-      where: { id, ...orgWhere },
+      where: { id, deletedAt: null, ...orgWhere },
       include: {
         project: {
           select: { id: true, name: true, nameEn: true, number: true },
@@ -104,7 +104,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
       return NextResponse.json({ error: "Submittal not found" }, { status: 404 });
     }
 
-    await db.submittal.delete({ where: { id } });
+    await db.submittal.update({ where: { id }, data: { deletedAt: new Date() } });
     return NextResponse.json({ success: true });
   } catch (error) {
     log.error("Error deleting submittal:", error);

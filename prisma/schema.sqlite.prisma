@@ -178,6 +178,7 @@ model User {
   // Account lockout
   failedLoginAttempts Int       @default(0)
   lockedUntil         DateTime?
+  preferences         String?   @default("{}")
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 
@@ -201,6 +202,7 @@ model User {
   employee               Employee?
   approvedPayments       Payment[]             @relation("PaymentApprover")
   approvedLeaves         Leave[]               @relation("LeaveApprover")
+  approvedTimesheets     Timesheet[]           @relation("TimesheetApprover")
   uploadedDocuments      Document[]            @relation("DocumentUploader")
   projectComments        ProjectComment[]
   comments               TaskComment[]
@@ -347,6 +349,11 @@ model Project {
   supervisionChecklists      SupervisionChecklist[]
   violations                 Violation[]
   workflow                   ProjectWorkflow?
+  retainages                 Retainage[]
+  guaranteeLetters           GuaranteeLetter[]
+  progressClaims             ProgressClaim[]
+  timesheets                 Timesheet[]
+  timesheetEntries           TimesheetEntry[]
 
   @@index([clientId])
   @@index([status])
@@ -382,6 +389,8 @@ model MunicipalityCorrespondence {
   @@index([projectId])
   @@index([status])
   @@index([organizationId])
+  deletedAt      DateTime? // Soft delete
+  @@index([deletedAt])
 }
 
 model ProjectComment {
@@ -399,6 +408,8 @@ model ProjectComment {
   @@index([userId])
   @@index([projectId])
   @@index([organizationId])
+  deletedAt      DateTime? // Soft delete
+  @@index([deletedAt])
 }
 
 model ProjectAssignment {
@@ -416,6 +427,8 @@ model ProjectAssignment {
 
   @@unique([projectId, userId])
   @@index([organizationId])
+  deletedAt      DateTime? // Soft delete
+  @@index([deletedAt])
 }
 
 // ==================== PROJECT STAGES ====================
@@ -628,6 +641,7 @@ model TaskComment {
   userId         String
   organizationId String?
   organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  deletedAt      DateTime? // Soft delete
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
@@ -636,6 +650,7 @@ model TaskComment {
 
   @@index([taskId])
   @@index([organizationId])
+  @@index([deletedAt])
 }
 
 // ==================== CONTRACTS ====================
@@ -825,6 +840,8 @@ model Proposal {
   @@index([projectId])
   @@index([clientId])
   @@index([status])
+  deletedAt      DateTime? // Soft delete
+  @@index([deletedAt])
 }
 
 model ProposalItem {
@@ -884,6 +901,8 @@ model Contractor {
   @@unique([crNumber, organizationId], name: "contractor_cr_org_unique")
   @@index([crNumber]) // Index for CR number lookups
   @@index([organizationId])
+  deletedAt      DateTime? // Soft delete
+  @@index([deletedAt])
 }
 
 // ==================== CONTRACTOR EVALUATION ====================
@@ -951,6 +970,8 @@ model Bid {
   @@index([contractorId])
   @@index([organizationId])
   @@index([status])
+  deletedAt      DateTime? // Soft delete
+  @@index([deletedAt])
 }
 
 // ==================== BUDGETS ====================
@@ -982,6 +1003,8 @@ model Budget {
   @@index([organizationId])
   @@index([projectId])
   @@index([parentId])
+  deletedAt      DateTime? // Soft delete
+  @@index([deletedAt])
 }
 
 // ==================== SITE MANAGEMENT ====================
@@ -1000,6 +1023,7 @@ model SiteVisit {
   notes           String   @default("")
   organizationId  String?
   createdById     String?
+  deletedAt       DateTime? // Soft delete
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -1009,6 +1033,7 @@ model SiteVisit {
   @@index([organizationId])
   @@index([projectId])
   @@index([status])
+  @@index([deletedAt])
 }
 
 model Defect {
@@ -1051,6 +1076,7 @@ model SiteDiary {
   materials       String   @default("")
   photos          String   @default("")
   organizationId  String? // SaaS multi-tenant organization
+  deletedAt       DateTime? // Soft delete
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -1060,6 +1086,7 @@ model SiteDiary {
   @@index([projectId])
   @@index([date])
   @@index([organizationId])
+  @@index([deletedAt])
 }
 
 // ==================== RFI ====================
@@ -1091,6 +1118,8 @@ model RFI {
   @@index([status])
   @@index([dueDate])
   @@index([organizationId])
+  deletedAt      DateTime? // Soft delete
+  @@index([deletedAt])
 }
 
 // ==================== SUBMITTALS ====================
@@ -1105,6 +1134,7 @@ model Submittal {
   revisionNumber Int      @default(1)
   status         String   @default("under_review") // under_review, approved, rejected, resubmit
   organizationId String? // SaaS multi-tenant organization
+  deletedAt      DateTime? // Soft delete
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
@@ -1114,6 +1144,7 @@ model Submittal {
   @@index([projectId])
   @@index([status])
   @@index([organizationId])
+  @@index([deletedAt])
 }
 
 // ==================== CHANGE ORDERS ====================
@@ -1137,6 +1168,8 @@ model ChangeOrder {
   @@index([projectId])
   @@index([status])
   @@index([organizationId])
+  deletedAt      DateTime? // Soft delete
+  @@index([deletedAt])
 }
 
 // ==================== TRANSMITTALS ====================
@@ -1154,6 +1187,7 @@ model Transmittal {
   deliveryMethod String   @default("email") // email, manual, courier
   status         String   @default("sent")
   organizationId String? // SaaS multi-tenant organization
+  deletedAt      DateTime? // Soft delete
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
@@ -1166,6 +1200,7 @@ model Transmittal {
   @@index([fromId])
   @@index([status])
   @@index([organizationId])
+  @@index([deletedAt])
 }
 
 model TransmittalItem {
@@ -1214,6 +1249,8 @@ model Risk {
   @@index([organizationId])
   @@index([projectId])
   @@index([status])
+  deletedAt      DateTime? // Soft delete
+  @@index([deletedAt])
 }
 
 model RiskAction {
@@ -1223,6 +1260,7 @@ model RiskAction {
   assigneeId  String?
   dueDate     DateTime?
   completed   Boolean   @default(false)
+  deletedAt   DateTime? // Soft delete
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
@@ -1231,6 +1269,7 @@ model RiskAction {
 
   @@index([riskId])
   @@index([assigneeId])
+  @@index([deletedAt])
   @@index([dueDate])
 }
 
@@ -1259,6 +1298,8 @@ model Meeting {
   @@index([organizationId])
   @@index([projectId])
   @@index([date])
+  deletedAt      DateTime? // Soft delete
+  @@index([deletedAt])
 }
 
 model MeetingAttendee {
@@ -1312,6 +1353,8 @@ model BOQItem {
   @@index([projectId])
   @@index([category])
   @@index([organizationId])
+  deletedAt      DateTime? // Soft delete
+  @@index([deletedAt])
 }
 
 // ==================== SCHEDULE ====================
@@ -1337,6 +1380,8 @@ model SchedulePhase {
   @@index([projectId, section])
   @@index([organizationId])
   @@index([status])
+  deletedAt      DateTime? // Soft delete
+  @@index([deletedAt])
 }
 
 // ==================== HR ====================
@@ -1356,10 +1401,13 @@ model Employee {
   user         User          @relation(fields: [userId], references: [id])
   organization Organization? @relation(fields: [organizationId], references: [id])
   attendance   Attendance[]
+  timesheets   Timesheet[]
 
   @@index([department])
   @@index([employmentStatus])
   @@index([organizationId])
+  deletedAt      DateTime? // Soft delete
+  @@index([deletedAt])
 }
 
 model Attendance {
@@ -1381,6 +1429,8 @@ model Attendance {
   @@index([employeeId, date])
   @@index([status])
   @@index([organizationId])
+  deletedAt      DateTime? // Soft delete
+  @@index([deletedAt])
 }
 
 model Leave {
@@ -1405,6 +1455,8 @@ model Leave {
   @@index([status])
   @@index([approvedById])
   @@index([organizationId])
+  deletedAt      DateTime? // Soft delete
+  @@index([deletedAt])
 }
 
 // ==================== PROCUREMENT ====================
@@ -1449,6 +1501,8 @@ model InventoryItem {
 
   @@index([projectId])
   @@index([organizationId])
+  deletedAt      DateTime? // Soft delete
+  @@index([deletedAt])
 }
 
 model PurchaseOrder {
@@ -1472,6 +1526,8 @@ model PurchaseOrder {
   @@index([organizationId])
   @@index([projectId])
   @@index([status])
+  deletedAt      DateTime? // Soft delete
+  @@index([deletedAt])
 }
 
 model PurchaseOrderItem {
@@ -1507,6 +1563,8 @@ model Equipment {
 
   @@index([status])
   @@index([organizationId])
+  deletedAt      DateTime? // Soft delete
+  @@index([deletedAt])
 }
 
 // ==================== DOCUMENTS ====================
@@ -1562,6 +1620,8 @@ model KnowledgeArticle {
   @@index([projectId])
   @@index([category])
   @@index([organizationId])
+  deletedAt      DateTime? // Soft delete
+  @@index([deletedAt])
 }
 
 // ==================== NOTIFICATIONS ====================
@@ -1683,6 +1743,8 @@ model BuildingInspection {
   @@index([projectId])
   @@index([status])
   @@index([clientId])
+  deletedAt      DateTime? // Soft delete
+  @@index([deletedAt])
 }
 
 model InspectionFinding {
@@ -1773,6 +1835,8 @@ model DesignPhase {
   @@index([dueDate])
   @@index([designerId])
   @@index([organizationId])
+  deletedAt      DateTime? // Soft delete
+  @@index([deletedAt])
 }
 
 model DesignDrawing {
@@ -1801,6 +1865,8 @@ model DesignDrawing {
   @@index([status])
   @@index([discipline])
   @@index([uploadedById])
+  deletedAt      DateTime? // Soft delete
+  @@index([deletedAt])
 }
 
 model DesignRevision {
@@ -1844,6 +1910,7 @@ model Tender {
   assignedTo         String?
   organizationId     String?
   createdById        String?
+  deletedAt          DateTime? // Soft delete
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
 
@@ -1854,6 +1921,7 @@ model Tender {
   @@index([organizationId])
   @@index([status])
   @@index([assignedTo])
+  @@index([deletedAt])
 }
 
 model TenderDocument {
@@ -1888,6 +1956,7 @@ model SupervisionChecklist {
   status          String   @default("draft")
   approvedById    String?
   organizationId  String? // SaaS multi-tenant organization
+  deletedAt       DateTime? // Soft delete
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -1900,6 +1969,7 @@ model SupervisionChecklist {
   @@index([status])
   @@index([approvedById])
   @@index([organizationId])
+  @@index([deletedAt])
 }
 
 model ChecklistItem {
@@ -1934,6 +2004,7 @@ model Violation {
   photoAfter      String    @default("")
   resolutionNotes String    @default("")
   organizationId  String? // SaaS multi-tenant organization
+  deletedAt       DateTime? // Soft delete
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
@@ -1945,6 +2016,7 @@ model Violation {
   @@index([status])
   @@index([checklistId])
   @@index([organizationId])
+  @@index([deletedAt])
 }
 
 // ==================== COMMISSIONS & REFERRALS ====================
@@ -1978,6 +2050,8 @@ model Commission {
   @@index([status])
   @@index([approvedById])
   @@index([organizationId])
+  deletedAt      DateTime? // Soft delete
+  @@index([deletedAt])
 }
 
 model Referral {
@@ -2003,6 +2077,8 @@ model Referral {
   @@index([projectId])
   @@index([status])
   @@index([organizationId])
+  deletedAt      DateTime? // Soft delete
+  @@index([deletedAt])
 }
 
 model MarketingCampaign {
@@ -2025,6 +2101,8 @@ model MarketingCampaign {
 
   @@index([status])
   @@index([organizationId])
+  deletedAt      DateTime? // Soft delete
+  @@index([deletedAt])
 }
 
 // ==================== WORKFLOW MANAGEMENT ====================
@@ -2037,6 +2115,7 @@ model WorkflowTemplate {
   description    String   @default("")
   isActive       Boolean  @default(true)
   organizationId String? // SaaS multi-tenant organization
+  deletedAt      DateTime? // Soft delete
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
@@ -2045,6 +2124,7 @@ model WorkflowTemplate {
   projects     ProjectWorkflow[]
 
   @@index([organizationId])
+  @@index([deletedAt])
 }
 
 model WorkflowTemplateStage {
@@ -2183,6 +2263,7 @@ model Organization {
   locale      String    @default("ar")
   isActive    Boolean   @default(true)
   planId      String? // Current plan ID
+  stripeCustomerId String?
   deletedAt   DateTime? // Soft delete
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
@@ -2251,6 +2332,10 @@ model Organization {
   aiChatConversations        AIChatConversation[]
   aiChatMessages             AIChatMessage[]
   projectWorkflows           ProjectWorkflow[]
+  retainages                 Retainage[]
+  guaranteeLetters           GuaranteeLetter[]
+  progressClaims             ProgressClaim[]
+  timesheets                 Timesheet[]
 
   @@index([deletedAt])
 }
@@ -2522,4 +2607,151 @@ model Automation {
 
   @@index([status])
   @@index([organizationId])
+  deletedAt      DateTime? // Soft delete
+  @@index([deletedAt])
 }
+
+// ==================== RETAINAGE MANAGEMENT ====================
+
+/// Retainage tracking for UAE construction projects (5-10% held until completion)
+model Retainage {
+  id             String    @id @default(cuid())
+  organizationId String? // SaaS multi-tenant organization
+  projectId      String
+  invoiceId      String? // Link to invoice that generated this retainage
+  percentage     Decimal   @default(0) // Retainage percentage (e.g. 5, 10)
+  retainedAmount Decimal   @default(0) // Amount retained
+  releaseDate    DateTime? // Expected or actual release date
+  status         String    @default("HELD") // HELD, PARTIALLY_RELEASED, RELEASED
+  releasedAmount Decimal   @default(0) // Amount released so far
+  releasedDate   DateTime? // Date of last release
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  project      Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  organization Organization? @relation(fields: [organizationId], references: [id])
+
+  @@index([projectId])
+  @@index([status])
+  @@index([organizationId])
+}
+
+// ==================== GUARANTEE LETTERS ====================
+
+/// Bank guarantees for UAE construction (Performance, Advance Payment, Retention, Bid Bond)
+model GuaranteeLetter {
+  id              String    @id @default(cuid())
+  organizationId  String? // SaaS multi-tenant organization
+  projectId       String
+  type            String    @default("PERFORMANCE") // PERFORMANCE, ADVANCE_PAYMENT, RETENTION, BID_BOND
+  guaranteeNumber String    @default("") // Bank guarantee reference number
+  bankName        String    @default("")
+  amount          Decimal   @default(0)
+  currency        String    @default("AED")
+  issueDate       DateTime?
+  expiryDate      DateTime?
+  status          String    @default("ACTIVE") // ACTIVE, EXPIRED, RELEASED, CLAIMED
+  beneficiaryName String    @default("")
+  documentUrl     String    @default("") // Link to uploaded guarantee document
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  project      Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  organization Organization? @relation(fields: [organizationId], references: [id])
+
+  @@index([projectId])
+  @@index([type])
+  @@index([status])
+  @@index([organizationId])
+  @@index([expiryDate])
+  deletedAt      DateTime? // Soft delete
+  @@index([deletedAt])
+}
+
+// ==================== PROGRESS CLAIMS ====================
+
+/// Monthly progress claims for UAE construction (Interim Payment Applications)
+model ProgressClaim {
+  id                String    @id @default(cuid())
+  organizationId    String? // SaaS multi-tenant organization
+  projectId         String
+  claimNumber       String    @default("") // e.g. "IPC-001"
+  period            String    @default("") // e.g. "March 2025"
+  claimDate         DateTime?
+  totalClaimAmount  Decimal   @default(0)
+  approvedAmount    Decimal   @default(0)
+  previousCertified Decimal   @default(0) // Cumulative previously certified
+  currentCertified  Decimal   @default(0) // Current certification amount
+  retentionAmount   Decimal   @default(0) // Retention deducted
+  netPayment        Decimal   @default(0) // currentCertified - retentionAmount
+  status            String    @default("DRAFT") // DRAFT, SUBMITTED, UNDER_REVIEW, APPROVED, REJECTED
+  certifiedDate     DateTime?
+  certifiedById     String? // User who certified
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  project      Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  organization Organization? @relation(fields: [organizationId], references: [id])
+
+  @@index([projectId])
+  @@index([status])
+  @@index([organizationId])
+  @@index([claimNumber])
+  deletedAt      DateTime? // Soft delete
+  @@index([deletedAt])
+}
+
+// ==================== TIMESHEETS ====================
+
+model Timesheet {
+  id             String           @id @default(cuid())
+  employeeId     String
+  projectId      String?
+  weekStart      DateTime
+  weekEnd        DateTime
+  status         String           @default("DRAFT")
+  totalHours     Float            @default(0)
+  notes          String           @default("")
+  rejectedReason String?
+  approvedById   String?
+  approvedAt     DateTime?
+  submittedAt    DateTime?
+  organizationId String?
+  deletedAt      DateTime? // Soft delete
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  employee       Employee         @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  project        Project?         @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  approvedBy     User?            @relation("TimesheetApprover", fields: [approvedById], references: [id], onDelete: SetNull)
+  organization   Organization?    @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  entries        TimesheetEntry[]
+
+  @@unique([employeeId, weekStart])
+  @@index([employeeId])
+  @@index([projectId])
+  @@index([approvedById])
+  @@index([organizationId])
+  @@index([weekStart])
+  @@index([status])
+  @@index([deletedAt])
+}
+
+model TimesheetEntry {
+  id          String    @id @default(cuid())
+  timesheetId String
+  date        DateTime
+  hours       Float     @default(0)
+  taskType    String    @default("STANDARD")
+  description String    @default("")
+  projectId   String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  timesheet   Timesheet @relation(fields: [timesheetId], references: [id], onDelete: Cascade)
+  project     Project?  @relation(fields: [projectId], references: [id], onDelete: SetNull)
+
+  @@index([timesheetId])
+  @@index([projectId])
+}
+

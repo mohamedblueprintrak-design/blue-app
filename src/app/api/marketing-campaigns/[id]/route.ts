@@ -24,7 +24,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     const { name, type, budget, spent, leads, conversions, startDate, endDate, status, notes } = body;
 
     // SECURITY: Verify the campaign belongs to the user's organization
-    const existing = await db.marketingCampaign.findFirst({ where: { id, ...orgFilter(ctx) } });
+    const existing = await db.marketingCampaign.findFirst({ where: { id, deletedAt: null, ...orgFilter(ctx) } });
     if (!existing) {
       return NextResponse.json({ error: "Campaign not found" }, { status: 404 });
     }
@@ -64,12 +64,12 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     const id = idResult.id;
 
     // SECURITY: Verify the campaign belongs to the user's organization
-    const existing = await db.marketingCampaign.findFirst({ where: { id, ...orgFilter(ctx) } });
+    const existing = await db.marketingCampaign.findFirst({ where: { id, deletedAt: null, ...orgFilter(ctx) } });
     if (!existing) {
       return NextResponse.json({ error: "Campaign not found" }, { status: 404 });
     }
 
-    await db.marketingCampaign.delete({ where: { id } });
+    await db.marketingCampaign.update({ where: { id }, data: { deletedAt: new Date() } });
     return NextResponse.json({ success: true });
   } catch (error) {
     log.error("Error deleting marketing campaign:", error);

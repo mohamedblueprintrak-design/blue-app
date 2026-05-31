@@ -1,5 +1,4 @@
 import { db } from "@/lib/db";
-import { TransmittalStatus } from '@prisma/client';
 import { NextRequest, NextResponse } from "next/server";
 import { requireVerifiedPermission, orgFilter} from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
@@ -44,7 +43,7 @@ export async function GET(request: NextRequest) {
 
     // Transmittal doesn't have organizationId directly; filter through project relationship
     const orgWhere = ctx.organizationId ? { project: { organizationId: ctx.organizationId } } : {};
-    const where: Record<string, unknown> = { ...orgWhere };
+    const where: Record<string, unknown> = { deletedAt: null, ...orgWhere };
     if (projectId) where.projectId = projectId;
     if (status) where.status = status;
 
@@ -125,7 +124,7 @@ export async function POST(request: NextRequest) {
         toCompany: toCompany || "",
         toPhone: toPhone || "",
         deliveryMethod: (deliveryMethod || "EMAIL") as any, // eslint-disable-line @typescript-eslint/no-explicit-any
-        status: (status || "SENT") as TransmittalStatus,
+        status: status || "SENT",
         items: {
           create: itemsData,
         },

@@ -9,7 +9,7 @@ import { requireVerifiedPermission, orgFilter, orgCreate } from '@/app/api/utils
 import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
 import { z } from 'zod';
-import { Municipality as MunicipalityEnum } from '@prisma/client';
+import type { Municipality as MunicipalityEnum } from '@/types/db-enums';
 
 const VALID_TYPES = ["SUBMISSION", "RESPONSE", "REJECTION", "APPROVAL", "INQUIRY", "AMENDMENT"];
 const VALID_STATUSES = ["PENDING", "UNDER_REVIEW", "APPROVED", "REJECTED", "AMENDMENT_REQUIRED"];
@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
     const municipality = searchParams.get("municipality");
 
     // MunicipalityCorrespondence has direct organizationId
-    const where: Record<string, unknown> = { ...orgFilter(ctx) };
+    const where: Record<string, unknown> = { deletedAt: null, ...orgFilter(ctx) };
     if (projectId) where.projectId = projectId;
     if (status && VALID_STATUSES.includes(status)) where.status = status;
     if (type && VALID_TYPES.includes(type)) where.correspondenceType = type;
@@ -128,7 +128,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Verify org ownership before update
-    const existing = await db.municipalityCorrespondence.findFirst({ where: { id, ...orgFilter(ctx) } });
+    const existing = await db.municipalityCorrespondence.findFirst({ where: { id, deletedAt: null, ...orgFilter(ctx) } });
     if (!existing) {
       return NextResponse.json(
         { success: false, error: { message: "Record not found" } },
@@ -191,7 +191,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Verify org ownership before delete
-    const existing = await db.municipalityCorrespondence.findFirst({ where: { id, ...orgFilter(ctx) } });
+    const existing = await db.municipalityCorrespondence.findFirst({ where: { id, deletedAt: null, ...orgFilter(ctx) } });
     if (!existing) {
       return NextResponse.json(
         { success: false, error: { message: "Record not found" } },
@@ -199,7 +199,7 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    await db.municipalityCorrespondence.delete({ where: { id } });
+    await db.municipalityCorrespondence.update({ where: { id }, data: { deletedAt: new Date() } });
 
     return NextResponse.json({ success: true, message: "Deleted successfully" });
   } catch (error) {

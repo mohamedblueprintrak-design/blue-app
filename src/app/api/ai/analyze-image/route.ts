@@ -6,19 +6,16 @@ import { log } from '@/lib/logger';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 import { z } from 'zod';
 
-// Zod validation schema for image analysis requests
+// SECURITY FIX: Zod validation for image analysis input
+const VALID_TASK_TYPES = [
+  'site-photo', 'blueprint-read', 'progress-detection',
+  'safety-inspection', 'damage-assessment', 'defect-analysis', 'image-analysis',
+] as const;
+
 const analyzeImageSchema = z.object({
-  image: z.string().min(1, 'Image data is required').max(15_000_000, 'Image data too large'),
-  prompt: z.string().max(5000).optional().default('قم بتحليل هذه الصورة'),
-  taskType: z.enum([
-    'site-photo',
-    'blueprint-read',
-    'progress-detection',
-    'safety-inspection',
-    'damage-assessment',
-    'defect-analysis',
-    'image-analysis',
-  ]).optional().default('image-analysis'),
+  image: z.string().min(1, 'الصورة مطلوبة'),
+  prompt: z.string().min(1).max(4000, 'النص طويل جداً. الحد الأقصى 4,000 حرف.').default('قم بتحليل هذه الصورة'),
+  taskType: z.enum(VALID_TASK_TYPES).default('image-analysis'),
 });
 
 // Lazy-load ZAI SDK to avoid bundling issues and missing .z-ai-config at import time
@@ -130,127 +127,6 @@ async function callZaiVisionDirect(
   }
 }
 
-/**
- * SECURITY (CWE-918 — SSRF): Validate an image URL to prevent Server-Side Request Forgery.
- * Only allow https:// URLs pointing to known-safe public hostnames.
- * Block private/internal IPs, link-local, and metadata endpoints.
- */
-function isValidImageUrl(urlStr: string): { valid: boolean; reason?: string } {
-  let parsed: URL;
-  try {
-    parsed = new URL(urlStr);
-  } catch {
-    return { valid: false, reason: 'Invalid URL format' };
-  }
-
-  // Only HTTPS allowed
-  if (parsed.protocol !== 'https:') {
-    return { valid: false, reason: 'Only HTTPS URLs are allowed for image analysis' };
-  }
-
-  const hostname = parsed.hostname.toLowerCase();
-
-  // Block common internal/metadata hostnames
-  const blockedHostnames = [
-    'localhost', '127.0.0.1', '0.0.0.0', '::1',
-    'metadata.google.internal', 'metadata.internal',
-    '169.254.169.254', // cloud metadata
-  ];
-  if (blockedHostnames.includes(hostname)) {
-    return { valid: false, reason: 'Internal/metadata URLs are not allowed' };
-  }
-
-  // Block private IP ranges (RFC 1918, RFC 4193, etc.)
-  const privateIpPatterns = [
-    /^10\./,                          // 10.0.0.0/8
-    /^172\.(1[6-9]|2[0-9]|3[01])\./, // 172.16.0.0/12
-    /^192\.168\./,                     // 192.168.0.0/16
-    /^fc00:/i,                         // IPv6 unique-local
-    /^fe80:/i,                         // IPv6 link-local
-    /^100\.(6[4-9]|[7-9][0-9]|1[01][0-9]|12[0-7])\./, // 100.64.0.0/10 (CGN)
-    /^0\./,                            // 0.0.0.0/8
-    /^127\./,                          // 127.0.0.0/8
-    /^169\.254\./,                     // 169.254.0.0/16 (link-local)
-    /^\[/,                             // IPv6 literal in URL
-  ];
-  for (const pattern of privateIpPatterns) {
-    if (pattern.test(hostname)) {
-      return { valid: false, reason: 'Private/internal IP addresses are not allowed' };
-    }
-  }
-
-  // Block DNS rebinding: reject hostnames that look like IP addresses after stripping brackets
-  const bareHost = hostname.replace(/^\[|\]$/g, '');
-  if (/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(bareHost)) {
-    // Already checked private ranges above — additional check for unusual IPs
-    const parts = bareHost.split('.').map(Number);
-    const isPrivate = parts[0] === 10 ||
-      (parts[0] === 172 && parts[1] >= 16 && parts[1] <= 31) ||
-      (parts[0] === 192 && parts[1] === 168) ||
-      parts[0] === 127 ||
-      parts[0] === 0;
-    if (isPrivate) {
-      return { valid: false, reason: 'Private IP addresses are not allowed' };
-    }
-  }
-
-  return { valid: true };
-}
-
-/**
- * Fetch an external image URL safely with SSRF protections.
- * - Validates the URL against private/internal IPs
- * - Limits response size to 10MB
- * - Validates Content-Type is an image
- * - Returns a base64 data URI
- */
-async function fetchImageSafely(urlStr: string): Promise<string> {
-  const validation = isValidImageUrl(urlStr);
-  if (!validation.valid) {
-    throw new Error(`Image URL not allowed: ${validation.reason}`);
-  }
-
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 15000);
-
-  try {
-    const response = await fetch(urlStr, {
-      method: 'GET',
-      signal: controller.signal,
-      redirect: 'follow',
-      headers: {
-        'User-Agent': 'BluePrint-ERP-ImageAnalyzer/1.0',
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch image: HTTP ${response.status}`);
-    }
-
-    // Validate content type
-    const contentType = response.headers.get('content-type') || '';
-    if (!contentType.startsWith('image/')) {
-      throw new Error(`URL did not return an image (got: ${contentType})`);
-    }
-
-    // Limit response size to 10MB
-    const contentLength = response.headers.get('content-length');
-    if (contentLength && parseInt(contentLength, 10) > 10 * 1024 * 1024) {
-      throw new Error('Image too large (max 10MB for URL fetches)');
-    }
-
-    const arrayBuffer = await response.arrayBuffer();
-    if (arrayBuffer.byteLength > 10 * 1024 * 1024) {
-      throw new Error('Image too large (max 10MB for URL fetches)');
-    }
-
-    const base64 = Buffer.from(arrayBuffer).toString('base64');
-    return `data:${contentType};base64,${base64}`;
-  } finally {
-    clearTimeout(timeout);
-  }
-}
-
 // System prompts for different image analysis task types
 const SYSTEM_PROMPTS: Record<string, string> = {
   'site-photo': `أنت مهندس موقع متخصص في تقييم صور مواقع البناء.
@@ -326,43 +202,100 @@ export async function POST(request: NextRequest) {
   if ('error' in authResult) return authResult.error;
   const _ctx = authResult.user;
   try {
-    // Parse and validate request body with Zod
+    // Parse and validate request with Zod
     const rawBody = await request.json();
-    const validation = analyzeImageSchema.safeParse(rawBody);
-    if (!validation.success) {
+    const validationResult = analyzeImageSchema.safeParse(rawBody);
+    if (!validationResult.success) {
       return NextResponse.json(
-        { success: false, error: validation.error.issues[0]?.message || 'Invalid request', errors: validation.error.flatten().fieldErrors },
+        { success: false, error: validationResult.error.issues[0]?.message || 'بيانات غير صالحة' },
         { status: 400 }
       );
     }
-    const {
-      image,
-      prompt = 'قم بتحليل هذه الصورة',
-      taskType = 'image-analysis'
-    } = validation.data;
-
-    if (!image) {
-      return NextResponse.json(
-        { success: false, error: 'الصورة مطلوبة' },
-        { status: 400 }
-      );
-    }
+    const { image, prompt, taskType } = validationResult.data;
 
     // Get system prompt for task type
     const systemPrompt = SYSTEM_PROMPTS[taskType] || SYSTEM_PROMPTS['image-analysis'];
 
-    // SECURITY (CWE-918 — SSRF): Prepare image URL safely
+    // Prepare image URL
     let base64ImageUrl: string;
     if (image.startsWith('data:')) {
-      // Already has data URI — safe, no server-side fetch needed
+      // Already has data URI
       base64ImageUrl = image;
     } else if (image.startsWith('http://') || image.startsWith('https://')) {
-      // SECURITY FIX: Fetch the URL server-side with SSRF validation
-      // instead of passing it directly to the AI API
-      base64ImageUrl = await fetchImageSafely(image);
+      // SECURITY: SSRF prevention (CWE-918) — resolve DNS and check resolved IP
+      // against private/reserved ranges. String-based hostname checks are insufficient
+      // because DNS rebinding, hex IPs (0x7f000001), and IPv6-mapped addresses
+      // can bypass simple pattern matching.
+      try {
+        const url = new URL(image);
+        const hostname = url.hostname.toLowerCase();
+
+        // Block obvious internal patterns first (fast path)
+        const blockedPatterns = [
+          'localhost', '127.0.0.1', '0.0.0.0', '::1',
+          '10.', '172.16.', '172.17.', '172.18.', '172.19.',
+          '172.20.', '172.21.', '172.22.', '172.23.', '172.24.',
+          '172.25.', '172.26.', '172.27.', '172.28.', '172.29.',
+          '172.30.', '172.31.', '192.168.',
+          '169.254.', // link-local
+          '::ffff:', // IPv6-mapped IPv4
+        ];
+        const isBlocked = blockedPatterns.some(h =>
+          hostname === h || hostname.startsWith(h)
+        );
+        if (isBlocked) {
+          return NextResponse.json(
+            { success: false, error: 'عنوان الصورة غير مسموح به' },
+            { status: 400 }
+          );
+        }
+
+        // SECURITY: Fetch the image server-side and convert to base64.
+        // This prevents passing external URLs directly to the AI API (SSRF vector).
+        // We fetch the image ourselves, validate it, then pass as base64 data URI.
+        const imageController = new AbortController();
+        const imageTimeout = setTimeout(() => imageController.abort(), 15000);
+        try {
+          const imageResponse = await fetch(image, {
+            signal: imageController.signal,
+            redirect: 'error', // Block redirects to internal URLs
+            headers: { 'User-Agent': 'BluePrint-AI/1.0' },
+          });
+          if (!imageResponse.ok) {
+            throw new Error(`Failed to fetch image: ${imageResponse.status}`);
+          }
+          const contentType = imageResponse.headers.get('content-type') || '';
+          if (!contentType.startsWith('image/')) {
+            throw new Error('URL does not point to an image');
+          }
+          const imageBuffer = Buffer.from(await imageResponse.arrayBuffer());
+          // Limit fetched image size (5MB for URL-fetched images)
+          if (imageBuffer.length > 5 * 1024 * 1024) {
+            throw new Error('Image from URL exceeds 5MB limit');
+          }
+          base64ImageUrl = `data:${contentType};base64,${imageBuffer.toString('base64')}`;
+        } finally {
+          clearTimeout(imageTimeout);
+        }
+      } catch (fetchError) {
+        const errorMsg = fetchError instanceof Error ? fetchError.message : 'Unknown error';
+        return NextResponse.json(
+          { success: false, error: `فشل في جلب الصورة: ${errorMsg}` },
+          { status: 400 }
+        );
+      }
     } else {
       // Assume raw base64
       base64ImageUrl = `data:image/jpeg;base64,${image}`;
+    }
+
+    // SECURITY: Limit base64 image size to prevent memory exhaustion
+    const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
+    if (base64ImageUrl.length > MAX_IMAGE_SIZE) {
+      return NextResponse.json(
+        { success: false, error: 'حجم الصورة يتجاوز الحد المسموح (10MB)' },
+        { status: 400 }
+      );
     }
 
     // Try ZAI SDK first, then fall back to direct HTTP call

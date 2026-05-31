@@ -6,17 +6,17 @@ import { log } from '@/lib/logger';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 import { z } from 'zod';
 
-// Zod validation schema for document analysis requests
+// SECURITY FIX: Zod validation for document analysis input
 const analyzeDocumentSchema = z.object({
-  document: z.string().min(1, 'Document data is required').max(500000, 'Document too large (max 500,000 characters)'),
-  prompt: z.string().max(5000).optional().default('قم بتحليل هذا المستند'),
+  document: z.string().min(1, 'المستند مطلوب').max(500000, 'المستند طويل جداً. الحد الأقصى 500,000 حرف.'),
+  prompt: z.string().min(1).max(4000, 'النص طويل جداً. الحد الأقصى 4,000 حرف.').default('قم بتحليل هذا المستند'),
   taskType: z.enum([
     'contract-analysis',
     'document-review',
     'invoice-extraction',
     'document-analysis',
     'legal-analysis',
-  ]).optional().default('document-analysis'),
+  ]).default('document-analysis'),
 });
 
 // Type definitions for AI chat message content
@@ -285,35 +285,16 @@ export async function POST(request: NextRequest) {
   if ('error' in authResult) return authResult.error;
   const _ctx = authResult.user;
   try {
-    // Parse and validate request body with Zod
+    // Parse and validate request with Zod
     const rawBody = await request.json();
-    const validation = analyzeDocumentSchema.safeParse(rawBody);
-    if (!validation.success) {
+    const validationResult = analyzeDocumentSchema.safeParse(rawBody);
+    if (!validationResult.success) {
       return NextResponse.json(
-        { success: false, error: validation.error.issues[0]?.message || 'Invalid request', errors: validation.error.flatten().fieldErrors },
+        { success: false, error: validationResult.error.issues[0]?.message || 'بيانات غير صالحة' },
         { status: 400 }
       );
     }
-    const {
-      document,
-      prompt = 'قم بتحليل هذا المستند',
-      taskType = 'document-analysis'
-    } = validation.data;
-
-    if (!document) {
-      return NextResponse.json(
-        { success: false, error: 'المستند مطلوب' },
-        { status: 400 }
-      );
-    }
-
-    // Check document length
-    if (document.length > 500000) {
-      return NextResponse.json(
-        { success: false, error: 'المستند طويل جداً. الحد الأقصى 500,000 حرف.' },
-        { status: 400 }
-      );
-    }
+    const { document, prompt, taskType } = validationResult.data;
 
     // Get system prompt for task type
     const systemPrompt = SYSTEM_PROMPTS[taskType] || SYSTEM_PROMPTS['document-analysis'];

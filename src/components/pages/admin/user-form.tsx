@@ -94,7 +94,7 @@ export function UserForm({
               dir="ltr"
               value={newUser.email}
               onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-              placeholder="user@example.com"
+              placeholder="user@blueprint.ae"
               className="h-10 rounded-lg"
             />
           </div>

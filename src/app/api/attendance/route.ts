@@ -31,6 +31,7 @@ export async function GET(request: NextRequest) {
     const dateTo = searchParams.get("dateTo");
 
     const where: Record<string, unknown> = {
+      deletedAt: null,
       employee: { user: { ...orgFilter(ctx) } },
     };
 

@@ -22,7 +22,7 @@ export async function GET(
     const id = idResult.id;
     const orgWhere = orgFilterNested(ctx, 'project');
     const document = await db.document.findFirst({
-      where: { id, ...orgWhere },
+      where: { id, deletedAt: null, ...orgWhere },
       include: {
         project: { select: { id: true, name: true, nameEn: true, number: true } },
         contract: { select: { id: true, number: true, title: true } },
@@ -121,7 +121,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Document not found" }, { status: 404 });
     }
 
-    await db.document.delete({ where: { id } });
+    await db.document.update({ where: { id }, data: { deletedAt: new Date() } });
     return NextResponse.json({ success: true });
   } catch (error) {
     log.error("Error deleting document:", error);

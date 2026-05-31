@@ -1,5 +1,5 @@
 /** @type {import('ts-jest').JestConfigWithTsJest} */
-module.exports = {
+export default {
   preset: 'ts-jest',
   testEnvironment: 'node',
   roots: ['<rootDir>/__tests__'],
@@ -23,10 +23,10 @@ module.exports = {
   transformIgnorePatterns: [
     '/node_modules/(?!jose|otplib)/',
   ],
-  testMatch: ['**/__tests__/**/*.test.ts'],
+  testMatch: ['**/__tests__/**/*.test.{ts,tsx}'],
   collectCoverageFrom: [
-    'src/lib/auth/**/*.ts',
-    'src/lib/config/**/*.ts',
+    'src/lib/**/*.ts',
+    'src/app/api/**/*.ts',
     '!src/**/*.d.ts',
     '!src/**/types.ts',
   ],

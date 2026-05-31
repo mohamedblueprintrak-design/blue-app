@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
     if (projectId) {
       // Fetch assignments for this project with user data
       const assignments = await db.projectAssignment.findMany({
-        where: { projectId, ...orgFilter(auth) },
+        where: { projectId, deletedAt: null, ...orgFilter(auth) },
         include: {
           user: {
             select: {
@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
 
     // If no projectId, return all assignments
     const assignments = await db.projectAssignment.findMany({
-      where: orgFilter(auth),
+      where: { deletedAt: null, ...orgFilter(auth) },
       include: {
         user: {
           select: {
@@ -216,8 +216,9 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    await db.projectAssignment.delete({
+    await db.projectAssignment.update({
       where: { id },
+      data: { deletedAt: new Date() },
     });
 
     return NextResponse.json({ success: true });

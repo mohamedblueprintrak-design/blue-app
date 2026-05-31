@@ -17,7 +17,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     // SECURITY: Filter by organizationId to prevent cross-tenant data access (IDOR)
     const violation = await db.violation.findFirst({
-      where: { id, ...orgFilter(ctx) },
+      where: { id, deletedAt: null, ...orgFilter(ctx) },
       include: {
         project: { select: { id: true, name: true, nameEn: true, number: true } },
       },
@@ -51,7 +51,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     // SECURITY: Verify the violation belongs to the user's organization
-    const existing = await db.violation.findFirst({ where: { id, ...orgFilter(ctx) } });
+    const existing = await db.violation.findFirst({ where: { id, deletedAt: null, ...orgFilter(ctx) } });
     if (!existing) {
       return NextResponse.json({ error: "Violation not found" }, { status: 404 });
     }
@@ -94,12 +94,12 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     const id = idResult.id;
 
     // SECURITY: Verify the violation belongs to the user's organization
-    const existing = await db.violation.findFirst({ where: { id, ...orgFilter(ctx) } });
+    const existing = await db.violation.findFirst({ where: { id, deletedAt: null, ...orgFilter(ctx) } });
     if (!existing) {
       return NextResponse.json({ error: "Violation not found" }, { status: 404 });
     }
 
-    await db.violation.delete({ where: { id } });
+    await db.violation.update({ where: { id }, data: { deletedAt: new Date() } });
     return NextResponse.json({ success: true });
   } catch (error) {
     log.error("Error deleting violation:", error);

@@ -24,7 +24,7 @@ export async function GET(
     const id = idResult.id;
 
     const leave = await db.leave.findFirst({
-      where: { id, employee: { ...orgFilter(ctx) } },
+      where: { id, deletedAt: null, employee: { ...orgFilter(ctx) } },
       include: {
         employee: {
           select: {
@@ -164,8 +164,9 @@ export async function DELETE(
       return NextResponse.json({ error: "Leave request not found" }, { status: 404 });
     }
 
-    await db.leave.delete({
+    await db.leave.update({
       where: { id },
+      data: { deletedAt: new Date() },
     });
 
     return NextResponse.json({ success: true });

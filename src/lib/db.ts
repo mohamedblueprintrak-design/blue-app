@@ -8,7 +8,6 @@ import { PrismaClient } from '@prisma/client'
  * the type system intact while still attaching the prisma instance.
  */
 declare global {
-   
   var prisma: PrismaClient | undefined
 }
 
@@ -16,70 +15,46 @@ export const db =
   globalThis.prisma ??
   new PrismaClient({
     log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : [],
+    // SQLite doesn't support connection pooling in the same way as PostgreSQL,
+    // but these settings help with graceful shutdown and resource management.
+    // For PostgreSQL, add:
+    //   datasources: { db: { url: process.env.DATABASE_URL } },
+    //   connection_limit: parseInt(process.env.DB_CONNECTION_LIMIT || '10'),
   })
 
 if (process.env.NODE_ENV !== 'production') globalThis.prisma = db
 
-// ==================== MULTI-TENANT ISOLATION (CWE-284) ====================
-//
-// When MULTI_TENANT=true, ALL queries MUST include an organizationId filter
-// at the API level to prevent cross-tenant data leakage.
-//
-// Critical models (User, Project, Client, Contractor, Invoice, Task, Contract,
-// Employee, Document, CompanySettings, Notification) now have REQUIRED
-// organizationId fields in the Prisma schema, enforcing tenant assignment
-// at the database level.
-//
-// All Organization relations use onDelete: Restrict to prevent accidental
-// org deletion that would orphan tenant data.
-//
-// USAGE PATTERN in API routes:
-//   const { organizationId } = await getUserSession()
-//   const projects = await db.project.findMany({
-//     where: { organizationId },
-//   })
-//
-// NEVER query without an organizationId filter in multi-tenant mode.
-// The createTenantDb() helper below provides a client that auto-injects
-// the organizationId into all findMany/findFirst queries for models that
-// have an organizationId field.
-// =========================================================================
-
 /**
- * Creates a tenant-scoped database client that automatically filters queries
- * by organizationId. Use this in API routes when MULTI_TENANT is enabled.
+ * Graceful shutdown handler — ensures PrismaClient disconnects properly
+ * when the Node.js process exits, preventing dangling connections.
  *
- * Example:
- *   const tenantDb = createTenantDb(organizationId)
- *   const projects = await tenantDb.project.findMany() // auto-filtered by org
- *
- * NOTE: This uses Prisma client extensions ($extends) which creates a new
- * client instance. For write operations, always explicitly set organizationId
- * on the data object — the extension only auto-filters reads.
+ * FIX: Register in BOTH development and production.
+ * Previously only registered in production, which meant dangling SQLite
+ * connections and WAL lock issues during development restarts.
  */
-export function createTenantDb(organizationId: string) {
-  return db.$extends({
-    name: 'tenantIsolation',
-    query: {
-      $allModels: {
-        async $allOperations({ args, query, model }) {
-          // For read operations (findMany, findFirst, count, aggregate),
-          // inject organizationId into the where clause if not already present
-          if (args.where && typeof args.where === 'object') {
-            // Only add organizationId filter if the model has it and it's not already in the where clause
-            if (!('organizationId' in args.where)) {
-              args.where = { ...args.where, organizationId }
-            }
-          } else if (!args.where) {
-            // No where clause at all — add one with organizationId
-            args.where = { organizationId }
-          }
-          return query(args)
-        },
-      },
-    },
-  })
+let shutdownHandlersRegistered = false;
+
+function setupGracefulShutdown() {
+  if (shutdownHandlersRegistered) return;
+  shutdownHandlersRegistered = true;
+
+  const shutdown = async (signal: string) => {
+    console.info(`[db] Received ${signal}, disconnecting Prisma...`)
+    try {
+      await db.$disconnect()
+      console.info('[db] Prisma disconnected successfully')
+    } catch (err) {
+      console.error('[db] Error disconnecting Prisma:', err)
+    }
+    process.exit(0)
+  }
+
+  // Register in ALL environments (dev + production)
+  process.on('SIGINT', () => shutdown('SIGINT'))
+  process.on('SIGTERM', () => shutdown('SIGTERM'))
 }
+
+setupGracefulShutdown()
 
 /**
  * Check if database is available by running a simple query.

@@ -16,7 +16,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     if (!idResult.success) return idResult.response;
     const id = idResult.id;
 
-    const orgWhere = orgFilterNested(ctx, 'project');
+    const orgWhere = { ...orgFilterNested(ctx, 'project'), deletedAt: null };
     const phase = await db.designPhase.findFirst({
       where: { id, ...orgWhere },
       include: {
@@ -57,7 +57,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     const id = idResult.id;
 
     // Verify org ownership before update
-    const orgWhere = orgFilterNested(ctx, 'project');
+    const orgWhere = { ...orgFilterNested(ctx, 'project'), deletedAt: null };
     const existing = await db.designPhase.findFirst({ where: { id, ...orgWhere } });
     if (!existing) {
       return NextResponse.json({ error: "Design phase not found" }, { status: 404 });
@@ -116,13 +116,13 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     const id = idResult.id;
 
     // Verify org ownership before delete
-    const orgWhere = orgFilterNested(ctx, 'project');
+    const orgWhere = { ...orgFilterNested(ctx, 'project'), deletedAt: null };
     const existing = await db.designPhase.findFirst({ where: { id, ...orgWhere } });
     if (!existing) {
       return NextResponse.json({ error: "Design phase not found" }, { status: 404 });
     }
 
-    await db.designPhase.delete({ where: { id } });
+    await db.designPhase.update({ where: { id }, data: { deletedAt: new Date() } });
     return NextResponse.json({ success: true });
   } catch (error) {
     log.error("Error deleting design phase:", error);

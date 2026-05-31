@@ -30,9 +30,13 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
-!.env.example
+# env files
+.env
+.env.local
+.env.production
+.env.staging
+.env.development
+.env.*.local
 
 # vercel
 .vercel
@@ -51,16 +55,39 @@ test
 prompt
 
 server.log
+# Skills directory (AI agent tools - not needed in repo)
+skills/
 
-# Database
-*.db
-*.db-journal
+# Python cache
+__pycache__/
+*.pyc
 
-# Uploads
-/uploads/
+# Agent context files (development only)
+agent-ctx/
 
-# Skills directory
-/skills/
+/test-results/
+playwright-report/
+coverage/
+test-results/
 
-# Upload archive
-/upload/
+# npm cache (should not be committed)
+.npm/
+
+# logs directory
+logs/
+
+# database files
+db/*.db
+db/*.db-journal
+db/*.db-wal
+
+# upload directory (user uploads)
+upload/
+uploads/
+
+# package lock (using bun.lock - pick one)
+package-lock.json
+prisma/db/
+db/custom.db-shm
+db/custom.db-wal
+mini-services/chat-service/node_modules/

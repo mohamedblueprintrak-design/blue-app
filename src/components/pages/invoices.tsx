@@ -9,11 +9,11 @@ import { invoiceSchema, type InvoiceFormData } from "@/lib/validations";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { TAX_RATE } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { generateInvoicePDF } from "@/lib/pdf-utils";
 import { getMutationHeaders } from "@/lib/csrf-client";
 import { extractErrorMessage } from "@/lib/api/fetch-client";
+import { VAT_RATE } from "@/lib/constants";
 
 import type { InvoiceItem, Invoice, ProjectOption, ClientOption } from "./invoices/types";
 import { getEmptyLineItem } from "./invoices/helpers";
@@ -102,7 +102,7 @@ export default function InvoicesPage({ language, projectId }: InvoicesPageProps)
   const createMutation = useMutation({
     mutationFn: async (data: typeof emptyForm) => {
       const subtotal = data.items.reduce((s, i) => s + i.quantity * i.unitPrice, 0);
-      const tax = subtotal * TAX_RATE;
+      const tax = subtotal * VAT_RATE;
       const total = subtotal + tax;
       const items = data.items.map((i) => ({ ...i, total: i.quantity * i.unitPrice }));
       const res = await fetch("/api/invoices", {
@@ -131,7 +131,7 @@ export default function InvoicesPage({ language, projectId }: InvoicesPageProps)
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: typeof emptyForm }) => {
       const subtotal = data.items.reduce((s, i) => s + i.quantity * i.unitPrice, 0);
-      const tax = subtotal * TAX_RATE;
+      const tax = subtotal * VAT_RATE;
       const total = subtotal + tax;
       const items = data.items.map((i) => ({ ...i, total: i.quantity * i.unitPrice }));
       const res = await fetch(`/api/invoices/${id}`, {
@@ -260,7 +260,7 @@ export default function InvoicesPage({ language, projectId }: InvoicesPageProps)
   };
 
   const calcSubtotal = formData.items.reduce((s, i) => s + i.quantity * i.unitPrice, 0);
-  const calcTax = calcSubtotal * TAX_RATE;
+  const calcTax = calcSubtotal * VAT_RATE;
   const calcTotal = calcSubtotal + calcTax;
 
   const handleSave = (data: InvoiceFormData) => {

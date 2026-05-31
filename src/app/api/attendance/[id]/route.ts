@@ -24,7 +24,7 @@ export async function GET(
     const id = idResult.id;
 
     const attendance = await db.attendance.findFirst({
-      where: { id, employee: { user: { ...orgFilter(ctx) } } },
+      where: { id, deletedAt: null, employee: { user: { ...orgFilter(ctx) } } },
       include: {
         employee: {
           include: {
@@ -159,8 +159,9 @@ export async function DELETE(
       return NextResponse.json({ error: "Attendance record not found" }, { status: 404 });
     }
 
-    await db.attendance.delete({
+    await db.attendance.update({
       where: { id },
+      data: { deletedAt: new Date() },
     });
 
     return NextResponse.json({ success: true });

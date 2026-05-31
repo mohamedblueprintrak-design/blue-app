@@ -9,8 +9,9 @@ import { log } from '@/lib/logger';
 import { sanitizeObject } from '@/lib/security/sanitize';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 
-// Tax rate - configurable via environment variable (default: 5% UAE VAT)
-const TAX_RATE = parseFloat(process.env.TAX_RATE || '0.05');
+// Tax rate - configurable via environment variable (default from shared constants)
+import { VAT_RATE } from '@/lib/constants';
+const TAX_RATE = parseFloat(process.env.TAX_RATE || String(VAT_RATE));
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {

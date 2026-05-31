@@ -124,44 +124,9 @@ export function initAuthFetch(): void {
     input: RequestInfo | URL,
     init?: RequestInit,
   ): Promise<Response> {
-    // ── Clone / store the body before the first attempt so it can be replayed on retry.
-    // Request bodies (especially ReadableStream) can only be consumed once.
-    let savedBody: BodyInit | null = null;
-    if (init?.body != null) {
-      if (typeof init.body === 'string') {
-        savedBody = init.body;
-      } else if (typeof Blob !== 'undefined' && init.body instanceof Blob) {
-        savedBody = init.body.slice();
-      } else if (init.body instanceof ArrayBuffer) {
-        savedBody = init.body.slice(0);
-      } else if (typeof FormData !== 'undefined' && init.body instanceof FormData) {
-        const fd = new FormData();
-        (init.body as FormData).forEach((value, key) => fd.append(key, value));
-        savedBody = fd;
-      } else if (init.body instanceof ReadableStream) {
-        // Read the stream once and store as text so it can be replayed
-        try {
-          const chunks: Uint8Array[] = [];
-          const reader = init.body.getReader();
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            chunks.push(value);
-          }
-          const combined = new Uint8Array(chunks.reduce((acc, c) => acc + c.length, 0));
-          let offset = 0;
-          for (const chunk of chunks) {
-            combined.set(chunk, offset);
-            offset += chunk.length;
-          }
-          savedBody = new TextDecoder().decode(combined);
-        } catch {
-          savedBody = null;
-        }
-      } else {
-        savedBody = init.body;
-      }
-    }
+    // Clone the request if it has a body, so the retry can reuse it
+    // (Request body can only be consumed once; cloning preserves it for retry)
+    const clonedInput = input instanceof Request ? input.clone() : null;
 
     // Make the initial request via the CSRF-patched fetch
     const response = await csrfPatchedFetch.call(window, input, init);
@@ -212,11 +177,10 @@ export function initAuthFetch(): void {
 
     const retryInit: RequestInit = {
       ...init,
-      body: savedBody,
       headers: retryHeaders,
     };
 
-    return csrfPatchedFetch.call(window, input, retryInit);
+    return csrfPatchedFetch.call(window, clonedInput || input, retryInit);
   };
 }
 

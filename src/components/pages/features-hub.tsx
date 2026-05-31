@@ -3,9 +3,9 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useQuery } from '@tanstack/react-query'
+import { VAT_RATE } from '@/lib/constants'
 
 import type { TabId, RealProject, DemoProject, BOQItem, DemoVisit, TimeEntry, ClientInteraction } from './features-hub/types'
-import { TAX_RATE } from '@/lib/constants'
 import {
   DEMO_PROJECTS,
   DEMO_ENGINEERS,
@@ -156,7 +156,7 @@ export default function FeaturesHub({ language }: FeaturesHubProps) {
   // BOQ calculations
   const boqStats = useMemo(() => {
     const subtotal = boqItems.reduce((acc, item) => acc + item.total, 0)
-    const vat = subtotal * TAX_RATE
+    const vat = subtotal * VAT_RATE
     const contingency = subtotal * (contingencyPercent / 100)
     const grandTotal = subtotal + vat + contingency
 

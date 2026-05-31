@@ -23,8 +23,6 @@ services:
     restart: unless-stopped
     ports:
       - "3000:3000"
-    env_file:
-      - .env
     environment:
       - NODE_ENV=development
       # SECURITY: All secrets from environment variables — NO default passwords in production
@@ -79,8 +77,6 @@ services:
     image: postgres:16-alpine
     container_name: blueprint-postgres
     restart: unless-stopped
-    env_file:
-      - .env
     environment:
       POSTGRES_USER: blueprint
       # SECURITY: Password from environment variable — must be set explicitly
@@ -134,18 +130,16 @@ services:
         max-size: "5m"
         max-file: "3"
     # SECURITY: Use password authentication
-    env_file:
-      - .env
     command: >
       redis-server 
       --appendonly yes 
-      --requirepass ${REDIS_PASSWORD:?REDIS_PASSWORD must be set}
+      --requirepass ${REDIS_PASSWORD:-dev_redis_password}
       --maxmemory 256mb
       --maxmemory-policy allkeys-lru
     healthcheck:
       # SECURITY: Use REDISCLI_AUTH env var instead of -a flag to avoid
       # exposing the password in the process list (/proc)
-      test: ["CMD-SHELL", "REDISCLI_AUTH=$${REDIS_PASSWORD} redis-cli ping"]
+      test: ["CMD-SHELL", "REDISCLI_AUTH=$${REDIS_PASSWORD:-dev_redis_password} redis-cli ping"]
       interval: 10s
       timeout: 5s
       retries: 5

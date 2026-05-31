@@ -9,7 +9,7 @@
 import { Job } from 'bullmq';
 import { db } from '@/lib/db';
 import { log } from '@/lib/logger';
-import { NotificationType } from '@prisma/client';
+import type { NotificationType } from '@/types/db-enums';
 
 /**
  * Notification job data structure

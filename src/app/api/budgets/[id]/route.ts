@@ -18,7 +18,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     if (!idResult.success) return idResult.response;
     const id = idResult.id;
     const budget = await db.budget.findFirst({
-      where: { id, project: { ...orgFilter(ctx) } },
+      where: { id, deletedAt: null, project: { ...orgFilter(ctx) } },
       include: {
         project: { select: { id: true, name: true, nameEn: true, number: true } },
         parent: { select: { id: true, name: true } },
@@ -115,10 +115,10 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     if (!existing) {
       return NextResponse.json({ error: "Budget not found" }, { status: 404 });
     }
-    // Delete children and parent in a single transaction
+    // Soft delete children and parent in a single transaction
     await db.$transaction([
-      db.budget.deleteMany({ where: { parentId: id, project: { ...orgFilter(ctx) } } }),
-      db.budget.delete({ where: { id } }),
+      db.budget.updateMany({ where: { parentId: id, project: { ...orgFilter(ctx) } }, data: { deletedAt: new Date() } }),
+      db.budget.update({ where: { id }, data: { deletedAt: new Date() } }),
     ]);
     return NextResponse.json({ success: true });
   } catch (error) {

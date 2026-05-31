@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
     const projectId = searchParams.get("projectId");
     const category = searchParams.get("category");
 
-    const where: Record<string, unknown> = {};
+    const where: Record<string, unknown> = { deletedAt: null };
     if (projectId) where.projectId = projectId;
     if (category) where.category = category;
 
@@ -200,7 +200,7 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    await db.bOQItem.delete({ where: { id } });
+    await db.bOQItem.update({ where: { id }, data: { deletedAt: new Date() } });
 
     return NextResponse.json({ success: true, message: "BOQ item deleted successfully" });
   } catch (error) {

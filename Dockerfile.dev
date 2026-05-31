@@ -5,16 +5,15 @@
 
 FROM node:20-alpine
 RUN apk add --no-cache libc6-compat openssl
-RUN npm install -g bun
 
 WORKDIR /app
 
 # Copy package files
-COPY bun.lock package.json ./
+COPY package.json package-lock.json* ./
 COPY prisma ./prisma/
 
 # Install dependencies
-RUN bun install --frozen-lockfile
+RUN npm ci && npm cache clean --force
 
 # Generate Prisma Client
 RUN npx prisma generate
@@ -37,5 +36,5 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-# Start development server
+# Start development server with webpack (Turbopack has Windows-specific bugs)
 CMD ["npm", "run", "dev"]

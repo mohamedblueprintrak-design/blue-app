@@ -17,7 +17,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const id = idResult.id;
     const orgWhere = ctx.organizationId ? { project: { organizationId: ctx.organizationId } } : {};
     const rfi = await db.rFI.findFirst({
-      where: { id, ...orgWhere },
+      where: { id, deletedAt: null, ...orgWhere },
       include: {
         project: {
           select: { id: true, name: true, nameEn: true, number: true },
@@ -55,7 +55,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
     // Verify org ownership before update
     const orgWhere = ctx.organizationId ? { project: { organizationId: ctx.organizationId } } : {};
-    const existing = await db.rFI.findFirst({ where: { id, ...orgWhere } });
+    const existing = await db.rFI.findFirst({ where: { id, deletedAt: null, ...orgWhere } });
     if (!existing) {
       return NextResponse.json({ error: "RFI not found" }, { status: 404 });
     }
@@ -112,12 +112,12 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
 
     // Verify org ownership before delete
     const orgWhere = ctx.organizationId ? { project: { organizationId: ctx.organizationId } } : {};
-    const existing = await db.rFI.findFirst({ where: { id, ...orgWhere } });
+    const existing = await db.rFI.findFirst({ where: { id, deletedAt: null, ...orgWhere } });
     if (!existing) {
       return NextResponse.json({ error: "RFI not found" }, { status: 404 });
     }
 
-    await db.rFI.delete({ where: { id } });
+    await db.rFI.update({ where: { id }, data: { deletedAt: new Date() } });
     return NextResponse.json({ success: true });
   } catch (error) {
     log.error("Error deleting RFI:", error);

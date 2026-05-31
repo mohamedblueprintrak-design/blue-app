@@ -13,7 +13,8 @@
  */
 
 import { db, isDatabaseAvailable } from '@/lib/db';
-import { TaskType, SLABreachStatus, NotificationType } from '@prisma/client';
+import { TaskType, SLABreachStatus } from '@prisma/client';
+import type { NotificationType } from '@/types/db-enums';
 import { log } from '@/lib/logger';
 
 // ============================================

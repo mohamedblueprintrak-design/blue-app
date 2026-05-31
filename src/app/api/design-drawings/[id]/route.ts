@@ -38,7 +38,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       },
     });
 
-    if (!drawing) {
+    if (!drawing || drawing.deletedAt) {
       return NextResponse.json({ error: "Design drawing not found" }, { status: 404 });
     }
 
@@ -77,7 +77,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       },
     });
 
-    if (!existing) {
+    if (!existing || existing.deletedAt) {
       return NextResponse.json({ error: "Design drawing not found" }, { status: 404 });
     }
 
@@ -150,14 +150,14 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
       },
     });
 
-    if (!existing) {
+    if (!existing || existing.deletedAt) {
       return NextResponse.json({ error: "Design drawing not found" }, { status: 404 });
     }
 
     const orgError = orgCheck(user, { organizationId: existing.designPhase?.project?.organizationId });
     if (orgError) return orgError;
 
-    await db.designDrawing.delete({ where: { id } });
+    await db.designDrawing.update({ where: { id }, data: { deletedAt: new Date() } });
     return NextResponse.json({ success: true });
   } catch (error) {
     log.error("Error deleting design drawing:", error);

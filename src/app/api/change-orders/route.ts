@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
 
     // ChangeOrder doesn't have organizationId directly; filter through project relationship
     const orgWhere = ctx.organizationId ? { project: { organizationId: ctx.organizationId } } : {};
-    const where: Record<string, unknown> = { ...orgWhere };
+    const where: Record<string, unknown> = { deletedAt: null, ...orgWhere };
     if (projectId) where.projectId = projectId;
     if (status) where.status = status;
     if (type) where.type = type;

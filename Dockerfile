@@ -6,16 +6,16 @@
 # Stage 1: Dependencies
 FROM node:20-alpine AS deps
 RUN apk add --no-cache libc6-compat openssl
-RUN npm install -g bun
 
 WORKDIR /app
 
 # Copy package files
-COPY bun.lock package.json ./
+COPY package.json bun.lock* ./
 COPY prisma ./prisma/
 
 # Install ALL dependencies (including devDependencies for build)
-RUN bun install --frozen-lockfile
+RUN npm install && \
+    npm cache clean --force
 
 # Generate Prisma Client
 RUN npx prisma generate
@@ -34,19 +34,11 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
-# Build-time DATABASE_URL placeholder for Prisma generate (if needed during build).
-# NOTE: JWT_SECRET and ENCRYPTION_KEY are NOT set here.
-# They were previously passed as ARG/ENV which baked placeholder values into
-# image layers — a security risk even though runtime values override them.
+# NOTE: Secrets (DATABASE_URL, JWT_SECRET, ENCRYPTION_KEY) are NOT baked into the image.
 # Next.js standalone does NOT execute API routes or middleware at build time,
 # so these secrets are never needed during the build phase.
 # At runtime, inject secrets via docker-compose env_file, .env, or Docker secrets.
-ENV DATABASE_URL=postgresql://placeholder:placeholder@localhost:5432/placeholder
-
-# Copy .env.example as a reference for required environment variables.
-# IMPORTANT: .env (with real secrets) is NEVER copied into the image.
-# At runtime, provide env vars via docker-compose env_file or Docker secrets.
-COPY .env.example* .env.reference
+# Prisma generate is handled in the deps stage; no DATABASE_URL needed here.
 
 # Build the application
 RUN npm run build
@@ -55,15 +47,15 @@ RUN npm run build
 # Stage 3: Install production dependencies only
 FROM node:20-alpine AS prod-deps
 RUN apk add --no-cache libc6-compat openssl
-RUN npm install -g bun
 
 WORKDIR /app
 
-COPY bun.lock package.json ./
+COPY package.json bun.lock* ./
 COPY prisma ./prisma/
 
 # Install ONLY production dependencies
-RUN bun install --frozen-lockfile --production
+RUN npm install --omit=dev && \
+    npm cache clean --force
 
 # Generate Prisma Client (production)
 RUN npx prisma generate
@@ -92,9 +84,6 @@ COPY --from=prod-deps /app/node_modules ./node_modules
 
 # Copy Prisma schema for migrations at runtime
 COPY --from=builder /app/prisma ./prisma
-
-# Copy .env.example reference for operators to know required env vars
-COPY --from=builder /app/.env.reference ./.env.reference
 
 # Create uploads directory
 RUN mkdir -p /app/uploads && chown -R nextjs:nodejs /app/uploads

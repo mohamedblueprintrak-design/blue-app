@@ -28,12 +28,14 @@ export async function GET(request: NextRequest) {
     const hasZai = providers.some(p => p.id === 'zai' && p.configured);
     const hasExternal = providers.some(p => p.id !== 'zai' && p.configured);
 
-    // SECURITY: Only return whether providers are configured (boolean),
-    // NOT the environment variable names — exposing env var names
-    // assists attackers in reconnaissance (CWE-200: Information Exposure)
-    const providerConfigured: Record<string, boolean> = {};
+    // Debug: show which env vars are found
+    const envDebug: Record<string, { envVar: string; configured: boolean }> = {};
     for (const [id, config] of Object.entries(PROVIDER_CONFIGS)) {
-      providerConfigured[id] = !!process.env[config.apiKeyEnvVar];
+      const value = process.env[config.apiKeyEnvVar];
+      envDebug[id] = {
+        envVar: config.apiKeyEnvVar,
+        configured: !!value,
+      };
     }
 
     return NextResponse.json({
@@ -45,13 +47,16 @@ export async function GET(request: NextRequest) {
         hasZai,
         hasExternal,
         needsConfiguration: !hasZai && !hasExternal,
-        providerConfigured,
-        tips: [
-          '.env must be next to package.json',
-          'Do not quote values in .env',
-          'No spaces around = in .env',
-          'Restart dev server after changing .env',
-        ],
+        debug: {
+          envDebug,
+          cwd: process.cwd(),
+          tips: [
+            '.env must be next to package.json',
+            'No quotes: OPENAI_API_KEY=sk-abc (not "sk-abc")',
+            'No spaces: OPENAI_API_KEY=sk-abc',
+            'Restart dev server after changing .env',
+          ],
+        },
       },
     });
   } catch (error) {

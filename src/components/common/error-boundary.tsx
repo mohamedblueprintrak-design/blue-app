@@ -308,7 +308,7 @@ export class ErrorBoundary extends React.Component<
       `User Agent: ${typeof navigator !== 'undefined' ? navigator.userAgent : 'unknown'}`
     );
 
-    window.open(`mailto:${process.env.NEXT_PUBLIC_SUPPORT_EMAIL || 'support@blueprint.app'}?subject=${subject}&body=${body}`, '_self');
+    window.open(`mailto:support@blueprint-app.com?subject=${subject}&body=${body}`, '_self');
   };
 
   render(): React.ReactNode {

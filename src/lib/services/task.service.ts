@@ -12,7 +12,8 @@
 import { db } from '@/lib/db';
 import { insensitiveContains } from '@/app/api/utils/db';
 import { logAudit } from './audit.service';
-import type { Task, TaskPriority, TaskStatus } from '@prisma/client';
+import type { Task } from '@prisma/client';
+import type { TaskPriority, TaskStatus } from '@/types/db-enums';
 
 /**
  * Task filtering options

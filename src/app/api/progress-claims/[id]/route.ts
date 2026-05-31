@@ -35,7 +35,7 @@ export async function GET(
     const { id } = await params;
 
     const progressClaim = await db.progressClaim.findFirst({
-      where: { id, ...orgFilter(ctx) },
+      where: { id, deletedAt: null, ...orgFilter(ctx) },
       include: {
         project: {
           select: { id: true, name: true, nameEn: true, number: true },
@@ -74,7 +74,7 @@ export async function PUT(
     const body = validation.data;
 
     const existing = await db.progressClaim.findFirst({
-      where: { id, ...orgFilter(ctx) },
+      where: { id, deletedAt: null, ...orgFilter(ctx) },
     });
 
     if (!existing) {
@@ -133,14 +133,14 @@ export async function DELETE(
     const { id } = await params;
 
     const existing = await db.progressClaim.findFirst({
-      where: { id, ...orgFilter(ctx) },
+      where: { id, deletedAt: null, ...orgFilter(ctx) },
     });
 
     if (!existing) {
       return NextResponse.json({ error: "Progress claim not found" }, { status: 404 });
     }
 
-    await db.progressClaim.delete({ where: { id } });
+    await db.progressClaim.update({ where: { id }, data: { deletedAt: new Date() } });
 
     return NextResponse.json({ success: true });
   } catch (error) {

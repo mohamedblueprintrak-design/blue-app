@@ -89,8 +89,8 @@ const faqs = [
   {
     questionAr: "كيف أحصل على دعم فني؟",
     questionEn: "How do I get technical support?",
-    answerAr: "يمكنك التواصل معنا عبر البريد الإلكتروني أو الهاتف. فريق الدعم متاح من الأحد إلى الخميس.",
-    answerEn: "You can contact us via email or by phone. Support is available Sunday through Thursday.",
+    answerAr: "يمكنك التواصل معنا عبر البريد الإلكتروني support@blueprint.ae أو الهاتف. فريق الدعم متاح من الأحد إلى الخميس.",
+    answerEn: "You can contact us via email at support@blueprint.ae or by phone. Support is available Sunday through Thursday.",
   },
   {
     questionAr: "كيف أستخدم المساعد الذكي (AI)؟",
@@ -219,12 +219,18 @@ export default function HelpPage({ language, projectId }: { language: "ar" | "en
       <Card className="max-w-2xl mx-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
         <CardContent className="p-4">
           <div className="relative">
-            <Search className="absolute top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5 start-3" />
+            <Search className={cn(
+              "absolute top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5",
+              isAr ? "right-3" : "left-3"
+            )} />
             <Input
               placeholder={isAr ? "ابحث في مركز المساعدة..." : "Search help center..."}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="py-6 text-lg bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white ps-12 pe-4"
+              className={cn(
+                "py-6 text-lg bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white",
+                isAr ? "ps-4 pe-12" : "ps-12 pe-4"
+              )}
             />
           </div>
         </CardContent>
@@ -473,7 +479,7 @@ export default function HelpPage({ language, projectId }: { language: "ar" | "en
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Button className="bg-teal-500 hover:bg-teal-600 text-white shadow-md shadow-teal-500/20">
                 <Mail className="w-4 h-4 me-2" />
-                {process.env.NEXT_PUBLIC_SUPPORT_EMAIL || 'support@blueprint.app'}
+                support@blueprint.ae
               </Button>
               <Button variant="outline" className="border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800">
                 <Phone className="w-4 h-4 me-2" />

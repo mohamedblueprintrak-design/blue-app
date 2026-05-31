@@ -20,7 +20,7 @@ export async function GET(
     if (!idResult.success) return idResult.response;
     const id = idResult.id;
     const template = await db.workflowTemplate.findFirst({
-      where: { id, ...orgFilter(ctx) },
+      where: { id, deletedAt: null, ...orgFilter(ctx) },
       include: {
         stages: {
           orderBy: { order: 'asc' },
@@ -52,7 +52,7 @@ export async function PUT(
     if (!idResult.success) return idResult.response;
     const id = idResult.id;
 
-    const existing = await db.workflowTemplate.findFirst({ where: { id, ...orgFilter(ctx) } });
+    const existing = await db.workflowTemplate.findFirst({ where: { id, deletedAt: null, ...orgFilter(ctx) } });
     if (!existing) {
       return NextResponse.json({ error: 'Template not found' }, { status: 404 });
     }
@@ -103,12 +103,12 @@ export async function DELETE(
     if (!idResult.success) return idResult.response;
     const id = idResult.id;
 
-    const existing = await db.workflowTemplate.findFirst({ where: { id, ...orgFilter(ctx) } });
+    const existing = await db.workflowTemplate.findFirst({ where: { id, deletedAt: null, ...orgFilter(ctx) } });
     if (!existing) {
       return NextResponse.json({ error: 'Template not found' }, { status: 404 });
     }
 
-    await db.workflowTemplate.delete({ where: { id } });
+    await db.workflowTemplate.update({ where: { id }, data: { deletedAt: new Date() } });
     return NextResponse.json({ success: true });
   } catch (error: unknown) {
     return handleApiError(error, 'WorkflowTemplate DELETE');

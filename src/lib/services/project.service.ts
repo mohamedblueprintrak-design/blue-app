@@ -15,7 +15,8 @@ import { db } from '@/lib/db';
 import { insensitiveContains } from '@/app/api/utils/db';
  
 import { logAudit } from './audit.service';
-import type { Project, ProjectType } from '@prisma/client';
+import type { Project } from '@prisma/client';
+import type { ProjectType } from '@/types/db-enums';
 
 /**
  * Project statistics interface

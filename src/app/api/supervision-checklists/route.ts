@@ -4,7 +4,7 @@ import { log } from '@/lib/logger';
 import { requireVerifiedPermission, orgFilter, orgCreate } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { z } from 'zod';
-import { WeatherCondition } from '@prisma/client';
+import type { WeatherCondition } from '@/types/db-enums';
 
 // Zod schema for supervision checklist creation
 const supervisionChecklistCreateSchema = z.object({

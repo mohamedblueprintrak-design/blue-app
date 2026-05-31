@@ -75,7 +75,7 @@ export async function GET(request: NextRequest) {
     const projectId = searchParams.get("projectId");
     const category = searchParams.get("category");
 
-    const where: Record<string, unknown> = { ...orgFilter(ctx) };
+    const where: Record<string, unknown> = { deletedAt: null, ...orgFilter(ctx) };
     if (projectId) where.projectId = projectId;
     if (category && category !== "all") where.category = category;
 

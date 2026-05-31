@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { Currency } from '@prisma/client';
+import { Currency } from '@/types/db-enums';
 import { NextRequest, NextResponse } from "next/server";
 import { requireVerifiedPermission, orgFilter, orgCreate } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';

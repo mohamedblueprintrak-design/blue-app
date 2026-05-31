@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     const sortBy = searchParams.get("sortBy") || "createdAt";
     const sortOrder = searchParams.get("sortOrder") || "desc";
 
-    const where: Record<string, unknown> = { ...orgFilter(ctx) };
+    const where: Record<string, unknown> = { deletedAt: null, ...orgFilter(ctx) };
     if (riskLevel) where.riskLevel = riskLevel;
     if (inspectionType) where.inspectionType = inspectionType;
     if (status) where.status = status;

@@ -233,7 +233,14 @@ class ClientService {
     if (data.address !== undefined) updateData.address = data.address;
     if (data.city !== undefined || data.country !== undefined) {
       // Build fullAddress from city/country
-      const existingAddress = (oldClient.fullAddress as Record<string, unknown>) || {};
+      let existingAddress: Record<string, unknown> = {};
+      if (oldClient.fullAddress) {
+        try {
+          existingAddress = JSON.parse(oldClient.fullAddress);
+        } catch {
+          // Invalid JSON
+        }
+      }
       if (data.city !== undefined) existingAddress.city = data.city;
       if (data.country !== undefined) existingAddress.country = data.country;
       updateData.fullAddress = JSON.stringify(existingAddress);

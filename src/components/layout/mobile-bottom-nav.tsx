@@ -135,7 +135,7 @@ export default function MobileBottomNav({ language }: { language: "ar" | "en" })
     <>
       <nav
         className={cn(
-          "fixed bottom-0 start-0 end-0 z-40 md:hidden",
+          "fixed bottom-0 left-0 right-0 z-40 md:hidden",
           // Glassmorphism background
           "bg-white/70 dark:bg-slate-900/70 backdrop-blur-2xl",
           // Top border with subtle gradient feel
@@ -204,7 +204,7 @@ export default function MobileBottomNav({ language }: { language: "ar" | "en" })
                   {item.pageId === "dashboard" && notifCount > 0 && (
                     <span
                       className={cn(
-                        "absolute -top-1.5 -end-2 flex items-center justify-center",
+                        "absolute -top-1.5 -right-2 flex items-center justify-center",
                         "min-w-[16px] h-4 px-1 rounded-full",
                         "bg-red-500 text-white text-[9px] font-bold leading-none",
                         "ring-2 ring-white dark:ring-slate-900",

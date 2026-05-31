@@ -29,7 +29,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     const { status, approvedById, paidDate } = body;
 
     // Verify org ownership before update
-    const orgWhere = { project: { ...orgFilter(ctx) } };
+    const orgWhere = { project: { ...orgFilter(ctx) }, deletedAt: null };
     const existing = await db.commission.findFirst({ where: { id, ...orgWhere } });
     if (!existing) {
       return NextResponse.json({ error: "Commission not found" }, { status: 404 });
@@ -73,13 +73,13 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     const id = idResult.id;
 
     // Verify org ownership before delete
-    const orgWhere = { project: { ...orgFilter(ctx) } };
+    const orgWhere = { project: { ...orgFilter(ctx) }, deletedAt: null };
     const existing = await db.commission.findFirst({ where: { id, ...orgWhere } });
     if (!existing) {
       return NextResponse.json({ error: "Commission not found" }, { status: 404 });
     }
 
-    await db.commission.delete({ where: { id } });
+    await db.commission.update({ where: { id }, data: { deletedAt: new Date() } });
     return NextResponse.json({ success: true });
   } catch (error) {
     log.error("Error deleting commission:", error);

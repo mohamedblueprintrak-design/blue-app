@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     const projectId = searchParams.get("projectId");
     const lowStock = searchParams.get("lowStock");
 
-    const where: Record<string, unknown> = {};
+    const where: Record<string, unknown> = { deletedAt: null };
 
     if (projectId) {
       where.projectId = projectId;
@@ -26,9 +26,9 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch all items and filter low stock in-memory for SQLite compatibility
-    const orgWhere = ctx.organizationId ? { project: { organizationId: ctx.organizationId } } : {};
+    const orgWhere = ctx.organizationId ? { deletedAt: null, project: { organizationId: ctx.organizationId } } : { deletedAt: null };
     const items = await db.inventoryItem.findMany({
-      where: projectId ? { projectId, ...orgWhere } : (Object.keys(orgWhere).length > 0 ? orgWhere : undefined),
+      where: projectId ? { projectId, ...orgWhere } : orgWhere,
       include: {
         project: {
           select: { id: true, number: true, name: true, nameEn: true },

@@ -2,7 +2,6 @@ import { db } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 import { requireVerifiedPermission, orgFilter } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
-import { canAccessHR } from '@/lib/auth/modules/authorization';
 import { validateRequest, employeeUpdateSchema, validateIdParam } from '@/lib/api-validation';
 import { log } from '@/lib/logger';
 import { sanitizeObject } from '@/lib/security/sanitize';
@@ -24,7 +23,7 @@ export async function GET(
     const id = idResult.id;
 
     const employee = await db.employee.findFirst({
-      where: { id, user: { ...orgFilter(ctx) } },
+      where: { id, deletedAt: null, user: { ...orgFilter(ctx) } },
       include: {
         user: {
           select: {
@@ -46,14 +45,13 @@ export async function GET(
       return NextResponse.json({ error: "Employee not found" }, { status: 404 });
     }
 
-    // SECURITY: Strip salary for non-privileged roles (ADMIN, HR, ACCOUNTANT only)
-    const userCanSeeSalary = canAccessHR(ctx.role) || ctx.role.toUpperCase() === 'ACCOUNTANT';
-    if (!userCanSeeSalary) {
-      const { salary: _s, ...rest } = employee;
-      return NextResponse.json(rest);
-    }
+    // Remove salary from response for non-HR/Admin users
+    const canSeeSalary = ctx.role === 'ADMIN' || ctx.role === 'HR';
+    const sanitizedEmployee = canSeeSalary
+      ? employee
+      : (() => { const { salary: _salary, ...rest } = employee; return rest; })();
 
-    return NextResponse.json(employee);
+    return NextResponse.json(sanitizedEmployee);
   } catch (error) {
     log.error("GET /api/employees/[id] error:", error);
     return NextResponse.json({ error: "Failed to fetch employee" }, { status: 500 });
@@ -169,15 +167,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Employee not found" }, { status: 404 });
     }
 
-    // TODO: Convert to soft delete once Employee model has a deletedAt field.
-    // The Employee model currently lacks a deletedAt column in the Prisma schema.
-    // Adding it requires a migration: `deletedAt DateTime?` + @@index([deletedAt])
-    // For now, we deactivate the employee's user account instead of hard-deleting,
-    // which preserves the audit trail and referential integrity.
-    await db.user.update({
-      where: { id: existing.userId },
-      data: { isActive: false },
-    });
+    await db.employee.update({ where: { id }, data: { deletedAt: new Date() } });
 
     return NextResponse.json({ success: true });
   } catch (error) {

@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get("category");
     const projectId = searchParams.get("projectId");
 
-    const where: Record<string, unknown> = { ...orgFilter(ctx) };
+    const where: Record<string, unknown> = { deletedAt: null, ...orgFilter(ctx) };
 
     if (search) {
       where.OR = [
@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
     }
 
     const contractors = await db.contractor.findMany({
-      where: Object.keys(where).length > 0 ? where : undefined,
+      where,
       include: {
         _count: {
           select: {

@@ -62,10 +62,9 @@ export default function RootLayout({
           crossOrigin=""
         />
         {/* Security headers are set centrally by src/proxy.ts — no duplicate meta tags needed */}
-        {/* Early script: set language direction BEFORE React hydrates to prevent flash.
-            SAFE: This is a hardcoded inline script with no user-supplied input.
-            It only reads a known localStorage key ("blueprint-lang") and sets
-            document direction. Not a XSS vector — no dynamic content is interpolated. */}
+        {/* SECURITY: This inline script is safe — it contains only static code that reads from
+            localStorage and sets document direction. No user input is interpolated.
+            This is the standard Next.js pattern for preventing FOUC (flash of unstyled content). */}
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var l=localStorage.getItem("blueprint-lang")||"ar";document.documentElement.lang=l;document.documentElement.dir=l==="ar"?"rtl":"ltr"}catch(e){}})()`,

@@ -22,11 +22,11 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       include: {
         project: { select: { id: true, name: true, nameEn: true, number: true, organizationId: true } },
         items: { orderBy: { createdAt: "asc" } },
-        violations: { orderBy: { createdAt: "desc" } },
+        violations: { where: { deletedAt: null }, orderBy: { createdAt: "desc" } },
       },
     });
 
-    if (!checklist) {
+    if (!checklist || checklist.deletedAt) {
       return NextResponse.json({ error: "Supervision checklist not found" }, { status: 404 });
     }
 
@@ -136,7 +136,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     const orgError = orgCheck(user, { organizationId: existing.project?.organizationId });
     if (orgError) return orgError;
 
-    await db.supervisionChecklist.delete({ where: { id } });
+    await db.supervisionChecklist.update({ where: { id }, data: { deletedAt: new Date() } });
     return NextResponse.json({ success: true });
   } catch (error) {
     log.error("Error deleting supervision checklist:", error);

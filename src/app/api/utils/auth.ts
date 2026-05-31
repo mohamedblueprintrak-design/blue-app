@@ -383,8 +383,14 @@ export async function requireVerifiedAuth(
     const jwtUserId = payload.userId as string;
     const jwtEmail = payload.email as string;
     const jwtRole = payload.role as string;
+    const jwtOrganizationId = payload.organizationId as string | null | undefined;
 
-    if (jwtUserId !== ctx.userId || jwtEmail !== ctx.email || jwtRole !== ctx.role) {
+    if (
+      jwtUserId !== ctx.userId ||
+      jwtEmail !== ctx.email ||
+      jwtRole !== ctx.role ||
+      jwtOrganizationId !== ctx.organizationId
+    ) {
       // JWT claims don't match the headers — headers were likely forged
       log.security('requireVerifiedAuth: JWT claims do not match x-user-* headers — header forgery detected', {
         path: request.nextUrl.pathname,
@@ -394,6 +400,8 @@ export async function requireVerifiedAuth(
         jwtEmail,
         headerRole: ctx.role,
         jwtRole,
+        headerOrganizationId: ctx.organizationId,
+        jwtOrganizationId: jwtOrganizationId ?? null,
       });
       return { error: unauthorizedResponse() };
     }

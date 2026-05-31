@@ -22,7 +22,7 @@ export async function GET(
     const id = idResult.id;
 
     const contractor = await db.contractor.findFirst({
-      where: { id, ...orgFilter(ctx) },
+      where: { id, deletedAt: null, ...orgFilter(ctx) },
       include: {
         _count: {
           select: {
@@ -247,7 +247,7 @@ export async function DELETE(
       );
     }
 
-    await db.contractor.delete({ where: { id } });
+    await db.contractor.update({ where: { id }, data: { deletedAt: new Date() } });
 
     return NextResponse.json({ success: true });
   } catch (error) {

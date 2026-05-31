@@ -9,7 +9,7 @@
 import { Job } from 'bullmq';
 import { db } from '@/lib/db';
 import { log } from '@/lib/logger';
-import { TaskPriority } from '@prisma/client';
+import type { TaskPriority } from '@/types/db-enums';
 
 /**
  * Automation job data structure
@@ -61,13 +61,13 @@ export async function automationProcessor(job: Job<AutomationJobData>): Promise<
   let actionConfig: Record<string, unknown> = {};
 
   try {
-    triggerConfig = (automation.triggerConfig as Record<string, unknown>) || {};
+    triggerConfig = automation.triggerConfig ? JSON.parse(automation.triggerConfig) : {};
   } catch {
     log.error('[Processor/Automation] Invalid triggerConfig JSON', { automationId });
   }
 
   try {
-    actionConfig = (automation.actionConfig as Record<string, unknown>) || {};
+    actionConfig = automation.actionConfig ? JSON.parse(automation.actionConfig) : {};
   } catch {
     log.error('[Processor/Automation] Invalid actionConfig JSON', { automationId });
   }

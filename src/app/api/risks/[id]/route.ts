@@ -21,7 +21,7 @@ export async function GET(
     const id = idResult.id;
     const orgWhere = orgFilterNested(ctx, 'project');
     const risk = await db.risk.findFirst({
-      where: { id, ...orgWhere },
+      where: { id, deletedAt: null, ...orgWhere },
       include: {
         project: {
           select: { id: true, name: true, nameEn: true, number: true },
@@ -146,7 +146,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Risk not found" }, { status: 404 });
     }
 
-    await db.risk.delete({ where: { id } });
+    await db.risk.update({ where: { id }, data: { deletedAt: new Date() } });
     return NextResponse.json({ success: true });
   } catch (error) {
     log.error("Error deleting risk:", error);

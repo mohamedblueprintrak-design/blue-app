@@ -20,8 +20,8 @@ export async function GET(
     if (!idResult.success) return idResult.response;
     const id = idResult.id;
 
-    const equip = await db.equipment.findUnique({
-      where: { id },
+    const equip = await db.equipment.findFirst({
+      where: { id, deletedAt: null },
     });
 
     if (!equip) {
@@ -60,7 +60,7 @@ export async function PUT(
     const id = idResult.id;
 
     // Verify ownership before updating
-    const existing = await db.equipment.findUnique({ where: { id } });
+    const existing = await db.equipment.findFirst({ where: { id, deletedAt: null } });
     if (!existing) {
       return NextResponse.json({ error: "Equipment not found" }, { status: 404 });
     }
@@ -129,14 +129,14 @@ export async function DELETE(
     const id = idResult.id;
 
     // Verify ownership before deleting
-    const existing = await db.equipment.findUnique({ where: { id } });
+    const existing = await db.equipment.findFirst({ where: { id, deletedAt: null } });
     if (!existing) {
       return NextResponse.json({ error: "Equipment not found" }, { status: 404 });
     }
     const orgError = orgCheck(ctx, existing);
     if (orgError) return orgError;
 
-    await db.equipment.delete({ where: { id } });
+    await db.equipment.update({ where: { id }, data: { deletedAt: new Date() } });
 
     return NextResponse.json({ success: true });
   } catch (error) {

@@ -18,7 +18,7 @@ export async function GET(
     const idResult = validateIdParam(rawId);
     if (!idResult.success) return idResult.response;
     const id = idResult.id;
-    const orgWhere = ctx.organizationId ? { project: { organizationId: ctx.organizationId } } : {};
+    const orgWhere = ctx.organizationId ? { deletedAt: null, project: { organizationId: ctx.organizationId } } : { deletedAt: null };
 
     const item = await db.inventoryItem.findFirst({
       where: { id, ...orgWhere },
@@ -121,7 +121,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Inventory item not found" }, { status: 404 });
     }
 
-    await db.inventoryItem.delete({ where: { id } });
+    await db.inventoryItem.update({ where: { id }, data: { deletedAt: new Date() } });
 
     return NextResponse.json({ success: true });
   } catch (error) {

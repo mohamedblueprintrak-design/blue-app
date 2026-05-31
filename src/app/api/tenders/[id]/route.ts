@@ -21,7 +21,7 @@ export async function GET(
 
     // SECURITY: Filter by organizationId to prevent cross-tenant data access (IDOR)
     const tender = await db.tender.findFirst({
-      where: { id, ...orgFilter(ctx) },
+      where: { id, deletedAt: null, ...orgFilter(ctx) },
       include: {
         assignedUser: {
           select: { id: true, name: true, email: true, phone: true },
@@ -71,7 +71,7 @@ export async function PUT(
     }
 
     // SECURITY: Verify the tender belongs to the user's organization
-    const existing = await db.tender.findFirst({ where: { id, ...orgFilter(ctx) } });
+    const existing = await db.tender.findFirst({ where: { id, deletedAt: null, ...orgFilter(ctx) } });
     if (!existing) {
       return NextResponse.json(
         { error: "Tender not found" },
@@ -167,7 +167,7 @@ export async function DELETE(
     const id = idResult.id;
 
     // SECURITY: Verify the tender belongs to the user's organization
-    const existing = await db.tender.findFirst({ where: { id, ...orgFilter(ctx) } });
+    const existing = await db.tender.findFirst({ where: { id, deletedAt: null, ...orgFilter(ctx) } });
     if (!existing) {
       return NextResponse.json(
         { error: "Tender not found" },
@@ -175,7 +175,7 @@ export async function DELETE(
       );
     }
 
-    await db.tender.delete({ where: { id } });
+    await db.tender.update({ where: { id }, data: { deletedAt: new Date() } });
 
     return NextResponse.json({ success: true });
   } catch (error) {

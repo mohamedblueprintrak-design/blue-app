@@ -172,7 +172,7 @@ export function InvoiceTable({
               size="icon"
               className="h-7 w-7"
               disabled={currentPage <= 1}
-              onClick={() => setCurrentPage((p) => p - 1)}
+              onClick={() => setCurrentPage(currentPage - 1)}
               aria-label="Previous page"
             >
               <ChevronRight className="h-3.5 w-3.5" />
@@ -210,7 +210,7 @@ export function InvoiceTable({
               size="icon"
               className="h-7 w-7"
               disabled={currentPage >= totalPages}
-              onClick={() => setCurrentPage((p) => p + 1)}
+              onClick={() => setCurrentPage(currentPage + 1)}
               aria-label="Next page"
             >
               <ChevronLeft className="h-3.5 w-3.5" />

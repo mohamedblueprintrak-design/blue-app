@@ -4,10 +4,6 @@
  * Stores files on the local filesystem with a date-based directory structure.
  * Files are stored under the UPLOAD_DIR (default: ./uploads) with the structure:
  *   uploads/{year}/{month}/{day}/{uuid}-{filename}
- *
- * SECURITY FIXES (CWE-22, CWE-434):
- * - Path traversal: resolved path must be within uploadDir (blocks ../, %2e%2e, etc.)
- * - Content-type: strict allowlist with no wildcard fallback
  */
 
 import { StorageProvider } from './index';
@@ -16,49 +12,66 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as crypto from 'crypto';
 
+// Dangerous MIME types that should NEVER be allowed for upload (CWE-434)
+const BLOCKED_MIME_TYPES = [
+  'application/x-sh',
+  'application/x-executable',
+  'application/x-msdos-program',
+  'application/x-msdownload',
+  'application/x-bat',
+  'application/x-csh',
+  'application/x-ksh',
+  'application/x-shellscript',
+  'text/x-php',
+  'text/x-python',
+  'text/x-perl',
+  'text/x-shellscript',
+];
+
 export class LocalStorageProvider implements StorageProvider {
   private uploadDir: string;
 
   constructor() {
-    this.uploadDir = path.resolve(process.env.UPLOAD_DIR || './uploads');
+    this.uploadDir = process.env.UPLOAD_DIR || './uploads';
   }
 
   /**
-   * Validate that a resolved path stays within the upload directory.
-   * Prevents path traversal attacks (CWE-22) including:
-   *   - ../ sequences
-   *   - URL-encoded variants like %2e%2e%2f
-   *   - Mixed encoding attacks
-   *   - Null byte injection
+   * Get the absolute path for a storage key
+   * SECURITY: Resolves the path and validates it stays within the upload directory
+   * to prevent path traversal attacks (e.g., key="../../../etc/passwd")
    *
-   * @param key - The storage key (relative path)
-   * @returns The validated absolute path
-   * @throws Error if the key attempts path traversal
+   * FIX (CWE-22): decodeURIComponent is now called BEFORE the traversal check,
+   * preventing bypass via URL-encoded sequences like %2e%2e%2f
    */
-  private validateAndResolvePath(key: string): string {
-    // Block null bytes (null byte injection)
-    if (key.includes('\0') || key.includes('%00')) {
-      throw new Error('Invalid storage key: null byte detected');
+  private getFullPath(key: string): string {
+    // SECURITY: Decode URI encoding FIRST, then validate and resolve.
+    // Previously, decodeURIComponent was called after validateKey, which meant
+    // encoded sequences like %2e%2e could bypass the ".." check (CWE-22).
+    const decodedKey = decodeURIComponent(key);
+    // Now check for traversal on the DECODED key
+    if (decodedKey.includes('..') || decodedKey.includes('\\')) {
+      throw new Error(`Invalid storage key: path traversal detected`);
     }
-
-    // Block URL-encoded path traversal sequences
-    const decodedLower = decodeURIComponent(key).toLowerCase();
-    if (decodedLower.includes('..') || decodedLower.includes('\\')) {
-      throw new Error('Invalid storage key: path traversal detected');
+    // Normalize the path to resolve any ../ or ./ sequences
+    const resolvedPath = path.resolve(this.uploadDir, decodedKey);
+    const normalizedUploadDir = path.resolve(this.uploadDir);
+    // SECURITY: Ensure the resolved path is within the upload directory
+    if (!resolvedPath.startsWith(normalizedUploadDir + path.sep) && resolvedPath !== normalizedUploadDir) {
+      throw new Error(`Path traversal detected: key resolves outside upload directory`);
     }
-
-    // Resolve the full path and verify it stays within uploadDir
-    const resolvedPath = path.resolve(this.uploadDir, key);
-
-    // Normalize both paths for comparison (handles symlinks, case differences)
-    const normalizedUploadDir = path.normalize(this.uploadDir + path.sep);
-    const normalizedResolved = path.normalize(resolvedPath + path.sep);
-
-    if (!normalizedResolved.startsWith(normalizedUploadDir)) {
-      throw new Error('Invalid storage key: path escapes upload directory');
-    }
-
     return resolvedPath;
+  }
+
+  /**
+   * Validate that a storage key doesn't contain path traversal sequences
+   * SECURITY: Decodes URI encoding before checking to prevent bypass via %2e%2e (CWE-22)
+   */
+  private validateKey(key: string): void {
+    // Decode first to catch encoded traversal sequences (e.g., %2e%2e%2f)
+    const decodedKey = decodeURIComponent(key);
+    if (decodedKey.includes('..') || decodedKey.includes('\\')) {
+      throw new Error(`Invalid storage key: path traversal detected`);
+    }
   }
 
   /**
@@ -72,52 +85,45 @@ export class LocalStorageProvider implements StorageProvider {
   }
 
   /**
-   * Strict content-type allowlist — NO wildcard fallback.
-   * Previously allowed application/* which permitted executables, scripts, etc. (CWE-434)
-   */
-  private static readonly ALLOWED_CONTENT_TYPES: ReadonlySet<string> = new Set([
-    // Documents
-    'application/pdf',
-    'application/msword',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    'application/vnd.ms-excel',
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-    // Images
-    'image/jpeg',
-    'image/png',
-    'image/gif',
-    'image/webp',
-    'image/svg+xml',
-    'image/bmp',
-    'image/tiff',
-    // Text
-    'text/plain',
-    'text/csv',
-    'text/markdown',
-    // Archives
-    'application/zip',
-    'application/x-rar-compressed',
-    'application/x-7z-compressed',
-    // CAD / Engineering
-    'application/dwg',
-    'application/dxf',
-    'application/vnd.autodesk.revit',
-    // JSON / Data
-    'application/json',
-  ]);
-
-  /**
-   * Validate content-type against strict allowlist
-   * @param contentType - The MIME type to validate
-   * @throws Error if the content type is not in the allowlist
+   * Validate content type against strict allowlist
+   * FIX (CWE-434): Strict allowlist ONLY — no broad wildcard fallbacks.
+   * Previously, a secondary check allowed ALL image/* subtypes through,
+   * which bypassed the allowlist and permitted dangerous types like
+   * image/svg+xml (which can contain embedded JavaScript → XSS).
+   *
+   * Now the only way a MIME type passes is if its base form
+   * (without parameters) is in the explicit ALLOWED_TYPES list.
+   * image/svg+xml is intentionally excluded to prevent XSS via SVG.
    */
   private validateContentType(contentType: string): void {
-    // Strip parameters (e.g., "image/png; charset=utf-8" → "image/png")
-    const mimeType = contentType.split(';')[0].trim().toLowerCase();
+    if (!contentType || typeof contentType !== 'string') {
+      throw new Error('Content type is required');
+    }
 
-    if (!LocalStorageProvider.ALLOWED_CONTENT_TYPES.has(mimeType)) {
-      throw new Error(`File type not allowed: ${mimeType}. Allowed types: ${Array.from(LocalStorageProvider.ALLOWED_CONTENT_TYPES).join(', ')}`);
+    // Strip parameters (e.g., "image/png; charset=utf-8" → "image/png")
+    const baseContentType = contentType.split(';')[0].trim().toLowerCase();
+
+    // Block dangerous types first
+    if (BLOCKED_MIME_TYPES.some(blocked => baseContentType === blocked)) {
+      throw new Error(`File type blocked for security: ${baseContentType}`);
+    }
+
+    // Strict allowlist of permitted MIME types — ONLY these pass
+    const ALLOWED_TYPES = [
+      'application/pdf',
+      'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/bmp', 'image/tiff',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/msword',
+      'application/vnd.ms-excel',
+      'text/plain', 'text/csv',
+      'application/zip', 'application/x-rar-compressed',
+      'application/dwg', 'application/dxf',
+    ];
+
+    // SECURITY: No wildcard fallback — exact match against allowlist only
+    if (!ALLOWED_TYPES.includes(baseContentType)) {
+      throw new Error(`File type not allowed: ${baseContentType}`);
     }
   }
 
@@ -130,20 +136,23 @@ export class LocalStorageProvider implements StorageProvider {
    */
   async upload(key: string, data: Buffer, contentType: string): Promise<string> {
     try {
+      // SECURITY: Validate key against path traversal
+      this.validateKey(key);
       // Validate file size (50MB max)
       const MAX_FILE_SIZE = 50 * 1024 * 1024;
       if (data.length > MAX_FILE_SIZE) {
         throw new Error(`File size exceeds maximum allowed (${MAX_FILE_SIZE / 1024 / 1024}MB)`);
       }
 
-      // SECURITY: Validate content-type against strict allowlist (CWE-434 fix)
+      // SECURITY: Validate content type against strict allowlist (CWE-434 fix)
       this.validateContentType(contentType);
 
-      // SECURITY: Validate key prevents path traversal (CWE-22 fix)
-      const fullPath = this.validateAndResolvePath(key);
+      const fullPath = this.getFullPath(key);
       this.ensureDirectoryExists(fullPath);
 
-      fs.writeFileSync(fullPath, data);
+      // Use async file I/O to avoid blocking the event loop
+      const { promises: fsp } = fs;
+      await fsp.writeFile(fullPath, data);
 
       log.info('[LocalStorage] File uploaded', {
         key,
@@ -167,14 +176,17 @@ export class LocalStorageProvider implements StorageProvider {
    */
   async download(key: string): Promise<Buffer> {
     try {
-      // SECURITY: Validate key prevents path traversal (CWE-22 fix)
-      const fullPath = this.validateAndResolvePath(key);
+      // SECURITY: Validate key against path traversal
+      this.validateKey(key);
+      const fullPath = this.getFullPath(key);
 
       if (!fs.existsSync(fullPath)) {
         throw new Error(`File not found: ${key}`);
       }
 
-      const data = fs.readFileSync(fullPath);
+      // Use async file I/O
+      const { promises: fsp } = fs;
+      const data = await fsp.readFile(fullPath);
 
       log.info('[LocalStorage] File downloaded', { key, size: data.length });
 
@@ -196,8 +208,9 @@ export class LocalStorageProvider implements StorageProvider {
    */
   async delete(key: string): Promise<void> {
     try {
-      // SECURITY: Validate key prevents path traversal (CWE-22 fix)
-      const fullPath = this.validateAndResolvePath(key);
+      // SECURITY: Validate key against path traversal
+      this.validateKey(key);
+      const fullPath = this.getFullPath(key);
 
       if (!fs.existsSync(fullPath)) {
         // File doesn't exist — nothing to delete
@@ -205,7 +218,9 @@ export class LocalStorageProvider implements StorageProvider {
         return;
       }
 
-      fs.unlinkSync(fullPath);
+      // Use async file I/O
+      const { promises: fsp } = fs;
+      await fsp.unlink(fullPath);
 
       log.info('[LocalStorage] File deleted', { key });
     } catch (error) {
@@ -225,11 +240,14 @@ export class LocalStorageProvider implements StorageProvider {
    * @returns A relative URL path with expiration and signature to download the file
    */
   async getSignedUrl(key: string, expiresIn: number = 3600): Promise<string> {
-    // SECURITY: Validate key prevents path traversal even for signed URLs
-    this.validateAndResolvePath(key);
-
+    // SECURITY: Validate key against path traversal
+    this.validateKey(key);
     const expires = Math.floor(Date.now() / 1000) + expiresIn;
-    const secret = process.env.JWT_SECRET || 'local-storage-signing-key';
+    // SECURITY (CWE-798): Require JWT_SECRET to be set — no hardcoded fallback in production
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      throw new Error('JWT_SECRET environment variable is required for signed URLs');
+    }
     const signature = crypto
       .createHmac('sha256', secret)
       .update(`${key}:${expires}`)
@@ -245,8 +263,9 @@ export class LocalStorageProvider implements StorageProvider {
    */
   async exists(key: string): Promise<boolean> {
     try {
-      // SECURITY: Validate key prevents path traversal (CWE-22 fix)
-      const fullPath = this.validateAndResolvePath(key);
+      // SECURITY: Validate key against path traversal
+      this.validateKey(key);
+      const fullPath = this.getFullPath(key);
       return fs.existsSync(fullPath);
     } catch {
       return false;

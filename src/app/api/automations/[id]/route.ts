@@ -37,7 +37,7 @@ export async function PATCH(
     }
 
     // SECURITY: Verify the automation belongs to the user's organization
-    const existing = await db.automation.findFirst({ where: { id, ...orgFilter(ctx) } });
+    const existing = await db.automation.findFirst({ where: { id, deletedAt: null, ...orgFilter(ctx) } });
     if (!existing) {
       return errorResponse('Automation not found', 404);
     }
@@ -69,12 +69,12 @@ export async function DELETE(
     const id = idResult.id;
 
     // SECURITY: Verify the automation belongs to the user's organization
-    const existing = await db.automation.findFirst({ where: { id, ...orgFilter(ctx) } });
+    const existing = await db.automation.findFirst({ where: { id, deletedAt: null, ...orgFilter(ctx) } });
     if (!existing) {
       return errorResponse('Automation not found', 404);
     }
 
-    await db.automation.delete({ where: { id } });
+    await db.automation.update({ where: { id }, data: { deletedAt: new Date() } });
     return successResponse({ id, deleted: true });
   } catch (error) {
     log.error('Error deleting automation:', error);

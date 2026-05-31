@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { hash } from 'bcryptjs';
 import { orgFilter, orgCreate, requireVerifiedPermission } from '@/app/api/utils/auth';
 import { Permission, UserRoleValues } from '@/lib/auth/types';
-import { getRoleLevel, normalizeRole, canAccessHR } from '@/lib/auth/modules/authorization';
+import { getRoleLevel, normalizeRole } from '@/lib/auth/modules/authorization';
 import { cacheDeletePattern } from '@/lib/cache/redis';
 import { log } from '@/lib/logger';
 import { handleApiError } from '@/lib/api-error';
@@ -35,8 +35,8 @@ export async function GET(request: NextRequest) {
     const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "50", 10)));
     const skip = (page - 1) * limit;
 
-    // SECURITY: Only expose salary to privileged roles (ADMIN, HR, ACCOUNTANT)
-    const userCanSeeSalary = canAccessHR(ctx.role) || ctx.role.toUpperCase() === 'ACCOUNTANT';
+    // Only expose salary to ADMIN and HR roles
+    const canSeeSalary = ctx.role === 'ADMIN' || ctx.role === 'HR';
 
     const users = await db.user.findMany({
       where: { ...orgFilter(ctx) },
@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
         createdAt: true,
         employee: {
           select: {
-            ...(userCanSeeSalary ? { salary: true } : {}),
+            ...(canSeeSalary ? { salary: true } : {}),
             employmentStatus: true,
             hireDate: true,
           },

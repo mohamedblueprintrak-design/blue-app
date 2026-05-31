@@ -20,7 +20,7 @@ export async function GET(
     const id = idResult.id;
     const orgWhere = orgFilterNested(ctx, 'project');
     const meeting = await db.meeting.findFirst({
-      where: { id, ...orgWhere },
+      where: { id, deletedAt: null, ...orgWhere },
       include: {
         project: {
           select: { id: true, name: true, nameEn: true, number: true },
@@ -156,7 +156,7 @@ export async function DELETE(
     if (!existing) {
       return NextResponse.json({ error: "Meeting not found" }, { status: 404 });
     }
-    await db.meeting.delete({ where: { id } });
+    await db.meeting.update({ where: { id }, data: { deletedAt: new Date() } });
     return NextResponse.json({ success: true });
   } catch (error) {
     log.error("Error deleting meeting:", error);

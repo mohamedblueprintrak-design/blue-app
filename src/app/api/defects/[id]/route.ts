@@ -18,7 +18,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const id = idResult.id;
     const orgWhere = orgFilterNested(ctx, 'project');
     const defect = await db.defect.findFirst({
-      where: { id, ...orgWhere },
+      where: { id, deletedAt: null, ...orgWhere },
       include: {
         project: {
           select: { id: true, name: true, nameEn: true, number: true },
@@ -108,7 +108,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     if (!existing) {
       return NextResponse.json({ error: "Defect not found" }, { status: 404 });
     }
-    await db.defect.delete({ where: { id } });
+    await db.defect.update({ where: { id }, data: { deletedAt: new Date() } });
     return NextResponse.json({ success: true });
   } catch (error) {
     log.error("Error deleting defect:", error);

@@ -102,7 +102,7 @@ export function CreateTransmittalDialog({
   };
 
   return (
-      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -278,16 +278,18 @@ export function CreateTransmittalDialog({
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => { setShowAddDialog(false); resetForm(); }}>
+            <Button variant="outline" onClick={() => { onOpenChange(false); resetForm(); }}>
               {ar ? "إلغاء" : "Cancel"}
             </Button>
             <Button
               className="bg-teal-600 hover:bg-teal-700 text-white"
               onClick={handleSubmit}
-              disabled={!formData.projectId || !formData.subject || !formData.fromId || createMutation.isPending}
+              disabled={!formData.projectId || !formData.subject || !formData.fromId || isPending}
             >
-              {createMutation.isPending ? (ar ? "جارٍ الإنشاء..." : "Creating...") : (ar ? "إنشاء وإرسال" : "Create & Send")}
+              {isPending ? (ar ? "جارٍ الإنشاء..." : "Creating...") : (ar ? "إنشاء وإرسال" : "Create & Send")}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+    );
+}

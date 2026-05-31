@@ -31,18 +31,18 @@ import { getDeliveryBadge, getStatusBadge, getPurposeBadge } from "./helpers";
 
 interface TransmittalDetailDialogProps {
   ar: boolean;
-  transmittal: TransmittalItem;
+  selectedTransmittal: TransmittalItem | null;
   onClose: () => void;
 }
 
 export function TransmittalDetailDialog({
   ar,
-  transmittal,
+  selectedTransmittal,
   onClose,
 }: TransmittalDetailDialogProps) {
   const [itemReplies, setItemReplies] = useState<Record<string, { received: boolean; approved: boolean; rejected: boolean; needsRevision: boolean; replyNotes: string }>>(() => {
     const replies: Record<string, { received: boolean; approved: boolean; rejected: boolean; needsRevision: boolean; replyNotes: string }> = {};
-    transmittal.items.forEach((item) => {
+    selectedTransmittal?.items.forEach((item) => {
       replies[item.id] = {
         received: item.received,
         approved: item.approved,
@@ -55,7 +55,7 @@ export function TransmittalDetailDialog({
   });
 
   return (
-      <Dialog open={showDetailDialog} onOpenChange={setShowDetailDialog}>
+    <Dialog open={!!selectedTransmittal} onOpenChange={(open) => { if (!open) onClose(); }}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           {selectedTransmittal && (
             <>
@@ -246,6 +246,5 @@ export function TransmittalDetailDialog({
           )}
         </DialogContent>
       </Dialog>
-    </div>
   );
 }

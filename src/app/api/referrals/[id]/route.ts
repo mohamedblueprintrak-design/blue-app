@@ -24,7 +24,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     const { status, discountGiven, rewardAmount, notes } = body;
 
     // SECURITY: Verify the referral belongs to the user's organization
-    const existing = await db.referral.findFirst({ where: { id, ...orgFilter(ctx) } });
+    const existing = await db.referral.findFirst({ where: { id, deletedAt: null, ...orgFilter(ctx) } });
     if (!existing) {
       return NextResponse.json({ error: "Referral not found" }, { status: 404 });
     }
@@ -62,12 +62,12 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     const id = idResult.id;
 
     // SECURITY: Verify the referral belongs to the user's organization
-    const existing = await db.referral.findFirst({ where: { id, ...orgFilter(ctx) } });
+    const existing = await db.referral.findFirst({ where: { id, deletedAt: null, ...orgFilter(ctx) } });
     if (!existing) {
       return NextResponse.json({ error: "Referral not found" }, { status: 404 });
     }
 
-    await db.referral.delete({ where: { id } });
+    await db.referral.update({ where: { id }, data: { deletedAt: new Date() } });
     return NextResponse.json({ success: true });
   } catch (error) {
     log.error("Error deleting referral:", error);

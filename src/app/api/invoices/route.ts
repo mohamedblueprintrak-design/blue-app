@@ -12,8 +12,9 @@ import { cacheDeletePattern } from '@/lib/cache/redis';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 import { log } from '@/lib/logger';
 
-// Tax rate - configurable via environment variable (default: 5% UAE VAT)
-const TAX_RATE = parseFloat(process.env.TAX_RATE || '0.05');
+// Tax rate - configurable via environment variable (default from shared constants)
+import { VAT_RATE } from '@/lib/constants';
+const TAX_RATE = parseFloat(process.env.TAX_RATE || String(VAT_RATE));
 
 // Zod schema for invoice line items validation
 const invoiceItemSchema = z.object({

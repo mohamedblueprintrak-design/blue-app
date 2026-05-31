@@ -33,7 +33,7 @@ export async function GET(
     }
 
     const comments = await db.projectComment.findMany({
-      where: { projectId: id },
+      where: { projectId: id, deletedAt: null },
       orderBy: { createdAt: "desc" },
       include: {
         user: {
@@ -168,8 +168,9 @@ export async function DELETE(
       return forbiddenResponse();
     }
 
-    await db.projectComment.delete({
+    await db.projectComment.update({
       where: { id: commentId },
+      data: { deletedAt: new Date() },
     });
 
     return NextResponse.json({ success: true });

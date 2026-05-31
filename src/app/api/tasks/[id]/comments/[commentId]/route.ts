@@ -60,8 +60,9 @@ export async function DELETE(
       return forbiddenResponse();
     }
 
-    await db.taskComment.delete({
+    await db.taskComment.update({
       where: { id: commentId },
+      data: { deletedAt: new Date() },
     });
 
     return NextResponse.json({ success: true });

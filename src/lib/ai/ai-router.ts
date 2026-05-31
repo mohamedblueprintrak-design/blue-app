@@ -8,21 +8,6 @@
 
 import { AITaskType, getBestModelForTask, getModelInfo} from './model-config';
 
-// ─── Security Limits (CWE-400) ────────────────────────────────────────────────
-const MAX_PROMPT_LENGTH = 10000;
-const MAX_CONTEXT_LENGTH = 5000;
-const MAX_DOCUMENT_LENGTH = 50000;
-const MAX_HISTORY_MESSAGES = 20;
-
-/**
- * Sanitize input by removing null bytes and control characters.
- * Preserves newline (\n), tab (\t), and carriage-return (\r).
- */
-function sanitizeInput(input: string): string {
-  // eslint-disable-next-line no-control-regex
-  return input.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
-}
-
 // أنواع المدخلات
 export interface AIRequest {
   task: AITaskType;
@@ -188,21 +173,38 @@ export class AIRouter {
     messages.push({ role: 'system', content: systemPrompt });
 
     // التاريخ (history)
+    // SECURITY FIX (CWE-400): Limit history to prevent memory exhaustion
+    const MAX_HISTORY_ITEMS = 20;
+    const MAX_HISTORY_CONTENT_LENGTH = 10000; // 10KB per message
     if (request.history && request.history.length > 0) {
-      request.history.forEach(msg => {
-        messages.push({ role: msg.role, content: msg.content });
+      const limitedHistory = request.history.slice(-MAX_HISTORY_ITEMS); // Keep only last N messages
+      limitedHistory.forEach(msg => {
+        const truncatedContent = msg.content.length > MAX_HISTORY_CONTENT_LENGTH
+          ? msg.content.substring(0, MAX_HISTORY_CONTENT_LENGTH) + '...[truncated]'
+          : msg.content;
+        messages.push({ role: msg.role, content: truncatedContent });
       });
     }
 
     // السياق
+    // SECURITY FIX (CWE-400): Limit context size
+    const MAX_CONTEXT_LENGTH = 50000; // 50KB
     let userContent = '';
     if (request.context) {
-      userContent += `السياق:\n${request.context}\n\n`;
+      const truncatedContext = request.context.length > MAX_CONTEXT_LENGTH
+        ? request.context.substring(0, MAX_CONTEXT_LENGTH) + '...[truncated]'
+        : request.context;
+      userContent += `السياق:\n${truncatedContext}\n\n`;
     }
 
     // المستند
+    // SECURITY FIX (CWE-400): Limit document size
+    const MAX_DOCUMENT_LENGTH = 500000; // 500KB
     if (request.document) {
-      userContent += `المستند:\n${request.document}\n\n`;
+      const truncatedDoc = request.document.length > MAX_DOCUMENT_LENGTH
+        ? request.document.substring(0, MAX_DOCUMENT_LENGTH) + '...[truncated]'
+        : request.document;
+      userContent += `المستند:\n${truncatedDoc}\n\n`;
     }
 
     // الطلب الرئيسي
@@ -236,57 +238,21 @@ export class AIRouter {
   }
 
   /**
-   * Validate and sanitize an AI request.
-   * Throws clear errors when security limits are exceeded.
-   */
-  private validateRequest(request: AIRequest): void {
-    // Sanitize string inputs — remove null bytes and control characters
-    if (request.prompt) {
-      request.prompt = sanitizeInput(request.prompt);
-    }
-    if (request.context) {
-      request.context = sanitizeInput(request.context);
-    }
-    if (request.document) {
-      request.document = sanitizeInput(request.document);
-    }
-
-    // Enforce maximum prompt length
-    if (request.prompt && request.prompt.length > MAX_PROMPT_LENGTH) {
-      throw new Error(
-        `Prompt exceeds maximum length of ${MAX_PROMPT_LENGTH} characters (received ${request.prompt.length})`
-      );
-    }
-
-    // Enforce maximum context length
-    if (request.context && request.context.length > MAX_CONTEXT_LENGTH) {
-      throw new Error(
-        `Context exceeds maximum length of ${MAX_CONTEXT_LENGTH} characters (received ${request.context.length})`
-      );
-    }
-
-    // Enforce maximum document length
-    if (request.document && request.document.length > MAX_DOCUMENT_LENGTH) {
-      throw new Error(
-        `Document exceeds maximum length of ${MAX_DOCUMENT_LENGTH} characters (received ${request.document.length})`
-      );
-    }
-
-    // Enforce maximum conversation history
-    if (request.history && request.history.length > MAX_HISTORY_MESSAGES) {
-      throw new Error(
-        `Conversation history exceeds maximum of ${MAX_HISTORY_MESSAGES} messages (received ${request.history.length})`
-      );
-    }
-  }
-
-  /**
    * تنفيذ طلب AI
    */
   async execute(request: AIRequest): Promise<AIResponse> {
     try {
-      // Validate input before processing (CWE-400)
-      this.validateRequest(request);
+      // SECURITY: Limit base64 image size to prevent memory exhaustion
+      // A 10MB base64 string is ~7.5MB of actual image data
+      const MAX_BASE64_SIZE = 10 * 1024 * 1024; // 10MB
+      if (request.image && request.image.length > MAX_BASE64_SIZE) {
+        return {
+          success: false,
+          content: '',
+          model: request.modelOverride || getBestModelForTask(request.task, !!request.image),
+          error: 'Image size exceeds maximum allowed (10MB). Please compress the image and try again.'
+        };
+      }
 
       const model = this.selectModel(request);
       const messages = this.buildMessages(request);
@@ -308,7 +274,7 @@ export class AIRouter {
           })),
           task: request.task,
           temperature: request.temperature ?? 0.7,
-          max_tokens: request.maxTokens ?? 4000,
+          max_tokens: Math.min(request.maxTokens ?? 4000, 8000), // SECURITY FIX (CWE-400): Cap max_tokens at 8000
           image: request.image
         })
       });

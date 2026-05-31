@@ -4,7 +4,7 @@ import { validateRequest, siteDiarySchema } from '@/lib/api-validation';
 import { requireVerifiedPermission, orgFilter, orgCreate } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
-import { WeatherCondition } from '@prisma/client';
+import type { WeatherCondition } from '@/types/db-enums';
 
 export async function GET(request: NextRequest) {
   try {
@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
 
     // SiteDiary doesn't have organizationId directly; filter through project relationship
     const orgWhere = ctx.organizationId ? { project: { organizationId: ctx.organizationId } } : {};
-    const where: Record<string, unknown> = { ...orgWhere };
+    const where: Record<string, unknown> = { deletedAt: null, ...orgWhere };
     if (projectId) where.projectId = projectId;
 
     const siteDiaries = await db.siteDiary.findMany({

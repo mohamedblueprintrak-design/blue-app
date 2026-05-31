@@ -21,7 +21,7 @@ export async function GET(
     const id = idResult.id;
 
     const supplier = await db.supplier.findFirst({
-      where: { id, ...orgFilter(ctx) },
+      where: { id, deletedAt: null, ...orgFilter(ctx) },
       include: {
         purchaseOrders: {
           include: {
@@ -142,7 +142,7 @@ export async function DELETE(
       );
     }
 
-    await db.supplier.delete({ where: { id } });
+    await db.supplier.update({ where: { id }, data: { deletedAt: new Date() } });
 
     return NextResponse.json({ success: true });
   } catch (error) {

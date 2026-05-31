@@ -114,7 +114,7 @@ export async function GET(request: NextRequest) {
     ]);
 
     const summary = {
-      thisWeekHours: thisWeekHours._sum.totalHours || 0,
+      thisWeekHours: thisWeekHours._sum?.totalHours || 0,
       PENDING: pendingCount,
       APPROVED: approvedCount,
       REJECTED: rejectedCount,

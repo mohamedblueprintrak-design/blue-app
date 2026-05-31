@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get("status");
     const municipality = searchParams.get("municipality");
 
-    const where: Record<string, unknown> = { ...orgFilter(ctx) };
+    const where: Record<string, unknown> = { deletedAt: null, ...orgFilter(ctx) };
     if (projectId) where.projectId = projectId;
     if (status) where.status = status;
     if (municipality) where.municipality = municipality;

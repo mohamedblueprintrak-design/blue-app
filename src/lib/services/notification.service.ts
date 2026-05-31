@@ -8,13 +8,12 @@
 
 import { db } from '@/lib/db';
 import { log } from '@/lib/logger';
-import { NotificationType as PrismaNotificationType } from '@prisma/client';
+import type { NotificationType } from '@/types/db-enums';
+export type { NotificationType };
 
 // ============================================
 // Types
 // ============================================
-
-export type NotificationType = PrismaNotificationType;
 
 export interface CreateNotificationInput {
   userId: string;

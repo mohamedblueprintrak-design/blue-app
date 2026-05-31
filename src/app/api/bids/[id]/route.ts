@@ -17,7 +17,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const id = idResult.id;
     const orgWhere = orgFilterNested(ctx, 'project');
     const bid = await db.bid.findFirst({
-      where: { id, ...orgWhere },
+      where: { id, deletedAt: null, ...orgWhere },
       include: {
         project: { select: { id: true, name: true, nameEn: true, number: true } },
         contractor: {
@@ -166,7 +166,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     if (!existing) {
       return NextResponse.json({ error: "Bid not found" }, { status: 404 });
     }
-    await db.bid.delete({ where: { id } });
+    await db.bid.update({ where: { id }, data: { deletedAt: new Date() } });
     return NextResponse.json({ success: true });
   } catch (error) {
     log.error("Error deleting bid:", error);
