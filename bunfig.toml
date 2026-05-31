@@ -1,0 +1,9 @@
+[test]
+# Exclude Playwright e2e tests — they need their own runner (npx playwright test)
+# Also exclude node_modules and other non-test directories
+exclude = [
+  "e2e/**",
+  "e2e/",
+  "./e2e/**",
+  "node_modules/**",
+]

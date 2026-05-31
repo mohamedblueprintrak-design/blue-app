@@ -1,8 +1,15 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// ============================================
+// DATABASE PROVIDER CONFIGURATION
+// ============================================
+// This schema is configured for SQLite.
+//
+// SETUP:
+//   1. Set DATABASE_URL in .env to "file:./db/custom.db"
+//   2. Run: npx prisma db push
+//   3. Run: npx tsx prisma/seed.ts
+//
+// NOTE: With SQLite, enums are stored as strings.
+// ============================================
 
 generator client {
   provider = "prisma-client-js"
@@ -13,20 +20,3428 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+// ==================== ENUMS (SaaS Multi-tenant) ====================
+
+/// User roles in the system
+enum UserRole {
+  ADMIN // Full system access
+  MANAGER // Project management access
+  PROJECT_MANAGER // Project-level management
+  ENGINEER // Technical access
+  DRAFTSMAN // Drafting and drawing access
+  ACCOUNTANT // Financial access
+  HR // Human resources access
+  SECRETARY // Office management and documents
+  VIEWER // Read-only access
 }
 
-model Post {
-  id        String   @id @default(cuid())
-  title     String
-  content   String?
-  published Boolean  @default(false)
-  authorId  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+/// Permission types for fine-grained access control
+enum Permission {
+  // Project permissions
+  PROJECT_CREATE
+  PROJECT_READ
+  PROJECT_UPDATE
+  PROJECT_DELETE
+
+  // Task permissions
+  TASK_CREATE
+  TASK_READ
+  TASK_UPDATE
+  TASK_DELETE
+
+  // Client permissions
+  CLIENT_CREATE
+  CLIENT_READ
+  CLIENT_UPDATE
+  CLIENT_DELETE
+
+  // Invoice permissions
+  INVOICE_CREATE
+  INVOICE_READ
+  INVOICE_UPDATE
+  INVOICE_DELETE
+
+  // User management permissions
+  USER_CREATE
+  USER_READ
+  USER_UPDATE
+  USER_DELETE
+
+  // Settings permissions
+  SETTINGS_READ
+  SETTINGS_UPDATE
+
+  // Reports permissions
+  REPORTS_READ
+  REPORTS_EXPORT
+
+  // Budget permissions
+  BUDGET_MANAGE
+
+  // Document permissions
+  DOCUMENT_CREATE
+  DOCUMENT_READ
+  DOCUMENT_UPDATE
+  DOCUMENT_DELETE
+}
+
+/// Subscription status
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELED
+  PAST_DUE
+  TRIALING
+}
+
+/// Payment status for SaaS subscriptions
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  REFUNDED
+}
+
+/// Subscription interval
+enum SubscriptionInterval {
+  MONTH
+  YEAR
+}
+
+/// Two-factor challenge type
+enum TwoFactorChallengeType {
+  TOTP
+  BACKUP
+  SMS
+}
+
+/// Task type for categorization
+enum TaskType {
+  STANDARD // Regular task
+  GOVERNMENTAL // Government entity
+  MANDATORY // Mandatory for licensing
+  CLIENT // Client approval
+  INTERNAL // Internal task
+}
+
+/// SLA breach status for monitoring
+enum SLABreachStatus {
+  WARNING // Warning before SLA expires
+  BREACHED // SLA exceeded
+  CRITICAL // Critical breach
+  RESOLVED // Resolved
+}
+
+/// Government approval status
+enum GovernmentApprovalStatus {
+  PENDING
+  SUBMITTED
+  APPROVED
+  REJECTED
+}
+
+/// Utility connection status
+enum UtilityConnectionStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+}
+
+/// Project type classification
+enum ProjectType {
+  VILLA
+  BUILDING
+  COMMERCIAL
+  INDUSTRIAL
+}
+
+/// Project lifecycle status
+enum ProjectStatus {
+  ACTIVE
+  COMPLETED
+  DELAYED
+  ON_HOLD
+  CANCELLED
+}
+
+/// Payment method for project billing
+enum PaymentMethod {
+  CASH
+  CHEQUE
+  TRANSFER
+  INSTALLMENTS
+}
+
+/// Municipality correspondence type
+enum CorrespondenceType {
+  SUBMISSION
+  RESPONSE
+  REJECTION
+  APPROVAL
+  INQUIRY
+  AMENDMENT
+}
+
+/// Municipality correspondence status
+enum CorrespondenceStatus {
+  PENDING
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  AMENDMENT_REQUIRED
+}
+
+/// Project assignment role
+enum ProjectAssignmentRole {
+  TEAM_MEMBER
+  LEAD
+  MANAGER
+  VIEWER
+}
+
+/// Project stage status
+enum ProjectStageStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  SUBMITTED
+  APPROVED
+  REJECTED
+}
+
+/// Client type classification
+enum ClientType {
+  INDIVIDUAL
+  COMPANY
+  GOVERNMENT
+}
+
+/// Client project type
+enum ClientProjectType {
+  VILLA
+  APARTMENT
+  COMMERCIAL
+  INDUSTRIAL
+  RESIDENTIAL_BUILDING
+  MEDICAL
+}
+
+/// Client referral source
+enum ReferralSource {
+  SOCIAL_MEDIA
+  REFERRAL
+  WEBSITE
+  WALK_IN
+  ADVERTISEMENT
+  OTHER
+}
+
+/// Client interaction type
+enum InteractionType {
+  MEETING
+  CALL
+  EMAIL
+}
+
+/// Task priority levels
+enum TaskPriority {
+  NORMAL
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+/// Task lifecycle status
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  REVIEW
+  DONE
+  CANCELLED
+}
+
+/// Contract type classification
+enum ContractType {
+  ENGINEERING_SERVICES
+  CONSTRUCTION
+  CONSULTING
+  MAINTENANCE
+}
+
+/// Contract lifecycle status
+enum ContractStatus {
+  DRAFT
+  PENDING_SIGNATURE
+  ACTIVE
+  EXPIRED
+  COMPLETED
+}
+
+/// Contract amendment status
+enum AmendmentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+/// Invoice lifecycle status
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PARTIALLY_PAID
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+/// Payment method for transactions
+enum TransactionPayMethod {
+  CASH
+  CHEQUE
+  TRANSFER
+  ONLINE
+}
+
+/// Payment lifecycle status
+enum PaymentLifecycleStatus {
+  PENDING
+  APPROVED
+  COMPLETED
+  CANCELLED
+}
+
+/// Proposal lifecycle status
+enum ProposalStatus {
+  DRAFT
+  SENT
+  ACCEPTED
+  REJECTED
+  EXPIRED
+}
+
+/// Contractor category
+enum ContractorCategory {
+  CIVIL
+  ELECTRICAL
+  MEP
+  FINISHING
+  PLUMBING
+  HVAC
+}
+
+/// Bid status
+enum BidStatus {
+  SUBMITTED
+  UNDER_REVIEW
+  ACCEPTED
+  REJECTED
+}
+
+/// RFQ status
+enum RFQStatus {
+  PENDING
+  SENT
+  RECEIVED
+  REVIEWING
+  AWARDED
+  REJECTED
+}
+
+/// Site visit status
+enum SiteVisitStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+}
+
+/// UAE municipality/emirate
+enum Municipality {
+  RAS_AL_KHAIMAH
+  DUBAI
+  ABU_DHABI
+  SHARJAH
+  AJMAN
+  UMM_AL_QUWAIN
+  FUJAIRAH
+}
+
+/// Defect severity levels
+enum DefectSeverity {
+  NORMAL
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+/// Defect lifecycle status
+enum DefectStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+}
+
+/// RFI status
+enum RFIStatus {
+  OPEN
+  REPLIED
+  CLOSED
+}
+
+/// RFI priority
+enum RFIPriority {
+  NORMAL
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+/// Submittal status
+enum SubmittalStatus {
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  RESUBMIT
+}
+
+/// Change order type
+enum ChangeOrderType {
+  ADDITION
+  CHANGE
+  DELETION
+}
+
+/// Change order status
+enum ChangeOrderStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+/// Transmittal delivery method
+enum DeliveryMethod {
+  EMAIL
+  MANUAL
+  COURIER
+}
+
+/// Transmittal item purpose
+enum TransmittalPurpose {
+  REVIEW
+  APPROVAL
+  INFORMATION
+  EXECUTION
+}
+
+/// Risk category
+enum RiskCategory {
+  TECHNICAL
+  FINANCIAL
+  SCHEDULE
+  EXTERNAL
+  SAFETY
+  ENVIRONMENTAL
+}
+
+/// Risk strategy
+enum RiskStrategy {
+  AVOID
+  MITIGATE
+  TRANSFER
+  ACCEPT
+}
+
+/// Risk status
+enum RiskStatus {
+  OPEN
+  MITIGATED
+  CLOSED
+}
+
+/// Meeting type
+enum MeetingType {
+  ONSITE
+  ONLINE
+}
+
+/// Meeting attendee role
+enum MeetingRole {
+  ORGANIZER
+  ATTENDEE
+  NOTE_TAKER
+}
+
+/// BOQ item category
+enum BOQCategory {
+  CIVIL
+  STRUCTURAL
+  ELECTRICAL
+  FINISHING
+}
+
+/// Schedule phase status
+enum SchedulePhaseStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+}
+
+/// Employee employment status
+enum EmploymentStatus {
+  ACTIVE
+  ON_LEAVE
+  TERMINATED
+}
+
+/// Attendance status
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+  LEAVE
+}
+
+/// Leave type
+enum LeaveType {
+  ANNUAL
+  SICK
+  EMERGENCY
+  UNPAID
+}
+
+/// Leave status
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+/// Supplier category
+enum SupplierCategory {
+  MATERIALS
+  EQUIPMENT
+  SERVICES
+  SUBCONTRACTORS
+}
+
+/// Purchase order status
+enum PurchaseOrderStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  RECEIVED
+  CANCELLED
+}
+
+/// Equipment status
+enum EquipmentStatus {
+  AVAILABLE
+  IN_USE
+  MAINTENANCE
+  RETIRED
+}
+
+/// Approval status
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+/// Building inspection status
+enum InspectionStatus {
+  DRAFT
+  IN_PROGRESS
+  COMPLETED
+}
+
+/// Inspection finding severity
+enum FindingSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+/// Inspection finding category
+enum FindingCategory {
+  STRUCTURAL
+  ELECTRICAL
+  PLUMBING
+  SAFETY
+  OTHER
+}
+
+/// Quote request status
+enum QuoteRequestStatus {
+  NEW
+  CONTACTED
+  QUOTED
+  CONVERTED
+  LOST
+}
+
+/// Design phase type
+enum DesignPhaseType {
+  CONCEPT
+  SCHEMATIC
+  DEVELOPMENT
+  CONSTRUCTION_DOCS
+  AS_BUILT
+}
+
+/// Design phase status
+enum DesignPhaseStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  UNDER_REVIEW
+  APPROVED
+  REVISION
+}
+
+/// Design drawing status
+enum DrawingStatus {
+  DRAFT
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  SUPERSEDED
+}
+
+/// Design discipline
+enum DesignDiscipline {
+  ARCHITECTURAL
+  STRUCTURAL
+  ELECTRICAL
+  PLUMBING
+  HVAC
+  FIRE
+}
+
+/// Tender status
+enum TenderStatus {
+  IDENTIFIED
+  PREPARING
+  SUBMITTED
+  QUALIFIED
+  WON
+  LOST
+}
+
+/// Tender source
+enum TenderSource {
+  WEBSITE
+  REFERRAL
+  DIRECT
+}
+
+/// Supervision checklist status
+enum ChecklistStatus {
+  DRAFT
+  IN_PROGRESS
+  COMPLETED
+}
+
+/// Violation status
+enum ViolationStatus {
+  OPEN
+  RESOLVED
+}
+
+/// Commission status
+enum CommissionStatus {
+  PENDING
+  APPROVED
+  PAID
+  CANCELLED
+}
+
+/// Referral status
+enum ReferralStatus {
+  PENDING
+  CONVERTED
+  LOST
+}
+
+/// Marketing campaign status
+enum CampaignStatus {
+  ACTIVE
+  PAUSED
+  COMPLETED
+}
+
+/// Workflow template status
+enum WorkflowTemplateStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+/// Workflow stage status
+enum WorkflowStageStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  SKIPPED
+}
+
+/// Workflow step severity
+enum WorkflowStepSeverity {
+  NORMAL
+  HIGH
+  CRITICAL
+}
+
+/// Notification type
+enum NotificationType {
+  TASK_DUE
+  INVOICE_OVERDUE
+  APPROVAL_NEEDED
+  PROJECT_UPDATE
+  PAYMENT_RECEIVED
+  SYSTEM_ALERT
+}
+
+/// Notification priority
+enum NotificationPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+/// Activity log action
+enum ActivityAction {
+  CREATE
+  UPDATE
+  DELETE
+  APPROVE
+  REJECT
+}
+
+/// Progress claim status
+enum ProgressClaimStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  REJECTED
+}
+
+/// Automation trigger type
+enum AutomationTriggerType {
+  THRESHOLD
+  SCHEDULE
+  EVENT
+}
+
+/// Automation action type
+enum AutomationActionType {
+  NOTIFICATION
+  EMAIL
+  TASK
+  WEBHOOK
+}
+
+/// Retainage status
+enum RetainageStatus {
+  HELD
+  PARTIALLY_RELEASED
+  RELEASED
+}
+
+/// Guarantee letter type
+enum GuaranteeType {
+  PERFORMANCE
+  ADVANCE_PAYMENT
+  RETENTION
+  BID_BOND
+}
+
+/// Guarantee letter status
+enum GuaranteeStatus {
+  ACTIVE
+  EXPIRED
+  RELEASED
+  CLAIMED
+}
+
+/// Timesheet status
+enum TimesheetStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  REJECTED
+}
+
+/// Timesheet entry task type
+enum TimesheetTaskType {
+  REGULAR
+  OVERTIME
+  HOLIDAY
+}
+
+/// Government authority type for approvals
+enum GovAuthority {
+  MUN
+  FEWA
+  ETISALAT
+  CIVIL_DEFENSE
+}
+
+/// Project department for stage tracking
+enum ProjectDepartment {
+  ARCHITECTURAL
+  STRUCTURAL
+  MEP_ELECTRICAL
+  MEP_PLUMBING
+  MEP_WATER
+  MEP_CIVIL_DEFENSE
+  MEP_TELECOM
+}
+
+/// Currency codes used across the application
+enum Currency {
+  AED
+  USD
+  EUR
+  SAR
+  QAR
+  BHD
+  OMR
+  KWD
+}
+
+/// Weather conditions for site reports
+enum WeatherCondition {
+  CLEAR
+  SUNNY
+  CLOUDY
+  PARTLY_CLOUDY
+  RAINY
+  WINDY
+  HUMID
+  FOGGY
+  SANDSTORM
+  HOT
+  MILD
+  COLD
+}
+
+/// Transmittal status tracking
+enum TransmittalStatus {
+  SENT
+  RECEIVED
+  REPLIED
+  CLOSED
+}
+
+/// Risk level for building inspections
+enum RiskLevel {
+  GREEN
+  YELLOW
+  ORANGE
+  RED
+}
+
+/// Workflow step status
+enum WorkflowStepStatus {
+  LOCKED
+  UNLOCKED
+  IN_PROGRESS
+  COMPLETED
+  SKIPPED
+}
+
+/// Automation status
+enum AutomationStatus {
+  ACTIVE
+  INACTIVE
+  PAUSED
+}
+
+/// Security audit action types
+enum SecurityAuditAction {
+  LOGIN
+  LOGOUT
+  TWOFA_ENABLE
+  TWOFA_DISABLE
+  PASSWORD_CHANGE
+  PASSWORD_RESET
+  PERMISSION_CHANGE
+  ROLE_CHANGE
+  SESSION_INVALIDATE
+  API_KEY_CREATE
+  API_KEY_REVOKE
+}
+
+/// Security audit result status
+enum SecurityAuditResult {
+  SUCCESS
+  FAILED
+  BLOCKED
+}
+
+/// Violation severity levels
+enum ViolationSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+/// Inspection finding status
+enum FindingStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+}
+
+// ==================== USERS & AUTH ====================
+
+model User {
+  id                      String    @id @default(cuid())
+  email                   String    @unique
+  password                String    @default("") // Auth service always hashes passwords before saving; empty default prevents accidental login
+  name                    String?   // Nullable — codebase uses fallbacks (e.g., user.name || "المستخدم")
+  phone                   String?
+  avatar                  String?
+  role                    UserRole  @default(VIEWER)
+  department              String?
+  position                String?
+  isActive                Boolean   @default(true)
+  lastLogin               DateTime?
+  organizationId          String // REQUIRED: prevents tenantless data leakage (CWE-284)
+  deletedAt               DateTime? // Soft delete
+  // Email verification
+  emailVerified           DateTime?
+  // NOTE: verifyToken and verifyTokenExpiry fields were removed.
+  // Email verification now uses the separate EmailVerificationToken model
+  // which stores hashed tokens — never plaintext.
+  // Password reset uses the separate PasswordResetToken model.
+  passwordChangedAt       DateTime? // When password was last changed - used to invalidate tokens
+  // 2FA — the User model's twoFactorEnabled field is kept for quick lookups.
+  // The actual secret and backup codes are stored in the TwoFactorSecret model.
+  twoFactorEnabled        Boolean   @default(false)
+  // NOTE: twoFactorSecret and backupCodes fields were removed from User model.
+  // They are now stored exclusively in the TwoFactorSecret model where
+  // the secret is AES-256-GCM encrypted and backup codes are SHA-256 hashed.
+  // Account lockout
+  failedLoginAttempts     Int       @default(0)
+  lockedUntil             DateTime?
+  // User preferences (accent color, notification settings, etc.) stored as JSON
+  preferences             String?   // JSON string: { accentColor, notifications: { projectUpdates, taskDeadlines, ... } }
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+
+  organization            Organization          @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  projects                ProjectAssignment[]
+  tasks                   Task[]
+  assignedDefects         Defect[]
+  assignedWorkflowStages  WorkflowStage[]       @relation("WorkflowStageAssignee")
+  assignedWorkflowSteps   WorkflowStep[]        @relation("WorkflowStepAssignee")
+  activities              ActivityLog[]
+  leaves                  Leave[]
+  createdProjects         Project[]             @relation("CreatedProjects")
+  managedProjects         Project[]             @relation("ProjectManager")
+  rfisFrom                RFI[]                 @relation("RFIFrom")
+  rfisTo                  RFI[]                 @relation("RFITo")
+  riskActions             RiskAction[]
+  meetingAttendee         MeetingAttendee[]
+  notifications           Notification[]
+  sentTransmittals        Transmittal[]         @relation("TransmittalFrom")
+  knowledgeArticles       KnowledgeArticle[]
+  employee                Employee?
+  approvedPayments        Payment[]             @relation("PaymentApprover")
+  approvedLeaves          Leave[]               @relation("LeaveApprover")
+  uploadedDocuments       Document[]            @relation("DocumentUploader")
+  projectComments         ProjectComment[]
+  comments                TaskComment[]
+  tenders                 Tender[]              @relation("TenderAssignee")
+  commissions             Commission[]          @relation("CommissionUser")
+  approvedCommissions     Commission[]          @relation("CommissionApprover")
+  referrals               Referral[]            @relation("ReferralReferrer")
+  notificationSettings    NotificationSettings?
+  aiChatConversations     AIChatConversation[]
+  refreshTokens           RefreshToken[]
+  paymentCreated          Payment[]             @relation("PaymentCreator")
+  paymentUpdated          Payment[]             @relation("PaymentUpdater")
+  budgetCreated           Budget[]              @relation("BudgetCreator")
+  budgetUpdated           Budget[]              @relation("BudgetUpdater")
+  proposalCreated         Proposal[]            @relation("ProposalCreator")
+  proposalUpdated         Proposal[]            @relation("ProposalUpdater")
+  invoicePayments         InvoicePayment[]
+  approvedTimesheets      Timesheet[]           @relation("TimesheetApprover")
+
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([name])
+  @@index([role])
+  @@index([isActive])
+}
+
+// ==================== REFRESH TOKENS ====================
+
+model RefreshToken {
+  id         String    @id @default(cuid())
+  userId     String
+  tokenHash  String    @unique // SHA-256 hash of the token
+  expiresAt  DateTime
+  revokedAt  DateTime? // When token was explicitly revoked
+  createdAt  DateTime  @default(now())
+
+  user       User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([tokenHash])
+  @@index([expiresAt])
+}
+
+// ==================== COMPANY SETTINGS ====================
+
+model CompanySettings {
+  id              String   @id @default(cuid())
+  name            String   @default("مكتب الاستشارات الهندسية")
+  nameEn          String   @default("Engineering Consultancy Office")
+  logo            String?
+  email           String?
+  phone           String?
+  address         String?
+  taxNumber       String?
+  currency        Currency @default(AED)
+  timezone        String   @default("Asia/Dubai")
+  workingDays     String   @default("sat,sun,mon,tue,wed,thu") // comma-separated UAE work week (Saturday-Thursday)
+  workingHours    String   @default("08:00-17:00")
+  organizationId  String // REQUIRED: prevents tenantless data leakage (CWE-284)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  organization    Organization  @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@index([organizationId])
+}
+
+// ==================== PROJECTS ====================
+
+model Project {
+  id                          String    @id @default(cuid())
+  number                      String
+  name                        String
+  nameEn                      String?
+  clientId                    String
+  contractorId                String?
+  location                    String?
+  latitude                    Float?
+  longitude                   Float?
+  plotNumber                  String?
+  type                        ProjectType @default(VILLA)
+  status                      ProjectStatus @default(ACTIVE)
+  progress                    Float     @default(0)
+  budget                      Decimal   @default(0)
+  contractValue               Decimal   @default(0) // Total contract value
+  paymentMethod               PaymentMethod?
+  paymentSchedule             Json?
+  expectedDuration            Int       @default(0) // Expected duration in days
+  startDate                   DateTime?
+  endDate                     DateTime?
+  expectedEndDate             DateTime? // Expected delivery date
+  actualStartDate             DateTime?
+  actualEndDate               DateTime?
+  contractDate                DateTime?
+  description                 String?
+  municipalityChecklist       Json?
+  managerId                   String?
+  createdById                 String
+  organizationId              String // REQUIRED: prevents tenantless data leakage (CWE-284)
+  deletedAt                   DateTime? // Soft delete
+  createdAt                   DateTime  @default(now())
+  updatedAt                   DateTime  @updatedAt
+
+  client                      Client                       @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  contractor                  Contractor?                  @relation("ProjectContractor", fields: [contractorId], references: [id], onDelete: SetNull)
+  createdBy                   User                         @relation("CreatedProjects", fields: [createdById], references: [id], onDelete: Restrict)
+  manager                     User?                        @relation("ProjectManager", fields: [managerId], references: [id], onDelete: SetNull)
+  organization                Organization                 @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  assignments                 ProjectAssignment[]
+  tasks                       Task[]
+  stages                      ProjectStage[]
+  muniRejections              MunicipalRejection[]
+  govApprovals                GovApproval[]
+  boqItems                    BOQItem[]
+  schedulePhases              SchedulePhase[]
+  invoices                    Invoice[]
+  contracts                   Contract[]
+  proposals                   Proposal[]
+  bids                        Bid[]
+  budgets                     Budget[]
+  commissions                 Commission[]
+  referrals                   Referral[]
+  siteVisits                  SiteVisit[]
+  defects                     Defect[]
+  siteDiaries                 SiteDiary[]
+  rfis                        RFI[]
+  submittals                  Submittal[]
+  changeOrders                ChangeOrder[]
+  transmittals                Transmittal[]
+  risks                       Risk[]
+  meetings                    Meeting[]
+  clientInteractions          ClientInteraction[]
+  documents                   Document[]
+  purchaseOrders              PurchaseOrder[]
+  inventoryItems              InventoryItem[]
+  payments                    Payment[]
+  comments                    ProjectComment[]
+  municipalityCorrespondence  MunicipalityCorrespondence[]
+  approvals                   Approval[]
+  notifications               Notification[]
+  activityLogs                ActivityLog[]
+  knowledgeArticles           KnowledgeArticle[]
+  designPhases                DesignPhase[]
+  buildingInspections         BuildingInspection[]
+  supervisionChecklists       SupervisionChecklist[]
+  violations                  Violation[]
+  workflow                    ProjectWorkflow?
+  retainages                  Retainage[]
+  guaranteeLetters            GuaranteeLetter[]
+  progressClaims              ProgressClaim[]
+  timesheets                  Timesheet[]
+  timesheetEntries            TimesheetEntry[]
+
+  @@unique([number, organizationId])
+  @@index([clientId])
+  @@index([status])
+  @@index([contractorId])
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([createdById])
+  @@index([managerId])
+}
+
+// ==================== MUNICIPALITY CORRESPONDENCE ====================
+
+model MunicipalityCorrespondence {
+  id                  String    @id @default(cuid())
+  projectId           String
+  referenceNumber     String?
+  municipality        Municipality?
+  correspondenceType  CorrespondenceType @default(SUBMISSION)
+  subject             String?
+  content             String?
+  submissionDate      DateTime?
+  responseDate        DateTime?
+  status              CorrespondenceStatus @default(PENDING)
+  notes               String?
+  responseNotes       String?
+  organizationId      String? // TODO: Make required after data migration
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  project             Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  organization        Organization? @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@index([projectId])
+  @@index([status])
+  @@index([organizationId])
+}
+
+model ProjectComment {
+  id              String   @id @default(cuid())
+  content         String
+  projectId       String
+  project         Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organizationId  String? // TODO: Make required after data migration
+  organization    Organization? @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId])
+  @@index([projectId])
+  @@index([organizationId])
+}
+
+model ProjectAssignment {
+  id              String   @id @default(cuid())
+  projectId       String
+  userId          String
+  role            ProjectAssignmentRole @default(TEAM_MEMBER)
+  organizationId  String? // TODO: Make required after data migration
+  organization    Organization? @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  project         Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user            User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, userId])
+  @@index([organizationId])
+}
+
+// ==================== PROJECT STAGES ====================
+
+model ProjectStage {
+  id              String   @id @default(cuid())
+  projectId       String
+  department      ProjectDepartment @default(ARCHITECTURAL)
+  stageName       String?
+  stageOrder      Int      @default(0)
+  status          ProjectStageStatus @default(NOT_STARTED)
+  engineerId      String?
+  notes           String?
+  organizationId  String? // TODO: Make required after data migration
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  project         Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  organization    Organization? @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@index([projectId, department])
+  @@index([status])
+  @@index([organizationId])
+}
+
+model MunicipalRejection {
+  id                 String    @id @default(cuid())
+  projectId          String
+  department         ProjectDepartment
+  count              Int       @default(0)
+  notes              String?
+  lastRejectionDate  DateTime?
+  organizationId     String? // TODO: Make required after data migration
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  project            Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  organization       Organization? @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@unique([projectId, department])
+  @@index([organizationId])
+}
+
+// ==================== GOVERNMENT APPROVALS ====================
+
+model GovApproval {
+  id              String                   @id @default(cuid())
+  projectId       String
+  authority       GovAuthority @default(MUN)
+  status          GovernmentApprovalStatus @default(PENDING)
+  submissionDate  DateTime?
+  approvalDate    DateTime?
+  rejectionCount  Int                      @default(0)
+  notes           String?
+  organizationId  String? // TODO: Make required after data migration
+  createdAt       DateTime                 @default(now())
+  updatedAt       DateTime                 @updatedAt
+
+  project         Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  organization    Organization? @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@unique([projectId, authority])
+  @@index([status])
+  @@index([organizationId])
+}
+
+// ==================== CLIENTS ====================
+
+model Client {
+  id                   String    @id @default(cuid())
+  // Basic Info
+  clientType           ClientType @default(INDIVIDUAL)
+  name                 String
+  nameEn               String?
+  company              String?
+  companyEn            String?
+  idNumber             String? // UAE ID or Commercial Registration
+  nationality          String?
+  idPhoto              String? // ID photo file path
+  email                String? // Email uniqueness enforced at application level (many clients may have empty email)
+  phone                String?
+  whatsapp             String? // separate WhatsApp number
+  extraPhone           String? // additional phone
+  address              String?
+  fullAddress          Json? // JSON: {emirate,city,area,street,building,unit}
+  taxNumber            String?
+  creditLimit          Decimal   @default(0)
+  paymentTerms         String?
+  // Services & Project Info
+  servicesWanted       Json? // JSON array: ["consultation","design","license",...]
+  projectType          ClientProjectType?
+  serviceNotes         String? // legacy: additional details
+  // Land Details
+  landLocation         String?
+  landArea             String?
+  plotNumber           String?
+  planNumber           String?
+  landDocuments        Json? // JSON array: [{type:"survey",path:...},...]
+  notes                String?
+  // Referral
+  referralSource       ReferralSource?
+  referralDetail       String?
+  // Credit & Status
+  creditUsed           Decimal   @default(0)
+  isActive             Boolean   @default(true)
+  organizationId       String // REQUIRED: prevents tenantless data leakage (CWE-284)
+  createdById          String?
+  deletedAt            DateTime? // Soft delete
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  projects             Project[]
+  invoices             Invoice[]
+  organization         Organization         @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  contracts            Contract[]
+  proposals            Proposal[]
+  interactions         ClientInteraction[]
+  buildingInspections  BuildingInspection[]
+
+  @@unique([email, organizationId], name: "client_email_org_unique")
+  @@unique([idNumber, organizationId], name: "client_idnumber_org_unique")
+  @@index([organizationId])
+  @@index([email]) // Index for email lookups
+  @@index([idNumber]) // Index for ID number lookups
+  @@index([deletedAt])
+  @@index([isActive])
+  @@index([createdById])
+}
+
+model ClientInteraction {
+  id              String   @id @default(cuid())
+  projectId       String
+  clientId        String
+  type            InteractionType @default(MEETING)
+  date            DateTime
+  subject         String?
+  description     String?
+  outcome         String?
+  organizationId  String? // TODO: Make required after data migration
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  project         Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  client          Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  organization    Organization? @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@index([clientId])
+  @@index([projectId])
+  @@index([date])
+  @@index([organizationId])
+}
+
+// ==================== TASKS ====================
+
+model Task {
+  id              String    @id @default(cuid())
+  projectId       String?
+  title           String?
+  titleAr         String?
+  description     String?
+  assigneeId      String?
+  priority        TaskPriority @default(NORMAL)
+  status          TaskStatus   @default(TODO)
+  startDate       DateTime?
+  dueDate         DateTime?
+  endDate         DateTime?
+  progress        Float     @default(0)
+  slaDays         Int?
+  slaStartDate    DateTime?
+  slaWarningDays  Int       @default(3)
+  slaBreachedAt   DateTime?
+  taskType        TaskType  @default(STANDARD)
+  dependencies    Json? // JSON array of task IDs
+  color           String?
+  estimatedHours  Float?
+  actualHours     Float?
+  isMilestone     Boolean   @default(false)
+  order           Int       @default(0)
+  organizationId  String // REQUIRED: prevents tenantless data leakage (CWE-284)
+  createdById     String?
+  deletedAt       DateTime? // Soft delete
+  parentId        String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  project         Project?      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  assignee        User?         @relation(fields: [assigneeId], references: [id], onDelete: SetNull)
+  subtasks        Task[]        @relation("TaskSubtask")
+  parent          Task?         @relation("TaskSubtask", fields: [parentId], references: [id])
+  organization    Organization  @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  comments        TaskComment[]
+
+  @@index([projectId])
+  @@index([assigneeId])
+  @@index([status])
+  @@index([organizationId])
+  @@index([dueDate])
+  @@index([projectId, status])
+  @@index([assigneeId, status])
+  @@index([status, dueDate])
+  @@index([deletedAt])
+}
+
+// ==================== TASK COMMENTS ====================
+
+model TaskComment {
+  id              String   @id @default(cuid())
+  content         String
+  taskId          String
+  userId          String
+  organizationId  String? // TODO: Make required after data migration
+  organization    Organization? @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  task            Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user            User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([taskId])
+  @@index([organizationId])
+}
+
+// ==================== CONTRACTS ====================
+
+model Contract {
+  id              String    @id @default(cuid())
+  number          String?
+  title           String?
+  clientId        String
+  projectId       String
+  value           Decimal   @default(0)
+  type            ContractType @default(ENGINEERING_SERVICES)
+  status          ContractStatus @default(DRAFT)
+  signedByName    String?
+  signedByTitle   String?
+  signature       String?
+  startDate       DateTime?
+  deletedAt       DateTime? // Soft delete
+  endDate         DateTime?
+  organizationId  String // REQUIRED: prevents tenantless data leakage (CWE-284)
+  createdById     String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  client          Client              @relation(fields: [clientId], references: [id])
+  project         Project             @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  organization    Organization        @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  amendments      ContractAmendment[]
+  documents       Document[]
+
+  @@index([organizationId])
+  @@index([projectId])
+  @@index([clientId])
+  @@index([deletedAt])
+  @@index([status])
+}
+
+model ContractAmendment {
+  id           String   @id @default(cuid())
+  contractId   String
+  number       String?
+  description  String?
+  date         DateTime
+  status       AmendmentStatus @default(PENDING)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  contract     Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+
+  @@index([contractId])
+  @@index([status])
+}
+
+// ==================== INVOICES ====================
+
+model Invoice {
+  id               String    @id @default(cuid())
+  number           String    @default(cuid()) // Auto-generated unique number; InvoiceService generates formatted numbers (INV-YYYY-XXXX)
+  clientId         String
+  projectId        String
+  issueDate        DateTime
+  dueDate          DateTime
+  subtotal         Decimal   @default(0)
+  tax              Decimal   @default(0)
+  taxRate          Decimal   @default(0) // Tax percentage
+  total            Decimal   @default(0)
+  paidAmount       Decimal   @default(0)
+  remaining        Decimal   @default(0)
+  status           InvoiceStatus @default(DRAFT)
+  organizationId   String // REQUIRED: prevents tenantless data leakage (CWE-284)
+  createdById      String?
+  deletedAt        DateTime? // Soft delete
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  client           Client           @relation(fields: [clientId], references: [id])
+  project          Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  items            InvoiceItem[]
+  invoicePayments  InvoicePayment[]
+  payments         Payment[]
+  organization     Organization     @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@unique([number, organizationId], name: "invoice_number_org_unique")
+  @@index([clientId])
+  @@index([status])
+  @@index([projectId])
+  @@index([organizationId])
+  @@index([deletedAt])
+  @@index([dueDate])
+}
+
+model InvoiceItem {
+  id           String   @id @default(cuid())
+  invoiceId    String
+  description  String?
+  quantity     Decimal  @default(1)
+  unitPrice    Decimal  @default(0)
+  total        Decimal  @default(0)
+  boqItemId    String?
+  createdAt    DateTime @default(now())
+
+  invoice      Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+  @@index([boqItemId])
+}
+
+// ==================== INVOICE PAYMENTS ====================
+
+model InvoicePayment {
+  id           String   @id @default(cuid())
+  invoiceId    String
+  paymentId    String
+  amount       Decimal  @default(0) // Amount allocated to this invoice
+  createdAt    DateTime @default(now())
+  createdById  String?
+
+  invoice      Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  payment      Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  creator      User?   @relation(fields: [createdById], references: [id])
+
+  @@index([invoiceId])
+  @@index([paymentId])
+}
+
+// ==================== PAYMENTS ====================
+
+model Payment {
+  id               String   @id @default(cuid())
+  voucherNumber    String?
+  projectId        String?
+  invoiceId        String?
+  amount           Decimal  @default(0)
+  payMethod        TransactionPayMethod @default(TRANSFER)
+  beneficiary      String?
+  referenceNumber  String?
+  status           PaymentLifecycleStatus @default(PENDING)
+  approvedById     String?
+  description      String?
+  organizationId   String? // TODO: Make required after data migration
+  createdById      String?
+  updatedById      String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  invoice          Invoice?         @relation(fields: [invoiceId], references: [id])
+  approver         User?            @relation("PaymentApprover", fields: [approvedById], references: [id])
+  creator          User?            @relation("PaymentCreator", fields: [createdById], references: [id])
+  updater          User?            @relation("PaymentUpdater", fields: [updatedById], references: [id])
+  project          Project?         @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  organization     Organization?    @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  invoicePayments  InvoicePayment[]
+
+  @@index([organizationId])
+  @@index([projectId])
+  @@index([status])
+  @@index([invoiceId])
+  @@index([approvedById])
+}
+
+// ==================== PROPOSALS ====================
+
+model Proposal {
+  id              String   @id @default(cuid())
+  number          String?
+  clientId        String
+  projectId       String?
+  subtotal        Decimal  @default(0)
+  tax             Decimal  @default(0)
+  total           Decimal  @default(0)
+  status          ProposalStatus @default(DRAFT)
+  notes           String?
+  organizationId  String? // TODO: Make required after data migration
+  createdById     String?
+  updatedById     String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  client          Client         @relation(fields: [clientId], references: [id])
+  project         Project?       @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  creator         User?          @relation("ProposalCreator", fields: [createdById], references: [id])
+  updater         User?          @relation("ProposalUpdater", fields: [updatedById], references: [id])
+  organization    Organization?  @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  items           ProposalItem[]
+
+  @@index([organizationId])
+  @@index([projectId])
+  @@index([clientId])
+  @@index([status])
+}
+
+model ProposalItem {
+  id           String   @id @default(cuid())
+  proposalId   String
+  description  String?
+  quantity     Decimal  @default(1)
+  unitPrice    Decimal  @default(0)
+  total        Decimal  @default(0)
+  createdAt    DateTime @default(now())
+
+  proposal     Proposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+
+  @@index([proposalId])
+}
+
+// ==================== CONTRACTORS ====================
+
+model Contractor {
+  id                  String    @id @default(cuid())
+  name                String?
+  nameEn              String?
+  companyName         String?
+  companyEn           String?
+  contactPerson       String?
+  phone               String?
+  email               String?
+  address             String?
+  crNumber            String? // Commercial Registration; uniqueness enforced at application level when not empty
+  licenseNumber       String?
+  licenseExpiry       DateTime?
+  classification      String? // Contractor classification level (e.g., "الدرجة الثالثة")
+  establishmentDate   DateTime? // Company establishment date
+  workerCount         Int?      @default(0) // Number of workers
+  engineerCount       Int?      @default(0) // Number of engineers
+  tradeLicense        String? // Trade license number
+  tradeLicenseExpiry  DateTime? // Trade license expiry date
+  vatNumber           String? // VAT registration number
+  category            ContractorCategory?
+  rating              Int       @default(0) // 1-5 stars
+  specialties         String? // comma-separated specialties
+  experience          String? // years of experience description
+  bankName            String?
+  bankAccount         String?
+  iban                String?
+  isActive            Boolean   @default(true)
+  notes               String?
+  organizationId      String // REQUIRED: prevents tenantless data leakage (CWE-284)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  projects            Project[]              @relation("ProjectContractor")
+  bids                Bid[]
+  evaluations         ContractorEvaluation[]
+  organization        Organization           @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@unique([crNumber, organizationId], name: "contractor_cr_org_unique")
+  @@index([crNumber]) // Index for CR number lookups
+  @@index([organizationId])
+}
+
+// ==================== CONTRACTOR EVALUATION ====================
+
+model ContractorEvaluation {
+  id              String   @id @default(cuid())
+  contractorId    String
+  projectId       String
+  criteria        String? // experience, financial, technical, past_performance, resources
+  score           Int      @default(0) // 0-100
+  maxScore        Int      @default(100)
+  weight          Decimal  @default(1) // percentage weight for this criteria
+  notes           String?
+  evaluatedBy     String?
+  bidId           String?
+  organizationId  String? // TODO: Make required after data migration
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  contractor      Contractor    @relation(fields: [contractorId], references: [id], onDelete: Cascade)
+  bid             Bid?          @relation(fields: [bidId], references: [id])
+  organization    Organization? @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@index([projectId])
+  @@index([bidId])
+  @@index([contractorId])
+  @@index([organizationId])
+}
+
+// ==================== BIDS ====================
+
+model Bid {
+  id                 String    @id @default(cuid())
+  projectId          String
+  contractorId       String?
+  contractorName     String?
+  contractorContact  String?
+  amount             Decimal   @default(0)
+  technicalScore     Int       @default(0)
+  financialScore     Int       @default(0)
+  totalScore         Decimal   @default(0)
+  status             BidStatus @default(SUBMITTED)
+  deadline           DateTime?
+  notes              String?
+  evaluationNotes    String?
+  quoteFile          String?
+  quoteUploadedAt    DateTime?
+  rfqSentAt          DateTime?
+  rfqStatus          RFQStatus @default(PENDING)
+  aiAnalysis         String?
+  contractFile       String?
+  contractSignedAt   DateTime?
+  isAwarded          Boolean   @default(false)
+  organizationId     String? // TODO: Make required after data migration
+  createdById        String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  project            Project                @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  contractor         Contractor?            @relation(fields: [contractorId], references: [id])
+  organization       Organization?          @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  evaluations        ContractorEvaluation[]
+
+  @@index([projectId])
+  @@index([contractorId])
+  @@index([organizationId])
+  @@index([status])
+}
+
+// ==================== BUDGETS ====================
+
+model Budget {
+  id              String   @id @default(cuid())
+  projectId       String
+  parentId        String?
+  name            String?
+  category        String? // overall, architectural, structural, electrical, mep
+  planned         Decimal  @default(0)
+  actual          Decimal  @default(0)
+  committed       Decimal  @default(0)
+  remaining       Decimal  @default(0)
+  deviation       Decimal  @default(0)
+  organizationId  String? // TODO: Make required after data migration
+  createdById     String?
+  updatedById     String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  project         Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  parent          Budget?       @relation("BudgetHierarchy", fields: [parentId], references: [id])
+  children        Budget[]      @relation("BudgetHierarchy")
+  creator         User?         @relation("BudgetCreator", fields: [createdById], references: [id])
+  updater         User?         @relation("BudgetUpdater", fields: [updatedById], references: [id])
+  organization    Organization? @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@index([organizationId])
+  @@index([projectId])
+  @@index([parentId])
+}
+
+// ==================== SITE MANAGEMENT ====================
+
+model SiteVisit {
+  id               String   @id @default(cuid())
+  projectId        String
+  date             DateTime
+  plotNumber       String?
+  municipality     Municipality?
+  gateDescription  String?
+  neighborDesc     String?
+  buildingDesc     String?
+  photos           Json?
+  status           SiteVisitStatus @default(DRAFT)
+  notes            String?
+  organizationId   String? // TODO: Make required after data migration
+  createdById      String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  project          Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  organization     Organization? @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@index([organizationId])
+  @@index([projectId])
+  @@index([status])
+}
+
+model Defect {
+  id               String    @id @default(cuid())
+  projectId        String
+  title            String?
+  severity         DefectSeverity @default(NORMAL)
+  location         String?
+  photos           String?
+  assigneeId       String?
+  resolutionNotes  String?
+  status           DefectStatus @default(OPEN)
+  deletedAt        DateTime? // Soft delete
+  organizationId   String? // TODO: Make required after data migration
+  createdById      String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  project          Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  assignee         User?         @relation(fields: [assigneeId], references: [id], onDelete: SetNull)
+  organization     Organization? @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@index([projectId])
+  @@index([organizationId])
+  @@index([assigneeId])
+  @@index([status])
+  @@index([deletedAt])
+}
+
+model SiteDiary {
+  id               String   @id @default(cuid())
+  projectId        String
+  date             DateTime
+  weather          WeatherCondition?
+  workerCount      Int      @default(0)
+  workDescription  String?
+  issues           String?
+  safetyNotes      String?
+  equipment        String?
+  materials        String?
+  photos           String?
+  organizationId   String? // TODO: Make required after data migration
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  project          Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  organization     Organization? @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@index([projectId])
+  @@index([date])
+  @@index([organizationId])
+}
+
+// ==================== RFI ====================
+
+model RFI {
+  id              String    @id @default(cuid())
+  projectId       String
+  number          String?
+  subject         String?
+  description     String?
+  fromId          String
+  toId            String
+  priority        RFIPriority @default(NORMAL)
+  dueDate         DateTime?
+  response        String?
+  status          RFIStatus @default(OPEN)
+  organizationId  String? // TODO: Make required after data migration
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  project         Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  from            User          @relation("RFIFrom", fields: [fromId], references: [id])
+  to              User          @relation("RFITo", fields: [toId], references: [id])
+  organization    Organization? @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@index([projectId])
+  @@index([fromId])
+  @@index([toId])
+  @@index([status])
+  @@index([dueDate])
+  @@index([organizationId])
+}
+
+// ==================== SUBMITTALS ====================
+
+model Submittal {
+  id              String   @id @default(cuid())
+  projectId       String
+  number          String?
+  title           String?
+  type            String?
+  contractor      String?
+  revisionNumber  Int      @default(1)
+  status          SubmittalStatus @default(UNDER_REVIEW)
+  organizationId  String? // TODO: Make required after data migration
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  project         Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  organization    Organization? @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@index([projectId])
+  @@index([status])
+  @@index([organizationId])
+}
+
+// ==================== CHANGE ORDERS ====================
+
+model ChangeOrder {
+  id              String   @id @default(cuid())
+  projectId       String
+  number          String?
+  type            ChangeOrderType @default(CHANGE)
+  costImpact      Decimal  @default(0)
+  timeImpact      String?
+  description     String?
+  status          ChangeOrderStatus @default(PENDING)
+  organizationId  String? // TODO: Make required after data migration
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  project         Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  organization    Organization? @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@index([projectId])
+  @@index([status])
+  @@index([organizationId])
+}
+
+// ==================== TRANSMITTALS ====================
+
+model Transmittal {
+  id              String   @id @default(cuid())
+  projectId       String
+  number          String?
+  subject         String?
+  fromId          String
+  toName          String?
+  toEmail         String?
+  toCompany       String?
+  toPhone         String?
+  deliveryMethod  DeliveryMethod @default(EMAIL)
+  status          TransmittalStatus   @default(SENT)
+  organizationId  String? // TODO: Make required after data migration
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  project         Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  from            User              @relation("TransmittalFrom", fields: [fromId], references: [id])
+  organization    Organization?     @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  items           TransmittalItem[]
+
+  @@index([projectId])
+  @@index([fromId])
+  @@index([status])
+  @@index([organizationId])
+}
+
+model TransmittalItem {
+  id              String   @id @default(cuid())
+  transmittalId   String
+  documentNumber  String?
+  title           String?
+  revision        String?
+  copies          Int      @default(1)
+  purpose         TransmittalPurpose @default(REVIEW)
+  received        Boolean  @default(false)
+  approved        Boolean  @default(false)
+  rejected        Boolean  @default(false)
+  needsRevision   Boolean  @default(false)
+  replyNotes      String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  transmittal     Transmittal @relation(fields: [transmittalId], references: [id], onDelete: Cascade)
+
+  @@index([transmittalId])
+}
+
+// ==================== RISKS ====================
+
+model Risk {
+  id              String   @id @default(cuid())
+  projectId       String
+  title           String?
+  category        RiskCategory @default(TECHNICAL)
+  probability     Int      @default(3)
+  impact          Int      @default(3)
+  score           Int      @default(9)
+  mitigationPlan  String?
+  strategy        RiskStrategy @default(MITIGATE)
+  status          RiskStatus @default(OPEN)
+  organizationId  String? // TODO: Make required after data migration
+  createdById     String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  project         Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  organization    Organization? @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  actions         RiskAction[]
+
+  @@index([organizationId])
+  @@index([projectId])
+  @@index([status])
+}
+
+model RiskAction {
+  id              String    @id @default(cuid())
+  riskId          String
+  description     String?
+  assigneeId      String?
+  dueDate         DateTime?
+  completed       Boolean   @default(false)
+  organizationId  String? // TODO: Make required after data migration
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  risk            Risk           @relation(fields: [riskId], references: [id], onDelete: Cascade)
+  assignee        User?          @relation(fields: [assigneeId], references: [id])
+  organization    Organization?  @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@index([riskId])
+  @@index([assigneeId])
+  @@index([dueDate])
+  @@index([organizationId])
+}
+
+// ==================== MEETINGS ====================
+
+model Meeting {
+  id              String   @id @default(cuid())
+  projectId       String?
+  title           String?
+  date            DateTime
+  time            String?
+  duration        Int      @default(60)
+  location        String?
+  type            MeetingType @default(ONSITE)
+  notes           String?
+  organizationId  String? // TODO: Make required after data migration
+  createdById     String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  project         Project?          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  organization    Organization?     @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  attendees       MeetingAttendee[]
+  agenda          MeetingAgenda[]
+
+  @@index([organizationId])
+  @@index([projectId])
+  @@index([date])
+}
+
+model MeetingAttendee {
+  id         String   @id @default(cuid())
+  meetingId  String
+  userId     String
+  role       MeetingRole @default(ATTENDEE)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  meeting    Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  user       User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([meetingId, userId])
+}
+
+model MeetingAgenda {
+  id         String   @id @default(cuid())
+  meetingId  String
+  topic      String?
+  duration   Int      @default(15)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  meeting    Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+
+  @@index([meetingId])
+}
+
+// ==================== BOQ ====================
+
+model BOQItem {
+  id              String   @id @default(cuid())
+  projectId       String
+  itemNumber      String?
+  code            String?
+  description     String?
+  unit            String?
+  quantity        Decimal  @default(0)
+  unitPrice       Decimal  @default(0)
+  totalPrice      Decimal  @default(0)
+  total           Decimal  @default(0)
+  category        BOQCategory @default(CIVIL)
+  organizationId  String? // TODO: Make required after data migration
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  project         Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  organization    Organization? @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@index([projectId])
+  @@index([category])
+  @@index([organizationId])
+}
+
+// ==================== SCHEDULE ====================
+
+model SchedulePhase {
+  id              String    @id @default(cuid())
+  projectId       String
+  section         String    @default("architectural") // architectural, structural, electrical, governmental
+  phaseOrder      Int       @default(0)
+  phaseName       String?
+  duration        Int       @default(0)
+  maxDuration     Int       @default(50)
+  status          SchedulePhaseStatus @default(NOT_STARTED)
+  startDate       DateTime?
+  endDate         DateTime?
+  organizationId  String? // TODO: Make required after data migration
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  project         Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  organization    Organization? @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@index([projectId, section])
+  @@index([organizationId])
+  @@index([status])
+}
+
+// ==================== HR ====================
+
+model Employee {
+  id                String    @id @default(cuid())
+  userId            String    @unique
+  department        String?
+  position          String?
+  salary            Decimal   @default(0)
+  employmentStatus  EmploymentStatus @default(ACTIVE)
+  hireDate          DateTime?
+  organizationId    String // REQUIRED: prevents tenantless data leakage (CWE-284)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  user              User          @relation(fields: [userId], references: [id])
+  organization      Organization  @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  attendance        Attendance[]
+  timesheets        Timesheet[]
+
+  @@index([department])
+  @@index([employmentStatus])
+  @@index([organizationId])
+}
+
+model Attendance {
+  id              String   @id @default(cuid())
+  employeeId      String
+  date            DateTime
+  checkIn         String?
+  checkOut        String?
+  status          AttendanceStatus @default(PRESENT)
+  workHours       Decimal  @default(0)
+  overtimeHours   Decimal  @default(0)
+  organizationId  String? // TODO: Make required after data migration
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  employee        Employee      @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  organization    Organization? @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@index([employeeId, date])
+  @@index([status])
+  @@index([organizationId])
+}
+
+model Leave {
+  id              String   @id @default(cuid())
+  employeeId      String
+  type            LeaveType @default(ANNUAL)
+  startDate       DateTime
+  endDate         DateTime
+  days            Int      @default(1)
+  reason          String?
+  status          LeaveStatus @default(PENDING)
+  approvedById    String?
+  organizationId  String? // TODO: Make required after data migration
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  employee        User          @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  approver        User?         @relation("LeaveApprover", fields: [approvedById], references: [id])
+  organization    Organization? @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@index([employeeId])
+  @@index([status])
+  @@index([approvedById])
+  @@index([organizationId])
+}
+
+// ==================== PROCUREMENT ====================
+
+model Supplier {
+  id              String    @id @default(cuid())
+  name            String?
+  category        SupplierCategory @default(MATERIALS)
+  email           String?
+  phone           String?
+  address         String?
+  rating          Int       @default(0)
+  deletedAt       DateTime? // Soft delete
+  creditLimit     Decimal   @default(0)
+  organizationId  String? // TODO: Make required after data migration
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  purchaseOrders  PurchaseOrder[]
+  organization    Organization?   @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@index([deletedAt])
+  @@index([category])
+  @@index([organizationId])
+}
+
+model InventoryItem {
+  id              String   @id @default(cuid())
+  projectId       String?
+  name            String?
+  quantity        Float    @default(0)
+  unit            String?
+  price           Decimal  @default(0)
+  location        String?
+  minimumLevel    Float    @default(0)
+  organizationId  String? // TODO: Make required after data migration
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  project         Project?      @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  organization    Organization? @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@index([projectId])
+  @@index([organizationId])
+}
+
+model PurchaseOrder {
+  id              String   @id @default(cuid())
+  number          String?
+  supplierId      String
+  projectId       String?
+  amount          Decimal  @default(0)
+  status          PurchaseOrderStatus @default(DRAFT)
+  organizationId  String? // TODO: Make required after data migration
+  createdById     String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  supplier        Supplier            @relation(fields: [supplierId], references: [id])
+  project         Project?            @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  organization    Organization?       @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  items           PurchaseOrderItem[]
+
+  @@index([supplierId])
+  @@index([organizationId])
+  @@index([projectId])
+  @@index([status])
+}
+
+model PurchaseOrderItem {
+  id               String   @id @default(cuid())
+  purchaseOrderId  String
+  itemName         String?
+  quantity         Decimal  @default(1)
+  unitPrice        Decimal  @default(0)
+  total            Decimal  @default(0)
+  createdAt        DateTime @default(now())
+
+  purchaseOrder    PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+
+  @@index([purchaseOrderId])
+}
+
+model Equipment {
+  id               String    @id @default(cuid())
+  name             String?
+  type             String?
+  model            String?
+  serialNumber     String?
+  status           EquipmentStatus @default(AVAILABLE)
+  location         String?
+  dailyRate        Decimal   @default(0)
+  lastMaintenance  DateTime?
+  nextMaintenance  DateTime?
+  organizationId   String? // TODO: Make required after data migration
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  organization     Organization? @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@index([status])
+  @@index([organizationId])
+}
+
+// ==================== DOCUMENTS ====================
+
+model Document {
+  id              String    @id @default(cuid())
+  projectId       String?
+  contractId      String?
+  name            String?
+  fileType        String?
+  fileSize        Float     @default(0)
+  category        String    @default("general") // general, contract, drawings, report, invoice, transmittal, specs, calculations, photos
+  version         Int       @default(1)
+  filePath        String?
+  uploadedById    String?
+  deletedAt       DateTime? // Soft delete
+  organizationId  String // REQUIRED: prevents tenantless data leakage (CWE-284)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  project         Project?      @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  contract        Contract?     @relation(fields: [contractId], references: [id])
+  uploader        User?         @relation("DocumentUploader", fields: [uploadedById], references: [id])
+  organization    Organization  @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@index([projectId])
+  @@index([organizationId])
+  @@index([contractId])
+  @@index([category])
+  @@index([deletedAt])
+  @@index([uploadedById])
+}
+
+// ==================== KNOWLEDGE BASE ====================
+
+model KnowledgeArticle {
+  id              String   @id @default(cuid())
+  title           String?
+  content         String?
+  category        String   @default("guide") // guide, faq, policy, template
+  tags            String? // comma-separated
+  views           Int      @default(0)
+  authorId        String?
+  projectId       String?
+  organizationId  String? // TODO: Make required after data migration
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  author          User?         @relation(fields: [authorId], references: [id])
+  project         Project?      @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  organization    Organization? @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@index([projectId])
+  @@index([category])
+  @@index([organizationId])
+}
+
+// ==================== NOTIFICATIONS ====================
+
+model Notification {
+  id                 String   @id @default(cuid())
+  userId             String
+  projectId          String?
+  type               NotificationType?
+  title              String?
+  titleEn            String?
+  message            String?
+  messageEn          String?
+  priority           NotificationPriority @default(MEDIUM)
+  isRead             Boolean  @default(false)
+  relatedEntityType  String?
+  relatedEntityId    String?
+  link               String?
+  organizationId     String // REQUIRED: prevents tenantless data leakage (CWE-284)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  user               User          @relation(fields: [userId], references: [id])
+  project            Project?      @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  organization       Organization  @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([userId, isRead])
+  @@index([projectId])
+  @@index([organizationId])
+}
+
+// ==================== ACTIVITY LOG ====================
+
+model ActivityLog {
+  id              String   @id @default(cuid())
+  userId          String?
+  projectId       String?
+  action          ActivityAction?
+  entityType      String?
+  entityId        String?
+  details         String?
+  metadata        Json?
+  organizationId  String? // TODO: Make required after data migration
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user            User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  project         Project?      @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  organization    Organization? @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@index([userId, createdAt])
+  @@index([createdAt])
+  @@index([entityType, entityId])
+  @@index([projectId])
+  @@index([organizationId])
+}
+
+// ==================== APPROVALS ====================
+
+model Approval {
+  id              String   @id @default(cuid())
+  projectId       String?
+  entityType      String // 'invoice', 'payment', 'purchase_order', 'change_order', 'leave'
+  entityId        String
+  title           String
+  description     String?
+  status          ApprovalStatus @default(PENDING)
+  requestedBy     String
+  assignedTo      String
+  step            Int      @default(1) // current step in approval chain
+  totalSteps      Int      @default(1) // total steps
+  amount          Decimal  @default(0) // relevant financial amount if any
+  notes           String?
+  organizationId  String? // TODO: Make required after data migration
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  project         Project?      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  organization    Organization? @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@index([projectId])
+  @@index([status])
+  @@index([assignedTo])
+  @@index([organizationId])
+}
+
+// ==================== BUILDING INSPECTION ====================
+
+model BuildingInspection {
+  id                  String    @id @default(cuid())
+  inspectionNumber    String?
+  projectId           String?
+  clientId            String?
+  buildingName        String?
+  buildingAddress     String?
+  inspectionType      String?
+  riskLevel           RiskLevel    @default(GREEN)
+  inspectionDate      DateTime
+  nextInspectionDate  DateTime?
+  inspectorName       String?
+  summary             String?
+  recommendations     String?
+  repairEstimate      Decimal   @default(0)
+  status              InspectionStatus @default(DRAFT)
+  organizationId      String? // TODO: Make required after data migration
+  createdById         String?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  client              Client?             @relation(fields: [clientId], references: [id])
+  project             Project?            @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  organization        Organization?       @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  findings            InspectionFinding[]
+  photos              InspectionPhoto[]
+
+  @@index([organizationId])
+  @@index([projectId])
+  @@index([status])
+  @@index([clientId])
+}
+
+model InspectionFinding {
+  id             String   @id @default(cuid())
+  inspectionId   String
+  location       String?
+  description    String?
+  severity       FindingSeverity @default(LOW)
+  category       FindingCategory?
+  photos         String?
+  remediation    String?
+  estimatedCost  Decimal  @default(0)
+  status         FindingStatus   @default(OPEN)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  inspection     BuildingInspection @relation(fields: [inspectionId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@index([inspectionId])
+}
+
+model InspectionPhoto {
+  id            String   @id @default(cuid())
+  inspectionId  String
+  url           String?
+  caption       String?
+  findingId     String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  inspection    BuildingInspection @relation(fields: [inspectionId], references: [id], onDelete: Cascade)
+
+  @@index([inspectionId])
+}
+
+// ==================== PUBLIC QUOTE REQUESTS ====================
+
+model QuoteRequest {
+  id              String   @id @default(cuid())
+  name            String?
+  phone           String?
+  email           String?
+  serviceType     String?
+  buildingType    String?
+  area            String?
+  floors          Int      @default(1)
+  location        String?
+  message         String?
+  status          QuoteRequestStatus @default(NEW)
+  organizationId  String? // TODO: Make required after data migration
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  organization    Organization? @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@index([status])
+  @@index([createdAt])
+  @@index([organizationId])
+}
+
+// ==================== DESIGN MANAGEMENT ====================
+
+model DesignPhase {
+  id              String    @id @default(cuid())
+  projectId       String
+  phase           DesignPhaseType @default(CONCEPT)
+  phaseNameAr     String?
+  phaseNameEn     String?
+  status          DesignPhaseStatus @default(NOT_STARTED)
+  designerId      String?
+  startDate       DateTime?
+  dueDate         DateTime?
+  completedDate   DateTime?
+  revisionCount   Int       @default(0)
+  notes           String?
+  clientApproval  Boolean   @default(false)
+  organizationId  String? // TODO: Make required after data migration
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  project         Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  organization    Organization?   @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  drawings        DesignDrawing[]
+
+  @@index([projectId])
+  @@index([status])
+  @@index([dueDate])
+  @@index([designerId])
+  @@index([organizationId])
+}
+
+model DesignDrawing {
+  id             String    @id @default(cuid())
+  designPhaseId  String
+  title          String?
+  drawingNumber  String?
+  discipline     DesignDiscipline?
+  version        Int       @default(1)
+  filePath       String?
+  fileSize       Float     @default(0)
+  status         DrawingStatus @default(DRAFT)
+  reviewedBy     String?
+  reviewNotes    String?
+  reviewedAt     DateTime?
+  clashDetected  Boolean   @default(false)
+  clashNotes     String?
+  uploadedById   String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  designPhase    DesignPhase      @relation(fields: [designPhaseId], references: [id], onDelete: Cascade)
+  revisions      DesignRevision[]
+
+  @@index([designPhaseId])
+  @@index([status])
+  @@index([discipline])
+  @@index([uploadedById])
+}
+
+model DesignRevision {
+  id            String   @id @default(cuid())
+  drawingId     String
+  version       Int      @default(1)
+  filePath      String?
+  changeNotes   String?
+  uploadedById  String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  drawing       DesignDrawing @relation(fields: [drawingId], references: [id], onDelete: Cascade)
+
+  @@index([drawingId])
+  @@index([uploadedById])
+}
+
+// ==================== TENDER MANAGEMENT ====================
+
+model Tender {
+  id                  String    @id @default(cuid())
+  tenderNumber        String?
+  title               String?
+  authority           String? // RAK Municipality, RAK Properties, Al Hamra, Marjan, RAKEZ, Private
+  projectType         ClientProjectType?
+  description         String?
+  estimatedBudget     Decimal   @default(0)
+  currency            Currency    @default(AED)
+  closingDate         DateTime?
+  submissionDate      DateTime?
+  qualifications      String? // comma-separated required qualifications
+  requiredDocs        String? // comma-separated required documents
+  status              TenderStatus @default(IDENTIFIED)
+  winnerName          String?
+  lostReason          String?
+  competitorAnalysis  Json?
+  notes               String?
+  source              TenderSource?
+  sourceUrl           String?
+  assignedTo          String?
+  organizationId      String? // TODO: Make required after data migration
+  createdById         String?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  assignedUser        User?            @relation("TenderAssignee", fields: [assignedTo], references: [id])
+  organization        Organization?    @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  documents           TenderDocument[]
+
+  @@index([organizationId])
+  @@index([status])
+  @@index([assignedTo])
+}
+
+model TenderDocument {
+  id          String   @id @default(cuid())
+  tenderId    String
+  name        String?
+  fileType    String?
+  filePath    String?
+  uploadedAt  DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tender      Tender @relation(fields: [tenderId], references: [id], onDelete: Cascade)
+
+  @@index([tenderId])
+}
+
+// ==================== SITE SUPERVISION ====================
+
+model SupervisionChecklist {
+  id               String   @id @default(cuid())
+  projectId        String
+  stage            String?
+  title            String?
+  visitDate        DateTime
+  engineerId       String?
+  weather          WeatherCondition?
+  temperature      String?
+  workerCount      Int      @default(0)
+  contractorName   String?
+  progressOverall  Float    @default(0)
+  notes            String?
+  status           ChecklistStatus @default(DRAFT)
+  approvedById     String?
+  organizationId   String? // TODO: Make required after data migration
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  project          Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  organization     Organization?   @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  items            ChecklistItem[]
+  violations       Violation[]
+
+  @@index([projectId])
+  @@index([status])
+  @@index([approvedById])
+  @@index([organizationId])
+}
+
+model ChecklistItem {
+  id             String   @id @default(cuid())
+  checklistId    String
+  category       String?
+  description    String?
+  specification  String?
+  isChecked      Boolean  @default(false)
+  compliant      Boolean  @default(true)
+  notes          String?
+  photoUrl       String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  checklist      SupervisionChecklist @relation(fields: [checklistId], references: [id], onDelete: Cascade)
+
+  @@index([checklistId])
+}
+
+model Violation {
+  id               String    @id @default(cuid())
+  checklistId      String
+  projectId        String
+  type             String?
+  severity         ViolationSeverity    @default(LOW)
+  description      String?
+  contractorName   String?
+  deadline         DateTime?
+  status           ViolationStatus @default(OPEN)
+  photoBefore      String?
+  photoAfter       String?
+  resolutionNotes  String?
+  organizationId   String? // TODO: Make required after data migration
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  checklist        SupervisionChecklist @relation(fields: [checklistId], references: [id], onDelete: Cascade)
+  project          Project              @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  organization     Organization?        @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@index([projectId])
+  @@index([status])
+  @@index([checklistId])
+  @@index([organizationId])
+}
+
+// ==================== COMMISSIONS & REFERRALS ====================
+
+model Commission {
+  id              String    @id @default(cuid())
+  userId          String
+  projectId       String?
+  type            String    @default("project_referral")
+  amount          Decimal   @default(0)
+  currency        Currency    @default(AED)
+  percentage      Decimal   @default(0)
+  baseAmount      Decimal   @default(0)
+  status          CommissionStatus @default(PENDING)
+  periodStart     DateTime?
+  periodEnd       DateTime?
+  description     String?
+  approvedById    String?
+  paidDate        DateTime?
+  organizationId  String? // TODO: Make required after data migration
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  user            User          @relation("CommissionUser", fields: [userId], references: [id])
+  project         Project?      @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  approver        User?         @relation("CommissionApprover", fields: [approvedById], references: [id])
+  organization    Organization? @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@index([userId])
+  @@index([projectId])
+  @@index([status])
+  @@index([approvedById])
+  @@index([organizationId])
+}
+
+model Referral {
+  id              String   @id @default(cuid())
+  referrerId      String
+  referredName    String?
+  referredPhone   String?
+  referredEmail   String?
+  projectId       String?
+  status          ReferralStatus @default(PENDING)
+  discountGiven   Decimal  @default(0)
+  rewardAmount    Decimal  @default(0)
+  notes           String?
+  organizationId  String? // TODO: Make required after data migration
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  referrer        User          @relation("ReferralReferrer", fields: [referrerId], references: [id])
+  project         Project?      @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  organization    Organization? @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@index([referrerId])
+  @@index([projectId])
+  @@index([status])
+  @@index([organizationId])
+}
+
+model MarketingCampaign {
+  id              String    @id @default(cuid())
+  name            String?
+  type            String?
+  budget          Decimal   @default(0)
+  spent           Decimal   @default(0)
+  leads           Int       @default(0)
+  conversions     Int       @default(0)
+  startDate       DateTime?
+  endDate         DateTime?
+  status          CampaignStatus @default(ACTIVE)
+  notes           String?
+  organizationId  String? // TODO: Make required after data migration
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  organization    Organization? @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@index([status])
+  @@index([organizationId])
+}
+
+// ==================== WORKFLOW MANAGEMENT ====================
+
+model WorkflowTemplate {
+  id              String   @id @default(cuid())
+  name            String?
+  nameEn          String?
+  projectType     ProjectType?
+  description     String?
+  isActive        Boolean  @default(true)
+  organizationId  String? // TODO: Make required after data migration
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  organization    Organization?           @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  stages          WorkflowTemplateStage[]
+  projects        ProjectWorkflow[]
+
+  @@index([organizationId])
+}
+
+model WorkflowTemplateStage {
+  id              String   @id @default(cuid())
+  templateId      String
+  name            String?
+  nameEn          String?
+  order           Int      @default(0)
+  durationDays    Int      @default(0)
+  isParallel      Boolean  @default(false)
+  isOptional      Boolean  @default(false)
+  organizationId  String? // TODO: Make required after data migration
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  template        WorkflowTemplate       @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  steps           WorkflowTemplateStep[]
+  organization    Organization?          @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@index([templateId, order])
+  @@index([organizationId])
+}
+
+model WorkflowTemplateStep {
+  id                String   @id @default(cuid())
+  stageId           String
+  name              String?
+  nameEn            String?
+  order             Int      @default(0)
+  assignedRole      String?
+  isRequired        Boolean  @default(true)
+  requiresApproval  Boolean  @default(false)
+  autoComplete      Boolean  @default(false)
+  onCompleteAction  String   @default("next_step")
+  daysToComplete    Int      @default(0)
+  organizationId    String? // TODO: Make required after data migration
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  stage             WorkflowTemplateStage @relation(fields: [stageId], references: [id], onDelete: Cascade)
+  organization      Organization?        @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@index([stageId, order])
+  @@index([organizationId])
+}
+
+model ProjectWorkflow {
+  id              String    @id @default(cuid())
+  projectId       String    @unique
+  templateId      String?
+  currentStageId  String?
+  status          WorkflowTemplateStatus @default(ACTIVE)
+  progress        Float     @default(0)
+  startedAt       DateTime  @default(now())
+  completedAt     DateTime?
+  organizationId  String? // TODO: Make required after data migration
+  organization    Organization? @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  project         Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  template        WorkflowTemplate? @relation(fields: [templateId], references: [id])
+  stages          WorkflowStage[]
+
+  @@index([projectId])
+  @@index([status])
+  @@index([templateId])
+  @@index([organizationId])
+}
+
+model WorkflowStage {
+  id               String    @id @default(cuid())
+  workflowId       String
+  templateStageId  String?
+  name             String?
+  nameEn           String?
+  order            Int       @default(0)
+  status           WorkflowStageStatus @default(PENDING)
+  startDate        DateTime?
+  dueDate          DateTime?
+  completedDate    DateTime?
+  assigneeId       String?
+  notes            String?
+  organizationId   String? // TODO: Make required after data migration
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  assignee         User?           @relation("WorkflowStageAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  workflow         ProjectWorkflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  steps            WorkflowStep[]
+  organization     Organization? @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@index([workflowId, order])
+  @@index([status])
+  @@index([dueDate])
+  @@index([assigneeId])
+  @@index([organizationId])
+}
+
+model WorkflowStep {
+  id              String    @id @default(cuid())
+  stageId         String
+  templateStepId  String?
+  name            String?
+  nameEn          String?
+  order           Int       @default(0)
+  status          WorkflowStepStatus    @default(LOCKED)
+  assigneeId      String?
+  assignedRole    String?
+  startDate       DateTime?
+  dueDate         DateTime?
+  completedDate   DateTime?
+  action          String?
+  notes           String?
+  returnReason    String?
+  severity        WorkflowStepSeverity @default(NORMAL)
+  organizationId  String? // TODO: Make required after data migration
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  assignee        User?         @relation("WorkflowStepAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  stage           WorkflowStage @relation(fields: [stageId], references: [id], onDelete: Cascade)
+  organization    Organization? @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@index([stageId, order])
+  @@index([status])
+  @@index([dueDate])
+  @@index([assigneeId])
+  @@index([organizationId])
+}
+
+// ==================== SAAS MULTI-TENANT MODELS ====================
+
+// Organization (Tenant)
+model Organization {
+  id                          String    @id @default(cuid())
+  name                        String
+  slug                        String    @unique
+  logo                        String?
+  description                 String?
+  website                     String?
+  phone                       String?
+  email                       String?
+  address                     String?
+  taxNumber                   String?
+  currency                    Currency    @default(AED)
+  timezone                    String    @default("Asia/Dubai")
+  locale                      String    @default("ar")
+  isActive                    Boolean   @default(true)
+  planId                      String? // Current plan ID
+  stripeCustomerId            String? @unique // Stripe customer ID for billing
+  deletedAt                   DateTime? // Soft delete
+  createdAt                   DateTime  @default(now())
+  updatedAt                   DateTime  @updatedAt
+
+  plan                        Plan?                        @relation(fields: [planId], references: [id])
+  users                       User[]
+  subscriptions               Subscription[]
+  projects                    Project[]
+  tasks                       Task[]
+  invoices                    Invoice[]
+  clients                     Client[]
+  payments                    Payment[]
+  budgets                     Budget[]
+  proposals                   Proposal[]
+  contracts                   Contract[]
+  bids                        Bid[]
+  defects                     Defect[]
+  risks                       Risk[]
+  documents                   Document[]
+  meetings                    Meeting[]
+  buildingInspections         BuildingInspection[]
+  purchaseOrders              PurchaseOrder[]
+  tenders                     Tender[]
+  siteVisits                  SiteVisit[]
+  schedulePhases              SchedulePhase[]
+  contractors                 Contractor[]
+  equipment                   Equipment[]
+  // --- New multi-tenant relations (organizationId added) ---
+  companySettings             CompanySettings[]
+  municipalityCorrespondence  MunicipalityCorrespondence[]
+  projectStages               ProjectStage[]
+  municipalRejections         MunicipalRejection[]
+  govApprovals                GovApproval[]
+  clientInteractions          ClientInteraction[]
+  siteDiaries                 SiteDiary[]
+  rfis                        RFI[]
+  submittals                  Submittal[]
+  changeOrders                ChangeOrder[]
+  transmittals                Transmittal[]
+  boqItems                    BOQItem[]
+  employees                   Employee[]
+  attendance                  Attendance[]
+  leaves                      Leave[]
+  suppliers                   Supplier[]
+  inventoryItems              InventoryItem[]
+  quoteRequests               QuoteRequest[]
+  knowledgeArticles           KnowledgeArticle[]
+  notifications               Notification[]
+  activityLogs                ActivityLog[]
+  approvals                   Approval[]
+  designPhases                DesignPhase[]
+  supervisionChecklists       SupervisionChecklist[]
+  violations                  Violation[]
+  commissions                 Commission[]
+  referrals                   Referral[]
+  marketingCampaigns          MarketingCampaign[]
+  workflowTemplates           WorkflowTemplate[]
+  securityAuditLogs           SecurityAuditLog[]
+  contractorEvaluations       ContractorEvaluation[]
+  automations                 Automation[]
+  projectComments             ProjectComment[]
+  projectAssignments          ProjectAssignment[]
+  taskComments                TaskComment[]
+  slaBreaches                 SLABreach[]
+  notificationSettings        NotificationSettings[]
+  aiChatConversations         AIChatConversation[]
+  aiChatMessages              AIChatMessage[]
+  projectWorkflows            ProjectWorkflow[]
+  workflowStages              WorkflowStage[]
+  workflowSteps               WorkflowStep[]
+  riskActions                 RiskAction[]
+  workflowTemplateStages      WorkflowTemplateStage[]
+  workflowTemplateSteps       WorkflowTemplateStep[]
+  subscriptionPayments        SubscriptionPayment[]
+  retainages                  Retainage[]
+  guaranteeLetters            GuaranteeLetter[]
+  progressClaims              ProgressClaim[]
+
+  @@index([deletedAt])
+}
+
+// Subscription Plans
+model Plan {
+  id               String               @id @default(cuid())
+  name             String
+  slug             String               @unique
+  nameAr           String? // Arabic name
+  description      String?
+  descriptionAr    String? // Arabic description
+  price            Decimal              @default(0)
+  currency         Currency               @default(AED)
+  interval         SubscriptionInterval @default(MONTH)
+  stripeProductId  String?
+  stripePriceId    String?
+  features         String               @default("{}") // JSON string for features
+  limits           String               @default("{}") // JSON string for limits
+  isActive         Boolean              @default(true)
+  sortOrder        Int                  @default(0)
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+
+  subscriptions    Subscription[]
+  organizations    Organization[]
+}
+
+// Organization Subscriptions
+model Subscription {
+  id                     String             @id @default(cuid())
+  organizationId         String
+  planId                 String
+  status                 SubscriptionStatus @default(ACTIVE)
+  currentPeriodStart     DateTime
+  currentPeriodEnd       DateTime
+  cancelAtPeriodEnd      Boolean            @default(false)
+  stripeSubscriptionId   String?
+  stripeCustomerId       String?
+  stripePaymentIntentId  String?
+  createdAt              DateTime           @default(now())
+  updatedAt              DateTime           @updatedAt
+
+  organization           Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  plan                   Plan                  @relation(fields: [planId], references: [id])
+  subscriptionPayments   SubscriptionPayment[]
+
+  @@index([organizationId])
+  @@index([organizationId, status])
+  @@index([planId])
+}
+
+// Subscription Payments (SaaS)
+model SubscriptionPayment {
+  id                     String        @id @default(cuid())
+  subscriptionId         String
+  amount                 Decimal       @default(0)
+  currency               Currency        @default(AED)
+  status                 PaymentStatus @default(PENDING)
+  stripePaymentIntentId  String?
+  stripeChargeId         String?
+  stripeInvoiceId        String?
+  receiptUrl             String?
+  description            String?
+  metadata               String? // JSON string
+  organizationId         String? // TODO: Make required after data migration
+  createdAt              DateTime      @default(now())
+  updatedAt              DateTime      @updatedAt
+
+  subscription           Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  organization           Organization? @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@index([subscriptionId])
+  @@index([status])
+  @@index([organizationId])
+}
+
+// Email Verification Token
+model EmailVerificationToken {
+  id         String    @id @default(cuid())
+  email      String
+  token      String    @unique
+  userId     String?
+  expiresAt  DateTime
+  usedAt     DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([email])
+  @@index([token])
+  @@index([expiresAt])
+}
+
+// Password Reset Token
+model PasswordResetToken {
+  id         String    @id @default(cuid())
+  email      String
+  token      String    @unique
+  userId     String?
+  expiresAt  DateTime
+  usedAt     DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([email])
+  @@index([token])
+  @@index([expiresAt])
+}
+
+// Two-Factor Authentication Secret
+model TwoFactorSecret {
+  id           String    @id @default(cuid())
+  userId       String    @unique
+  secret       String // Encrypted TOTP secret
+  backupCodes  String // JSON string for backup codes
+  isEnabled    Boolean   @default(false)
+  verifiedAt   DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([userId])
+}
+
+// Two-Factor Challenge
+model TwoFactorChallenge {
+  id         String                 @id @default(cuid())
+  userId     String
+  code       String
+  type       TwoFactorChallengeType @default(TOTP)
+  expiresAt  DateTime
+  usedAt     DateTime?
+  createdAt  DateTime               @default(now())
+
+  @@index([userId])
+  @@index([code])
+  @@index([expiresAt])
+}
+
+// SLA Breach Tracking
+model SLABreach {
+  id               String          @id @default(cuid())
+  taskId           String
+  projectId        String?
+  status           SLABreachStatus @default(WARNING)
+  daysElapsed      Int             @default(0) // Days since SLA start
+  slaDays          Int             @default(0) // Expected SLA days
+  breachDays       Int             @default(0) // Days over SLA
+  notifiedAt       DateTime? // When notification was sent
+  notifiedUsers    String? // JSON array of user IDs notified
+  resolvedAt       DateTime? // When breach was resolved
+  resolutionNotes  String?
+  organizationId   String? // TODO: Make required after data migration
+  organization     Organization?   @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  @@index([taskId])
+  @@index([projectId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([organizationId])
+}
+
+// User Notification Settings
+model NotificationSettings {
+  id                  String   @id @default(cuid())
+  userId              String   @unique
+  emailNotifications  Boolean  @default(true)
+  pushNotifications   Boolean  @default(true)
+  taskAssigned        Boolean  @default(true)
+  taskDueSoon         Boolean  @default(true)
+  taskOverdue         Boolean  @default(true)
+  invoiceOverdue      Boolean  @default(true)
+  projectUpdates      Boolean  @default(true)
+  slaWarnings         Boolean  @default(true)
+  organizationId      String? // TODO: Make required after data migration
+  organization        Organization? @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  user                User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([organizationId])
+}
+
+// ==================== AI CHAT PERSISTENCE ====================
+
+/// AI Chat Conversation
+model AIChatConversation {
+  id              String   @id @default(cuid())
+  userId          String
+  title           String?
+  projectId       String?
+  lastMessageAt   DateTime @default(now())
+  messageCount    Int      @default(0)
+  organizationId  String? // TODO: Make required after data migration
+  organization    Organization? @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages        AIChatMessage[]
+
+  @@index([userId])
+  @@index([projectId])
+  @@index([lastMessageAt])
+  @@index([organizationId])
+}
+
+/// AI Chat Message
+model AIChatMessage {
+  id              String   @id @default(cuid())
+  conversationId  String
+  role            String // 'user' | 'assistant' | 'system'
+  content         String
+  tokens          Int      @default(0)
+  model           String?
+  organizationId  String? // TODO: Make required after data migration
+  organization    Organization? @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  createdAt       DateTime @default(now())
+
+  conversation    AIChatConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+  @@index([createdAt])
+  @@index([organizationId])
+}
+
+// ==================== SECURITY AUDIT LOG ====================
+
+/// Security Audit Log for tracking sensitive operations
+model SecurityAuditLog {
+  id              String   @id @default(cuid())
+  userId          String?
+  action          SecurityAuditAction // login, logout, 2fa_enable, 2fa_disable, password_change, etc.
+  entityType      String?
+  entityId        String?
+  ipAddress       String?
+  userAgent       String?
+  details         String? // JSON string for additional details
+  status          SecurityAuditResult   @default(SUCCESS) // success, failed, blocked
+  errorMessage    String?
+  organizationId  String? // TODO: Make required after data migration
+  createdAt       DateTime @default(now())
+
+  organization    Organization? @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@index([userId])
+  @@index([action])
+  @@index([status])
+  @@index([createdAt])
+  @@index([organizationId])
+}
+
+// ==================== AUTOMATIONS ====================
+
+model Automation {
+  id              String    @id @default(cuid())
+  name            String?
+  description     String?
+  triggerType     AutomationTriggerType?
+  triggerConfig   Json?
+  actionType      AutomationActionType?
+  actionConfig    Json?
+  status          AutomationStatus    @default(INACTIVE)
+  lastRunAt       DateTime?
+  runCount        Int       @default(0)
+  organizationId  String? // TODO: Make required after data migration
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  organization    Organization? @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@index([status])
+  @@index([organizationId])
+}
+
+// ==================== RETAINAGE MANAGEMENT ====================
+
+/// Retainage tracking for UAE construction projects (5-10% held until completion)
+model Retainage {
+  id              String    @id @default(cuid())
+  organizationId  String? // TODO: Make required after data migration
+  projectId       String
+  invoiceId       String? // Link to invoice that generated this retainage
+  percentage      Decimal   @default(0) // Retainage percentage (e.g. 5, 10)
+  retainedAmount  Decimal   @default(0) // Amount retained
+  releaseDate     DateTime? // Expected or actual release date
+  status          RetainageStatus @default(HELD)
+  releasedAmount  Decimal   @default(0) // Amount released so far
+  releasedDate    DateTime? // Date of last release
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  project         Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  organization    Organization? @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@index([projectId])
+  @@index([status])
+  @@index([organizationId])
+}
+
+// ==================== GUARANTEE LETTERS ====================
+
+/// Bank guarantees for UAE construction (Performance, Advance Payment, Retention, Bid Bond)
+model GuaranteeLetter {
+  id               String    @id @default(cuid())
+  organizationId   String? // TODO: Make required after data migration
+  projectId        String
+  type             GuaranteeType @default(PERFORMANCE)
+  guaranteeNumber  String? // Bank guarantee reference number
+  bankName         String?
+  amount           Decimal   @default(0)
+  currency         Currency    @default(AED)
+  issueDate        DateTime?
+  expiryDate       DateTime?
+  status           GuaranteeStatus @default(ACTIVE)
+  beneficiaryName  String?
+  documentUrl      String? // Link to uploaded guarantee document
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  project          Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  organization     Organization? @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@index([projectId])
+  @@index([type])
+  @@index([status])
+  @@index([organizationId])
+  @@index([expiryDate])
+}
+
+// ==================== PROGRESS CLAIMS ====================
+
+/// Monthly progress claims for UAE construction (Interim Payment Applications)
+model ProgressClaim {
+  id                 String    @id @default(cuid())
+  organizationId     String? // TODO: Make required after data migration
+  projectId          String
+  claimNumber        String? // e.g. "IPC-001"
+  period             String? // e.g. "March 2025"
+  claimDate          DateTime?
+  totalClaimAmount   Decimal   @default(0)
+  approvedAmount     Decimal   @default(0)
+  previousCertified  Decimal   @default(0) // Cumulative previously certified
+  currentCertified   Decimal   @default(0) // Current certification amount
+  retentionAmount    Decimal   @default(0) // Retention deducted
+  netPayment         Decimal   @default(0) // currentCertified - retentionAmount
+  status             ProgressClaimStatus @default(DRAFT)
+  certifiedDate      DateTime?
+  certifiedById      String? // User who certified
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  project            Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  organization       Organization? @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@index([projectId])
+  @@index([status])
+  @@index([organizationId])
+  @@index([claimNumber])
+}
+
+// ==================== TIMESHEETS ====================
+
+model Timesheet {
+  id              String    @id @default(cuid())
+  employeeId      String
+  projectId       String?
+  weekStart       DateTime    // Monday of the week
+  weekEnd         DateTime    // Sunday of the week
+  status          TimesheetStatus @default(DRAFT)
+  totalHours      Decimal   @default(0)
+  notes           String?
+  rejectedReason  String?
+  approvedById    String?
+  approvedAt      DateTime?
+  submittedAt     DateTime?
+  organizationId  String? // TODO: Make required after data migration
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  employee        Employee  @relation(fields: [employeeId], references: [id])
+  project         Project?  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  approvedBy      User?     @relation("TimesheetApprover", fields: [approvedById], references: [id])
+  entries         TimesheetEntry[]
+
+  @@unique([employeeId, weekStart])
+  @@index([employeeId, status])
+  @@index([projectId])
+  @@index([organizationId])
+  @@index([deletedAt])
+}
+
+model TimesheetEntry {
+  id           String   @id @default(cuid())
+  timesheetId  String
+  date         DateTime
+  hours        Decimal
+  taskType     TimesheetTaskType?
+  description  String?
+  projectId    String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  timesheet    Timesheet @relation(fields: [timesheetId], references: [id], onDelete: Cascade)
+  project      Project?  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([timesheetId])
+  @@index([date])
+  @@index([projectId])
 }

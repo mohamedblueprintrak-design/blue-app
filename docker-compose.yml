@@ -1,0 +1,206 @@
+# ============================================
+# BluePrint SaaS - Docker Compose for Development
+# ============================================
+# Development orchestration with security best practices
+#
+# SECURITY NOTE: All sensitive values should come from .env file
+# Copy .env.example to .env and fill in your values
+#
+# Usage:
+#   cp .env.example .env
+#   # Edit .env with your values
+#   docker-compose up -d
+
+services:
+  # ============================================
+  # Application Service
+  # ============================================
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: blueprint-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=development
+      # SECURITY: All secrets from environment variables — NO default passwords in production
+      # If DATABASE_PASSWORD is not set, the app will fail to start (by design)
+      # NOTE: After first start, run: npx prisma migrate deploy && npx tsx prisma/seed.ts
+      - DATABASE_URL=postgresql://blueprint:${DATABASE_PASSWORD:?DATABASE_PASSWORD must be set}@postgres:5432/blueprint?schema=public
+      - JWT_SECRET=${JWT_SECRET}
+      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+      - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD must be set}@redis:6379
+      # SMTP Configuration
+      - SMTP_HOST=${SMTP_HOST:-}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USER=${SMTP_USER:-}
+      - SMTP_PASS=${SMTP_PASS:-}
+      # Encryption key for sensitive data (64 hex chars = 256 bits)
+      # SECURITY: Must be set in .env for production! Dev fallback uses JWT_SECRET derivation.
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY:-}
+      # Multi-tenant mode — set to 'true' for organization-based data isolation
+      - MULTI_TENANT=${MULTI_TENANT:-false}
+      # Stripe Configuration
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY:-}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - blueprint-network
+    volumes:
+      - .:/app
+      - uploads:/app/uploads
+      - /app/node_modules
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ============================================
+  # PostgreSQL Database - SECURED
+  # ============================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: blueprint-postgres
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: blueprint
+      # SECURITY: Password from environment variable — must be set explicitly
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:?DATABASE_PASSWORD must be set}
+      POSTGRES_DB: blueprint
+    # SECURITY: In development, keep ports for debugging
+    # In production, remove this section entirely
+    ports:
+      - "127.0.0.1:5432:5432"  # Only localhost access
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - blueprint-network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U blueprint -d blueprint"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================
+  # Redis Cache - SECURED
+  # ============================================
+  redis:
+    image: redis:7-alpine
+    container_name: blueprint-redis
+    restart: unless-stopped
+    # SECURITY: In development, keep ports for debugging
+    # In production, remove this section entirely
+    ports:
+      - "127.0.0.1:6379:6379"  # Only localhost access
+    volumes:
+      - redis_data:/data
+    networks:
+      - blueprint-network
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "3"
+    # SECURITY: Use password authentication
+    env_file:
+      - .env
+    command: >
+      redis-server 
+      --appendonly yes 
+      --requirepass ${REDIS_PASSWORD:?REDIS_PASSWORD must be set}
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+    healthcheck:
+      # SECURITY: Use REDISCLI_AUTH env var instead of -a flag to avoid
+      # exposing the password in the process list (/proc)
+      test: ["CMD-SHELL", "REDISCLI_AUTH=$${REDIS_PASSWORD} redis-cli ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================
+  # Nginx Reverse Proxy (Optional for Production)
+  # ============================================
+  nginx:
+    image: nginx:alpine
+    container_name: blueprint-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./certbot/conf:/etc/letsencrypt:ro
+      - ./certbot/www:/var/www/certbot:ro
+    depends_on:
+      - app
+    networks:
+      - blueprint-network
+    profiles:
+      - production
+
+  # ============================================
+  # Certbot for SSL (Optional for Production)
+  # ============================================
+  certbot:
+    image: certbot/certbot
+    container_name: blueprint-certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --quiet; sleep 12h & wait $${!}; done;'"
+    networks:
+      - blueprint-network
+    profiles:
+      - production
+
+# ============================================
+# Networks
+# ============================================
+networks:
+  blueprint-network:
+    driver: bridge
+
+# ============================================
+# Volumes
+# ============================================
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  uploads:
+    driver: local

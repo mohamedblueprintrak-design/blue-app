@@ -1,12 +1,180 @@
 import type { NextConfig } from "next";
 
+// Sentry integration — conditional import to prevent build failure
+// when @sentry/nextjs is not installed (e.g., in lightweight setups)
+let withSentryConfig: ((config: NextConfig, opts?: Record<string, unknown>) => NextConfig) | undefined;
+try {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const sentryModule = require('@sentry/nextjs');
+  withSentryConfig = sentryModule.withSentryConfig;
+} catch {
+  // @sentry/nextjs not installed — export config as-is
+}
+
 const nextConfig: NextConfig = {
-  output: "standalone",
-  /* config options here */
+  output: 'standalone',
+  poweredByHeader: false,
   typescript: {
-    ignoreBuildErrors: true,
+    // Build errors should be caught during CI/CD, not silently ignored
+    ignoreBuildErrors: false,
   },
-  reactStrictMode: false,
+  reactStrictMode: true,
+
+  // NOTE: We use Webpack for dev (see package.json "dev" script with --webpack flag).
+  // Turbopack (Next.js 16 default) has a Windows-specific bug that creates
+  // phantom [[...slug]] catch-all routes, causing route specificity conflicts.
+  // DO NOT remove --webpack from the dev script unless the Turbopack bug is fixed.
+
+  // Optimize barrel-file imports to reduce chunk sizes and avoid ChunkLoadError
+  experimental: {
+    optimizePackageImports: [
+      'recharts',
+      'framer-motion',
+      'lucide-react',
+      '@radix-ui/react-accordion',
+      '@radix-ui/react-alert-dialog',
+      '@radix-ui/react-aspect-ratio',
+      '@radix-ui/react-avatar',
+      '@radix-ui/react-checkbox',
+      '@radix-ui/react-collapsible',
+      '@radix-ui/react-context-menu',
+      '@radix-ui/react-dialog',
+      '@radix-ui/react-dropdown-menu',
+      '@radix-ui/react-hover-card',
+      '@radix-ui/react-label',
+      '@radix-ui/react-menubar',
+      '@radix-ui/react-navigation-menu',
+      '@radix-ui/react-popover',
+      '@radix-ui/react-progress',
+      '@radix-ui/react-radio-group',
+      '@radix-ui/react-scroll-area',
+      '@radix-ui/react-select',
+      '@radix-ui/react-separator',
+      '@radix-ui/react-slider',
+      '@radix-ui/react-switch',
+      '@radix-ui/react-tabs',
+      '@radix-ui/react-toast',
+      '@radix-ui/react-toggle',
+      '@radix-ui/react-toggle-group',
+      '@radix-ui/react-tooltip',
+      'date-fns',
+      'react-day-picker',
+      'embla-carousel-react',
+    ],
+  },
+
+  // Packages that must not be bundled for the client
+  serverExternalPackages: [
+    'bcryptjs',
+    'winston',
+    'winston-daily-rotate-file',
+    'redis',
+    'socket.io',
+    'nodemailer',
+    'sharp',
+    '@prisma/client',
+    // 'jose' must NOT be here — it needs to be bundled for Edge Runtime proxy
+    // 'jose',
+    'otplib',
+    'z-ai-web-dev-sdk',
+  ],
+
+  // Environment variables exposed to client
+  env: {
+    NEXT_PUBLIC_APP_NAME: process.env.NEXT_PUBLIC_APP_NAME || 'Blue',
+    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+  },
+
+  // Image optimization
+  images: {
+    remotePatterns: [
+      { protocol: 'https', hostname: 'avatars.githubusercontent.com' },
+      { protocol: 'https', hostname: 'lh3.googleusercontent.com' },
+      { protocol: 'https', hostname: '*.stripe.com' },
+    ],
+    formats: ['image/avif', 'image/webp'],
+  },
+
+  // Logging
+  logging: {
+    fetches: {
+      fullUrl: process.env.NODE_ENV === 'development',
+    },
+  },
+
+  // ─────────────────────────────────────────────────────────
+  // SECURITY HEADERS
+  // ─────────────────────────────────────────────────────────
+  // Page security headers → <meta http-equiv> in layout.tsx
+  // API CORS headers → src/app/api/utils/response.ts
+  // Production headers → Caddy/Nginx reverse proxy config
+  // CSP with nonces → src/proxy.ts (the authoritative source)
+  // Next.js-level headers → Applied here as defense-in-depth
+  // ─────────────────────────────────────────────────────────
+  // NOTE: Content-Security-Policy is NOT set here because
+  // src/proxy.ts generates per-request nonces for script-src,
+  // which is strictly more secure than static 'unsafe-inline'
+  // or 'unsafe-eval' directives. Having both would create
+  // conflicting CSP headers — the proxy CSP always wins but
+  // the weaker fallback CSP here was a risk if proxy is bypassed.
+  // ─────────────────────────────────────────────────────────
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin',
+          },
+          {
+            key: 'X-DNS-Prefetch-Control',
+            value: 'on',
+          },
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), microphone=(), geolocation=()',
+          },
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=63072000; includeSubDomains; preload',
+          },
+          // CSP is set by src/proxy.ts with per-request nonces — do NOT add a static CSP here
+        ],
+      },
+    ];
+  },
 };
 
-export default nextConfig;
+// Wrap with Sentry if available, otherwise export as-is
+const finalConfig = withSentryConfig
+  ? withSentryConfig(nextConfig, {
+    org: process.env.SENTRY_ORG,
+    project: process.env.SENTRY_PROJECT,
+    silent: !process.env.CI,
+    widenClientFileUpload: true,
+    tunnelRoute: '/monitoring',
+    sourcemaps: {
+      disable: true,
+    },
+    webpack: {
+      reactComponentAnnotation: {
+        enabled: true,
+      },
+      treeshake: {
+        removeDebugLogging: true,
+      },
+      automaticVercelMonitors: true,
+    },
+  })
+  : nextConfig;
+
+export default finalConfig;

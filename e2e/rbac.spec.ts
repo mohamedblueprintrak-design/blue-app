@@ -1,0 +1,153 @@
+/**
+ * E2E Tests — RBAC Permission Enforcement
+ * اختبارات نهاية لنهاء — فرض صلاحيات RBAC
+ *
+ * Tests that API routes properly enforce role-based access control.
+ * Each route should return 401 for unauthenticated requests and
+ * 403 for authenticated users without the required permission.
+ */
+
+import { test, expect } from '@playwright/test';
+
+test.describe('RBAC - Unauthenticated Access', () => {
+  test('should reject unauthenticated access to financial reports', async ({ request }) => {
+    const response = await request.get('/api/reports/financial');
+    expect(response.status()).toBe(401);
+  });
+
+  test('should reject unauthenticated access to HR reports', async ({ request }) => {
+    const response = await request.get('/api/reports/hr');
+    expect(response.status()).toBe(401);
+  });
+
+  test('should reject unauthenticated access to users', async ({ request }) => {
+    const response = await request.get('/api/users');
+    expect(response.status()).toBe(401);
+  });
+
+  test('should reject unauthenticated access to payments', async ({ request }) => {
+    const response = await request.get('/api/payments/test-id');
+    expect([401, 404]).toContain(response.status());
+  });
+
+  test('should reject unauthenticated access to invoices', async ({ request }) => {
+    const response = await request.get('/api/invoices');
+    expect(response.status()).toBe(401);
+  });
+
+  test('should reject unauthenticated access to PDF reports', async ({ request }) => {
+    const response = await request.get('/api/reports/report-pdf/financial');
+    expect([401, 404]).toContain(response.status());
+  });
+
+  test('should reject unauthenticated access to contract PDFs', async ({ request }) => {
+    const response = await request.get('/api/reports/contract-pdf/test-id');
+    expect([401, 404]).toContain(response.status());
+  });
+
+  test('should reject unauthenticated access to bid evaluation', async ({ request }) => {
+    const response = await request.post('/api/bids/test-id/evaluate', {
+      data: { technicalScore: 80, financialScore: 90 },
+    });
+    expect([401, 404]).toContain(response.status());
+  });
+
+  test('should reject unauthenticated access to approval actions', async ({ request }) => {
+    const response = await request.put('/api/approvals/test-id', {
+      data: { status: 'approved' },
+    });
+    expect([401, 404]).toContain(response.status());
+  });
+
+  test('should reject unauthenticated access to AI chat', async ({ request }) => {
+    const response = await request.post('/api/ai/chat', {
+      data: { message: 'Hello' },
+    });
+    expect([401, 400, 422]).toContain(response.status());
+  });
+});
+
+test.describe('RBAC - Protected Routes Return 401 Without Auth', () => {
+  const protectedRoutes = [
+    { method: 'GET', path: '/api/projects' },
+    { method: 'GET', path: '/api/tasks' },
+    { method: 'GET', path: '/api/clients' },
+    { method: 'GET', path: '/api/contracts' },
+    { method: 'GET', path: '/api/bids' },
+    { method: 'GET', path: '/api/meetings' },
+    { method: 'GET', path: '/api/commissions' },
+    { method: 'GET', path: '/api/site-diary' },
+    { method: 'GET', path: '/api/violations' },
+    { method: 'GET', path: '/api/submittals' },
+    { method: 'GET', path: '/api/inspections' },
+    { method: 'GET', path: '/api/suppliers' },
+    { method: 'GET', path: '/api/change-orders' },
+    { method: 'GET', path: '/api/approvals' },
+    { method: 'GET', path: '/api/proposals' },
+    { method: 'GET', path: '/api/purchase-orders' },
+    { method: 'GET', path: '/api/inventory' },
+    { method: 'GET', path: '/api/defects' },
+    { method: 'GET', path: '/api/risks' },
+    { method: 'GET', path: '/api/budgets' },
+    { method: 'GET', path: '/api/employees/test-id' },
+    { method: 'GET', path: '/api/site-visits' },
+    { method: 'GET', path: '/api/transmittals' },
+    { method: 'GET', path: '/api/leave' },
+    { method: 'GET', path: '/api/activity-log' },
+    { method: 'GET', path: '/api/gantt' },
+    { method: 'GET', path: '/api/boq' },
+    { method: 'GET', path: '/api/tenders' },
+    { method: 'GET', path: '/api/marketing-campaigns' },
+    { method: 'GET', path: '/api/referrals' },
+    { method: 'GET', path: '/api/design-drawings' },
+    { method: 'GET', path: '/api/supervision-checklists' },
+    { method: 'GET', path: '/api/workflows/templates' },
+    { method: 'GET', path: '/api/project-assignments' },
+    { method: 'GET', path: '/api/users-simple' },
+    { method: 'GET', path: '/api/settings/company' },
+    { method: 'GET', path: '/api/reports/overview' },
+    { method: 'GET', path: '/api/reports/projects' },
+    { method: 'GET', path: '/api/reports/excel' },
+  ];
+
+  for (const route of protectedRoutes) {
+    test(`${route.method} ${route.path} should return 401 without auth`, async ({ request }) => {
+      const response = await request.fetch(route.path, { method: route.method });
+      // 401 = unauthenticated, some might return 404 if ID doesn't exist
+      expect([401]).toContain(response.status());
+    });
+  }
+});
+
+test.describe('RBAC - Public Routes', () => {
+  test('should allow unauthenticated access to health endpoint', async ({ request }) => {
+    const response = await request.get('/api/health');
+    expect(response.status()).toBe(200);
+  });
+
+  test('should allow unauthenticated access to public stats', async ({ request }) => {
+    const response = await request.get('/api/public/stats');
+    expect([200, 404]).toContain(response.status());
+  });
+
+  test('should allow unauthenticated access to login page', async ({ request }) => {
+    const response = await request.post('/api/auth/login', {
+      data: { email: 'test@test.com', password: 'wrong' },
+    });
+    // Should not be 401 (auth required), but rather 400/401 (invalid credentials)
+    expect([400, 401, 429]).toContain(response.status());
+  });
+
+  test('should allow unauthenticated access to register page', async ({ request }) => {
+    const response = await request.post('/api/auth/register', {
+      data: { email: '', password: '', username: '', fullName: '' },
+    });
+    // Should not be 401 (auth required), but rather 400 (validation error)
+    expect([400, 409, 422]).toContain(response.status());
+  });
+
+  test('should allow unauthenticated access to Stripe plans', async ({ request }) => {
+    const response = await request.get('/api/stripe/plans');
+    expect([200, 404, 503]).toContain(response.status());
+  });
+});

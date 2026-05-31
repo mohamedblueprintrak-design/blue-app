@@ -1,23 +1,161 @@
-:81 {
-	@transform_port_query {
-		query XTransformPort=*
-	}
+# ============================================================
+# Caddyfile — Blueprint SaaS
+# ============================================================
+# Development:  use :80 block only (no TLS)
+# Production:   set DOMAIN env var (e.g., blueprint.example.com)
+#               Caddy auto-provisions TLS via Let's Encrypt
+# ============================================================
 
-	handle @transform_port_query {
-		reverse_proxy localhost:{query.XTransformPort} {
-			header_up Host {host}
-			header_up X-Forwarded-For {remote_host}
-			header_up X-Forwarded-Proto {scheme}
-			header_up X-Real-IP {remote_host}
-		}
-	}
+# ---------- Production HTTPS block ----------
+{$DOMAIN:}:443 {
+        # TLS — auto-provisioned by Caddy via Let's Encrypt
+        tls {
+                protocols tls1.2 tls1.3
+                curves x25519 secp256r1 secp384r1
+        }
+        # To use DNS challenge instead, uncomment:
+        # tls {
+        #     dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+        #     protocols tls1.2 tls1.3
+        # }
 
-	handle {
-		reverse_proxy localhost:3000 {
-			header_up Host {host}
-			header_up X-Forwarded-For {remote_host}
-			header_up X-Forwarded-Proto {scheme}
-			header_up X-Real-IP {remote_host}
-		}
-	}
+        # Security headers
+        header {
+                # Prevent click-jacking
+                X-Frame-Options: DENY
+                # Prevent MIME-type sniffing
+                X-Content-Type-Options: nosniff
+                # Enable browser XSS filter
+                X-XSS-Protection: "1; mode=block"
+                # Control referrer information
+                Referrer-Policy: strict-origin-when-cross-origin
+                # HSTS — 2 years, include subdomains, eligible for preload
+                Strict-Transport-Security: "max-age=63072000; includeSubDomains; preload"
+                # Restrict browser features
+                Permissions-Policy: "camera=(), microphone=(), geolocation=()"
+                # CSP is set dynamically by Next.js proxy.ts with per-request nonces.
+                # Do NOT set CSP here — proxy.ts builds a stricter nonce-based CSP that
+                # replaces 'unsafe-inline' with 'nonce-<random>' for script-src.
+                # Setting it here would conflict and leak the less-secure static policy.
+                # Prevent browsers from trying to DNS-prefetch
+                X-DNS-Prefetch-Control: "off"
+                # Cross-origin policies
+                Cross-Origin-Opener-Policy: "same-origin"
+                Cross-Origin-Resource-Policy: "same-origin"
+                Cross-Origin-Embedder-Policy: "require-corp"
+        }
+
+        # Compression
+        encode gzip zstd
+
+        # Rate limiting - redundant with proxy.ts Layer 1 but kept as defense-in-depth
+        # Requires caddy-rate-limit plugin to be compiled into the Caddy binary
+        @api_routes {
+                path /api/ai/*
+        }
+        rate_limit @api_routes {
+                zone ai_zone 10r/m
+        }
+
+        # Health check endpoint (no auth required)
+        @health_check {
+                path /api/health
+        }
+
+        @transform_port_query {
+                query XTransformPort=3000
+        }
+        @transform_port_query_3003 {
+                query XTransformPort=3003
+        }
+
+        handle @transform_port_query {
+                reverse_proxy localhost:3000 {
+                        header_up Host {host}
+                        header_up X-Forwarded-For {remote_host}
+                        header_up X-Forwarded-Proto {scheme}
+                        header_up X-Real-IP {remote_host}
+                }
+        }
+
+        handle @transform_port_query_3003 {
+                reverse_proxy localhost:3003 {
+                        header_up Host {host}
+                        header_up X-Forwarded-For {remote_host}
+                        header_up X-Forwarded-Proto {scheme}
+                        header_up X-Real-IP {remote_host}
+                }
+        }
+
+        handle {
+                reverse_proxy localhost:3000 {
+                        header_up Host {host}
+                        header_up X-Forwarded-For {remote_host}
+                        header_up X-Forwarded-Proto {scheme}
+                        header_up X-Real-IP {remote_host}
+                }
+        }
+}
+
+# ---------- Development HTTP block ----------
+:80 {
+        # Security headers (no HSTS over HTTP — only sent over HTTPS)
+        header {
+                X-Frame-Options: DENY
+                X-Content-Type-Options: nosniff
+                X-XSS-Protection: "1; mode=block"
+                Referrer-Policy: strict-origin-when-cross-origin
+                Permissions-Policy: "camera=(), microphone=(), geolocation=()"
+                # CSP is set dynamically by Next.js proxy.ts with per-request nonces.
+                # Do NOT set CSP here — proxy.ts builds a stricter nonce-based CSP.
+                X-DNS-Prefetch-Control: "off"
+                Cross-Origin-Opener-Policy: "same-origin"
+                Cross-Origin-Resource-Policy: "same-origin"
+        }
+
+        # Compression
+        encode gzip zstd
+
+        # Rate limiting - redundant with proxy.ts Layer 1 but kept as defense-in-depth
+        # Requires caddy-rate-limit plugin to be compiled into the Caddy binary
+        @api_routes {
+                path /api/ai/*
+        }
+        rate_limit @api_routes {
+                zone ai_zone 10r/m
+        }
+
+        @transform_port_query {
+                query XTransformPort=3000
+        }
+        @transform_port_query_3003 {
+                query XTransformPort=3003
+        }
+
+        handle @transform_port_query {
+                reverse_proxy localhost:3000 {
+                        header_up Host {host}
+                        header_up X-Forwarded-For {remote_host}
+                        header_up X-Forwarded-Proto {scheme}
+                        header_up X-Real-IP {remote_host}
+                }
+        }
+
+        handle @transform_port_query_3003 {
+                reverse_proxy localhost:3003 {
+                        header_up Host {host}
+                        header_up X-Forwarded-For {remote_host}
+                        header_up X-Forwarded-Proto {scheme}
+                        header_up X-Real-IP {remote_host}
+                }
+        }
+
+        handle {
+                reverse_proxy localhost:3000 {
+                        header_up Host {host}
+                        header_up X-Forwarded-For {remote_host}
+                        header_up X-Forwarded-Proto {scheme}
+                        header_up X-Real-IP {remote_host}
+                }
+        }
 }

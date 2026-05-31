@@ -1,0 +1,9 @@
+// Barrel export for approvals sub-components
+export { ApprovalHeader } from "./approval-header";
+export { SummaryCards } from "./summary-cards";
+export { StatusFilterTabs } from "./status-filter-tabs";
+export { FilterRow } from "./filter-row";
+export { ApprovalCard } from "./approval-card";
+export { ApprovalCardList } from "./approval-card-list";
+export { CreateApprovalDialog } from "./create-approval-dialog";
+export { ApprovalDetailPanel } from "./approval-detail-panel";
