@@ -55,86 +55,16 @@ import {
 import { cn } from "@/lib/utils";
 import { getMutationHeaders } from "@/lib/csrf-client";
 import { GanttMobileView } from "@/components/pages/gantt-mobile-view";
-
-// ===== Types =====
-interface GanttTask {
-  id: string;
-  title: string;
-  description?: string;
-  projectId?: string;
-  priority: string;
-  status: string;
-  startDate: string | null;
-  endDate: string | null;
-  dueDate?: string | null;
-  progress: number;
-  isMilestone: boolean;
-  taskType?: string;
-  isGovernmental?: boolean; // computed from taskType for display
-  type: "task" | "phase";
-  phaseCategory?: string;
-}
-
-// ===== Color Constants (teal-based) =====
-const STATUS_COLORS: Record<string, string> = {
-  ACTIVE: "#133371",
-  IN_PROGRESS: "#133371",
-  COMPLETED: "#10b981",
-  DONE: "#10b981",
-  DELAYED: "#ef4444",
-  TODO: "#64748b",
-  REVIEW: "#f59e0b",
-  CANCELLED: "#94a3b8",
-};
-
-const PHASE_CATEGORY_COLORS: Record<string, { bg: string; text: string; bar: string }> = {
-  ARCHITECTURAL: { bg: "bg-teal-500/20", text: "text-teal-400", bar: "#133371" },
-  STRUCTURAL: { bg: "bg-amber-500/20", text: "text-amber-400", bar: "#f59e0b" },
-  MEP: { bg: "bg-cyan-500/20", text: "text-cyan-400", bar: "#06b6d4" },
-  GOVERNMENT: { bg: "bg-violet-500/20", text: "text-violet-400", bar: "#8b5cf6" },
-  CONTRACTING: { bg: "bg-orange-500/20", text: "text-orange-400", bar: "#f97316" },
-};
-
-const PHASE_CATEGORY_LABELS: Record<string, { en: string; ar: string }> = {
-  ARCHITECTURAL: { en: "Architectural", ar: "معماري" },
-  STRUCTURAL: { en: "Structural", ar: "إنشائي" },
-  MEP: { en: "MEP", ar: "كهرباء وميكانيك" },
-  GOVERNMENT: { en: "Government", ar: "حكومي" },
-  CONTRACTING: { en: "Contracting", ar: "مقاولات" },
-};
-
-const STATUS_LABELS: Record<string, { en: string; ar: string }> = {
-  TODO: { en: "To Do", ar: "قيد الانتظار" },
-  IN_PROGRESS: { en: "In Progress", ar: "قيد التنفيذ" },
-  REVIEW: { en: "Review", ar: "مراجعة" },
-  DONE: { en: "Done", ar: "مكتمل" },
-  CANCELLED: { en: "Cancelled", ar: "ملغي" },
-  ACTIVE: { en: "Active", ar: "نشط" },
-  COMPLETED: { en: "Completed", ar: "مكتمل" },
-  DELAYED: { en: "Delayed", ar: "متأخر" },
-};
-
-const STATUS_ICONS: Record<string, React.ReactNode> = {
-  TODO: <Pause className="w-4 h-4" />,
-  IN_PROGRESS: <Play className="w-4 h-4" />,
-  ACTIVE: <Play className="w-4 h-4" />,
-  REVIEW: <Clock className="w-4 h-4" />,
-  DONE: <CheckCircle className="w-4 h-4" />,
-  COMPLETED: <CheckCircle className="w-4 h-4" />,
-  CANCELLED: <AlertCircle className="w-4 h-4" />,
-  DELAYED: <AlertCircle className="w-4 h-4" />,
-};
-
-function getBarColor(task: GanttTask): string {
-  const status = task.status;
-  if (status === "IN_PROGRESS" || status === "ACTIVE") return STATUS_COLORS.in_progress;
-  if (status === "DONE" || status === "COMPLETED") return STATUS_COLORS.completed;
-  if (status === "DELAYED") return STATUS_COLORS.delayed;
-  if (task.phaseCategory && PHASE_CATEGORY_COLORS[task.phaseCategory]) {
-    return PHASE_CATEGORY_COLORS[task.phaseCategory].bar;
-  }
-  return STATUS_COLORS.todo;
-}
+import { CreateTaskForm, CreateFormData } from "@/components/gantt/create-task-form";
+import { 
+  GanttTask, 
+  STATUS_COLORS, 
+  PHASE_CATEGORY_COLORS, 
+  PHASE_CATEGORY_LABELS, 
+  STATUS_LABELS, 
+  STATUS_ICONS, 
+  getBarColor 
+} from "@/components/gantt/gantt-types";
 
 // ===== Main Component =====
 interface GanttPageProps {
@@ -959,88 +889,6 @@ export default function GanttPage({ language }: GanttPageProps) {
           />
         </DialogContent>
       </Dialog>
-    </div>
-  );
-}
-
-// ===== Create Task Form =====
-interface CreateFormData {
-  title: string;
-  description?: string;
-  startDate?: string | null;
-  endDate?: string | null;
-  priority?: string;
-}
-
-function CreateTaskForm({
-  ar,
-  onSubmit,
-  onCancel,
-  isLoading,
-}: {
-  ar: boolean;
-  onSubmit: (data: CreateFormData) => void;
-  onCancel: () => void;
-  isLoading: boolean;
-}) {
-  const [title, setTitle] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [priority, setPriority] = useState("NORMAL");
-
-  const handleSubmit = () => {
-    onSubmit({
-      title,
-      startDate: startDate || null,
-      endDate: endDate || null,
-      priority,
-    });
-  };
-
-  return (
-    <div className="space-y-4">
-      <div>
-        <Label>{ar ? "العنوان" : "Title"} *</Label>
-        <Input
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder={ar ? "عنوان المهمة" : "Task title"}
-          className="bg-slate-50 dark:bg-slate-800"
-        />
-      </div>
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <Label>{ar ? "تاريخ البداية" : "Start Date"}</Label>
-          <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="bg-slate-50 dark:bg-slate-800" />
-        </div>
-        <div>
-          <Label>{ar ? "تاريخ النهاية" : "End Date"}</Label>
-          <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="bg-slate-50 dark:bg-slate-800" />
-        </div>
-      </div>
-      <div>
-        <Label>{ar ? "الأولوية" : "Priority"}</Label>
-        <Select value={priority} onValueChange={setPriority}>
-          <SelectTrigger className="bg-slate-50 dark:bg-slate-800">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="LOW">{ar ? "منخفضة" : "Low"}</SelectItem>
-            <SelectItem value="NORMAL">{ar ? "عادية" : "Normal"}</SelectItem>
-            <SelectItem value="HIGH">{ar ? "عالية" : "High"}</SelectItem>
-            <SelectItem value="URGENT">{ar ? "حرجة" : "Urgent"}</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-      <DialogFooter>
-        <Button variant="outline" onClick={onCancel}>
-          {ar ? "إلغاء" : "Cancel"}
-        </Button>
-        <Button onClick={handleSubmit} disabled={!title || isLoading} className="bg-teal-600 hover:bg-teal-700 text-white border-0">
-          {isLoading ? <Loader2 className="w-4 h-4 me-1 animate-spin" /> : <Plus className="w-4 h-4 me-1" />}
-          {ar ? "إضافة" : "Add"}
-        </Button>
-      </DialogFooter>
     </div>
   );
 }

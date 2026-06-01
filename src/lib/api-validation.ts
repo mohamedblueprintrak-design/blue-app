@@ -6,7 +6,7 @@
  * preventing injection attacks and data corruption.
  */
 
-import { z, ZodSchema, ZodError } from 'zod';
+import { z, ZodSchema, ZodError } from 'zod';\nexport * from './validations/auth.schema';\nexport * from './validations/project.schema';\nexport * from './validations/user.schema';\n\n
 import { NextRequest, NextResponse } from 'next/server';
 
 // ===== Validation Result Types =====
@@ -114,130 +114,45 @@ export function validateSearchParams<T>(
 
 // ===== Auth Schemas =====
 
-export const loginSchema = z.object({
-  email: z.string()
-    .min(1, 'البريد الإلكتروني مطلوب')
-    .email('صيغة البريد الإلكتروني غير صحيحة'),
-  password: z.string()
-    .min(1, 'كلمة المرور مطلوبة')
-    .max(128, 'كلمة المرور طويلة جداً'),
-});
 
-export type LoginData = z.infer<typeof loginSchema>;
 
-export const registerSchema = z.object({
-  email: z.string()
-    .min(1, 'البريد الإلكتروني مطلوب')
-    .email('صيغة البريد الإلكتروني غير صحيحة'),
-  password: z.string()
-    .min(8, 'كلمة المرور يجب أن تكون 8 أحرف على الأقل')
-    .max(128, 'كلمة المرور طويلة جداً'),
-  name: z.string()
-    .min(2, 'الاسم يجب أن يكون حرفين على الأقل')
-    .max(100, 'الاسم طويل جداً')
-    .optional()
-    .default(''),
-  fullName: z.string()
-    .min(2, 'الاسم يجب أن يكون حرفين على الأقل')
-    .max(100, 'الاسم طويل جداً')
-    .optional()
-    .default(''),
-  organizationName: z.string().max(200).optional(),
-  department: z.string().max(100).optional(),
-  // SECURITY: role is intentionally excluded — roles are assigned server-side only.
-  // Allowing client-supplied role would enable privilege escalation.
-  action: z.string().optional(),
-});
 
-export type RegisterData = z.infer<typeof registerSchema>;
 
-export const forgotPasswordSchema = z.object({
-  email: z.string()
-    .min(1, 'البريد الإلكتروني مطلوب')
-    .email('صيغة البريد الإلكتروني غير صحيحة'),
-});
 
-export type ForgotPasswordData = z.infer<typeof forgotPasswordSchema>;
 
-export const resetPasswordSchema = z.object({
-  token: z.string().min(1, 'رمز إعادة التعيين مطلوب'),
-  password: z.string()
-    .min(8, 'كلمة المرور يجب أن تكون 8 أحرف على الأقل')
-    .max(128, 'كلمة المرور طويلة جداً'),
-  confirmPassword: z.string().optional(),
-}).refine(
-  (data) => !data.confirmPassword || data.password === data.confirmPassword,
-  { message: 'كلمات المرور غير متطابقة', path: ['confirmPassword'] }
-);
 
-export type ResetPasswordData = z.infer<typeof resetPasswordSchema>;
 
-export const changePasswordSchema = z.object({
-  currentPassword: z.string().min(1, 'كلمة المرور الحالية مطلوبة'),
-  newPassword: z.string()
-    .min(8, 'كلمة المرور الجديدة يجب أن تكون 8 أحرف على الأقل')
-    .max(128, 'كلمة المرور طويلة جداً'),
-  confirmPassword: z.string().optional(),
-}).refine(
-  (data) => !data.confirmPassword || data.newPassword === data.confirmPassword,
-  { message: 'كلمات المرور غير متطابقة', path: ['confirmPassword'] }
-);
 
-export type ChangePasswordData = z.infer<typeof changePasswordSchema>;
 
-export const twoFactorSetupSchema = z.object({
-  action: z.enum(['setup', 'enable'], {
-    message: 'إجراء غير صحيح — يجب أن يكون setup أو enable',
-  }),
-  code: z.string()
-    .regex(/^\d{6}$/, 'رمز التحقق يجب أن يكون 6 أرقام')
-    .optional(),
-}).refine(
-  (data) => data.action !== 'enable' || !!data.code,
-  { message: 'رمز التحقق مطلوب عند التفعيل', path: ['code'] }
-);
 
-export type TwoFactorSetupData = z.infer<typeof twoFactorSetupSchema>;
 
-export const twoFactorDisableSchema = z.object({
-  password: z.string()
-    .min(1, 'كلمة المرور مطلوبة')
-    .max(128, 'كلمة المرور طويلة جداً'),
-});
 
-export type TwoFactorDisableData = z.infer<typeof twoFactorDisableSchema>;
 
-export const twoFactorVerifySchema = z.object({
-  code: z.string()
-    .min(1, 'الرمز مطلوب')
-    .regex(/^\d{6}|\d{8}$/, 'صيغة الرمز غير صحيحة — يجب أن يكون 6 أرقام (TOTP) أو 8 أرقام (رمز احتياطي)')
-    .max(8, 'الرمز طويل جداً'),
-});
 
-export type TwoFactorVerifyData = z.infer<typeof twoFactorVerifySchema>;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // ===== Entity Schemas =====
 
 const safeNumber = z.coerce.number().optional().default(0);
 
-export const projectCreateSchema = z.object({
-  number: z.string().max(50).optional().default(''),
-  name: z.string().min(1, 'اسم المشروع مطلوب').max(200),
-  nameEn: z.string().max(200).optional().default(''),
-  clientId: z.string().min(1, 'العميل مطلوب'),
-  contractorId: z.string().optional().default(''),
-  location: z.string().max(200).optional().default(''),
-  plotNumber: z.string().max(100).optional().default(''),
-  type: z.string().min(1, 'نوع المشروع مطلوب').max(50),
-  budget: safeNumber,
-  startDate: z.string().optional().default(''),
-  endDate: z.string().optional().default(''),
-  description: z.string().max(5000).optional().default(''),
-  status: z.string().max(50).optional().default('ACTIVE'),
-  progress: z.coerce.number().min(0).max(100).optional().default(0),
-});
 
-export type ProjectCreateData = z.infer<typeof projectCreateSchema>;
+
+
 
 export const clientCreateSchema = z.object({
   name: z.string().min(1, 'اسم العميل مطلوب').max(200),
@@ -254,22 +169,9 @@ export const clientCreateSchema = z.object({
 
 export type ClientCreateData = z.infer<typeof clientCreateSchema>;
 
-export const taskCreateSchema = z.object({
-  title: z.string().min(1, 'عنوان المهمة مطلوب').max(300),
-  description: z.string().max(5000).optional().default(''),
-  projectId: z.string().optional().default(''),
-  assigneeId: z.string().optional().default(''),
-  priority: z.enum(['URGENT', 'HIGH', 'MEDIUM', 'LOW']).default('MEDIUM'),
-  status: z.string().max(50).default('TODO'),
-  startDate: z.string().optional().default(''),
-  dueDate: z.string().optional().default(''),
-  progress: z.coerce.number().min(0).max(100).optional().default(0),
-  taskType: z.enum(['STANDARD', 'GOVERNMENTAL', 'MANDATORY', 'CLIENT', 'INTERNAL']).optional().default('STANDARD'),
-  isGovernmental: z.boolean().optional().default(false), // kept for backward compatibility with frontend
-  slaDays: z.coerce.number().optional().default(0),
-});
 
-export type TaskCreateData = z.infer<typeof taskCreateSchema>;
+
+
 
 export const invoiceCreateSchema = z.object({
   number: z.string().min(1, 'رقم الفاتورة مطلوب').max(50),
@@ -342,23 +244,9 @@ export const bidCreateSchema = z.object({
 
 export type BidCreateData = z.infer<typeof bidCreateSchema>;
 
-export const siteVisitCreateSchema = z.object({
-  projectId: z.string().min(1, 'المشروع مطلوب'),
-  date: z.string().min(1, 'التاريخ مطلوب'),
-  plotNumber: z.string().max(100).optional().default(''),
-  municipality: z.string().max(100).optional().default(''),
-  gateDescription: z.string().max(500).optional().default(''),
-  neighborDesc: z.string().max(500).optional().default(''),
-  buildingDesc: z.string().max(500).optional().default(''),
-  status: z.string().max(50).optional().default('PENDING'),
-  photos: z.string().optional().default(''),
-  notes: z.string().max(5000).optional().default(''),
-  visitors: z.string().max(1000).optional().default(''),
-  purpose: z.string().max(1000).optional().default(''),
-  findings: z.string().max(5000).optional().default(''),
-});
 
-export type SiteVisitCreateData = z.infer<typeof siteVisitCreateSchema>;
+
+
 
 export const notificationCreateSchema = z.object({
   userId: z.string().min(1, 'المستخدم مطلوب'),
@@ -371,20 +259,9 @@ export const notificationCreateSchema = z.object({
 
 export type NotificationCreateData = z.infer<typeof notificationCreateSchema>;
 
-export const userUpdateSchema = z.object({
-  name: z.string().min(1).max(200).optional(),
-  email: z.string().email().optional(),
-  phone: z.string().max(50).optional(),
-  department: z.string().max(200).optional(),
-  position: z.string().max(200).optional(),
-  // SECURITY: role is intentionally excluded from the update schema.
-  // Role changes must go through a dedicated admin-only endpoint with explicit
-  // validation against allowed roles to prevent privilege escalation.
-  isActive: z.boolean().optional(),
-  avatar: z.string().max(500).optional(),
-});
 
-export type UserUpdateData = z.infer<typeof userUpdateSchema>;
+
+
 
 export const companySettingsSchema = z.object({
   name: z.string().min(1).max(300).optional(),
@@ -429,27 +306,13 @@ export const approvalCreateSchema = z.object({
 
 export type ApprovalCreateData = z.infer<typeof approvalCreateSchema>;
 
-export const employeeCreateSchema = z.object({
-  userId: z.string().min(1, 'المستخدم مطلوب'),
-  department: z.string().max(200).optional().default(''),
-  position: z.string().max(200).optional().default(''),
-  salary: safeNumber,
-  hireDate: z.string().optional().default(''),
-  employmentStatus: z.string().max(50).optional().default('ACTIVE'),
-});
 
-export type EmployeeCreateData = z.infer<typeof employeeCreateSchema>;
 
-export const leaveCreateSchema = z.object({
-  employeeId: z.string().min(1, 'الموظف مطلوب'),
-  type: z.string().min(1).max(50),
-  startDate: z.string().min(1, 'تاريخ البداية مطلوب'),
-  endDate: z.string().min(1, 'تاريخ النهاية مطلوب'),
-  reason: z.string().max(2000).optional().default(''),
-  status: z.string().max(50).optional().default('PENDING'),
-});
 
-export type LeaveCreateData = z.infer<typeof leaveCreateSchema>;
+
+
+
+
 
 export const contractorCreateSchema = z.object({
   name: z.string().min(1, 'الاسم مطلوب').max(200),
@@ -485,31 +348,13 @@ export const knowledgeArticleSchema = z.object({
 
 export type KnowledgeArticleData = z.infer<typeof knowledgeArticleSchema>;
 
-export const siteDiarySchema = z.object({
-  projectId: z.string().min(1, 'المشروع مطلوب'),
-  date: z.string().min(1, 'التاريخ مطلوب'),
-  weather: z.string().max(200).optional().default(''),
-  workerCount: z.coerce.number().min(0).optional().default(0),
-  workDescription: z.string().max(5000).optional().default(''),
-  issues: z.string().max(5000).optional().default(''),
-  safetyNotes: z.string().max(5000).optional().default(''),
-  equipment: z.string().max(5000).optional().default(''),
-  materials: z.string().max(5000).optional().default(''),
-  photos: z.string().optional().default(''),
-});
 
-export type SiteDiaryData = z.infer<typeof siteDiarySchema>;
 
-export const govApprovalSchema = z.object({
-  projectId: z.string().min(1, 'المشروع مطلوب'),
-  authority: z.string().min(1).max(50),
-  status: z.string().max(50).default('PENDING'),
-  submissionDate: z.string().optional().default(''),
-  approvalDate: z.string().optional().default(''),
-  notes: z.string().max(2000).optional().default(''),
-});
 
-export type GovApprovalData = z.infer<typeof govApprovalSchema>;
+
+
+
+
 
 export const proposalSchema = z.object({
   number: z.string().min(1).max(50),
@@ -635,40 +480,13 @@ export const clientUpdateSchema = z.object({
 
 export type ClientUpdateData = z.infer<typeof clientUpdateSchema>;
 
-export const projectUpdateSchema = z.object({
-  name: z.string().min(1, 'اسم المشروع مطلوب').max(200).optional(),
-  nameEn: z.string().max(200).optional(),
-  clientId: z.string().min(1, 'العميل مطلوب').optional(),
-  contractorId: z.string().optional(),
-  location: z.string().max(200).optional(),
-  plotNumber: z.string().max(100).optional(),
-  type: z.string().min(1, 'نوع المشروع مطلوب').max(50).optional(),
-  budget: z.coerce.number().optional(),
-  startDate: z.string().optional(),
-  endDate: z.string().optional(),
-  description: z.string().max(5000).optional(),
-  status: z.string().max(50).optional(),
-  progress: z.coerce.number().min(0).max(100).optional(),
-});
 
-export type ProjectUpdateData = z.infer<typeof projectUpdateSchema>;
 
-export const taskUpdateSchema = z.object({
-  title: z.string().min(1, 'عنوان المهمة مطلوب').max(300).optional(),
-  description: z.string().max(5000).optional(),
-  projectId: z.string().optional(),
-  assigneeId: z.string().optional(),
-  priority: z.enum(['URGENT', 'HIGH', 'MEDIUM', 'LOW', 'NORMAL']).optional(),
-  status: z.string().max(50).optional(),
-  startDate: z.string().optional(),
-  dueDate: z.string().optional(),
-  progress: z.coerce.number().min(0).max(100).optional(),
-  isGovernmental: z.boolean().optional(), // kept for backward compatibility
-  taskType: z.enum(['STANDARD', 'GOVERNMENTAL', 'MANDATORY', 'CLIENT', 'INTERNAL']).optional(),
-  slaDays: z.coerce.number().optional(),
-});
 
-export type TaskUpdateData = z.infer<typeof taskUpdateSchema>;
+
+
+
+
 
 export const invoiceUpdateSchema = z.object({
   number: z.string().min(1, 'رقم الفاتورة مطلوب').max(50).optional(),
@@ -715,15 +533,9 @@ export const supplierUpdateSchema = z.object({
 
 export type SupplierUpdateData = z.infer<typeof supplierUpdateSchema>;
 
-export const employeeUpdateSchema = z.object({
-  department: z.string().max(200).optional(),
-  position: z.string().max(200).optional(),
-  salary: z.coerce.number().optional(),
-  employmentStatus: z.string().max(50).optional(),
-  hireDate: z.string().optional(),
-});
 
-export type EmployeeUpdateData = z.infer<typeof employeeUpdateSchema>;
+
+
 
 export const meetingUpdateSchema = z.object({
   title: z.string().min(1, 'عنوان الاجتماع مطلوب').max(300).optional(),
@@ -755,15 +567,9 @@ export const bidUpdateSchema = z.object({
 
 export type BidUpdateData = z.infer<typeof bidUpdateSchema>;
 
-export const profileUpdateSchema = z.object({
-  name: z.string().min(1, 'الاسم مطلوب').max(200).optional(),
-  email: z.string().email('بريد إلكتروني غير صحيح').optional(),
-  phone: z.string().max(50).optional(),
-  department: z.string().max(200).optional(),
-  position: z.string().max(200).optional(),
-});
 
-export type ProfileUpdateData = z.infer<typeof profileUpdateSchema>;
+
+
 
 /**
  * Generic update schema — allows partial updates with string values — مخطط تحديث عام — يسمح بالتحديث الجزئي
