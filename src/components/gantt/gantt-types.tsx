@@ -72,6 +72,12 @@ export const STATUS_ICONS: Record<string, React.ReactNode> = {
   DELAYED: <AlertCircle className="w-4 h-4" />,
 };
 
+export type FlattenedItem = GanttTask | { type: "phase-header"; category: string };
+
+export function isPhaseHeader(item: FlattenedItem): item is { type: "phase-header"; category: string } {
+  return "type" in item && item.type === "phase-header";
+}
+
 export function getBarColor(task: GanttTask): string {
   const status = task.status;
   if (status === "IN_PROGRESS" || status === "ACTIVE") return STATUS_COLORS.in_progress;

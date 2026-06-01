@@ -91,3 +91,11 @@ prisma/db/
 db/custom.db-shm
 db/custom.db-wal
 mini-services/chat-service/node_modules/
+
+# Scratch/refactor scripts (one-time use — never commit)
+scratch_*
+replace_*
+clean_*
+extract_*
+refactor_*
+worklog*.md
