@@ -220,6 +220,7 @@ model User {
   proposalCreated        Proposal[]            @relation("ProposalCreator")
   proposalUpdated        Proposal[]            @relation("ProposalUpdater")
   invoicePayments        InvoicePayment[]
+  pushSubscriptions      PushSubscription[]
 
   @@index([organizationId])
   @@index([deletedAt])
@@ -260,6 +261,8 @@ model CompanySettings {
   timezone       String   @default("Asia/Dubai")
   workingDays    String   @default("sat,sun,mon,tue,wed,thu") // comma-separated UAE work week (Saturday-Thursday)
   workingHours   String   @default("08:00-17:00")
+  pdfHeader      String?  @default("")
+  pdfFooter      String?  @default("")
   organizationId String? // SaaS multi-tenant organization
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
@@ -548,9 +551,8 @@ model Client {
   interactions        ClientInteraction[]
   buildingInspections BuildingInspection[]
 
-  // NOTE: Uniqueness for email and idNumber is enforced at the application level.
-  // DB-level unique constraints are removed because empty string defaults ('') would
-  // cause false collisions when multiple clients have no email/ID set.
+  @@unique([email, organizationId], name: "client_email_org_unique")
+  @@unique([idNumber, organizationId], name: "client_idnumber_org_unique")
   @@index([organizationId])
   @@index([email]) // Index for email lookups
   @@index([idNumber]) // Index for ID number lookups
@@ -2756,3 +2758,18 @@ model TimesheetEntry {
   @@index([projectId])
 }
 
+// ==================== PUSH NOTIFICATIONS ====================
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}

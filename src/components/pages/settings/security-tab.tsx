@@ -19,6 +19,7 @@ import { getMutationHeaders } from "@/lib/csrf-client";
 import { extractErrorMessage } from "@/lib/api/fetch-client";
 import { SectionHeader } from "./section-header";
 import type { PasswordForm, DangerConfirmType } from "./types";
+import { TwoFactorSetup } from "./two-factor-setup";
 
 interface SecurityTabProps {
   isAr: boolean;
@@ -177,6 +178,9 @@ export function SecurityTab({
           </div>
         </CardContent>
       </Card>
+
+      {/* Two-Factor Authentication (2FA) */}
+      <TwoFactorSetup isAr={isAr} />
 
       <Card>
         <CardContent className="p-6">

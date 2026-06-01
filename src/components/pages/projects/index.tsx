@@ -65,13 +65,14 @@ export default function ProjectsList({ language }: ProjectsListProps) {
 
   // Fetch projects
   const { data, isLoading } = useQuery({
-    queryKey: ["projects", search, statusFilter, typeFilter],
+    queryKey: ["projects", search, statusFilter, typeFilter, page],
     queryFn: async () => {
       const params = new URLSearchParams();
       if (search) params.set("search", search);
       if (statusFilter && statusFilter !== "all") params.set("status", statusFilter);
       if (typeFilter && typeFilter !== "all") params.set("type", typeFilter);
-      params.set("limit", "100");
+      params.set("page", page.toString());
+      params.set("limit", PAGE_SIZE.toString());
       const res = await fetch(`/api/projects?${params.toString()}`);
       if (!res.ok) throw new Error("Failed to fetch");
       return res.json();
@@ -124,9 +125,9 @@ export default function ProjectsList({ language }: ProjectsListProps) {
     },
   });
 
-  const allProjects: ProjectRow[] = Array.isArray(data?.projects) ? data.projects : [];
-  const totalPages = Math.max(1, Math.ceil(allProjects.length / PAGE_SIZE));
-  const projects = allProjects.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const projects: ProjectRow[] = Array.isArray(data?.projects) ? data.projects : [];
+  const totalPages = data?.pagination?.totalPages || 1;
+  const allProjectsCount = data?.pagination?.total || 0;
 
   const handleRowClick = (projectId: string) => {
     setCurrentProjectId(projectId);
@@ -168,7 +169,7 @@ export default function ProjectsList({ language }: ProjectsListProps) {
       <ProjectHeader
         isAr={isAr}
         t={t}
-        allProjectsCount={allProjects.length}
+        allProjectsCount={allProjectsCount}
         selectedIdsSize={selectedIds.size}
         projects={projects}
         onShowCompare={() => setShowCompare(true)}
@@ -214,7 +215,7 @@ export default function ProjectsList({ language }: ProjectsListProps) {
           onQuickView={setQuickViewProject}
           page={page}
           totalPages={totalPages}
-          allProjectsCount={allProjects.length}
+          allProjectsCount={allProjectsCount}
           PAGE_SIZE={PAGE_SIZE}
           onPageChange={setPage}
         />
@@ -232,7 +233,7 @@ export default function ProjectsList({ language }: ProjectsListProps) {
       <ProjectCountBar
         isAr={isAr}
         t={t}
-        allProjectsCount={allProjects.length}
+        allProjectsCount={allProjectsCount}
         selectedIdsSize={selectedIds.size}
         onClearSelection={clearSelection}
       />

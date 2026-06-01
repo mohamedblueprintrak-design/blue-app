@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import withSerwistInit from "@serwist/next";
 
 // Sentry integration — conditional import to prevent build failure
 // when @sentry/nextjs is not installed (e.g., in lightweight setups)
@@ -178,4 +179,11 @@ const finalConfig = withSentryConfig
   })
   : nextConfig;
 
-export default finalConfig;
+// PWA Serwist setup
+const withSerwist = withSerwistInit({
+  swSrc: "src/app/sw.ts",
+  swDest: "public/sw.js",
+  disable: process.env.NODE_ENV === "development",
+});
+
+export default withSerwist(finalConfig);

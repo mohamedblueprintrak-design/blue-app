@@ -176,16 +176,36 @@ function getPriorityLabel(priority: string, language: 'ar' | 'en'): string {
 }
 
 // Add page footer
-function addFooter(doc: import('jspdf').jsPDF, pageCount: number, isRTL: boolean) {
+function addFooter(doc: import('jspdf').jsPDF, pageCount: number, isRTL: boolean, customFooter?: string) {
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
     doc.setFontSize(9);
     doc.setTextColor(148, 163, 184);
-    const footerText = isRTL
+
+    // Left or right side text (branding/pagination)
+    const paginationText = isRTL
       ? `BluePrint - صفحة ${i} من ${pageCount}`
       : `BluePrint - Page ${i} of ${pageCount}`;
-    doc.text(footerText, isRTL ? 280 : 14, doc.internal.pageSize.height - 10, {
+    doc.text(paginationText, isRTL ? 280 : 14, doc.internal.pageSize.height - 10, {
       align: isRTL ? 'right' : 'left',
+    });
+
+    // Center text (Custom Footer)
+    if (customFooter) {
+      doc.text(customFooter, doc.internal.pageSize.width / 2, doc.internal.pageSize.height - 10, {
+        align: 'center',
+      });
+    }
+  }
+}
+
+// Add page header
+function addHeader(doc: import('jspdf').jsPDF, isRTL: boolean, customHeader?: string) {
+  if (customHeader) {
+    doc.setFontSize(9);
+    doc.setTextColor(100, 116, 139);
+    doc.text(customHeader, doc.internal.pageSize.width / 2, 10, {
+      align: 'center',
     });
   }
 }
@@ -198,6 +218,9 @@ export async function generateFinancialReportPDF(data: FinancialReportData): Pro
   const { jsPDF, autoTable } = await getJsPDF();
   const doc = new jsPDF('landscape');
   const isRTL = data.language === 'ar';
+  const settings = await getCompanySettings();
+
+  addHeader(doc, isRTL, settings.pdfHeader);
 
   // Title
   doc.setFontSize(20);
@@ -268,7 +291,7 @@ export async function generateFinancialReportPDF(data: FinancialReportData): Pro
     } : {},
   });
 
-  addFooter(doc, doc.getNumberOfPages(), isRTL);
+  addFooter(doc, doc.getNumberOfPages(), isRTL, settings.pdfFooter);
   return Buffer.from(doc.output('arraybuffer'));
 }
 
@@ -277,6 +300,9 @@ export async function generateProjectReportPDF(data: ProjectReportData): Promise
   const { jsPDF, autoTable } = await getJsPDF();
   const doc = new jsPDF('landscape');
   const isRTL = data.language === 'ar';
+  const settings = await getCompanySettings();
+
+  addHeader(doc, isRTL, settings.pdfHeader);
 
   doc.setFontSize(20);
   doc.setTextColor(...TEAL);
@@ -338,7 +364,7 @@ export async function generateProjectReportPDF(data: ProjectReportData): Promise
     },
   });
 
-  addFooter(doc, doc.getNumberOfPages(), isRTL);
+  addFooter(doc, doc.getNumberOfPages(), isRTL, settings.pdfFooter);
   return Buffer.from(doc.output('arraybuffer'));
 }
 
@@ -347,6 +373,9 @@ export async function generateTaskReportPDF(data: TaskReportData): Promise<Buffe
   const { jsPDF, autoTable } = await getJsPDF();
   const doc = new jsPDF('landscape');
   const isRTL = data.language === 'ar';
+  const settings = await getCompanySettings();
+
+  addHeader(doc, isRTL, settings.pdfHeader);
 
   doc.setFontSize(20);
   doc.setTextColor(...TEAL);
@@ -410,7 +439,7 @@ export async function generateTaskReportPDF(data: TaskReportData): Promise<Buffe
     },
   });
 
-  addFooter(doc, doc.getNumberOfPages(), isRTL);
+  addFooter(doc, doc.getNumberOfPages(), isRTL, settings.pdfFooter);
   return Buffer.from(doc.output('arraybuffer'));
 }
 
@@ -419,6 +448,9 @@ export async function generateClientReportPDF(data: ClientReportData): Promise<B
   const { jsPDF, autoTable } = await getJsPDF();
   const doc = new jsPDF('landscape');
   const isRTL = data.language === 'ar';
+  const settings = await getCompanySettings();
+
+  addHeader(doc, isRTL, settings.pdfHeader);
 
   doc.setFontSize(20);
   doc.setTextColor(...TEAL);
@@ -479,7 +511,7 @@ export async function generateClientReportPDF(data: ClientReportData): Promise<B
     },
   });
 
-  addFooter(doc, doc.getNumberOfPages(), isRTL);
+  addFooter(doc, doc.getNumberOfPages(), isRTL, settings.pdfFooter);
   return Buffer.from(doc.output('arraybuffer'));
 }
 
@@ -488,6 +520,9 @@ export async function generateInvoiceReportPDF(data: InvoiceReportData): Promise
   const { jsPDF, autoTable } = await getJsPDF();
   const doc = new jsPDF('landscape');
   const isRTL = data.language === 'ar';
+  const settings = await getCompanySettings();
+
+  addHeader(doc, isRTL, settings.pdfHeader);
 
   doc.setFontSize(20);
   doc.setTextColor(...TEAL);
@@ -551,7 +586,7 @@ export async function generateInvoiceReportPDF(data: InvoiceReportData): Promise
     },
   });
 
-  addFooter(doc, doc.getNumberOfPages(), isRTL);
+  addFooter(doc, doc.getNumberOfPages(), isRTL, settings.pdfFooter);
   return Buffer.from(doc.output('arraybuffer'));
 }
 
@@ -566,5 +601,7 @@ export async function getCompanySettings() {
     address: settings?.address || '',
     taxNumber: settings?.taxNumber || '',
     currency: settings?.currency || 'AED',
+    pdfHeader: settings?.pdfHeader || '',
+    pdfFooter: settings?.pdfFooter || '',
   };
 }

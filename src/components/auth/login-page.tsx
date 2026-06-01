@@ -102,6 +102,8 @@ export default function LoginPage({ language }: LoginPageProps) {
   const [selectedRole, setSelectedRole] = useState("");
   const [demoCredentials, setDemoCredentials] = useState<DemoCredential[]>([]);
   const [featureIndex, setFeatureIndex] = useState(0);
+  const [requires2FA, setRequires2FA] = useState(false);
+  const [twoFactorCode, setTwoFactorCode] = useState("");
   const dbReady = true; // DB is always ready — seeding is done via `bun run db:seed`
   const { login } = useAuthStore();
   const { toast: _toast } = useToast();
@@ -148,6 +150,41 @@ export default function LoginPage({ language }: LoginPageProps) {
         return;
       }
 
+      if (data.requires2FA) {
+        setRequires2FA(true);
+        return;
+      }
+
+      login({
+        id: data.id,
+        email: data.email,
+        name: data.name,
+        role: data.role,
+        avatar: data.avatar,
+      });
+    } catch {
+      setError(isAr ? "حدث خطأ في الاتصال" : "Connection error");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleVerify2FA = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setIsLoading(true);
+
+    try {
+      const res = await fetch("/api/auth/2fa/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: twoFactorCode }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(extractErrorMessage(data.error, isAr ? "كود التحقق غير صحيح" : "Invalid verification code"));
+        return;
+      }
       login({
         id: data.id,
         email: data.email,
@@ -164,7 +201,11 @@ export default function LoginPage({ language }: LoginPageProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await handleLogin(email, password);
+    if (requires2FA) {
+      await handleVerify2FA(e);
+    } else {
+      await handleLogin(email, password);
+    }
   };
 
   const handleRoleSelect = (value: string) => {
@@ -382,12 +423,14 @@ export default function LoginPage({ language }: LoginPageProps) {
                   </div>
                   <div>
                     <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
-                      {isAr ? "تسجيل الدخول" : "Sign In"}
+                      {requires2FA
+                        ? (isAr ? "التحقق الثنائي" : "Two-Factor Auth")
+                        : (isAr ? "تسجيل الدخول" : "Sign In")}
                     </h1>
                     <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                      {isAr
-                        ? "مرحباً بك، أدخل بياناتك للمتابعة"
-                        : "Welcome back, enter your credentials to continue"}
+                      {requires2FA
+                        ? (isAr ? "يرجى إدخال رمز التحقق من تطبيق المصادقة" : "Please enter the verification code from your authenticator app")
+                        : (isAr ? "مرحباً بك، أدخل بياناتك للمتابعة" : "Welcome back, enter your credentials to continue")}
                     </p>
                   </div>
                 </div>
@@ -404,102 +447,132 @@ export default function LoginPage({ language }: LoginPageProps) {
                     </div>
                   )}
 
-                  {/* Email Field */}
-                  <div className="space-y-1.5">
-                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                      {isAr ? "البريد الإلكتروني" : "Email"}
-                    </label>
-                    <div className="relative">
-                      <Mail className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                      <Input
-                        type="email"
-                        placeholder={isAr ? "أدخل بريدك الإلكتروني" : "Enter your email"}
-                        value={email || ""}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                        className={cn(
-                          "h-11 ps-10 bg-slate-50/80 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700",
-                          "focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition-all duration-200",
-                          "placeholder:text-slate-400",
-                          error && "border-red-400 dark:border-red-600 focus:border-red-500 focus:ring-red-500/20"
-                        )}
-                        dir="ltr"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Password Field */}
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between">
-                      <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                        {isAr ? "كلمة المرور" : "Password"}
-                      </label>
-                      <button
+                  {requires2FA ? (
+                    <div className="space-y-4">
+                      <div className="space-y-1.5">
+                        <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                          {isAr ? "كود التحقق (6 أرقام)" : "Verification Code (6 digits)"}
+                        </label>
+                        <Input
+                          type="text"
+                          placeholder="000000"
+                          value={twoFactorCode}
+                          onChange={(e) => setTwoFactorCode(e.target.value.replace(/\D/g, ''))}
+                          required
+                          maxLength={6}
+                          className="h-12 text-center text-xl tracking-[0.5em] font-mono bg-slate-50/80 dark:bg-slate-800/60"
+                          dir="ltr"
+                        />
+                      </div>
+                      <Button
                         type="button"
-                        onClick={handleForgotPassword}
-                        className="text-xs text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 transition-colors"
+                        variant="ghost"
+                        className="w-full text-xs text-slate-500"
+                        onClick={() => { setRequires2FA(false); setTwoFactorCode(""); }}
                       >
-                        {isAr ? "نسيت كلمة المرور؟" : "Forgot Password?"}
-                      </button>
+                        {isAr ? "العودة لتسجيل الدخول" : "Back to Sign In"}
+                      </Button>
                     </div>
-                    <div className="relative">
-                      <Lock className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                      <Input
-                        type={showPassword ? "text" : "password"}
-                        placeholder={isAr ? "أدخل كلمة المرور" : "Enter your password"}
-                        value={password || ""}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        className={cn(
-                          "h-11 ps-10 pe-11 bg-slate-50/80 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700",
-                          "focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition-all duration-200",
-                          "placeholder:text-slate-400",
-                          error && "border-red-400 dark:border-red-600 focus:border-red-500 focus:ring-red-500/20"
-                        )}
-                        dir="ltr"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute end-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
-                        tabIndex={-1}
-                      >
-                        {showPassword ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
-                      </button>
-                    </div>
-                  </div>
+                  ) : (
+                    <>
+                      {/* Email Field */}
+                      <div className="space-y-1.5">
+                        <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                          {isAr ? "البريد الإلكتروني" : "Email"}
+                        </label>
+                        <div className="relative">
+                          <Mail className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                          <Input
+                            type="email"
+                            placeholder={isAr ? "أدخل بريدك الإلكتروني" : "Enter your email"}
+                            value={email || ""}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                            className={cn(
+                              "h-11 ps-10 bg-slate-50/80 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700",
+                              "focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition-all duration-200",
+                              "placeholder:text-slate-400",
+                              error && "border-red-400 dark:border-red-600 focus:border-red-500 focus:ring-red-500/20"
+                            )}
+                            dir="ltr"
+                          />
+                        </div>
+                      </div>
 
-                  {/* Remember Me + Role Selector row */}
-                  <div className="flex items-center justify-between gap-3">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <Checkbox
-                        checked={rememberMe}
-                        onCheckedChange={(checked) => setRememberMe(checked === true)}
-                        className="data-[state=checked]:bg-teal-500 data-[state=checked]:border-teal-500"
-                      />
-                      <span className="text-sm text-slate-600 dark:text-slate-400">
-                        {isAr ? "تذكرني" : "Remember me"}
-                      </span>
-                    </label>
+                      {/* Password Field */}
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                            {isAr ? "كلمة المرور" : "Password"}
+                          </label>
+                          <button
+                            type="button"
+                            onClick={handleForgotPassword}
+                            className="text-xs text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 transition-colors"
+                          >
+                            {isAr ? "نسيت كلمة المرور؟" : "Forgot Password?"}
+                          </button>
+                        </div>
+                        <div className="relative">
+                          <Lock className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                          <Input
+                            type={showPassword ? "text" : "password"}
+                            placeholder={isAr ? "أدخل كلمة المرور" : "Enter your password"}
+                            value={password || ""}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                            className={cn(
+                              "h-11 ps-10 pe-11 bg-slate-50/80 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700",
+                              "focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition-all duration-200",
+                              "placeholder:text-slate-400",
+                              error && "border-red-400 dark:border-red-600 focus:border-red-500 focus:ring-red-500/20"
+                            )}
+                            dir="ltr"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute end-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+                            tabIndex={-1}
+                          >
+                            {showPassword ? (
+                              <EyeOff className="h-4 w-4" />
+                            ) : (
+                              <Eye className="h-4 w-4" />
+                            )}
+                          </button>
+                        </div>
+                      </div>
 
-                    <Select value={selectedRole} onValueChange={handleRoleSelect}>
-                      <SelectTrigger className="h-8 w-auto min-w-[120px] text-xs bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700">
-                        <User className="h-3 w-3 me-1.5 text-slate-400" />
-                        <SelectValue placeholder={isAr ? "اختر الدور" : "Select Role"} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {ROLES.map((role) => (
-                          <SelectItem key={role.value} value={role.value}>
-                            {isAr ? role.labelAr : role.labelEn}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                      {/* Remember Me + Role Selector row */}
+                      <div className="flex items-center justify-between gap-3">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <Checkbox
+                            checked={rememberMe}
+                            onCheckedChange={(checked) => setRememberMe(checked === true)}
+                            className="data-[state=checked]:bg-teal-500 data-[state=checked]:border-teal-500"
+                          />
+                          <span className="text-sm text-slate-600 dark:text-slate-400">
+                            {isAr ? "تذكرني" : "Remember me"}
+                          </span>
+                        </label>
+
+                        <Select value={selectedRole} onValueChange={handleRoleSelect}>
+                          <SelectTrigger className="h-8 w-auto min-w-[120px] text-xs bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700">
+                            <User className="h-3 w-3 me-1.5 text-slate-400" />
+                            <SelectValue placeholder={isAr ? "اختر الدور" : "Select Role"} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {ROLES.map((role) => (
+                              <SelectItem key={role.value} value={role.value}>
+                                {isAr ? role.labelAr : role.labelEn}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </>
+                  )}
 
                   {/* Submit Button */}
                   <Button
@@ -525,7 +598,7 @@ export default function LoginPage({ language }: LoginPageProps) {
                       </>
                     ) : (
                       <>
-                        {isAr ? "تسجيل الدخول" : "Sign In"}
+                        {requires2FA ? (isAr ? "تأكيد" : "Verify") : (isAr ? "تسجيل الدخول" : "Sign In")}
                         <ChevronLeft className="h-4 w-4 ms-2 rtl:rotate-180" />
                       </>
                     )}
