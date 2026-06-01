@@ -85,13 +85,8 @@ export async function verifyTotpCode(secret: string, code: string): Promise<bool
   try {
     // Use otplib v13 verify function for proper TOTP verification
     // It handles time window drift automatically
+    // otplib v13 always returns { valid: boolean, delta?: number, ... }
     const result = await verify({ token: code, secret, strategy: 'totp', crypto: new NobleCryptoPlugin(), base32: new ScureBase32Plugin() });
-    // Handle both possible return types from otplib:
-    // - v13+ returns { valid: boolean }
-    // - Some versions return boolean directly
-    if (typeof result === 'boolean') {
-      return result;
-    }
     return result.valid;
   } catch (error) {
     log.error('TOTP verification error', error);
