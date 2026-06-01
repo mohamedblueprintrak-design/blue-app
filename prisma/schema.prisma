@@ -513,7 +513,7 @@ model Client {
   whatsapp       String    @default("") // separate WhatsApp number
   extraPhone     String    @default("") // additional phone
   address        String    @default("")
-  address ClientAddress?
+  clientAddress  ClientAddress?
   taxNumber      String    @default("")
   creditLimit    Decimal   @default(0)
   paymentTerms   String    @default("")

@@ -6,18 +6,8 @@ import { useLanguage } from "@/hooks/use-lang";
 import { motion, AnimatePresence } from "framer-motion";
 import { Building2, Compass, Phone, Mail, MapPin, Users, Award, Clock, Zap, MessageCircle, Star, CheckCircle2, Menu, X, Target, Headphones, ArrowUpRight, FileCheck } from 'lucide-react'
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import LogoImage from "@/components/ui/logo-image";
+import { Button } from '@/components/ui/button';
+import LogoImage from '@/components/ui/logo-image';
 import { SkipNavContent } from "@/components/common/accessible-components";
 import { NAV_LINKS, PROJECTS, SERVICES, DEFAULT_STATS, useCounter } from "@/components/landing/data";
 import { AnimatedText } from "@/components/landing/animated-text";
