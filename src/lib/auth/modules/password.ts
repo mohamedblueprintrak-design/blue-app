@@ -12,7 +12,7 @@ import { randomInt, createHash } from 'crypto';
 // Configuration
 // ============================================
 
-const PASSWORD_CONFIG = {
+export const PASSWORD_CONFIG = {
   minLength: 8,
   requireUppercase: true,
   requireLowercase: true,

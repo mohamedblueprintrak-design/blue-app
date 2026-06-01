@@ -601,7 +601,7 @@ export async function getCompanySettings() {
     address: settings?.address || '',
     taxNumber: settings?.taxNumber || '',
     currency: settings?.currency || 'AED',
-    pdfHeader: settings?.pdfHeader || '',
-    pdfFooter: settings?.pdfFooter || '',
+    pdfHeader: '',
+    pdfFooter: '',
   };
 }

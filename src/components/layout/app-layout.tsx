@@ -142,6 +142,7 @@ import SearchPage from "@/components/pages/search";
 
 import { useLanguage } from "@/hooks/use-lang";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
+import { usePushNotifications } from "@/hooks/use-push-notifications";
 import Breadcrumbs from "@/components/layout/breadcrumbs";
 import QuickActions from "@/components/layout/quick-actions";
 import WelcomeModal from "@/components/layout/welcome-modal";
@@ -280,6 +281,7 @@ function AppSidebar() {
   const handleNavClick = (item: NavItem) => {
     if (item.href) {
       // External navigation — open href in same tab
+      // eslint-disable-next-line react-hooks/immutability
       window.location.href = item.href;
     } else if (item.children && item.children.length > 0) {
       toggleExpanded(item.id);
@@ -679,6 +681,7 @@ export default function AppLayout({ language }: AppLayoutProps) {
   const isAr = language === "ar";
 
   useKeyboardShortcuts();
+  usePushNotifications();
 
   const [showShortcuts, setShowShortcuts] = useState(false);
 

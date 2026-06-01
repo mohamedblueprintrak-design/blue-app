@@ -6,6 +6,7 @@ import { UserRole } from '@prisma/client';
 import { log } from '@/lib/logger';
 import { requireVerifiedAdmin } from '@/app/api/utils/auth';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
+import { PASSWORD_CONFIG } from '@/lib/auth/modules/password';
 
 /**
  * POST /api/init - Sync demo user passwords (ADMIN ONLY)
@@ -67,7 +68,7 @@ export async function POST(request: NextRequest) {
         }
 
         if (needsUpdate) {
-          const hash = await bcrypt.hash(cred.password, 10);
+          const hash = await bcrypt.hash(cred.password, PASSWORD_CONFIG.bcryptRounds);
           await db.user.update({
             where: { id: existing.id },
             data: {
@@ -80,7 +81,7 @@ export async function POST(request: NextRequest) {
         }
       } else {
         // Demo user doesn't exist yet — create them
-        const hash = await bcrypt.hash(cred.password, 10);
+        const hash = await bcrypt.hash(cred.password, PASSWORD_CONFIG.bcryptRounds);
         try {
           await db.user.create({
             data: {

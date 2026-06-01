@@ -288,7 +288,7 @@ model Project {
   budget                Decimal   @default(0)
   contractValue         Decimal   @default(0) // Total contract value
   paymentMethod         String    @default("") // cash, cheque, transfer, installments
-  paymentSchedules ProjectPaymentSchedule[]
+  paymentSchedule       String    @default("") // JSON: [{milestone,amount,percentage,dueDate,status}]
   expectedDuration      Int       @default(0) // Expected duration in days
   startDate             DateTime?
   endDate               DateTime?
@@ -297,7 +297,7 @@ model Project {
   actualEndDate         DateTime?
   contractDate          DateTime?
   description           String    @default("")
-  checklists ProjectChecklist[]
+  municipalityChecklist String    @default("") // JSON: [{id,label,checked,stage}]
   managerId             String?
   createdById           String
   organizationId        String? // SaaS multi-tenant organization
@@ -513,12 +513,12 @@ model Client {
   whatsapp       String    @default("") // separate WhatsApp number
   extraPhone     String    @default("") // additional phone
   address        String    @default("")
-  clientAddress  ClientAddress?
+  fullAddress    String    @default("") // JSON: {emirate,city,area,street,building,unit}
   taxNumber      String    @default("")
   creditLimit    Decimal   @default(0)
   paymentTerms   String    @default("")
   // Services & Project Info
-  services ClientService[]
+  servicesWanted String    @default("") // JSON array: ["consultation","design","license",...]
   projectType    String    @default("") // villa, apartment, commercial, industrial, residential_building, medical
   serviceNotes   String? // legacy: additional details
   // Land Details
@@ -526,7 +526,7 @@ model Client {
   landArea       String    @default("")
   plotNumber     String    @default("")
   planNumber     String    @default("")
-  landDocuments ClientLandDocument[]
+  landDocuments  String    @default("") // JSON array: [{type:"survey",path:...},...]
   notes          String    @default("")
   // Referral
   referralSource String    @default("") // social_media, referral, website, walk_in, advertisement, other
@@ -1018,7 +1018,7 @@ model SiteVisit {
   gateDescription String   @default("")
   neighborDesc    String   @default("")
   buildingDesc    String   @default("")
-  photos          SiteVisitPhoto[]
+  photos          String   @default("") // JSON array of photo URLs
   status          String   @default("draft") // draft, submitted, approved
   notes           String   @default("")
   organizationId  String?
@@ -1903,7 +1903,7 @@ model Tender {
   status             String    @default("identified") // identified, preparing, submitted, qualified, won, lost
   winnerName         String    @default("")
   lostReason         String    @default("")
-  competitors        TenderCompetitor[]
+  competitorAnalysis String    @default("") // JSON or text
   notes              String    @default("")
   source             String    @default("") // website, referral, direct
   sourceUrl          String    @default("")
@@ -2353,8 +2353,8 @@ model Plan {
   interval        SubscriptionInterval @default(MONTH)
   stripeProductId String?
   stripePriceId   String?
-  features        PlanFeature[]
-  limits          PlanLimit[]
+  features        String               @default("{}") // JSON string for features
+  limits          String               @default("{}") // JSON string for limits
   isActive        Boolean              @default(true)
   sortOrder       Int                  @default(0)
   createdAt       DateTime             @default(now())
@@ -2593,9 +2593,9 @@ model Automation {
   name           String    @default("")
   description    String    @default("")
   triggerType    String    @default("") // threshold, schedule, event
-  triggerConfig  AutomationTriggerConfig?
+  triggerConfig  String    @default("") // JSON: {threshold, metric, cron, event, ...}
   actionType     String    @default("") // notification, email, task, webhook
-  actionConfig   AutomationActionConfig?
+  actionConfig   String    @default("") // JSON: {recipients, template, action, ...}
   status         String    @default("inactive") // active, inactive, paused
   lastRunAt      DateTime?
   runCount       Int       @default(0)
@@ -2755,130 +2755,3 @@ model TimesheetEntry {
   @@index([projectId])
 }
 
-
-model ProjectPaymentSchedule {
-  id          String    @id @default(cuid())
-  projectId   String
-  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  milestone   String
-  amount      Float
-  percentage  Float
-  dueDate     DateTime?
-  status      String    @default("PENDING")
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-
-  @@index([projectId])
-}
-
-model ProjectChecklist {
-  id          String   @id @default(cuid())
-  projectId   String
-  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  label       String
-  checked     Boolean  @default(false)
-  stage       String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@index([projectId])
-}
-
-model ClientAddress {
-  id        String   @id @default(cuid())
-  clientId  String   @unique
-  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  emirate   String
-  city      String
-  area      String
-  street    String?
-  building  String?
-  unit      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model ClientService {
-  id        String   @id @default(cuid())
-  clientId  String
-  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  service   String
-  createdAt DateTime @default(now())
-
-  @@index([clientId])
-}
-
-model ClientLandDocument {
-  id        String   @id @default(cuid())
-  clientId  String
-  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  type      String
-  path      String
-  createdAt DateTime @default(now())
-
-  @@index([clientId])
-}
-
-model SiteVisitPhoto {
-  id          String   @id @default(cuid())
-  siteVisitId String
-  url         String
-  createdAt   DateTime @default(now())
-
-  siteVisit   SiteVisit @relation(fields: [siteVisitId], references: [id], onDelete: Cascade)
-  @@index([siteVisitId])
-}
-
-model TenderCompetitor {
-  id             String   @id @default(cuid())
-  tenderId       String
-  competitorName String
-  strengths      String   @default("")
-  weaknesses     String   @default("")
-  priceEstimate  Decimal?
-  createdAt      DateTime @default(now())
-
-  tender Tender @relation(fields: [tenderId], references: [id], onDelete: Cascade)
-  @@index([tenderId])
-}
-
-model PlanFeature {
-  id     String @id @default(cuid())
-  planId String
-  name   String
-  value  String @default("")
-
-  plan Plan @relation(fields: [planId], references: [id], onDelete: Cascade)
-  @@index([planId])
-}
-
-model PlanLimit {
-  id     String @id @default(cuid())
-  planId String
-  name   String
-  limit  Int
-
-  plan Plan @relation(fields: [planId], references: [id], onDelete: Cascade)
-  @@index([planId])
-}
-
-model AutomationTriggerConfig {
-  id           String @id @default(cuid())
-  automationId String @unique
-  threshold    Float?
-  metric       String?
-  cron         String?
-  event        String?
-
-  automation Automation @relation(fields: [automationId], references: [id], onDelete: Cascade)
-}
-
-model AutomationActionConfig {
-  id           String @id @default(cuid())
-  automationId String @unique
-  recipients   String?
-  template     String?
-  action       String?
-
-  automation Automation @relation(fields: [automationId], references: [id], onDelete: Cascade)
-}

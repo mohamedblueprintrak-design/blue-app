@@ -4,6 +4,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import * as jose from 'jose';
+import { getJwtSecretBytes } from '@/lib/auth/jwt-secret';
 import { 
   RateLimitTier, 
   classifyRateLimitTier, 
@@ -19,29 +20,11 @@ import {
 
 const COOKIE_NAME = 'blue_token';
 
-const JWT_SECRET = (): Uint8Array => {
-  const secret = process.env.JWT_SECRET;
-  const isProd = process.env.NODE_ENV === 'production';
-
-  if (isProd && (!secret || secret.length < 32 ||
-      secret.includes('change-me') || secret.includes('change_this') ||
-      secret.includes('your_') ||
-      secret === 'blueprint-dev-secret-do-not-use-in-production-min32chars!')) {
-    throw new Error('JWT_SECRET is required in production');
-  }
-
-  if (!secret || secret.length < 32) {
-    return new TextEncoder().encode('blueprint-dev-secret-do-not-use-in-production-min32chars!');
-  }
-
-  return new TextEncoder().encode(secret);
-};
-
 const PUBLIC_API_ROUTES = [
   '/api/auth/login', '/api/auth/register', '/api/auth/logout',
   '/api/auth/session', '/api/auth/forgot-password', '/api/auth/reset-password',
   '/api/auth/verify-email', '/api/auth/resend-verification',
-  '/api/auth/2fa', '/api/auth/2fa/verify', '/api/auth/2fa/backup-codes',
+  '/api/auth/2fa/verify', // Only the verify endpoint is public (uses blue_2fa_temp cookie)
   '/api/auth/ws-token', '/api/auth/refresh',
   '/api/quote-requests', '/api/health',
   '/api/stripe/webhook', '/api/public',
@@ -175,7 +158,7 @@ export async function proxy(request: NextRequest) {
 
     if (pubToken && pubToken !== 'httpOnly') {
       try {
-        const { payload } = await jose.jwtVerify(pubToken, JWT_SECRET(), {
+        const { payload } = await jose.jwtVerify(pubToken, getJwtSecretBytes(), {
           issuer: 'blueprint-saas',
           audience: 'blueprint-users',
         });
@@ -228,7 +211,7 @@ export async function proxy(request: NextRequest) {
   }
 
   try {
-    const { payload } = await jose.jwtVerify(token, JWT_SECRET(), {
+    const { payload } = await jose.jwtVerify(token, getJwtSecretBytes(), {
       issuer: 'blueprint-saas',
       audience: 'blueprint-users',
     });

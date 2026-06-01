@@ -322,25 +322,45 @@ class AuthenticationService {
     const { generate2FASecret } = await import('./modules/two-factor');
     return generate2FASecret(userId, email);
   }
-  async generateBackupCodes(userId: string) {
+  async generateTwoFactorSecret(userId: string) {
+    const { generateTwoFactorSecret } = await import('./modules/two-factor');
+    return generateTwoFactorSecret(userId);
+  }
+  async generateBackupCodes(_userId: string) {
     const { generateBackupCodes } = await import('./modules/two-factor');
-    return generateBackupCodes(userId);
+    return generateBackupCodes(8);
   }
   async enable2FA(userId: string, token: string) {
     const { enable2FA } = await import('./modules/two-factor');
     return enable2FA(userId, token);
   }
+  async enableTwoFactor(userId: string, token: string) {
+    const { enableTwoFactor } = await import('./modules/two-factor');
+    return enableTwoFactor(userId, token);
+  }
   async disable2FA(userId: string, currentPassword?: string, code?: string) {
     const { disable2FA } = await import('./modules/two-factor');
     return disable2FA(userId, currentPassword, code);
+  }
+  async disableTwoFactor(userId: string, password: string) {
+    const { disableTwoFactor } = await import('./modules/two-factor');
+    return disableTwoFactor(userId, password);
   }
   async verify2FA(userId: string, token: string) {
     const { verify2FA } = await import('./modules/two-factor');
     return verify2FA(userId, token);
   }
+  async verifyTwoFactorCode(userId: string, code: string) {
+    const { verifyTwoFactorCode } = await import('./modules/two-factor');
+    return verifyTwoFactorCode(userId, code);
+  }
   async check2FAStatus(userId: string) {
     const { check2FAStatus } = await import('./modules/two-factor');
     return check2FAStatus(userId);
+  }
+  async hasTwoFactorEnabled(userId: string) {
+    const { hasTwoFactorEnabled } = await import('./modules/two-factor');
+    return hasTwoFactorEnabled(userId);
   }
   async regenerateBackupCodes(userId: string, token: string) {
     const { regenerateBackupCodes } = await import('./modules/two-factor');

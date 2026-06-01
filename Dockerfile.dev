@@ -3,20 +3,20 @@
 # ============================================
 # Hot-reload development environment
 
-FROM node:20-alpine
+FROM oven/bun:1-alpine
 RUN apk add --no-cache libc6-compat openssl
 
 WORKDIR /app
 
 # Copy package files
-COPY package.json package-lock.json* ./
+COPY package.json bun.lock ./
 COPY prisma ./prisma/
 
-# Install dependencies
-RUN npm ci && npm cache clean --force
+# Install dependencies (Bun with frozen lockfile for reproducibility)
+RUN bun install --frozen-lockfile
 
 # Generate Prisma Client
-RUN npx prisma generate
+RUN bunx prisma generate
 
 # Copy application code
 COPY . .
@@ -36,5 +36,5 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-# Start development server with webpack (Turbopack has Windows-specific bugs)
-CMD ["npm", "run", "dev"]
+# Start development server with webpack
+CMD ["bun", "run", "dev"]

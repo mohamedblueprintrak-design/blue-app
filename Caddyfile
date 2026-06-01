@@ -48,19 +48,9 @@
         # Compression
         encode gzip zstd
 
-        # Rate limiting - redundant with proxy.ts Layer 1 but kept as defense-in-depth
-        # Requires caddy-rate-limit plugin to be compiled into the Caddy binary
-        @api_routes {
-                path /api/ai/*
-        }
-        rate_limit @api_routes {
-                zone ai_zone 10r/m
-        }
-
-        # Health check endpoint (no auth required)
-        @health_check {
-                path /api/health
-        }
+        # Rate limiting is handled by Next.js middleware (proxy.ts) which applies
+        # tiered rate limits per route type (auth/api/ai/export) using Redis.
+        # No Caddy-level rate limiting needed — avoids dependency on caddy-rate-limit plugin.
 
         @transform_port_query {
                 query XTransformPort=3000
@@ -116,39 +106,9 @@
         # Compression
         encode gzip zstd
 
-        # Rate limiting - redundant with proxy.ts Layer 1 but kept as defense-in-depth
-        # Requires caddy-rate-limit plugin to be compiled into the Caddy binary
-        @api_routes {
-                path /api/ai/*
-        }
-        rate_limit @api_routes {
-                zone ai_zone 10r/m
-        }
-
-        @transform_port_query {
-                query XTransformPort=3000
-        }
-        @transform_port_query_3003 {
-                query XTransformPort=3003
-        }
-
-        handle @transform_port_query {
-                reverse_proxy localhost:3000 {
-                        header_up Host {host}
-                        header_up X-Forwarded-For {remote_host}
-                        header_up X-Forwarded-Proto {scheme}
-                        header_up X-Real-IP {remote_host}
-                }
-        }
-
-        handle @transform_port_query_3003 {
-                reverse_proxy localhost:3003 {
-                        header_up Host {host}
-                        header_up X-Forwarded-For {remote_host}
-                        header_up X-Forwarded-Proto {scheme}
-                        header_up X-Real-IP {remote_host}
-                }
-        }
+        # Rate limiting is handled by Next.js middleware (proxy.ts) which applies
+        # tiered rate limits per route type (auth/api/ai/export) using Redis.
+        # No Caddy-level rate limiting needed — avoids dependency on caddy-rate-limit plugin.
 
         handle {
                 reverse_proxy localhost:3000 {

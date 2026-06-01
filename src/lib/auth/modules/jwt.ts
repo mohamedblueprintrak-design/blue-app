@@ -77,7 +77,7 @@ export async function generateAccessToken(
   const secret = getJwtSecret();
   const config = getJwtConfig();
   
-  return new SignJWT(payload as Record<string, unknown>)
+  return new SignJWT({ ...payload, type: 'access' } as Record<string, unknown>)
     .setProtectedHeader({ alg: JWT_ALG })
     .setIssuedAt()
     .setIssuer(JWT_ISSUER)
@@ -206,18 +206,28 @@ export async function verifyToken(token: string): Promise<JwtPayload | null> {
 
 /**
  * Verify refresh token
+ *
+ * @deprecated Use DB-based refresh token verification instead (see @/lib/auth/token-utils).
+ * JWT-based refresh tokens don't support rotation or reuse detection.
+ *
+ * This function verifies the JWT directly (bypassing verifyToken which rejects
+ * non-access tokens) to support the deprecated JWT refresh flow.
  */
 export async function verifyRefreshToken(
   token: string
 ): Promise<{ userId: string } | null> {
   try {
-    const payload = await verifyToken(token);
+    const secret = getJwtSecret();
+    const { payload } = await jwtVerify(token, secret, {
+      issuer: JWT_ISSUER,
+      audience: JWT_AUDIENCE,
+    });
     
-    if (!payload || payload.type !== 'refresh') {
+    if (payload.type !== 'refresh') {
       return null;
     }
     
-    return { userId: payload.userId };
+    return { userId: payload.userId as string };
   } catch {
     return null;
   }
@@ -225,18 +235,23 @@ export async function verifyRefreshToken(
 
 /**
  * Verify password reset token
+ * Verifies the JWT directly (bypassing verifyToken which rejects non-access tokens)
  */
 export async function verifyPasswordResetToken(
   token: string
 ): Promise<{ userId: string } | null> {
   try {
-    const payload = await verifyToken(token);
+    const secret = getJwtSecret();
+    const { payload } = await jwtVerify(token, secret, {
+      issuer: JWT_ISSUER,
+      audience: JWT_AUDIENCE,
+    });
     
-    if (!payload || payload.type !== 'password-reset') {
+    if (payload.type !== 'password-reset') {
       return null;
     }
     
-    return { userId: payload.userId };
+    return { userId: payload.userId as string };
   } catch {
     return null;
   }
@@ -244,20 +259,25 @@ export async function verifyPasswordResetToken(
 
 /**
  * Verify email verification token
+ * Verifies the JWT directly (bypassing verifyToken which rejects non-access tokens)
  */
 export async function verifyEmailVerificationToken(
   token: string
 ): Promise<{ email: string; userId?: string } | null> {
   try {
-    const payload = await verifyToken(token);
+    const secret = getJwtSecret();
+    const { payload } = await jwtVerify(token, secret, {
+      issuer: JWT_ISSUER,
+      audience: JWT_AUDIENCE,
+    });
     
-    if (!payload || payload.type !== 'email-verification') {
+    if (payload.type !== 'email-verification') {
       return null;
     }
     
     return { 
-      email: payload.email, 
-      userId: payload.userId 
+      email: payload.email as string, 
+      userId: payload.userId as string | undefined
     };
   } catch {
     return null;

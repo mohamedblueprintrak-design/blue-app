@@ -45,7 +45,22 @@ export async function POST(request: NextRequest) {
     }
 
     // Create billing portal session
-    const origin = request.headers.get('origin') || 'http://localhost:3000';
+    const origin =
+      request.headers.get('origin') ||
+      process.env.NEXT_PUBLIC_APP_URL ||
+      (process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : '');
+    if (!origin) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: 'MISSING_APP_URL',
+            message: 'Application URL is not configured. Set NEXT_PUBLIC_APP_URL environment variable.',
+          },
+        },
+        { status: 500 }
+      );
+    }
     const session = await createBillingPortalSession(
       customerId,
       `${origin}/settings/billing`

@@ -16,13 +16,8 @@
  * - لا تستخدم أبداً في الإنتاج
  */
 
-// Hard block: demo mode must NEVER be active in production
-if (process.env.NODE_ENV === 'production' && process.env.DEMO_MODE === 'true') {
-  throw new Error(
-    'SECURITY: Demo mode is enabled in production environment. ' +
-    'Set DEMO_MODE=false or remove it to start the application safely.'
-  );
-}
+// Production demo mode hard-block removed per USER request to allow explanation/demo mode in production
+
 
 // Import UserRole enum from Prisma generated client
 import { UserRole } from '@prisma/client';
@@ -231,10 +226,5 @@ export function isDemoMode(): boolean {
  * Call this at app startup to prevent accidental production use.
  */
 export function validateDemoMode(): void {
-  if (process.env.DEMO_MODE === 'true' && process.env.NODE_ENV === 'production') {
-    throw new Error(
-      'SECURITY: DEMO_MODE must not be enabled in production! ' +
-      'Set DEMO_MODE=false in your production environment.'
-    );
-  }
+  // Allow demo mode in production per user's explicit request
 }

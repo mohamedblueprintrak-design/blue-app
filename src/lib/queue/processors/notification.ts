@@ -105,6 +105,37 @@ export async function notificationProcessor(job: Job<NotificationJobData>): Prom
       // WebSocket not available — notification is still persisted in DB
       log.debug('[Processor/Notification] WebSocket not available — notification saved to DB only');
     }
+
+    // 2b. Try to deliver via Browser/PWA Push Notifications
+    try {
+      const subscriptions = await db.pushSubscription.findMany({
+        where: { userId },
+      });
+
+      if (subscriptions.length > 0) {
+        const { sendPushNotification } = await import('@/lib/notifications/web-push-helper');
+        for (const sub of subscriptions) {
+          const result = await sendPushNotification(sub, {
+            title: titleAr,
+            body: messageAr,
+            icon: '/icons/icon-192x192.png',
+            badge: '/icons/icon-72x72.png',
+            data: {
+              link: link || undefined,
+            },
+          });
+
+          if (result === 'delete') {
+            await db.pushSubscription.delete({
+              where: { endpoint: sub.endpoint },
+            });
+            log.info(`[Processor/Notification] Deleted expired push subscription: ${sub.endpoint}`);
+          }
+        }
+      }
+    } catch (pushError) {
+      log.error('[Processor/Notification] Failed to send push notifications', pushError);
+    }
   } catch (error) {
     log.error('[Processor/Notification] Failed to create notification in DB', error, {
       userId,

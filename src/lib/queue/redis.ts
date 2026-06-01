@@ -38,8 +38,17 @@ export function getRedisConnectionConfig(): {
     }
   }
 
+  // No REDIS_URL — fall back to individual env vars
+  // In production, require at least REDIS_URL or REDIS_HOST to be set
+  const redisHost = process.env.REDIS_HOST || (process.env.NODE_ENV === 'development' ? 'localhost' : '');
+  if (!redisHost) {
+    throw new Error(
+      '[Queue/Redis] No Redis configuration found. Set REDIS_URL or REDIS_HOST environment variable.'
+    );
+  }
+
   return {
-    host: process.env.REDIS_HOST || 'localhost',
+    host: redisHost,
     port: parseInt(process.env.REDIS_PORT || '6379'),
     password: process.env.REDIS_PASSWORD || undefined,
     db: parseInt(process.env.REDIS_DB || '0'),

@@ -1,11 +1,17 @@
-import { z } from 'zod';\n\nexport const loginSchema = z.object({
+import { z } from 'zod';
+
+export const loginSchema = z.object({
   email: z.string()
     .min(1, 'البريد الإلكتروني مطلوب')
     .email('صيغة البريد الإلكتروني غير صحيحة'),
   password: z.string()
     .min(1, 'كلمة المرور مطلوبة')
     .max(128, 'كلمة المرور طويلة جداً'),
-});\n\nexport type LoginData = z.infer<typeof loginSchema>;\n\nexport const registerSchema = z.object({
+});
+
+export type LoginData = z.infer<typeof loginSchema>;
+
+export const registerSchema = z.object({
   email: z.string()
     .min(1, 'البريد الإلكتروني مطلوب')
     .email('صيغة البريد الإلكتروني غير صحيحة'),
@@ -27,11 +33,19 @@ import { z } from 'zod';\n\nexport const loginSchema = z.object({
   // SECURITY: role is intentionally excluded — roles are assigned server-side only.
   // Allowing client-supplied role would enable privilege escalation.
   action: z.string().optional(),
-});\n\nexport type RegisterData = z.infer<typeof registerSchema>;\n\nexport const forgotPasswordSchema = z.object({
+});
+
+export type RegisterData = z.infer<typeof registerSchema>;
+
+export const forgotPasswordSchema = z.object({
   email: z.string()
     .min(1, 'البريد الإلكتروني مطلوب')
     .email('صيغة البريد الإلكتروني غير صحيحة'),
-});\n\nexport type ForgotPasswordData = z.infer<typeof forgotPasswordSchema>;\n\nexport const resetPasswordSchema = z.object({
+});
+
+export type ForgotPasswordData = z.infer<typeof forgotPasswordSchema>;
+
+export const resetPasswordSchema = z.object({
   token: z.string().min(1, 'رمز إعادة التعيين مطلوب'),
   password: z.string()
     .min(8, 'كلمة المرور يجب أن تكون 8 أحرف على الأقل')
@@ -40,7 +54,11 @@ import { z } from 'zod';\n\nexport const loginSchema = z.object({
 }).refine(
   (data) => !data.confirmPassword || data.password === data.confirmPassword,
   { message: 'كلمات المرور غير متطابقة', path: ['confirmPassword'] }
-);\n\nexport type ResetPasswordData = z.infer<typeof resetPasswordSchema>;\n\nexport const changePasswordSchema = z.object({
+);
+
+export type ResetPasswordData = z.infer<typeof resetPasswordSchema>;
+
+export const changePasswordSchema = z.object({
   currentPassword: z.string().min(1, 'كلمة المرور الحالية مطلوبة'),
   newPassword: z.string()
     .min(8, 'كلمة المرور الجديدة يجب أن تكون 8 أحرف على الأقل')
@@ -49,7 +67,11 @@ import { z } from 'zod';\n\nexport const loginSchema = z.object({
 }).refine(
   (data) => !data.confirmPassword || data.newPassword === data.confirmPassword,
   { message: 'كلمات المرور غير متطابقة', path: ['confirmPassword'] }
-);\n\nexport type ChangePasswordData = z.infer<typeof changePasswordSchema>;\n\nexport const twoFactorSetupSchema = z.object({
+);
+
+export type ChangePasswordData = z.infer<typeof changePasswordSchema>;
+
+export const twoFactorSetupSchema = z.object({
   action: z.enum(['setup', 'enable'], {
     message: 'إجراء غير صحيح — يجب أن يكون setup أو enable',
   }),
@@ -59,13 +81,23 @@ import { z } from 'zod';\n\nexport const loginSchema = z.object({
 }).refine(
   (data) => data.action !== 'enable' || !!data.code,
   { message: 'رمز التحقق مطلوب عند التفعيل', path: ['code'] }
-);\n\nexport type TwoFactorSetupData = z.infer<typeof twoFactorSetupSchema>;\n\nexport const twoFactorDisableSchema = z.object({
+);
+
+export type TwoFactorSetupData = z.infer<typeof twoFactorSetupSchema>;
+
+export const twoFactorDisableSchema = z.object({
   password: z.string()
     .min(1, 'كلمة المرور مطلوبة')
     .max(128, 'كلمة المرور طويلة جداً'),
-});\n\nexport type TwoFactorDisableData = z.infer<typeof twoFactorDisableSchema>;\n\nexport const twoFactorVerifySchema = z.object({
+});
+
+export type TwoFactorDisableData = z.infer<typeof twoFactorDisableSchema>;
+
+export const twoFactorVerifySchema = z.object({
   code: z.string()
     .min(1, 'الرمز مطلوب')
     .regex(/^\d{6}|\d{8}$/, 'صيغة الرمز غير صحيحة — يجب أن يكون 6 أرقام (TOTP) أو 8 أرقام (رمز احتياطي)')
     .max(8, 'الرمز طويل جداً'),
-});\n\nexport type TwoFactorVerifyData = z.infer<typeof twoFactorVerifySchema>;\n\n
+});
+
+export type TwoFactorVerifyData = z.infer<typeof twoFactorVerifySchema>;
