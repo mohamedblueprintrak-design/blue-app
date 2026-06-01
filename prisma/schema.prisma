@@ -548,8 +548,9 @@ model Client {
   interactions        ClientInteraction[]
   buildingInspections BuildingInspection[]
 
-  @@unique([email, organizationId], name: "client_email_org_unique")
-  @@unique([idNumber, organizationId], name: "client_idnumber_org_unique")
+  // NOTE: Uniqueness for email and idNumber is enforced at the application level.
+  // DB-level unique constraints are removed because empty string defaults ('') would
+  // cause false collisions when multiple clients have no email/ID set.
   @@index([organizationId])
   @@index([email]) // Index for email lookups
   @@index([idNumber]) // Index for ID number lookups

@@ -267,23 +267,27 @@ export class RateLimiter {
 // Pre-configured Rate Limiters
 // ============================================
 
+// In development/demo mode, use a more generous rate limit to avoid blocking
+// legitimate testing and demo usage. In production, these limits are enforced strictly.
+const isDev = process.env.NODE_ENV === 'development' || process.env.DEMO_MODE === 'true';
+
 export const rateLimiters = {
   /**
-   * Auth rate limiter: 10 requests per minute
+   * Auth rate limiter: 30 req/min in dev/demo, 10 req/min in production
    * Used for login, signup, password reset
    */
   auth: new RateLimiter({
-    maxRequests: 10,
+    maxRequests: isDev ? 60 : 10,
     windowMs: 60000,
     keyPrefix: 'auth',
   }),
 
   /**
-   * API rate limiter: 100 requests per minute
+   * API rate limiter: 300 req/min in dev/demo, 100 req/min in production
    * General API endpoints
    */
   api: new RateLimiter({
-    maxRequests: 100,
+    maxRequests: isDev ? 300 : 100,
     windowMs: 60000,
     keyPrefix: 'api',
   }),
@@ -309,11 +313,11 @@ export const rateLimiters = {
   }),
 
   /**
-   * Strict rate limiter: 5 requests per minute
+   * Strict rate limiter: 30 req/min in dev/demo, 5 req/min in production
    * Used for sensitive operations
    */
   strict: new RateLimiter({
-    maxRequests: 5,
+    maxRequests: isDev ? 30 : 5,
     windowMs: 60000,
     keyPrefix: 'strict',
   }),
