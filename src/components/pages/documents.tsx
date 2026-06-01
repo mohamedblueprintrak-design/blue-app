@@ -866,10 +866,10 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
             </div>
             <div className="space-y-1">
               <Label className="text-xs">{ar ? "المشروع" : "Project"}</Label>
-              <Select value={formData.projectId} onValueChange={(v) => setFormData({ ...formData, projectId: v })}>
+              <Select value={formData.projectId || "none"} onValueChange={(v) => setFormData({ ...formData, projectId: v === "none" ? "" : v })}>
                 <SelectTrigger className="h-8 text-sm"><SelectValue placeholder={ar ? "اختر مشروع (اختياري)" : "Select project (optional)"} /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">{ar ? "بدون مشروع" : "No project"}</SelectItem>
+                  <SelectItem value="none">{ar ? "بدون مشروع" : "No project"}</SelectItem>
                   {projects.map((p) => (
                     <SelectItem key={p.id} value={p.id}>{ar ? p.name : p.nameEn || p.name}</SelectItem>
                   ))}
