@@ -1,5 +1,5 @@
 import { Monitor, Building2 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, getAvatarColor } from "@/lib/utils";
 
 // ===== Types =====
 export interface MeetingItem {
@@ -41,7 +41,7 @@ export interface ProjectOption {
 export interface UserOption {
   id: string;
   name: string;
-  EMAIL: string;
+  email: string;
 }
 
 // ===== Helpers =====
@@ -73,16 +73,4 @@ export function getInitials(name: string) {
   return name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
 }
 
-export function getAvatarColor(name: string) {
-  const colors = [
-    "bg-teal-100 dark:bg-teal-900/50 text-teal-700 dark:text-teal-300",
-    "bg-sky-100 dark:bg-sky-900/50 text-sky-700 dark:text-sky-300",
-    "bg-violet-100 dark:bg-violet-900/50 text-violet-700 dark:text-violet-300",
-    "bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300",
-    "bg-rose-100 dark:bg-rose-900/50 text-rose-700 dark:text-rose-300",
-    "bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300",
-  ];
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  return colors[Math.abs(hash) % colors.length];
-}
+

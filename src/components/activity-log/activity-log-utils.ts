@@ -1,4 +1,5 @@
 import { Plus, Pencil, Trash2, Eye, MessageSquare, Upload, ArrowUpDown, FolderKanban, CheckSquare, FileSignature, Receipt, FileText, Video, Users, UserPlus, AlertCircle } from 'lucide-react';
+import { getAvatarColor } from '@/lib/utils';
 
 export type ActionType = "CREATE" | "UPDATE" | "DELETE" | "view" | "status_change" | "comment" | "upload";
 export type EntityType = "project" | "task" | "contract" | "invoice" | "document" | "MEETING" | "client" | "employee";
@@ -15,31 +16,13 @@ export interface ActivityItem {
   user?: {
     id: string;
     name: string;
-    EMAIL: string;
+    email: string;
     avatar: string;
     role: string;
   };
 }
 
-// ===== Avatar Colors =====
-export const avatarColors = [
-  "bg-teal-500",
-  "bg-amber-500",
-  "bg-violet-500",
-  "bg-rose-500",
-  "bg-sky-500",
-  "bg-emerald-500",
-  "bg-orange-500",
-  "bg-blue-500",
-];
 
-export function getAvatarColor(str: string) {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = str.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return avatarColors[Math.abs(hash) % avatarColors.length];
-}
 
 // ===== Action Type Config =====
 export const actionConfig: Record<string, {
@@ -152,7 +135,7 @@ export const mockActivities: ActivityItem[] = [
     entityId: "p1",
     details: "مشروع فيلا الشاطئ / Beach Villa Project",
     createdAt: new Date(MOCK_REF_TIME - 5 * 60000).toISOString(),
-    user: { id: "u1", name: "أحمد المطيري", EMAIL: "ahmed@***", avatar: "", role: "ADMIN" },
+    user: { id: "u1", name: "أحمد المطيري", email: "ahmed@***", avatar: "", role: "ADMIN" },
   },
   {
     id: "mock-2",
@@ -162,7 +145,7 @@ export const mockActivities: ActivityItem[] = [
     entityId: "t1",
     details: "مهمة تصميم المخطط الأولي - تغيير الأولوية إلى عاجلة",
     createdAt: new Date(MOCK_REF_TIME - 18 * 60000).toISOString(),
-    user: { id: "u2", name: "سارة العلي", EMAIL: "sara@***", avatar: "", role: "PROJECT_MANAGER" },
+    user: { id: "u2", name: "سارة العلي", email: "sara@***", avatar: "", role: "PROJECT_MANAGER" },
   },
   {
     id: "mock-3",
@@ -172,7 +155,7 @@ export const mockActivities: ActivityItem[] = [
     entityId: "inv1",
     details: "فاتورة رقم INV-2024-0047 بقيمة 45,000 د.إ",
     createdAt: new Date(MOCK_REF_TIME - 45 * 60000).toISOString(),
-    user: { id: "u3", name: "خالد العمري", EMAIL: "khaled@***", avatar: "", role: "ACCOUNTANT" },
+    user: { id: "u3", name: "خالد العمري", email: "khaled@***", avatar: "", role: "ACCOUNTANT" },
   },
   {
     id: "mock-4",
@@ -182,7 +165,7 @@ export const mockActivities: ActivityItem[] = [
     entityId: "d1",
     details: "مخططات التصميم المعماري - المرحلة الثانية",
     createdAt: new Date(MOCK_REF_TIME - 2 * 3600000).toISOString(),
-    user: { id: "u4", name: "محمد الراشد", EMAIL: "mohammed@***", avatar: "", role: "ENGINEER" },
+    user: { id: "u4", name: "محمد الراشد", email: "mohammed@***", avatar: "", role: "ENGINEER" },
   },
   {
     id: "mock-5",
@@ -192,7 +175,7 @@ export const mockActivities: ActivityItem[] = [
     entityId: "p2",
     details: "مشروع برج النخيل - تغيير الحالة إلى 'مكتمل'",
     createdAt: new Date(MOCK_REF_TIME - 3 * 3600000).toISOString(),
-    user: { id: "u1", name: "أحمد المطيري", EMAIL: "ahmed@***", avatar: "", role: "ADMIN" },
+    user: { id: "u1", name: "أحمد المطيري", email: "ahmed@***", avatar: "", role: "ADMIN" },
   },
   {
     id: "mock-6",
@@ -202,7 +185,7 @@ export const mockActivities: ActivityItem[] = [
     entityId: "m1",
     details: "اجتماع مراجعة التصاميم الإنشائية - يوم الأحد القادم",
     createdAt: new Date(MOCK_REF_TIME - 5 * 3600000).toISOString(),
-    user: { id: "u5", name: "فاطمة الزهراني", EMAIL: "fatima@***", avatar: "", role: "SECRETARY" },
+    user: { id: "u5", name: "فاطمة الزهراني", email: "fatima@***", avatar: "", role: "SECRETARY" },
   },
   {
     id: "mock-7",
@@ -212,7 +195,7 @@ export const mockActivities: ActivityItem[] = [
     entityId: "t2",
     details: "تعليق على مهمة الحسابات الإنشائية: 'يحتاج مراجعة إضافية'",
     createdAt: new Date(MOCK_REF_TIME - 8 * 3600000).toISOString(),
-    user: { id: "u2", name: "سارة العلي", EMAIL: "sara@***", avatar: "", role: "PROJECT_MANAGER" },
+    user: { id: "u2", name: "سارة العلي", email: "sara@***", avatar: "", role: "PROJECT_MANAGER" },
   },
   {
     id: "mock-8",
@@ -222,7 +205,7 @@ export const mockActivities: ActivityItem[] = [
     entityId: "c1",
     details: "عقد خدمات هندسية مع شركة الأفق العقارية",
     createdAt: new Date(MOCK_REF_TIME - 12 * 3600000).toISOString(),
-    user: { id: "u6", name: "عبدالله الحربي", EMAIL: "abdullah@***", avatar: "", role: "MANAGER" },
+    user: { id: "u6", name: "عبدالله الحربي", email: "abdullah@***", avatar: "", role: "MANAGER" },
   },
   {
     id: "mock-9",
@@ -232,7 +215,7 @@ export const mockActivities: ActivityItem[] = [
     entityId: "inv2",
     details: "فاتورة INV-2024-0042 - تحديث الحالة إلى 'مدفوعة'",
     createdAt: new Date(MOCK_REF_TIME - 1 * 86400000).toISOString(),
-    user: { id: "u3", name: "خالد العمري", EMAIL: "khaled@***", avatar: "", role: "ACCOUNTANT" },
+    user: { id: "u3", name: "خالد العمري", email: "khaled@***", avatar: "", role: "ACCOUNTANT" },
   },
   {
     id: "mock-10",
@@ -242,7 +225,7 @@ export const mockActivities: ActivityItem[] = [
     entityId: "p3",
     details: "عرض تفاصيل مشروع مجمع الرياض السكني",
     createdAt: new Date(MOCK_REF_TIME - 1.5 * 86400000).toISOString(),
-    user: { id: "u4", name: "محمد الراشد", EMAIL: "mohammed@***", avatar: "", role: "ENGINEER" },
+    user: { id: "u4", name: "محمد الراشد", email: "mohammed@***", avatar: "", role: "ENGINEER" },
   },
   {
     id: "mock-11",
@@ -252,7 +235,7 @@ export const mockActivities: ActivityItem[] = [
     entityId: "cl1",
     details: "إضافة عميل جديد: شركة المستقبل للتطوير العقاري",
     createdAt: new Date(MOCK_REF_TIME - 2 * 86400000).toISOString(),
-    user: { id: "u7", name: "نورة القحطاني", EMAIL: "noura@***", avatar: "", role: "HR" },
+    user: { id: "u7", name: "نورة القحطاني", email: "noura@***", avatar: "", role: "HR" },
   },
   {
     id: "mock-12",
@@ -262,7 +245,7 @@ export const mockActivities: ActivityItem[] = [
     entityId: "d2",
     details: "حذف مستند المخططات القديمة - مشروع فيلا الواحة",
     createdAt: new Date(MOCK_REF_TIME - 3 * 86400000).toISOString(),
-    user: { id: "u1", name: "أحمد المطيري", EMAIL: "ahmed@***", avatar: "", role: "ADMIN" },
+    user: { id: "u1", name: "أحمد المطيري", email: "ahmed@***", avatar: "", role: "ADMIN" },
   },
   {
     id: "mock-13",
@@ -272,7 +255,7 @@ export const mockActivities: ActivityItem[] = [
     entityId: "m2",
     details: "تحديث موعد اجتماع لجنة المراجعة إلى يوم الثلاثاء",
     createdAt: new Date(MOCK_REF_TIME - 4 * 86400000).toISOString(),
-    user: { id: "u5", name: "فاطمة الزهراني", EMAIL: "fatima@***", avatar: "", role: "SECRETARY" },
+    user: { id: "u5", name: "فاطمة الزهراني", email: "fatima@***", avatar: "", role: "SECRETARY" },
   },
   {
     id: "mock-14",
@@ -282,7 +265,7 @@ export const mockActivities: ActivityItem[] = [
     entityId: "c2",
     details: "عقد pNU-2024-012 - تغيير الحالة إلى 'نشط'",
     createdAt: new Date(MOCK_REF_TIME - 5 * 86400000).toISOString(),
-    user: { id: "u6", name: "عبدالله الحربي", EMAIL: "abdullah@***", avatar: "", role: "MANAGER" },
+    user: { id: "u6", name: "عبدالله الحربي", email: "abdullah@***", avatar: "", role: "MANAGER" },
   },
   {
     id: "mock-15",
@@ -292,7 +275,7 @@ export const mockActivities: ActivityItem[] = [
     entityId: "t3",
     details: "إضافة مهمة جديدة: إعداد تقرير الكميات - مشروع برج النخيل",
     createdAt: new Date(MOCK_REF_TIME - 6 * 86400000).toISOString(),
-    user: { id: "u2", name: "سارة العلي", EMAIL: "sara@***", avatar: "", role: "PROJECT_MANAGER" },
+    user: { id: "u2", name: "سارة العلي", email: "sara@***", avatar: "", role: "PROJECT_MANAGER" },
   },
 ];
 

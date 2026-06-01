@@ -1,14 +1,12 @@
+/// <reference lib="webworker" />
+
 import { defaultCache } from "@serwist/next/worker";
 import type { PrecacheEntry } from "@serwist/precaching";
 import { installSerwist } from "@serwist/sw";
 
-declare global {
-  interface WorkerGlobalScope {
-    __SW_MANIFEST: (PrecacheEntry | string)[] | undefined;
-  }
-}
-
-declare const self: any;
+declare const self: ServiceWorkerGlobalScope & {
+  __SW_MANIFEST: (PrecacheEntry | string)[] | undefined;
+};
 
 installSerwist({
   precacheEntries: self.__SW_MANIFEST,
@@ -18,10 +16,10 @@ installSerwist({
   runtimeCaching: defaultCache,
 });
 
-self.addEventListener("push", (event: any) => {
+self.addEventListener("push", (event: PushEvent) => {
   const data = event.data?.json() ?? {};
   const title = data.title || "BluePrint Notification";
-  const options = {
+  const options: NotificationOptions = {
     body: data.body || "You have a new notification",
     icon: "/favicon.ico",
     data: data.url || "/",
@@ -30,10 +28,10 @@ self.addEventListener("push", (event: any) => {
   event.waitUntil(self.registration.showNotification(title, options));
 });
 
-self.addEventListener("notificationclick", (event: any) => {
+self.addEventListener("notificationclick", (event: NotificationEvent) => {
   event.notification.close();
   event.waitUntil(
-    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clientList: any) => {
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clientList: readonly WindowClient[]) => {
       if (clientList.length > 0) {
         let client = clientList[0];
         for (let i = 0; i < clientList.length; i++) {
@@ -47,3 +45,4 @@ self.addEventListener("notificationclick", (event: any) => {
     })
   );
 });
+

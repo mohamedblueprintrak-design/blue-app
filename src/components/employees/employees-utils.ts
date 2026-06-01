@@ -48,24 +48,7 @@ export function getInitials(name: string) {
     .slice(0, 2);
 }
 
-export const avatarColors = [
-  "bg-teal-100 dark:bg-teal-900 text-teal-700 dark:text-teal-300",
-  "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300",
-  "bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300",
-  "bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300",
-  "bg-cyan-100 dark:bg-cyan-900 text-cyan-700 dark:text-cyan-300",
-  "bg-rose-100 dark:bg-rose-900 text-rose-700 dark:text-rose-300",
-  "bg-violet-100 dark:bg-violet-900 text-violet-700 dark:text-violet-300",
-  "bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300",
-];
-
-export function getAvatarColor(name: string) {
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return avatarColors[Math.abs(hash) % avatarColors.length];
-}
+import { getAvatarColor } from '@/lib/utils';
 
 export const departmentColors: Record<string, string> = {
   "الهندسة المعمارية": "bg-violet-500",

@@ -354,3 +354,26 @@ export const helpSubTabs = [
   { id: "calendar", icon: "Calendar", labelAr: "التقويم", labelEn: "Calendar" },
   { id: "search", icon: "Search", labelAr: "البحث", labelEn: "Search" },
 ];
+
+export const pageTitleMap: Record<string, { ar: string; en: string }> = {
+  dashboard: { ar: "لوحة التحكم", en: "Dashboard" },
+  projects: { ar: "المشاريع", en: "Projects" },
+  clients: { ar: "العملاء", en: "Clients" },
+  contractors: { ar: "المقاولون", en: "Contractors" },
+  "finance-revenue": { ar: "الإيرادات", en: "Revenue" },
+  "finance-expenses": { ar: "المصروفات", en: "Expenses" },
+  "finance-reports": { ar: "التقارير المالية", en: "Financial Reports" },
+  employees: { ar: "الموظفين", en: "Employees" },
+  "features-hub": { ar: "المميزات المتقدمة", en: "Advanced Features" },
+  "ai-assistant": { ar: "المساعد الذكي", en: "AI Assistant" },
+  knowledge: { ar: "قاعدة المعرفة", en: "Knowledge Base" },
+  calendar: { ar: "التقويم", en: "Calendar" },
+  search: { ar: "البحث", en: "Search" },
+  admin: { ar: "إدارة النظام", en: "System Admin" },
+  settings: { ar: "الإعدادات", en: "Settings" },
+  notifications: { ar: "الإشعارات", en: "Notifications" },
+  "finance-retainage": { ar: "إدارة الاحتجاز", en: "Retainage Management" },
+  "finance-guarantees": { ar: "خطابات الضمان", en: "Guarantee Letters" },
+  "finance-progress-claims": { ar: "مطالبات التقدم", en: "Progress Claims" },
+};
+
