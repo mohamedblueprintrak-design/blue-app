@@ -13,15 +13,7 @@ import type { AIProvider, ProviderConfig } from "./types";
 // ============================================
 
 export const PROVIDER_CONFIGS: Record<string, ProviderConfig> = {
-  openai: {
-    name: "OpenAI",
-    provider: "openai",
-    baseUrl: "https://api.openai.com/v1",
-    apiKeyEnvVar: "OPENAI_API_KEY",
-    models: ["gpt-4o", "gpt-4o-mini", "gpt-4-turbo", "gpt-3.5-turbo"],
-    supportsVision: true,
-    supportsStreaming: true,
-  },
+  // Gemini is first — free-tier generous quota, used as default fallback
   gemini: {
     name: "Google Gemini",
     provider: "gemini",
@@ -31,15 +23,7 @@ export const PROVIDER_CONFIGS: Record<string, ProviderConfig> = {
     supportsVision: true,
     supportsStreaming: true,
   },
-  grok: {
-    name: "xAI Grok",
-    provider: "grok",
-    baseUrl: "https://api.x.ai/v1",
-    apiKeyEnvVar: "XAI_API_KEY",
-    models: ["grok-2", "grok-2-mini", "grok-beta"],
-    supportsVision: false,
-    supportsStreaming: true,
-  },
+  // Groq is second — very fast inference, generous free tier
   groq: {
     name: "Groq",
     provider: "groq",
@@ -49,6 +33,7 @@ export const PROVIDER_CONFIGS: Record<string, ProviderConfig> = {
     supportsVision: false,
     supportsStreaming: true,
   },
+  // DeepSeek — third option, great capability
   deepseek: {
     name: "DeepSeek",
     provider: "deepseek",
@@ -58,6 +43,7 @@ export const PROVIDER_CONFIGS: Record<string, ProviderConfig> = {
     supportsVision: true,
     supportsStreaming: true,
   },
+  // Mistral — fourth
   mistral: {
     name: "Mistral",
     provider: "mistral",
@@ -67,6 +53,7 @@ export const PROVIDER_CONFIGS: Record<string, ProviderConfig> = {
     supportsVision: true,
     supportsStreaming: true,
   },
+  // OpenRouter — fifth (aggregator, uses OpenRouter key)
   openrouter: {
     name: "OpenRouter",
     provider: "openrouter",
@@ -85,6 +72,7 @@ export const PROVIDER_CONFIGS: Record<string, ProviderConfig> = {
     supportsVision: true,
     supportsStreaming: true,
   },
+  // HuggingFace
   huggingface: {
     name: "HuggingFace",
     provider: "huggingface",
@@ -96,6 +84,26 @@ export const PROVIDER_CONFIGS: Record<string, ProviderConfig> = {
       "Qwen/Qwen2.5-72B-Instruct",
     ],
     supportsVision: false,
+    supportsStreaming: true,
+  },
+  // xAI Grok
+  grok: {
+    name: "xAI Grok",
+    provider: "grok",
+    baseUrl: "https://api.x.ai/v1",
+    apiKeyEnvVar: "XAI_API_KEY",
+    models: ["grok-2", "grok-2-mini", "grok-beta"],
+    supportsVision: false,
+    supportsStreaming: true,
+  },
+  // OpenAI — last (quota may be exhausted on free tier)
+  openai: {
+    name: "OpenAI",
+    provider: "openai",
+    baseUrl: "https://api.openai.com/v1",
+    apiKeyEnvVar: "OPENAI_API_KEY",
+    models: ["gpt-4o", "gpt-4o-mini", "gpt-4-turbo", "gpt-3.5-turbo"],
+    supportsVision: true,
     supportsStreaming: true,
   },
 };
