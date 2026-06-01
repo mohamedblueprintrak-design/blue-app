@@ -15,7 +15,7 @@ let isConnected = false;
 let hasFailed = false; // Track if Redis connection has permanently failed
 
 // Redis configuration
-const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
+const REDIS_URL = process.env.REDIS_URL || (process.env.NODE_ENV === 'development' ? 'redis://localhost:6379' : '');
 const REDIS_PREFIX = process.env.REDIS_PREFIX || 'blueprint:';
 
 // Check if Redis should be enabled - only if REDIS_URL is explicitly set

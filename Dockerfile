@@ -2,23 +2,23 @@
 # BluePrint SaaS - Production Dockerfile
 # ============================================
 # Multi-stage build for optimized production image
+# Uses Bun for dependency installation, Node.js for runtime
 
-# Stage 1: Dependencies
-FROM node:20-alpine AS deps
+# Stage 1: Dependencies (using Bun for fast, reliable installs)
+FROM oven/bun:1-alpine AS deps
 RUN apk add --no-cache libc6-compat openssl
 
 WORKDIR /app
 
 # Copy package files
-COPY package.json bun.lock* ./
+COPY package.json bun.lock ./
 COPY prisma ./prisma/
 
 # Install ALL dependencies (including devDependencies for build)
-RUN npm install && \
-    npm cache clean --force
+RUN bun install --frozen-lockfile
 
 # Generate Prisma Client
-RUN npx prisma generate
+RUN bunx prisma generate
 
 # ============================================
 # Stage 2: Builder
@@ -45,20 +45,19 @@ RUN npm run build
 
 # ============================================
 # Stage 3: Install production dependencies only
-FROM node:20-alpine AS prod-deps
+FROM oven/bun:1-alpine AS prod-deps
 RUN apk add --no-cache libc6-compat openssl
 
 WORKDIR /app
 
-COPY package.json bun.lock* ./
+COPY package.json bun.lock ./
 COPY prisma ./prisma/
 
 # Install ONLY production dependencies
-RUN npm install --omit=dev && \
-    npm cache clean --force
+RUN bun install --frozen-lockfile --production
 
 # Generate Prisma Client (production)
-RUN npx prisma generate
+RUN bunx prisma generate
 
 # ============================================
 # Stage 4: Runner (Production)

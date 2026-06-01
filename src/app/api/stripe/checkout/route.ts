@@ -137,7 +137,21 @@ export async function POST(request: NextRequest) {
     // to prevent open redirect / phishing attacks on payment flow
     const rawOrigin = request.headers.get('origin') || '';
     const allowedOrigins = process.env.CORS_ORIGINS?.split(',').map(o => o.trim()).filter(Boolean) || [];
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const appUrl =
+      process.env.NEXT_PUBLIC_APP_URL ||
+      (process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : '');
+    if (!appUrl) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: 'MISSING_APP_URL',
+            message: 'Application URL is not configured. Set NEXT_PUBLIC_APP_URL environment variable.',
+          },
+        },
+        { status: 500 }
+      );
+    }
     const validOrigins = [...allowedOrigins, appUrl];
     const origin = validOrigins.includes(rawOrigin) ? rawOrigin : appUrl;
 

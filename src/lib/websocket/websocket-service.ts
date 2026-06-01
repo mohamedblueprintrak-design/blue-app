@@ -60,7 +60,15 @@ export async function initializeWebSocket(
   }
 
   // Determine allowed origins — never default to wildcard '*'
-  const origin = corsOrigin || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const origin =
+    corsOrigin ||
+    process.env.NEXT_PUBLIC_APP_URL ||
+    (process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : '');
+  if (!origin) {
+    throw new Error(
+      '[WebSocket] No CORS origin configured. Set NEXT_PUBLIC_APP_URL or pass corsOrigin explicitly.'
+    );
+  }
 
   io = new IOServer(server, {
     cors: {

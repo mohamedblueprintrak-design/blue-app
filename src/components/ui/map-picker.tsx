@@ -108,7 +108,7 @@ export default function MapPicker({
   // We use a ref to track the last synced value to prevent stale closures,
   // and derive the display position from the value prop directly.
   const valueRef = useRef(value);
-  useEffect(() => { valueRef.current = value; });
+  useEffect(() => { valueRef.current = value; }, [value]);
 
   const _lastValueRef = useRef<{ lat: number; lng: number } | null>(null);
   const [mountedPosition, setMountedPosition] = useState<[number, number] | null>(null);
