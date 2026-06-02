@@ -4,6 +4,7 @@
 
 import { db } from '@/lib/db';
 import type { JsPdfCache, JsPdfInternal } from '@/types/pdf-types';
+import { setupArabicPdf, preprocessArabicText } from './arabic-helper';
 
 let jspdfCache: JsPdfCache | null = null;
 
@@ -34,7 +35,7 @@ function checkPageBreak(doc: import('jspdf').jsPDF, yPos: number, pageHeight: nu
     doc.rect(0, h - 15, doc.internal.pageSize.getWidth(), 15, 'F');
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(8);
-    doc.setFont('helvetica', 'normal');
+    doc.setFont('Cairo', 'normal');
     doc.text('BluePrint - Site Diary Report', doc.internal.pageSize.getWidth() / 2, h - 6, { align: 'center' });
     return margin + 10;
   }
@@ -55,12 +56,12 @@ function drawSection(
   if (value === null || value === undefined || value.trim() === '') return yPos;
 
   doc.setFontSize(10);
-  doc.setFont('helvetica', 'bold');
+  doc.setFont('Cairo', 'bold');
   doc.setTextColor(...labelColor);
   doc.text(label + ':', margin, yPos);
 
   yPos += 5;
-  doc.setFont('helvetica', 'normal');
+  doc.setFont('Cairo', 'normal');
   doc.setFontSize(9);
   doc.setTextColor(...valueColor);
 
@@ -91,10 +92,15 @@ export async function generateSiteReportPDFBuffer(siteDiaryId: string, lang: 'ar
 
   const { jsPDF, autoTable } = await getJsPDF();
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  
+  // Set up dynamic font and Arabic auto-reshaping/RTL formatting
+  await setupArabicPdf(doc);
+
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
   const margin = 20;
   const isRTL = lang === 'ar';
+
 
   const translations = {
     siteDiaryReport: isRTL ? 'تقرير يومية الموقع' : 'Site Diary Report',
@@ -183,9 +189,13 @@ export async function generateSiteReportPDFBuffer(siteDiaryId: string, lang: 'ar
   autoTable(doc, {
     startY: yPos,
     head: [],
-    body: quickInfoData,
+    body: quickInfoData.map(row => row.map(cell => preprocessArabicText(cell || ''))),
     theme: 'plain',
-    styles: { fontSize: 9, cellPadding: 3 },
+    styles: {
+      font: 'Cairo',
+      fontSize: 9,
+      cellPadding: 3,
+    },
     columnStyles: {
       0: { cellWidth: 40, fontStyle: 'bold', textColor: SECONDARY },
       1: { cellWidth: 55, textColor: TEXT },
@@ -194,6 +204,7 @@ export async function generateSiteReportPDFBuffer(siteDiaryId: string, lang: 'ar
     },
     margin: { left: margin, right: margin },
   });
+
 
   yPos = (doc.lastAutoTable?.finalY ?? yPos) + 10;
 

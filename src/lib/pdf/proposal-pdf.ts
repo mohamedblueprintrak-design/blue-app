@@ -3,6 +3,7 @@
 
 import { db } from '@/lib/db';
 import type { JsPdfCache } from '@/types/pdf-types';
+import { setupArabicPdf, preprocessArabicText } from './arabic-helper';
 
 let jspdfCache: JsPdfCache | null = null;
 
@@ -55,10 +56,15 @@ export async function generateProposalPDFBuffer(proposalId: string, lang: 'ar' |
 
   const { jsPDF, autoTable } = await getJsPDF();
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  
+  // Set up dynamic font and Arabic auto-reshaping/RTL formatting
+  await setupArabicPdf(doc);
+
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
   const margin = 20;
   let yPos = margin;
+
 
   const isRTL = lang === 'ar';
 
@@ -178,7 +184,7 @@ export async function generateProposalPDFBuffer(proposalId: string, lang: 'ar' |
 
   const tableData = proposal.items.map((item, idx) => [
     (idx + 1).toString(),
-    item.description,
+    preprocessArabicText(item.description),
     item.quantity.toLocaleString(),
     formatCurrency(Number(item.unitPrice)),
     formatCurrency(Number(item.total)),
@@ -186,9 +192,12 @@ export async function generateProposalPDFBuffer(proposalId: string, lang: 'ar' |
 
   autoTable(doc, {
     startY: yPos,
-    head: tableHeaders,
+    head: tableHeaders.map(row => row.map(cell => preprocessArabicText(cell))),
     body: tableData,
     theme: 'striped',
+    styles: {
+      font: 'Cairo',
+    },
     headStyles: {
       fillColor: TEAL,
       textColor: [255, 255, 255],
@@ -208,6 +217,7 @@ export async function generateProposalPDFBuffer(proposalId: string, lang: 'ar' |
       1: { cellWidth: 'auto' },
       2: { cellWidth: 22, halign: 'center' },
       3: { cellWidth: 28, halign: 'right' },
+
       4: { cellWidth: 32, halign: 'right', fontStyle: 'bold' },
     },
     margin: { left: margin, right: margin },

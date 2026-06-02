@@ -14,7 +14,20 @@ installSerwist({
   clientsClaim: true,
   navigationPreload: true,
   runtimeCaching: defaultCache,
+  fallbacks: {
+    entries: [
+      {
+        url: "/~offline",
+        revision: "1",
+        matcher({ request }) {
+          return request.mode === "navigate";
+        },
+      },
+    ],
+  },
+
 });
+
 
 self.addEventListener("push", (event: PushEvent) => {
   const data = event.data?.json() ?? {};

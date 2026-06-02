@@ -1,6 +1,5 @@
-"use client";
-
 import { useSyncExternalStore } from "react";
+import { dictionaries, type DictionaryPath } from "@/lib/i18n/dictionaries";
 
 // ===== Shared Language Hook =====
 // Centralized language detection to avoid duplication across 10+ page components.
@@ -38,7 +37,29 @@ export function useLang(): "ar" | "en" {
 export function useLanguage() {
   const lang = useLang();
   const ar = lang === "ar";
-  const t = (arText: string, enText: string) => (ar ? arText : enText);
+  
+  /**
+   * Translates a key path from the dictionary (e.g. "common.save")
+   * or falls back to inline (arText, enText) if two string arguments are provided.
+   */
+  const t = (pathOrArText: string | DictionaryPath, enText?: string): string => {
+    if (enText !== undefined) {
+      return ar ? (pathOrArText as string) : enText;
+    }
+    
+    // Resolve key path
+    const parts = (pathOrArText as string).split(".");
+    let current: any = dictionaries[lang];
+    for (const part of parts) {
+      if (current && typeof current === "object" && part in current) {
+        current = current[part];
+      } else {
+        return pathOrArText as string; // Fallback to path if not found
+      }
+    }
+    return typeof current === "string" ? current : (pathOrArText as string);
+  };
+
   const toggleLanguage = () => {
     const next = lang === "ar" ? "en" : "ar";
     localStorage.setItem("blueprint-lang", next);
@@ -46,5 +67,7 @@ export function useLanguage() {
     document.documentElement.lang = next;
     window.dispatchEvent(new Event("blueprint-lang-change"));
   };
+  
   return { lang, language: lang, ar, isAr: ar, t, toggleLanguage };
 }
+

@@ -3,6 +3,7 @@
 
 import { db } from '@/lib/db';
 import type { JsPdfCache } from '@/types/pdf-types';
+import { setupArabicPdf, preprocessArabicText } from './arabic-helper';
 
 let jspdfCache: JsPdfCache | null = null;
 
@@ -47,6 +48,10 @@ export async function generateInvoicePDFBuffer(invoiceId: string, lang: 'ar' | '
 
   const { jsPDF, autoTable } = await getJsPDF();
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  
+  // Set up dynamic font and Arabic auto-reshaping/RTL formatting
+  await setupArabicPdf(doc);
+
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
   const margin = 20;
@@ -57,7 +62,8 @@ export async function generateInvoicePDFBuffer(invoiceId: string, lang: 'ar' | '
 
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(18);
-  doc.setFont('helvetica', 'bold');
+  doc.setFont('Cairo', 'bold');
+
   doc.text(orgName, margin, 15);
 
   doc.setFontSize(9);
@@ -174,7 +180,7 @@ export async function generateInvoicePDFBuffer(invoiceId: string, lang: 'ar' | '
 
   const tableData = invoice.items.map((item, idx) => [
     (idx + 1).toString(),
-    item.description || '-',
+    preprocessArabicText(item.description || '-'),
     item.quantity.toLocaleString(),
     formatCurrency(Number(item.unitPrice)),
     formatCurrency(Number(item.total)),
@@ -182,11 +188,15 @@ export async function generateInvoicePDFBuffer(invoiceId: string, lang: 'ar' | '
 
   autoTable(doc, {
     startY: y,
-    head: tableHeaders,
+    head: tableHeaders.map(row => row.map(cell => preprocessArabicText(cell))),
     body: tableData,
     margin: { left: margin, right: margin },
     theme: 'striped',
+    styles: {
+      font: 'Cairo',
+    },
     headStyles: {
+
       fillColor: TEAL,
       textColor: [255, 255, 255],
       fontSize: 9,

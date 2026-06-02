@@ -193,22 +193,27 @@ export default function InvoicesPage({ language, projectId }: InvoicesPageProps)
   const paginatedFiltered = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   // PDF Export handler
-  const handleExportPDF = (inv: Invoice) => {
-    generateInvoicePDF({
-      number: inv.number,
-      issueDate: inv.issueDate,
-      dueDate: inv.dueDate,
-      subtotal: inv.subtotal,
-      tax: inv.tax,
-      total: inv.total,
-      clientName: inv.client.name,
-      clientCompany: inv.client.company,
-      projectName: ar ? inv.project.name : inv.project.nameEn || inv.project.name,
-      items: inv.items,
-      status: inv.status,
-    });
-    toast.showSuccess(ar ? "تم تصدير الفاتورة PDF" : "Invoice PDF exported");
+  const handleExportPDF = async (inv: Invoice) => {
+    try {
+      await generateInvoicePDF({
+        number: inv.number,
+        issueDate: inv.issueDate,
+        dueDate: inv.dueDate,
+        subtotal: inv.subtotal,
+        tax: inv.tax,
+        total: inv.total,
+        clientName: inv.client.name,
+        clientCompany: inv.client.company,
+        projectName: ar ? inv.project.name : inv.project.nameEn || inv.project.name,
+        items: inv.items,
+        status: inv.status,
+      }, language);
+      toast.showSuccess(ar ? "تم تصدير الفاتورة PDF" : "Invoice PDF exported");
+    } catch (e) {
+      toast.showError(ar ? "فشل تصدير الفاتورة" : "Failed to export PDF");
+    }
   };
+
 
   // Summary calculations
   const totalInvoices = filtered.reduce((s, i) => s + i.total, 0);

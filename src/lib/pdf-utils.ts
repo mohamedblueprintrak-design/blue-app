@@ -1,5 +1,7 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { preprocessArabicText, loadArabicFont } from "./pdf/arabic-helper";
+
 
 // ===== Invoice Data Types =====
 interface InvoiceItem {
@@ -47,16 +49,21 @@ function getStatusLabel(status: string): string {
 }
 
 // ===== Main PDF Generator =====
-export function generateInvoicePDF(invoice: InvoicePDFData) {
+export async function generateInvoicePDF(invoice: InvoicePDFData, lang: 'ar' | 'en' = 'en') {
   const doc = new jsPDF({
     orientation: "portrait",
     unit: "mm",
     format: "a4",
   });
 
+  // Load Cairo font for Arabic rendering
+  await loadArabicFont(doc);
+
   const pageWidth = doc.internal.pageSize.getWidth();
   const margin = 20;
   const _contentWidth = pageWidth - margin * 2;
+
+  const isAr = lang === 'ar';
 
   // ---- Company Header ----
   // Teal header bar
@@ -66,25 +73,25 @@ export function generateInvoicePDF(invoice: InvoicePDFData) {
   // Company name
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(18);
-  doc.setFont("helvetica", "bold");
-  doc.text("BluePrint", margin, 15);
+  doc.setFont("Cairo", "bold");
+  doc.text(preprocessArabicText(isAr ? "مخطط" : "BluePrint"), margin, 15);
 
-  // Arabic subtitle (helvetica fallback - may not render Arabic chars perfectly)
+  // Arabic subtitle
   doc.setFontSize(9);
-  doc.setFont("helvetica", "NORMAL");
-  doc.text("Engineering Consultancy Office", margin, 22);
+  doc.setFont("Cairo", "normal");
+  doc.text(preprocessArabicText(isAr ? "مكتب الاستشارات الهندسية" : "Engineering Consultancy Office"), margin, 22);
   doc.setFontSize(8);
   doc.setTextColor(200, 240, 235);
-  doc.text("United Arab Emirates", margin, 27);
+  doc.text(preprocessArabicText(isAr ? "دولة الإمارات العربية المتحدة" : "United Arab Emirates"), margin, 27);
 
   // Invoice number on right
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(10);
-  doc.setFont("helvetica", "NORMAL");
-  doc.text("Tax Invoice", pageWidth - margin, 15, { align: "right" });
+  doc.setFont("Cairo", "normal");
+  doc.text(preprocessArabicText(isAr ? "فاتورة ضريبية" : "Tax Invoice"), pageWidth - margin, 15, { align: "right" });
   doc.setFontSize(16);
-  doc.setFont("helvetica", "bold");
-  doc.text(invoice.number, pageWidth - margin, 24, { align: "right" });
+  doc.setFont("Cairo", "bold");
+  doc.text(preprocessArabicText(invoice.number), pageWidth - margin, 24, { align: "right" });
 
   // ---- Invoice Details Section ----
   let y = 42;
@@ -92,60 +99,60 @@ export function generateInvoicePDF(invoice: InvoicePDFData) {
   // Client info (left side)
   doc.setTextColor(100, 116, 139);
   doc.setFontSize(8);
-  doc.setFont("helvetica", "bold");
-  doc.text("CLIENT INFORMATION", margin, y);
+  doc.setFont("Cairo", "bold");
+  doc.text(preprocessArabicText(isAr ? "معلومات العميل" : "CLIENT INFORMATION"), margin, y);
 
   y += 6;
   doc.setTextColor(30, 41, 59);
   doc.setFontSize(11);
-  doc.setFont("helvetica", "bold");
-  doc.text(invoice.clientName, margin, y);
+  doc.setFont("Cairo", "bold");
+  doc.text(preprocessArabicText(invoice.clientName), margin, y);
 
   if (invoice.clientCompany) {
     y += 5;
     doc.setFontSize(9);
-    doc.setFont("helvetica", "NORMAL");
+    doc.setFont("Cairo", "normal");
     doc.setTextColor(100, 116, 139);
-    doc.text(invoice.clientCompany, margin, y);
+    doc.text(preprocessArabicText(invoice.clientCompany), margin, y);
   }
 
   y += 5;
   doc.setFontSize(9);
   doc.setTextColor(100, 116, 139);
-  doc.text(`Project: ${invoice.projectName}`, margin, y);
+  doc.text(preprocessArabicText(isAr ? `المشروع: ${invoice.projectName}` : `Project: ${invoice.projectName}`), margin, y);
 
   // Invoice details (right side)
   let rightY = 42;
   doc.setTextColor(100, 116, 139);
   doc.setFontSize(8);
-  doc.setFont("helvetica", "bold");
-  doc.text("INVOICE DETAILS", pageWidth - margin, rightY, { align: "right" });
+  doc.setFont("Cairo", "bold");
+  doc.text(preprocessArabicText(isAr ? "تفاصيل الفاتورة" : "INVOICE DETAILS"), pageWidth - margin, rightY, { align: "right" });
 
   rightY += 7;
   doc.setFontSize(9);
-  doc.setFont("helvetica", "NORMAL");
+  doc.setFont("Cairo", "normal");
 
   doc.setTextColor(100, 116, 139);
-  doc.text("Issue Date:", pageWidth - margin - 40, rightY, { align: "right" });
+  doc.text(preprocessArabicText(isAr ? "تاريخ الإصدار:" : "Issue Date:"), pageWidth - margin - 40, rightY, { align: "right" });
   doc.setTextColor(30, 41, 59);
-  doc.setFont("helvetica", "bold");
-  doc.text(formatDate(invoice.issueDate), pageWidth - margin, rightY, { align: "right" });
-
-  rightY += 6;
-  doc.setFont("helvetica", "NORMAL");
-  doc.setTextColor(100, 116, 139);
-  doc.text("Due Date:", pageWidth - margin - 40, rightY, { align: "right" });
-  doc.setTextColor(30, 41, 59);
-  doc.setFont("helvetica", "bold");
-  doc.text(formatDate(invoice.dueDate), pageWidth - margin, rightY, { align: "right" });
+  doc.setFont("Cairo", "bold");
+  doc.text(preprocessArabicText(formatDate(invoice.issueDate)), pageWidth - margin, rightY, { align: "right" });
 
   rightY += 6;
-  doc.setFont("helvetica", "NORMAL");
+  doc.setFont("Cairo", "normal");
   doc.setTextColor(100, 116, 139);
-  doc.text("Status:", pageWidth - margin - 40, rightY, { align: "right" });
+  doc.text(preprocessArabicText(isAr ? "تاريخ الاستحقاق:" : "Due Date:"), pageWidth - margin - 40, rightY, { align: "right" });
   doc.setTextColor(30, 41, 59);
-  doc.setFont("helvetica", "bold");
-  doc.text(getStatusLabel(invoice.status), pageWidth - margin, rightY, { align: "right" });
+  doc.setFont("Cairo", "bold");
+  doc.text(preprocessArabicText(formatDate(invoice.dueDate)), pageWidth - margin, rightY, { align: "right" });
+
+  rightY += 6;
+  doc.setFont("Cairo", "normal");
+  doc.setTextColor(100, 116, 139);
+  doc.text(preprocessArabicText(isAr ? "الحالة:" : "Status:"), pageWidth - margin - 40, rightY, { align: "right" });
+  doc.setTextColor(30, 41, 59);
+  doc.setFont("Cairo", "bold");
+  doc.text(preprocessArabicText(isAr ? getStatusLabel(invoice.status) : getStatusLabel(invoice.status)), pageWidth - margin, rightY, { align: "right" });
 
   // ---- Divider ----
   y = Math.max(y, rightY) + 8;
@@ -158,18 +165,25 @@ export function generateInvoicePDF(invoice: InvoicePDFData) {
 
   const tableBody = invoice.items.map((item, idx) => [
     (idx + 1).toString(),
-    item.description || "—",
+    preprocessArabicText(item.description || "—"),
     item.quantity.toString(),
     formatAED(item.unitPrice),
     formatAED(item.total),
   ]);
 
+  const headers = isAr
+    ? [["#", "الوصف", "الكمية", "سعر الوحدة", "الإجمالي"]]
+    : [["#", "Description", "Qty", "Unit Price", "Total"]];
+
   autoTable(doc, {
     startY: y,
-    head: [["#", "Description", "Qty", "Unit Price", "Total"]],
+    head: headers,
     body: tableBody,
     margin: { left: margin, right: margin },
     theme: "striped",
+    styles: {
+      font: "Cairo",
+    },
     headStyles: {
       fillColor: [20, 184, 166],
       textColor: [255, 255, 255],
@@ -206,21 +220,21 @@ export function generateInvoicePDF(invoice: InvoicePDFData) {
 
   // Subtotal
   doc.setFontSize(9);
-  doc.setFont("helvetica", "NORMAL");
+  doc.setFont("Cairo", "normal");
   doc.setTextColor(100, 116, 139);
-  doc.text("Subtotal", pageWidth - margin - 30, totalsY + 2, { align: "right" });
+  doc.text(preprocessArabicText(isAr ? "المجموع الفرعي" : "Subtotal"), pageWidth - margin - 30, totalsY + 2, { align: "right" });
   doc.setTextColor(30, 41, 59);
-  doc.setFont("helvetica", "bold");
-  doc.text(formatAED(invoice.subtotal), pageWidth - margin, totalsY + 2, { align: "right" });
+  doc.setFont("Cairo", "bold");
+  doc.text(preprocessArabicText(formatAED(invoice.subtotal)), pageWidth - margin, totalsY + 2, { align: "right" });
 
   // VAT
   totalsY += 7;
-  doc.setFont("helvetica", "NORMAL");
+  doc.setFont("Cairo", "normal");
   doc.setTextColor(100, 116, 139);
-  doc.text("VAT (5%)", pageWidth - margin - 30, totalsY + 2, { align: "right" });
+  doc.text(preprocessArabicText(isAr ? "ضريبة القيمة المضافة (5%)" : "VAT (5%)"), pageWidth - margin - 30, totalsY + 2, { align: "right" });
   doc.setTextColor(30, 41, 59);
-  doc.setFont("helvetica", "bold");
-  doc.text(formatAED(invoice.tax), pageWidth - margin, totalsY + 2, { align: "right" });
+  doc.setFont("Cairo", "bold");
+  doc.text(preprocessArabicText(formatAED(invoice.tax)), pageWidth - margin, totalsY + 2, { align: "right" });
 
   // Grand Total with teal accent
   totalsY += 9;
@@ -230,10 +244,10 @@ export function generateInvoicePDF(invoice: InvoicePDFData) {
 
   doc.setFontSize(11);
   doc.setTextColor(30, 41, 59);
-  doc.text("Grand Total", pageWidth - margin - 30, totalsY + 2, { align: "right" });
+  doc.text(preprocessArabicText(isAr ? "المجموع الإجمالي" : "Grand Total"), pageWidth - margin - 30, totalsY + 2, { align: "right" });
   doc.setTextColor(20, 184, 166);
-  doc.setFont("helvetica", "bold");
-  doc.text(formatAED(invoice.total), pageWidth - margin, totalsY + 2, { align: "right" });
+  doc.setFont("Cairo", "bold");
+  doc.text(preprocessArabicText(formatAED(invoice.total)), pageWidth - margin, totalsY + 2, { align: "right" });
 
   // ---- Footer ----
   const pageHeight = doc.internal.pageSize.getHeight();
@@ -242,11 +256,12 @@ export function generateInvoicePDF(invoice: InvoicePDFData) {
   doc.line(margin, pageHeight - 25, pageWidth - margin, pageHeight - 25);
 
   doc.setFontSize(8);
-  doc.setFont("helvetica", "NORMAL");
+  doc.setFont("Cairo", "normal");
   doc.setTextColor(148, 163, 184);
-  doc.text("Thank you for your business", pageWidth / 2, pageHeight - 18, { align: "center" });
-  doc.text("BluePrint Engineering Consultancy - UAE", pageWidth / 2, pageHeight - 12, { align: "center" });
+  doc.text(preprocessArabicText(isAr ? "شكراً لتعاملكم معنا" : "Thank you for your business"), pageWidth / 2, pageHeight - 18, { align: "center" });
+  doc.text(preprocessArabicText(isAr ? "مكتب مخطط للاستشارات الهندسية - الإمارات" : "BluePrint Engineering Consultancy - UAE"), pageWidth / 2, pageHeight - 12, { align: "center" });
 
   // Save
   doc.save(`invoice-${invoice.number}.pdf`);
 }
+

@@ -4,6 +4,7 @@
 
 import { db } from '@/lib/db';
 import type { JsPdfCache } from '@/types/pdf-types';
+import { setupArabicPdf, preprocessArabicText } from './arabic-helper';
 
 let jspdfCache: JsPdfCache | null = null;
 
@@ -66,10 +67,15 @@ export async function generateContractPDFBuffer(contractId: string, lang: 'ar' |
 
   const { jsPDF, autoTable } = await getJsPDF();
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  
+  // Set up dynamic font and Arabic auto-reshaping/RTL formatting
+  await setupArabicPdf(doc);
+
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
   const margin = 20;
   let yPos = margin;
+
 
   const t = {
     contract: lang === 'ar' ? 'عقد' : 'CONTRACT',
@@ -205,13 +211,14 @@ export async function generateContractPDFBuffer(contractId: string, lang: 'ar' |
 
   autoTable(doc, {
     startY: yPos,
-    body: detailsData,
+    body: detailsData.map(row => row.map(cell => preprocessArabicText(cell))),
     theme: 'plain',
     columnStyles: {
       0: { cellWidth: 50, fontStyle: 'bold', textColor: [100, 116, 139] },
       1: { cellWidth: 'auto', textColor: [30, 41, 59] },
     },
     styles: {
+      font: 'Cairo',
       fontSize: 10,
       cellPadding: 3,
     },
@@ -230,7 +237,7 @@ export async function generateContractPDFBuffer(contractId: string, lang: 'ar' |
 
     doc.setTextColor(...TEAL);
     doc.setFontSize(12);
-    doc.setFont('helvetica', 'bold');
+    doc.setFont('Cairo', 'bold');
     doc.text(t.amendments, margin, yPos);
 
     yPos += 5;
@@ -248,9 +255,12 @@ export async function generateContractPDFBuffer(contractId: string, lang: 'ar' |
 
     autoTable(doc, {
       startY: yPos,
-      head: amendmentHeaders,
-      body: amendmentData,
+      head: amendmentHeaders.map(row => row.map(cell => preprocessArabicText(cell))),
+      body: amendmentData.map(row => row.map(cell => preprocessArabicText(cell))),
       theme: 'striped',
+      styles: {
+        font: 'Cairo',
+      },
       headStyles: {
         fillColor: TEAL,
         textColor: [255, 255, 255],
@@ -265,6 +275,7 @@ export async function generateContractPDFBuffer(contractId: string, lang: 'ar' |
       },
       margin: { left: margin, right: margin },
     });
+
 
     yPos = doc.lastAutoTable?.finalY || yPos + 30;
     yPos += 10;

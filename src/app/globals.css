@@ -754,12 +754,18 @@ html {
 
 /* ----- Enhanced Print Styles ----- */
 @media print {
-  /* Hide navigation, sidebar, action buttons */
+  /* Hide navigation, sidebar, action buttons, overlays, dialogs, dropdowns, and portals */
   nav,
   [role="navigation"],
   [data-sidebar="sidebar"],
   [aria-label="Toggle Sidebar"],
   [aria-label="Main Navigation"],
+  [data-radix-portal],
+  [role="dialog"] [class*="DialogOverlay"],
+  [role="dialog"] button[class*="DialogClose"],
+  div[style*="pointer-events"],
+  .fixed,
+  .sticky,
   .no-print {
     display: none !important;
   }
@@ -768,6 +774,7 @@ html {
   button:not(.print-show) {
     display: none !important;
   }
+
 
   /* Show only main content */
   body {

@@ -20,7 +20,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Plus, Search, Eye, Pencil, Trash2, Phone, UserCircle } from 'lucide-react';
+import { Plus, Search, Eye, Pencil, Trash2, Phone, UserCircle, Upload } from 'lucide-react';
 
 import { cn } from "@/lib/utils";
 import { getMutationHeaders } from "@/lib/csrf-client";
@@ -47,6 +47,55 @@ export default function ClientsPage({ language, projectId, initialTab }: Clients
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [editClient, setEditClient] = useState<Client | null>(null);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [importing, setImporting] = useState(false);
+
+  const handleImportClick = () => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".csv,.xlsx,.xls";
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+
+      setImporting(true);
+      const formData = new FormData();
+      formData.append("file", file);
+
+      try {
+        const headers = { ...getMutationHeaders() };
+        // Delete Content-Type to let browser set boundaries for FormData
+        for (const key of Object.keys(headers)) {
+          if (key.toLowerCase() === "content-type") {
+            delete headers[key];
+          }
+        }
+
+        const res = await fetch("/api/clients/import", {
+          method: "POST",
+          headers,
+          body: formData,
+        });
+
+        const json = await res.json();
+        if (res.ok && json.success) {
+          toast.showSuccess(
+            ar 
+              ? `تم استيراد ${json.successCount} عميل بنجاح، وفشل ${json.failureCount}`
+              : `Successfully imported ${json.successCount} clients, failed ${json.failureCount}`
+          );
+          queryClient.invalidateQueries({ queryKey: ["clients"] });
+        } else {
+          toast.showError(ar ? `فشل الاستيراد: ${json.error || "خطأ غير معروف"}` : `Import failed: ${json.error || "Unknown error"}`);
+        }
+      } catch (err) {
+        toast.showError(ar ? "حدث خطأ أثناء الاستيراد" : "An error occurred during import");
+      } finally {
+        setImporting(false);
+      }
+    };
+    input.click();
+  };
+
 
   // Auto-open create dialog on initialTab
   useEffect(() => {
@@ -207,12 +256,23 @@ export default function ClientsPage({ language, projectId, initialTab }: Clients
             </div>
             <Button
               size="sm"
+              variant="outline"
+              className="h-8 rounded-lg border-slate-200 dark:border-slate-700 dark:hover:bg-slate-800"
+              onClick={handleImportClick}
+              disabled={importing}
+            >
+              <Upload className="h-3.5 w-3.5 me-1" />
+              {importing ? (ar ? "جاري الاستيراد..." : "Importing...") : (ar ? "استيراد" : "Import")}
+            </Button>
+            <Button
+              size="sm"
               className="h-8 bg-teal-600 hover:bg-teal-700 text-white rounded-lg shadow-sm shadow-teal-600/20"
               onClick={openAddDialog}
             >
               <Plus className="h-3.5 w-3.5 me-1" />
               {ar ? "عميل جديد" : "New Client"}
             </Button>
+
           </div>
         </div>
 

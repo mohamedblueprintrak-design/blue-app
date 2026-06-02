@@ -5,6 +5,8 @@
 
 import { db } from '@/lib/db';
 import type { JsPdfCache } from '@/types/pdf-types';
+import { setupArabicPdf, preprocessArabicText } from './arabic-helper';
+
 
 // Types for report data
 export interface FinancialReportData {
@@ -217,6 +219,10 @@ const TEAL = [20, 184, 166] as [number, number, number];
 export async function generateFinancialReportPDF(data: FinancialReportData): Promise<Buffer> {
   const { jsPDF, autoTable } = await getJsPDF();
   const doc = new jsPDF('landscape');
+  
+  // Set up dynamic font and Arabic auto-reshaping/RTL formatting
+  await setupArabicPdf(doc);
+
   const isRTL = data.language === 'ar';
   const settings = await getCompanySettings();
 
@@ -265,10 +271,13 @@ export async function generateFinancialReportPDF(data: FinancialReportData): Pro
   ]);
 
   autoTable(doc, {
-    head: tableHeaders,
-    body: tableData,
+    head: tableHeaders.map(row => row.map(cell => preprocessArabicText(cell))),
+    body: tableData.map(row => row.map(cell => preprocessArabicText(cell))),
     startY: summaryY + 20,
     theme: 'striped',
+    styles: {
+      font: 'Cairo',
+    },
     headStyles: {
       fillColor: TEAL,
       textColor: [255, 255, 255],
@@ -295,10 +304,15 @@ export async function generateFinancialReportPDF(data: FinancialReportData): Pro
   return Buffer.from(doc.output('arraybuffer'));
 }
 
+
 // ===== Project Report PDF =====
 export async function generateProjectReportPDF(data: ProjectReportData): Promise<Buffer> {
   const { jsPDF, autoTable } = await getJsPDF();
   const doc = new jsPDF('landscape');
+  
+  // Set up dynamic font and Arabic auto-reshaping/RTL formatting
+  await setupArabicPdf(doc);
+
   const isRTL = data.language === 'ar';
   const settings = await getCompanySettings();
 
@@ -344,10 +358,13 @@ export async function generateProjectReportPDF(data: ProjectReportData): Promise
   ]);
 
   autoTable(doc, {
-    head: tableHeaders,
-    body: tableData,
+    head: tableHeaders.map(row => row.map(cell => preprocessArabicText(cell))),
+    body: tableData.map(row => row.map(cell => preprocessArabicText(cell))),
     startY: summaryY + 20,
     theme: 'striped',
+    styles: {
+      font: 'Cairo',
+    },
     headStyles: {
       fillColor: TEAL,
       textColor: [255, 255, 255],
@@ -364,6 +381,7 @@ export async function generateProjectReportPDF(data: ProjectReportData): Promise
     },
   });
 
+
   addFooter(doc, doc.getNumberOfPages(), isRTL, settings.pdfFooter);
   return Buffer.from(doc.output('arraybuffer'));
 }
@@ -372,6 +390,10 @@ export async function generateProjectReportPDF(data: ProjectReportData): Promise
 export async function generateTaskReportPDF(data: TaskReportData): Promise<Buffer> {
   const { jsPDF, autoTable } = await getJsPDF();
   const doc = new jsPDF('landscape');
+  
+  // Set up dynamic font and Arabic auto-reshaping/RTL formatting
+  await setupArabicPdf(doc);
+
   const isRTL = data.language === 'ar';
   const settings = await getCompanySettings();
 
@@ -419,10 +441,13 @@ export async function generateTaskReportPDF(data: TaskReportData): Promise<Buffe
   ]);
 
   autoTable(doc, {
-    head: tableHeaders,
-    body: tableData,
+    head: tableHeaders.map(row => row.map(cell => preprocessArabicText(cell))),
+    body: tableData.map(row => row.map(cell => preprocessArabicText(cell))),
     startY: summaryY + 20,
     theme: 'striped',
+    styles: {
+      font: 'Cairo',
+    },
     headStyles: {
       fillColor: TEAL,
       textColor: [255, 255, 255],
@@ -430,6 +455,7 @@ export async function generateTaskReportPDF(data: TaskReportData): Promise<Buffe
       halign: isRTL ? 'right' : 'left',
     },
     bodyStyles: {
+
       fontSize: 10,
       textColor: [30, 41, 59],
       halign: isRTL ? 'right' : 'left',
@@ -447,6 +473,10 @@ export async function generateTaskReportPDF(data: TaskReportData): Promise<Buffe
 export async function generateClientReportPDF(data: ClientReportData): Promise<Buffer> {
   const { jsPDF, autoTable } = await getJsPDF();
   const doc = new jsPDF('landscape');
+  
+  // Set up dynamic font and Arabic auto-reshaping/RTL formatting
+  await setupArabicPdf(doc);
+
   const isRTL = data.language === 'ar';
   const settings = await getCompanySettings();
 
@@ -491,10 +521,13 @@ export async function generateClientReportPDF(data: ClientReportData): Promise<B
   ]);
 
   autoTable(doc, {
-    head: tableHeaders,
-    body: tableData,
+    head: tableHeaders.map(row => row.map(cell => preprocessArabicText(cell))),
+    body: tableData.map(row => row.map(cell => preprocessArabicText(cell))),
     startY: summaryY + 20,
     theme: 'striped',
+    styles: {
+      font: 'Cairo',
+    },
     headStyles: {
       fillColor: TEAL,
       textColor: [255, 255, 255],
@@ -519,6 +552,10 @@ export async function generateClientReportPDF(data: ClientReportData): Promise<B
 export async function generateInvoiceReportPDF(data: InvoiceReportData): Promise<Buffer> {
   const { jsPDF, autoTable } = await getJsPDF();
   const doc = new jsPDF('landscape');
+  
+  // Set up dynamic font and Arabic auto-reshaping/RTL formatting
+  await setupArabicPdf(doc);
+
   const isRTL = data.language === 'ar';
   const settings = await getCompanySettings();
 
@@ -566,10 +603,13 @@ export async function generateInvoiceReportPDF(data: InvoiceReportData): Promise
   ]);
 
   autoTable(doc, {
-    head: tableHeaders,
-    body: tableData,
+    head: tableHeaders.map(row => row.map(cell => preprocessArabicText(cell))),
+    body: tableData.map(row => row.map(cell => preprocessArabicText(cell))),
     startY: summaryY + 20,
     theme: 'striped',
+    styles: {
+      font: 'Cairo',
+    },
     headStyles: {
       fillColor: TEAL,
       textColor: [255, 255, 255],
@@ -589,6 +629,7 @@ export async function generateInvoiceReportPDF(data: InvoiceReportData): Promise
   addFooter(doc, doc.getNumberOfPages(), isRTL, settings.pdfFooter);
   return Buffer.from(doc.output('arraybuffer'));
 }
+
 
 // ===== Helper: Fetch company settings =====
 export async function getCompanySettings() {
