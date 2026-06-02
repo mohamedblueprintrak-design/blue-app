@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 import { SignJWT } from 'jose';
 import { validateRequest, loginSchema } from '@/lib/api-validation';
 import { log } from '@/lib/logger';
-import { DEMO_CREDENTIALS, isDemoMode } from '@/lib/demo-credentials';
+import { DEMO_CREDENTIALS, isDemoMode, validateDemoMode } from '@/lib/demo-credentials';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 import { getClientIP } from '@/lib/rate-limiter';
 import { getJwtSecretBytes } from '@/lib/auth/jwt-secret';
@@ -129,6 +129,7 @@ const LOCKOUT_DURATION_MINUTES = 15;
  */
 export async function POST(request: Request) {
   try {
+    validateDemoMode();
     // Rate limiting check — use Redis-based rate limiter
     const { result: rateLimitResult } = await withRateLimit(request, 'auth');
     const rlBlocked = rateLimitResponse(rateLimitResult);
@@ -136,6 +137,7 @@ export async function POST(request: Request) {
 
     const body = await request.json();
     const validation = validateRequest(loginSchema, body);
+
     if (!validation.success) {
       return NextResponse.json(
         { error: validation.error },

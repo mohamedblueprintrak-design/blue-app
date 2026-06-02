@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import bcrypt from 'bcryptjs';
-import { DEMO_CREDENTIALS, isDemoMode } from '@/lib/demo-credentials';
+import { DEMO_CREDENTIALS, isDemoMode, validateDemoMode } from '@/lib/demo-credentials';
 import { UserRole } from '@prisma/client';
 import { log } from '@/lib/logger';
 import { requireVerifiedAdmin } from '@/app/api/utils/auth';
@@ -27,9 +27,11 @@ import { PASSWORD_CONFIG } from '@/lib/auth/modules/password';
 
 export async function POST(request: NextRequest) {
   try {
+    validateDemoMode();
     // ============================================
     // 1. Rate limiting — strict limiter (5 req/min)
     // ============================================
+
     const { result: rateLimitResult } = await withRateLimit(request, 'strict');
     const rlBlocked = rateLimitResponse(rateLimitResult);
     if (rlBlocked) return rlBlocked;

@@ -226,5 +226,8 @@ export function isDemoMode(): boolean {
  * Call this at app startup to prevent accidental production use.
  */
 export function validateDemoMode(): void {
-  // Allow demo mode in production per user's explicit request
+  if (process.env.NODE_ENV === "production" && process.env.DEMO_MODE === "true") {
+    throw new Error("CRITICAL SECURITY ALERT: DEMO_MODE cannot be enabled in production.");
+  }
 }
+

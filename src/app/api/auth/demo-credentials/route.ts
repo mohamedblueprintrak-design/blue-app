@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { DEMO_CREDENTIALS, isDemoMode } from '@/lib/demo-credentials';
+import { DEMO_CREDENTIALS, isDemoMode, validateDemoMode } from '@/lib/demo-credentials';
 
 /**
  * GET /api/auth/demo-credentials
@@ -11,7 +11,9 @@ import { DEMO_CREDENTIALS, isDemoMode } from '@/lib/demo-credentials';
  * to ensure emails and passwords match the ROLES dropdown on the login page.
  */
 export async function GET() {
+  validateDemoMode();
   if (!isDemoMode()) {
+
     return NextResponse.json({ credentials: [] });
   }
 
