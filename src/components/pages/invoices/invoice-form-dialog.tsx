@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus, X, DollarSign } from "lucide-react";
+import { Plus, X, DollarSign, Coins } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -28,7 +28,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { formatCurrency } from "@/lib/formatters";
+import { formatCurrency as formatCurrencyMulti, SUPPORTED_CURRENCIES } from "@/lib/currency";
 import { getErrorMessage } from "@/lib/validations";
 import type { UseFormRegister, UseFormSetValue, UseFormWatch, FieldErrors } from "react-hook-form";
 import type { InvoiceFormData } from "@/lib/validations";
@@ -46,6 +46,7 @@ interface InvoiceFormDialogProps {
     issueDate: string;
     dueDate: string;
     status: string;
+    currency: string;
     items: InvoiceItem[];
   };
   setFormData: React.Dispatch<React.SetStateAction<{
@@ -55,6 +56,7 @@ interface InvoiceFormDialogProps {
     issueDate: string;
     dueDate: string;
     status: string;
+    currency: string;
     items: InvoiceItem[];
   }>>;
   register: UseFormRegister<InvoiceFormData>;
@@ -105,7 +107,7 @@ export function InvoiceFormDialog({
 
         <form onSubmit={onSubmit} className="space-y-4">
           {/* Top row */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
             <div className="space-y-1">
               <Label className="text-xs">{ar ? "رقم الفاتورة" : "Invoice No."} *</Label>
               <Input {...register("number")} placeholder="INV-001" className="h-8 text-sm rounded-lg" />
@@ -113,7 +115,7 @@ export function InvoiceFormDialog({
             </div>
             <div className="space-y-1">
               <Label className="text-xs">{ar ? "العميل" : "Client"} *</Label>
-              {/* eslint-disable-next-line react-hooks/incompatible-library */}
+              { }
               <Select value={watch("clientId")} onValueChange={(v) => { setValue("clientId", v); setFormData({ ...formData, clientId: v }); }}>
                 <SelectTrigger className="h-8 text-sm rounded-lg"><SelectValue placeholder={ar ? "اختر عميل" : "Select client"} /></SelectTrigger>
                 <SelectContent>
@@ -131,6 +133,17 @@ export function InvoiceFormDialog({
                 </SelectContent>
               </Select>
               {errors.projectId && <p className="text-red-500 text-xs mt-1">{getErrorMessage(errors.projectId.message || "", ar)}</p>}
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs flex items-center gap-1"><Coins className="h-3 w-3" />{ar ? "العملة" : "Currency"}</Label>
+              <Select value={formData.currency || "AED"} onValueChange={(v) => setFormData({ ...formData, currency: v })}>
+                <SelectTrigger className="h-8 text-sm rounded-lg"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {Object.values(SUPPORTED_CURRENCIES).map((c) => (
+                    <SelectItem key={c.code} value={c.code}>{ar ? `${c.nameAr} (${c.symbol})` : `${c.name} (${c.code})`}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-1">
               <Label className="text-xs">{ar ? "الحالة" : "Status"}</Label>
@@ -201,7 +214,7 @@ export function InvoiceFormDialog({
                       </TableCell>
                       <TableCell><Input type="number" value={item.quantity} onChange={(e) => updateLineItem(idx, "quantity", parseFloat(e.target.value) || 0)} className="h-8 text-xs tabular-nums font-mono rounded-lg" /></TableCell>
                       <TableCell><Input type="number" value={item.unitPrice} onChange={(e) => updateLineItem(idx, "unitPrice", parseFloat(e.target.value) || 0)} className="h-8 text-xs tabular-nums font-mono rounded-lg" /></TableCell>
-                      <TableCell className="text-start text-sm font-medium tabular-nums font-mono">{formatCurrency(item.quantity * item.unitPrice, ar)}</TableCell>
+                      <TableCell className="text-start text-sm font-medium tabular-nums font-mono">{formatCurrencyMulti(item.quantity * item.unitPrice, formData.currency || "AED", ar ? "ar" : "en")}</TableCell>
                       <TableCell>
                         {formData.items.length > 1 && (
                           <Button variant="ghost" size="icon" className="h-7 w-7 text-red-400" onClick={() => removeLineItem(idx)} aria-label="Remove item"><X className="h-3.5 w-3.5" /></Button>
@@ -219,16 +232,16 @@ export function InvoiceFormDialog({
             <div className="w-72 rounded-xl border border-slate-200 dark:border-slate-700 p-4 bg-gradient-to-br from-slate-50 to-white dark:from-slate-800/50 dark:to-slate-900 space-y-2.5">
               <div className="flex justify-between text-sm">
                 <span className="text-slate-500">{ar ? "المجموع الفرعي" : "Subtotal"}</span>
-                <span className="tabular-nums font-mono text-slate-700 dark:text-slate-300">{formatCurrency(calcSubtotal, ar)}</span>
+                <span className="tabular-nums font-mono text-slate-700 dark:text-slate-300">{formatCurrencyMulti(calcSubtotal, formData.currency || "AED", ar ? "ar" : "en")}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-slate-500">{ar ? "الضريبة (5%)" : "Tax (5%)"}</span>
-                <span className="tabular-nums font-mono text-slate-700 dark:text-slate-300">{formatCurrency(calcTax, ar)}</span>
+                <span className="tabular-nums font-mono text-slate-700 dark:text-slate-300">{formatCurrencyMulti(calcTax, formData.currency || "AED", ar ? "ar" : "en")}</span>
               </div>
               <div className="border-t border-slate-200 dark:border-slate-700 pt-2.5">
                 <div className="flex justify-between text-base font-bold">
                   <span>{ar ? "الإجمالي" : "Total"}</span>
-                  <span className="text-teal-600 dark:text-teal-400 tabular-nums font-mono">{formatCurrency(calcTotal, ar)}</span>
+                  <span className="text-teal-600 dark:text-teal-400 tabular-nums font-mono">{formatCurrencyMulti(calcTotal, formData.currency || "AED", ar ? "ar" : "en")}</span>
                 </div>
               </div>
               {calcTotal > 0 && (

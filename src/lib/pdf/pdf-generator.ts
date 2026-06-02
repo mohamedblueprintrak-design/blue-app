@@ -6,6 +6,7 @@
 import { db } from '@/lib/db';
 import type { JsPdfCache } from '@/types/pdf-types';
 import { setupArabicPdf, preprocessArabicText } from './arabic-helper';
+import { formatCurrency as formatCurrencyMulti } from '@/lib/currency';
 
 
 // Types for report data
@@ -137,9 +138,9 @@ function formatNumber(num: number): string {
   return num.toLocaleString('en-US');
 }
 
-// Format currency
-function formatCurrency(amount: number, currency: string): string {
-  return `${formatNumber(amount)} ${currency}`;
+// Format currency with multi-currency support
+function formatCurrency(amount: number, currency: string, language: 'ar' | 'en' = 'en'): string {
+  return formatCurrencyMulti(amount, currency, language);
 }
 
 // Get status label in appropriate language
@@ -241,10 +242,10 @@ export async function generateFinancialReportPDF(data: FinancialReportData): Pro
   // Summary section
   const summaryY = 45;
   const summaryItems = [
-    { label: isRTL ? 'إجمالي الفواتير' : 'Total Invoiced', value: formatCurrency(data.summary.totalInvoiced, data.currency) },
-    { label: isRTL ? 'المبالغ المحصلة' : 'Collected Amount', value: formatCurrency(data.summary.totalPaid, data.currency) },
-    { label: isRTL ? 'المبالغ المعلقة' : 'Pending Amount', value: formatCurrency(data.summary.totalPending, data.currency) },
-    { label: isRTL ? 'المبالغ المتأخرة' : 'Overdue Amount', value: formatCurrency(data.summary.totalOverdue, data.currency) },
+    { label: isRTL ? 'إجمالي الفواتير' : 'Total Invoiced', value: formatCurrency(data.summary.totalInvoiced, data.currency, data.language) },
+    { label: isRTL ? 'المبالغ المحصلة' : 'Collected Amount', value: formatCurrency(data.summary.totalPaid, data.currency, data.language) },
+    { label: isRTL ? 'المبالغ المعلقة' : 'Pending Amount', value: formatCurrency(data.summary.totalPending, data.currency, data.language) },
+    { label: isRTL ? 'المبالغ المتأخرة' : 'Overdue Amount', value: formatCurrency(data.summary.totalOverdue, data.currency, data.language) },
   ];
 
   summaryItems.forEach((item, index) => {
@@ -265,9 +266,9 @@ export async function generateFinancialReportPDF(data: FinancialReportData): Pro
 
   const tableData = data.rows.map(row => [
     row.date,
-    formatCurrency(row.invoiced, data.currency),
-    formatCurrency(row.paid, data.currency),
-    formatCurrency(row.pending, data.currency),
+    formatCurrency(row.invoiced, data.currency, data.language),
+    formatCurrency(row.paid, data.currency, data.language),
+    formatCurrency(row.pending, data.currency, data.language),
   ]);
 
   autoTable(doc, {
@@ -354,7 +355,7 @@ export async function generateProjectReportPDF(data: ProjectReportData): Promise
     p.client,
     getStatusLabel(p.status, data.language),
     `${p.progress}%`,
-    formatCurrency(p.budget, 'AED'),
+    formatCurrency(p.budget, 'AED', data.language),
   ]);
 
   autoTable(doc, {
@@ -494,7 +495,7 @@ export async function generateClientReportPDF(data: ClientReportData): Promise<B
   const summaryItems = [
     { label: isRTL ? 'إجمالي العملاء' : 'Total Clients', value: data.summary.total.toString() },
     { label: isRTL ? 'العملاء النشطون' : 'Active Clients', value: data.summary.active.toString() },
-    { label: isRTL ? 'إجمالي الإيرادات' : 'Total Revenue', value: formatCurrency(data.summary.totalRevenue, data.currency) },
+    { label: isRTL ? 'إجمالي الإيرادات' : 'Total Revenue', value: formatCurrency(data.summary.totalRevenue, data.currency, data.language) },
   ];
 
   summaryItems.forEach((item, index) => {
@@ -516,8 +517,8 @@ export async function generateClientReportPDF(data: ClientReportData): Promise<B
     c.name,
     c.email || '-',
     c.phone || '-',
-    formatCurrency(c.totalInvoiced, data.currency),
-    formatCurrency(c.totalPaid, data.currency),
+    formatCurrency(c.totalInvoiced, data.currency, data.language),
+    formatCurrency(c.totalPaid, data.currency, data.language),
   ]);
 
   autoTable(doc, {
@@ -596,8 +597,8 @@ export async function generateInvoiceReportPDF(data: InvoiceReportData): Promise
     inv.invoiceNumber,
     inv.client,
     inv.project || '-',
-    formatCurrency(inv.total, data.currency),
-    formatCurrency(inv.paidAmount || 0, data.currency),
+    formatCurrency(inv.total, data.currency, data.language),
+    formatCurrency(inv.paidAmount || 0, data.currency, data.language),
     getStatusLabel(inv.status, data.language),
     inv.dueDate,
   ]);

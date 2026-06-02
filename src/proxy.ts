@@ -26,6 +26,7 @@ const PUBLIC_API_ROUTES = [
   '/api/auth/verify-email', '/api/auth/resend-verification',
   '/api/auth/2fa/verify', // Only the verify endpoint is public (uses blue_2fa_temp cookie)
   '/api/auth/ws-token', '/api/auth/refresh',
+  '/api/auth/google', '/api/auth/google/callback', // Google OAuth social login
   '/api/quote-requests', '/api/health',
   '/api/stripe/webhook', '/api/public',
   '/api/stripe/plans', '/api/portal',
@@ -39,6 +40,7 @@ const CSRF_EXEMPT_PATHS = [
   '/api/auth/2fa', '/api/auth/2fa/verify', '/api/auth/2fa/backup-codes',
   '/api/auth/refresh', '/api/auth/ws-token', '/api/seed',
   '/api/quote-requests', '/api/cron/cleanup', '/api/public/stats',
+  '/api/auth/google', '/api/auth/google/callback', // Google OAuth social login
 ];
 
 const PUBLIC_PAGE_ROUTES = [

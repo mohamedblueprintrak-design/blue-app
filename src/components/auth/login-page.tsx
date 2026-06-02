@@ -32,6 +32,8 @@ import LogoImage from "@/components/ui/logo-image";
 import { cn } from "@/lib/utils";
 import { SkipNavContent } from "@/components/common/accessible-components";
 import { extractErrorMessage } from "@/lib/api/fetch-client";
+import GoogleLoginButton from "@/components/auth/google-login-button";
+import TurnstileCaptcha from "@/components/auth/turnstile-captcha";
 
 interface LoginPageProps {
   language: "ar" | "en";
@@ -103,7 +105,9 @@ export default function LoginPage({ language }: LoginPageProps) {
   const [demoCredentials, setDemoCredentials] = useState<DemoCredential[]>([]);
   const [featureIndex, setFeatureIndex] = useState(0);
   const [requires2FA, setRequires2FA] = useState(false);
+  const [showGoogleButton] = useState(() => typeof window !== 'undefined' && !!process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID);
   const [twoFactorCode, setTwoFactorCode] = useState("");
+  const [captchaToken, setCaptchaToken] = useState("");
   const dbReady = true; // DB is always ready — seeding is done via `bun run db:seed`
   const { login } = useAuthStore();
   const { toast: _toast } = useToast();
@@ -134,6 +138,30 @@ export default function LoginPage({ language }: LoginPageProps) {
 
   const handleLogin = async (loginEmail: string, loginPassword: string) => {
     setError("");
+
+    // Verify captcha on server if a token was collected (i.e. Turnstile is configured)
+    if (captchaToken && process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY) {
+      try {
+        const verifyRes = await fetch("/api/auth/verify-turnstile", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token: captchaToken }),
+        });
+        const verifyData = await verifyRes.json();
+        if (!verifyData.success) {
+          setError(isAr ? "فشل التحقق من الكابتشا، يرجى المحاولة مرة أخرى" : "Captcha verification failed, please try again");
+          return;
+        }
+      } catch {
+        setError(isAr ? "فشل التحقق من الكابتشا" : "Captcha verification failed");
+        return;
+      }
+    } else if (!captchaToken && process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY) {
+      // Turnstile is configured but user hasn't completed captcha
+      setError(isAr ? "يرجى إكمال التحقق من الكابتشا" : "Please complete the captcha verification");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -435,6 +463,23 @@ export default function LoginPage({ language }: LoginPageProps) {
                   </div>
                 </div>
 
+                {/* Google Login Button */}
+                {showGoogleButton && !requires2FA && (
+                  <div className="space-y-4">
+                    <GoogleLoginButton language={language} />
+                    <div className="relative">
+                      <div className="absolute inset-0 flex items-center">
+                        <span className="w-full border-t border-slate-200 dark:border-slate-700" />
+                      </div>
+                      <div className="relative flex justify-center text-xs uppercase">
+                        <span className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl px-2 text-slate-400 dark:text-slate-500">
+                          {isAr ? "أو" : "or"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Form */}
                 <form onSubmit={handleSubmit} className="space-y-4">
                   {/* Error Message */}
@@ -543,6 +588,9 @@ export default function LoginPage({ language }: LoginPageProps) {
                           </button>
                         </div>
                       </div>
+
+                      {/* Turnstile Captcha */}
+                      <TurnstileCaptcha onVerify={setCaptchaToken} />
 
                       {/* Remember Me + Role Selector row */}
                       <div className="flex items-center justify-between gap-3">

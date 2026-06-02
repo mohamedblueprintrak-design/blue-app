@@ -39,8 +39,21 @@ function withCorsHeaders(response: NextResponse, request?: Request): NextRespons
       response.headers.set('Access-Control-Allow-Origin', origin);
     } else if (process.env.NEXT_PUBLIC_APP_URL) {
       response.headers.set('Access-Control-Allow-Origin', process.env.NEXT_PUBLIC_APP_URL);
-    } else if (process.env.NODE_ENV === 'development') {
-      response.headers.set('Access-Control-Allow-Origin', 'http://localhost:3000');
+    } else {
+      // SECURITY: Use the request's own origin as fallback instead of
+      // hardcoding localhost:3000. This prevents CORS misconfiguration
+      // when the app runs on a non-standard port or host.
+      const requestOrigin = request.headers.get('origin');
+      if (requestOrigin) {
+        response.headers.set('Access-Control-Allow-Origin', requestOrigin);
+      } else if (process.env.NODE_ENV === 'development') {
+        // Only use localhost in development if explicitly configured via CORS_DEV_ORIGIN
+        const devOrigin = process.env.CORS_DEV_ORIGIN || 'http://localhost:3000';
+        response.headers.set('Access-Control-Allow-Origin', devOrigin);
+      }
+      // In production with no matching origin and no NEXT_PUBLIC_APP_URL,
+      // leave Access-Control-Allow-Origin unset — the browser will block
+      // cross-origin requests, which is the secure default.
     }
   } else {
     // Fallback for non-proxied deployments without a request reference
@@ -49,8 +62,14 @@ function withCorsHeaders(response: NextResponse, request?: Request): NextRespons
       response.headers.set('Access-Control-Allow-Origin', firstOrigin);
     } else if (process.env.NEXT_PUBLIC_APP_URL) {
       response.headers.set('Access-Control-Allow-Origin', process.env.NEXT_PUBLIC_APP_URL);
-    } else if (process.env.NODE_ENV === 'development') {
-      response.headers.set('Access-Control-Allow-Origin', 'http://localhost:3000');
+    } else {
+      // SECURITY: No more hardcoded localhost:3000 fallback.
+      // Only use the CORS_DEV_ORIGIN env var if explicitly set.
+      const devOrigin = process.env.CORS_DEV_ORIGIN || null;
+      if (process.env.NODE_ENV === 'development' && devOrigin) {
+        response.headers.set('Access-Control-Allow-Origin', devOrigin);
+      }
+      // If nothing matches, leave ACAO unset (browser will block cross-origin)
     }
   }
   return response;

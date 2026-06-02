@@ -1,12 +1,26 @@
 // ===== Shared Formatters =====
 // Centralized formatting utilities to avoid duplication across 20+ page components.
 
+import { formatCurrency as formatCurrencyMulti } from './currency';
+
 /**
- * Format a number as AED currency
+ * Format a number as AED currency (backward-compatible)
  */
 export function formatCurrency(amount: number | undefined | null, ar: boolean): string {
   const num = amount ?? 0;
   return `${num.toLocaleString(ar ? "ar-AE" : "en-US")} ${ar ? "د.إ" : "AED"}`;
+}
+
+/**
+ * Format a number with multi-currency support
+ * Uses the currency.ts utility for proper symbol and decimal handling
+ */
+export function formatCurrencyWithCode(
+  amount: number | undefined | null,
+  currency: string = 'AED',
+  language: 'ar' | 'en' = 'ar'
+): string {
+  return formatCurrencyMulti(amount, currency, language);
 }
 
 /**
