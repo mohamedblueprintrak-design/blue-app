@@ -33,6 +33,7 @@ import { cn } from "@/lib/utils";
 import { SkipNavContent } from "@/components/common/accessible-components";
 import { extractErrorMessage } from "@/lib/api/fetch-client";
 import GoogleLoginButton from "@/components/auth/google-login-button";
+import MicrosoftLoginButton from "@/components/auth/microsoft-login-button";
 import TurnstileCaptcha from "@/components/auth/turnstile-captcha";
 
 interface LoginPageProps {
@@ -106,8 +107,10 @@ export default function LoginPage({ language }: LoginPageProps) {
   const [featureIndex, setFeatureIndex] = useState(0);
   const [requires2FA, setRequires2FA] = useState(false);
   const [showGoogleButton] = useState(() => typeof window !== 'undefined' && !!process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID);
+  const [showMicrosoftButton] = useState(() => typeof window !== 'undefined' && !!process.env.NEXT_PUBLIC_MICROSOFT_CLIENT_ID);
   const [twoFactorCode, setTwoFactorCode] = useState("");
   const [captchaToken, setCaptchaToken] = useState("");
+  const isCaptchaConfigured = !!process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
   const dbReady = true; // DB is always ready — seeding is done via `bun run db:seed`
   const { login } = useAuthStore();
   const { toast: _toast } = useToast();
@@ -139,8 +142,17 @@ export default function LoginPage({ language }: LoginPageProps) {
   const handleLogin = async (loginEmail: string, loginPassword: string) => {
     setError("");
 
-    // Verify captcha on server if a token was collected (i.e. Turnstile is configured)
-    if (captchaToken && process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY) {
+    // SECURITY: CAPTCHA verification logic
+    // - If CAPTCHA is configured: verify the token with the server
+    // - If CAPTCHA is NOT configured:
+    //   - Development: Allow login with a console warning
+    //   - Production: Block login — CAPTCHA must be configured
+    if (isCaptchaConfigured) {
+      if (!captchaToken) {
+        // Turnstile is configured but user hasn't completed captcha
+        setError(isAr ? "يرجى إكمال التحقق من الكابتشا" : "Please complete the captcha verification");
+        return;
+      }
       try {
         const verifyRes = await fetch("/api/auth/verify-turnstile", {
           method: "POST",
@@ -156,10 +168,14 @@ export default function LoginPage({ language }: LoginPageProps) {
         setError(isAr ? "فشل التحقق من الكابتشا" : "Captcha verification failed");
         return;
       }
-    } else if (!captchaToken && process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY) {
-      // Turnstile is configured but user hasn't completed captcha
-      setError(isAr ? "يرجى إكمال التحقق من الكابتشا" : "Please complete the captcha verification");
-      return;
+    } else {
+      // CAPTCHA not configured on the client side
+      if (process.env.NODE_ENV === 'production') {
+        setError(isAr ? "الكابتشا غير مُعد، لا يمكن تسجيل الدخول" : "CAPTCHA not configured — login is disabled");
+        return;
+      }
+      // Development: allow login without captcha
+      console.warn('[Turnstile] NEXT_PUBLIC_TURNSTILE_SITE_KEY not configured — skipping captcha in development mode');
     }
 
     setIsLoading(true);
@@ -463,10 +479,11 @@ export default function LoginPage({ language }: LoginPageProps) {
                   </div>
                 </div>
 
-                {/* Google Login Button */}
-                {showGoogleButton && !requires2FA && (
-                  <div className="space-y-4">
-                    <GoogleLoginButton language={language} />
+                {/* Social Login Buttons */}
+                {(showGoogleButton || showMicrosoftButton) && !requires2FA && (
+                  <div className="space-y-3">
+                    {showGoogleButton && <GoogleLoginButton language={language} />}
+                    {showMicrosoftButton && <MicrosoftLoginButton language={language} />}
                     <div className="relative">
                       <div className="absolute inset-0 flex items-center">
                         <span className="w-full border-t border-slate-200 dark:border-slate-700" />

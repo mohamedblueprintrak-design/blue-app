@@ -6,6 +6,7 @@ import { log } from '@/lib/logger';
 import { Permission } from '@/lib/auth/types';
 import { webhookService } from '@/lib/services/webhook.service';
 import { z } from 'zod';
+import { validateIdParam } from '@/lib/api-validation';
 
 // Validation schema for updating a webhook
 const updateWebhookSchema = z.object({
@@ -38,11 +39,14 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
+    const { id: rawId } = await params;
+    const idCheck = validateIdParam(rawId);
+    if (!idCheck.success) return idCheck.response;
+    const id = idCheck.id;
+
     const rbac = requirePermission(request, Permission.SETTINGS_READ);
     if ('error' in rbac) return rbac.error;
     const ctx = rbac.user;
-
-    const { id } = await params;
 
     const webhook = await db.webhookIntegration.findFirst({
       where: { id, ...orgFilter(ctx) },
@@ -71,11 +75,14 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
+    const { id: rawId } = await params;
+    const idCheck = validateIdParam(rawId);
+    if (!idCheck.success) return idCheck.response;
+    const id = idCheck.id;
+
     const rbac = requirePermission(request, Permission.SETTINGS_UPDATE);
     if ('error' in rbac) return rbac.error;
     const ctx = rbac.user;
-
-    const { id } = await params;
 
     const existing = await db.webhookIntegration.findFirst({
       where: { id, ...orgFilter(ctx) },
@@ -136,11 +143,14 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
+    const { id: rawId } = await params;
+    const idCheck = validateIdParam(rawId);
+    if (!idCheck.success) return idCheck.response;
+    const id = idCheck.id;
+
     const rbac = requirePermission(request, Permission.SETTINGS_UPDATE);
     if ('error' in rbac) return rbac.error;
     const ctx = rbac.user;
-
-    const { id } = await params;
 
     const existing = await db.webhookIntegration.findFirst({
       where: { id, ...orgFilter(ctx) },
@@ -171,11 +181,14 @@ export async function POST_test(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
+    const { id: rawId } = await params;
+    const idCheck = validateIdParam(rawId);
+    if (!idCheck.success) return idCheck.response;
+    const id = idCheck.id;
+
     const rbac = requirePermission(request, Permission.SETTINGS_UPDATE);
     if ('error' in rbac) return rbac.error;
     const ctx = rbac.user;
-
-    const { id } = await params;
 
     const result = await webhookService.testWebhook(id, ctx.organizationId || '');
 

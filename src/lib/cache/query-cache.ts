@@ -54,6 +54,104 @@ export const CACHE_TTL = {
   LOOKUP: 900,           // 15 minutes
   /** Default for unclassified queries */
   DEFAULT: 180,          // 3 minutes
+  /** Users/employees list */
+  USERS: 300,            // 5 minutes
+  /** Payments list - financial data */
+  PAYMENTS: 120,         // 2 minutes
+  /** Proposals/quotes */
+  PROPOSALS: 180,        // 3 minutes
+  /** Budget data */
+  BUDGETS: 180,          // 3 minutes
+  /** Change orders */
+  CHANGE_ORDERS: 180,    // 3 minutes
+  /** Purchase orders */
+  PURCHASE_ORDERS: 180,  // 3 minutes
+  /** RFI (Requests for Information) */
+  RFI: 180,              // 3 minutes
+  /** Site diary entries */
+  SITE_DIARY: 120,       // 2 minutes
+  /** Inspections */
+  INSPECTIONS: 180,      // 3 minutes
+  /** Progress claims */
+  PROGRESS_CLAIMS: 180,  // 3 minutes
+  /** Recurring invoices */
+  RECURRING_INVOICES: 300, // 5 minutes
+  /** Guarantee letters */
+  GUARANTEE_LETTERS: 300,  // 5 minutes
+  /** Transmittals */
+  TRANSMITTALS: 300,     // 5 minutes
+  /** Tenders */
+  TENDERS: 300,          // 5 minutes
+  /** Notifications */
+  NOTIFICATIONS: 60,     // 1 minute (real-time feel)
+  /** Feature flags - rarely change */
+  FEATURE_FLAGS: 1800,   // 30 minutes
+  /** Dashboard layout/presets */
+  DASHBOARD_CONFIG: 600, // 10 minutes
+  /** Activity log */
+  ACTIVITY_LOG: 120,     // 2 minutes
+  /** Timesheets */
+  TIMESHEETS: 180,       // 3 minutes
+  /** Leave requests */
+  LEAVE: 180,            // 3 minutes
+  /** Attendance */
+  ATTENDANCE: 60,        // 1 minute (real-time)
+  /** Contractors */
+  CONTRACTORS: 300,      // 5 minutes
+  /** Design drawings/phases */
+  DESIGN: 300,           // 5 minutes
+  /** Violations */
+  VIOLATIONS: 180,       // 3 minutes
+  /** Commissions */
+  COMMISSIONS: 180,      // 3 minutes
+  /** Meetings */
+  MEETINGS: 180,         // 3 minutes
+  /** Retainage */
+  RETAINAGE: 180,        // 3 minutes
+  /** Marketing campaigns */
+  MARKETING: 300,        // 5 minutes
+  /** Referrals */
+  REFERRALS: 300,        // 5 minutes
+  /** Gantt chart data */
+  GANTT: 120,            // 2 minutes
+  /** Project assignments */
+  ASSIGNMENTS: 180,      // 3 minutes
+  /** Company settings - rarely change */
+  SETTINGS: 1800,        // 30 minutes
+  /** Currency settings - rarely change */
+  CURRENCY: 1800,        // 30 minutes
+  /** Approvals */
+  APPROVALS: 120,        // 2 minutes
+  /** Workflow templates */
+  WORKFLOW_TEMPLATES: 600, // 10 minutes
+  /** Report builder */
+  REPORT_BUILDER: 300,   // 5 minutes
+  /** Automations */
+  AUTOMATIONS: 300,      // 5 minutes
+  /** Webhooks */
+  WEBHOOKS: 300,         // 5 minutes
+  /** Project templates */
+  PROJECT_TEMPLATES: 600, // 10 minutes
+  /** Municipality correspondence */
+  MUNICIPALITY: 300,     // 5 minutes
+  /** Supervision checklists */
+  SUPERVISION: 300,      // 5 minutes
+  /** Auto-assignment rules */
+  AUTO_ASSIGNMENT: 300,  // 5 minutes
+  /** Suppliers */
+  SUPPLIERS: 300,        // 5 minutes
+  /** Inventory */
+  INVENTORY: 180,        // 3 minutes
+  /** Equipment */
+  EQUIPMENT: 180,        // 3 minutes
+  /** Submittals */
+  SUBMITTALS: 180,       // 3 minutes
+  /** Knowledge base */
+  KNOWLEDGE: 300,        // 5 minutes
+  /** Risks */
+  RISKS: 180,            // 3 minutes
+  /** Site visits */
+  SITE_VISITS: 180,      // 3 minutes
 } as const;
 
 // Cache key prefix to avoid collisions
@@ -149,4 +247,51 @@ export async function invalidateCache(...entities: string[]): Promise<void> {
  */
 export function buildCacheKey(...parts: string[]): string {
   return parts.join(':');
+}
+
+/**
+ * Reusable cache wrapper utility for API route handlers.
+ * Wraps an async data-fetching function with Redis caching and graceful fallback.
+ * 
+ * - If Redis is available, caches the result with the given key and TTL.
+ * - If Redis is unavailable, falls through to the fetcher (fail-open).
+ * - Always includes organizationId in cache keys for multi-tenant isolation.
+ * 
+ * @param key - Cache key (should include organizationId for multi-tenant safety)
+ * @param fetcher - Async function that fetches the data
+ * @param ttlSeconds - Time-to-live in seconds (default: CACHE_TTL.DEFAULT = 180)
+ * @returns The cached or freshly fetched data
+ * 
+ * @example
+ * // In an API route:
+ * const data = await withCache(
+ *   `invoices:list:${orgId}:p${page}:s${status}`,
+ *   () => db.invoice.findMany({ where: { organizationId: orgId } }),
+ *   CACHE_TTL.INVOICES
+ * );
+ */
+export async function withCache<T>(
+  key: string,
+  fetcher: () => Promise<T>,
+  ttlSeconds: number = CACHE_TTL.DEFAULT
+): Promise<T> {
+  return cachedQuery(key, fetcher, ttlSeconds);
+}
+
+/**
+ * Invalidate cache for one or more entity types, plus optionally the dashboard.
+ * This is a convenience wrapper that also invalidates related caches.
+ * 
+ * @param entities - Entity types to invalidate (e.g., 'invoices', 'projects')
+ * @param relatedEntities - Optional additional entity types (e.g., 'dashboard' when invoice changes)
+ * 
+ * @example
+ * // After creating an invoice, invalidate invoices and dashboard caches
+ * await invalidateEntityCache('invoices', 'dashboard');
+ */
+export async function invalidateEntityCache(
+  entities: string[],
+  ...relatedEntities: string[]
+): Promise<void> {
+  await invalidateCache(...entities, ...relatedEntities);
 }

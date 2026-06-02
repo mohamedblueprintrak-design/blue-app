@@ -3,6 +3,7 @@ import { db } from '@/lib/db';
 import { requireVerifiedAuth } from '@/app/api/utils/auth';
 import { handleApiError } from '@/lib/api-error';
 import { z } from 'zod';
+import { cachedQuery, invalidateCache, CACHE_TTL, buildCacheKey } from '@/lib/cache/query-cache';
 
 const DEFAULT_NOTIFICATIONS = {
   projectUpdates: true,
@@ -38,38 +39,43 @@ export async function GET(request: NextRequest) {
     if ('error' in authResult) return authResult.error;
     const ctx = authResult.user;
 
-    // NOTE: 'preferences' field may not exist in the generated Prisma Client
-    // if the client was generated from an older schema. We use a safe query.
-    let prefsData: string | null = null;
-    try {
-      const user = await db.user.findUnique({
-        where: { id: ctx.userId },
-        select: { preferences: true },
-      });
-      if (!user) {
-        return NextResponse.json({ error: 'User not found' }, { status: 404 });
-      }
-      prefsData = (user as Record<string, unknown>).preferences as string | null ?? null;
-    } catch {
-      // 'preferences' field might not exist in Prisma Client — return defaults
-    }
+    const cacheKey = buildCacheKey('settings', 'preferences', ctx.userId);
 
-    // Parse stored preferences or use defaults
-    let prefs = DEFAULT_PREFERENCES;
-    if (prefsData) {
+    const prefs = await cachedQuery(cacheKey, async () => {
+      // NOTE: 'preferences' field may not exist in the generated Prisma Client
+      // if the client was generated from an older schema. We use a safe query.
+      let prefsData: string | null = null;
       try {
-        const stored = JSON.parse(prefsData);
-        prefs = {
-          accentColor: stored.accentColor || DEFAULT_PREFERENCES.accentColor,
-          notifications: {
-            ...DEFAULT_NOTIFICATIONS,
-            ...(stored.notifications || {}),
-          },
-        };
+        const user = await db.user.findUnique({
+          where: { id: ctx.userId },
+          select: { preferences: true },
+        });
+        if (!user) {
+          return DEFAULT_PREFERENCES;
+        }
+        prefsData = (user as Record<string, unknown>).preferences as string | null ?? null;
       } catch {
-        // Invalid JSON, use defaults
+        // 'preferences' field might not exist in Prisma Client — return defaults
       }
-    }
+
+      // Parse stored preferences or use defaults
+      let prefs = DEFAULT_PREFERENCES;
+      if (prefsData) {
+        try {
+          const stored = JSON.parse(prefsData);
+          prefs = {
+            accentColor: stored.accentColor || DEFAULT_PREFERENCES.accentColor,
+            notifications: {
+              ...DEFAULT_NOTIFICATIONS,
+              ...(stored.notifications || {}),
+            },
+          };
+        } catch {
+          // Invalid JSON, use defaults
+        }
+      }
+      return prefs;
+    }, CACHE_TTL.SETTINGS);
 
     return NextResponse.json(prefs);
   } catch (error: unknown) {
@@ -146,6 +152,9 @@ export async function PUT(request: NextRequest) {
     } catch {
       // 'preferences' field might not exist — skip saving
     }
+
+    // Invalidate preferences cache after update
+    await invalidateCache('settings');
 
     return NextResponse.json(updatedPrefs);
   } catch (error: unknown) {

@@ -205,21 +205,8 @@ export async function checkSLABreaches(): Promise<SLAMonitorReport> {
  * Create or update SLA breach record
  * إنشاء أو تحديث سجل تجاوز SLA
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Prisma generated types lag behind schema; slaBreaches relation not yet in TaskInclude
 type SLATaskWithRelations = any;
-
-/* Original typed interface — kept for documentation:
-interface SLATaskWithRelations {
-  id: string;
-  projectId: string | null;
-  title: string;
-  assigneeId: string | null;
-  governmentEntity?: string | null;
-  isGovernmental?: boolean;
-  slaBreaches: Array<{ id: string }>;
-  project?: { managerId?: string | null } | null;
-}
-*/
 
 async function createOrUpdateSLABreach(
   task: SLATaskWithRelations,

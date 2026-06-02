@@ -5,8 +5,15 @@ import { requireVerifiedPermission, orgFilter, orgCreate } from '@/app/api/utils
 import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
 import { VAT_RATE } from '@/lib/constants';
+import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
+import { parsePaginationParams, buildPaginationMeta, calculateSkip, isPaginationRequested } from '../utils/pagination';
+import { cachedQuery, invalidateCache, CACHE_TTL, buildCacheKey } from '@/lib/cache/query-cache';
 
 export async function GET(request: NextRequest) {
+  const { allowed: _allowed, result: rlResult } = await withRateLimit(request, 'api');
+  const rlBlocked = rateLimitResponse(rlResult);
+  if (rlBlocked) return rlBlocked;
+
   try {
     const result = await requireVerifiedPermission(request, Permission.PROPOSAL_READ);
     if ('error' in result) return result.error;
@@ -20,17 +27,47 @@ export async function GET(request: NextRequest) {
     if (status) where.status = status;
     if (projectId) where.projectId = projectId;
 
-    const proposals = await db.proposal.findMany({
-      where: Object.keys(where).length > 0 ? where : undefined,
-      include: {
-        client: { select: { id: true, name: true, company: true } },
-        project: { select: { id: true, name: true, nameEn: true, number: true } },
-        items: { orderBy: { createdAt: "asc" } },
-      },
-      orderBy: { createdAt: "desc" },
-    });
+    const usePagination = isPaginationRequested(searchParams);
+    const { page, limit } = parsePaginationParams(searchParams);
 
-    return NextResponse.json(proposals);
+    const cacheKey = buildCacheKey('proposals', 'list', ctx.organizationId || 'global', `p${page}`, `l${limit}`, status || '', projectId || '');
+
+    const cachedData = await cachedQuery(cacheKey, async () => {
+      if (usePagination) {
+        const [proposals, total] = await Promise.all([
+          db.proposal.findMany({
+            where: Object.keys(where).length > 0 ? where : undefined,
+            include: {
+              client: { select: { id: true, name: true, company: true } },
+              project: { select: { id: true, name: true, nameEn: true, number: true } },
+              items: { orderBy: { createdAt: "asc" } },
+            },
+            orderBy: { createdAt: "desc" },
+            skip: calculateSkip(page, limit),
+            take: limit,
+          }),
+          db.proposal.count({ where: Object.keys(where).length > 0 ? where : undefined }),
+        ]);
+        return { type: 'paginated' as const, proposals, total };
+      }
+
+      const proposals = await db.proposal.findMany({
+        where: Object.keys(where).length > 0 ? where : undefined,
+        include: {
+          client: { select: { id: true, name: true, company: true } },
+          project: { select: { id: true, name: true, nameEn: true, number: true } },
+          items: { orderBy: { createdAt: "asc" } },
+        },
+        orderBy: { createdAt: "desc" },
+      });
+      return { type: 'all' as const, proposals };
+    }, CACHE_TTL.PROPOSALS);
+
+    if (cachedData.type === 'paginated') {
+      return NextResponse.json({ data: cachedData.proposals, pagination: buildPaginationMeta(page, limit, cachedData.total) });
+    }
+
+    return NextResponse.json(cachedData.proposals);
   } catch (error) {
     log.error("Error fetching proposals:", error);
     return NextResponse.json({ error: "Failed to fetch proposals" }, { status: 500 });
@@ -38,6 +75,10 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const { allowed: _allowed, result } = await withRateLimit(request, 'api');
+  const blocked = rateLimitResponse(result);
+  if (blocked) return blocked;
+
   try {
     const result = await requireVerifiedPermission(request, Permission.PROPOSAL_CREATE);
     if ('error' in result) return result.error;
@@ -84,6 +125,9 @@ export async function POST(request: NextRequest) {
         items: { orderBy: { createdAt: "asc" } },
       },
     });
+
+    // Invalidate proposal caches after creation
+    await invalidateCache('proposals');
 
     return NextResponse.json(proposal, { status: 201 });
   } catch (error) {

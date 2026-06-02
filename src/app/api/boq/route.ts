@@ -9,6 +9,8 @@ import { log } from '@/lib/logger';
 import { Permission } from '@/lib/auth/types';
 import { requireVerifiedPermission, orgFilter } from '../utils/auth';
 import { z } from 'zod';
+import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
+import { cachedQuery, invalidateCache, CACHE_TTL, buildCacheKey } from '@/lib/cache/query-cache';
 
 // Zod schemas for BOQ operations
 const boqItemCreateSchema = z.object({
@@ -22,7 +24,7 @@ const boqItemCreateSchema = z.object({
 });
 
 const boqItemUpdateSchema = z.object({
-  id: z.string().min(1, 'Item ID is required'),
+  id: z.string().cuid('Invalid ID'),
   code: z.string().max(50).optional(),
   description: z.string().max(500).optional(),
   unit: z.string().max(50).optional(),
@@ -33,6 +35,10 @@ const boqItemUpdateSchema = z.object({
 
 // GET - Fetch BOQ items (optionally filtered by project)
 export async function GET(request: NextRequest) {
+  const { allowed: _allowed, result: rlResult } = await withRateLimit(request, 'api');
+  const rlBlocked = rateLimitResponse(rlResult);
+  if (rlBlocked) return rlBlocked;
+
   const rbac = await requireVerifiedPermission(request, Permission.PROJECT_READ);
   if ('error' in rbac) return rbac.error;
   const auth = rbac.user;
@@ -46,38 +52,44 @@ export async function GET(request: NextRequest) {
     if (projectId) where.projectId = projectId;
     if (category) where.category = category;
 
-    const items = await db.bOQItem.findMany({
-      where: { ...where, ...orgFilter(auth) },
-      orderBy: [{ category: "asc" }, { code: "asc" }],
-      select: {
-        id: true,
-        projectId: true,
-        code: true,
-        description: true,
-        unit: true,
-        quantity: true,
-        unitPrice: true,
-        total: true,
-        category: true,
-      },
-    });
+    const cacheKey = buildCacheKey('boq', 'list', auth.organizationId || 'global', projectId || '', category || '');
 
-    // Calculate summary
-    const summary = {
-      total: items.reduce((sum, item) => sum + Number(item.total), 0),
-      itemCount: items.length,
-      byCategory: {} as Record<string, { count: number; total: number }>,
-    };
+    const result = await cachedQuery(cacheKey, async () => {
+      const items = await db.bOQItem.findMany({
+        where: { ...where, ...orgFilter(auth) },
+        orderBy: [{ category: "asc" }, { code: "asc" }],
+        select: {
+          id: true,
+          projectId: true,
+          code: true,
+          description: true,
+          unit: true,
+          quantity: true,
+          unitPrice: true,
+          total: true,
+          category: true,
+        },
+      });
 
-    for (const item of items) {
-      if (!summary.byCategory[item.category]) {
-        summary.byCategory[item.category] = { count: 0, total: 0 };
+      // Calculate summary
+      const summary = {
+        total: items.reduce((sum, item) => sum + Number(item.total), 0),
+        itemCount: items.length,
+        byCategory: {} as Record<string, { count: number; total: number }>,
+      };
+
+      for (const item of items) {
+        if (!summary.byCategory[item.category]) {
+          summary.byCategory[item.category] = { count: 0, total: 0 };
+        }
+        summary.byCategory[item.category].count += 1;
+        summary.byCategory[item.category].total += Number(item.total);
       }
-      summary.byCategory[item.category].count += 1;
-      summary.byCategory[item.category].total += Number(item.total);
-    }
 
-    return NextResponse.json({ success: true, data: items, summary });
+      return { success: true, data: items, summary };
+    }, CACHE_TTL.BOQ);
+
+    return NextResponse.json(result);
   } catch (error) {
     log.error("Error fetching BOQ items:", error);
     return NextResponse.json(
@@ -89,6 +101,10 @@ export async function GET(request: NextRequest) {
 
 // POST - Create new BOQ item
 export async function POST(request: NextRequest) {
+  const { allowed: _allowed, result } = await withRateLimit(request, 'api');
+  const blocked = rateLimitResponse(result);
+  if (blocked) return blocked;
+
   const rbac = await requireVerifiedPermission(request, Permission.BUDGET_MANAGE);
   if ('error' in rbac) return rbac.error;
   const _auth = rbac.user;
@@ -117,9 +133,12 @@ export async function POST(request: NextRequest) {
         quantity,
         unitPrice,
         total,
-        category: (category || "CIVIL") as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+        category: (category || "CIVIL"),
       },
     });
+
+    // Invalidate BOQ cache after creation
+    await invalidateCache('boq');
 
     return NextResponse.json({ success: true, data: item }, { status: 201 });
   } catch (error) {

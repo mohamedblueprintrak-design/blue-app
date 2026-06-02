@@ -42,7 +42,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  NODE_VERSION: '20'
+  BUN_VERSION: '1'
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
@@ -182,7 +182,7 @@ jobs:
             # Run database migrations (if using PostgreSQL)
             echo "Running database migrations..."
             docker compose -f docker-compose.yml -f docker-compose.prod.yml run --rm app \
-              npx prisma migrate deploy
+              bunx prisma migrate deploy
 
             # Restart services with zero-downtime
             echo "Restarting application..."

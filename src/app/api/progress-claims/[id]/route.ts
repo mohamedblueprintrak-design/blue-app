@@ -4,6 +4,7 @@ import { requireVerifiedPermission, orgFilter } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
 import { z } from 'zod';
+import { validateIdParam } from '@/lib/api-validation';
 
 // Zod schema for progress claim update
 const progressClaimUpdateSchema = z.object({
@@ -32,7 +33,10 @@ export async function GET(
     if ('error' in rbac) return rbac.error;
     const ctx = rbac.user;
 
-    const { id } = await params;
+    const { id: rawId } = await params;
+    const idCheck = validateIdParam(rawId);
+    if (!idCheck.success) return idCheck.response;
+    const id = idCheck.id;
 
     const progressClaim = await db.progressClaim.findFirst({
       where: { id, deletedAt: null, ...orgFilter(ctx) },
@@ -63,7 +67,10 @@ export async function PUT(
     if ('error' in rbac) return rbac.error;
     const ctx = rbac.user;
 
-    const { id } = await params;
+    const { id: rawId } = await params;
+    const idCheck = validateIdParam(rawId);
+    if (!idCheck.success) return idCheck.response;
+    const id = idCheck.id;
     const rawBody = await request.json();
 
     // Zod validation for progress claim update
@@ -130,7 +137,10 @@ export async function DELETE(
     if ('error' in rbac) return rbac.error;
     const ctx = rbac.user;
 
-    const { id } = await params;
+    const { id: rawId } = await params;
+    const idCheck = validateIdParam(rawId);
+    if (!idCheck.success) return idCheck.response;
+    const id = idCheck.id;
 
     const existing = await db.progressClaim.findFirst({
       where: { id, deletedAt: null, ...orgFilter(ctx) },

@@ -7,21 +7,12 @@ echo   Windows Setup Script
 echo ============================================
 echo.
 
-:: Check Node.js
-where node >nul 2>nul
+:: Check Bun
+where bun >nul 2>nul
 if %ERRORLEVEL% NEQ 0 (
     color 0C
-    echo [ERROR] Node.js is not installed!
-    echo Please download and install Node.js from https://nodejs.org
-    pause
-    exit /b 1
-)
-
-:: Check npm
-where npm >nul 2>nul
-if %ERRORLEVEL% NEQ 0 (
-    color 0C
-    echo [ERROR] npm is not available!
+    echo [ERROR] Bun is not installed!
+    echo Please install Bun from https://bun.sh
     pause
     exit /b 1
 )
@@ -115,10 +106,10 @@ if exist sentry.edge.config.ts (
 
 echo.
 echo [4/7] Installing dependencies...
-call npm install --legacy-peer-deps
+call bun install
 if %ERRORLEVEL% NEQ 0 (
     color 0C
-    echo [ERROR] npm install failed!
+    echo [ERROR] bun install failed!
     pause
     exit /b 1
 )
@@ -128,10 +119,10 @@ echo.
 echo [5/7] Setting up database...
 if "%DB_CHOICE%"=="1" (
     echo   Running Prisma migrations for PostgreSQL...
-    call npx prisma migrate deploy
+    call bunx prisma migrate deploy
     if %ERRORLEVEL% NEQ 0 (
         echo   [WARN] Migration deploy failed. Trying migrate dev...
-        call npx prisma migrate dev --name init
+        call bunx prisma migrate dev --name init
         if %ERRORLEVEL% NEQ 0 (
             color 0C
             echo [ERROR] Database migration failed!
@@ -145,7 +136,7 @@ if "%DB_CHOICE%"=="1" (
         del db\custom.db
         echo   [OK] Old database removed
     )
-    call npx prisma db push
+    call bunx prisma db push
     if %ERRORLEVEL% NEQ 0 (
         color 0C
         echo [ERROR] Database setup failed!
@@ -159,7 +150,7 @@ echo   [OK] Database tables created
 
 echo.
 echo [6/7] Seeding demo data...
-call npx tsx prisma/seed.ts
+call bunx tsx prisma/seed.ts
 if %ERRORLEVEL% NEQ 0 (
     echo   [WARN] Seed had issues, but database is ready
 ) else (
@@ -168,7 +159,7 @@ if %ERRORLEVEL% NEQ 0 (
 
 echo.
 echo [7/7] Generating Prisma client...
-call npx prisma generate
+call bunx prisma generate
 if %ERRORLEVEL% NEQ 0 (
     echo   [WARN] Prisma generate had issues
 ) else (
@@ -205,7 +196,7 @@ for /f "tokens=5" %%a in ('netstat -aon ^| findstr :3000 ^| findstr LISTENING') 
 )
 echo   [OK] Port 3000 is free
 
-call npm run dev
+call bun run dev
 if %ERRORLEVEL% NEQ 0 (
     color 0C
     echo.
@@ -214,7 +205,7 @@ if %ERRORLEVEL% NEQ 0 (
     echo Common fixes:
     echo   1. Make sure port 3000 is not in use
     echo   2. Delete the .next folder and try again
-    echo   3. Run: npm run dev
+    echo   3. Run: bun run dev
     echo.
     pause
     exit /b 1

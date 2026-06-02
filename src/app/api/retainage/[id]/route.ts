@@ -4,6 +4,7 @@ import { requireVerifiedPermission, orgFilter } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
 import { z } from 'zod';
+import { validateIdParam } from '@/lib/api-validation';
 
 // Zod schema for retainage update (PUT)
 const retainageUpdateSchema = z.object({
@@ -32,7 +33,10 @@ export async function GET(
     if ('error' in rbac) return rbac.error;
     const ctx = rbac.user;
 
-    const { id } = await params;
+    const { id: rawId } = await params;
+    const idCheck = validateIdParam(rawId);
+    if (!idCheck.success) return idCheck.response;
+    const id = idCheck.id;
 
     const retainage = await db.retainage.findFirst({
       where: { id, ...orgFilter(ctx) },
@@ -63,7 +67,10 @@ export async function PUT(
     if ('error' in rbac) return rbac.error;
     const ctx = rbac.user;
 
-    const { id } = await params;
+    const { id: rawId } = await params;
+    const idCheck = validateIdParam(rawId);
+    if (!idCheck.success) return idCheck.response;
+    const id = idCheck.id;
     const rawBody = await request.json();
 
     // Zod validation for retainage update
@@ -118,7 +125,10 @@ export async function PATCH(
     if ('error' in rbac) return rbac.error;
     const ctx = rbac.user;
 
-    const { id } = await params;
+    const { id: rawId } = await params;
+    const idCheck = validateIdParam(rawId);
+    if (!idCheck.success) return idCheck.response;
+    const id = idCheck.id;
     const rawBody = await request.json();
 
     // Zod validation for retainage release

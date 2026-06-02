@@ -48,7 +48,7 @@ function withCorsHeaders(response: NextResponse, request?: Request): NextRespons
         response.headers.set('Access-Control-Allow-Origin', requestOrigin);
       } else if (process.env.NODE_ENV === 'development') {
         // Only use localhost in development if explicitly configured via CORS_DEV_ORIGIN
-        const devOrigin = process.env.CORS_DEV_ORIGIN || 'http://localhost:3000';
+        const devOrigin = process.env.CORS_DEV_ORIGIN || process.env.NEXTAUTH_URL || process.env.APP_URL || 'http://localhost:3000';
         response.headers.set('Access-Control-Allow-Origin', devOrigin);
       }
       // In production with no matching origin and no NEXT_PUBLIC_APP_URL,

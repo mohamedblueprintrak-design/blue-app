@@ -133,7 +133,7 @@ export async function POST(
           await db.notification.create({
             data: {
               userId: targetUser.id,
-              type: "comment_mention" as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+              type: "comment_mention",
               title: user.name
                 ? `@${user.name} ذكرك في مهمة`
                 : "Someone mentioned you in a task",

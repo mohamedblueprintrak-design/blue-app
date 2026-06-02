@@ -4,6 +4,10 @@ import { requireVerifiedPermission, orgCreate } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
 import { z } from 'zod';
+import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
+import { parsePaginationParams, buildPaginationMeta, calculateSkip } from '../utils/pagination';
+import { insensitiveContains } from '../utils/db';
+import { cachedQuery, invalidateCache, CACHE_TTL, buildCacheKey } from '@/lib/cache/query-cache';
 
 // Zod schema for RFI creation
 const rfiCreateSchema = z.object({
@@ -20,6 +24,10 @@ const rfiCreateSchema = z.object({
 });
 
 export async function GET(request: NextRequest) {
+  const { allowed: _allowed, result: rlResult } = await withRateLimit(request, 'api');
+  const rlBlocked = rateLimitResponse(rlResult);
+  if (rlBlocked) return rlBlocked;
+
   try {
     const result = await requireVerifiedPermission(request, Permission.PROJECT_READ);
     if ('error' in result) return result.error;
@@ -29,6 +37,7 @@ export async function GET(request: NextRequest) {
     const projectId = searchParams.get("projectId");
     const status = searchParams.get("status");
     const priority = searchParams.get("priority");
+    const { page, limit, search } = parsePaginationParams(searchParams);
 
     // RFI doesn't have organizationId directly; filter through project relationship
     const orgWhere = ctx.organizationId ? { project: { organizationId: ctx.organizationId } } : {};
@@ -36,24 +45,41 @@ export async function GET(request: NextRequest) {
     if (projectId) where.projectId = projectId;
     if (status) where.status = status;
     if (priority) where.priority = priority;
+    if (search) {
+      where.OR = [
+        { subject: insensitiveContains(search) },
+        { description: insensitiveContains(search) },
+        { number: insensitiveContains(search) },
+      ];
+    }
 
-    const rfis = await db.rFI.findMany({
-      where,
-      include: {
-        project: {
-          select: { id: true, name: true, nameEn: true, number: true },
-        },
-        from: {
-          select: { id: true, name: true, email: true, avatar: true },
-        },
-        to: {
-          select: { id: true, name: true, email: true, avatar: true },
-        },
-      },
-      orderBy: { createdAt: "desc" },
-    });
+    const cacheKey = buildCacheKey('rfi', 'list', ctx.organizationId || 'global', projectId || '', status || '', priority || '', `p${page}`, `l${limit}`, search || '');
 
-    return NextResponse.json(rfis);
+    const { rfis, total } = await cachedQuery(cacheKey, async () => {
+      const [rfis, total] = await Promise.all([
+        db.rFI.findMany({
+          where,
+          include: {
+            project: {
+              select: { id: true, name: true, nameEn: true, number: true },
+            },
+            from: {
+              select: { id: true, name: true, email: true, avatar: true },
+            },
+            to: {
+              select: { id: true, name: true, email: true, avatar: true },
+            },
+          },
+          orderBy: { createdAt: "desc" },
+          skip: calculateSkip(page, limit),
+          take: limit,
+        }),
+        db.rFI.count({ where }),
+      ]);
+      return { rfis, total };
+    }, CACHE_TTL.RFI);
+
+    return NextResponse.json({ data: rfis, pagination: buildPaginationMeta(page, limit, total) });
   } catch (error) {
     log.error("Error fetching RFIs:", error);
     return NextResponse.json({ error: "Failed to fetch RFIs" }, { status: 500 });
@@ -61,6 +87,10 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const { allowed: _allowed, result } = await withRateLimit(request, 'api');
+  const blocked = rateLimitResponse(result);
+  if (blocked) return blocked;
+
   try {
     const result = await requireVerifiedPermission(request, Permission.SUBMITTAL_CREATE);
     if ('error' in result) return result.error;
@@ -84,7 +114,7 @@ export async function POST(request: NextRequest) {
         description: description || "",
         fromId,
         toId,
-        priority: (priority || "NORMAL") as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+        priority: (priority || "NORMAL"),
         dueDate: dueDate ? new Date(dueDate) : null,
       },
       include: {
@@ -99,6 +129,9 @@ export async function POST(request: NextRequest) {
         },
       },
     });
+
+    // Invalidate RFI caches after creation
+    await invalidateCache('rfi');
 
     return NextResponse.json(rfi, { status: 201 });
   } catch (error) {

@@ -9,7 +9,7 @@ import { z } from 'zod';
 
 // Zod schema for notification update
 const notificationUpdateSchema = z.object({
-  id: z.string().max(100).optional(),
+  id: z.string().cuid().optional(),
   markAllRead: z.boolean().optional(),
   userId: z.string().max(100).optional(),
 });

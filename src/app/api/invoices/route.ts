@@ -9,6 +9,7 @@ import { insensitiveContains } from '../utils/db';
 import { z } from 'zod';
 import { Permission } from '@/lib/auth/types';
 import { cacheDeletePattern } from '@/lib/cache/redis';
+import { cachedQuery, invalidateCache, CACHE_TTL, buildCacheKey } from '@/lib/cache/query-cache';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 import { log } from '@/lib/logger';
 
@@ -172,20 +173,25 @@ export async function GET(request: NextRequest) {
       ];
     }
 
-    const [invoices, total] = await Promise.all([
-      db.invoice.findMany({
-        where: Object.keys(where).length > 0 ? where : undefined,
-        include: {
-          client: { select: { id: true, name: true, company: true } },
-          project: { select: { id: true, name: true, nameEn: true, number: true } },
-          items: { orderBy: { createdAt: "asc" } },
-        },
-        orderBy: { createdAt: "desc" },
-        skip: calculateSkip(page, limit),
-        take: limit,
-      }),
-      db.invoice.count({ where }),
-    ]);
+    const cacheKey = buildCacheKey('invoices', 'list', ctx.organizationId || 'global', `p${page}`, `l${limit}`, status || '', clientId || '', projectId || '', search || '');
+
+    const { invoices, total } = await cachedQuery(cacheKey, async () => {
+      const [invoices, total] = await Promise.all([
+        db.invoice.findMany({
+          where: Object.keys(where).length > 0 ? where : undefined,
+          include: {
+            client: { select: { id: true, name: true, company: true } },
+            project: { select: { id: true, name: true, nameEn: true, number: true } },
+            items: { orderBy: { createdAt: "asc" } },
+          },
+          orderBy: { createdAt: "desc" },
+          skip: calculateSkip(page, limit),
+          take: limit,
+        }),
+        db.invoice.count({ where }),
+      ]);
+      return { invoices, total };
+    }, CACHE_TTL.INVOICES);
 
     return NextResponse.json({ invoices, pagination: buildPaginationMeta(page, limit, total) });
   } catch (error) {
@@ -330,7 +336,7 @@ export async function POST(request: NextRequest) {
         projectId,
         issueDate: new Date(issueDate),
         dueDate: new Date(dueDate),
-        status: (status || "DRAFT") as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+        status: (status || "DRAFT"),
         subtotal,
         tax,
         total,
@@ -353,8 +359,9 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Invalidate dashboard cache after invoice creation
+    // Invalidate dashboard and invoice caches after invoice creation
     await cacheDeletePattern(`dashboard:${ctx.organizationId || 'global'}:*`);
+    await invalidateCache('invoices');
 
     log.info("Invoice created", { invoiceId: invoice.id, number: invoice.number, total, createdBy: ctx.userId });
 

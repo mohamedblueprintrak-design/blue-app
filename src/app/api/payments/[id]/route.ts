@@ -69,10 +69,10 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     const payment = await db.payment.update({
       where: { id },
       data: {
-        ...(status !== undefined && { status: status as any }),
+        ...(status !== undefined && { status: status }),
         ...(isApproving && { approvedById: ctx.userId }),
         ...(amount !== undefined && { amount }),
-        ...(payMethod !== undefined && { payMethod: payMethod as any }),
+        ...(payMethod !== undefined && { payMethod: payMethod }),
         ...(beneficiary !== undefined && { beneficiary }),
         ...(referenceNumber !== undefined && { referenceNumber }),
         ...(description !== undefined && { description }),

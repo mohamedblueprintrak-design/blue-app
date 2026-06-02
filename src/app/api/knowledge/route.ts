@@ -4,8 +4,15 @@ import { validateRequest, knowledgeArticleSchema } from '@/lib/api-validation';
 import { requireVerifiedPermission, orgFilter } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
+import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
+import { parsePaginationParams, buildPaginationMeta, calculateSkip, isPaginationRequested } from '../utils/pagination';
+import { cachedQuery, invalidateCache, CACHE_TTL } from '@/lib/cache/query-cache';
 
 export async function GET(request: NextRequest) {
+  const { allowed: _allowed, result: rlResult } = await withRateLimit(request, 'api');
+  const rlBlocked = rateLimitResponse(rlResult);
+  if (rlBlocked) return rlBlocked;
+
   try {
     const result = await requireVerifiedPermission(request, Permission.DOCUMENT_READ);
     if ('error' in result) return result.error;
@@ -53,13 +60,36 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const articles = await db.knowledgeArticle.findMany({
-      where,
-      include: {
-        author: { select: { id: true, name: true, avatar: true } },
-      },
-      orderBy: { createdAt: "desc" },
-    });
+    const usePagination = isPaginationRequested(searchParams);
+    const { page, limit } = parsePaginationParams(searchParams);
+    const cacheKey = `knowledge:${ctx.organizationId || 'none'}:${category || 'all'}:${search || ''}:${page}:${limit}`;
+
+    if (usePagination) {
+      const [articles, total] = await cachedQuery(cacheKey, () => Promise.all([
+        db.knowledgeArticle.findMany({
+          where,
+          include: {
+            author: { select: { id: true, name: true, avatar: true } },
+          },
+          orderBy: { createdAt: "desc" },
+          skip: calculateSkip(page, limit),
+          take: limit,
+        }),
+        db.knowledgeArticle.count({ where }),
+      ]), CACHE_TTL.LOOKUP);
+
+      return NextResponse.json({ data: articles, pagination: buildPaginationMeta(page, limit, total) });
+    }
+
+    const articles = await cachedQuery(cacheKey, () =>
+      db.knowledgeArticle.findMany({
+        where,
+        include: {
+          author: { select: { id: true, name: true, avatar: true } },
+        },
+        orderBy: { createdAt: "desc" },
+      }),
+    CACHE_TTL.LOOKUP);
 
     return NextResponse.json(articles);
   } catch (error) {
@@ -69,6 +99,10 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const { allowed: _allowed, result } = await withRateLimit(request, 'api');
+  const blocked = rateLimitResponse(result);
+  if (blocked) return blocked;
+
   try {
     const result = await requireVerifiedPermission(request, Permission.DOCUMENT_CREATE);
     if ('error' in result) return result.error;
@@ -98,6 +132,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    await invalidateCache('knowledge');
     return NextResponse.json(article, { status: 201 });
   } catch (error) {
     log.error("Error creating knowledge article:", error);

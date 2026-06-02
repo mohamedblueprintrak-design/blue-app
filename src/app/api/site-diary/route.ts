@@ -5,8 +5,13 @@ import { requireVerifiedPermission, orgFilter, orgCreate } from '@/app/api/utils
 import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
 import type { WeatherCondition } from '@/types/db-enums';
+import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 
 export async function GET(request: NextRequest) {
+  const { allowed: _allowed, result: rlResult } = await withRateLimit(request, 'api');
+  const rlBlocked = rateLimitResponse(rlResult);
+  if (rlBlocked) return rlBlocked;
+
   try {
     const result = await requireVerifiedPermission(request, Permission.SITE_DIARY_READ);
     if ('error' in result) return result.error;
@@ -38,6 +43,10 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const { allowed: _allowed, result } = await withRateLimit(request, 'api');
+  const blocked = rateLimitResponse(result);
+  if (blocked) return blocked;
+
   try {
     const result = await requireVerifiedPermission(request, Permission.SITE_DIARY_CREATE);
     if ('error' in result) return result.error;

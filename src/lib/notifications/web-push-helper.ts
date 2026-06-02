@@ -26,7 +26,7 @@ export interface PushNotificationPayload {
   badge?: string;
   data?: {
     link?: string;
-    [key: string]: any;
+    [key: string]: unknown;
   };
 }
 
@@ -51,13 +51,14 @@ export async function sendPushNotification(
     await webpush.sendNotification(pushSubscription, JSON.stringify(payload));
     log.debug(`[WebPush] Push sent successfully to ${subscription.endpoint}`);
     return true;
-  } catch (error: any) {
+  } catch (error: unknown) {
     // If subscription is expired or invalid, return 'delete' so the caller can clean up
-    if (error.statusCode === 410 || error.statusCode === 404) {
-      log.info(`[WebPush] Subscription expired (status ${error.statusCode}) for endpoint: ${subscription.endpoint}`);
+    const err = error as { statusCode?: number };
+    if (err.statusCode === 410 || err.statusCode === 404) {
+      log.info(`[WebPush] Subscription expired (status ${err.statusCode}) for endpoint: ${subscription.endpoint}`);
       return 'delete';
     }
-    log.error('[WebPush] Failed to send push notification', error);
+    log.error('[WebPush] Failed to send push notification', error instanceof Error ? error : new Error(String(error)));
     return false;
   }
 }

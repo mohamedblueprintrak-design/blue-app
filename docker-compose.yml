@@ -27,7 +27,7 @@ services:
       - NODE_ENV=development
       # SECURITY: All secrets from environment variables — NO default passwords in production
       # If DATABASE_PASSWORD is not set, the app will fail to start (by design)
-      # NOTE: After first start, run: npx prisma migrate deploy && npx tsx prisma/seed.ts
+      # NOTE: After first start, run: bunx prisma migrate deploy && bunx tsx prisma/seed.ts
       - DATABASE_URL=postgresql://blueprint:${DATABASE_PASSWORD:?DATABASE_PASSWORD must be set}@postgres:5432/blueprint?schema=public
       - JWT_SECRET=${JWT_SECRET}
       - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
@@ -36,7 +36,7 @@ services:
       - SMTP_HOST=${SMTP_HOST:-}
       - SMTP_PORT=${SMTP_PORT:-587}
       - SMTP_USER=${SMTP_USER:-}
-      - SMTP_PASS=${SMTP_PASS:-}
+      - SMTP_PASSWORD=${SMTP_PASSWORD:-}
       # Encryption key for sensitive data (64 hex chars = 256 bits)
       # SECURITY: Must be set in .env for production! Dev fallback uses JWT_SECRET derivation.
       - ENCRYPTION_KEY=${ENCRYPTION_KEY:-}

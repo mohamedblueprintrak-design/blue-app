@@ -97,7 +97,7 @@ export async function POST(
         title,
         description: description || "",
         assigneeId: assigneeId || parent.assigneeId || null,
-        priority: (priority || parent.priority || "NORMAL") as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+        priority: (priority || parent.priority || "NORMAL"),
         status: "TODO",
         parentId: id,
         projectId: parent.projectId,

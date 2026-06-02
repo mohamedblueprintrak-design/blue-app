@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { meetingSchema, getErrorMessage, type MeetingFormData } from "@/lib/validations";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -225,7 +225,7 @@ export default function Meetings({ language, projectId }: MeetingsProps) {
   });
 
   const form = useForm<MeetingFormData>({
-    resolver: zodResolver(meetingSchema) as any, // eslint-disable-line @typescript-eslint/no-explicit-any -- zodResolver + react-hook-form type mismatch
+    resolver: zodResolver(meetingSchema) as unknown as Resolver<MeetingFormData>,
     defaultValues: {
       projectId: projectId || "",
       title: "",

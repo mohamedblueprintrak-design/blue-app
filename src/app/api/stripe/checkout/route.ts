@@ -149,11 +149,11 @@ export async function POST(request: NextRequest) {
     // to prevent open redirect / phishing attacks on payment flow
     const rawOrigin = request.headers.get('origin') || '';
     const allowedOrigins = process.env.CORS_ORIGINS?.split(',').map(o => o.trim()).filter(Boolean) || [];
-    const host = request.headers.get('host') || 'localhost:3000';
-    const protocol = request.headers.get('x-forwarded-proto') || 'http';
+    const host = request.headers.get('host');
+    const protocol = request.headers.get('x-forwarded-proto') || 'https';
     const appUrl =
       process.env.NEXT_PUBLIC_APP_URL ||
-      `${protocol}://${host}`;
+      (host ? `${protocol}://${host}` : '');
     if (!appUrl) {
       return NextResponse.json(
         {

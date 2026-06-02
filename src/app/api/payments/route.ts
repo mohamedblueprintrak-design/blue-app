@@ -5,7 +5,9 @@ import { Permission } from '@/lib/auth/types';
 import { validateRequest, paymentCreateSchema } from '@/lib/api-validation';
 import { log } from '@/lib/logger';
 import { parsePaginationParams, buildPaginationMeta, calculateSkip } from '../utils/pagination';
+import { insensitiveContains } from '../utils/db';
 import { sanitizeObject } from '@/lib/security/sanitize';
+import { cachedQuery, invalidateCache, CACHE_TTL, buildCacheKey } from '@/lib/cache/query-cache';
 
 export async function GET(request: NextRequest) {
   try {
@@ -17,25 +19,38 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status");
     const projectId = searchParams.get("projectId");
-    const { page, limit } = parsePaginationParams(searchParams);
+    const { page, limit, search } = parsePaginationParams(searchParams);
 
     const where: Record<string, unknown> = { ...orgFilter(ctx) };
     if (status) where.status = status;
     if (projectId) where.projectId = projectId;
+    if (search) {
+      where.OR = [
+        { beneficiary: insensitiveContains(search) },
+        { referenceNumber: insensitiveContains(search) },
+        { voucherNumber: insensitiveContains(search) },
+        { project: { name: insensitiveContains(search) } },
+      ];
+    }
 
-    const [payments, total] = await Promise.all([
-      db.payment.findMany({
-        where: Object.keys(where).length > 0 ? where : undefined,
-        include: {
-          approver: { select: { id: true, name: true } },
-          project: { select: { id: true, name: true, nameEn: true, number: true } },
-        },
-        orderBy: { createdAt: "desc" },
-        skip: calculateSkip(page, limit),
-        take: limit,
-      }),
-      db.payment.count({ where }),
-    ]);
+    const cacheKey = buildCacheKey('payments', 'list', ctx.organizationId || 'global', `p${page}`, `l${limit}`, status || '', projectId || '', search || '');
+
+    const { payments, total } = await cachedQuery(cacheKey, async () => {
+      const [payments, total] = await Promise.all([
+        db.payment.findMany({
+          where: Object.keys(where).length > 0 ? where : undefined,
+          include: {
+            approver: { select: { id: true, name: true } },
+            project: { select: { id: true, name: true, nameEn: true, number: true } },
+          },
+          orderBy: { createdAt: "desc" },
+          skip: calculateSkip(page, limit),
+          take: limit,
+        }),
+        db.payment.count({ where }),
+      ]);
+      return { payments, total };
+    }, CACHE_TTL.PAYMENTS);
 
     return NextResponse.json({ payments, pagination: buildPaginationMeta(page, limit, total) });
   } catch (error) {
@@ -67,7 +82,7 @@ export async function POST(request: NextRequest) {
         voucherNumber: voucherNumber || "",
         projectId: projectId || null,
         amount,
-        payMethod: payMethod as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+        payMethod: payMethod,
         beneficiary: beneficiary || "",
         referenceNumber: referenceNumber || "",
         description: description || "",
@@ -79,6 +94,9 @@ export async function POST(request: NextRequest) {
         project: { select: { id: true, name: true, nameEn: true, number: true } },
       },
     });
+
+    // Invalidate payment caches after creation
+    await invalidateCache('payments');
 
     return NextResponse.json(payment, { status: 201 });
   } catch (error) {

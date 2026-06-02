@@ -99,12 +99,12 @@ export async function PUT(
     const leave = await db.leave.update({
       where: { id },
       data: {
-        ...(validatedData.type !== undefined && { type: validatedData.type as any }),
+        ...(validatedData.type !== undefined && { type: validatedData.type }),
         ...(validatedData.startDate !== undefined && { startDate: new Date(validatedData.startDate) }),
         ...(validatedData.endDate !== undefined && { endDate: new Date(validatedData.endDate) }),
         ...(validatedData.days !== undefined && { days: validatedData.days }),
         ...(validatedData.reason !== undefined && { reason: validatedData.reason }),
-        ...(validatedData.status !== undefined && { status: validatedData.status as any }),
+        ...(validatedData.status !== undefined && { status: validatedData.status }),
         // Set approvedById server-side when status is APPROVED — never trust client-supplied value
         ...(validatedData.status === 'APPROVED' && { approvedById: ctx.userId }),
       },

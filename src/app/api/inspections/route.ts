@@ -4,8 +4,14 @@ import { requireVerifiedPermission, orgFilter, orgCreate } from '@/app/api/utils
 import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
 import { validateRequest, inspectionCreateSchema } from '@/lib/api-validation';
+import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
+import { parsePaginationParams, buildPaginationMeta, calculateSkip, isPaginationRequested } from '../utils/pagination';
 
 export async function GET(request: NextRequest) {
+  const { allowed: _allowed, result: rlResult } = await withRateLimit(request, 'api');
+  const rlBlocked = rateLimitResponse(rlResult);
+  if (rlBlocked) return rlBlocked;
+
   try {
     const result = await requireVerifiedPermission(request, Permission.INSPECTION_READ);
     if ('error' in result) return result.error;
@@ -29,6 +35,50 @@ export async function GET(request: NextRequest) {
 
     const orderBy: Record<string, string> = {};
     orderBy[sortBy] = sortOrder;
+
+    const usePagination = isPaginationRequested(searchParams);
+    const { page, limit } = parsePaginationParams(searchParams);
+
+    if (usePagination) {
+      const [inspections, total] = await Promise.all([
+        db.buildingInspection.findMany({
+          where,
+          include: {
+            client: {
+              select: { id: true, name: true, company: true },
+            },
+            project: {
+              select: { id: true, name: true, nameEn: true, number: true },
+            },
+            findings: true,
+            _count: {
+              select: { photos: true, findings: true },
+            },
+          },
+          orderBy,
+          skip: calculateSkip(page, limit),
+          take: limit,
+        }),
+        db.buildingInspection.count({ where }),
+      ]);
+
+      // Calculate stats (filtered by org)
+      const allInspections = await db.buildingInspection.findMany({
+        where: orgFilter(ctx) as Record<string, unknown>,
+        select: { riskLevel: true, status: true },
+      });
+
+      const stats = {
+        total: allInspections.length,
+        green: allInspections.filter((i) => i.riskLevel === "GREEN").length,
+        yellow: allInspections.filter((i) => i.riskLevel === "YELLOW").length,
+        orange: allInspections.filter((i) => i.riskLevel === "ORANGE").length,
+        red: allInspections.filter((i) => i.riskLevel === "RED").length,
+        needsFollowup: allInspections.filter((i) => (i as Record<string, unknown>).status === "FOLLOWUP_NEEDED").length,
+      };
+
+      return NextResponse.json({ data: inspections, pagination: buildPaginationMeta(page, limit, total), stats });
+    }
 
     const inspections = await db.buildingInspection.findMany({
       where,
@@ -70,6 +120,10 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const { allowed: _allowed, result } = await withRateLimit(request, 'api');
+  const blocked = rateLimitResponse(result);
+  if (blocked) return blocked;
+
   try {
     const result = await requireVerifiedPermission(request, Permission.INSPECTION_CREATE);
     if ('error' in result) return result.error;
@@ -136,7 +190,7 @@ export async function POST(request: NextRequest) {
         summary: summary || "",
         recommendations: recommendations || "",
         repairEstimate: totalRepair,
-        status: (status || "DRAFT") as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+        status: (status || "DRAFT"),
         ...orgCreate(ctx),
         createdById: ctx.userId,
         findings: findings

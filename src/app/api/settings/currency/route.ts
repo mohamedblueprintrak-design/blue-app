@@ -4,6 +4,7 @@ import { requirePermission } from '@/app/api/utils/auth';
 import { errorResponse, successResponse, handleApiError } from '@/app/api/utils/response';
 import { Permission } from '@/lib/auth/types';
 import { DEFAULT_EXCHANGE_RATES, SUPPORTED_CURRENCIES } from '@/lib/currency';
+import { cachedQuery, invalidateCache, CACHE_TTL, buildCacheKey } from '@/lib/cache/query-cache';
 
 /**
  * GET /api/settings/currency
@@ -14,21 +15,27 @@ export async function GET(request: NextRequest) {
     const rbac = requirePermission(request, Permission.SETTINGS_READ);
     if ('error' in rbac) return rbac.error;
 
-    const settings = await db.companySettings.findFirst();
+    const cacheKey = buildCacheKey('settings', 'currency', 'global');
 
-    let exchangeRates = DEFAULT_EXCHANGE_RATES;
-    if (settings?.exchangeRates) {
-      try {
-        exchangeRates = { ...DEFAULT_EXCHANGE_RATES, ...JSON.parse(settings.exchangeRates) };
-      } catch { /* use defaults */ }
-    }
+    const result = await cachedQuery(cacheKey, async () => {
+      const settings = await db.companySettings.findFirst();
 
-    return successResponse({
-      defaultCurrency: settings?.defaultCurrency || settings?.currency || 'AED',
-      currency: settings?.currency || 'AED',
-      exchangeRates,
-      supportedCurrencies: SUPPORTED_CURRENCIES,
-    });
+      let exchangeRates = DEFAULT_EXCHANGE_RATES;
+      if (settings?.exchangeRates) {
+        try {
+          exchangeRates = { ...DEFAULT_EXCHANGE_RATES, ...JSON.parse(settings.exchangeRates) };
+        } catch { /* use defaults */ }
+      }
+
+      return {
+        defaultCurrency: settings?.defaultCurrency || settings?.currency || 'AED',
+        currency: settings?.currency || 'AED',
+        exchangeRates,
+        supportedCurrencies: SUPPORTED_CURRENCIES,
+      };
+    }, CACHE_TTL.CURRENCY);
+
+    return successResponse(result);
   } catch (error) {
     return handleApiError('Error fetching currency settings', error);
   }
@@ -68,6 +75,9 @@ export async function PUT(request: NextRequest) {
       where: { id: settings.id },
       data: updateData,
     });
+
+    // Invalidate settings and currency caches after update
+    await invalidateCache('settings');
 
     return successResponse({
       defaultCurrency: updated.defaultCurrency || updated.currency,

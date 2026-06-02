@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const TURNSTILE_SECRET_KEY = process.env.TURNSTILE_SECRET_KEY;
+const isDevelopment = process.env.NODE_ENV === 'development';
 
 interface TurnstileVerifyResponse {
   success: boolean;
@@ -14,9 +15,19 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { token } = body as { token?: string };
 
-    // Graceful degradation: if secret key is not configured, always succeed
+    // SECURITY: If secret key is not configured, behavior depends on environment:
+    // - Development: Allow the request with a warning so developers aren't blocked
+    // - Production: REJECT the request — CAPTCHA must be properly configured
     if (!TURNSTILE_SECRET_KEY) {
-      return NextResponse.json({ success: true });
+      if (isDevelopment) {
+        console.warn('[Turnstile] TURNSTILE_SECRET_KEY not configured — skipping captcha verification in development mode');
+        return NextResponse.json({ success: true });
+      }
+      console.error('[Turnstile] TURNSTILE_SECRET_KEY not configured — rejecting request in production');
+      return NextResponse.json(
+        { success: false, error: 'CAPTCHA not configured' },
+        { status: 500 }
+      );
     }
 
     // If no token was provided, fail

@@ -89,14 +89,14 @@ export async function POST(request: NextRequest) {
     const guaranteeLetter = await db.guaranteeLetter.create({
       data: {
         projectId,
-        type: (type || "PERFORMANCE") as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+        type: (type || "PERFORMANCE"),
         guaranteeNumber: guaranteeNumber || "",
         bankName: bankName || "",
         amount: amount || 0,
         currency: (currency || "AED") as Currency,
         issueDate: issueDate ? new Date(issueDate) : null,
         expiryDate: expiryDate ? new Date(expiryDate) : null,
-        status: (status || "ACTIVE") as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+        status: (status || "ACTIVE"),
         beneficiaryName: beneficiaryName || "",
         documentUrl: documentUrl || "",
         ...orgCreate(ctx),

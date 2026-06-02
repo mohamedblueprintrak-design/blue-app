@@ -5,6 +5,7 @@ import { orgFilter, orgCreate, requireVerifiedPermission } from '@/app/api/utils
 import { Permission, UserRoleValues } from '@/lib/auth/types';
 import { getRoleLevel, normalizeRole } from '@/lib/auth/modules/authorization';
 import { cacheDeletePattern } from '@/lib/cache/redis';
+import { cachedQuery, invalidateCache, CACHE_TTL, buildCacheKey } from '@/lib/cache/query-cache';
 import { log } from '@/lib/logger';
 import { handleApiError } from '@/lib/api-error';
 import { forbiddenResponse } from '@/app/api/utils/response';
@@ -38,33 +39,38 @@ export async function GET(request: NextRequest) {
     // Only expose salary to ADMIN and HR roles
     const canSeeSalary = ctx.role === 'ADMIN' || ctx.role === 'HR';
 
-    const users = await db.user.findMany({
-      where: { ...orgFilter(ctx) },
-      skip,
-      take: limit,
-      orderBy: { createdAt: 'desc' },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        phone: true,
-        avatar: true,
-        role: true,
-        department: true,
-        position: true,
-        isActive: true,
-        lastLogin: true,
-        createdAt: true,
-        employee: {
-          select: {
-            ...(canSeeSalary ? { salary: true } : {}),
-            employmentStatus: true,
-            hireDate: true,
+    const cacheKey = buildCacheKey('users', 'list', ctx.organizationId || 'global', `p${page}`, `l${limit}`);
+
+    const { data: users, total } = await cachedQuery(cacheKey, async () => {
+      const users = await db.user.findMany({
+        where: { ...orgFilter(ctx) },
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          phone: true,
+          avatar: true,
+          role: true,
+          department: true,
+          position: true,
+          isActive: true,
+          lastLogin: true,
+          createdAt: true,
+          employee: {
+            select: {
+              ...(canSeeSalary ? { salary: true } : {}),
+              employmentStatus: true,
+              hireDate: true,
+            },
           },
         },
-      },
-    });
-    const total = await db.user.count({ where: { ...orgFilter(ctx) } });
+      });
+      const total = await db.user.count({ where: { ...orgFilter(ctx) } });
+      return { data: users, total };
+    }, CACHE_TTL.USERS);
 
     return NextResponse.json({ data: users, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } });
   } catch (error: unknown) {
@@ -136,8 +142,9 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Invalidate dashboard cache after user creation
+    // Invalidate dashboard and user caches after user creation
     await cacheDeletePattern(`dashboard:${ctx.organizationId || 'global'}:*`);
+    await invalidateCache('users');
 
     log.info('User created', { userId: user.id, email: user.email, role: user.role, createdBy: ctx.userId });
 

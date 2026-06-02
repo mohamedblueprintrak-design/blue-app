@@ -5,6 +5,7 @@ import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
 import { sanitizeObject } from '@/lib/security/sanitize';
 import { getStorageProvider, generateStorageKey } from '@/lib/storage';
+import { validateIdParam } from '@/lib/api-validation';
 
 // ============================================
 // Document Versions API
@@ -17,7 +18,10 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
+    const { id: rawId } = await params;
+    const idCheck = validateIdParam(rawId);
+    if (!idCheck.success) return idCheck.response;
+    const id = idCheck.id;
 
     // RBAC CHECK
     const rbac = requirePermission(request, Permission.DOCUMENT_READ);
@@ -73,7 +77,10 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
+    const { id: rawId } = await params;
+    const idCheck = validateIdParam(rawId);
+    if (!idCheck.success) return idCheck.response;
+    const id = idCheck.id;
 
     // RBAC CHECK - need DOCUMENT_UPDATE permission to upload new version
     const rbac = await requireVerifiedPermission(request, Permission.DOCUMENT_UPDATE);

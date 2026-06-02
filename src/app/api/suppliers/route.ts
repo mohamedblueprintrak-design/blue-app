@@ -4,8 +4,15 @@ import { validateBody, supplierCreateSchema } from '@/lib/api-validation';
 import { requireVerifiedPermission, orgFilter, orgCreate } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
+import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
+import { parsePaginationParams, buildPaginationMeta, calculateSkip, isPaginationRequested } from '../utils/pagination';
+import { cachedQuery, invalidateCache, CACHE_TTL } from '@/lib/cache/query-cache';
 
 export async function GET(request: NextRequest) {
+  const { allowed: _allowed, result: rlResult } = await withRateLimit(request, 'api');
+  const rlBlocked = rateLimitResponse(rlResult);
+  if (rlBlocked) return rlBlocked;
+
   try {
     const result = await requireVerifiedPermission(request, Permission.SUPPLIER_READ);
     if ('error' in result) return result.error;
@@ -19,15 +26,40 @@ export async function GET(request: NextRequest) {
       where.category = category;
     }
 
-    const suppliers = await db.supplier.findMany({
-      where: Object.keys(where).length > 0 ? where : undefined,
-      include: {
-        _count: {
-          select: { purchaseOrders: true },
+    const usePagination = isPaginationRequested(searchParams);
+    const { page, limit } = parsePaginationParams(searchParams);
+    const cacheKey = `suppliers:${ctx.organizationId || 'none'}:${category || 'all'}:${page}:${limit}`;
+
+    if (usePagination) {
+      const [suppliers, total] = await cachedQuery(cacheKey, () => Promise.all([
+        db.supplier.findMany({
+          where: Object.keys(where).length > 0 ? where : undefined,
+          include: {
+            _count: {
+              select: { purchaseOrders: true },
+            },
+          },
+          orderBy: { createdAt: "desc" },
+          skip: calculateSkip(page, limit),
+          take: limit,
+        }),
+        db.supplier.count({ where: Object.keys(where).length > 0 ? where : undefined }),
+      ]), CACHE_TTL.CLIENTS);
+
+      return NextResponse.json({ data: suppliers, pagination: buildPaginationMeta(page, limit, total) });
+    }
+
+    const suppliers = await cachedQuery(cacheKey, () =>
+      db.supplier.findMany({
+        where: Object.keys(where).length > 0 ? where : undefined,
+        include: {
+          _count: {
+            select: { purchaseOrders: true },
+          },
         },
-      },
-      orderBy: { createdAt: "desc" },
-    });
+        orderBy: { createdAt: "desc" },
+      }),
+    CACHE_TTL.CLIENTS);
 
     return NextResponse.json(suppliers);
   } catch (error) {
@@ -40,6 +72,10 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const { allowed: _allowed, result } = await withRateLimit(request, 'api');
+  const blocked = rateLimitResponse(result);
+  if (blocked) return blocked;
+
   try {
     const result = await requireVerifiedPermission(request, Permission.SUPPLIER_CREATE);
     if ('error' in result) return result.error;
@@ -52,7 +88,7 @@ export async function POST(request: NextRequest) {
     const supplier = await db.supplier.create({
       data: {
         name,
-        category: (category || "MATERIALS") as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+        category: (category || "MATERIALS"),
         email: email || "",
         phone: phone || "",
         address: address || "",
@@ -67,6 +103,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    await invalidateCache('suppliers');
     return NextResponse.json(supplier, { status: 201 });
   } catch (error) {
     log.error("Error creating supplier:", error);

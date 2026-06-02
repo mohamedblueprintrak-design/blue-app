@@ -85,5 +85,79 @@ export {
 export {
   notificationService,
   type NotificationType,
-  type CreateNotificationInput
+  type CreateNotificationInput,
+  type NotificationChannel,
+  type NotificationChannelConfig,
 } from './notification.service';
+
+// ============================================
+// NEW: WhatsApp Business API Service
+// خدمة واتساب للأعمال
+// ============================================
+export {
+  whatsappService,
+  type WhatsAppSendResult,
+  type TemplateComponent,
+  type TemplateParameter,
+  type InvoiceNotificationData,
+  type ProjectUpdateData,
+  type MessageStatusResult,
+  type WhatsAppTemplate,
+} from './whatsapp.service';
+
+// ============================================
+// NEW: Milestone Service
+// خدمة مراحل الدفع
+// ============================================
+export {
+  milestoneService,
+  type MilestoneStatus,
+  type CreateMilestoneInput,
+  type UpdateMilestoneInput,
+  type MilestoneSummary,
+} from './milestone.service';
+
+// ============================================
+// NEW: Report Builder Service
+// خدمة منشئ التقارير المخصصة
+// ============================================
+export {
+  executeReport,
+  formatAsCSV,
+  formatAsPDF,
+  getDataSourceMetadata,
+  getDataSourceFields,
+  getFilterOperators,
+  validateReportDefinition,
+  type DataSourceName,
+  type AggregationType,
+  type FilterOperator,
+  type ChartType,
+  type OutputFormat,
+  type SortOrder,
+  type ReportField,
+  type ReportFilter,
+  type ReportDefinition,
+  type ReportResult,
+} from './report-builder.service';
+
+// ============================================
+// NEW: Dashboard Preset Service
+// خدمة قوالب لوحة المعلومات
+// ============================================
+export {
+  getDefaultPreset,
+  initializeDefaultPresets,
+  getPresetsByRole,
+  createPreset,
+  updatePreset,
+  deletePreset,
+  getPresetById,
+  getRoleDefaultConfig,
+  getAvailableRoles,
+  type WidgetType,
+  type DashboardWidgetDef,
+  type RolePresetConfig,
+  type CreatePresetInput,
+  type UpdatePresetInput,
+} from './dashboard-preset.service';

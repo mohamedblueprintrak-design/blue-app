@@ -345,7 +345,7 @@ export type LeaveUpdateData = z.infer<typeof leaveUpdateSchema>;
 
 export const proposalUpdateSchema = z.object({
   number: z.string().max(50).optional(),
-  clientId: z.string().min(1).optional(),
+  clientId: z.string().cuid().optional(),
   projectId: z.string().optional(),
   status: z.string().max(50).optional(),
   notes: z.string().max(5000).optional(),

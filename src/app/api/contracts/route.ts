@@ -7,6 +7,8 @@ import { Permission } from '@/lib/auth/types';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 import { log } from '@/lib/logger';
 import { parsePaginationParams, buildPaginationMeta, calculateSkip } from '../utils/pagination';
+import { insensitiveContains } from '../utils/db';
+import { cachedQuery, invalidateCache, CACHE_TTL, buildCacheKey } from '@/lib/cache/query-cache';
 
 export async function GET(request: NextRequest) {
   try {
@@ -22,31 +24,44 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const projectId = searchParams.get("projectId");
-    const { page, limit } = parsePaginationParams(searchParams);
+    const { page, limit, search } = parsePaginationParams(searchParams);
 
     const where: Record<string, unknown> = { ...orgFilter(ctx) };
     if (projectId) where.projectId = projectId;
+    if (search) {
+      where.OR = [
+        { number: insensitiveContains(search) },
+        { title: insensitiveContains(search) },
+        { client: { name: insensitiveContains(search) } },
+        { project: { name: insensitiveContains(search) } },
+      ];
+    }
 
-    const [contracts, total] = await Promise.all([
-      db.contract.findMany({
-        where: Object.keys(where).length > 0 ? where : undefined,
-        include: {
-          client: {
-            select: { id: true, name: true, company: true },
+    const cacheKey = buildCacheKey('contracts', 'list', ctx.organizationId || 'global', `p${page}`, `l${limit}`, projectId || '', search || '');
+
+    const { contracts, total } = await cachedQuery(cacheKey, async () => {
+      const [contracts, total] = await Promise.all([
+        db.contract.findMany({
+          where: Object.keys(where).length > 0 ? where : undefined,
+          include: {
+            client: {
+              select: { id: true, name: true, company: true },
+            },
+            project: {
+              select: { id: true, name: true, nameEn: true, number: true },
+            },
+            _count: {
+              select: { amendments: true },
+            },
           },
-          project: {
-            select: { id: true, name: true, nameEn: true, number: true },
-          },
-          _count: {
-            select: { amendments: true },
-          },
-        },
-        orderBy: { createdAt: "desc" },
-        skip: calculateSkip(page, limit),
-        take: limit,
-      }),
-      db.contract.count({ where }),
-    ]);
+          orderBy: { createdAt: "desc" },
+          skip: calculateSkip(page, limit),
+          take: limit,
+        }),
+        db.contract.count({ where }),
+      ]);
+      return { contracts, total };
+    }, CACHE_TTL.CONTRACTS);
 
     return NextResponse.json({ contracts, pagination: buildPaginationMeta(page, limit, total) });
   } catch (error) {
@@ -100,8 +115,8 @@ export async function POST(request: NextRequest) {
         clientId,
         projectId,
         value: value ? parseFloat(value) : 0,
-        type: (type || "ENGINEERING_SERVICES") as any, // eslint-disable-line @typescript-eslint/no-explicit-any
-        status: (status || "DRAFT") as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+        type: (type || "ENGINEERING_SERVICES"),
+        status: (status || "DRAFT"),
         startDate: startDate ? new Date(startDate) : null,
         endDate: endDate ? new Date(endDate) : null,
         ...orgCreate(ctx),
@@ -119,6 +134,9 @@ export async function POST(request: NextRequest) {
         },
       },
     });
+
+    // Invalidate contract caches after creation
+    await invalidateCache('contracts');
 
     return NextResponse.json(contract, { status: 201 });
   } catch (error) {

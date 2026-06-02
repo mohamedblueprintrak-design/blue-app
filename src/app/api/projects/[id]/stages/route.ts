@@ -116,7 +116,7 @@ export async function PUT(
           tx.projectStage.update({
             where: { id: stage.id },
             data: {
-              ...(stage.status && { status: stage.status as any }),
+              ...(stage.status && { status: stage.status }),
               ...(stage.notes !== undefined && { notes: stage.notes }),
               ...(stage.engineerId && { engineerId: stage.engineerId }),
             },

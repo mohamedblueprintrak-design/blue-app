@@ -6,6 +6,8 @@ import { log } from '@/lib/logger';
 import { Permission } from '@/lib/auth/types';
 import { calculateNextDate, type Frequency, type TemplateItem } from '@/lib/services/recurring-invoice.service';
 import { z } from 'zod';
+import { parsePaginationParams, buildPaginationMeta, calculateSkip } from '../utils/pagination';
+import { insensitiveContains } from '../utils/db';
 
 // Validation schema for template items
 const templateItemSchema = z.object({
@@ -18,7 +20,7 @@ const templateItemSchema = z.object({
 const createRecurringInvoiceSchema = z.object({
   name: z.string().min(1).max(200),
   nameAr: z.string().max(200).optional(),
-  clientId: z.string().min(1),
+  clientId: z.string().cuid(),
   projectId: z.string().optional(),
   templateItems: z.array(templateItemSchema).min(1),
   notes: z.string().max(2000).optional(),
@@ -41,6 +43,7 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const isActive = searchParams.get('isActive');
+    const { page, limit, search } = parsePaginationParams(searchParams);
 
     const where: Record<string, unknown> = { ...orgFilter(ctx) };
 
@@ -48,16 +51,29 @@ export async function GET(request: NextRequest) {
       where.isActive = isActive === 'true';
     }
 
-    const recurringInvoices = await db.recurringInvoice.findMany({
-      where,
-      include: {
-        client: { select: { id: true, name: true, nameEn: true } },
-        project: { select: { id: true, name: true, nameEn: true, number: true } },
-        lastInvoice: { select: { id: true, number: true, status: true, total: true } },
-        createdBy: { select: { id: true, name: true } },
-      },
-      orderBy: { createdAt: 'desc' },
-    });
+    if (search) {
+      where.OR = [
+        { name: insensitiveContains(search) },
+        { client: { name: insensitiveContains(search) } },
+        { project: { name: insensitiveContains(search) } },
+      ];
+    }
+
+    const [recurringInvoices, total] = await Promise.all([
+      db.recurringInvoice.findMany({
+        where,
+        include: {
+          client: { select: { id: true, name: true, nameEn: true } },
+          project: { select: { id: true, name: true, nameEn: true, number: true } },
+          lastInvoice: { select: { id: true, number: true, status: true, total: true } },
+          createdBy: { select: { id: true, name: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+        skip: calculateSkip(page, limit),
+        take: limit,
+      }),
+      db.recurringInvoice.count({ where }),
+    ]);
 
     // Calculate template totals for each
     const enriched = recurringInvoices.map((ri) => {
@@ -76,7 +92,7 @@ export async function GET(request: NextRequest) {
       };
     });
 
-    return NextResponse.json({ recurringInvoices: enriched });
+    return NextResponse.json({ recurringInvoices: enriched, pagination: buildPaginationMeta(page, limit, total) });
   } catch (error) {
     log.error('Error fetching recurring invoices:', error);
     return errorResponse('Failed to fetch recurring invoices', 'SERVER_ERROR', 500);

@@ -7,6 +7,8 @@ import { log } from '@/lib/logger';
 import { sanitizeObject } from '@/lib/security/sanitize';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 import { parsePaginationParams, buildPaginationMeta, calculateSkip } from '../utils/pagination';
+import { insensitiveContains } from '../utils/db';
+import { cachedQuery, invalidateCache, CACHE_TTL, buildCacheKey } from '@/lib/cache/query-cache';
 
 // GET /api/employees
 export async function GET(request: NextRequest) {
@@ -22,7 +24,7 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const department = searchParams.get("department");
-    const { page, limit } = parsePaginationParams(searchParams);
+    const { page, limit, search } = parsePaginationParams(searchParams);
 
     const where: Record<string, unknown> = {
       deletedAt: null,
@@ -31,35 +33,48 @@ export async function GET(request: NextRequest) {
     if (department && department !== "all") {
       where.department = department;
     }
+    if (search) {
+      where.OR = [
+        { position: insensitiveContains(search) },
+        { department: insensitiveContains(search) },
+        { user: { name: insensitiveContains(search) } },
+        { user: { email: insensitiveContains(search) } },
+      ];
+    }
 
-    const [employees, total] = await Promise.all([
-      db.employee.findMany({
-        where,
-        include: {
-          user: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-              phone: true,
-              avatar: true,
-              role: true,
-              isActive: true,
+    const cacheKey = buildCacheKey('employees', 'list', ctx.organizationId || 'global', `p${page}`, `l${limit}`, department || 'all', search || '');
+
+    const { employees: rawEmployees, total } = await cachedQuery(cacheKey, async () => {
+      const [employees, total] = await Promise.all([
+        db.employee.findMany({
+          where,
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                phone: true,
+                avatar: true,
+                role: true,
+                isActive: true,
+              },
             },
           },
-        },
-        orderBy: { createdAt: "desc" },
-        skip: calculateSkip(page, limit),
-        take: limit,
-      }),
-      db.employee.count({ where }),
-    ]);
+          orderBy: { createdAt: "desc" },
+          skip: calculateSkip(page, limit),
+          take: limit,
+        }),
+        db.employee.count({ where }),
+      ]);
+      return { employees, total };
+    }, CACHE_TTL.USERS);
 
     // Remove salary from response for non-HR/Admin users
     const canSeeSalary = ctx.role === 'ADMIN' || ctx.role === 'HR';
     const sanitizedEmployees = canSeeSalary
-      ? employees
-      : employees.map(({ salary: _salary, ...rest }) => rest);
+      ? rawEmployees
+      : rawEmployees.map(({ salary: _salary, ...rest }) => rest);
 
     return NextResponse.json({ employees: sanitizedEmployees, pagination: buildPaginationMeta(page, limit, total) });
   } catch (error) {
@@ -100,7 +115,7 @@ export async function POST(request: NextRequest) {
         department: department || "",
         position: position || "",
         salary: salary || 0,
-        employmentStatus: (employmentStatus || "ACTIVE") as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+        employmentStatus: (employmentStatus || "ACTIVE"),
         hireDate: hireDate ? new Date(hireDate) : null,
         ...orgCreate(ctx),
       },
@@ -118,6 +133,9 @@ export async function POST(request: NextRequest) {
         },
       },
     });
+
+    // Invalidate employee caches after creation
+    await invalidateCache('employees');
 
     return NextResponse.json(employee, { status: 201 });
   } catch (error) {

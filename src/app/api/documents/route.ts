@@ -5,6 +5,10 @@ import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
 import { sanitizeObject } from '@/lib/security/sanitize';
 import { getStorageProvider, generateStorageKey } from '@/lib/storage';
+import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
+import { invalidateCache } from '@/lib/cache/query-cache';
+import { parsePaginationParams, buildPaginationMeta, calculateSkip } from '../utils/pagination';
+import { insensitiveContains } from '../utils/db';
 
 // ============================================
 // File Upload Configuration
@@ -65,6 +69,10 @@ function validateFile(filename: string, contentType: string, fileSize: number): 
 }
 
 export async function GET(request: NextRequest) {
+  const { allowed: _allowed, result: rlResult } = await withRateLimit(request, 'api');
+  const rlBlocked = rateLimitResponse(rlResult);
+  if (rlBlocked) return rlBlocked;
+
   try {
     // RBAC CHECK
     const rbac = await requireVerifiedPermission(request, Permission.DOCUMENT_READ);
@@ -74,57 +82,38 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const projectId = searchParams.get("projectId");
     const category = searchParams.get("category");
-    const pageParam = searchParams.get("page");
-    const limitParam = searchParams.get("limit");
+    const { page, limit, search } = parsePaginationParams(searchParams);
 
     const where: Record<string, unknown> = { deletedAt: null, ...orgFilter(ctx) };
     if (projectId) where.projectId = projectId;
     if (category && category !== "all") where.category = category;
-
-    // Pagination logic
-    if (pageParam || limitParam) {
-      const page = parseInt(pageParam || "1", 10) || 1;
-      const limit = parseInt(limitParam || "50", 10) || 50;
-      const skip = (page - 1) * limit;
-
-      const [total, documents] = await Promise.all([
-        db.document.count({ where }),
-        db.document.findMany({
-          where,
-          take: limit,
-          skip,
-          include: {
-            project: { select: { id: true, name: true, nameEn: true, number: true } },
-            contract: { select: { id: true, number: true, title: true } },
-            uploader: { select: { id: true, name: true, avatar: true } },
-          },
-          orderBy: { createdAt: "desc" },
-        })
-      ]);
-
-      return NextResponse.json({
-        data: documents,
-        meta: {
-          total,
-          page,
-          limit,
-          totalPages: Math.ceil(total / limit)
-        }
-      });
+    if (search) {
+      where.OR = [
+        { name: insensitiveContains(search) },
+        { category: insensitiveContains(search) },
+        { project: { name: insensitiveContains(search) } },
+      ];
     }
 
-    // Default backward compatible response (unpaginated)
-    const documents = await db.document.findMany({
-      where,
-      include: {
-        project: { select: { id: true, name: true, nameEn: true, number: true } },
-        contract: { select: { id: true, number: true, title: true } },
-        uploader: { select: { id: true, name: true, avatar: true } },
-      },
-      orderBy: { createdAt: "desc" },
-    });
+    const [total, documents] = await Promise.all([
+      db.document.count({ where }),
+      db.document.findMany({
+        where,
+        take: limit,
+        skip: calculateSkip(page, limit),
+        include: {
+          project: { select: { id: true, name: true, nameEn: true, number: true } },
+          contract: { select: { id: true, number: true, title: true } },
+          uploader: { select: { id: true, name: true, avatar: true } },
+        },
+        orderBy: { createdAt: "desc" },
+      })
+    ]);
 
-    return NextResponse.json(documents);
+    return NextResponse.json({
+      data: documents,
+      pagination: buildPaginationMeta(page, limit, total),
+    });
   } catch (error) {
     log.error("Error fetching documents:", error);
     return NextResponse.json({ error: "Failed to fetch documents" }, { status: 500 });
@@ -132,6 +121,10 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const { allowed: _allowed, result } = await withRateLimit(request, 'api');
+  const blocked = rateLimitResponse(result);
+  if (blocked) return blocked;
+
   try {
     // RBAC CHECK
     const rbac = await requireVerifiedPermission(request, Permission.DOCUMENT_CREATE);
@@ -231,6 +224,7 @@ export async function POST(request: NextRequest) {
           },
         });
 
+        await invalidateCache('documents');
         log.info('[Documents] New version uploaded (via duplicate name)', {
           documentId: existingDoc.id,
           oldVersion,
@@ -263,6 +257,7 @@ export async function POST(request: NextRequest) {
         },
       });
 
+      await invalidateCache('documents');
       log.info('[Documents] File uploaded successfully', {
         documentId: document.id,
         fileName,
@@ -310,6 +305,7 @@ export async function POST(request: NextRequest) {
         },
       });
 
+      await invalidateCache('documents');
       return NextResponse.json(document, { status: 201 });
     }
   } catch (error) {

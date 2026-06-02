@@ -4,6 +4,9 @@ import { requireVerifiedPermission, orgFilter, orgCreate } from '@/app/api/utils
 import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
 import { z } from 'zod';
+import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
+import { parsePaginationParams, buildPaginationMeta, calculateSkip, isPaginationRequested } from '../utils/pagination';
+import { cachedQuery, invalidateCache, CACHE_TTL } from '@/lib/cache/query-cache';
 
 // Zod schema for equipment creation
 const equipmentCreateSchema = z.object({
@@ -21,6 +24,10 @@ const equipmentCreateSchema = z.object({
 });
 
 export async function GET(request: NextRequest) {
+  const { allowed: _allowed, result: rlResult } = await withRateLimit(request, 'api');
+  const rlBlocked = rateLimitResponse(rlResult);
+  if (rlBlocked) return rlBlocked;
+
   try {
     const result = await requireVerifiedPermission(request, Permission.PROJECT_READ);
     if ('error' in result) return result.error;
@@ -39,10 +46,39 @@ export async function GET(request: NextRequest) {
       where.type = type;
     }
 
-    const equipment = await db.equipment.findMany({
-      where,
-      orderBy: { createdAt: "desc" },
-    });
+    const usePagination = isPaginationRequested(searchParams);
+    const { page, limit } = parsePaginationParams(searchParams);
+    const cacheKey = `equipment:${ctx.organizationId || 'none'}:${status || 'all'}:${type || 'all'}:${page}:${limit}`;
+
+    if (usePagination) {
+      const [equipment, total] = await cachedQuery(cacheKey, () => Promise.all([
+        db.equipment.findMany({
+          where,
+          orderBy: { createdAt: "desc" },
+          skip: calculateSkip(page, limit),
+          take: limit,
+        }),
+        db.equipment.count({ where }),
+      ]), CACHE_TTL.DEFAULT);
+
+      // Summary stats
+      const allEquipment = await cachedQuery(`equipment-stats:${ctx.organizationId || 'none'}`, () =>
+        db.equipment.findMany({ where: { deletedAt: null, ...orgFilter(ctx) }, select: { status: true } }),
+      CACHE_TTL.DEFAULT);
+      const totalEquipment = allEquipment.length;
+      const availableCount = allEquipment.filter((e) => e.status === "AVAILABLE").length;
+      const inUseCount = allEquipment.filter((e) => e.status === "IN_USE").length;
+      const maintenanceCount = allEquipment.filter((e) => e.status === "MAINTENANCE").length;
+
+      return NextResponse.json({ data: equipment, pagination: buildPaginationMeta(page, limit, total), summary: { totalEquipment, availableCount, inUseCount, maintenanceCount } });
+    }
+
+    const equipment = await cachedQuery(cacheKey, () =>
+      db.equipment.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+      }),
+    CACHE_TTL.DEFAULT);
 
     // Summary stats
     const totalEquipment = equipment.length;
@@ -64,6 +100,10 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const { allowed: _allowed, result } = await withRateLimit(request, 'api');
+  const blocked = rateLimitResponse(result);
+  if (blocked) return blocked;
+
   try {
     const result = await requireVerifiedPermission(request, Permission.INVENTORY_CREATE);
     if ('error' in result) return result.error;
@@ -103,6 +143,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    await invalidateCache('equipment');
     return NextResponse.json(equip, { status: 201 });
   } catch (error) {
     log.error("Error creating equipment:", error);

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
+import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { rfiSchema, getErrorMessage, type RfiFormData } from "@/lib/validations";
 import { cn } from "@/lib/utils";
@@ -203,7 +203,7 @@ export default function RFI({ language, projectId }: RFIProps) {
   const defaultRfiForm = { projectId: projectId || "", number: "", subject: "", description: "", fromId: "", toId: "", priority: "NORMAL", dueDate: "" };
   const [_formData, setFormData] = useState(defaultRfiForm);
 
-  const form = useForm<RfiFormData>({ resolver: zodResolver(rfiSchema) as any, defaultValues: defaultRfiForm }); // eslint-disable-line @typescript-eslint/no-explicit-any
+  const form = useForm<RfiFormData>({ resolver: zodResolver(rfiSchema) as unknown as Resolver<RfiFormData>, defaultValues: defaultRfiForm });
   const { register, handleSubmit: rhfHandleSubmit, formState: { errors }, reset, setValue, watch } = form;
 
   // Auto-set project filter from props

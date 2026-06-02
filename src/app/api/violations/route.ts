@@ -4,6 +4,7 @@ import { requireVerifiedPermission, orgFilter } from '../utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
 import { z } from 'zod';
+import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 
 // Zod schema for violation creation
 const violationCreateSchema = z.object({
@@ -22,6 +23,10 @@ const violationCreateSchema = z.object({
 });
 
 export async function GET(request: NextRequest) {
+  const { allowed: _allowed, result: rlResult } = await withRateLimit(request, 'api');
+  const rlBlocked = rateLimitResponse(rlResult);
+  if (rlBlocked) return rlBlocked;
+
   const result = await requireVerifiedPermission(request, Permission.VIOLATION_READ);
   if ('error' in result) return result.error;
   const ctx = result.user;
@@ -54,9 +59,13 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const result = await requireVerifiedPermission(request, Permission.VIOLATION_CREATE);
-  if ('error' in result) return result.error;
-  const _ctx = result.user;
+  const { allowed: _allowed, result } = await withRateLimit(request, 'api');
+  const blocked = rateLimitResponse(result);
+  if (blocked) return blocked;
+
+  const postResult = await requireVerifiedPermission(request, Permission.VIOLATION_CREATE);
+  if ('error' in postResult) return postResult.error;
+  const _ctx = postResult.user;
   try {
     const rawBody = await request.json();
 
@@ -82,7 +91,7 @@ export async function POST(request: NextRequest) {
         description: description || "",
         contractorName: contractorName || "",
         deadline: deadline ? new Date(deadline) : null,
-        status: (status || "OPEN") as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+        status: (status || "OPEN"),
         photoBefore: photoBefore || "",
         photoAfter: photoAfter || "",
         resolutionNotes: resolutionNotes || "",

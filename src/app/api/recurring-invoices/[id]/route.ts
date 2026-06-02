@@ -6,12 +6,13 @@ import { log } from '@/lib/logger';
 import { Permission } from '@/lib/auth/types';
 import { calculateNextDate, type Frequency } from '@/lib/services/recurring-invoice.service';
 import { z } from 'zod';
+import { validateIdParam } from '@/lib/api-validation';
 
 // Validation schema for updating a recurring invoice
 const updateRecurringInvoiceSchema = z.object({
   name: z.string().min(1).max(200).optional(),
   nameAr: z.string().max(200).optional(),
-  clientId: z.string().min(1).optional(),
+  clientId: z.string().cuid().optional(),
   projectId: z.string().optional().nullable(),
   templateItems: z.string().optional(), // JSON string
   notes: z.string().max(2000).optional().nullable(),
@@ -36,7 +37,10 @@ export async function GET(
     if ('error' in rbac) return rbac.error;
     const ctx = rbac.user;
 
-    const { id } = await params;
+    const { id: rawId } = await params;
+    const idCheck = validateIdParam(rawId);
+    if (!idCheck.success) return idCheck.response;
+    const id = idCheck.id;
 
     const recurringInvoice = await db.recurringInvoice.findFirst({
       where: { id, ...orgFilter(ctx) },
@@ -72,7 +76,10 @@ export async function PUT(
     if ('error' in rbac) return rbac.error;
     const ctx = rbac.user;
 
-    const { id } = await params;
+    const { id: rawId } = await params;
+    const idCheck = validateIdParam(rawId);
+    if (!idCheck.success) return idCheck.response;
+    const id = idCheck.id;
 
     // Check existence
     const existing = await db.recurringInvoice.findFirst({
@@ -162,7 +169,10 @@ export async function DELETE(
     if ('error' in rbac) return rbac.error;
     const ctx = rbac.user;
 
-    const { id } = await params;
+    const { id: rawId } = await params;
+    const idCheck = validateIdParam(rawId);
+    if (!idCheck.success) return idCheck.response;
+    const id = idCheck.id;
 
     const existing = await db.recurringInvoice.findFirst({
       where: { id, ...orgFilter(ctx) },

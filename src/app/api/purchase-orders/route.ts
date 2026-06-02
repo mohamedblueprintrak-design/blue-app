@@ -5,17 +5,21 @@ import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
 import { validateRequest, purchaseOrderCreateSchema } from '@/lib/api-validation';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
+import { cachedQuery, invalidateCache, CACHE_TTL, buildCacheKey } from '@/lib/cache/query-cache';
+import { parsePaginationParams, buildPaginationMeta, calculateSkip } from '../utils/pagination';
+import { insensitiveContains } from '../utils/db';
 
 export async function GET(request: NextRequest) {
   try {
-    const result = await requireVerifiedPermission(request, Permission.PURCHASE_ORDER_READ);
-    if ('error' in result) return result.error;
-    const ctx = result.user;
+    const rbac = await requireVerifiedPermission(request, Permission.PURCHASE_ORDER_READ);
+    if ('error' in rbac) return rbac.error;
+    const ctx = rbac.user;
 
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status");
     const supplierId = searchParams.get("supplierId");
     const projectId = searchParams.get("projectId");
+    const { page, limit, search } = parsePaginationParams(searchParams);
 
     const where: Record<string, unknown> = { ...orgFilter(ctx) };
 
@@ -28,32 +32,59 @@ export async function GET(request: NextRequest) {
     if (projectId) {
       where.projectId = projectId;
     }
+    if (search) {
+      where.OR = [
+        { number: insensitiveContains(search) },
+        { project: { name: insensitiveContains(search) } },
+        { supplier: { name: insensitiveContains(search) } },
+      ];
+    }
 
-    const orders = await db.purchaseOrder.findMany({
-      where: Object.keys(where).length > 0 ? where : undefined,
-      include: {
-        supplier: {
-          select: { id: true, name: true, category: true },
-        },
-        project: {
-          select: { id: true, number: true, name: true, nameEn: true },
-        },
-        items: true,
-        _count: {
-          select: { items: true },
-        },
-      },
-      orderBy: { createdAt: "desc" },
-    });
+    const cacheKey = buildCacheKey('purchase-orders', 'list', ctx.organizationId || 'global', status || '', supplierId || '', projectId || '', `p${page}`, `l${limit}`, search || '');
 
-    // Summary stats
-    const totalOrders = orders.length;
-    const totalAmount = orders.reduce((sum, o) => sum + Number(o.amount), 0);
-    const pendingApproval = orders.filter((o) => o.status === "SUBMITTED").length;
+    const cachedData = await cachedQuery(cacheKey, async () => {
+      const [orders, total] = await Promise.all([
+        db.purchaseOrder.findMany({
+          where: Object.keys(where).length > 0 ? where : undefined,
+          include: {
+            supplier: {
+              select: { id: true, name: true, category: true },
+            },
+            project: {
+              select: { id: true, number: true, name: true, nameEn: true },
+            },
+            items: true,
+            _count: {
+              select: { items: true },
+            },
+          },
+          orderBy: { createdAt: "desc" },
+          skip: calculateSkip(page, limit),
+          take: limit,
+        }),
+        db.purchaseOrder.count({ where: Object.keys(where).length > 0 ? where : undefined }),
+      ]);
+
+      // Summary stats
+      const allOrders = await db.purchaseOrder.findMany({
+        where: { ...orgFilter(ctx) },
+        select: { status: true, amount: true },
+      });
+      const totalOrders = allOrders.length;
+      const totalAmount = allOrders.reduce((sum, o) => sum + Number(o.amount), 0);
+      const pendingApproval = allOrders.filter((o) => o.status === "SUBMITTED").length;
+
+      return {
+        orders,
+        total,
+        summary: { totalOrders, totalAmount, pendingApproval },
+      };
+    }, CACHE_TTL.PURCHASE_ORDERS);
 
     return NextResponse.json({
-      orders,
-      summary: { totalOrders, totalAmount, pendingApproval },
+      data: cachedData.orders,
+      summary: cachedData.summary,
+      pagination: buildPaginationMeta(page, limit, cachedData.total),
     });
   } catch (error) {
     log.error("Error fetching purchase orders:", error);
@@ -92,7 +123,7 @@ export async function POST(request: NextRequest) {
         supplierId,
         projectId: projectId || null,
         amount: amount || 0,
-        status: (status || "DRAFT") as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+        status: (status || "DRAFT"),
         ...orgCreate(ctx),
         createdById: ctx.userId,
         items: items && items.length > 0
@@ -114,6 +145,9 @@ export async function POST(request: NextRequest) {
         items: true,
       },
     });
+
+    // Invalidate purchase-order caches after creation
+    await invalidateCache('purchase-orders');
 
     return NextResponse.json(order, { status: 201 });
   } catch (error) {

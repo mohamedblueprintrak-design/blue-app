@@ -5,6 +5,10 @@ import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
 import { sanitizeObject } from '@/lib/security/sanitize';
 import { z } from 'zod';
+import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
+import { parsePaginationParams, buildPaginationMeta, calculateSkip, isPaginationRequested } from '../utils/pagination';
+import { cachedQuery, invalidateCache } from '@/lib/cache/query-cache';
+import { CACHE_TTL } from '@/lib/cache/query-cache';
 
 // Zod schema for defect creation
 const defectCreateSchema = z.object({
@@ -20,6 +24,10 @@ const defectCreateSchema = z.object({
 });
 
 export async function GET(request: NextRequest) {
+  const { allowed: _allowed, result: rlResult } = await withRateLimit(request, 'api');
+  const rlBlocked = rateLimitResponse(rlResult);
+  if (rlBlocked) return rlBlocked;
+
   try {
     const result = await requireVerifiedPermission(request, Permission.DEFECT_READ);
     if ('error' in result) return result.error;
@@ -37,18 +45,47 @@ export async function GET(request: NextRequest) {
     if (status) where.status = status;
     if (assigneeId) where.assigneeId = assigneeId;
 
-    const defects = await db.defect.findMany({
-      where,
-      include: {
-        project: {
-          select: { id: true, name: true, nameEn: true, number: true },
+    const usePagination = isPaginationRequested(searchParams);
+    const { page, limit } = parsePaginationParams(searchParams);
+    const cacheKey = `defects:${ctx.organizationId || 'none'}:${projectId || 'all'}:${severity || 'all'}:${status || 'all'}:${page}:${limit}`;
+
+    if (usePagination) {
+      const [defects, total] = await cachedQuery(cacheKey, () => Promise.all([
+        db.defect.findMany({
+          where,
+          include: {
+            project: {
+              select: { id: true, name: true, nameEn: true, number: true },
+            },
+            assignee: {
+              select: { id: true, name: true, email: true, avatar: true },
+            },
+          },
+          orderBy: { createdAt: "desc" },
+          skip: calculateSkip(page, limit),
+          take: limit,
+        }),
+        db.defect.count({ where }),
+      ]), CACHE_TTL.DEFECTS);
+
+      return NextResponse.json({ data: defects, pagination: buildPaginationMeta(page, limit, total) });
+    }
+
+    // Backward-compatible: no pagination params → return raw array (with caching)
+    const defects = await cachedQuery(cacheKey, () =>
+      db.defect.findMany({
+        where,
+        include: {
+          project: {
+            select: { id: true, name: true, nameEn: true, number: true },
+          },
+          assignee: {
+            select: { id: true, name: true, email: true, avatar: true },
+          },
         },
-        assignee: {
-          select: { id: true, name: true, email: true, avatar: true },
-        },
-      },
-      orderBy: { createdAt: "desc" },
-    });
+        orderBy: { createdAt: "desc" },
+      }),
+    CACHE_TTL.DEFECTS);
 
     return NextResponse.json(defects);
   } catch (error) {
@@ -58,6 +95,10 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const { allowed: _allowed, result } = await withRateLimit(request, 'api');
+  const blocked = rateLimitResponse(result);
+  if (blocked) return blocked;
+
   try {
     const result = await requireVerifiedPermission(request, Permission.DEFECT_CREATE);
     if ('error' in result) return result.error;
@@ -80,12 +121,12 @@ export async function POST(request: NextRequest) {
       data: {
         projectId,
         title: title || "",
-        severity: (severity || "NORMAL") as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+        severity: (severity || "NORMAL"),
         location: location || "",
         assigneeId: assigneeId || null,
         photos: photos || "",
         resolutionNotes: notes || "",
-        status: (status || "OPEN") as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+        status: (status || "OPEN"),
         ...orgCreate(ctx),
         createdById: ctx.userId,
       },
@@ -99,6 +140,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    await invalidateCache('defects');
     return NextResponse.json(defect, { status: 201 });
   } catch (error) {
     log.error("Error creating defect:", error);

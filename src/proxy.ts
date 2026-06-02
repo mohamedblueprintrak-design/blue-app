@@ -27,20 +27,26 @@ const PUBLIC_API_ROUTES = [
   '/api/auth/2fa/verify', // Only the verify endpoint is public (uses blue_2fa_temp cookie)
   '/api/auth/ws-token', '/api/auth/refresh',
   '/api/auth/google', '/api/auth/google/callback', // Google OAuth social login
+  '/api/auth/microsoft', '/api/auth/microsoft/callback', // Microsoft OAuth social login
   '/api/quote-requests', '/api/health',
   '/api/stripe/webhook', '/api/public',
   '/api/stripe/plans', '/api/portal',
   '/api/cron/cleanup', '/api/public/stats',
+  '/api/whatsapp/webhook', // WhatsApp webhook — Meta calls this endpoint (no auth)
 ];
 
 const CSRF_EXEMPT_PATHS = [
   '/api/stripe/webhook', '/api/health', '/api/auth/login',
   '/api/auth/register', '/api/auth/logout', '/api/auth/forgot-password',
   '/api/auth/reset-password', '/api/auth/verify-email', '/api/auth/resend-verification',
-  '/api/auth/2fa', '/api/auth/2fa/verify', '/api/auth/2fa/backup-codes',
+  // SECURITY: /api/auth/2fa and /api/auth/2fa/backup-codes are NOT exempt from CSRF
+  // These authenticated endpoints modify 2FA settings and require CSRF protection
+  '/api/auth/2fa/verify', // Only the verify step (uses blue_2fa_temp cookie, CSRF impractical during 2FA flow)
   '/api/auth/refresh', '/api/auth/ws-token', '/api/seed',
-  '/api/quote-requests', '/api/cron/cleanup', '/api/public/stats',
+  '/api/quote-requests', '/api/cron/cleanup', '/api/cron/workers', '/api/public/stats',
   '/api/auth/google', '/api/auth/google/callback', // Google OAuth social login
+  '/api/auth/microsoft', '/api/auth/microsoft/callback', // Microsoft OAuth social login
+  '/api/whatsapp/webhook', // WhatsApp webhook — Meta calls this endpoint (no CSRF token)
 ];
 
 const PUBLIC_PAGE_ROUTES = [

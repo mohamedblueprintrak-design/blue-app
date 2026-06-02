@@ -47,9 +47,13 @@ export async function POST(request: NextRequest) {
     });
 
     // Send email
-    const host = request.headers.get("host") || "localhost:3000";
-    const protocol = request.headers.get("x-forwarded-proto") || "http";
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || `${protocol}://${host}`;
+    const protocol = request.headers.get("x-forwarded-proto") || "https";
+    const host = request.headers.get("host");
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || (host ? `${protocol}://${host}` : '');
+    if (!baseUrl) {
+      log.error('Cannot construct reset URL: NEXT_PUBLIC_APP_URL not set and host header missing');
+      return NextResponse.json({ success: true }); // Still don't reveal if user exists
+    }
     const resetUrl = `${baseUrl}/reset-password?token=${resetToken}`;
 
     try {

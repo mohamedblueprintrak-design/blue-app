@@ -2,8 +2,9 @@ import { db } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 import { orgFilter } from '../../utils/auth';
 import { requireVerifiedPermission } from '../../utils/auth';
-import { log } from '@/lib/logger';
 import { Permission } from '@/lib/auth/types';
+import { log } from '@/lib/logger';
+import { cachedQuery, CACHE_TTL, buildCacheKey } from '@/lib/cache/query-cache';
 
 export async function GET(request: NextRequest) {
   const authResult = await requireVerifiedPermission(request, Permission.REPORTS_READ);
@@ -12,6 +13,10 @@ export async function GET(request: NextRequest) {
   try {
     // Org filter for multi-tenant data isolation
     const orgWhere = orgFilter(ctx);
+
+    const cacheKey = buildCacheKey('reports', 'hr', ctx.organizationId || 'global');
+
+    const result = await cachedQuery(cacheKey, async () => {
 
     // Employee count by department
     const employees = await db.employee.findMany({
@@ -137,20 +142,23 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    return NextResponse.json({
-      totalEmployees,
-      activeEmployees,
-      presentToday,
-      absentToday,
-      lateToday,
-      onLeaveToday,
-      onLeaveEmployees,
-      pendingLeaves,
-      approvedLeavesThisMonth,
-      departmentDistribution,
-      leaveDistribution,
-      attendanceTrend,
-    });
+      return {
+        totalEmployees,
+        activeEmployees,
+        presentToday,
+        absentToday,
+        lateToday,
+        onLeaveToday,
+        onLeaveEmployees,
+        pendingLeaves,
+        approvedLeavesThisMonth,
+        departmentDistribution,
+        leaveDistribution,
+        attendanceTrend,
+      };
+    }, CACHE_TTL.REPORTS);
+
+    return NextResponse.json(result);
   } catch (error) {
     log.error("Error fetching HR report:", error);
     return NextResponse.json({ error: "Failed to fetch HR report" }, { status: 500 });

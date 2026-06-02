@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { log } from '@/lib/logger';
 import { requireVerifiedPermission, orgFilter } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
+import { cachedQuery, CACHE_TTL, buildCacheKey } from '@/lib/cache/query-cache';
 
 export async function GET(request: NextRequest) {
   try {
@@ -12,7 +13,9 @@ export async function GET(request: NextRequest) {
     const user = rbac.user;
     const org = orgFilter(user);
 
-    // Revenue: sum of paidAmount from all invoices
+    const cacheKey = buildCacheKey('reports', 'overview', user.organizationId || 'global');
+
+    const result = await cachedQuery(cacheKey, async () => {
     const revenueResult = await db.invoice.aggregate({
       _sum: { paidAmount: true },
       where: org,
@@ -81,16 +84,19 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    return NextResponse.json({
-      revenue,
-      expenses,
-      profit,
-      completedProjects,
-      activeTasks,
-      totalProjects,
-      totalTasks,
-      monthlyData,
-    });
+      return {
+        revenue,
+        expenses,
+        profit,
+        completedProjects,
+        activeTasks,
+        totalProjects,
+        totalTasks,
+        monthlyData,
+      };
+    }, CACHE_TTL.REPORTS);
+
+    return NextResponse.json(result);
   } catch (error) {
     log.error("Error fetching overview report:", error);
     return NextResponse.json({ error: "Failed to fetch overview" }, { status: 500 });

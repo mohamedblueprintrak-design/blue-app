@@ -155,7 +155,7 @@ export type AiChatData = z.infer<typeof aiChatSchema>;
 
 export const approvalCreateSchema = z.object({
   entityType: z.string().min(1).max(50),
-  entityId: z.string().min(1).max(100),
+  entityId: z.string().cuid(),
   title: z.string().min(1, 'العنوان مطلوب').max(300),
   description: z.string().max(2000).optional().default(''),
   requestedBy: z.string().max(200).optional().default(''),

@@ -5,6 +5,8 @@ import { requireVerifiedPermission, orgFilter, orgCreate } from '@/app/api/utils
 import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
+import { parsePaginationParams, buildPaginationMeta, calculateSkip } from '../utils/pagination';
+import { insensitiveContains } from '../utils/db';
 
 export async function GET(request: NextRequest) {
   const { allowed: _allowed, result } = await withRateLimit(request, 'api');
@@ -19,35 +21,48 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status");
     const projectId = searchParams.get("projectId");
+    const { page, limit, search } = parsePaginationParams(searchParams);
 
     const where: Record<string, unknown> = { deletedAt: null, ...orgFilter(ctx) };
     if (status) where.status = status;
     if (projectId) where.projectId = projectId;
+    if (search) {
+      where.OR = [
+        { contractorName: insensitiveContains(search) },
+        { notes: insensitiveContains(search) },
+        { project: { name: insensitiveContains(search) } },
+      ];
+    }
 
-    const bids = await db.bid.findMany({
-      where: Object.keys(where).length > 0 ? where : undefined,
-      include: {
-        project: { select: { id: true, name: true, nameEn: true, number: true } },
-        contractor: {
-          select: {
-            id: true,
-            name: true,
-            nameEn: true,
-            companyName: true,
-            companyEn: true,
-            contactPerson: true,
-            phone: true,
-            email: true,
-            category: true,
-            rating: true,
-            crNumber: true,
+    const [bids, total] = await Promise.all([
+      db.bid.findMany({
+        where: Object.keys(where).length > 0 ? where : undefined,
+        include: {
+          project: { select: { id: true, name: true, nameEn: true, number: true } },
+          contractor: {
+            select: {
+              id: true,
+              name: true,
+              nameEn: true,
+              companyName: true,
+              companyEn: true,
+              contactPerson: true,
+              phone: true,
+              email: true,
+              category: true,
+              rating: true,
+              crNumber: true,
+            },
           },
         },
-      },
-      orderBy: { createdAt: "desc" },
-    });
+        orderBy: { createdAt: "desc" },
+        skip: calculateSkip(page, limit),
+        take: limit,
+      }),
+      db.bid.count({ where: Object.keys(where).length > 0 ? where : undefined }),
+    ]);
 
-    return NextResponse.json(bids);
+    return NextResponse.json({ data: bids, pagination: buildPaginationMeta(page, limit, total) });
   } catch (error) {
     log.error("Error fetching bids:", error);
     return NextResponse.json({ error: "Failed to fetch bids" }, { status: 500 });

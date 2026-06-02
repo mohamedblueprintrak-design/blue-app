@@ -42,8 +42,7 @@ const consoleFormat = winston.format.combine(
   winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
   winston.format.colorize({ all: true }),
   winston.format.printf(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (info: any) => `[${info.timestamp}] ${info.level}: ${info.message}`
+    (info: winston.Logform.TransformableInfo) => `[${info.timestamp}] ${info.level}: ${info.message}`
   )
 );
 

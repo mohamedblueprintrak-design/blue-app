@@ -13,7 +13,7 @@ const projectAssignmentCreateSchema = z.object({
 });
 
 const projectAssignmentUpdateSchema = z.object({
-  id: z.string().min(1, 'Assignment ID is required').max(100),
+  id: z.string().cuid('Invalid ID'),
   role: z.string().min(1, 'Role is required').max(50),
 });
 
@@ -119,7 +119,7 @@ export async function POST(request: NextRequest) {
       data: {
         projectId,
         userId,
-        role: (role || "TEAM_MEMBER") as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+        role: (role || "TEAM_MEMBER"),
       },
       include: {
         user: {
@@ -170,7 +170,7 @@ export async function PUT(request: NextRequest) {
 
     const assignment = await db.projectAssignment.update({
       where: { id },
-      data: { role: role as any }, // eslint-disable-line @typescript-eslint/no-explicit-any
+      data: { role: role },
       include: {
         user: {
           select: {

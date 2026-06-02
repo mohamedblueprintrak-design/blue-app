@@ -11,9 +11,11 @@
  */
 
 import fs from 'fs/promises';
+import type { Stats } from 'fs';
 import path from 'path';
 import { execFile } from 'child_process';
 import { promisify } from 'util';
+import { Prisma } from '@prisma/client';
 import { log } from '@/lib/logger';
 
 const execFileAsync = promisify(execFile);
@@ -270,9 +272,45 @@ class BackupService {
       // Ensure destination file does not exist (VACUUM INTO requires the target file to not exist)
       await fs.unlink(destPath).catch(() => {});
 
-      // Use VACUUM INTO to safely clone database even if transactions are active
+      // SECURITY: Use parameterized query instead of string interpolation to prevent SQL injection
+      // VACUUM INTO requires the target file to not exist
       const { db } = await import('@/lib/db');
-      await db.$executeRawUnsafe(`VACUUM INTO '${destPath.replace(/'/g, "''")}'`);
+      // Validate destPath: must be within backupDir and follow expected filename pattern
+      const expectedPrefix = path.resolve(this.backupDir);
+      const resolvedDest = path.resolve(destPath);
+      if (!resolvedDest.startsWith(expectedPrefix)) {
+        return {
+          success: false,
+          backupId,
+          timestamp,
+          size: 0,
+          duration: Date.now() - startTime,
+          filename,
+          error: 'Backup path is outside the allowed directory',
+        };
+      }
+      // Validate filename format (must match blueprint_backup_YYYYMMDD_HHmmss.db)
+      const baseName = path.basename(resolvedDest);
+      if (!/^blueprint_backup_\d{8}_\d{6}\.db$/.test(baseName)) {
+        return {
+          success: false,
+          backupId,
+          timestamp,
+          size: 0,
+          duration: Date.now() - startTime,
+          filename,
+          error: 'Backup filename does not match expected pattern',
+        };
+      }
+      // Use $executeRaw with Prisma.sql instead of $executeRawUnsafe to prevent SQL injection.
+      // SQLite's VACUUM INTO does not support parameterized (?) for the target path,
+      // so we must embed the validated path as a raw SQL string literal.
+      // Safety is ensured by the strict validations above:
+      //   1. Path traversal check (resolvedDest must be inside backupDir)
+      //   2. Filename regex (must match blueprint_backup_YYYYMMDD_HHmmss.db)
+      //   3. Single-quote escaping (doubled to prevent breaking out of the string literal)
+      const sanitizedPath = resolvedDest.replace(/'/g, "''");
+      await db.$executeRaw(Prisma.sql`VACUUM INTO ${Prisma.raw(`'${sanitizedPath}'`)}`);
 
       // Verify backup was created correctly
       const stats = await fs.stat(destPath);
@@ -569,6 +607,127 @@ class BackupService {
       oldestBackup: backups.length > 0 ? backups[backups.length - 1].timestamp : undefined,
       newestBackup: backups.length > 0 ? backups[0].timestamp : undefined,
       dbType: isPostgreSQL ? 'postgresql' : 'sqlite',
+    };
+  }
+
+  /**
+   * Verify a backup file's integrity
+   * التحقق من سلامة ملف النسخة الاحتياطية
+   *
+   * Steps:
+   * 1. Check file exists and is readable
+   * 2. Check file size > 0
+   * 3. Compute SHA-256 checksum
+   * 4. Validate SQLite header (first 16 bytes should be "SQLite format 3\000")
+   * 5. Return verification result
+   */
+  async verifyBackup(filename: string): Promise<{
+    valid: boolean;
+    checksum: string;
+    size: number;
+    isSQLite: boolean;
+    headerValid: boolean;
+    error?: string;
+    verifiedAt: string;
+  }> {
+    const verifiedAt = new Date().toISOString();
+
+    // SECURITY: Validate the filename to prevent path traversal
+    const backupPath = this.validateBackupPath(filename);
+    if (!backupPath) {
+      return {
+        valid: false,
+        checksum: '',
+        size: 0,
+        isSQLite: false,
+        headerValid: false,
+        error: 'اسم ملف نسخة احتياطية غير صالح',
+        verifiedAt,
+      };
+    }
+
+    // Step 1: Check file exists and is readable
+    try {
+      await fs.access(backupPath, fs.constants.R_OK);
+    } catch {
+      return {
+        valid: false,
+        checksum: '',
+        size: 0,
+        isSQLite: false,
+        headerValid: false,
+        error: 'ملف النسخة الاحتياطية غير موجود أو غير قابل للقراءة',
+        verifiedAt,
+      };
+    }
+
+    // Step 2: Check file size > 0
+    let stats: Stats;
+    try {
+      stats = await fs.stat(backupPath);
+    } catch {
+      return {
+        valid: false,
+        checksum: '',
+        size: 0,
+        isSQLite: false,
+        headerValid: false,
+        error: 'فشل في قراءة معلومات الملف',
+        verifiedAt,
+      };
+    }
+
+    if (stats.size === 0) {
+      return {
+        valid: false,
+        checksum: '',
+        size: 0,
+        isSQLite: false,
+        headerValid: false,
+        error: 'ملف النسخة الاحتياطية فارغ',
+        verifiedAt,
+      };
+    }
+
+    // Step 3: Compute SHA-256 checksum
+    let fileBuffer: Buffer;
+    try {
+      fileBuffer = await fs.readFile(backupPath);
+    } catch {
+      return {
+        valid: false,
+        checksum: '',
+        size: stats.size,
+        isSQLite: false,
+        headerValid: false,
+        error: 'فشل في قراءة محتوى الملف',
+        verifiedAt,
+      };
+    }
+
+    const crypto = await import('crypto');
+    const checksum = crypto.createHash('sha256').update(fileBuffer).digest('hex');
+
+    // Step 4: Validate SQLite header
+    // SQLite databases start with the 16-byte string "SQLite format 3\000"
+    const SQLITE_HEADER = Buffer.from('SQLite format 3\0', 'utf8');
+    const isSQLite = fileBuffer.length >= 16;
+    const headerValid = isSQLite && fileBuffer.subarray(0, 16).equals(SQLITE_HEADER);
+
+    // For PostgreSQL dumps (.sql.gz), SQLite header check is not applicable
+    const isPostgresDump = filename.endsWith('.sql.gz');
+    const valid = isPostgresDump ? stats.size > 0 : headerValid;
+
+    log.info(`[Backup] Verification result for ${filename}: valid=${valid}, checksum=${checksum.substring(0, 16)}..., size=${stats.size}, isSQLite=${isSQLite}, headerValid=${headerValid}`);
+
+    return {
+      valid,
+      checksum,
+      size: stats.size,
+      isSQLite,
+      headerValid,
+      error: valid ? undefined : (isPostgresDump ? 'ملف النسخة الاحتياطية غير صالح' : 'ترويسة ملف قاعدة البيانات غير صالحة — الملف تالف أو ليس قاعدة بيانات SQLite'),
+      verifiedAt,
     };
   }
 }

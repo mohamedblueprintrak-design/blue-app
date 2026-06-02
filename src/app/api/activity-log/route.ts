@@ -4,6 +4,9 @@ import { requireVerifiedPermission, orgFilter} from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { handleApiError } from '@/lib/api-error';
 import { z } from 'zod';
+import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
+import { cachedQuery, CACHE_TTL, buildCacheKey } from '@/lib/cache/query-cache';
+import { parsePaginationParams, buildPaginationMeta, calculateSkip } from '../utils/pagination';
 
 // Zod schema for activity log creation (simulate mode)
 const activityLogCreateSchema = z.object({
@@ -15,6 +18,10 @@ const activityLogCreateSchema = z.object({
 });
 
 export async function GET(request: NextRequest) {
+  const { allowed: _allowed, result: rlResult } = await withRateLimit(request, 'api');
+  const rlBlocked = rateLimitResponse(rlResult);
+  if (rlBlocked) return rlBlocked;
+
   try {
     // RBAC CHECK - requires REPORTS_READ permission
     const rbac = await requireVerifiedPermission(request, Permission.REPORTS_READ);
@@ -25,8 +32,8 @@ export async function GET(request: NextRequest) {
     const actionType = searchParams.get('actionType') || '';
     const entityType = searchParams.get('entityType') || '';
     const dateFrom = searchParams.get('dateFrom') || '';
-    const limit = parseInt(searchParams.get('limit') || '50', 10);
     const projectId = searchParams.get('projectId');
+    const { page, limit, search } = parsePaginationParams(searchParams);
 
     // ActivityLog doesn't have organizationId; filter through project relationship
     const orgWhere = ctx.organizationId ? { project: { organizationId: ctx.organizationId } } : {};
@@ -48,24 +55,46 @@ export async function GET(request: NextRequest) {
       where.projectId = projectId;
     }
 
-    const activities = await db.activityLog.findMany({
-      where,
-      include: {
-        user: {
-          select: { id: true, name: true, email: true, avatar: true, role: true },
-        },
-      },
-      orderBy: { createdAt: 'desc' },
-      take: limit,
-    });
+    if (search) {
+      where.OR = [
+        { details: { contains: search } },
+        { action: { contains: search } },
+        { entityType: { contains: search } },
+        { user: { name: { contains: search } } },
+      ];
+    }
 
-    return NextResponse.json(activities);
+    const cacheKey = buildCacheKey('activity-log', 'list', ctx.organizationId || 'global', actionType, entityType, dateFrom, `p${page}`, `l${limit}`, search || '', projectId || '');
+
+    const { activities, total } = await cachedQuery(cacheKey, async () => {
+      const [activities, total] = await Promise.all([
+        db.activityLog.findMany({
+          where,
+          include: {
+            user: {
+              select: { id: true, name: true, email: true, avatar: true, role: true },
+            },
+          },
+          orderBy: { createdAt: 'desc' },
+          skip: calculateSkip(page, limit),
+          take: limit,
+        }),
+        db.activityLog.count({ where }),
+      ]);
+      return { activities, total };
+    }, CACHE_TTL.ACTIVITY_LOG);
+
+    return NextResponse.json({ data: activities, pagination: buildPaginationMeta(page, limit, total) });
   } catch (error: unknown) {
     return handleApiError(error, 'ActivityLog GET');
   }
 }
 
 export async function POST(request: NextRequest) {
+  const { allowed: _allowed, result } = await withRateLimit(request, 'api');
+  const blocked = rateLimitResponse(result);
+  if (blocked) return blocked;
+
   try {
     // RBAC CHECK - requires REPORTS_READ permission
     const rbac = await requireVerifiedPermission(request, Permission.REPORTS_READ);
@@ -174,7 +203,7 @@ export async function POST(request: NextRequest) {
     const activity = await db.activityLog.create({
       data: {
         userId: randomUser.id,
-        action: randomAction as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+        action: randomAction,
         entityType: randomEntity,
         entityId: `sim-${Date.now()}`,
         details: randomDetail,

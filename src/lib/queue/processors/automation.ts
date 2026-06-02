@@ -9,7 +9,7 @@
 import { Job } from 'bullmq';
 import { db } from '@/lib/db';
 import { log } from '@/lib/logger';
-import type { TaskPriority } from '@/types/db-enums';
+import type { TaskPriority, NotificationType } from '@/types/db-enums';
 
 /**
  * Automation job data structure
@@ -217,13 +217,13 @@ async function executeNotificationAction(
   for (const userId of userIds as string[]) {
     await notificationService.create({
       userId,
-      type: (type as any) || 'system_alert', // eslint-disable-line @typescript-eslint/no-explicit-any
+      type: (type as NotificationType) || 'SYSTEM_ALERT',
       titleAr: (title as string) || 'إشعار تلقائي',
       titleEn: (titleEn as string) || 'Automated Notification',
       messageAr: (message as string) || '',
       messageEn: (messageEn as string) || '',
       link: link as string,
-      priority: (priority as any) || 'MEDIUM', // eslint-disable-line @typescript-eslint/no-explicit-any
+      priority: (priority as 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT') || 'MEDIUM',
       organizationId,
     });
   }

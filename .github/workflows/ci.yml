@@ -203,8 +203,8 @@ jobs:
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: bun install --frozen-lockfile
 
-      - name: Run npm audit (moderate+)
-        run: npx npm-audit --audit-level=moderate
+      - name: Run Bun audit (moderate+)
+        run: bunx npm-audit --audit-level=moderate
         continue-on-error: true
 
       - name: Dependency review

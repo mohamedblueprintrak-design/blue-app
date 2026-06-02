@@ -5,6 +5,8 @@ import { requireVerifiedPermission, orgFilter, orgCreate } from "@/app/api/utils
 import { Permission } from "@/lib/auth/types";
 import { log } from "@/lib/logger";
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
+import { cachedQuery, invalidateCache, CACHE_TTL, buildCacheKey } from '@/lib/cache/query-cache';
+import { parsePaginationParams, buildPaginationMeta, calculateSkip } from '../utils/pagination';
 
 // ============================================
 // Validation Schemas
@@ -19,7 +21,7 @@ const timesheetEntrySchema = z.object({
 });
 
 const timesheetCreateSchema = z.object({
-  employeeId: z.string().min(1),
+  employeeId: z.string().cuid(),
   projectId: z.string().optional().nullable(),
   weekStart: z.string(),
   weekEnd: z.string(),
@@ -41,6 +43,7 @@ export async function GET(request: NextRequest) {
     const projectId = searchParams.get("projectId");
     const status = searchParams.get("status");
     const weekStart = searchParams.get("weekStart");
+    const { page, limit, search } = parsePaginationParams(searchParams);
 
     const where: Record<string, unknown> = {
       deletedAt: null,
@@ -59,68 +62,90 @@ export async function GET(request: NextRequest) {
     if (weekStart) {
       where.weekStart = new Date(weekStart);
     }
+    if (search) {
+      where.OR = [
+        { notes: { contains: search } },
+        { employee: { user: { name: { contains: search } } } },
+        { project: { name: { contains: search } } },
+      ];
+    }
 
-    const timesheets = await db.timesheet.findMany({
-      where,
-      include: {
-        employee: {
-          select: {
-            id: true,
-            userId: true,
-            department: true,
-            position: true,
-            user: {
-              select: { id: true, name: true, email: true, avatar: true },
-            },
-          },
-        },
-        project: {
-          select: { id: true, name: true, nameEn: true, number: true },
-        },
-        approvedBy: {
-          select: { id: true, name: true, avatar: true },
-        },
-        entries: {
-          orderBy: { date: "asc" },
+    const cacheKey = buildCacheKey('timesheets', 'list', ctx.organizationId || 'global', employeeId || 'all', projectId || 'all', status || 'all', weekStart || '', `p${page}`, `l${limit}`, search || '');
+
+    const result = await cachedQuery(cacheKey, async () => {
+      const [timesheets, total] = await Promise.all([
+        db.timesheet.findMany({
+          where,
           include: {
+            employee: {
+              select: {
+                id: true,
+                userId: true,
+                department: true,
+                position: true,
+                user: {
+                  select: { id: true, name: true, email: true, avatar: true },
+                },
+              },
+            },
             project: {
-              select: { id: true, name: true, nameEn: true },
+              select: { id: true, name: true, nameEn: true, number: true },
+            },
+            approvedBy: {
+              select: { id: true, name: true, avatar: true },
+            },
+            entries: {
+              orderBy: { date: "asc" },
+              include: {
+                project: {
+                  select: { id: true, name: true, nameEn: true },
+                },
+              },
             },
           },
-        },
-      },
-      orderBy: { createdAt: "desc" },
+          orderBy: { createdAt: "desc" },
+          skip: calculateSkip(page, limit),
+          take: limit,
+        }),
+        db.timesheet.count({ where }),
+      ]);
+
+      // Summary stats
+      const now = new Date();
+      const startOfWeek = getMonday(now);
+      const endOfWeek = getSunday(now);
+
+      const [thisWeekHours, pendingCount, approvedCount, rejectedCount] = await Promise.all([
+        db.timesheet.aggregate({
+          _sum: { totalHours: true },
+          where: {
+            weekStart: { gte: startOfWeek },
+            weekEnd: { lte: endOfWeek },
+            deletedAt: null,
+            status: { in: ["SUBMITTED", "APPROVED"] },
+            employee: { ...orgFilter(ctx) },
+          },
+        }),
+        db.timesheet.count({ where: { status: "SUBMITTED", deletedAt: null, employee: { ...orgFilter(ctx) } } }),
+        db.timesheet.count({ where: { status: "APPROVED", deletedAt: null, employee: { ...orgFilter(ctx) } } }),
+        db.timesheet.count({ where: { status: "REJECTED", deletedAt: null, employee: { ...orgFilter(ctx) } } }),
+      ]);
+
+      const summary = {
+        thisWeekHours: thisWeekHours._sum?.totalHours || 0,
+        PENDING: pendingCount,
+        APPROVED: approvedCount,
+        REJECTED: rejectedCount,
+      };
+
+      return { timesheets, total, summary };
+    }, CACHE_TTL.TIMESHEETS);
+
+    return NextResponse.json({
+      timesheets: result.timesheets,
+      summary: result.summary,
+      pagination: buildPaginationMeta(page, limit, result.total),
     });
-
-    // Summary stats
-    const now = new Date();
-    const startOfWeek = getMonday(now);
-    const endOfWeek = getSunday(now);
-
-    const [thisWeekHours, pendingCount, approvedCount, rejectedCount] = await Promise.all([
-      db.timesheet.aggregate({
-        _sum: { totalHours: true },
-        where: {
-          weekStart: { gte: startOfWeek },
-          weekEnd: { lte: endOfWeek },
-          deletedAt: null,
-          status: { in: ["SUBMITTED", "APPROVED"] },
-          employee: { ...orgFilter(ctx) },
-        },
-      }),
-      db.timesheet.count({ where: { status: "SUBMITTED", deletedAt: null, employee: { ...orgFilter(ctx) } } }),
-      db.timesheet.count({ where: { status: "APPROVED", deletedAt: null, employee: { ...orgFilter(ctx) } } }),
-      db.timesheet.count({ where: { status: "REJECTED", deletedAt: null, employee: { ...orgFilter(ctx) } } }),
-    ]);
-
-    const summary = {
-      thisWeekHours: thisWeekHours._sum?.totalHours || 0,
-      PENDING: pendingCount,
-      APPROVED: approvedCount,
-      REJECTED: rejectedCount,
-    };
-
-    return NextResponse.json({ timesheets, summary });
   } catch (error) {
     log.error("GET /api/timesheets error:", error);
     return NextResponse.json({ error: "Failed to fetch timesheets" }, { status: 500 });
@@ -198,6 +223,9 @@ export async function POST(request: NextRequest) {
         entries: { orderBy: { date: "asc" } },
       },
     });
+
+    // Invalidate timesheet caches after creation
+    await invalidateCache('timesheets');
 
     return NextResponse.json(timesheet, { status: 201 });
   } catch (error) {

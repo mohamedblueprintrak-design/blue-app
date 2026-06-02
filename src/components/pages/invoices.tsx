@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToastFeedback } from "@/hooks/use-toast-feedback";
-import { useForm } from "react-hook-form";
+import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { invoiceSchema, type InvoiceFormData } from "@/lib/validations";
 import { Card, CardContent } from "@/components/ui/card";
@@ -52,7 +52,7 @@ export default function InvoicesPage({ language, projectId }: InvoicesPageProps)
   };
 
   const form = useForm<InvoiceFormData>({
-    resolver: zodResolver(invoiceSchema) as any, // eslint-disable-line @typescript-eslint/no-explicit-any -- zodResolver + react-hook-form type mismatch
+    resolver: zodResolver(invoiceSchema) as unknown as Resolver<InvoiceFormData>,
     defaultValues: {
       number: "",
       clientId: "",

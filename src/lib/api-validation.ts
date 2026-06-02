@@ -26,6 +26,7 @@ export * from './validations/user.schema';
 export * from './validations/common.schema';
 export * from './validations/entity.schema';
 export * from './validations/update.schema';
+export * from './validations/report-builder.schema';
 
 // ===== Validation Result Types =====
 

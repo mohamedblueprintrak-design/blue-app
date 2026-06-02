@@ -4,8 +4,15 @@ import { requireVerifiedPermission, orgFilter, orgCreate } from '@/app/api/utils
 import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
 import { validateRequest, inventoryCreateSchema } from '@/lib/api-validation';
+import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
+import { parsePaginationParams, buildPaginationMeta, calculateSkip, isPaginationRequested } from '../utils/pagination';
+import { cachedQuery, invalidateCache, CACHE_TTL } from '@/lib/cache/query-cache';
 
 export async function GET(request: NextRequest) {
+  const { allowed: _allowed, result: rlResult } = await withRateLimit(request, 'api');
+  const rlBlocked = rateLimitResponse(rlResult);
+  if (rlBlocked) return rlBlocked;
+
   try {
     const result = await requireVerifiedPermission(request, Permission.INVENTORY_READ);
     if ('error' in result) return result.error;
@@ -20,22 +27,22 @@ export async function GET(request: NextRequest) {
     if (projectId) {
       where.projectId = projectId;
     }
-    if (lowStock === "true") {
-      // Items where quantity is at or below minimum level
-      where.quantity = { lte: undefined };
-    }
 
     // Fetch all items and filter low stock in-memory for SQLite compatibility
     const orgWhere = ctx.organizationId ? { deletedAt: null, project: { organizationId: ctx.organizationId } } : { deletedAt: null };
-    const items = await db.inventoryItem.findMany({
-      where: projectId ? { projectId, ...orgWhere } : orgWhere,
-      include: {
-        project: {
-          select: { id: true, number: true, name: true, nameEn: true },
+    const cacheKey = `inventory:${ctx.organizationId || 'none'}:${projectId || 'all'}:${lowStock || 'all'}`;
+
+    const items = await cachedQuery(cacheKey, () =>
+      db.inventoryItem.findMany({
+        where: projectId ? { projectId, ...orgWhere } : orgWhere,
+        include: {
+          project: {
+            select: { id: true, number: true, name: true, nameEn: true },
+          },
         },
-      },
-      orderBy: { createdAt: "desc" },
-    });
+        orderBy: { createdAt: "desc" },
+      }),
+    CACHE_TTL.DEFAULT);
 
     // Compute total value for each item
     const itemsWithTotal = items.map((item) => ({
@@ -54,6 +61,15 @@ export async function GET(request: NextRequest) {
     const lowStockCount = itemsWithTotal.filter((i) => i.isLowStock).length;
     const totalValue = itemsWithTotal.reduce((sum, i) => sum + i.totalValue, 0);
 
+    // Pagination support
+    const usePagination = isPaginationRequested(searchParams);
+    if (usePagination) {
+      const { page, limit } = parsePaginationParams(searchParams);
+      const start = (page - 1) * limit;
+      const pagedItems = filteredItems.slice(start, start + limit);
+      return NextResponse.json({ data: pagedItems, pagination: buildPaginationMeta(page, limit, filteredItems.length), summary: { totalItems, lowStockCount, totalValue } });
+    }
+
     return NextResponse.json({
       items: filteredItems,
       summary: { totalItems, lowStockCount, totalValue },
@@ -68,6 +84,10 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const { allowed: _allowed, result } = await withRateLimit(request, 'api');
+  const blocked = rateLimitResponse(result);
+  if (blocked) return blocked;
+
   try {
     const result = await requireVerifiedPermission(request, Permission.INVENTORY_CREATE);
     if ('error' in result) return result.error;
@@ -101,6 +121,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    await invalidateCache('inventory');
     return NextResponse.json(item, { status: 201 });
   } catch (error) {
     log.error("Error creating inventory item:", error);

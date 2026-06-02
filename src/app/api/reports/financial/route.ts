@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireVerifiedPermission, orgFilter } from '../../utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
+import { cachedQuery, CACHE_TTL, buildCacheKey } from '@/lib/cache/query-cache';
 
 export async function GET(request: NextRequest) {
   const result = await requireVerifiedPermission(request, Permission.REPORTS_READ);
@@ -11,6 +12,10 @@ export async function GET(request: NextRequest) {
   try {
     // Org filter for multi-tenant data isolation
     const orgWhere = orgFilter(ctx);
+
+    const cacheKey = buildCacheKey('reports', 'financial', ctx.organizationId || 'global');
+
+    const result = await cachedQuery(cacheKey, async () => {
 
     // Invoice stats
     const invoiceStats = await db.invoice.aggregate({
@@ -130,14 +135,17 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    return NextResponse.json({
-      collectedInvoices,
-      pendingInvoices: pendingInvoices._sum.remaining || 0,
-      overdueInvoices: overdueInvoices._sum.remaining || 0,
-      overdueCount,
-      topClients,
-      monthlyData,
-    });
+      return {
+        collectedInvoices,
+        pendingInvoices: pendingInvoices._sum.remaining || 0,
+        overdueInvoices: overdueInvoices._sum.remaining || 0,
+        overdueCount,
+        topClients,
+        monthlyData,
+      };
+    }, CACHE_TTL.REPORTS);
+
+    return NextResponse.json(result);
   } catch (error) {
     log.error("Error fetching financial report:", error);
     return NextResponse.json({ error: "Failed to fetch financial report" }, { status: 500 });

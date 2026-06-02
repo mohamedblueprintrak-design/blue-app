@@ -5,6 +5,9 @@ import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
 import { sanitizeObject } from '@/lib/security/sanitize';
 import { z } from 'zod';
+import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
+import { parsePaginationParams, buildPaginationMeta, calculateSkip, isPaginationRequested } from '../utils/pagination';
+import { cachedQuery, invalidateCache, CACHE_TTL } from '@/lib/cache/query-cache';
 
 // Zod schema for risk creation
 const riskCreateSchema = z.object({
@@ -26,6 +29,10 @@ const riskCreateSchema = z.object({
 });
 
 export async function GET(request: NextRequest) {
+  const { allowed: _allowed, result: rlResult } = await withRateLimit(request, 'api');
+  const rlBlocked = rateLimitResponse(rlResult);
+  if (rlBlocked) return rlBlocked;
+
   try {
     const result = await requireVerifiedPermission(request, Permission.RISK_READ);
     if ('error' in result) return result.error;
@@ -37,23 +44,56 @@ export async function GET(request: NextRequest) {
     const where: Record<string, unknown> = { deletedAt: null, ...orgFilter(ctx) };
     if (projectId) where.projectId = projectId;
 
-    const risks = await db.risk.findMany({
-      where,
-      include: {
-        project: {
-          select: { id: true, name: true, nameEn: true, number: true },
-        },
-        actions: {
+    const usePagination = isPaginationRequested(searchParams);
+    const { page, limit } = parsePaginationParams(searchParams);
+    const cacheKey = `risks:${ctx.organizationId || 'none'}:${projectId || 'all'}:${page}:${limit}`;
+
+    if (usePagination) {
+      const [risks, total] = await cachedQuery(cacheKey, () => Promise.all([
+        db.risk.findMany({
+          where,
           include: {
-            assignee: {
-              select: { id: true, name: true },
+            project: {
+              select: { id: true, name: true, nameEn: true, number: true },
+            },
+            actions: {
+              include: {
+                assignee: {
+                  select: { id: true, name: true },
+                },
+              },
+              orderBy: { createdAt: "asc" },
             },
           },
-          orderBy: { createdAt: "asc" },
+          orderBy: { createdAt: "desc" },
+          skip: calculateSkip(page, limit),
+          take: limit,
+        }),
+        db.risk.count({ where }),
+      ]), CACHE_TTL.DEFAULT);
+
+      return NextResponse.json({ data: risks, pagination: buildPaginationMeta(page, limit, total) });
+    }
+
+    const risks = await cachedQuery(cacheKey, () =>
+      db.risk.findMany({
+        where,
+        include: {
+          project: {
+            select: { id: true, name: true, nameEn: true, number: true },
+          },
+          actions: {
+            include: {
+              assignee: {
+                select: { id: true, name: true },
+              },
+            },
+            orderBy: { createdAt: "asc" },
+          },
         },
-      },
-      orderBy: { createdAt: "desc" },
-    });
+        orderBy: { createdAt: "desc" },
+      }),
+    CACHE_TTL.DEFAULT);
 
     return NextResponse.json(risks);
   } catch (error) {
@@ -63,6 +103,10 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const { allowed: _allowed, result } = await withRateLimit(request, 'api');
+  const blocked = rateLimitResponse(result);
+  if (blocked) return blocked;
+
   try {
     const result = await requireVerifiedPermission(request, Permission.RISK_CREATE);
     if ('error' in result) return result.error;
@@ -118,13 +162,13 @@ export async function POST(request: NextRequest) {
       data: {
         projectId,
         title: title || "",
-        category: (category || "TECHNICAL") as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+        category: (category || "TECHNICAL"),
         probability: prob,
         impact: imp,
         score: prob * imp,
         mitigationPlan: mitigationPlan || "",
         strategy: strategy || "MITIGATE",
-        status: (status || "OPEN") as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+        status: (status || "OPEN"),
         ...orgCreate(ctx),
         createdById: ctx.userId,
         actions: {
@@ -145,6 +189,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    await invalidateCache('risks');
     return NextResponse.json(risk, { status: 201 });
   } catch (error) {
     log.error("Error creating risk:", error);

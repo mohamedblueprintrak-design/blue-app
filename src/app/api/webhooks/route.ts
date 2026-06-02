@@ -5,6 +5,7 @@ import { errorResponse } from '@/app/api/utils/response';
 import { log } from '@/lib/logger';
 import { Permission } from '@/lib/auth/types';
 import { z } from 'zod';
+import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 
 // Available event types
 const VALID_EVENTS = [
@@ -62,6 +63,10 @@ function validateWebhookUrl(url: string, type: string): string | null {
  * List all webhooks for the organization (RBAC: SETTINGS_READ)
  */
 export async function GET(request: NextRequest) {
+  const { allowed: _allowed, result: rlResult } = await withRateLimit(request, 'api');
+  const rlBlocked = rateLimitResponse(rlResult);
+  if (rlBlocked) return rlBlocked;
+
   try {
     const rbac = requirePermission(request, Permission.SETTINGS_READ);
     if ('error' in rbac) return rbac.error;
@@ -95,6 +100,10 @@ export async function GET(request: NextRequest) {
  * Create a new webhook (RBAC: SETTINGS_UPDATE)
  */
 export async function POST(request: NextRequest) {
+  const { allowed: _allowed, result } = await withRateLimit(request, 'api');
+  const blocked = rateLimitResponse(result);
+  if (blocked) return blocked;
+
   try {
     const rbac = requirePermission(request, Permission.SETTINGS_UPDATE);
     if ('error' in rbac) return rbac.error;
@@ -116,7 +125,7 @@ export async function POST(request: NextRequest) {
 
     // Validate events
     const invalidEvents = data.events.filter(
-      (e) => !VALID_EVENTS.includes(e as any) && e !== '*' // eslint-disable-line @typescript-eslint/no-explicit-any
+      (e) => !(VALID_EVENTS as readonly string[]).includes(e) && e !== '*'
     );
     if (invalidEvents.length > 0) {
       return errorResponse(
