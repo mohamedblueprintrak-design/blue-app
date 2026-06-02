@@ -16,6 +16,8 @@ import { log } from '@/lib/logger';
 import { VAT_RATE } from '@/lib/constants';
 const TAX_RATE = parseFloat(process.env.TAX_RATE || String(VAT_RATE));
 
+import { invoiceService } from '@/lib/services/invoice.service';
+
 // Zod schema for invoice line items validation
 const invoiceItemSchema = z.object({
   description: z.string().min(1).max(500),
@@ -319,9 +321,11 @@ export async function POST(request: NextRequest) {
     const tax = subtotal * TAX_RATE;
     const total = subtotal + tax;
 
+    const finalNumber = number || await invoiceService.generateInvoiceNumber(ctx.organizationId || "");
+
     const invoice = await db.invoice.create({
       data: {
-        number: number || "",
+        number: finalNumber,
         clientId,
         projectId,
         issueDate: new Date(issueDate),

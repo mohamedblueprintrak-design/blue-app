@@ -424,20 +424,30 @@ export class AuditLogger {
     for (let i = 0; i < entries.length; i += batchSize) {
       const batch = entries.slice(i, i + batchSize);
       await model.createMany({
-        data: batch.map((entry) => ({
-          timestamp: new Date(entry.timestamp),
-          level: entry.level,
-          category: entry.category,
-          userId: entry.userId,
-          action: entry.action,
-          resource: entry.resource ?? null,
-          details: entry.details ? JSON.stringify(entry.details) : null,
-          ip: entry.ip ?? null,
-          userAgent: entry.userAgent ?? null,
-          path: entry.path ?? null,
-          method: entry.method ?? null,
-          requestId: entry.requestId ?? null,
-        })),
+        data: batch.map((entry) => {
+          const detailObj = entry.details || {};
+          const description = detailObj.description ? String(detailObj.description) : entry.action;
+          const organizationId = detailObj.organizationId ? String(detailObj.organizationId) : null;
+          const projectId = detailObj.projectId ? String(detailObj.projectId) : null;
+
+          return {
+            timestamp: new Date(entry.timestamp),
+            level: entry.level,
+            category: entry.category,
+            userId: entry.userId,
+            action: entry.action,
+            resource: entry.resource ?? null,
+            details: description,
+            metadata: entry.details ? JSON.stringify(entry.details) : null,
+            organizationId,
+            projectId,
+            ip: entry.ip ?? null,
+            userAgent: entry.userAgent ?? null,
+            path: entry.path ?? null,
+            method: entry.method ?? null,
+            requestId: entry.requestId ?? null,
+          };
+        }),
         
       });
     }

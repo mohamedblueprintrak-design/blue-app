@@ -152,7 +152,7 @@ class InvoiceService {
   /**
    * Generate unique invoice number
    */
-  private async generateInvoiceNumber(organizationId: string): Promise<string> {
+  async generateInvoiceNumber(organizationId: string): Promise<string> {
     const year = new Date().getFullYear();
     for (let attempt = 0; attempt < 3; attempt++) {
       const count = await db.invoice.count({
@@ -245,14 +245,16 @@ class InvoiceService {
       }
     }
 
-    // Recalculate totals if subtotal or tax rate changed
-    if (data.subtotal !== undefined || data.taxRate !== undefined) {
-      const subtotal = data.subtotal ?? oldInvoice.subtotal;
-      const taxRate = data.taxRate ?? oldInvoice.taxRate;
-      const tax = Number(subtotal) * (Number(taxRate) / 100);
+    // Recalculate totals if subtotal, tax rate, or paidAmount changed
+    if (data.subtotal !== undefined || data.taxRate !== undefined || data.paidAmount !== undefined) {
+      const subtotal = data.subtotal !== undefined ? Number(data.subtotal) : Number(oldInvoice.subtotal);
+      const taxRate = data.taxRate !== undefined ? Number(data.taxRate) : Number(oldInvoice.taxRate);
+      const tax = subtotal * (taxRate / 100);
+      const total = subtotal + tax;
+      const paidAmount = data.paidAmount !== undefined ? Number(data.paidAmount) : Number(oldInvoice.paidAmount);
       updateData.tax = tax;
-      updateData.total = Number(subtotal) + tax;
-      updateData.remaining = (Number(subtotal) + tax) - Number(data.paidAmount ?? oldInvoice.paidAmount);
+      updateData.total = total;
+      updateData.remaining = total - paidAmount;
     }
 
     await db.invoice.updateMany({

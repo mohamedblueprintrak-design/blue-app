@@ -144,7 +144,7 @@ class TaskService {
     const limit = pagination?.limit || 20;
     const skip = (page - 1) * limit;
 
-    const where: Record<string, unknown> = {};
+    const where: Record<string, unknown> = { deletedAt: null };
 
     // Apply filters
     if (filters?.status) where.status = filters.status;
@@ -208,6 +208,7 @@ class TaskService {
     const task = await db.task.findFirst({
       where: {
         id,
+        deletedAt: null,
         project: { createdBy: { organizationId } },
       },
       include: {
@@ -407,9 +408,10 @@ class TaskService {
       throw new TaskAccessError('Task not found or access denied');
     }
 
-    // Delete the task
-    await db.task.delete({
+    // Soft delete the task
+    await db.task.update({
       where: { id },
+      data: { deletedAt: new Date() },
     });
 
     await logAudit({
@@ -482,7 +484,7 @@ class TaskService {
     }
 
     return db.task.findMany({
-      where: { projectId },
+      where: { projectId, deletedAt: null },
       orderBy: [{ order: 'asc' }, { startDate: 'asc' }],
       select: {
         id: true,
@@ -521,12 +523,14 @@ class TaskService {
         by: ['status'],
         where: {
           project: { createdBy: { organizationId } },
+          deletedAt: null,
         },
         _count: true,
       }),
       db.task.count({
         where: {
           project: { createdBy: { organizationId } },
+          deletedAt: null,
           dueDate: { lt: new Date() },
           status: { notIn: ['DONE', 'CANCELLED'] },
         },

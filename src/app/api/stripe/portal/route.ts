@@ -45,10 +45,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Create billing portal session
+    const host = request.headers.get('host') || 'localhost:3000';
+    const protocol = request.headers.get('x-forwarded-proto') || 'http';
     const origin =
       request.headers.get('origin') ||
       process.env.NEXT_PUBLIC_APP_URL ||
-      (process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : '');
+      `${protocol}://${host}`;
     if (!origin) {
       return NextResponse.json(
         {

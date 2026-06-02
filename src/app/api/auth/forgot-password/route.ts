@@ -47,7 +47,10 @@ export async function POST(request: NextRequest) {
     });
 
     // Send email
-    const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/reset-password?token=${resetToken}`;
+    const host = request.headers.get("host") || "localhost:3000";
+    const protocol = request.headers.get("x-forwarded-proto") || "http";
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || `${protocol}://${host}`;
+    const resetUrl = `${baseUrl}/reset-password?token=${resetToken}`;
 
     try {
       const template = emailTemplates.passwordReset(user.name || "المستخدم", resetUrl);

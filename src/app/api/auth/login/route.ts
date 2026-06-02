@@ -229,24 +229,33 @@ export async function POST(request: Request) {
     if (!isValid) {
       log.security('Failed login attempt', { email, clientIp });
 
-      // Increment failed login attempts and lock account if threshold reached
-      const newAttemptCount = (user.failedLoginAttempts || 0) + 1;
-      const lockUpdate: { failedLoginAttempts: number; lockedUntil?: Date } = {
-        failedLoginAttempts: newAttemptCount,
-      };
+      // Increment failed login attempts atomically in the database (CWE-362 fix)
+      const lockUpdate = await db.user.update({
+        where: { id: user.id },
+        data: {
+          failedLoginAttempts: {
+            increment: 1,
+          },
+        },
+        select: {
+          failedLoginAttempts: true,
+        },
+      });
+
+      const newAttemptCount = lockUpdate.failedLoginAttempts;
       if (newAttemptCount >= MAX_FAILED_LOGIN_ATTEMPTS) {
-        lockUpdate.lockedUntil = new Date(Date.now() + LOCKOUT_DURATION_MINUTES * 60 * 1000);
+        const lockedUntil = new Date(Date.now() + LOCKOUT_DURATION_MINUTES * 60 * 1000);
         log.security('Account locked due to too many failed login attempts', {
           email,
           clientIp,
           attempts: newAttemptCount,
-          lockedUntil: lockUpdate.lockedUntil,
+          lockedUntil,
+        });
+        await db.user.update({
+          where: { id: user.id },
+          data: { lockedUntil },
         });
       }
-      await db.user.update({
-        where: { id: user.id },
-        data: lockUpdate,
-      });
 
       return NextResponse.json(
         { error: "بيانات الدخول غير صحيحة. تأكد من البريد الإلكتروني وكلمة المرور" },

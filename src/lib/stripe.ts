@@ -810,18 +810,33 @@ export async function syncPlansWithStripe(
         });
       }
 
-      // Create price
-      const price = await stripe.prices.create({
+      // Check if price already exists for this product with matching details (avoid duplicates)
+      const existingPrices = await stripe.prices.list({
         product: product.id,
-        unit_amount: plan.price * 100, // Convert to cents
-        currency: plan.currency.toLowerCase(),
-        recurring: {
-          interval: plan.interval,
-        },
-        metadata: {
-          planId: plan.id,
-        },
+        active: true,
+        limit: 10,
       });
+
+      let price = existingPrices.data.find(
+        (p) =>
+          p.unit_amount === plan.price * 100 &&
+          p.currency === plan.currency.toLowerCase() &&
+          p.recurring?.interval === plan.interval
+      );
+
+      if (!price) {
+        price = await stripe.prices.create({
+          product: product.id,
+          unit_amount: plan.price * 100, // Convert to cents
+          currency: plan.currency.toLowerCase(),
+          recurring: {
+            interval: plan.interval,
+          },
+          metadata: {
+            planId: plan.id,
+          },
+        });
+      }
 
       results.push({
         planId: plan.id,

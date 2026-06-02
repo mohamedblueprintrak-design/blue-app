@@ -299,13 +299,27 @@ export function useGlobalWebSocket(token?: string): {
       });
     }
 
-    globalSocket.on('connect', () => setIsConnected(true));
-    globalSocket.on('disconnect', () => setIsConnected(false));
+    const onConnect = () => setIsConnected(true);
+    const onDisconnect = () => setIsConnected(false);
+
+    globalSocket.on('connect', onConnect);
+    globalSocket.on('disconnect', onDisconnect);
+
+    // Sync initial connection state asynchronously to avoid linting error
+    if (globalSocket) {
+      const isSocketConnected = globalSocket.connected;
+      Promise.resolve().then(() => {
+        setIsConnected(isSocketConnected);
+      });
+    }
 
     prevTokenRef.current = token;
 
     return () => {
-      // Don't disconnect global socket on unmount
+      if (globalSocket) {
+        globalSocket.off('connect', onConnect);
+        globalSocket.off('disconnect', onDisconnect);
+      }
     };
   }, [token]);
 

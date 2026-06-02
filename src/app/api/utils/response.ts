@@ -37,6 +37,8 @@ function withCorsHeaders(response: NextResponse, request?: Request): NextRespons
     const allowedOrigins = process.env.CORS_ORIGINS?.split(',').map(o => o.trim()).filter(Boolean) || [];
     if (allowedOrigins.includes(origin)) {
       response.headers.set('Access-Control-Allow-Origin', origin);
+    } else if (process.env.NEXT_PUBLIC_APP_URL) {
+      response.headers.set('Access-Control-Allow-Origin', process.env.NEXT_PUBLIC_APP_URL);
     } else if (process.env.NODE_ENV === 'development') {
       response.headers.set('Access-Control-Allow-Origin', 'http://localhost:3000');
     }
@@ -45,6 +47,8 @@ function withCorsHeaders(response: NextResponse, request?: Request): NextRespons
     const firstOrigin = process.env.CORS_ORIGINS?.split(',')[0]?.trim();
     if (firstOrigin) {
       response.headers.set('Access-Control-Allow-Origin', firstOrigin);
+    } else if (process.env.NEXT_PUBLIC_APP_URL) {
+      response.headers.set('Access-Control-Allow-Origin', process.env.NEXT_PUBLIC_APP_URL);
     } else if (process.env.NODE_ENV === 'development') {
       response.headers.set('Access-Control-Allow-Origin', 'http://localhost:3000');
     }

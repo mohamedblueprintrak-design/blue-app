@@ -6,7 +6,7 @@
  *   uploads/{year}/{month}/{day}/{uuid}-{filename}
  */
 
-import { StorageProvider } from './index';
+import { StorageProvider } from './types';
 import { log } from '@/lib/logger';
 import * as fs from 'fs';
 import * as path from 'path';

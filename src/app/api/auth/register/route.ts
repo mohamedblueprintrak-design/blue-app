@@ -183,6 +183,10 @@ async function handleRegister(
     });
     
     if (existingEmail) {
+      // SECURITY: Perform a dummy hash computation to prevent timing attacks (CWE-208)
+      // by balancing execution time between existing and non-existing email flows.
+      await hash(data.password, 12);
+
       // SECURITY: Return a generic message to prevent email enumeration (CWE-204)
       return NextResponse.json(
         { success: true, message: 'إذا كان هذا البريد غير مسجل، سيتم إرسال رسالة تحقق' },
@@ -207,7 +211,7 @@ async function handleRegister(
     let organizationId: string | null = null;
     if (data.organizationName) {
       // Generate a unique slug with collision handling
-      let baseSlug = data.organizationName
+      const baseSlug = data.organizationName
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/^-+|-+$/g, '');

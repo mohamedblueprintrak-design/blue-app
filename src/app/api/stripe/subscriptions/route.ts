@@ -33,7 +33,7 @@ function verifyStripeOrgAccess(
 ): boolean {
   if (process.env.MULTI_TENANT !== 'true') return true; // Single-tenant: no check needed
   if (!userOrgId) return false; // Multi-tenant user without org — deny
-  if (!metadataOrgId) return true; // No org on Stripe resource — allow (legacy)
+  if (!metadataOrgId) return false; // Reject if metadataOrgId is missing in multi-tenant mode to prevent IDOR
   return userOrgId === metadataOrgId;
 }
 

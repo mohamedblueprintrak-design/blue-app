@@ -10,7 +10,7 @@
  *   - S3_SECRET_KEY: Secret access key
  */
 
-import { StorageProvider } from './index';
+import { StorageProvider } from './types';
 import { log } from '@/lib/logger';
 import {
   S3Client,

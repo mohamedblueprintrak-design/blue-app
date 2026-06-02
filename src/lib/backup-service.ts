@@ -240,7 +240,7 @@ class BackupService {
   }
 
   /**
-   * Create SQLite backup by copying the file
+   * Create SQLite backup using SQLite VACUUM INTO
    */
   private async createSQLiteBackup(
     filename: string,
@@ -266,34 +266,66 @@ class BackupService {
       };
     }
 
-    // Copy the database file to backups directory
-    await fs.copyFile(dbPath, destPath);
-
-    // Verify backup was created correctly
-    const stats = await fs.stat(destPath);
-    if (stats.size === 0) {
+    try {
+      // Ensure destination file does not exist (VACUUM INTO requires the target file to not exist)
       await fs.unlink(destPath).catch(() => {});
+
+      // Use VACUUM INTO to safely clone database even if transactions are active
+      const { db } = await import('@/lib/db');
+      await db.$executeRawUnsafe(`VACUUM INTO '${destPath.replace(/'/g, "''")}'`);
+
+      // Verify backup was created correctly
+      const stats = await fs.stat(destPath);
+      if (stats.size === 0) {
+        await fs.unlink(destPath).catch(() => {});
+        return {
+          success: false,
+          backupId,
+          timestamp,
+          size: 0,
+          duration: Date.now() - startTime,
+          filename,
+          error: 'Backup file is empty — backup failed',
+        };
+      }
+
+      log.info(`[Backup] SQLite safe VACUUM backup created: ${filename} (${(stats.size / 1024).toFixed(1)} KB)`);
+
       return {
-        success: false,
+        success: true,
         backupId,
         timestamp,
-        size: 0,
+        size: stats.size,
         duration: Date.now() - startTime,
         filename,
-        error: 'Backup file is empty — backup failed',
       };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      log.error('[Backup] SQLite VACUUM backup failed, trying fallback copy:', errorMessage);
+      
+      try {
+        await fs.copyFile(dbPath, destPath);
+        const stats = await fs.stat(destPath);
+        return {
+          success: true,
+          backupId,
+          timestamp,
+          size: stats.size,
+          duration: Date.now() - startTime,
+          filename,
+        };
+      } catch (copyErr) {
+        return {
+          success: false,
+          backupId,
+          timestamp,
+          size: 0,
+          duration: Date.now() - startTime,
+          filename,
+          error: `VACUUM INTO failed: ${errorMessage}. Fallback copy failed: ${copyErr instanceof Error ? copyErr.message : 'Unknown error'}`,
+        };
+      }
     }
-
-    log.info(`[Backup] SQLite backup created: ${filename} (${(stats.size / 1024).toFixed(1)} KB)`);
-
-    return {
-      success: true,
-      backupId,
-      timestamp,
-      size: stats.size,
-      duration: Date.now() - startTime,
-      filename,
-    };
   }
 
   /**
@@ -409,6 +441,10 @@ class BackupService {
 
       // Copy the backup file over the current database
       await fs.copyFile(backupPath, dbPath);
+
+      // Clean up WAL and SHM files to prevent corruption from stale WAL logs
+      await fs.unlink(`${dbPath}-wal`).catch(() => {});
+      await fs.unlink(`${dbPath}-shm`).catch(() => {});
 
       log.info('[Backup] SQLite backup restored successfully');
       return { success: true };
