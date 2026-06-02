@@ -220,22 +220,20 @@ export function formatPrice(amount: number, currency: string = 'AED'): string {
   return formatter.format(amount);
 }
 
-/**
- * Map Stripe subscription status to our status
- */
 export function mapStripeStatus(stripeStatus: Stripe.Subscription.Status): string {
   const statusMap: Record<string, string> = {
-    ACTIVE: 'ACTIVE',
-    past_due: 'past_due',
-    canceled: 'canceled',
-    UNPAID: 'unpaid',
-    trialing: 'trialing',
-    incomplete: 'incomplete',
-    incomplete_expired: 'expired',
-    PAUSED: 'paused',
+    active: 'ACTIVE',
+    past_due: 'PAST_DUE',
+    canceled: 'CANCELED',
+    unpaid: 'UNPAID',
+    trialing: 'TRIALING',
+    incomplete: 'INCOMPLETE',
+    incomplete_expired: 'EXPIRED',
+    paused: 'PAUSED',
   };
   return statusMap[stripeStatus] || 'unknown';
 }
+
 
 // ============================================
 // Stripe Operations (require configuration)

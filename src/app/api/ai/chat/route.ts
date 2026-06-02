@@ -50,6 +50,7 @@ export async function POST(request: NextRequest) {
     // Get or create conversation in database
     let conversation: {
       id: string;
+      userId: string;
       messages: Array<{ role: string; content: string; createdAt: Date }>;
     } | null = null;
 
@@ -58,11 +59,18 @@ export async function POST(request: NextRequest) {
         where: { id: conversationId },
         include: {
           messages: {
-            orderBy: { createdAt: 'asc' },
+            orderBy: { createdAt: "asc" },
             take: 20,
           },
         },
       });
+
+      if (conversation && conversation.userId !== authCtx.userId) {
+        return NextResponse.json(
+          { error: "غير مسموح بالوصول لهذه المحادثة" },
+          { status: 403 }
+        );
+      }
 
       if (!conversation) {
         conversation = await db.aIChatConversation.create({
@@ -75,12 +83,13 @@ export async function POST(request: NextRequest) {
           },
           include: {
             messages: {
-              orderBy: { createdAt: 'asc' },
+              orderBy: { createdAt: "asc" },
               take: 20,
             },
           },
         });
       }
+
 
       // Save user message
       await db.aIChatMessage.create({

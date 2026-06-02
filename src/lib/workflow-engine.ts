@@ -260,7 +260,8 @@ export async function executeStepAction(
   stepId: string,
   action: 'approve' | 'complete' | 'reject' | 'request_changes' | 'start',
   userId: string,
-  data?: { notes?: string; returnReason?: string; severity?: string }
+  data?: { notes?: string; returnReason?: string; severity?: string },
+  organizationId?: string | null
 ) {
   // SECURITY: Use transaction to prevent race conditions when multiple users
   // try to execute actions on the same step concurrently
@@ -278,6 +279,15 @@ export async function executeStepAction(
     });
 
     if (!step) throw new Error('Step not found');
+
+    // SECURITY check: Ensure organization matches in multi-tenant mode
+    if (process.env.MULTI_TENANT === 'true' && organizationId) {
+      const stepOrgId = step.stage.workflow.organizationId;
+      if (stepOrgId && stepOrgId !== organizationId) {
+        throw new Error('Access denied: This workflow step does not belong to your organization');
+      }
+    }
+
 
     if (action === 'start') {
       await tx.workflowStep.update({

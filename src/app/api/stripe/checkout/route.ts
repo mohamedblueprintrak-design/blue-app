@@ -77,22 +77,33 @@ export async function POST(request: NextRequest) {
     let stripeCustomerId: string | undefined;
 
     try {
-      const _organization = await db.organization.findUnique({
+      const organization = await db.organization.findUnique({
         where: { id: organizationId },
+        select: { stripeCustomerId: true },
       });
 
-      // For demo purposes, create a new customer
-      const customer = await createStripeCustomer(email, name, {
-        organizationId,
-        planId,
-      });
-      
-      if (customer) {
-        stripeCustomerId = customer.id;
+      if (organization?.stripeCustomerId) {
+        stripeCustomerId = organization.stripeCustomerId;
+      } else {
+        const customer = await createStripeCustomer(email, name, {
+          organizationId,
+          planId,
+        });
+        
+        if (customer) {
+          stripeCustomerId = customer.id;
+          // Save customer ID to DB for future checkouts
+          await db.organization.update({
+            where: { id: organizationId },
+            data: { stripeCustomerId: customer.id },
+          });
+        }
       }
-    } catch {
-      // If database is not available, create customer anyway
-      console.info('Database not available, creating Stripe customer directly');
+    } catch (err) {
+      log.warn('Database error when looking up/updating stripeCustomerId - creating customer directly', {
+        error: err instanceof Error ? err.message : String(err),
+      });
+
       const customer = await createStripeCustomer(email, name, {
         organizationId,
         planId,
@@ -102,6 +113,7 @@ export async function POST(request: NextRequest) {
         stripeCustomerId = customer.id;
       }
     }
+
 
     if (!stripeCustomerId) {
       return NextResponse.json(

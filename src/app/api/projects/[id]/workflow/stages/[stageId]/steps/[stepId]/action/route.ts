@@ -43,7 +43,8 @@ export async function POST(
       return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
     }
 
-    const result = await executeStepAction(stepId, action, user.userId, { notes, returnReason, severity });
+    const result = await executeStepAction(stepId, action, user.userId, { notes, returnReason, severity }, user.organizationId);
+
     return NextResponse.json(result);
   } catch (error: unknown) {
     return handleApiError(error, 'StepAction');

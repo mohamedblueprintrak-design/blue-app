@@ -84,6 +84,7 @@ export async function GET(request: NextRequest) {
         { number: { contains: query } },
         { location: { contains: query } },
       ],
+      deletedAt: null,
       ...orgWhere,
     };
     if (projectId) projectWhere.id = projectId;
@@ -94,18 +95,19 @@ export async function GET(request: NextRequest) {
         ? db.project.findMany({ where: projectWhere, take: 10, select: { id: true, name: true, nameEn: true, number: true, status: true, location: true, clientId: true } })
         : [],
       canSearchTasks
-        ? db.task.findMany({ where: { ...projectFilter, ...projectOrgWhere, OR: [{ title: { contains: query } }, { description: { contains: query } }] }, take: 10, select: { id: true, title: true, status: true, priority: true, projectId: true } })
+        ? db.task.findMany({ where: { ...projectFilter, ...projectOrgWhere, deletedAt: null, OR: [{ title: { contains: query } }, { description: { contains: query } }] }, take: 10, select: { id: true, title: true, status: true, priority: true, projectId: true } })
         : [],
       canSearchClients
-        ? db.client.findMany({ where: { ...orgWhere, OR: [{ name: { contains: query } }, { company: { contains: query } }, { email: { contains: query } }, { phone: { contains: query } }] }, take: 10, select: { id: true, name: true, company: true, email: true, phone: true } })
+        ? db.client.findMany({ where: { ...orgWhere, deletedAt: null, OR: [{ name: { contains: query } }, { company: { contains: query } }, { email: { contains: query } }, { phone: { contains: query } }] }, take: 10, select: { id: true, name: true, company: true, email: true, phone: true } })
         : [],
       canSearchInvoices
-        ? db.invoice.findMany({ where: { ...projectFilter, ...projectOrgWhere, OR: [{ number: { contains: query } }] }, take: 10, select: { id: true, number: true, total: true, status: true, clientId: true } })
+        ? db.invoice.findMany({ where: { ...projectFilter, ...projectOrgWhere, deletedAt: null, OR: [{ number: { contains: query } }] }, take: 10, select: { id: true, number: true, total: true, status: true, clientId: true } })
         : [],
       canSearchDocuments
-        ? db.document.findMany({ where: { ...projectFilter, ...projectOrgWhere, OR: [{ name: { contains: query } }, { category: { contains: query } }] }, take: 10, select: { id: true, name: true, fileType: true, category: true, projectId: true } })
+        ? db.document.findMany({ where: { ...projectFilter, ...projectOrgWhere, deletedAt: null, OR: [{ name: { contains: query } }, { category: { contains: query } }] }, take: 10, select: { id: true, name: true, fileType: true, category: true, projectId: true } })
         : [],
     ]);
+
 
     for (const p of projects) {
       grouped.project.push({

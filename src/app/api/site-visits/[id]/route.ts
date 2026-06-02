@@ -62,7 +62,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     if (!validation.success) {
       return NextResponse.json({ error: validation.error, errors: validation.errors }, { status: 400 });
     }
-    const { date, plotNumber, municipality, gateDescription, neighborDesc, buildingDesc, status, photos, notes } = body;
+    const { date, plotNumber, municipality, gateDescription, neighborDesc, buildingDesc, status, photos, notes } = validation.data;
+
 
     const siteVisit = await db.siteVisit.update({
       where: { id },

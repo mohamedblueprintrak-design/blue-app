@@ -262,9 +262,17 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
  * Handle customer.subscription.deleted event
  */
 async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
-  const { _organizationId } = subscription.metadata || {};
-
   try {
+    // Look up the subscription to get organizationId before updating it
+    const subRecord = await db.subscription.findFirst({
+      where: {
+        stripeSubscriptionId: subscription.id,
+      },
+      select: {
+        organizationId: true,
+      },
+    });
+
     // Update subscription status to canceled
     await db.subscription.updateMany({
       where: {
@@ -275,6 +283,17 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
       },
     });
 
+    // Reset organization planId to free
+    if (subRecord?.organizationId) {
+      await db.organization.update({
+        where: { id: subRecord.organizationId },
+        data: {
+          planId: 'free',
+        },
+      });
+      log.info(`Reset planId to free for organization: ${subRecord.organizationId}`);
+    }
+
     log.info(`Subscription canceled: ${subscription.id}`);
   } catch (dbError) {
     log.error('DB error in handleSubscriptionDeleted — subscription may remain active incorrectly', {
@@ -284,6 +303,7 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
     throw dbError;
   }
 }
+
 
 /**
  * Handle invoice.paid event
