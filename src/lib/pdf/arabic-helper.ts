@@ -50,10 +50,6 @@ export function preprocessArabicText(text: string): string {
   return processedBlocks.reverse().join('');
 }
 
-/**
- * Loads the Cairo Arabic font (TTF) into the jsPDF instance.
- * Fetches it from Google Fonts CDN dynamically to avoid large bundle size in the repo.
- */
 let cairoFontBase64Cache: string | null = null;
 
 export async function loadArabicFont(doc: any): Promise<void> {
@@ -61,22 +57,28 @@ export async function loadArabicFont(doc: any): Promise<void> {
     const fontName = 'Cairo-Regular.ttf';
     
     if (!cairoFontBase64Cache) {
-      // Fetch the font from Google Fonts CDN
-      const fontUrl = 'https://fonts.gstatic.com/s/cairo/v28/SLXV1ed44b54nBHksFM.ttf';
-      const response = await fetch(fontUrl);
-      if (!response.ok) {
-        throw new Error('Failed to fetch Arabic font');
+      if (typeof window === 'undefined') {
+        // Server-side (Node.js): Read local file directly from public directory
+        const fs = await import('fs');
+        const path = await import('path');
+        const filePath = path.join(process.cwd(), 'public', 'fonts', 'Cairo-Regular.ttf');
+        const buffer = fs.readFileSync(filePath);
+        cairoFontBase64Cache = buffer.toString('base64');
+      } else {
+        // Client-side (Browser): Fetch local font from public directory path
+        const response = await fetch('/fonts/Cairo-Regular.ttf');
+        if (!response.ok) {
+          throw new Error('Failed to fetch local Arabic font file');
+        }
+        const buffer = await response.arrayBuffer();
+        let binary = '';
+        const bytes = new Uint8Array(buffer);
+        const len = bytes.byteLength;
+        for (let i = 0; i < len; i++) {
+          binary += String.fromCharCode(bytes[i]);
+        }
+        cairoFontBase64Cache = btoa(binary);
       }
-      const buffer = await response.arrayBuffer();
-      
-      // Convert ArrayBuffer to base64
-      let binary = '';
-      const bytes = new Uint8Array(buffer);
-      const len = bytes.byteLength;
-      for (let i = 0; i < len; i++) {
-        binary += String.fromCharCode(bytes[i]);
-      }
-      cairoFontBase64Cache = btoa(binary);
     }
 
     // Add font to virtual file system and register it
@@ -85,10 +87,11 @@ export async function loadArabicFont(doc: any): Promise<void> {
     doc.setFont('Cairo');
   } catch (error) {
     console.error('Failed to load Cairo font for PDF generation:', error);
-    // Fallback to standard helvetica if fetch fails (e.g. offline)
+    // Fallback to standard helvetica if load fails
     doc.setFont('helvetica');
   }
 }
+
 
 /**
  * Setup Arabic support on a jsPDF instance by loading the Cairo font

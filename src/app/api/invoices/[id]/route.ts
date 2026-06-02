@@ -88,6 +88,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     let tax: number = Number(existing.tax);
     let total: number = Number(existing.total);
 
+    let lineItems: z.infer<typeof invoiceItemUpdateSchema>[] | null = null;
     if (sanitizedBody.items && Array.isArray(sanitizedBody.items)) {
       const itemsValidation = z.array(invoiceItemUpdateSchema).safeParse(sanitizedBody.items);
       if (!itemsValidation.success) {
@@ -96,15 +97,20 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
           { status: 400 }
         );
       }
-      const lineItems = itemsValidation.data;
+      lineItems = itemsValidation.data;
       subtotal = lineItems.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
       tax = subtotal * TAX_RATE;
       total = subtotal + tax;
+    }
 
-      // Delete old items and create new ones atomically within a transaction
-      await db.$transaction([
-        db.invoiceItem.deleteMany({ where: { invoiceId: id } }),
-        db.invoiceItem.createMany({
+    const newPaid = validatedData.paidAmount !== undefined ? validatedData.paidAmount : Number(existing.paidAmount);
+    const newRemaining = total - newPaid;
+
+    const invoice = await db.$transaction(async (tx) => {
+      if (lineItems) {
+        // Delete old items and create new ones atomically within the same transaction
+        await tx.invoiceItem.deleteMany({ where: { invoiceId: id } });
+        await tx.invoiceItem.createMany({
           data: lineItems.map((item) => ({
             invoiceId: id,
             description: item.description || "",
@@ -112,33 +118,30 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
             unitPrice: item.unitPrice || 0,
             total: item.total || (item.quantity * item.unitPrice),
           })),
-        }),
-      ]);
-    }
+        });
+      }
 
-    const newPaid = validatedData.paidAmount !== undefined ? validatedData.paidAmount : Number(existing.paidAmount);
-    const newRemaining = total - newPaid;
-
-    const invoice = await db.invoice.update({
-      where: { id },
-      data: {
-        ...(validatedData.number !== undefined && { number: validatedData.number }),
-        ...(validatedData.clientId !== undefined && { clientId: validatedData.clientId }),
-        ...(validatedData.projectId !== undefined && { projectId: validatedData.projectId }),
-        ...(validatedData.issueDate !== undefined && { issueDate: new Date(validatedData.issueDate) }),
-        ...(validatedData.dueDate !== undefined && { dueDate: new Date(validatedData.dueDate) }),
-        ...(validatedData.status !== undefined && { status: validatedData.status as any }),
-        subtotal,
-        tax,
-        total,
-        paidAmount: newPaid,
-        remaining: Math.max(0, newRemaining),
-      },
-      include: {
-        client: { select: { id: true, name: true, company: true } },
-        project: { select: { id: true, name: true, nameEn: true, number: true } },
-        items: { orderBy: { createdAt: "asc" } },
-      },
+      return await tx.invoice.update({
+        where: { id },
+        data: {
+          ...(validatedData.number !== undefined && { number: validatedData.number }),
+          ...(validatedData.clientId !== undefined && { clientId: validatedData.clientId }),
+          ...(validatedData.projectId !== undefined && { projectId: validatedData.projectId }),
+          ...(validatedData.issueDate !== undefined && { issueDate: new Date(validatedData.issueDate) }),
+          ...(validatedData.dueDate !== undefined && { dueDate: new Date(validatedData.dueDate) }),
+          ...(validatedData.status !== undefined && { status: validatedData.status as any }),
+          subtotal,
+          tax,
+          total,
+          paidAmount: newPaid,
+          remaining: Math.max(0, newRemaining),
+        },
+        include: {
+          client: { select: { id: true, name: true, company: true } },
+          project: { select: { id: true, name: true, nameEn: true, number: true } },
+          items: { orderBy: { createdAt: "asc" } },
+        },
+      });
     });
 
     return NextResponse.json(invoice);

@@ -118,8 +118,14 @@ export async function POST(request: NextRequest) {
     }
 
     // 5. Map fields to Schema & Insert into DB
+    const MAX_ROWS = 500;
+    if (rows.length > MAX_ROWS) {
+      return errorResponse(`Maximum ${MAX_ROWS} rows allowed`, "VALIDATION_ERROR", 400);
+    }
+
     let successCount = 0;
     const errors: { row: number; error: string }[] = [];
+
 
     // Normalize field mapping (handles common variants of headers)
     const mapField = (row: any, keys: string[]): string => {

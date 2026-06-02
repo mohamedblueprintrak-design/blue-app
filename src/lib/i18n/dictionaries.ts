@@ -54,6 +54,54 @@ export const dictionaries = {
       partiallyPaid: "Partially Paid",
       overdue: "Overdue",
       cancelled: "Cancelled",
+    },
+    projects: {
+      title: "Projects",
+      addNew: "Add New Project",
+      edit: "Edit Project",
+      delete: "Delete Project",
+      projectName: "Project Name",
+      client: "Client",
+      status: "Status",
+      progress: "Progress",
+      startDate: "Start Date",
+      endDate: "End Date",
+      budget: "Budget",
+      description: "Description",
+      noProjects: "No projects found.",
+    },
+    tasks: {
+      title: "Tasks",
+      addNew: "Add New Task",
+      edit: "Edit Task",
+      delete: "Delete Task",
+      taskName: "Task Name",
+      assignee: "Assignee",
+      priority: "Priority",
+      dueDate: "Due Date",
+      status: "Status",
+      noTasks: "No tasks found.",
+    },
+    clients: {
+      title: "Clients",
+      addNew: "Add New Client",
+      edit: "Edit Client",
+      delete: "Delete Client",
+      clientName: "Client Name",
+      email: "Email",
+      phone: "Phone",
+      company: "Company",
+      trn: "Tax Registration Number (TRN)",
+      import: "Import Clients",
+      noClients: "No clients found.",
+    },
+    settings: {
+      title: "Settings",
+      profile: "Profile Settings",
+      organization: "Organization Settings",
+      security: "Security Settings",
+      billing: "Billing & Plans",
+      notifications: "Notification Settings",
     }
   },
   ar: {
@@ -111,6 +159,54 @@ export const dictionaries = {
       partiallyPaid: "مدفوعة جزئياً",
       overdue: "متأخرة",
       cancelled: "ملغية",
+    },
+    projects: {
+      title: "المشاريع",
+      addNew: "إضافة مشروع جديد",
+      edit: "تعديل المشروع",
+      delete: "حذف المشروع",
+      projectName: "اسم المشروع",
+      client: "العميل",
+      status: "الحالة",
+      progress: "التقدم",
+      startDate: "تاريخ البدء",
+      endDate: "تاريخ الانتهاء",
+      budget: "الميزانية",
+      description: "الوصف",
+      noProjects: "لم يتم العثور على مشاريع.",
+    },
+    tasks: {
+      title: "المهام",
+      addNew: "إضافة مهمة جديدة",
+      edit: "تعديل المهمة",
+      delete: "حذف المهمة",
+      taskName: "اسم المهمة",
+      assignee: "المسؤول",
+      priority: "الأولولية",
+      dueDate: "تاريخ الاستحقاق",
+      status: "الحالة",
+      noTasks: "لم يتم العثور على مهام.",
+    },
+    clients: {
+      title: "العملاء",
+      addNew: "إضافة عميل جديد",
+      edit: "تعديل العميل",
+      delete: "حذف العميل",
+      clientName: "اسم العميل",
+      email: "البريد الإلكتروني",
+      phone: "الهاتف",
+      company: "الشركة",
+      trn: "الرقم الضريبي (TRN)",
+      import: "استيراد العملاء",
+      noClients: "لم يتم العثور على عملاء.",
+    },
+    settings: {
+      title: "الإعدادات",
+      profile: "إعدادات الملف الشخصي",
+      organization: "إعدادات المؤسسة",
+      security: "إعدادات الأمان",
+      billing: "الاشتراكات والفوترة",
+      notifications: "إعدادات الإشعارات",
     }
   }
 } as const;
@@ -118,4 +214,8 @@ export const dictionaries = {
 export type DictionaryPath = 
   | `common.${keyof typeof dictionaries.en.common}`
   | `dashboard.${keyof typeof dictionaries.en.dashboard}`
-  | `invoices.${keyof typeof dictionaries.en.invoices}`;
+  | `invoices.${keyof typeof dictionaries.en.invoices}`
+  | `projects.${keyof typeof dictionaries.en.projects}`
+  | `tasks.${keyof typeof dictionaries.en.tasks}`
+  | `clients.${keyof typeof dictionaries.en.clients}`
+  | `settings.${keyof typeof dictionaries.en.settings}`;

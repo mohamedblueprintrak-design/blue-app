@@ -383,6 +383,8 @@ model Project {
   @@index([deletedAt])
   @@index([createdById])
   @@index([managerId])
+  @@index([organizationId, deletedAt])
+  @@index([organizationId, status, deletedAt])
 }
 
 // ==================== MUNICIPALITY CORRESPONDENCE ====================
@@ -577,6 +579,8 @@ model Client {
   @@index([deletedAt])
   @@index([isActive])
   @@index([createdById])
+  @@index([organizationId, deletedAt])
+  @@index([organizationId, isActive, deletedAt])
 }
 
 model ClientInteraction {
@@ -651,6 +655,8 @@ model Task {
   @@index([assigneeId, status])
   @@index([status, dueDate])
   @@index([deletedAt])
+  @@index([organizationId, deletedAt])
+  @@index([organizationId, status, deletedAt])
 }
 
 // ==================== TASK COMMENTS ====================
@@ -761,6 +767,8 @@ model Invoice {
   @@index([organizationId])
   @@index([deletedAt])
   @@index([dueDate])
+  @@index([organizationId, deletedAt])
+  @@index([organizationId, status, deletedAt])
 }
 
 model InvoiceItem {
