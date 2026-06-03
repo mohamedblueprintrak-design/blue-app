@@ -8,6 +8,10 @@ import { AlertCircle } from "lucide-react";
 import { FolderKanban, Receipt, TrendingUp, CheckSquare } from "lucide-react";
 import { useDashboardLayout, WidgetSlot, DashboardLayoutManager } from "@/components/pages/dashboard-layout-manager";
 import dynamic from "next/dynamic";
+import { useState } from "react";
+import { DateRange } from "react-day-picker";
+import { subMonths } from "date-fns";
+import { DatePickerWithRange } from "@/components/ui/date-range-picker";
 
 import type { DashboardData, StatCardConfig } from "./dashboard/types";
 import { formatCurrency, formatNumber } from "./dashboard/helpers";
@@ -38,10 +42,19 @@ export default function Dashboard({ language }: { language: "ar" | "en" }) {
 
   const layout = useDashboardLayout();
 
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: subMonths(new Date(), 1),
+    to: new Date(),
+  });
+
   const { data, isLoading, isError } = useQuery<DashboardData>({
-    queryKey: ["dashboard"],
+    queryKey: ["dashboard", dateRange?.from?.toISOString(), dateRange?.to?.toISOString()],
     queryFn: async () => {
-      const res = await fetch("/api/dashboard");
+      const params = new URLSearchParams();
+      if (dateRange?.from) params.append("from", dateRange.from.toISOString());
+      if (dateRange?.to) params.append("to", dateRange.to.toISOString());
+      
+      const res = await fetch(`/api/dashboard?${params.toString()}`);
       if (!res.ok) throw new Error("Failed to fetch dashboard");
       return res.json();
     },
@@ -163,12 +176,15 @@ export default function Dashboard({ language }: { language: "ar" | "en" }) {
   return (
     <div className="space-y-6">
       {/* ===== Welcome Section with Notification Bell & Quick Create ===== */}
-      <WelcomeSection
-        userName={user?.name}
-        alertsCount={alerts.length}
-        isAr={isAr}
-        onNavigate={setCurrentPage}
-      />
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <WelcomeSection
+          userName={user?.name}
+          alertsCount={alerts.length}
+          isAr={isAr}
+          onNavigate={setCurrentPage}
+        />
+        <DatePickerWithRange date={dateRange} setDate={setDateRange} isAr={isAr} />
+      </div>
 
       {/* ===== Stats Cards ===== */}
       <DashboardLayoutManager layout={layout} language={language}>

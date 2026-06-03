@@ -1,5 +1,7 @@
 "use client";
 
+import { TableVirtuoso } from "react-virtuoso";
+import { forwardRef } from "react";
 import { Receipt, Pencil, Trash2, Printer, FileText, CheckCircle2, ChevronLeft, ChevronRight, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -22,6 +24,7 @@ import { formatCurrency } from "@/lib/formatters";
 import { getStatusConfig, getAmountColor } from "./helpers";
 import type { Invoice } from "./types";
 import { Checkbox } from "@/components/ui/checkbox";
+import { formatDualDate } from "@/lib/hijri-utils";
 
 interface InvoiceTableProps {
   ar: boolean;
@@ -41,6 +44,14 @@ interface InvoiceTableProps {
   selectedIds: Set<string>;
   setSelectedIds: React.Dispatch<React.SetStateAction<Set<string>>>;
 }
+
+const VirtuosoTableComponents = {
+  Scroller: forwardRef((props: any, ref) => <div {...props} ref={ref} className={cn("overflow-auto max-h-[calc(100vh-340px)] w-full custom-scrollbar", props.className)} />),
+  Table: (props: any) => <Table {...props} className={cn("w-full caption-bottom text-sm", props.className)} />,
+  TableHead: forwardRef((props: any, ref) => <TableHeader {...props} ref={ref} className="sticky top-0 z-10 bg-white dark:bg-slate-900 shadow-[0_1px_0_0_#e2e8f0] dark:shadow-[0_1px_0_0_#1e293b]" />),
+  TableRow: (props: any) => <TableRow {...props} />,
+  TableBody: forwardRef((props: any, ref) => <TableBody {...props} ref={ref} />),
+};
 
 export function InvoiceTable({
   ar,
@@ -77,9 +88,15 @@ export function InvoiceTable({
 
   return (
     <div className="rounded-xl border border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900 overflow-hidden shadow-sm relative">
-      <ScrollArea className="max-h-[calc(100vh-340px)]">
-        <Table>
-          <TableHeader>
+      {filtered.length === 0 ? (
+         <div className="text-center py-12 text-slate-400">
+           {ar ? "لا توجد فواتير" : "No invoices found"}
+         </div>
+      ) : (
+      <TableVirtuoso
+        data={paginatedFiltered}
+        components={VirtuosoTableComponents}
+        fixedHeaderContent={() => (
             <TableRow className="hover:bg-transparent bg-slate-50/80 dark:bg-slate-800/50">
               <TableHead className="w-[40px] px-4">
                 <Checkbox 
@@ -101,20 +118,11 @@ export function InvoiceTable({
               <TableHead className="text-xs font-semibold">{ar ? "الحالة" : "Status"}</TableHead>
               <TableHead className="text-xs font-semibold text-end">{ar ? "إجراءات" : "Actions"}</TableHead>
             </TableRow>
-          </TableHeader>
-          <TableBody>
-            {paginatedFiltered.map((inv, idx) => {
-              const sc = getStatusConfig(inv.status);
-              return (
-                <TableRow
-                  key={inv.id}
-                  className={cn(
-                    "transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50",
-                    idx % 2 === 0
-                      ? "bg-white dark:bg-slate-900"
-                      : "bg-slate-50/50 dark:bg-slate-800/20"
-                  )}
-                >
+        )}
+        itemContent={(idx, inv) => {
+          const sc = getStatusConfig(inv.status);
+          return (
+            <>
                   <TableCell className="px-4">
                     <Checkbox 
                       checked={selectedIds.has(inv.id)}
@@ -125,8 +133,8 @@ export function InvoiceTable({
                   <TableCell className="font-mono text-xs text-slate-500">{inv.number || "—"}</TableCell>
                   <TableCell className="text-sm font-medium text-slate-900 dark:text-white max-w-[150px] truncate">{inv.client.name}</TableCell>
                   <TableCell className="hidden md:table-cell text-xs text-slate-500">{ar ? inv.project.name : inv.project.nameEn || inv.project.name}</TableCell>
-                  <TableCell className="hidden lg:table-cell text-xs text-slate-500">{new Date(inv.issueDate).toLocaleDateString(ar ? "ar-AE" : "en-US")}</TableCell>
-                  <TableCell className="hidden lg:table-cell text-xs text-slate-500">{new Date(inv.dueDate).toLocaleDateString(ar ? "ar-AE" : "en-US")}</TableCell>
+                  <TableCell className="hidden lg:table-cell text-xs text-slate-500">{formatDualDate(inv.issueDate, ar ? 'ar' : 'en')}</TableCell>
+                  <TableCell className="hidden lg:table-cell text-xs text-slate-500">{formatDualDate(inv.dueDate, ar ? 'ar' : 'en')}</TableCell>
                   <TableCell className={cn("text-xs text-start tabular-nums font-mono", getAmountColor(inv.status))}>{formatCurrency(inv.subtotal, ar)}</TableCell>
                   <TableCell className={cn("text-xs text-start tabular-nums font-mono hidden sm:table-cell", getAmountColor(inv.status))}>{formatCurrency(inv.tax, ar)}</TableCell>
                   <TableCell className={cn("text-xs text-start font-medium tabular-nums font-mono", getAmountColor(inv.status))}>{formatCurrency(inv.total, ar)}</TableCell>
@@ -190,19 +198,11 @@ export function InvoiceTable({
                       )}
                     </div>
                   </TableCell>
-                </TableRow>
-              );
-            })}
-            {filtered.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={13} className="text-center py-12 text-slate-400">
-                  {ar ? "لا توجد فواتير" : "No invoices found"}
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </ScrollArea>
+            </>
+          );
+        }}
+      />
+      )}
       {/* Pagination */}
       {filtered.length > PAGE_SIZE && (
         <div className="flex items-center justify-between px-4 py-3 border-t border-slate-100 dark:border-slate-800">

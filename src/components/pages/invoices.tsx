@@ -132,6 +132,7 @@ export default function InvoicesPage({ language, projectId }: InvoicesPageProps)
       queryClient.invalidateQueries({ queryKey: ["invoices", projectId] });
       setShowDialog(false);
       setFormData(emptyForm);
+      localStorage.removeItem("draft_invoice_form");
       toast.created(ar ? "الفاتورة" : "Invoice");
     },
     onError: (error: Error) => {
@@ -264,6 +265,18 @@ export default function InvoicesPage({ language, projectId }: InvoicesPageProps)
       items: inv.items.length > 0 ? inv.items.map((i) => ({ description: i.description, quantity: i.quantity, unitPrice: i.unitPrice, total: i.total })) : [getEmptyLineItem()],
     });
   };
+
+  useEffect(() => {
+    if (showDialog && !editInvoice) {
+      const timeout = setTimeout(() => {
+        setFormData(prev => {
+          localStorage.setItem("draft_invoice_form", JSON.stringify(prev));
+          return prev;
+        });
+      }, 1000);
+      return () => clearTimeout(timeout);
+    }
+  }, [formData, showDialog, editInvoice]);
 
   const updateLineItem = (idx: number, field: keyof InvoiceItem, value: string | number) => {
     const newItems = [...formData.items];
@@ -411,7 +424,25 @@ export default function InvoicesPage({ language, projectId }: InvoicesPageProps)
           onSearchChange={(v) => { setSearch(v); setCurrentPage(1); }}
           filterStatus={filterStatus}
           onFilterStatusChange={(v) => { setFilterStatus(v); setCurrentPage(1); }}
-          onNewInvoice={() => { reset(); setFormData(emptyForm); setShowDialog(true); }}
+          onNewInvoice={() => {
+            reset();
+            const draft = localStorage.getItem("draft_invoice_form");
+            if (draft) {
+              try {
+                const parsed = JSON.parse(draft);
+                setFormData(parsed);
+                Object.keys(parsed).forEach(k => {
+                  setValue(k as any, parsed[k]);
+                });
+                toast.showSuccess(ar ? "تم استعادة المسودة بنجاح" : "Draft restored successfully");
+              } catch (e) {
+                setFormData(emptyForm);
+              }
+            } else {
+              setFormData(emptyForm);
+            }
+            setShowDialog(true);
+          }}
           invoiceCount={invoices.length}
         />
 

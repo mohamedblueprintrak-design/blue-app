@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+
 import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { taskSchema, getErrorMessage, type TaskFormData } from "@/lib/validations";
@@ -74,6 +76,29 @@ export function TaskForm({
   });
   const { register, handleSubmit: rhfHandleSubmit, formState: { errors }, reset, setValue, watch } = form;
 
+  useEffect(() => {
+    if (open) {
+      const draft = localStorage.getItem("draft_task_form");
+      if (draft) {
+        try {
+          const parsed = JSON.parse(draft);
+          Object.keys(parsed).forEach(k => {
+            setValue(k as keyof TaskFormData, parsed[k]);
+          });
+          toast.showSuccess(ar ? "تم استعادة المسودة بنجاح" : "Draft restored successfully");
+        } catch (e) {}
+      }
+      
+      const subscription = watch((value) => {
+        const timeout = setTimeout(() => {
+          localStorage.setItem("draft_task_form", JSON.stringify(value));
+        }, 1000);
+        return () => clearTimeout(timeout);
+      });
+      return () => subscription.unsubscribe();
+    }
+  }, [open, watch, setValue, toast, ar]);
+
   // Create task mutation
   const createTaskMutation = useMutation({
     mutationFn: async (data: Record<string, unknown>) => {
@@ -91,6 +116,7 @@ export function TaskForm({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       onOpenChange(false);
+      localStorage.removeItem("draft_task_form");
       reset();
       toast.created(ar ? "المهمة" : "Task");
     },
@@ -136,7 +162,7 @@ export function TaskForm({
             <div className="space-y-2">
               <Label className="text-sm">{ar ? "المشروع" : "Project"}</Label>
               <Select
-                // eslint-disable-next-line react-hooks/incompatible-library
+                 
                 value={watch("projectId")}
                 onValueChange={(v) => setValue("projectId", v)}
               >

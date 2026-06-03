@@ -75,7 +75,7 @@ export default function RootLayout({
         className={`${ibmPlexArabic.variable} ${plusJakarta.variable} antialiased bg-background text-foreground font-[family-name:var(--font-ibm-plex-arabic)]`}
       >
         <SkipNavLink />
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} disableTransitionOnChange>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem={true} disableTransitionOnChange>
           <ReactQueryProvider>
             <CsrfProvider>
               <SafeWebSocketProvider>

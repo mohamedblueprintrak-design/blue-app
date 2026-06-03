@@ -12,6 +12,8 @@ import {
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Checkbox } from "@/components/ui/checkbox";
+import { TableVirtuoso } from "react-virtuoso";
+import { forwardRef } from "react";
 import { Building2, MapPin, HardHat, Eye, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { ProjectRow } from "./types";
@@ -34,6 +36,14 @@ interface ProjectTableViewProps {
   onPageChange: (page: number) => void;
 }
 
+const VirtuosoTableComponents = {
+  Scroller: forwardRef((props: any, ref) => <div {...props} ref={ref} className={cn("overflow-auto max-h-[calc(100vh-280px)] w-full custom-scrollbar", props.className)} />),
+  Table: (props: any) => <Table {...props} className={cn("w-full caption-bottom text-sm", props.className)} />,
+  TableHead: forwardRef((props: any, ref) => <TableHeader {...props} ref={ref} className="sticky top-0 z-10 bg-slate-50 dark:bg-slate-800/50 shadow-[0_1px_0_0_#e2e8f0] dark:shadow-[0_1px_0_0_#1e293b]" />),
+  TableRow: (props: any) => <TableRow {...props} />,
+  TableBody: forwardRef((props: any, ref) => <TableBody {...props} ref={ref} />),
+};
+
 export function ProjectTableView({
   isAr,
   t,
@@ -51,31 +61,11 @@ export function ProjectTableView({
   onPageChange,
 }: ProjectTableViewProps) {
   return (
-    <div className="rounded-xl border border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900 overflow-hidden">
-      <Table>
-        <TableHeader>
-          <TableRow className="bg-slate-50 dark:bg-slate-800/50">
-            <TableHead className="w-10">
-              <Checkbox
-                checked={projects.length > 0 && selectedIds.size === projects.length}
-                onCheckedChange={onToggleSelectAll}
-                className="data-[state=checked]:bg-teal-500 data-[state=checked]:border-teal-500"
-              />
-            </TableHead>
-            <TableHead className="text-slate-600 dark:text-slate-300 font-semibold">{t("رقم المشروع", "No.")}</TableHead>
-            <TableHead className="text-slate-600 dark:text-slate-300 font-semibold">{t("اسم المشروع", "Project Name")}</TableHead>
-            <TableHead className="text-slate-600 dark:text-slate-300 font-semibold">{t("العميل", "Client")}</TableHead>
-            <TableHead className="text-slate-600 dark:text-slate-300 font-semibold hidden lg:table-cell">{t("الموقع", "Location")}</TableHead>
-            <TableHead className="text-slate-600 dark:text-slate-300 font-semibold">{t("النوع", "Type")}</TableHead>
-            <TableHead className="text-slate-600 dark:text-slate-300 font-semibold">{t("الحالة", "Status")}</TableHead>
-            <TableHead className="text-slate-600 dark:text-slate-300 font-semibold hidden md:table-cell">{t("الإنجاز", "Progress")}</TableHead>
-            <TableHead className="text-slate-600 dark:text-slate-300 font-semibold hidden sm:table-cell">{t("الميزانية", "Budget")}</TableHead>
-            <TableHead className="w-10" />
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {isLoading ? (
-            Array.from({ length: 5 }).map((_, i) => (
+    <div className="rounded-xl border border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900 overflow-hidden relative">
+      {isLoading ? (
+        <Table>
+          <TableBody>
+            {Array.from({ length: 5 }).map((_, i) => (
               <TableRow key={i}>
                 {Array.from({ length: 10 }).map((_, j) => (
                   <TableCell key={j}>
@@ -83,46 +73,60 @@ export function ProjectTableView({
                   </TableCell>
                 ))}
               </TableRow>
-            ))
-          ) : projects.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={10} className="text-center py-16">
-                <div className="flex flex-col items-center gap-3 text-slate-400 dark:text-slate-500">
-                  <div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-                    <Building2 className="h-8 w-8" />
-                  </div>
-                  <div className="text-center">
-                    <span className="font-medium text-sm">{t("لا توجد مشاريع", "No projects found")}</span>
-                    <p className="text-xs mt-1 text-slate-400 dark:text-slate-600">{t("أضف مشروعاً جديداً للبدء", "Add a new project to get started")}</p>
-                  </div>
-                </div>
-              </TableCell>
+            ))}
+          </TableBody>
+        </Table>
+      ) : projects.length === 0 ? (
+        <div className="py-16 flex flex-col items-center gap-3 text-slate-400 dark:text-slate-500">
+          <div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+            <Building2 className="h-8 w-8" />
+          </div>
+          <div className="text-center">
+            <span className="font-medium text-sm">{t("لا توجد مشاريع", "No projects found")}</span>
+            <p className="text-xs mt-1 text-slate-400 dark:text-slate-600">{t("أضف مشروعاً جديداً للبدء", "Add a new project to get started")}</p>
+          </div>
+        </div>
+      ) : (
+      <TableVirtuoso
+        data={projects}
+        components={VirtuosoTableComponents}
+        fixedHeaderContent={() => (
+            <TableRow className="bg-slate-50 dark:bg-slate-800/50">
+              <TableHead className="w-10">
+                <Checkbox
+                  checked={projects.length > 0 && selectedIds.size === projects.length}
+                  onCheckedChange={onToggleSelectAll}
+                  className="data-[state=checked]:bg-teal-500 data-[state=checked]:border-teal-500"
+                />
+              </TableHead>
+              <TableHead className="text-slate-600 dark:text-slate-300 font-semibold">{t("رقم المشروع", "No.")}</TableHead>
+              <TableHead className="text-slate-600 dark:text-slate-300 font-semibold">{t("اسم المشروع", "Project Name")}</TableHead>
+              <TableHead className="text-slate-600 dark:text-slate-300 font-semibold">{t("العميل", "Client")}</TableHead>
+              <TableHead className="text-slate-600 dark:text-slate-300 font-semibold hidden lg:table-cell">{t("الموقع", "Location")}</TableHead>
+              <TableHead className="text-slate-600 dark:text-slate-300 font-semibold">{t("النوع", "Type")}</TableHead>
+              <TableHead className="text-slate-600 dark:text-slate-300 font-semibold">{t("الحالة", "Status")}</TableHead>
+              <TableHead className="text-slate-600 dark:text-slate-300 font-semibold hidden md:table-cell">{t("الإنجاز", "Progress")}</TableHead>
+              <TableHead className="text-slate-600 dark:text-slate-300 font-semibold hidden sm:table-cell">{t("الميزانية", "Budget")}</TableHead>
+              <TableHead className="w-10" />
             </TableRow>
-          ) : (
-            projects.map((project: ProjectRow) => {
-              const st = statusConfig[project.status] || statusConfig.ACTIVE;
-              const tp = typeConfig[project.type] || typeConfig.VILLA;
-              const isSelected = selectedIds.has(project.id);
-              const healthColor = project.status === "COMPLETED" ? "bg-emerald-500" : project.status === "DELAYED" ? "bg-red-500" : project.progress >= 50 ? "bg-amber-500" : "bg-emerald-500";
-              const healthRing = project.status === "COMPLETED" ? "ring-emerald-200 dark:ring-emerald-800" : project.status === "DELAYED" ? "ring-red-200 dark:ring-red-800" : project.progress >= 50 ? "ring-amber-200 dark:ring-amber-800" : "ring-emerald-200 dark:ring-emerald-800";
-              // Deterministic sparkline based on project id hash (no Math.random in render)
-              const sparklineSeed = project.id.charCodeAt(0) % 10;
-              const sparkline = [
-                Math.max(5, project.progress * 0.6 + (sparklineSeed % 7) * 4),
-                Math.max(5, project.progress * 0.8 + (sparklineSeed % 5) * 4),
-                Math.max(5, project.progress * 0.9 + (sparklineSeed % 3) * 3),
-                Math.max(5, project.progress),
-              ];
-              return (
-                <TableRow
-                  key={project.id}
-                  className={cn(
-                    "cursor-pointer hover:bg-teal-50/50 dark:hover:bg-teal-950/10 transition-all duration-200 hover:scale-[1.005] hover:shadow-lg",
-                    isSelected && "bg-teal-50/60 dark:bg-teal-950/20"
-                  )}
-                  onClick={() => onRowClick(project.id)}
-                >
-                  <TableCell>
+        )}
+        itemContent={(idx, project) => {
+          const st = statusConfig[project.status] || statusConfig.ACTIVE;
+          const tp = typeConfig[project.type] || typeConfig.VILLA;
+          const isSelected = selectedIds.has(project.id);
+          const healthColor = project.status === "COMPLETED" ? "bg-emerald-500" : project.status === "DELAYED" ? "bg-red-500" : project.progress >= 50 ? "bg-amber-500" : "bg-emerald-500";
+          const healthRing = project.status === "COMPLETED" ? "ring-emerald-200 dark:ring-emerald-800" : project.status === "DELAYED" ? "ring-red-200 dark:ring-red-800" : project.progress >= 50 ? "ring-amber-200 dark:ring-amber-800" : "ring-emerald-200 dark:ring-emerald-800";
+          // Deterministic sparkline based on project id hash (no Math.random in render)
+          const sparklineSeed = project.id.charCodeAt(0) % 10;
+          const sparkline = [
+            Math.max(5, project.progress * 0.6 + (sparklineSeed % 7) * 4),
+            Math.max(5, project.progress * 0.8 + (sparklineSeed % 5) * 4),
+            Math.max(5, project.progress * 0.9 + (sparklineSeed % 3) * 3),
+            Math.max(5, project.progress),
+          ];
+          return (
+            <>
+                  <TableCell onClick={() => onRowClick(project.id)} className={cn("cursor-pointer", isSelected && "bg-teal-50/60 dark:bg-teal-950/20")}>
                     <Checkbox
                       checked={isSelected}
                       onCheckedChange={() => onToggleSelect(project.id)}
@@ -218,12 +222,11 @@ export function ProjectTableView({
                       <Eye className="h-4 w-4" />
                     </Button>
                   </TableCell>
-                </TableRow>
-              );
-            })
-          )}
-        </TableBody>
-      </Table>
+            </>
+          );
+        }}
+      />
+      )}
       {/* Pagination */}
       {allProjectsCount > PAGE_SIZE && (
         <div className="flex items-center justify-between px-4 py-3 border-t border-slate-100 dark:border-slate-800">

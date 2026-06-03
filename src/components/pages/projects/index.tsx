@@ -127,8 +127,9 @@ export default function ProjectsList({ language }: ProjectsListProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["projects"] });
       setShowAddDialog(false);
+      localStorage.removeItem("draft_project_form");
+      toast.showSuccess(isAr ? "تم إضافة المشروع بنجاح" : "Project added successfully");
       form.reset();
-      toast.created(isAr ? "المشروع" : "Project");
     },
     onError: (error: Error) => {
       toast.showError(isAr ? `فشل في إنشاء المشروع: ${error.message}` : `Failed to create project: ${error.message}`);
@@ -154,6 +155,19 @@ export default function ProjectsList({ language }: ProjectsListProps) {
   const projects = rawProjects.filter(p => !optimisticDeletedIds.has(p.id));
   const totalPages = data?.pagination?.totalPages || 1;
   const allProjectsCount = data?.pagination?.total || 0;
+
+  // Auto-save draft logic
+  useEffect(() => {
+    if (showAddDialog) {
+      const subscription = form.watch((value) => {
+        const timeout = setTimeout(() => {
+          localStorage.setItem("draft_project_form", JSON.stringify(value));
+        }, 1000);
+        return () => clearTimeout(timeout);
+      });
+      return () => subscription.unsubscribe();
+    }
+  }, [showAddDialog, form]);
 
   const handleRowClick = (projectId: string) => {
     setCurrentProjectId(projectId);
@@ -231,7 +245,20 @@ export default function ProjectsList({ language }: ProjectsListProps) {
         selectedIdsSize={selectedIds.size}
         projects={projects}
         onShowCompare={() => setShowCompare(true)}
-        onShowAddDialog={() => setShowAddDialog(true)}
+        onShowAddDialog={() => {
+          form.reset();
+          const draft = localStorage.getItem("draft_project_form");
+          if (draft) {
+            try {
+              const parsed = JSON.parse(draft);
+              Object.keys(parsed).forEach(k => {
+                form.setValue(k as keyof ProjectFormData, parsed[k]);
+              });
+              toast.showSuccess(isAr ? "تم استعادة المسودة بنجاح" : "Draft restored successfully");
+            } catch (e) {}
+          }
+          setShowAddDialog(true);
+        }}
       />
 
       {/* Filters */}
