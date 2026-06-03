@@ -4,8 +4,13 @@ import { requireVerifiedPermission, orgFilter} from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
 import { validateRequest, designPhaseCreateSchema } from '@/lib/api-validation';
+import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 
 export async function GET(request: NextRequest) {
+  const { allowed: _allowed, result: rlResult } = await withRateLimit(request, 'api');
+  const rlBlocked = rateLimitResponse(rlResult);
+  if (rlBlocked) return rlBlocked;
+
   try {
     const result = await requireVerifiedPermission(request, Permission.PROJECT_READ);
     if ('error' in result) return result.error;
@@ -40,6 +45,10 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const { allowed: _allowed, result } = await withRateLimit(request, 'api');
+  const blocked = rateLimitResponse(result);
+  if (blocked) return blocked;
+
   try {
     const result = await requireVerifiedPermission(request, Permission.PROJECT_CREATE);
     if ('error' in result) return result.error;
@@ -58,10 +67,10 @@ export async function POST(request: NextRequest) {
     const designPhase = await db.designPhase.create({
       data: {
         projectId,
-        phase: (phase || "CONCEPT") as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+        phase: (phase || "CONCEPT"),
         phaseNameAr: phaseNameAr || "",
         phaseNameEn: phaseNameEn || "",
-        status: (status || "NOT_STARTED") as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+        status: (status || "NOT_STARTED"),
         designerId: designerId || null,
         startDate: startDate ? new Date(startDate) : null,
         dueDate: dueDate ? new Date(dueDate) : null,

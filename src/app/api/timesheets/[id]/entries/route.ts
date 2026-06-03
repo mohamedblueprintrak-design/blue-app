@@ -4,6 +4,7 @@ import { z } from "zod";
 import { requireVerifiedPermission, orgFilter } from "@/app/api/utils/auth";
 import { Permission } from "@/lib/auth/types";
 import { log } from "@/lib/logger";
+import { validateIdParam } from '@/lib/api-validation';
 
 // ============================================
 // Validation Schemas
@@ -18,7 +19,7 @@ const entryCreateSchema = z.object({
 });
 
 const entryUpdateSchema = z.object({
-  id: z.string().optional(),
+  id: z.string().cuid().optional(),
   date: z.string().optional(),
   hours: z.number().min(0).max(24).optional(),
   taskType: z.enum(["REGULAR", "OVERTIME", "HOLIDAY"]).optional(),
@@ -30,7 +31,7 @@ const batchEntriesSchema = z.object({
   entries: z.array(
     z.union([
       entryCreateSchema,
-      entryCreateSchema.extend({ id: z.string() }),
+      entryCreateSchema.extend({ id: z.string().cuid() }),
     ])
   ),
 });
@@ -46,7 +47,10 @@ export async function POST(
     const rbac = await requireVerifiedPermission(request, Permission.EMPLOYEE_UPDATE);
     if ("error" in rbac) return rbac.error;
     const ctx = rbac.user;
-    const { id } = await params;
+    const { id: rawId } = await params;
+    const idCheck = validateIdParam(rawId);
+    if (!idCheck.success) return idCheck.response;
+    const id = idCheck.id;
 
     const timesheet = await db.timesheet.findFirst({
       where: { id, deletedAt: null, employee: { ...orgFilter(ctx) } },
@@ -119,7 +123,10 @@ export async function PUT(
     const rbac = await requireVerifiedPermission(request, Permission.EMPLOYEE_UPDATE);
     if ("error" in rbac) return rbac.error;
     const ctx = rbac.user;
-    const { id } = await params;
+    const { id: rawId } = await params;
+    const idCheck = validateIdParam(rawId);
+    if (!idCheck.success) return idCheck.response;
+    const id = idCheck.id;
 
     const timesheet = await db.timesheet.findFirst({
       where: { id, deletedAt: null, employee: { ...orgFilter(ctx) } },
@@ -200,7 +207,10 @@ export async function DELETE(
     const rbac = await requireVerifiedPermission(request, Permission.EMPLOYEE_UPDATE);
     if ("error" in rbac) return rbac.error;
     const ctx = rbac.user;
-    const { id } = await params;
+    const { id: rawId } = await params;
+    const idCheck = validateIdParam(rawId);
+    if (!idCheck.success) return idCheck.response;
+    const id = idCheck.id;
 
     const timesheet = await db.timesheet.findFirst({
       where: { id, deletedAt: null, employee: { ...orgFilter(ctx) } },

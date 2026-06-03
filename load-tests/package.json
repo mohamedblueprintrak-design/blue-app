@@ -1,0 +1,17 @@
+{
+  "name": "blueprint-load-tests",
+  "version": "1.0.0",
+  "description": "Load testing suite for BluePrint SaaS",
+  "scripts": {
+    "test:smoke": "k6 run smoke.js",
+    "test:load": "k6 run load.js",
+    "test:stress": "k6 run stress.js",
+    "test:spike": "k6 run spike.js",
+    "test:api": "k6 run api-endpoints.js",
+    "test:auth": "k6 run tests/auth.js",
+    "test:projects": "k6 run tests/projects.js",
+    "test:dashboard": "k6 run tests/dashboard.js",
+    "test:all": "bash run.sh all"
+  },
+  "devDependencies": {}
+}

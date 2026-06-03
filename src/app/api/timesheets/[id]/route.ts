@@ -5,6 +5,7 @@ import { requireVerifiedPermission, orgFilter, canApproveLeave } from "@/app/api
 import { Permission } from "@/lib/auth/types";
 import { log } from "@/lib/logger";
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
+import { validateIdParam } from '@/lib/api-validation';
 
 // ============================================
 // Validation Schemas
@@ -28,7 +29,10 @@ export async function GET(
     const rbac = await requireVerifiedPermission(request, Permission.EMPLOYEE_READ);
     if ("error" in rbac) return rbac.error;
     const ctx = rbac.user;
-    const { id } = await params;
+    const { id: rawId } = await params;
+    const idCheck = validateIdParam(rawId);
+    if (!idCheck.success) return idCheck.response;
+    const id = idCheck.id;
 
     const timesheet = await db.timesheet.findFirst({
       where: { id, deletedAt: null, employee: { ...orgFilter(ctx) } },
@@ -87,7 +91,10 @@ export async function PUT(
     const rbac = await requireVerifiedPermission(request, Permission.EMPLOYEE_UPDATE);
     if ("error" in rbac) return rbac.error;
     const ctx = rbac.user;
-    const { id } = await params;
+    const { id: rawId } = await params;
+    const idCheck = validateIdParam(rawId);
+    if (!idCheck.success) return idCheck.response;
+    const id = idCheck.id;
 
     const existing = await db.timesheet.findFirst({
       where: { id, deletedAt: null, employee: { ...orgFilter(ctx) } },
@@ -215,7 +222,10 @@ export async function DELETE(
     const rbac = await requireVerifiedPermission(request, Permission.EMPLOYEE_UPDATE);
     if ("error" in rbac) return rbac.error;
     const ctx = rbac.user;
-    const { id } = await params;
+    const { id: rawId } = await params;
+    const idCheck = validateIdParam(rawId);
+    if (!idCheck.success) return idCheck.response;
+    const id = idCheck.id;
 
     const existing = await db.timesheet.findFirst({
       where: { id, deletedAt: null, employee: { ...orgFilter(ctx) } },

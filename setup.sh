@@ -5,15 +5,10 @@ echo "  Setup Script"
 echo "============================================"
 echo ""
 
-# Check Node.js
-if ! command -v node &> /dev/null; then
-    echo "[ERROR] Node.js is not installed!"
-    exit 1
-fi
-
-# Check npm
-if ! command -v npm &> /dev/null; then
-    echo "[ERROR] npm is not available!"
+# Check Bun
+if ! command -v bun &> /dev/null; then
+    echo "[ERROR] Bun is not installed!"
+    echo "Install Bun: curl -fsSL https://bun.sh/install | bash"
     exit 1
 fi
 
@@ -99,7 +94,7 @@ fi
 
 echo ""
 echo "[2/7] Installing dependencies..."
-npm install --legacy-peer-deps
+bun install
 echo "  [OK] Dependencies installed"
 
 echo ""
@@ -124,27 +119,27 @@ echo ""
 echo "[4/7] Setting up database..."
 if [ "$DB_CHOICE" = "1" ]; then
     echo "  Running Prisma migrations for PostgreSQL..."
-    npx prisma migrate deploy 2>/dev/null || {
+    bunx prisma migrate deploy 2>/dev/null || {
         echo "  [WARN] migrate deploy failed. Trying migrate dev..."
-        npx prisma migrate dev --name init
+        bunx prisma migrate dev --name init
     }
 else
     if [ -f db/custom.db ]; then
         rm db/custom.db
         echo "  [OK] Old database removed"
     fi
-    npx prisma db push
+    bunx prisma db push
 fi
 echo "  [OK] Database tables created"
 
 echo ""
 echo "[5/7] Seeding demo data..."
-npx tsx prisma/seed.ts
+bunx tsx prisma/seed.ts
 echo "  [OK] Demo data seeded"
 
 echo ""
 echo "[6/7] Generating Prisma client..."
-npx prisma generate
+bunx prisma generate
 echo "  [OK] Prisma client generated"
 
 echo ""
@@ -179,4 +174,4 @@ if [ -n "$PORT_PID" ]; then
 fi
 echo "  [OK] Port 3000 is free"
 
-npm run dev
+bun run dev

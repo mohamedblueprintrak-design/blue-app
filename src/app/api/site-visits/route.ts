@@ -4,8 +4,15 @@ import { validateRequest, siteVisitCreateSchema } from '@/lib/api-validation';
 import { requireVerifiedPermission, orgFilter, orgCreate } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
+import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
+import { parsePaginationParams, buildPaginationMeta, calculateSkip, isPaginationRequested } from '../utils/pagination';
+import { cachedQuery, invalidateCache, CACHE_TTL } from '@/lib/cache/query-cache';
 
 export async function GET(request: NextRequest) {
+  const { allowed: _allowed, result: rlResult } = await withRateLimit(request, 'api');
+  const rlBlocked = rateLimitResponse(rlResult);
+  if (rlBlocked) return rlBlocked;
+
   try {
     // RBAC CHECK - requires SITE_DIARY_READ permission
     const rbac = await requireVerifiedPermission(request, Permission.SITE_DIARY_READ);
@@ -22,15 +29,40 @@ export async function GET(request: NextRequest) {
     if (status) where.status = status;
     if (municipality) where.municipality = municipality;
 
-    const siteVisits = await db.siteVisit.findMany({
-      where,
-      include: {
-        project: {
-          select: { id: true, name: true, nameEn: true, number: true, client: { select: { id: true, name: true, company: true } } },
+    const usePagination = isPaginationRequested(searchParams);
+    const { page, limit } = parsePaginationParams(searchParams);
+    const cacheKey = `site-visits:${ctx.organizationId || 'none'}:${projectId || 'all'}:${page}:${limit}`;
+
+    if (usePagination) {
+      const [siteVisits, total] = await cachedQuery(cacheKey, () => Promise.all([
+        db.siteVisit.findMany({
+          where,
+          include: {
+            project: {
+              select: { id: true, name: true, nameEn: true, number: true, client: { select: { id: true, name: true, company: true } } },
+            },
+          },
+          orderBy: { date: "desc" },
+          skip: calculateSkip(page, limit),
+          take: limit,
+        }),
+        db.siteVisit.count({ where }),
+      ]), CACHE_TTL.SITE_REPORTS);
+
+      return NextResponse.json({ data: siteVisits, pagination: buildPaginationMeta(page, limit, total) });
+    }
+
+    const siteVisits = await cachedQuery(cacheKey, () =>
+      db.siteVisit.findMany({
+        where,
+        include: {
+          project: {
+            select: { id: true, name: true, nameEn: true, number: true, client: { select: { id: true, name: true, company: true } } },
+          },
         },
-      },
-      orderBy: { date: "desc" },
-    });
+        orderBy: { date: "desc" },
+      }),
+    CACHE_TTL.SITE_REPORTS);
 
     return NextResponse.json(siteVisits);
   } catch (error) {
@@ -40,6 +72,10 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const { allowed: _allowed, result } = await withRateLimit(request, 'api');
+  const blocked = rateLimitResponse(result);
+  if (blocked) return blocked;
+
   try {
     // RBAC CHECK - requires SITE_DIARY_CREATE permission
     const rbac = await requireVerifiedPermission(request, Permission.SITE_DIARY_CREATE);
@@ -60,11 +96,11 @@ export async function POST(request: NextRequest) {
         projectId,
         date: new Date(date),
         plotNumber: plotNumber || "",
-        municipality: (municipality || "") as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+        municipality: (municipality || ""),
         gateDescription: gateDescription || "",
         neighborDesc: neighborDesc || "",
         buildingDesc: buildingDesc || "",
-        status: (status || "DRAFT") as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+        status: (status || "DRAFT"),
         photos: photos || "",
         notes: notes || "",
         ...orgCreate(ctx),
@@ -77,6 +113,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    await invalidateCache('site-visits');
     return NextResponse.json(siteVisit, { status: 201 });
   } catch (error) {
     log.error("Error creating site visit:", error);

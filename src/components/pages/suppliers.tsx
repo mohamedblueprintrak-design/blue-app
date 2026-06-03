@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToastFeedback } from "@/hooks/use-toast-feedback";
-import { useForm } from "react-hook-form";
+import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { supplierSchema, getErrorMessage, type SupplierFormData } from "@/lib/validations";
 import { formatCurrency } from "@/lib/formatters";
@@ -141,7 +141,7 @@ export default function SuppliersPage({ language }: SuppliersPageProps) {
   const [_formData, setFormData] = useState(emptyForm);
 
   const form = useForm<SupplierFormData>({
-    resolver: zodResolver(supplierSchema) as any, // eslint-disable-line @typescript-eslint/no-explicit-any -- zodResolver + react-hook-form type mismatch
+    resolver: zodResolver(supplierSchema) as unknown as Resolver<SupplierFormData>,
     defaultValues: emptyForm,
   });
   const { register, handleSubmit: rhfHandleSubmit, formState: { errors }, reset, setValue, watch } = form;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { taskSchema, getErrorMessage, type TaskFormData } from "@/lib/validations";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -57,7 +57,7 @@ export function TaskForm({
 
   // Form
   const form = useForm<TaskFormData>({
-    resolver: zodResolver(taskSchema) as any, // eslint-disable-line @typescript-eslint/no-explicit-any -- zodResolver + react-hook-form type mismatch
+    resolver: zodResolver(taskSchema) as unknown as Resolver<TaskFormData>,
     defaultValues: {
       title: "",
       description: "",

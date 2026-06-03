@@ -5,6 +5,7 @@ import { requireVerifiedPermission, orgFilter, orgCreate } from '@/app/api/utils
 import { Permission } from '@/lib/auth/types';
 import { z } from 'zod';
 import type { WeatherCondition } from '@/types/db-enums';
+import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 
 // Zod schema for supervision checklist creation
 const supervisionChecklistCreateSchema = z.object({
@@ -44,6 +45,10 @@ const supervisionChecklistCreateSchema = z.object({
 });
 
 export async function GET(request: NextRequest) {
+  const { allowed: _allowed, result: rlResult } = await withRateLimit(request, 'api');
+  const rlBlocked = rateLimitResponse(rlResult);
+  if (rlBlocked) return rlBlocked;
+
   try {
     // RBAC CHECK
     const rbac = await requireVerifiedPermission(request, Permission.PROJECT_READ);
@@ -80,6 +85,10 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const { allowed: _allowed, result } = await withRateLimit(request, 'api');
+  const blocked = rateLimitResponse(result);
+  if (blocked) return blocked;
+
   try {
     // RBAC CHECK
     const rbac = await requireVerifiedPermission(request, Permission.DOCUMENT_CREATE);
@@ -111,7 +120,7 @@ export async function POST(request: NextRequest) {
         contractorName: contractorName || "",
         progressOverall: progressOverall || 0,
         notes: notes || "",
-        status: (status || "DRAFT") as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+        status: (status || "DRAFT"),
         ...orgCreate(user),
         items: items ? {
           create: items.map((item) => ({
@@ -128,11 +137,11 @@ export async function POST(request: NextRequest) {
           create: violations.map((v) => ({
             projectId,
             type: v.type || "",
-            severity: (v.severity || "LOW") as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+            severity: (v.severity || "LOW"),
             description: v.description || "",
             contractorName: v.contractorName || contractorName || "",
             deadline: v.deadline ? new Date(v.deadline) : null,
-            status: (v.status || "OPEN") as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+            status: (v.status || "OPEN"),
             photoBefore: v.photoBefore || "",
             photoAfter: v.photoAfter || "",
             resolutionNotes: v.resolutionNotes || "",

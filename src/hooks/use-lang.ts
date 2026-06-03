@@ -49,10 +49,10 @@ export function useLanguage() {
     
     // Resolve key path
     const parts = (pathOrArText as string).split(".");
-    let current: any = dictionaries[lang];
+    let current: unknown = dictionaries[lang];
     for (const part of parts) {
       if (current && typeof current === "object" && part in current) {
-        current = current[part];
+        current = (current as Record<string, unknown>)[part];
       } else {
         return pathOrArText as string; // Fallback to path if not found
       }

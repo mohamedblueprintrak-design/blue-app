@@ -5,6 +5,8 @@ import { requireVerifiedPermission, orgFilter, orgCreate } from '@/app/api/utils
 import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
 import { z } from 'zod';
+import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
+import { parsePaginationParams, buildPaginationMeta, calculateSkip, isPaginationRequested } from '../utils/pagination';
 
 // Extended meeting schema with attendee and agenda support
 const meetingCreateFullSchema = meetingCreateSchema.extend({
@@ -16,6 +18,10 @@ const meetingCreateFullSchema = meetingCreateSchema.extend({
 });
 
 export async function GET(request: NextRequest) {
+  const { allowed: _allowed, result: rlResult } = await withRateLimit(request, 'api');
+  const rlBlocked = rateLimitResponse(rlResult);
+  if (rlBlocked) return rlBlocked;
+
   try {
     const result = await requireVerifiedPermission(request, Permission.MEETING_READ);
     if ('error' in result) return result.error;
@@ -26,6 +32,38 @@ export async function GET(request: NextRequest) {
 
     const where: Record<string, unknown> = { deletedAt: null, ...orgFilter(ctx) };
     if (projectId) where.projectId = projectId;
+
+    const usePagination = isPaginationRequested(searchParams);
+    const { page, limit } = parsePaginationParams(searchParams);
+
+    if (usePagination) {
+      const [meetings, total] = await Promise.all([
+        db.meeting.findMany({
+          where,
+          include: {
+            project: {
+              select: { id: true, name: true, nameEn: true, number: true },
+            },
+            attendees: {
+              include: {
+                user: {
+                  select: { id: true, name: true, email: true, avatar: true },
+                },
+              },
+            },
+            agenda: {
+              orderBy: { createdAt: "asc" },
+            },
+          },
+          orderBy: { date: "desc" },
+          skip: calculateSkip(page, limit),
+          take: limit,
+        }),
+        db.meeting.count({ where }),
+      ]);
+
+      return NextResponse.json({ data: meetings, pagination: buildPaginationMeta(page, limit, total) });
+    }
 
     const meetings = await db.meeting.findMany({
       where,
@@ -55,6 +93,10 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const { allowed: _allowed, result } = await withRateLimit(request, 'api');
+  const blocked = rateLimitResponse(result);
+  if (blocked) return blocked;
+
   try {
     const result = await requireVerifiedPermission(request, Permission.MEETING_CREATE);
     if ('error' in result) return result.error;
@@ -88,7 +130,7 @@ export async function POST(request: NextRequest) {
         time: time || "",
         duration: Number(duration) || 60,
         location: location || "",
-        type: (type || "ONSITE") as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+        type: (type || "ONSITE"),
         notes: notes || "",
         ...orgCreate(ctx),
         createdById: ctx.userId,

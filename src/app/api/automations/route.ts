@@ -49,9 +49,9 @@ export async function POST(request: NextRequest) {
       data: {
         name,
         description: description || '',
-        triggerType: triggerType as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+        triggerType: triggerType,
         triggerConfig: typeof triggerConfig === 'string' ? triggerConfig : JSON.stringify(triggerConfig ?? {}),
-        actionType: actionType as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+        actionType: actionType,
         actionConfig: typeof actionConfig === 'string' ? actionConfig : JSON.stringify(actionConfig ?? {}),
         status: 'INACTIVE',
       },

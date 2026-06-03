@@ -130,7 +130,7 @@ export async function PUT(
         db.schedulePhase.update({
           where: { id: phase.id },
           data: {
-            ...(phase.status && { status: phase.status as any }),
+            ...(phase.status && { status: phase.status }),
             ...(phase.duration !== undefined && { duration: phase.duration }),
             ...(phase.startDate && {
               startDate: new Date(phase.startDate),

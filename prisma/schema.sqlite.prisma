@@ -179,6 +179,8 @@ model User {
   failedLoginAttempts Int       @default(0)
   lockedUntil         DateTime?
   preferences         String?   @default("{}")
+  googleId            String?   @unique // Google OAuth sub ID — for social login
+  microsoftId         String?   @unique // Microsoft OAuth sub ID — for social login
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 

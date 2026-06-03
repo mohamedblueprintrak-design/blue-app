@@ -26,7 +26,7 @@ const ganttTaskCreateSchema = z.object({
 });
 
 const ganttTaskUpdateSchema = z.object({
-  id: z.string().min(1, 'Task ID is required'),
+  id: z.string().cuid('Invalid ID'),
   title: z.string().min(1).max(300).optional(),
   description: z.string().max(5000).optional(),
   priority: z.enum(['URGENT', 'HIGH', 'MEDIUM', 'LOW', 'NORMAL']).optional(),
@@ -188,8 +188,8 @@ export async function POST(request: NextRequest) {
         title: body.title,
         description: body.description || "",
         projectId: body.projectId || null,
-        priority: (body.priority || "NORMAL") as any, // eslint-disable-line @typescript-eslint/no-explicit-any
-        status: (body.status || "TODO") as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+        priority: (body.priority || "NORMAL"),
+        status: (body.status || "TODO"),
         startDate: body.startDate ? new Date(body.startDate) : null,
         endDate: body.endDate ? new Date(body.endDate) : null,
         dueDate: body.dueDate ? new Date(body.dueDate) : null,

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToastFeedback } from "@/hooks/use-toast-feedback";
-import { useForm } from "react-hook-form";
+import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { defectSchema, getErrorMessage, type DefectFormData } from "@/lib/validations";
 import { cn } from "@/lib/utils";
@@ -173,7 +173,7 @@ export default function Defects({ language, projectId }: DefectsProps) {
   const [_formData, setFormData] = useState(defaultDefectForm);
 
   const form = useForm<DefectFormData>({
-    resolver: zodResolver(defectSchema) as any, // eslint-disable-line @typescript-eslint/no-explicit-any -- zodResolver + react-hook-form type mismatch
+    resolver: zodResolver(defectSchema) as unknown as Resolver<DefectFormData>,
     defaultValues: defaultDefectForm,
   });
   const { register, handleSubmit: rhfHandleSubmit, formState: { errors }, reset, setValue, watch } = form;

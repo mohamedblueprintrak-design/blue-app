@@ -102,7 +102,7 @@ export async function PUT(
         ...(validatedData.department !== undefined && { department: validatedData.department }),
         ...(validatedData.position !== undefined && { position: validatedData.position }),
         ...(validatedData.salary !== undefined && { salary: validatedData.salary }),
-        ...(validatedData.employmentStatus !== undefined && { employmentStatus: validatedData.employmentStatus as any }),
+        ...(validatedData.employmentStatus !== undefined && { employmentStatus: validatedData.employmentStatus }),
         ...(validatedData.hireDate !== undefined && {
           hireDate: validatedData.hireDate ? new Date(validatedData.hireDate) : null,
         }),

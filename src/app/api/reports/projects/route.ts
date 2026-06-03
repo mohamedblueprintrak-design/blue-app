@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireVerifiedPermission, orgFilter } from '../../utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
+import { cachedQuery, CACHE_TTL, buildCacheKey } from '@/lib/cache/query-cache';
 
 export async function GET(request: NextRequest) {
   const result = await requireVerifiedPermission(request, Permission.REPORTS_READ);
@@ -10,6 +11,10 @@ export async function GET(request: NextRequest) {
   const ctx = result.user;
   try {
     const orgWhere = orgFilter(ctx);
+
+    const cacheKey = buildCacheKey('reports', 'projects', ctx.organizationId || 'global');
+
+    const result = await cachedQuery(cacheKey, async () => {
     // Project stats by status
     const totalProjects = await db.project.count({ where: orgWhere });
     const activeProjects = await db.project.count({ where: { status: "ACTIVE", ...orgWhere } });
@@ -70,23 +75,26 @@ export async function GET(request: NextRequest) {
     const totalInvoiced = projectBudgetData.reduce((s, p) => s + p.totalInvoiced, 0);
     const totalSpent = projectBudgetData.reduce((s, p) => s + p.totalPaid, 0);
 
-    return NextResponse.json({
-      stats: {
-        total: totalProjects,
-        ACTIVE: activeProjects,
-        COMPLETED: completedProjects,
-        DELAYED: delayedProjects,
-        onHold: onHoldProjects,
-        CANCELLED: cancelledProjects,
-      },
-      budgetSummary: {
-        totalBudget,
-        totalInvoiced,
-        totalSpent,
-        remaining: totalBudget - totalSpent,
-      },
-      projects: projectBudgetData,
-    });
+      return {
+        stats: {
+          total: totalProjects,
+          ACTIVE: activeProjects,
+          COMPLETED: completedProjects,
+          DELAYED: delayedProjects,
+          onHold: onHoldProjects,
+          CANCELLED: cancelledProjects,
+        },
+        budgetSummary: {
+          totalBudget,
+          totalInvoiced,
+          totalSpent,
+          remaining: totalBudget - totalSpent,
+        },
+        projects: projectBudgetData,
+      };
+    }, CACHE_TTL.REPORTS);
+
+    return NextResponse.json(result);
   } catch (error) {
     log.error("Error fetching projects report:", error);
     return NextResponse.json({ error: "Failed to fetch projects report" }, { status: 500 });

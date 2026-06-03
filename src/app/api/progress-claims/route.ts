@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
         currentCertified: currentCert,
         retentionAmount: retention,
         netPayment,
-        status: (status || "DRAFT") as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+        status: (status || "DRAFT"),
         certifiedDate: certifiedDate ? new Date(certifiedDate) : null,
         certifiedById: certifiedById || null,
         ...orgCreate(ctx),

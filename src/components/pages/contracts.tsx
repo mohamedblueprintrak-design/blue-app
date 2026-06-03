@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToastFeedback } from "@/hooks/use-toast-feedback";
-import { useForm } from "react-hook-form";
+import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { contractSchema, type ContractFormData } from "@/lib/validations";
 import { getMutationHeaders } from "@/lib/csrf-client";
@@ -36,7 +36,7 @@ export default function ContractsPage({ language, projectId }: ContractsPageProp
   const [_formData, setFormData] = useState(emptyForm);
 
   const form = useForm<ContractFormData>({
-    resolver: zodResolver(contractSchema) as any, // eslint-disable-line @typescript-eslint/no-explicit-any -- zodResolver + react-hook-form type mismatch
+    resolver: zodResolver(contractSchema) as unknown as Resolver<ContractFormData>,
     defaultValues: emptyForm,
   });
   const { reset } = form;

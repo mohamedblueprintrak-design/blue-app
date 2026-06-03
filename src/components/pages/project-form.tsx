@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { projectSchema, getErrorMessage, type ProjectFormData } from "@/lib/validations";
 import { Button } from "@/components/ui/button";
@@ -59,7 +59,7 @@ export default function ProjectFormDialog({
 }: ProjectFormDialogProps) {
   const [mapLocation, setMapLocation] = useState<{ lat: number; lng: number } | null>(null);
   const form = useForm<ProjectFormData>({
-    resolver: zodResolver(projectSchema) as any, // eslint-disable-line @typescript-eslint/no-explicit-any -- zodResolver + react-hook-form type mismatch
+    resolver: zodResolver(projectSchema) as unknown as Resolver<ProjectFormData>,
     defaultValues: {
       number: "",
       name: "",

@@ -58,25 +58,25 @@ fi
 
 # Step 2: Generate Prisma client
 echo "[1/4] Generating Prisma client..."
-npx prisma generate
+bunx prisma generate
 echo "  OK"
 echo ""
 
 # Step 3: Run migrations
 echo "[2/4] Running Prisma migrations..."
-npx prisma migrate deploy
+bunx prisma migrate deploy
 echo "  OK"
 echo ""
 
 # Step 4: Seed database
 echo "[3/4] Seeding database..."
-npx tsx prisma/seed.ts
+bunx tsx prisma/seed.ts
 echo "  OK"
 echo ""
 
 # Step 5: Verify
 echo "[4/4] Verifying database connection..."
-if npx prisma db pull --print > /dev/null 2>&1; then
+if bunx prisma db pull --print > /dev/null 2>&1; then
     echo "  OK - Database is accessible"
 else
     echo "  WARN - Could not verify database connection, but migration completed"
@@ -88,7 +88,7 @@ echo "  Migration Complete!"
 echo "============================================"
 echo ""
 echo "  Login: admin@blueprint.ae / Admin@BP2024!"
-echo "  Start the app: npm run dev"
+echo "  Start the app: bun run dev"
 echo ""
 echo "  For more information, see MIGRATION.md"
 echo "============================================"

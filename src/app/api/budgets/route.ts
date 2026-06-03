@@ -6,6 +6,9 @@ import { log } from '@/lib/logger';
 import { sanitizeObject } from '@/lib/security/sanitize';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 import { validateRequest, budgetCreateSchema } from '@/lib/api-validation';
+import { cachedQuery, invalidateCache, CACHE_TTL, buildCacheKey } from '@/lib/cache/query-cache';
+import { parsePaginationParams, buildPaginationMeta, calculateSkip } from '../utils/pagination';
+import { insensitiveContains } from '../utils/db';
 
 export async function GET(request: NextRequest) {
   const { allowed: _allowed, result } = await withRateLimit(request, 'api');
@@ -20,27 +23,42 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const projectId = searchParams.get("projectId");
+    const { page, limit, search } = parsePaginationParams(searchParams);
 
-    const where: Record<string, unknown> = { deletedAt: null, ...orgFilter(ctx) };
+    const where: Record<string, unknown> = { deletedAt: null, parentId: null, ...orgFilter(ctx) };
     if (projectId) where.projectId = projectId;
+    if (search) {
+      where.OR = [
+        { name: insensitiveContains(search) },
+        { category: insensitiveContains(search) },
+        { project: { name: insensitiveContains(search) } },
+      ];
+    }
 
-    const budgets = await db.budget.findMany({
-      where,
-      include: {
-        project: { select: { id: true, name: true, nameEn: true, number: true } },
-        children: {
+    const cacheKey = buildCacheKey('budgets', 'list', ctx.organizationId || 'global', projectId || '', `p${page}`, `l${limit}`, search || '');
+
+    const { budgets, total } = await cachedQuery(cacheKey, async () => {
+      const [budgets, total] = await Promise.all([
+        db.budget.findMany({
+          where,
           include: {
             project: { select: { id: true, name: true, nameEn: true, number: true } },
+            children: {
+              include: {
+                project: { select: { id: true, name: true, nameEn: true, number: true } },
+              },
+            },
           },
-        },
-      },
-      orderBy: [{ category: "asc" }, { createdAt: "asc" }],
-    });
+          orderBy: [{ category: "asc" }, { createdAt: "asc" }],
+          skip: calculateSkip(page, limit),
+          take: limit,
+        }),
+        db.budget.count({ where }),
+      ]);
+      return { budgets, total };
+    }, CACHE_TTL.BUDGETS);
 
-    // Return only top-level budgets (those without a parent)
-    const topLevel = budgets.filter((b) => !b.parentId);
-
-    return NextResponse.json(topLevel);
+    return NextResponse.json({ data: budgets, pagination: buildPaginationMeta(page, limit, total) });
   } catch (error) {
     log.error("Error fetching budgets:", error);
     return NextResponse.json({ error: "Failed to fetch budgets" }, { status: 500 });
@@ -98,6 +116,9 @@ export async function POST(request: NextRequest) {
         },
       },
     });
+
+    // Invalidate budget caches after creation
+    await invalidateCache('budgets');
 
     return NextResponse.json(budget, { status: 201 });
   } catch (error) {

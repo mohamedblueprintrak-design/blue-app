@@ -10,6 +10,7 @@ import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
 import { z } from 'zod';
 import type { Municipality as MunicipalityEnum } from '@/types/db-enums';
+import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 
 const VALID_TYPES = ["SUBMISSION", "RESPONSE", "REJECTION", "APPROVAL", "INQUIRY", "AMENDMENT"];
 const VALID_STATUSES = ["PENDING", "UNDER_REVIEW", "APPROVED", "REJECTED", "AMENDMENT_REQUIRED"];
@@ -31,6 +32,10 @@ const municipalityCorrespondenceCreateSchema = z.object({
 
 // GET - List municipality correspondence records
 export async function GET(request: NextRequest) {
+  const { allowed: _allowed, result: rlResult } = await withRateLimit(request, 'api');
+  const rlBlocked = rateLimitResponse(rlResult);
+  if (rlBlocked) return rlBlocked;
+
   try {
     const result = await requireVerifiedPermission(request, Permission.PROJECT_READ);
     if ('error' in result) return result.error;
@@ -66,6 +71,10 @@ export async function GET(request: NextRequest) {
 
 // POST - Create new correspondence record
 export async function POST(request: NextRequest) {
+  const { allowed: _allowed, result } = await withRateLimit(request, 'api');
+  const blocked = rateLimitResponse(result);
+  if (blocked) return blocked;
+
   try {
     const result = await requireVerifiedPermission(request, Permission.PROJECT_CREATE);
     if ('error' in result) return result.error;

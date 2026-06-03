@@ -4,6 +4,8 @@ import { requireVerifiedPermission, orgFilter} from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
 import { z } from 'zod';
+import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
+import { parsePaginationParams, buildPaginationMeta, calculateSkip, isPaginationRequested } from '../utils/pagination';
 
 // Zod schema for transmittal item
 const transmittalItemSchema = z.object({
@@ -31,6 +33,10 @@ const transmittalCreateSchema = z.object({
 });
 
 export async function GET(request: NextRequest) {
+  const { allowed: _allowed, result: rlResult } = await withRateLimit(request, 'api');
+  const rlBlocked = rateLimitResponse(rlResult);
+  if (rlBlocked) return rlBlocked;
+
   try {
     // RBAC CHECK - requires DOCUMENT_READ permission
     const rbac = await requireVerifiedPermission(request, Permission.DOCUMENT_READ);
@@ -46,6 +52,32 @@ export async function GET(request: NextRequest) {
     const where: Record<string, unknown> = { deletedAt: null, ...orgWhere };
     if (projectId) where.projectId = projectId;
     if (status) where.status = status;
+
+    const usePagination = isPaginationRequested(searchParams);
+    const { page, limit } = parsePaginationParams(searchParams);
+
+    if (usePagination) {
+      const [transmittals, total] = await Promise.all([
+        db.transmittal.findMany({
+          where,
+          include: {
+            project: {
+              select: { id: true, name: true, nameEn: true, number: true },
+            },
+            from: {
+              select: { id: true, name: true, email: true },
+            },
+            items: true,
+          },
+          orderBy: { createdAt: "desc" },
+          skip: calculateSkip(page, limit),
+          take: limit,
+        }),
+        db.transmittal.count({ where }),
+      ]);
+
+      return NextResponse.json({ data: transmittals, pagination: buildPaginationMeta(page, limit, total) });
+    }
 
     const transmittals = await db.transmittal.findMany({
       where,
@@ -69,6 +101,10 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const { allowed: _allowed, result } = await withRateLimit(request, 'api');
+  const blocked = rateLimitResponse(result);
+  if (blocked) return blocked;
+
   try {
     // RBAC CHECK - requires DOCUMENT_CREATE permission
     const rbac = await requireVerifiedPermission(request, Permission.DOCUMENT_CREATE);
@@ -123,7 +159,7 @@ export async function POST(request: NextRequest) {
         toEmail: toEmail || "",
         toCompany: toCompany || "",
         toPhone: toPhone || "",
-        deliveryMethod: (deliveryMethod || "EMAIL") as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+        deliveryMethod: (deliveryMethod || "EMAIL"),
         status: status || "SENT",
         items: {
           create: itemsData,

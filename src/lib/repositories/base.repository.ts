@@ -51,8 +51,8 @@ export abstract class BaseRepository<T> implements IRepository<T> {
    * Get the Prisma delegate for this model.
    * Uses a single cast point rather than scattering `as unknown as Record` throughout.
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  protected get delegate(): any {
+  protected get delegate(): // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Prisma delegate types are dynamic per model
+    any {
     return (this.prisma as unknown as Record<string, unknown>)[this.model as string];
   }
 

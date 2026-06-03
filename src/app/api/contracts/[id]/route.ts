@@ -109,8 +109,8 @@ export async function PUT(
         ...(validatedData.clientId !== undefined && { clientId: validatedData.clientId }),
         ...(validatedData.projectId !== undefined && { projectId: validatedData.projectId }),
         ...(validatedData.value !== undefined && { value: validatedData.value }),
-        ...(validatedData.type !== undefined && { type: validatedData.type as any }),
-        ...(validatedData.status !== undefined && { status: validatedData.status as any }),
+        ...(validatedData.type !== undefined && { type: validatedData.type }),
+        ...(validatedData.status !== undefined && { status: validatedData.status }),
         ...(validatedData.startDate !== undefined && {
           startDate: validatedData.startDate ? new Date(validatedData.startDate) : null,
         }),

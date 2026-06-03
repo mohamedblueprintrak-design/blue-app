@@ -6,6 +6,7 @@ import { Permission } from '@/lib/auth/types';
 import { handleApiError } from '@/lib/api-error';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 import type { Currency } from '@/types/db-enums';
+import { cachedQuery, invalidateCache, CACHE_TTL, buildCacheKey } from '@/lib/cache/query-cache';
 
 export async function GET(request: NextRequest) {
   // Rate limiting
@@ -18,22 +19,28 @@ export async function GET(request: NextRequest) {
   if ('error' in rbac) return rbac.error;
 
   try {
-    let settings = await db.companySettings.findFirst({
-      where: { ...orgFilter(rbac.user) },
-    });
-    if (!settings) {
-      settings = await db.companySettings.create({
-        data: {
-          name: 'مكتب الاستشارات الهندسية',
-          nameEn: 'Engineering Consultancy Office',
-          currency: 'AED' as Currency,
-          timezone: 'Asia/Dubai',
-          workingDays: 'sat,sun,mon,tue,wed,thu',
-          workingHours: '08:00-17:00',
-          ...orgCreate(rbac.user),
-        },
+    const cacheKey = buildCacheKey('settings', 'company', rbac.user.organizationId || 'global');
+
+    let settings = await cachedQuery(cacheKey, async () => {
+      let settings = await db.companySettings.findFirst({
+        where: { ...orgFilter(rbac.user) },
       });
-    }
+      if (!settings) {
+        settings = await db.companySettings.create({
+          data: {
+            name: 'مكتب الاستشارات الهندسية',
+            nameEn: 'Engineering Consultancy Office',
+            currency: 'AED' as Currency,
+            timezone: 'Asia/Dubai',
+            workingDays: 'sat,sun,mon,tue,wed,thu',
+            workingHours: '08:00-17:00',
+            ...orgCreate(rbac.user),
+          },
+        });
+      }
+      return settings;
+    }, CACHE_TTL.SETTINGS);
+
     return NextResponse.json(settings);
   } catch (error: unknown) {
     return handleApiError(error, 'CompanySettings GET');
@@ -68,6 +75,9 @@ export async function PUT(request: NextRequest) {
       where: { id: existing.id },
       data: { ...rest, ...(currency ? { currency: currency as Currency } : {}) },
     });
+
+    // Invalidate settings cache after update
+    await invalidateCache('settings');
 
     return NextResponse.json(settings);
   } catch (error: unknown) {

@@ -10,6 +10,7 @@ import { Job } from 'bullmq';
 import { db } from '@/lib/db';
 import { log } from '@/lib/logger';
 import type { NotificationType } from '@/types/db-enums';
+import type { NotificationPayload } from '@/lib/websocket/types';
 
 /**
  * Notification job data structure
@@ -95,12 +96,14 @@ export async function notificationProcessor(job: Job<NotificationJobData>): Prom
       // Map "MEDIUM" → "NORMAL" for WebSocket payload compatibility
       const wsPriority = (priority === 'MEDIUM' ? 'NORMAL' : priority || 'NORMAL') as 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT';
       await sendNotificationToUser(userId, {
-        id: notification.id,
+        notificationId: notification.id,
+        userId,
         type,
         title: titleAr,
         message: messageAr,
         priority: wsPriority,
-      } as any); // eslint-disable-line @typescript-eslint/no-explicit-any
+        timestamp: new Date(),
+      } as NotificationPayload);
     } catch {
       // WebSocket not available — notification is still persisted in DB
       log.debug('[Processor/Notification] WebSocket not available — notification saved to DB only');

@@ -42,7 +42,7 @@ export async function GET() {
 
         // Count distinct engineering disciplines from project types
         const disciplineResult = await db.project.findMany({
-          where: { type: { not: "" as any } }, // eslint-disable-line @typescript-eslint/no-explicit-any
+          where: { type: { not: "" } },
           select: { type: true },
           distinct: ['type'],
         });

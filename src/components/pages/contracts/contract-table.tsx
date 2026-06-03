@@ -34,7 +34,7 @@ import {
   Inbox,
   FileSignature,
 } from "lucide-react";
-import type { ContractItem, ClientOption, ProjectOption } from "./types";
+import type { ContractItem, ContractDetail, ClientOption, ProjectOption } from "./types";
 import { getStatusConfig } from "./helpers";
 
 interface ContractTableProps {
@@ -53,7 +53,7 @@ interface ContractTableProps {
   onSelectContract: (contract: ContractItem) => void;
   onEditContract: (contract: ContractItem) => void;
   onDeleteContract: (contract: ContractItem) => void;
-  contractDetail: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  contractDetail: ContractDetail | null | undefined;
   onCloseDetail: () => void;
   onEditFromDetail: () => void;
 }

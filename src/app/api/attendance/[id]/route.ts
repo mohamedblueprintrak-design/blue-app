@@ -103,7 +103,7 @@ export async function PUT(
       data: {
         ...(validatedData.checkIn !== undefined && { checkIn: validatedData.checkIn }),
         ...(validatedData.checkOut !== undefined && { checkOut: validatedData.checkOut }),
-        ...(validatedData.status !== undefined && { status: validatedData.status as any }), // eslint-disable-line @typescript-eslint/no-explicit-any
+        ...(validatedData.status !== undefined && { status: validatedData.status }),
         ...(validatedData.workHours !== undefined && { workHours: validatedData.workHours }),
         ...(validatedData.overtimeHours !== undefined && { overtimeHours: validatedData.overtimeHours }),
       },

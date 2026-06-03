@@ -197,7 +197,7 @@ class InMemoryCache {
  */
 export class CacheManager {
   private memoryCache: InMemoryCache;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Redis client type varies by loaded modules (JSON, search, etc.)
   private redisClient: any = null;
   private redisAvailable = false;
   private redisConnecting = false;

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { useForm, useWatch } from "react-hook-form";
+import { useForm, useWatch, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { changeOrderSchema, getErrorMessage, type ChangeOrderFormData } from "@/lib/validations";
 import { cn } from "@/lib/utils";
@@ -153,7 +153,7 @@ export default function ChangeOrders({ language, projectId }: ChangeOrdersProps)
   const defaultCOForm = { projectId: projectId || "", number: "", type: "CHANGE", costImpact: "0", timeImpact: "", description: "", status: "PENDING" };
   const [_formData, setFormData] = useState(defaultCOForm);
 
-  const form = useForm<ChangeOrderFormData>({ resolver: zodResolver(changeOrderSchema) as any, defaultValues: defaultCOForm }); // eslint-disable-line @typescript-eslint/no-explicit-any
+  const form = useForm<ChangeOrderFormData>({ resolver: zodResolver(changeOrderSchema) as unknown as Resolver<ChangeOrderFormData>, defaultValues: defaultCOForm });
   const { register, handleSubmit: rhfHandleSubmit, formState: { errors }, reset, setValue } = form;
   const watchProjectId = useWatch({ control: form.control, name: "projectId" });
   const watchType = useWatch({ control: form.control, name: "type" });

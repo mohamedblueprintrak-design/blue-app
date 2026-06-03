@@ -123,7 +123,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         }),
         ...(validatedData.notes !== undefined && { notes: validatedData.notes }),
         ...(validatedData.evaluationNotes !== undefined && { evaluationNotes: validatedData.evaluationNotes }),
-        ...(validatedData.status !== undefined && { status: validatedData.status as any }), // eslint-disable-line @typescript-eslint/no-explicit-any
+        ...(validatedData.status !== undefined && { status: validatedData.status }),
       },
       include: {
         project: { select: { id: true, name: true, nameEn: true, number: true } },

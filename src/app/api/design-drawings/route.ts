@@ -4,6 +4,7 @@ import { log } from '@/lib/logger';
 import { requireVerifiedPermission, orgFilter, orgCreate } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { z } from 'zod';
+import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 
 // Zod schema for design drawing creation
 const designDrawingCreateSchema = z.object({
@@ -19,6 +20,10 @@ const designDrawingCreateSchema = z.object({
 });
 
 export async function GET(request: NextRequest) {
+  const { allowed: _allowed, result: rlResult } = await withRateLimit(request, 'api');
+  const rlBlocked = rateLimitResponse(rlResult);
+  if (rlBlocked) return rlBlocked;
+
   try {
     // RBAC CHECK
     const rbac = await requireVerifiedPermission(request, Permission.DOCUMENT_READ);
@@ -52,6 +57,10 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const { allowed: _allowed, result } = await withRateLimit(request, 'api');
+  const blocked = rateLimitResponse(result);
+  if (blocked) return blocked;
+
   try {
     // RBAC CHECK
     const rbac = await requireVerifiedPermission(request, Permission.DOCUMENT_CREATE);
@@ -72,11 +81,11 @@ export async function POST(request: NextRequest) {
         designPhaseId,
         title,
         drawingNumber: drawingNumber || "",
-        discipline: (discipline || "") as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+        discipline: (discipline || ""),
         version: version || 1,
         filePath: filePath || "",
         fileSize: fileSize || 0,
-        status: (status || "DRAFT") as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+        status: (status || "DRAFT"),
         uploadedById: user.userId,
         ...orgCreate(user),
       },

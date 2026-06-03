@@ -32,7 +32,7 @@ export const paginationSchema = z.object({
 export type PaginationData = z.infer<typeof paginationSchema>;
 
 export const idParamSchema = z.object({
-  id: z.string().min(1, 'ID is required'),
+  id: z.string().cuid('Invalid ID format — must be a valid CUID'),
 });
 
 export type IdParamData = z.infer<typeof idParamSchema>;
@@ -41,7 +41,7 @@ export type IdParamData = z.infer<typeof idParamSchema>;
 
 export const paymentCreateSchema = z.object({
   voucherNumber: z.string().max(50).optional().default(''),
-  projectId: z.string().optional().default(''),
+  projectId: z.string().cuid().optional(),
   amount: z.coerce.number().positive('المبلغ مطلوب ويجب أن يكون أكبر من صفر').max(999999999),
   payMethod: z.string().min(1, 'طريقة الدفع مطلوبة').max(50),
   beneficiary: z.string().max(300).optional().default(''),

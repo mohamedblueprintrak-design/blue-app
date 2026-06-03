@@ -53,7 +53,7 @@ async function main() {
   // ========== 0. Clean existing data (idempotent seeding) ==========
   console.info('🧹 Cleaning existing data...');
   // Disable FK checks for clean seeding (SQLite-specific)
-  await db.$executeRawUnsafe('PRAGMA foreign_keys = OFF');
+  await db.$executeRaw`PRAGMA foreign_keys = OFF`;
   await db.$transaction([
     // Child tables first (foreign key dependencies)
     db.taskComment.deleteMany(),
@@ -102,7 +102,7 @@ async function main() {
     db.organization.deleteMany(),
   ]);
   // Re-enable FK checks
-  await db.$executeRawUnsafe('PRAGMA foreign_keys = ON');
+  await db.$executeRaw`PRAGMA foreign_keys = ON`;
   console.info('✅ Existing data cleaned\n');
 
   // ========== 0.5. Create Organizations (Multi-Tenant) ==========

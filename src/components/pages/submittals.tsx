@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
+import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { submittalSchema, getErrorMessage, type SubmittalFormData } from "@/lib/validations";
 import { cn } from "@/lib/utils";
@@ -156,7 +156,7 @@ export default function Submittals({ language, projectId }: SubmittalsProps) {
   const defaultSubForm = { projectId: projectId || "", number: "", title: "", type: "", contractor: "", revisionNumber: "1", status: "UNDER_REVIEW" };
   const [_formData, setFormData] = useState(defaultSubForm);
 
-  const form = useForm<SubmittalFormData>({ resolver: zodResolver(submittalSchema) as any, defaultValues: defaultSubForm }); // eslint-disable-line @typescript-eslint/no-explicit-any
+  const form = useForm<SubmittalFormData>({ resolver: zodResolver(submittalSchema) as unknown as Resolver<SubmittalFormData>, defaultValues: defaultSubForm });
   const { register, handleSubmit: rhfHandleSubmit, formState: { errors }, reset, setValue, watch } = form;
 
   // Auto-set project filter from props

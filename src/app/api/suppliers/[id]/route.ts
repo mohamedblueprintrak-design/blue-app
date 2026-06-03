@@ -87,7 +87,7 @@ export async function PUT(
       where: { id },
       data: {
         ...(validatedData.name !== undefined && { name: validatedData.name }),
-        ...(validatedData.category !== undefined && { category: validatedData.category as any }),
+        ...(validatedData.category !== undefined && { category: validatedData.category }),
         ...(validatedData.email !== undefined && { email: validatedData.email }),
         ...(validatedData.phone !== undefined && { phone: validatedData.phone }),
         ...(validatedData.address !== undefined && { address: validatedData.address }),

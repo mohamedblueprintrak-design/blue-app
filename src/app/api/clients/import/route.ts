@@ -32,12 +32,12 @@ export async function POST(request: NextRequest) {
     }
 
     const buffer = await file.arrayBuffer();
-    const rows: any[] = [];
+    const rows: Record<string, unknown>[] = [];
 
     // 3. Process Excel
     if (isExcel) {
       const workbook = new ExcelJS.Workbook();
-      await workbook.xlsx.load(Buffer.from(buffer) as any);
+      await workbook.xlsx.load(Buffer.from(buffer) as unknown as ArrayBuffer);
       const worksheet = workbook.worksheets[0];
       if (!worksheet) {
         return errorResponse("The excel sheet is empty", "VALIDATION_ERROR", 400);
@@ -53,15 +53,15 @@ export async function POST(request: NextRequest) {
       worksheet.eachRow({ includeEmpty: false }, (row, rowNumber) => {
         if (rowNumber === 1) return; // skip header
         
-        const rowData: Record<string, any> = {};
+        const rowData: Record<string, unknown> = {};
         row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
           const header = headers[colNumber - 1];
           if (header) {
             // Excel cells might contain objects (like hyperlinks or rich text), get text representation
-            let val = cell.value;
+            let val: unknown = cell.value;
             if (val && typeof val === "object") {
-              if ("text" in val) val = val.text;
-              else if ("result" in val) val = val.result;
+              if ("text" in (val as object)) val = (val as { text: string }).text;
+              else if ("result" in (val as object)) val = (val as { result: unknown }).result;
             }
             rowData[header] = val;
           }
@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
         const line = csvLines[i].trim();
         if (!line) continue;
         const vals = parseCsvLine(line);
-        const rowData: Record<string, any> = {};
+        const rowData: Record<string, unknown> = {};
         headers.forEach((header, index) => {
           if (header) {
             let val = vals[index] || "";
@@ -128,11 +128,12 @@ export async function POST(request: NextRequest) {
 
 
     // Normalize field mapping (handles common variants of headers)
-    const mapField = (row: any, keys: string[]): string => {
+    const mapField = (row: Record<string, unknown>, keys: string[]): string => {
       for (const k of keys) {
         const lowerKey = k.toLowerCase();
-        if (row[lowerKey] !== undefined && row[lowerKey] !== null) {
-          return String(row[lowerKey]).trim();
+        const val = row[lowerKey];
+        if (val !== undefined && val !== null) {
+          return String(val).trim();
         }
       }
       return "";
@@ -186,11 +187,11 @@ export async function POST(request: NextRequest) {
           },
         });
         successCount++;
-      } catch (err: any) {
-        log.error("Failed to insert client row during import:", err);
+      } catch (err: unknown) {
+        log.error("Failed to insert client row during import:", err instanceof Error ? err : new Error(String(err)));
         errors.push({
           row: i + 2,
-          error: "Database error: " + (err.message || "Failed to save"),
+          error: "Database error: " + (err instanceof Error ? err.message : "Failed to save"),
         });
       }
     }

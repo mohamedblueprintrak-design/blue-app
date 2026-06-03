@@ -17,7 +17,7 @@
 #   - ENCRYPTION_KEY (64 hex chars — generate with: openssl rand -hex 32)
 #   - REDIS_PASSWORD
 #   - NEXT_PUBLIC_APP_URL
-#   - SMTP_HOST, SMTP_USER, SMTP_PASS
+#   - SMTP_HOST, SMTP_USER, SMTP_PASSWORD
 #   - STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET
 
 services:
@@ -44,7 +44,8 @@ services:
       - SMTP_HOST=${SMTP_HOST}
       - SMTP_PORT=${SMTP_PORT:-587}
       - SMTP_USER=${SMTP_USER}
-      - SMTP_PASS=${SMTP_PASS}
+      - SMTP_PASSWORD=${SMTP_PASSWORD:-}
+      - SMTP_PASS=${SMTP_PASSWORD:-}  # Backward compatibility alias
       # Encryption key for sensitive data (64 hex chars = 256 bits)
       # Generate with: openssl rand -hex 32
       - ENCRYPTION_KEY=${ENCRYPTION_KEY}

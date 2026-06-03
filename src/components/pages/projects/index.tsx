@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useCallback } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { projectSchema, type ProjectFormData } from "@/lib/validations";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -46,7 +46,7 @@ export default function ProjectsList({ language }: ProjectsListProps) {
   const [page, setPage] = useState(1);
   const PAGE_SIZE = 10;
   const form = useForm<ProjectFormData>({
-    resolver: zodResolver(projectSchema) as any, // eslint-disable-line @typescript-eslint/no-explicit-any -- zodResolver + react-hook-form type mismatch
+    resolver: zodResolver(projectSchema) as unknown as Resolver<ProjectFormData>,
     defaultValues: {
       number: "",
       name: "",

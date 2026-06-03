@@ -1,5 +1,5 @@
-// @ts-ignore
 import reshaper from 'arabic-persian-reshaper';
+import type { jsPDF } from 'jspdf';
 
 const { ArabicShaper } = reshaper;
 
@@ -52,7 +52,7 @@ export function preprocessArabicText(text: string): string {
 
 let cairoFontBase64Cache: string | null = null;
 
-export async function loadArabicFont(doc: any): Promise<void> {
+export async function loadArabicFont(doc: jsPDF): Promise<void> {
   try {
     const fontName = 'Cairo-Regular.ttf';
     
@@ -97,7 +97,7 @@ export async function loadArabicFont(doc: any): Promise<void> {
  * Setup Arabic support on a jsPDF instance by loading the Cairo font
  * and overriding doc.text to automatically handle Arabic shaping and RTL.
  */
-export async function setupArabicPdf(doc: any): Promise<void> {
+export async function setupArabicPdf(doc: jsPDF): Promise<void> {
   await loadArabicFont(doc);
   
   const originalSetFont = doc.setFont;
@@ -112,7 +112,7 @@ export async function setupArabicPdf(doc: any): Promise<void> {
   doc.setFont('Cairo');
   
   const originalText = doc.text;
-  doc.text = function (text: any, x: number, y: number, options?: any) {
+  doc.text = function (text: string | string[], x: number, y: number, options?: Record<string, unknown>) {
     if (typeof text === 'string') {
       text = preprocessArabicText(text);
     } else if (Array.isArray(text)) {

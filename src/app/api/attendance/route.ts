@@ -139,7 +139,7 @@ export async function POST(request: NextRequest) {
         date: new Date(date),
         checkIn: checkIn || "",
         checkOut: checkOut || "",
-        status: (status || "PRESENT") as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+        status: (status || "PRESENT"),
         workHours: workHours || 0,
         overtimeHours: overtimeHours || 0,
       },

@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToastFeedback } from "@/hooks/use-toast-feedback";
-import { useForm } from "react-hook-form";
+import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { employeeSchema, getErrorMessage, type EmployeeFormData } from "@/lib/validations";
 import { cn } from "@/lib/utils";
@@ -182,7 +182,7 @@ export default function EmployeesPage({ language }: EmployeesPageProps) {
   const [_formData, setFormData] = useState(emptyForm);
 
   const form = useForm<EmployeeFormData>({
-    resolver: zodResolver(employeeSchema) as any, // eslint-disable-line @typescript-eslint/no-explicit-any -- zodResolver + react-hook-form type mismatch
+    resolver: zodResolver(employeeSchema) as unknown as Resolver<EmployeeFormData>,
     defaultValues: emptyForm,
   });
   const { register, handleSubmit: rhfHandleSubmit, formState: { errors }, reset, setValue, watch } = form;

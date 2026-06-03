@@ -24,6 +24,9 @@ RUN bunx prisma generate
 # Stage 2: Builder
 FROM node:20-alpine AS builder
 
+# Install Bun in builder stage for consistency with deps stage
+RUN npm install -g bun
+
 WORKDIR /app
 
 # Copy dependencies from deps stage
@@ -41,7 +44,7 @@ ENV NODE_ENV=production
 # Prisma generate is handled in the deps stage; no DATABASE_URL needed here.
 
 # Build the application
-RUN npm run build
+RUN bun run build
 
 # ============================================
 # Stage 3: Install production dependencies only

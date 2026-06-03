@@ -107,8 +107,8 @@ export async function PUT(
         ...(validatedData.description !== undefined && { description: validatedData.description }),
         ...(validatedData.projectId !== undefined && { projectId: validatedData.projectId || null }),
         ...(validatedData.assigneeId !== undefined && { assigneeId: validatedData.assigneeId || null }),
-        ...(validatedData.priority !== undefined && { priority: validatedData.priority as any }),
-        ...(validatedData.status !== undefined && { status: validatedData.status as any }),
+        ...(validatedData.priority !== undefined && { priority: validatedData.priority }),
+        ...(validatedData.status !== undefined && { status: validatedData.status }),
         ...(validatedData.startDate !== undefined && {
           startDate: validatedData.startDate ? new Date(validatedData.startDate) : null,
         }),
@@ -117,7 +117,7 @@ export async function PUT(
         }),
         ...(validatedData.progress !== undefined && { progress: validatedData.progress }),
         ...(validatedData.isGovernmental !== undefined && { taskType: validatedData.isGovernmental ? 'GOVERNMENTAL' : 'STANDARD' }),
-        ...(validatedData.taskType !== undefined && { taskType: validatedData.taskType as any }),
+        ...(validatedData.taskType !== undefined && { taskType: validatedData.taskType }),
         ...(validatedData.slaDays !== undefined && { slaDays: validatedData.slaDays || null }),
       },
       include: {

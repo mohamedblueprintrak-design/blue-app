@@ -82,14 +82,14 @@ export function getAllowedOrigin(request: NextRequest): string {
   const allowedOrigins = process.env.CORS_ORIGINS?.split(',').map(o => o.trim()).filter(Boolean) || [];
   
   if (allowedOrigins.length === 0) {
-    const host = request.headers.get('host') || 'localhost:3000';
-    const protocol = request.headers.get('x-forwarded-proto') || 'http';
-    const dynamicBase = process.env.NEXT_PUBLIC_APP_URL || `${protocol}://${host}`;
+    const host = request.headers.get('host');
+    const protocol = request.headers.get('x-forwarded-proto') || 'https';
+    const dynamicBase = process.env.NEXT_PUBLIC_APP_URL || (host ? `${protocol}://${host}` : '');
     
-    if (origin === dynamicBase) {
+    if (dynamicBase && origin === dynamicBase) {
       return origin;
     }
-    return process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : '';
+    return process.env.NEXTAUTH_URL || process.env.APP_URL || (process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : '');
   }
   
   if (allowedOrigins.includes(origin)) {

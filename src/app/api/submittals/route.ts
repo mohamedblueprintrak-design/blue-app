@@ -4,6 +4,9 @@ import { requireVerifiedPermission, orgFilter, orgCreate } from '@/app/api/utils
 import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
 import { z } from 'zod';
+import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
+import { parsePaginationParams, buildPaginationMeta, calculateSkip, isPaginationRequested } from '../utils/pagination';
+import { cachedQuery, invalidateCache, CACHE_TTL } from '@/lib/cache/query-cache';
 
 // Zod schema for submittal creation
 const submittalCreateSchema = z.object({
@@ -20,6 +23,10 @@ const submittalCreateSchema = z.object({
 });
 
 export async function GET(request: NextRequest) {
+  const { allowed: _allowed, result: rlResult } = await withRateLimit(request, 'api');
+  const rlBlocked = rateLimitResponse(rlResult);
+  if (rlBlocked) return rlBlocked;
+
   try {
     const result = await requireVerifiedPermission(request, Permission.SUBMITTAL_READ);
     if ('error' in result) return result.error;
@@ -35,15 +42,40 @@ export async function GET(request: NextRequest) {
     if (projectId) where.projectId = projectId;
     if (status) where.status = status;
 
-    const submittals = await db.submittal.findMany({
-      where,
-      include: {
-        project: {
-          select: { id: true, name: true, nameEn: true, number: true },
+    const usePagination = isPaginationRequested(searchParams);
+    const { page, limit } = parsePaginationParams(searchParams);
+    const cacheKey = `submittals:${ctx.organizationId || 'none'}:${projectId || 'all'}:${status || 'all'}:${page}:${limit}`;
+
+    if (usePagination) {
+      const [submittals, total] = await cachedQuery(cacheKey, () => Promise.all([
+        db.submittal.findMany({
+          where,
+          include: {
+            project: {
+              select: { id: true, name: true, nameEn: true, number: true },
+            },
+          },
+          orderBy: { createdAt: "desc" },
+          skip: calculateSkip(page, limit),
+          take: limit,
+        }),
+        db.submittal.count({ where }),
+      ]), CACHE_TTL.DEFAULT);
+
+      return NextResponse.json({ data: submittals, pagination: buildPaginationMeta(page, limit, total) });
+    }
+
+    const submittals = await cachedQuery(cacheKey, () =>
+      db.submittal.findMany({
+        where,
+        include: {
+          project: {
+            select: { id: true, name: true, nameEn: true, number: true },
+          },
         },
-      },
-      orderBy: { createdAt: "desc" },
-    });
+        orderBy: { createdAt: "desc" },
+      }),
+    CACHE_TTL.DEFAULT);
 
     return NextResponse.json(submittals);
   } catch (error) {
@@ -53,6 +85,10 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const { allowed: _allowed, result } = await withRateLimit(request, 'api');
+  const blocked = rateLimitResponse(result);
+  if (blocked) return blocked;
+
   try {
     const result = await requireVerifiedPermission(request, Permission.SUBMITTAL_CREATE);
     if ('error' in result) return result.error;
@@ -76,7 +112,7 @@ export async function POST(request: NextRequest) {
         type: type || "",
         contractor: contractor || "",
         revisionNumber: revisionNumber || 1,
-        status: (status || "UNDER_REVIEW") as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+        status: (status || "UNDER_REVIEW"),
       },
       include: {
         project: {
@@ -85,6 +121,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    await invalidateCache('submittals');
     return NextResponse.json(submittal, { status: 201 });
   } catch (error) {
     log.error("Error creating submittal:", error);
