@@ -14,6 +14,7 @@ import InvoicesPage from "@/components/pages/invoices";
 import PaymentsPage from "@/components/pages/payments";
 import BudgetsPage from "@/components/pages/budgets";
 import ProposalsPage from "@/components/pages/proposals";
+import BudgetComparisonTab from "./budget-comparison-tab";
 import type { ProjectData } from "./types";
 
 // ===== FINANCIAL TAB =====
@@ -131,6 +132,7 @@ export default function FinancialTab({ project, language, projectId, activeSubTa
           {activeSubTab === "invoices" && <InvoicesPage language={language} projectId={projectId} />}
           {activeSubTab === "payments" && <PaymentsPage language={language} projectId={projectId} />}
           {activeSubTab === "budgets" && <BudgetsPage language={language} projectId={projectId} />}
+          {activeSubTab === "budget-comparison" && projectId && <BudgetComparisonTab projectId={projectId} language={language} />}
           {activeSubTab === "proposals" && <ProposalsPage language={language} projectId={projectId} />}
         </div>
       </div>

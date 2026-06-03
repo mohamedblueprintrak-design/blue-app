@@ -1,18 +1,14 @@
 import { db } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
-import { orgFilter, isAdmin, isHR } from '../../utils/auth';
-import { requireVerifiedAuth } from '../../utils/auth';
+import { orgFilter } from '../../utils/auth';
+import { requireVerifiedPermission } from '../../utils/auth';
 import { log } from '@/lib/logger';
+import { Permission } from '@/lib/auth/types';
 
 export async function GET(request: NextRequest) {
-  const authResult = await requireVerifiedAuth(request);
+  const authResult = await requireVerifiedPermission(request, Permission.REPORTS_READ);
   if ('error' in authResult) return authResult.error;
   const ctx = authResult.user;
-
-  // HR report requires ADMIN or HR role — salary data is sensitive
-  if (!isAdmin(ctx.role) && !isHR(ctx.role)) {
-    return NextResponse.json({ error: "Access denied. HR or ADMIN role required." }, { status: 403 });
-  }
   try {
     // Org filter for multi-tenant data isolation
     const orgWhere = orgFilter(ctx);

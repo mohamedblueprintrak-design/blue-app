@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useRef } from "react";
+
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,6 +17,7 @@ import {
   Trash2,
   AlertTriangle,
 } from "lucide-react";
+import { DeleteAccountTab } from "./delete-account-tab";
 import { getMutationHeaders } from "@/lib/csrf-client";
 import { extractErrorMessage } from "@/lib/api/fetch-client";
 import { SectionHeader } from "./section-header";
@@ -58,6 +61,13 @@ export function SecurityTab({
   setDangerSuccess,
   sessionData,
 }: SecurityTabProps) {
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
   return (
     <div className="space-y-4">
       <Card>
@@ -155,7 +165,8 @@ export function SecurityTab({
                   } else {
                     setPasswordSuccess(true);
                     setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
-                    setTimeout(() => setPasswordSuccess(false), 3000);
+                    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+                    timeoutRef.current = setTimeout(() => setPasswordSuccess(false), 3000);
                   }
                 } catch {
                   setPasswordError(isAr ? "حدث خطأ في الاتصال" : "Connection error");
@@ -232,7 +243,7 @@ export function SecurityTab({
         </CardContent>
       </Card>
 
-      {/* Danger Zone */}
+      {/* Clear Data — Danger Zone */}
       <Card className="border-red-200 dark:border-red-900/50">
         <CardContent className="p-6">
           <div className="space-y-1 mb-4">
@@ -261,53 +272,6 @@ export function SecurityTab({
           {dangerSuccess && (
             <div className="bg-green-50 dark:bg-green-950/50 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-400 rounded-lg px-4 py-3 text-sm mb-3">
               {dangerSuccess}
-            </div>
-          )}
-
-          {/* Confirmation dialog for delete account */}
-          {dangerConfirm === "deleteAccount" && (
-            <div className="p-4 rounded-xl bg-red-50 dark:bg-red-950/20 border-2 border-red-300 dark:border-red-800 mb-3">
-              <p className="text-sm font-semibold text-red-700 dark:text-red-400 mb-2">
-                {isAr ? "تأكيد حذف الحساب" : "Confirm Account Deletion"}
-              </p>
-              <p className="text-xs text-red-600 dark:text-red-400/80 mb-3">
-                {isAr ? "هذا الإجراء لا يمكن التراجع عنه. سيتم حذف حسابك وجميع بياناتك نهائياً." : "This action cannot be undone. Your account and all associated data will be permanently deleted."}
-              </p>
-              <div className="flex gap-2">
-                <Button
-                  size="sm"
-                  className="bg-red-600 hover:bg-red-700 text-white h-8 rounded-lg"
-                  onClick={async () => {
-                    setDangerError("");
-                    try {
-                      const res = await fetch("/api/profile", {
-                        method: "DELETE",
-                        headers: getMutationHeaders(),
-                      });
-                      if (res.ok) {
-                        setDangerSuccess(isAr ? "تم حذف الحساب. سيتم تسجيل خروجك." : "Account deleted. You will be logged out.");
-                        setTimeout(() => { window.location.href = "/login"; }, 2000);
-                      } else {
-                        const data = await res.json();
-                        setDangerError(extractErrorMessage(data.error, isAr ? "لا يمكنك حذف حسابك بنفسك. يرجى التواصل مع مدير النظام." : "Self-service account deletion is not available. Please contact your system administrator."));
-                      }
-                    } catch {
-                      setDangerError(isAr ? "حدث خطأ في الاتصال" : "Connection error occurred");
-                    }
-                    setDangerConfirm("");
-                  }}
-                >
-                  {isAr ? "تأكيد الحذف" : "Confirm Delete"}
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-8 rounded-lg"
-                  onClick={() => setDangerConfirm("")}
-                >
-                  {isAr ? "إلغاء" : "Cancel"}
-                </Button>
-              </div>
             </div>
           )}
 
@@ -349,25 +313,6 @@ export function SecurityTab({
             <div className="flex items-center justify-between p-4 rounded-xl bg-red-50/50 dark:bg-red-950/10 border border-red-200 dark:border-red-900/30">
               <div>
                 <p className="text-sm font-medium text-slate-900 dark:text-white">
-                  {isAr ? "حذف الحساب" : "Delete Account"}
-                </p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">
-                  {isAr ? "حذف الحساب وجميع البيانات نهائياً" : "Permanently delete account and all data"}
-                </p>
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                className="text-xs text-red-600 hover:text-white hover:bg-red-600 h-8 rounded-lg border-red-200 dark:border-red-800"
-                onClick={() => { setDangerConfirm(dangerConfirm === "deleteAccount" ? "" : "deleteAccount"); setDangerError(""); setDangerSuccess(""); }}
-              >
-                <Trash2 className="h-3.5 w-3.5 me-1.5" />
-                {isAr ? "حذف" : "Delete"}
-              </Button>
-            </div>
-            <div className="flex items-center justify-between p-4 rounded-xl bg-red-50/50 dark:bg-red-950/10 border border-red-200 dark:border-red-900/30">
-              <div>
-                <p className="text-sm font-medium text-slate-900 dark:text-white">
                   {isAr ? "مسح جميع البيانات" : "Clear All Data"}
                 </p>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -387,6 +332,9 @@ export function SecurityTab({
           </div>
         </CardContent>
       </Card>
+
+      {/* Delete Account — Self-Service */}
+      <DeleteAccountTab isAr={isAr} />
     </div>
   );
 }

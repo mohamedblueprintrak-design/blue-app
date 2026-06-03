@@ -1,6 +1,14 @@
 "use client";
 
 import { useState, useRef } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTheme } from "next-themes";
 import { useAuthStore } from "@/store/auth-store";
@@ -16,6 +24,7 @@ import { useToast } from "@/hooks/use-toast";
 import {
   User, Building2, Calendar, Shield, Key,
   Globe, Moon, Sun, Camera, Save, Eye, EyeOff, Loader2, Trash2,
+  Download, AlertTriangle,
 } from "lucide-react";
 import { getMutationHeaders, getCsrfToken } from "@/lib/csrf-client";
 import { extractErrorMessage } from "@/lib/api/fetch-client";
@@ -43,6 +52,8 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
 
   const [isEditing, setIsEditing] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+  const [showExportDialog, setShowExportDialog] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -261,6 +272,40 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
 
   const handleDeleteAvatar = () => {
     deleteAvatarMutation.mutate();
+  };
+
+  const handleExportData = async () => {
+    setIsExporting(true);
+    try {
+      const res = await fetch("/api/profile/export-data");
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(extractErrorMessage(err.error, isAr ? "فشل تصدير البيانات" : "Failed to export data"));
+      }
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `blueprint-data-${user?.id || "export"}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      toast({
+        title: isAr ? "تم بنجاح" : "Success",
+        description: isAr ? "تم تصدير بياناتك بنجاح" : "Your data was exported successfully",
+        variant: "success",
+      });
+      setShowExportDialog(false);
+    } catch (error) {
+      toast({
+        title: isAr ? "خطأ" : "Error",
+        description: error instanceof Error ? error.message : (isAr ? "حدث خطأ أثناء التصدير" : "An error occurred during export"),
+        variant: "destructive",
+      });
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   const getRoleBadge = (role: string) => {
@@ -536,6 +581,117 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
 
         {/* Security Tab */}
         <TabsContent value="security" className="space-y-6">
+          {/* Export My Data Card */}
+          <Card className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+            <CardHeader>
+              <CardTitle className="text-slate-900 dark:text-white">
+                {isAr ? "تصدير بياناتي" : "Export My Data"}
+              </CardTitle>
+              <CardDescription className="text-slate-500 dark:text-slate-400">
+                {isAr ? "قم بتنزيل نسخة من جميع بياناتك الشخصية" : "Download a copy of all your personal data"}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <Download className="w-5 h-5 text-teal-500" />
+                  <div>
+                    <p className="text-slate-900 dark:text-white font-medium">
+                      {isAr ? "تنزيل بياناتي" : "Download My Data"}
+                    </p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">
+                      {isAr ? "ملف JSON يحتوي على جميع بياناتك" : "JSON file containing all your data"}
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  variant="outline"
+                  className="border-teal-500/30 text-teal-600 dark:text-teal-400 hover:bg-teal-500/10"
+                  onClick={() => setShowExportDialog(true)}
+                  disabled={isExporting}
+                >
+                  {isExporting ? (
+                    <Loader2 className="w-4 h-4 me-2 animate-spin" />
+                  ) : (
+                    <Download className="w-4 h-4 me-2" />
+                  )}
+                  {isExporting
+                    ? (isAr ? "جاري التصدير..." : "Exporting...")
+                    : (isAr ? "تصدير" : "Export")}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Export Confirmation Dialog */}
+          <Dialog open={showExportDialog} onOpenChange={setShowExportDialog}>
+            <DialogContent className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+              <DialogHeader>
+                <DialogTitle className="text-slate-900 dark:text-white">
+                  {isAr ? "تأكيد تصدير البيانات" : "Confirm Data Export"}
+                </DialogTitle>
+                <DialogDescription className="text-slate-500 dark:text-slate-400">
+                  {isAr
+                    ? "سيتم تنزيل ملف JSON يحتوي على جميع بياناتك"
+                    : "A JSON file containing all your data will be downloaded"}
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-3 py-2">
+                <div className="flex items-start gap-3 p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 rounded-lg">
+                  <AlertTriangle className="w-5 h-5 text-amber-500 mt-0.5 shrink-0" />
+                  <div>
+                    <p className="text-sm font-medium text-amber-700 dark:text-amber-400">
+                      {isAr ? "مهم: حافظ على أمان ملف البيانات" : "Important: Keep your data file secure"}
+                    </p>
+                    <p className="text-xs text-amber-600 dark:text-amber-500 mt-1">
+                      {isAr
+                        ? "يحتوي هذا الملف على معلومات حساسة. لا تشاركه مع أي شخص."
+                        : "This file contains sensitive information. Do not share it with anyone."}
+                    </p>
+                  </div>
+                </div>
+                <div className="text-sm text-slate-600 dark:text-slate-400 space-y-1.5">
+                  <p className="font-medium text-slate-900 dark:text-white">
+                    {isAr ? "البيانات المتضمنة:" : "Data included:"}
+                  </p>
+                  <ul className="list-disc list-inside space-y-1">
+                    <li>{isAr ? "الملف الشخصي (الاسم، البريد، الهاتف، الدور)" : "Profile (name, email, phone, role)"}</li>
+                    <li>{isAr ? "المشاريع التي أنشأتها أو المعين بها" : "Projects you created or are assigned to"}</li>
+                    <li>{isAr ? "المهام المعينة لك" : "Tasks assigned to you"}</li>
+                    <li>{isAr ? "الفواتير التي أنشأتها" : "Invoices you created"}</li>
+                    <li>{isAr ? "المستندات التي رفعتها" : "Documents you uploaded"}</li>
+                    <li>{isAr ? "سجل النشاط" : "Activity log"}</li>
+                    <li>{isAr ? "الإشعارات" : "Notifications"}</li>
+                  </ul>
+                </div>
+              </div>
+              <DialogFooter className="gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowExportDialog(false)}
+                  className="border-slate-200 dark:border-slate-700"
+                  disabled={isExporting}
+                >
+                  {isAr ? "إلغاء" : "Cancel"}
+                </Button>
+                <Button
+                  onClick={handleExportData}
+                  className="bg-teal-500 hover:bg-teal-600 text-white"
+                  disabled={isExporting}
+                >
+                  {isExporting ? (
+                    <Loader2 className="w-4 h-4 me-2 animate-spin" />
+                  ) : (
+                    <Download className="w-4 h-4 me-2" />
+                  )}
+                  {isExporting
+                    ? (isAr ? "جاري التصدير..." : "Exporting...")
+                    : (isAr ? "تصدير البيانات" : "Export Data")}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
           <Card className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
             <CardHeader>
               <CardTitle className="text-slate-900 dark:text-white">

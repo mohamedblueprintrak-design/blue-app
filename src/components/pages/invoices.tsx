@@ -47,6 +47,7 @@ export default function InvoicesPage({ language, projectId }: InvoicesPageProps)
     issueDate: new Date().toISOString().split("T")[0],
     dueDate: new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0],
     status: "DRAFT" as string,
+    currency: "AED" as string,
     items: [getEmptyLineItem()],
   };
 
@@ -247,6 +248,7 @@ export default function InvoicesPage({ language, projectId }: InvoicesPageProps)
       issueDate: inv.issueDate.split("T")[0],
       dueDate: inv.dueDate.split("T")[0],
       status: inv.status,
+      currency: inv.currency || "AED",
       items: inv.items.length > 0 ? inv.items.map((i) => ({ description: i.description, quantity: i.quantity, unitPrice: i.unitPrice, total: i.total })) : [getEmptyLineItem()],
     });
   };
@@ -269,7 +271,7 @@ export default function InvoicesPage({ language, projectId }: InvoicesPageProps)
   const calcTotal = calcSubtotal + calcTax;
 
   const handleSave = (data: InvoiceFormData) => {
-    const payload = { ...data, items: formData.items };
+    const payload = { ...data, items: formData.items, currency: formData.currency || 'AED' };
     if (editInvoice) {
       updateMutation.mutate({ id: editInvoice.id, data: payload });
     } else {

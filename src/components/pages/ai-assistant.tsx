@@ -74,6 +74,18 @@ export default function AIAssistant({ language: lang, projectId }: Props) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [copiedMsgId, setCopiedMsgId] = useState<string | null>(null);
 
+  const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
+  useEffect(() => {
+    return () => {
+      timeoutsRef.current.forEach(clearTimeout);
+    };
+  }, []);
+
+  const safeSetTimeout = useCallback((cb: () => void, ms: number) => {
+    const id = setTimeout(cb, ms);
+    timeoutsRef.current.push(id);
+  }, []);
+
   const { isListening, isSupported, startListening, stopListening } =
     useSpeechRecognition(isAr);
   const { speakingMsgId, speak, stop } = useSpeechSynthesis();
@@ -214,7 +226,7 @@ export default function AIAssistant({ language: lang, projectId }: Props) {
     setConversationId(`conv-${Date.now()}`);
     setLastApiTokens(null);
     window.speechSynthesis.cancel();
-    setTimeout(() => inputRef.current?.focus(), 100);
+    safeSetTimeout(() => inputRef.current?.focus(), 100);
   }, []);
 
   // Load a conversation from history
@@ -222,7 +234,7 @@ export default function AIAssistant({ language: lang, projectId }: Props) {
     setMessages(conv.messages.map((m) => ({ ...m, timestamp: new Date(m.timestamp) })));
     setConversationId(conv.id);
     setSidebarOpen(false);
-    setTimeout(() => inputRef.current?.focus(), 100);
+    safeSetTimeout(() => inputRef.current?.focus(), 100);
   }, []);
 
   // Delete a conversation
@@ -349,7 +361,7 @@ export default function AIAssistant({ language: lang, projectId }: Props) {
     setClearDialogOpen(false);
     setLastApiTokens(null);
     window.speechSynthesis.cancel();
-    setTimeout(() => inputRef.current?.focus(), 100);
+    safeSetTimeout(() => inputRef.current?.focus(), 100);
   };
 
   const exportChat = () => {
@@ -381,7 +393,7 @@ export default function AIAssistant({ language: lang, projectId }: Props) {
   const handleCopyMessage = async (msg: Message) => {
     await navigator.clipboard.writeText(msg.content);
     setCopiedMsgId(msg.id);
-    setTimeout(() => setCopiedMsgId(null), 2000);
+    safeSetTimeout(() => setCopiedMsgId(null), 2000);
   };
 
   const handleMicClick = () => {

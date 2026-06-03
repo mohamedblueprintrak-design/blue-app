@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -122,6 +122,13 @@ export default function NotificationsPage({ projectId }: Props) {
   const setCurrentProjectId = useNavStore((s) => s.setCurrentProjectId);
   const [activeTab, setActiveTab] = useState<string>("all");
   const [confirmMarkAll, setConfirmMarkAll] = useState(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
 
   // Fetch notifications
   const { data, isLoading } = useQuery<{
@@ -348,7 +355,8 @@ export default function NotificationsPage({ projectId }: Props) {
                   markAllReadMutation.mutate();
                 } else {
                   setConfirmMarkAll(true);
-                  setTimeout(() => setConfirmMarkAll(false), 3000);
+                  if (timeoutRef.current) clearTimeout(timeoutRef.current);
+                  timeoutRef.current = setTimeout(() => setConfirmMarkAll(false), 3000);
                 }
               }}
               disabled={markAllReadMutation.isPending}

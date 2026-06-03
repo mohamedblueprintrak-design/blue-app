@@ -26,6 +26,7 @@ import {
   GitBranch,
   Droplets,
   FileCheck,
+  Scale,
 } from "lucide-react";
 import type { DesignDiscipline } from "./types";
 
@@ -118,6 +119,7 @@ export const financialSubTabs = [
   { id: "invoices", icon: Receipt, labelAr: "الفواتير", labelEn: "Invoices" },
   { id: "payments", icon: CreditCard, labelAr: "المدفوعات", labelEn: "Payments" },
   { id: "budgets", icon: PiggyBank, labelAr: "الميزانية", labelEn: "Budget" },
+  { id: "budget-comparison", icon: Scale, labelAr: "الميزانية مقابل الفعلي", labelEn: "Budget vs Actual" },
   { id: "proposals", icon: FileSpreadsheet, labelAr: "العروض", labelEn: "Proposals" },
 ];
 

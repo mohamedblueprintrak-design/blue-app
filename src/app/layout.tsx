@@ -8,6 +8,7 @@ import { ReactQueryProvider } from "@/components/providers/react-query-provider"
 import { ErrorBoundary } from "@/components/common/error-boundary";
 import { SafeWebSocketProvider } from "@/lib/websocket/safe-websocket-provider";
 import { SkipNavLink } from "@/components/common/accessible-components";
+import CookieConsent from "@/components/common/cookie-consent";
 
 const ibmPlexArabic = IBM_Plex_Sans_Arabic({
   variable: "--font-ibm-plex-arabic",
@@ -84,6 +85,7 @@ export default function RootLayout({
                 </ErrorBoundary>
               </SafeWebSocketProvider>
               <Toaster />
+              <CookieConsent />
             </CsrfProvider>
           </ReactQueryProvider>
         </ThemeProvider>

@@ -166,6 +166,7 @@ export async function POST(request: NextRequest) {
       const category = (formData.get('category') as string) || 'general';
       const version = parseInt(formData.get('version') as string) || 1;
       const name = (formData.get('name') as string) || fileName;
+      const changeSummary = (formData.get('changeSummary') as string) || null;
 
       // Generate storage key and upload
       const storageKey = generateStorageKey(fileName);
@@ -179,6 +180,67 @@ export async function POST(request: NextRequest) {
 
       // Determine file type from extension
       const ext = fileName.toLowerCase().substring(fileName.lastIndexOf('.') + 1);
+
+      // Check if a document with the same name already exists (for versioning)
+      const existingDoc = await db.document.findFirst({
+        where: {
+          name,
+          deletedAt: null,
+          ...orgFilter(ctx),
+          ...(projectId ? { projectId } : {}),
+        },
+        select: { id: true, version: true, filePath: true, fileType: true, fileSize: true, name: true },
+      });
+
+      if (existingDoc) {
+        // Archive the current version as a DocumentVersion record
+        const oldVersion = existingDoc.version;
+        const newVersion = oldVersion + 1;
+
+        await db.documentVersion.create({
+          data: {
+            documentId: existingDoc.id,
+            version: oldVersion,
+            fileName: existingDoc.name,
+            filePath: existingDoc.filePath,
+            fileSize: typeof existingDoc.fileSize === 'number' ? existingDoc.fileSize : 0,
+            mimeType: fileContentType,
+            changeSummary: changeSummary || `Archived version ${oldVersion}`,
+            uploadedById: ctx.userId,
+            ...orgCreate(ctx),
+          },
+        });
+
+        // Update the existing document with the new file
+        const updatedDocument = await db.document.update({
+          where: { id: existingDoc.id },
+          data: {
+            version: newVersion,
+            fileType: ext,
+            fileSize,
+            filePath,
+            uploadedById: ctx.userId,
+            ...(projectId ? { projectId } : {}),
+            ...(contractId ? { contractId } : {}),
+            category,
+          },
+          include: {
+            project: { select: { id: true, name: true, nameEn: true, number: true } },
+            contract: { select: { id: true, number: true, title: true } },
+            uploader: { select: { id: true, name: true, avatar: true } },
+          },
+        });
+
+        log.info('[Documents] New version uploaded (via duplicate name)', {
+          documentId: existingDoc.id,
+          oldVersion,
+          newVersion,
+          fileName: name,
+          changeSummary,
+        });
+
+        return NextResponse.json(updatedDocument, { status: 200 });
+      }
 
       // Create document record
       const document = await db.document.create({

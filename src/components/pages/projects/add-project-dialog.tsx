@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -18,11 +19,12 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { AlertCircle, HardHat } from "lucide-react";
+import { AlertCircle, HardHat, LayoutTemplate, ListChecks } from "lucide-react";
 import { cn } from "@/lib/utils";
 import dynamic from "next/dynamic";
 import type { ProjectFormData } from "@/lib/validations";
 import { getErrorMessage } from "@/lib/validations";
+import { useToast } from "@/hooks/use-toast";
 
 // Dynamic import for MapPicker to avoid SSR crash (react-leaflet requires window)
 const MapPicker = dynamic(() => import("@/components/ui/map-picker"), {
@@ -33,6 +35,16 @@ const MapPicker = dynamic(() => import("@/components/ui/map-picker"), {
     </div>
   ),
 });
+
+// Template type for the picker
+interface TemplateOption {
+  id: string;
+  name: string;
+  nameAr?: string;
+  icon?: string;
+  category?: string;
+  taskCount?: number;
+}
 
 interface AddProjectDialogProps {
   isAr: boolean;
@@ -61,14 +73,124 @@ export function AddProjectDialog({
   clientsData,
   contractorsData,
 }: AddProjectDialogProps) {
-  const { register, handleSubmit: rhfHandleSubmit, formState: { errors }, reset } = form;
+  const { register, handleSubmit: rhfHandleSubmit, formState: { errors }, reset, setValue, watch } = form;
+
+  // Template picker state
+  const [useTemplate, setUseTemplate] = useState(false);
+  const [templates, setTemplates] = useState<TemplateOption[]>([]);
+  const [selectedTemplateId, setSelectedTemplateId] = useState("");
+  const [templatesLoaded, setTemplatesLoaded] = useState(false);
+
+  const { toast } = useToast();
+
+  // Fetch templates when template mode is enabled
+  const fetchTemplates = useCallback(async () => {
+    if (templatesLoaded) return;
+    try {
+      const res = await fetch("/api/project-templates");
+      if (res.ok) {
+        const data = await res.json();
+        const list = (data.data || []) as Array<{
+          id: string; name: string; nameAr?: string; icon?: string; category?: string; taskCount?: number;
+          stagesParsed?: Array<{ tasks?: unknown[] }>; stages?: string;
+        }>;
+        setTemplates(
+          list.map((tpl) => ({
+            id: tpl.id,
+            name: tpl.name,
+            nameAr: tpl.nameAr,
+            icon: tpl.icon,
+            category: tpl.category,
+            taskCount: tpl.taskCount || 0,
+          }))
+        );
+        setTemplatesLoaded(true);
+      }
+    } catch { /* non-critical */ }
+  }, [templatesLoaded]);
+
+  useEffect(() => {
+    if (useTemplate && open) fetchTemplates(); // eslint-disable-line react-hooks/set-state-in-effect
+  }, [useTemplate, open, fetchTemplates]);
+
+  // When template is selected, auto-fill type based on category
+  useEffect(() => {
+    if (selectedTemplateId) {
+      const tpl = templates.find((t) => t.id === selectedTemplateId);
+      if (tpl?.category) {
+        const typeMap: Record<string, string> = {
+          RESIDENTIAL: "VILLA",
+          COMMERCIAL: "COMMERCIAL",
+          INDUSTRIAL: "INDUSTRIAL",
+          EDUCATIONAL: "BUILDING",
+          INFRASTRUCTURE: "BUILDING",
+        };
+        setValue("type", typeMap[tpl.category] || "VILLA");
+      }
+    }
+  }, [selectedTemplateId, templates, setValue]);
 
   return (
-    <Dialog open={open} onOpenChange={(openVal) => { if (!openVal) { reset(); onMapLocationChange(null); } onOpenChange(openVal); }}>
+    <Dialog open={open} onOpenChange={(openVal) => { if (!openVal) { reset(); onMapLocationChange(null); setUseTemplate(false); setSelectedTemplateId(""); } onOpenChange(openVal); }}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{t("مشروع جديد", "New Project")}</DialogTitle>
         </DialogHeader>
+
+        {/* Template toggle */}
+        <div className="flex items-center gap-2 p-3 rounded-lg border border-teal-200 dark:border-teal-800 bg-teal-50/50 dark:bg-teal-950/20">
+          <LayoutTemplate className="h-4 w-4 text-teal-600 dark:text-teal-400 shrink-0" />
+          <span className="text-sm text-slate-700 dark:text-slate-300 flex-1">
+            {t("ابدأ من قالب جاهز", "Start from a template")}
+          </span>
+          <Button
+            variant={useTemplate ? "default" : "outline"}
+            size="sm"
+            className={cn("h-7 text-xs", useTemplate && "bg-teal-600 hover:bg-teal-700 text-white")}
+            onClick={() => setUseTemplate(!useTemplate)}
+          >
+            {useTemplate ? t("مفعّل", "Enabled") : t("تفعيل", "Enable")}
+          </Button>
+        </div>
+
+        {/* Template Picker */}
+        {useTemplate && (
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              <LayoutTemplate className="h-3.5 w-3.5 text-teal-600" />
+              {t("اختر القالب", "Select Template")}
+            </Label>
+            <Select value={selectedTemplateId} onValueChange={setSelectedTemplateId}>
+              <SelectTrigger>
+                <SelectValue placeholder={t("اختر قالب المشروع", "Choose a project template")} />
+              </SelectTrigger>
+              <SelectContent>
+                {templates.map((tpl) => (
+                  <SelectItem key={tpl.id} value={tpl.id}>
+                    <span className="flex items-center gap-2">
+                      <span>{tpl.icon}</span>
+                      <span>{isAr ? (tpl.nameAr || tpl.name) : tpl.name}</span>
+                      {tpl.taskCount ? (
+                        <span className="text-slate-400 text-xs flex items-center gap-0.5">
+                          <ListChecks className="h-3 w-3" />{tpl.taskCount}
+                        </span>
+                      ) : null}
+                    </span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {selectedTemplateId && (
+              <p className="text-xs text-teal-600 dark:text-teal-400">
+                {t(
+                  "سيتم إنشاء المراحل والمهام تلقائياً من القالب عند حفظ المشروع",
+                  "Stages and tasks will be automatically created from the template when the project is saved"
+                )}
+              </p>
+            )}
+          </div>
+        )}
+
         <form onSubmit={rhfHandleSubmit(onSubmit as (data: unknown) => void)} className="grid gap-4 py-2">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -78,7 +200,7 @@ export function AddProjectDialog({
             </div>
             <div className="space-y-2">
               <Label>{t("النوع", "Type")}</Label>
-              <Select value={form.watch("type")} onValueChange={(v) => form.setValue("type", v)}>
+              <Select value={watch("type")} onValueChange={(v) => setValue("type", v)}>
                 <SelectTrigger className={cn(errors.type && "border-red-500 focus:ring-red-500/20")}>
                   <SelectValue />
                 </SelectTrigger>
@@ -103,7 +225,7 @@ export function AddProjectDialog({
           </div>
           <div className="space-y-2">
             <Label>{t("العميل", "Client")}</Label>
-            <Select value={form.watch("clientId")} onValueChange={(v) => form.setValue("clientId", v)}>
+            <Select value={watch("clientId")} onValueChange={(v) => setValue("clientId", v)}>
               <SelectTrigger>
                 <SelectValue placeholder={t("اختر العميل", "Select client")} />
               </SelectTrigger>
@@ -124,7 +246,7 @@ export function AddProjectDialog({
               <HardHat className="h-3.5 w-3.5 text-amber-500" />
               {t("المقاول (اختياري)", "Contractor (Optional)")}
             </Label>
-            <Select value={form.watch("contractorId") || ""} onValueChange={(v) => form.setValue("contractorId", v)}>
+            <Select value={watch("contractorId") || ""} onValueChange={(v) => setValue("contractorId", v)}>
               <SelectTrigger>
                 <SelectValue placeholder={t("اختر المقاول المنفذ", "Select executing contractor")} />
               </SelectTrigger>
@@ -175,7 +297,7 @@ export function AddProjectDialog({
             <Textarea {...register("description")} rows={3} placeholder={t("وصف المشروع...", "Project description...")} />
           </div>
         <DialogFooter>
-          <Button type="button" variant="outline" onClick={() => { reset(); onOpenChange(false); }}>
+          <Button type="button" variant="outline" onClick={() => { reset(); onOpenChange(false); setUseTemplate(false); setSelectedTemplateId(""); }}>
             {t("إلغاء", "Cancel")}
           </Button>
           <Button

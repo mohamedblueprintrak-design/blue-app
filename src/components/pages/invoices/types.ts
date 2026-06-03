@@ -17,6 +17,7 @@ export interface Invoice {
   paidAmount: number;
   remaining: number;
   status: string;
+  currency: string;
   clientId: string;
   projectId: string;
   client: { id: string; name: string; company: string };

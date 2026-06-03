@@ -22,8 +22,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Debug endpoint disabled in production' }, { status: 403 });
   }
 
-  // SECURITY FIX: Use requireVerifiedAdmin() instead of requireAdmin()
-  // to prevent header forgery — this endpoint exposes .env contents.
+  // SECURITY: Admin-only access — exposes sensitive environment configuration
+  // and API key presence. JWT is re-verified to prevent header forgery.
   const authResult = await requireVerifiedAdmin(request);
   if ('error' in authResult) return authResult.error;
   try {

@@ -28,9 +28,17 @@ export async function POST(request: NextRequest) {
     });
 
     if (!user) {
+      // Prevent timing attacks by simulating token generation and hashing
+      const dummyToken = randomBytes(32).toString("hex");
+      await hashToken(dummyToken);
       // Don't reveal if user exists or not
       return NextResponse.json({ success: true });
     }
+
+    // Invalidate existing tokens for this user to prevent misuse of old tokens
+    await db.passwordResetToken.deleteMany({
+      where: { userId: user.id },
+    });
 
     // Generate reset token — raw token is sent to user, only hash is stored
     const resetToken = randomBytes(32).toString("hex");

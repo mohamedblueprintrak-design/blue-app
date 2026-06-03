@@ -8,7 +8,7 @@
  * Used by auth-service.ts facade via dynamic imports.
  */
 
-import { randomBytes, randomInt } from 'crypto';
+import { randomBytes, randomInt, timingSafeEqual } from 'crypto';
 import { generateSecret, generateURI, verify, NobleCryptoPlugin, ScureBase32Plugin } from 'otplib';
 import { db } from '@/lib/db';
 import { log } from '@/lib/logger';
@@ -264,7 +264,17 @@ export async function verifyTwoFactorCode(userId: string, code: string): Promise
       ? twoFactorSecret.backupCodes
       : JSON.parse(String(twoFactorSecret.backupCodes || '[]'))) as string[];
     const codeHash = await hashToken(code);
-    const backupCodeIndex = storedCodes.indexOf(codeHash);
+    // Fix timing attack in backup code comparison
+    let backupCodeIndex = -1;
+    const codeHashBuffer = Buffer.from(codeHash, 'utf8');
+    
+    for (let i = 0; i < storedCodes.length; i++) {
+      const storedBuffer = Buffer.from(storedCodes[i], 'utf8');
+      if (codeHashBuffer.length === storedBuffer.length && timingSafeEqual(codeHashBuffer, storedBuffer)) {
+        backupCodeIndex = i;
+        break;
+      }
+    }
 
     if (backupCodeIndex !== -1) {
       // Remove used backup code

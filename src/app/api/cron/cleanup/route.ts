@@ -93,6 +93,21 @@ export async function POST(request: NextRequest) {
 
     log.info('[Cron] Cleanup completed', results);
 
+    // 6. Generate due recurring invoices
+    try {
+      const { recurringInvoiceService } = await import('@/lib/services/recurring-invoice.service');
+      const recurringResult = await recurringInvoiceService.generateDueInvoices();
+      results.recurringInvoicesGenerated = recurringResult.generated;
+      if (recurringResult.errors.length > 0) {
+        results.recurringInvoiceErrors = recurringResult.errors.length;
+      }
+      log.info('[Cron] Recurring invoice generation completed', recurringResult as unknown as Record<string, unknown>);
+    } catch (recurringError) {
+      log.error('[Cron] Recurring invoice generation failed:', recurringError);
+      results.recurringInvoicesGenerated = 0;
+      results.recurringInvoiceErrors = 1;
+    }
+
     return NextResponse.json({
       success: true,
       timestamp: now.toISOString(),

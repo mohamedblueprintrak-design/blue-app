@@ -32,10 +32,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Search, LayoutGrid, List, FileText, Trash2, Eye, Pencil, Folder, FolderOpen, Upload, HardDrive, CalendarDays, Clock, ArrowUpDown, ChevronLeft } from 'lucide-react'
+import { Plus, Search, LayoutGrid, List, FileText, Trash2, Eye, Pencil, Folder, FolderOpen, Upload, HardDrive, CalendarDays, Clock, ArrowUpDown, ChevronLeft, History } from 'lucide-react'
 
 import { cn } from "@/lib/utils";
 import { getMutationHeaders } from "@/lib/csrf-client";
+import DocumentVersionHistory from "@/components/common/document-version-history";
 
 // ===== Types =====
 interface Document {
@@ -150,6 +151,7 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set(["all"]));
   const [showUploadZone, setShowUploadZone] = useState(false);
   const [sortBy, setSortBy] = useState<string>("date_desc");
+  const [versionHistoryDoc, setVersionHistoryDoc] = useState<Document | null>(null);
   const activeSortKey = sortBy.split("_")[0];
   const activeSortDir = sortBy.includes("_") ? sortBy.split("_")[1] : "desc";
   const handleSortClick = (key: string, defaultDir: "asc" | "desc") => {
@@ -331,7 +333,7 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
     );
   }
 
-  return (
+  const mainContent = (
     <div className="space-y-4">
       {/* Stat Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
@@ -646,6 +648,15 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
                           </span>
                         </div>
                         <div className="flex items-center gap-2 text-[10px] text-slate-400 dark:text-slate-500">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-5 w-5"
+                            onClick={(e: React.MouseEvent) => { e.stopPropagation(); setVersionHistoryDoc(doc); }}
+                            title={ar ? "سجل الإصدارات" : "Version History"}
+                          >
+                            <History className="h-3 w-3" />
+                          </Button>
                           <span>{new Date(doc.createdAt).toLocaleDateString(ar ? "ar-AE" : "en-US", { month: "short", day: "numeric" })}</span>
                         </div>
                       </div>
@@ -731,6 +742,7 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
                           <TableCell className="text-start" onClick={(e) => e.stopPropagation()}>
                             <div className="flex items-center gap-1">
                               <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setViewDoc(doc)} aria-label="View"><Eye className="h-3.5 w-3.5" /></Button>
+                              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setVersionHistoryDoc(doc)} aria-label="Version History"><History className="h-3.5 w-3.5" /></Button>
                               <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(doc)} aria-label="Edit"><Pencil className="h-3.5 w-3.5" /></Button>
                               <Button variant="ghost" size="icon" className="h-7 w-7 text-red-500" onClick={() => { if (confirm(ar ? "حذف المستند؟" : "Delete document?")) deleteMutation.mutate(doc.id); }} aria-label="Delete"><Trash2 className="h-3.5 w-3.5" /></Button>
                             </div>
@@ -897,5 +909,27 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
         </DialogContent>
       </Dialog>
     </div>
+  );
+
+  // Version History Panel (rendered outside the main layout)
+  const versionHistoryPanel = versionHistoryDoc && (
+    <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" onClick={() => setVersionHistoryDoc(null)}>
+      <div className="w-full max-w-lg max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        <DocumentVersionHistory
+          documentId={versionHistoryDoc.id}
+          documentName={versionHistoryDoc.name}
+          currentVersion={versionHistoryDoc.version}
+          language={language}
+          onClose={() => setVersionHistoryDoc(null)}
+        />
+      </div>
+    </div>
+  );
+
+  return (
+    <>
+      {mainContent}
+      {versionHistoryPanel}
+    </>
   );
 }

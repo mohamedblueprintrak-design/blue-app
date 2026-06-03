@@ -62,6 +62,25 @@ export async function POST(request: NextRequest) {
 
     const { voucherNumber, projectId, amount, payMethod, beneficiary, referenceNumber, description } = validation.data;
 
+    // Idempotency / Double-charge prevention
+    const idempotencyKey = request.headers.get('idempotency-key');
+    
+    // Check for exact duplicate payment within the last 2 minutes (prevents double-clicks)
+    const recentDuplicate = await db.payment.findFirst({
+      where: {
+        createdById: ctx.userId,
+        amount,
+        projectId: projectId || null,
+        beneficiary: beneficiary || "",
+        createdAt: { gte: new Date(Date.now() - 2 * 60 * 1000) },
+      }
+    });
+
+    if (recentDuplicate) {
+      log.warn("Prevented double-charge (idempotency)", { userId: ctx.userId, amount, projectId });
+      return NextResponse.json(recentDuplicate, { status: 200 });
+    }
+
     const payment = await db.payment.create({
       data: {
         voucherNumber: voucherNumber || "",

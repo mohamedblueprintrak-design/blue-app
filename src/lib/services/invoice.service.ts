@@ -181,42 +181,58 @@ class InvoiceService {
     organizationId: string,
     userId: string
   ): Promise<Invoice> {
-    const invoiceNumber = await this.generateInvoiceNumber(organizationId);
-
     const subtotal = data.subtotal || 0;
-    const taxRate = data.taxRate ?? 5;
+    // Hardcoded fallback changed to use VAT_RATE constant from src/lib/constants.ts
+    // Assuming VAT_RATE is 0.05, we multiply by 100 to get the percentage value (5)
+    const { VAT_RATE } = await import('@/lib/constants');
+    const defaultTaxRate = VAT_RATE * 100;
+    const taxRate = data.taxRate ?? defaultTaxRate;
     const tax = subtotal * (taxRate / 100);
     const total = subtotal + tax;
 
-    const invoice = await db.invoice.create({
-      data: {
-        number: invoiceNumber,
-        organizationId,
-        clientId: data.clientId || '',
-        projectId: data.projectId || '',
-        issueDate: data.issueDate || new Date(),
-        dueDate: data.dueDate || new Date(),
-        subtotal,
-        taxRate,
-        tax,
-        total,
-        paidAmount: 0,
-        remaining: total,
-        status: 'DRAFT',
-      },
-    });
+    for (let attempt = 0; attempt < 5; attempt++) {
+      try {
+        const invoiceNumber = await this.generateInvoiceNumber(organizationId);
 
-    await logAudit({
-      userId,
-      organizationId,
-      entityType: 'invoice',
-      entityId: invoice.id,
-      action: 'create',
-      description: `تم إنشاء الفاتورة: ${invoice.number}`,
-      metadata: { projectId: data.projectId, newValue: invoice },
-    });
+        const invoice = await db.invoice.create({
+          data: {
+            number: invoiceNumber,
+            organizationId,
+            clientId: data.clientId || '',
+            projectId: data.projectId || '',
+            issueDate: data.issueDate || new Date(),
+            dueDate: data.dueDate || new Date(),
+            subtotal,
+            taxRate,
+            tax,
+            total,
+            paidAmount: 0,
+            remaining: total,
+            status: 'DRAFT',
+          },
+        });
 
-    return invoice;
+        await logAudit({
+          userId,
+          organizationId,
+          entityType: 'invoice',
+          entityId: invoice.id,
+          action: 'create',
+          description: `تم إنشاء الفاتورة: ${invoice.number}`,
+          metadata: { projectId: data.projectId, newValue: invoice },
+        });
+
+        return invoice;
+      } catch (error: any) {
+        if (error.code === 'P2002' && error.meta?.target?.includes('invoice_number_org_unique')) {
+          // Race condition occurred, another invoice took this number. Retry.
+          continue;
+        }
+        throw error;
+      }
+    }
+    
+    throw new Error('Failed to generate a unique invoice number after multiple attempts.');
   }
 
   /**
