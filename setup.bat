@@ -3,9 +3,9 @@ chcp 65001 >nul
 title BluePrint Setup
 color 0B
 
-echo ╔══════════════════════════════════════════════════╗
-echo ║     🔵 BluePrint - Engineering Consultancy ERP   ║
-echo ╚══════════════════════════════════════════════════╝
+echo ==================================================
+echo   BluePrint - Engineering Consultancy ERP
+echo ==================================================
 echo.
 
 echo [Checking prerequisites...]
@@ -30,37 +30,39 @@ if %ERRORLEVEL% NEQ 0 (
 echo [OK] OpenSSL / Crypto ready (via Bun)
 echo.
 
-echo ════════════════════════════════════════════════
-echo   Step 1: Choose Mode — اختار الوضع
-echo ════════════════════════════════════════════════
+echo ================================================
+echo   Step 1: Choose Mode - اختار الوضع
+echo ================================================
 echo.
-echo   [1] Demo Mode — وضع العرض التجريبي
-echo       • Auto-filled login credentials
-echo       • Sample projects, invoices, tasks
+echo   [1] Demo Mode - وضع العرض التجريبي
+echo       - Auto-filled login credentials
+echo       - Sample projects, invoices, tasks
 echo.
-echo   [2] Production Mode — وضع الإنتاج
-echo       • Requires SMTP for email
-echo       • No demo data
+echo   [2] Production Mode - وضع الإنتاج
+echo       - Requires SMTP for email
+echo       - No demo data
 echo.
 set /p MODE_CHOICE="Enter choice (1 or 2, default=1): "
 if "%MODE_CHOICE%"=="" set MODE_CHOICE=1
 
 echo.
-echo ════════════════════════════════════════════════
-echo   Step 2: Choose Database — اختار قاعدة البيانات
-echo ════════════════════════════════════════════════
+echo ================================================
+echo   Step 2: Choose Database - اختار قاعدة البيانات
+echo ================================================
 echo.
-echo   [1] PostgreSQL — للإنتاج
-echo   [2] SQLite — للتجربة السريعة
+echo   [1] PostgreSQL - للإنتاج
+echo   [2] SQLite - للتجربة السريعة
 echo.
 set /p DB_CHOICE="Enter choice (1 or 2, default=2): "
 if "%DB_CHOICE%"=="" set DB_CHOICE=2
 
 echo.
 echo Step 3: Generating Secrets...
-for /f "delims=" %%i in ('bun -e "console.log(require('crypto').randomBytes(32).toString('hex'))"') do set JWT_SECRET=%%i
-for /f "delims=" %%i in ('bun -e "console.log(require('crypto').randomBytes(32).toString('hex'))"') do set ENCRYPTION_KEY=%%i
-for /f "delims=" %%i in ('bun -e "console.log(require('crypto').randomBytes(32).toString('hex'))"') do set CSRF_SECRET=%%i
+echo const crypto = require('crypto'); console.log(crypto.randomBytes(32).toString('hex')); > temp_crypto.js
+for /f "delims=" %%i in ('bun temp_crypto.js') do set JWT_SECRET=%%i
+for /f "delims=" %%i in ('bun temp_crypto.js') do set ENCRYPTION_KEY=%%i
+for /f "delims=" %%i in ('bun temp_crypto.js') do set CSRF_SECRET=%%i
+del temp_crypto.js
 echo [OK] Secrets generated
 
 echo.
@@ -150,30 +152,30 @@ call bunx prisma generate
 echo [OK] Prisma Client ready
 
 echo.
-echo ╔══════════════════════════════════════════════════╗
-echo ║          ✅ Setup Complete! — تم الإعداد!         ║
-echo ╚══════════════════════════════════════════════════╝
+echo ==================================================
+echo           [OK] Setup Complete! - تم الإعداد!
+echo ==================================================
 echo.
-echo ┌──────────────────────────────────────────────┐
+echo ----------------------------------------------
 if "%MODE_CHOICE%"=="1" (
-    echo │  Mode:     DEMO — عرض تجريبي                 │
+    echo   Mode:     DEMO - عرض تجريبي
 ) else (
-    echo │  Mode:     PRODUCTION — وضع الإنتاج          │
+    echo   Mode:     PRODUCTION - وضع الإنتاج
 )
-echo │  URL:      http://localhost:3000              │
+echo   URL:      http://localhost:3000
 if "%MODE_CHOICE%"=="1" (
-    echo │  Email:    admin@blueprint.ae                 │
-    echo │  Password: Admin@BP2024!                     │
+    echo   Email:    admin@blueprint.ae
+    echo   Password: Admin@BP2024!
 )
 if "%DB_CHOICE%"=="1" (
-    echo │  Database: PostgreSQL                         │
+    echo   Database: PostgreSQL
 ) else (
-    echo │  Database: SQLite                             │
+    echo   Database: SQLite
 )
-echo └──────────────────────────────────────────────┘
+echo ----------------------------------------------
 echo.
 if "%MODE_CHOICE%"=="2" (
-    echo ⚠️ NOTE FOR PRODUCTION:
+    echo [WARN] NOTE FOR PRODUCTION:
     echo Please edit .env to configure your SMTP and Stripe keys before going live.
     echo.
 )
