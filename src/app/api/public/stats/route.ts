@@ -18,8 +18,9 @@ import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 
 export async function GET(request: NextRequest) {
   try {
-    const { allowed } = await withRateLimit(request, 'loose');
-    if (!allowed) return rateLimitResponse();
+    const { allowed, result: rlResult } = await withRateLimit(request, 'public');
+    const blocked = rateLimitResponse(rlResult);
+    if (blocked) return blocked;
 
     const orgId = request.nextUrl.searchParams.get('orgId') || request.headers.get('x-tenant-id');
     const orgWhere = orgId ? { organizationId: orgId } : (process.env.MULTI_TENANT === 'true' ? { organizationId: '__DENIED__' } : {});

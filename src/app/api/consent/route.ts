@@ -7,8 +7,9 @@ import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 
 export async function POST(request: NextRequest) {
   try {
-    const { allowed } = await withRateLimit(request, 'loose');
-    if (!allowed) return rateLimitResponse();
+    const { allowed, result: rlResult } = await withRateLimit(request, 'public');
+    const blocked = rateLimitResponse(rlResult);
+    if (blocked) return blocked;
 
     const body = await request.json();
     const consentGiven = body.consent === true;
