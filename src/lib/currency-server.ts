@@ -16,11 +16,41 @@ export async function getLiveExchangeRates(): Promise<Record<string, number>> {
         const data = await response.json();
         if (data && data.rates && data.base === 'AED') {
           log.info('[Currency] Live exchange rates updated from API');
+          
+          // Save to database as a reliable fallback
+          try {
+            await db.companySettings.updateMany({
+              data: { exchangeRates: JSON.stringify(data.rates) }
+            });
+          } catch (dbErr) {
+            log.error('[Currency] Failed to cache rates in DB', dbErr);
+          }
+
           return data.rates as Record<string, number>;
         }
         throw new Error('Invalid data format from exchange API');
       } catch (error) {
-        log.error('[Currency] Failed to fetch live exchange rates, using defaults', error);
+        log.error('[Currency] Failed to fetch live exchange rates, falling back to DB', error);
+        
+        // Try fallback to DB
+        try {
+          const settings = await db.companySettings.findFirst({
+            where: { exchangeRates: { not: null } },
+            select: { exchangeRates: true }
+          });
+          
+          if (settings?.exchangeRates) {
+            const dbRates = JSON.parse(settings.exchangeRates);
+            if (Object.keys(dbRates).length > 0) {
+               log.info('[Currency] Using DB fallback for exchange rates');
+               return dbRates as Record<string, number>;
+            }
+          }
+        } catch (dbFallbackErr) {
+          log.error('[Currency] Failed to read fallback from DB', dbFallbackErr);
+        }
+
+        log.info('[Currency] Using hardcoded DEFAULT_EXCHANGE_RATES');
         return DEFAULT_EXCHANGE_RATES;
       }
     },

@@ -9,6 +9,7 @@
 import { db } from '@/lib/db';
 import { insensitiveContains } from '@/app/api/utils/db';
 import { logAudit } from './audit.service';
+import { sequenceService } from './sequence.service';
 import { Invoice, Prisma } from '@prisma/client';
 
 /**
@@ -153,24 +154,7 @@ class InvoiceService {
    * Generate unique invoice number
    */
   async generateInvoiceNumber(organizationId: string): Promise<string> {
-    const year = new Date().getFullYear();
-    for (let attempt = 0; attempt < 3; attempt++) {
-      const count = await db.invoice.count({
-        where: {
-          number: { startsWith: `INV-${year}` },
-          organizationId,
-        },
-      });
-      const invoiceNumber = `INV-${year}-${String(count + 1).padStart(5, '0')}`;
-      // Check if this number already exists (race condition guard)
-      const exists = await db.invoice.findFirst({
-        where: { number: invoiceNumber, organizationId },
-      });
-      if (!exists) return invoiceNumber;
-      // If exists due to concurrent request, retry with next iteration
-    }
-    // Fallback: use timestamp-based unique number after retries exhausted
-    return `INV-${year}-${Date.now()}`;
+    return sequenceService.generateDocumentNumber('INV', 'INVOICE', organizationId);
   }
 
   /**
@@ -182,57 +166,52 @@ class InvoiceService {
     userId: string
   ): Promise<Invoice> {
     const subtotal = data.subtotal || 0;
-    // Hardcoded fallback changed to use VAT_RATE constant from src/lib/constants.ts
-    // Assuming VAT_RATE is 0.05, we multiply by 100 to get the percentage value (5)
-    const { VAT_RATE } = await import('@/lib/constants');
-    const defaultTaxRate = VAT_RATE * 100;
+    
+    // Fetch dynamic VAT rate from company settings
+    const companySettings = await db.companySettings.findFirst({
+      where: { organizationId },
+      select: { vatRate: true }
+    });
+    
+    const defaultTaxRate = companySettings?.vatRate ? Number(companySettings.vatRate) : 5.0;
     const taxRate = data.taxRate ?? defaultTaxRate;
     const tax = subtotal * (taxRate / 100);
     const total = subtotal + tax;
 
-    for (let attempt = 0; attempt < 5; attempt++) {
-      try {
-        const invoiceNumber = await this.generateInvoiceNumber(organizationId);
+    // Use transaction for safe creation
+    return await db.$transaction(async (tx) => {
+      const invoiceNumber = await sequenceService.generateDocumentNumber('INV', 'INVOICE', organizationId);
 
-        const invoice = await db.invoice.create({
-          data: {
-            number: invoiceNumber,
-            organizationId,
-            clientId: data.clientId || '',
-            projectId: data.projectId || '',
-            issueDate: data.issueDate || new Date(),
-            dueDate: data.dueDate || new Date(),
-            subtotal,
-            taxRate,
-            tax,
-            total,
-            paidAmount: 0,
-            remaining: total,
-            status: 'DRAFT',
-          },
-        });
-
-        await logAudit({
-          userId,
+      const invoice = await tx.invoice.create({
+        data: {
+          number: invoiceNumber,
           organizationId,
-          entityType: 'invoice',
-          entityId: invoice.id,
-          action: 'create',
-          description: `تم إنشاء الفاتورة: ${invoice.number}`,
-          metadata: { projectId: data.projectId, newValue: invoice },
-        });
+          clientId: data.clientId || '',
+          projectId: data.projectId || '',
+          issueDate: data.issueDate || new Date(),
+          dueDate: data.dueDate || new Date(),
+          subtotal,
+          taxRate,
+          tax,
+          total,
+          paidAmount: 0,
+          remaining: total,
+          status: 'DRAFT',
+        },
+      });
 
-        return invoice;
-      } catch (error: any) {
-        if (error.code === 'P2002' && error.meta?.target?.includes('invoice_number_org_unique')) {
-          // Race condition occurred, another invoice took this number. Retry.
-          continue;
-        }
-        throw error;
-      }
-    }
-    
-    throw new Error('Failed to generate a unique invoice number after multiple attempts.');
+      await logAudit({
+        userId,
+        organizationId,
+        entityType: 'invoice',
+        entityId: invoice.id,
+        action: 'create',
+        description: `تم إنشاء الفاتورة: ${invoice.number}`,
+        metadata: { projectId: data.projectId, newValue: invoice },
+      });
+
+      return invoice;
+    });
   }
 
   /**
@@ -244,14 +223,6 @@ class InvoiceService {
     organizationId: string,
     userId: string
   ): Promise<Invoice> {
-    const oldInvoice = await db.invoice.findFirst({
-      where: { id, organizationId },
-    });
-
-    if (!oldInvoice) {
-      throw new Error('Invoice not found or access denied');
-    }
-
     // SECURITY: Explicit field whitelist to prevent Mass Assignment
     const allowedFields = ['clientId', 'projectId', 'issueDate', 'dueDate', 'subtotal', 'taxRate', 'tax', 'total', 'paidAmount', 'remaining', 'status'] as const;
     const updateData: Record<string, unknown> = {};
@@ -261,43 +232,55 @@ class InvoiceService {
       }
     }
 
-    // Recalculate totals if subtotal, tax rate, or paidAmount changed
-    if (data.subtotal !== undefined || data.taxRate !== undefined || data.paidAmount !== undefined) {
-      const subtotal = data.subtotal !== undefined ? Number(data.subtotal) : Number(oldInvoice.subtotal);
-      const taxRate = data.taxRate !== undefined ? Number(data.taxRate) : Number(oldInvoice.taxRate);
-      const tax = subtotal * (taxRate / 100);
-      const total = subtotal + tax;
-      const paidAmount = data.paidAmount !== undefined ? Number(data.paidAmount) : Number(oldInvoice.paidAmount);
-      updateData.tax = tax;
-      updateData.total = total;
-      updateData.remaining = total - paidAmount;
-    }
+    return await db.$transaction(async (tx) => {
+      const currentInvoice = await tx.invoice.findFirst({
+        where: { id, organizationId },
+      });
 
-    await db.invoice.updateMany({
-      where: { id, organizationId },
-      data: updateData,
+      if (!currentInvoice) {
+        throw new Error('Invoice not found or access denied');
+      }
+
+      // Recalculate totals if subtotal, tax rate, or paidAmount changed
+      if (data.subtotal !== undefined || data.taxRate !== undefined || data.paidAmount !== undefined) {
+        const subtotal = data.subtotal !== undefined ? Number(data.subtotal) : Number(currentInvoice.subtotal);
+        const taxRate = data.taxRate !== undefined ? Number(data.taxRate) : Number(currentInvoice.taxRate);
+        const tax = subtotal * (taxRate / 100);
+        const total = subtotal + tax;
+        const paidAmount = data.paidAmount !== undefined ? Number(data.paidAmount) : Number(currentInvoice.paidAmount);
+        updateData.tax = tax;
+        updateData.total = total;
+        updateData.remaining = total - paidAmount;
+      }
+
+      await tx.invoice.updateMany({
+        where: { id, organizationId },
+        data: updateData,
+      });
+
+      const updated = await tx.invoice.findFirst({
+        where: { id, organizationId },
+      });
+
+      if (!updated) {
+        throw new Error('Invoice not found or access denied after update');
+      }
+
+      await logAudit({
+        userId,
+        organizationId,
+        entityType: 'invoice',
+        entityId: updated.id,
+        action: 'update',
+        description: `تم تحديث الفاتورة: ${updated.number}`,
+        metadata: { projectId: updated.projectId, oldValue: currentInvoice, newValue: updated },
+      });
+
+      return updated;
     });
-
-    const invoice = await db.invoice.findFirst({
-      where: { id, organizationId },
-    });
-
-    if (!invoice) {
-      throw new Error('Invoice not found or access denied');
-    }
-
-    await logAudit({
-      userId,
-      organizationId,
-      entityType: 'invoice',
-      entityId: invoice.id,
-      action: 'update',
-      description: `تم تحديث الفاتورة: ${invoice.number}`,
-      metadata: { projectId: invoice.projectId, oldValue: oldInvoice, newValue: invoice },
-    });
-
-    return invoice;
   }
+
+
 
   /**
    * Delete invoice

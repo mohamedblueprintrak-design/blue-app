@@ -296,6 +296,7 @@ model CompanySettings {
   currency        String   @default("AED")
   defaultCurrency String   @default("AED") // Default currency for the organization
   exchangeRates   String? // JSON: { USD: 3.67, EUR: 4.0, ... } — manual exchange rates
+  vatRate         Decimal  @default(5.0) // Configurable VAT percentage (e.g. 5.0 for UAE, 15.0 for KSA)
   timezone        String   @default("Asia/Dubai")
   workingDays     String   @default("sat,sun,mon,tue,wed,thu") // comma-separated UAE work week (Saturday-Thursday)
   workingHours    String   @default("08:00-17:00")
@@ -305,6 +306,20 @@ model CompanySettings {
 
   organization Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
 
+  @@index([organizationId])
+}
+
+// ==================== SEQUENCES (FOR DOCUMENT NUMBERING) ====================
+model Sequence {
+  id             String        @id @default(cuid())
+  name           String        // e.g. "INVOICE", "CONTRACT", "GUARANTEE_LETTER"
+  value          Int           @default(0) // The current counter value
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@unique([name, organizationId])
   @@index([organizationId])
 }
 
@@ -2529,6 +2544,7 @@ model Organization {
   milestones                 Milestone[]
   dashboardPresets           DashboardPreset[]
   backupVerifications        BackupVerification[]
+  sequences                  Sequence[]
 
   @@index([deletedAt])
 }

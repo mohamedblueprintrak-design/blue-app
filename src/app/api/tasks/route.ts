@@ -211,7 +211,7 @@ export async function GET(request: NextRequest) {
       };
     });
 
-    return NextResponse.json({ tasks: tasksWithSubtaskCount, pagination: buildPaginationMeta(page, limit, total) });
+    return NextResponse.json({ data: tasksWithSubtaskCount, pagination: buildPaginationMeta(page, limit, total) });
   } catch (error) {
     log.error("Error fetching tasks:", error);
     return errorResponse("Failed to fetch tasks", "SERVER_ERROR", 500);

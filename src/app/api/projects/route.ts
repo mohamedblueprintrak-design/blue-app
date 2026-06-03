@@ -179,7 +179,7 @@ export async function GET(request: NextRequest) {
     );
 
     return NextResponse.json({
-      projects,
+      data: projects,
       pagination: buildPaginationMeta(page, limit, total),
     });
   } catch (error) {

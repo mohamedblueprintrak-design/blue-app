@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
       return { payments, total };
     }, CACHE_TTL.PAYMENTS);
 
-    return NextResponse.json({ payments, pagination: buildPaginationMeta(page, limit, total) });
+    return NextResponse.json({ data: payments, pagination: buildPaginationMeta(page, limit, total) });
   } catch (error) {
     log.error("Error fetching payments:", error);
     return NextResponse.json({ error: "Failed to fetch payments" }, { status: 500 });
