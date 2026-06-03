@@ -10,12 +10,23 @@ echo.
 
 echo [Checking prerequisites...]
 where bun >nul 2>nul
-if %ERRORLEVEL% NEQ 0 (
-    echo [ERROR] Bun not found
-    pause
-    exit /b 1
-) else (
+if %ERRORLEVEL% EQU 0 (
+    set RUNNER=bun
+    set PKG_MGR=bun
+    set EXEC=bunx
     echo [OK] Bun found
+) else (
+    where node >nul 2>nul
+    if %ERRORLEVEL% EQU 0 (
+        set RUNNER=node
+        set PKG_MGR=npm
+        set EXEC=npx
+        echo [OK] Node.js found ^(Fallback from Bun^)
+    ) else (
+        echo [ERROR] Neither Bun nor Node.js found! Please install Node.js.
+        pause
+        exit /b 1
+    )
 )
 
 where git >nul 2>nul
@@ -59,9 +70,9 @@ if "%DB_CHOICE%"=="" set DB_CHOICE=2
 echo.
 echo Step 3: Generating Secrets...
 echo const crypto = require('crypto'); console.log(crypto.randomBytes(32).toString('hex')); > temp_crypto.js
-for /f "delims=" %%i in ('bun temp_crypto.js') do set JWT_SECRET=%%i
-for /f "delims=" %%i in ('bun temp_crypto.js') do set ENCRYPTION_KEY=%%i
-for /f "delims=" %%i in ('bun temp_crypto.js') do set CSRF_SECRET=%%i
+for /f "delims=" %%i in ('%RUNNER% temp_crypto.js') do set JWT_SECRET=%%i
+for /f "delims=" %%i in ('%RUNNER% temp_crypto.js') do set ENCRYPTION_KEY=%%i
+for /f "delims=" %%i in ('%RUNNER% temp_crypto.js') do set CSRF_SECRET=%%i
 del temp_crypto.js
 echo [OK] Secrets generated
 
@@ -128,19 +139,19 @@ if "%DB_CHOICE%"=="2" (
 echo [OK] Cleaned
 
 echo.
-echo Step 7: Installing dependencies (bun install)...
-call bun install
+echo Step 7: Installing dependencies (%PKG_MGR% install)...
+call %PKG_MGR% install
 echo [OK] Dependencies installed
 
 echo.
 echo Step 8: Creating Database Tables...
-call bunx prisma db push
+call %EXEC% prisma db push
 echo [OK] Database schema pushed
 
 echo.
 echo Step 9: Seeding data...
 if "%MODE_CHOICE%"=="1" (
-    call bunx tsx prisma/seed.ts
+    call %EXEC% tsx prisma/seed.ts
     echo [OK] Demo data seeded
 ) else (
     echo [OK] Skipped demo data for Production Mode
@@ -148,7 +159,7 @@ if "%MODE_CHOICE%"=="1" (
 
 echo.
 echo Step 10: Generating Prisma Client...
-call bunx prisma generate
+call %EXEC% prisma generate
 echo [OK] Prisma Client ready
 
 echo.
@@ -183,5 +194,5 @@ if "%MODE_CHOICE%"=="2" (
 set /p START_DEV="Start server now? (y/n, default=y): "
 if "%START_DEV%"=="" set START_DEV=y
 if /i "%START_DEV%"=="y" (
-    call bun run dev
+    call %PKG_MGR% run dev
 )

@@ -17,9 +17,17 @@ echo ""
 echo "[Checking prerequisites...]"
 
 if command -v bun >/dev/null 2>&1; then
+    RUNNER="bun"
+    PKG_MGR="bun"
+    EXEC="bunx"
     echo -e "${GREEN}[OK] Bun found${NC}"
+elif command -v node >/dev/null 2>&1; then
+    RUNNER="node"
+    PKG_MGR="npm"
+    EXEC="npx"
+    echo -e "${GREEN}[OK] Node.js found (Fallback from Bun)${NC}"
 else
-    echo -e "${RED}[ERROR] Bun is not installed!${NC}"
+    echo -e "${RED}[ERROR] Neither Bun nor Node.js found! Please install Node.js.${NC}"
     exit 1
 fi
 
@@ -70,9 +78,9 @@ if command -v openssl >/dev/null 2>&1; then
     ENCRYPTION_KEY=$(openssl rand -hex 32)
     CSRF_SECRET=$(openssl rand -hex 32)
 else
-    JWT_SECRET=$(bun -e "console.log(require('crypto').randomBytes(32).toString('hex'))")
-    ENCRYPTION_KEY=$(bun -e "console.log(require('crypto').randomBytes(32).toString('hex'))")
-    CSRF_SECRET=$(bun -e "console.log(require('crypto').randomBytes(32).toString('hex'))")
+    JWT_SECRET=$($RUNNER -e "console.log(require('crypto').randomBytes(32).toString('hex'))")
+    ENCRYPTION_KEY=$($RUNNER -e "console.log(require('crypto').randomBytes(32).toString('hex'))")
+    CSRF_SECRET=$($RUNNER -e "console.log(require('crypto').randomBytes(32).toString('hex'))")
 fi
 echo -e "${GREEN}[OK] Secrets generated${NC}"
 
@@ -139,19 +147,19 @@ fi
 echo -e "${GREEN}[OK] Cleaned${NC}"
 
 echo ""
-echo "Step 7: Installing dependencies (bun install)..."
-bun install
+echo "Step 7: Installing dependencies (${PKG_MGR} install)..."
+$PKG_MGR install
 echo -e "${GREEN}[OK] Dependencies installed${NC}"
 
 echo ""
 echo "Step 8: Creating Database Tables..."
-bunx prisma db push
+$EXEC prisma db push
 echo -e "${GREEN}[OK] Database schema pushed${NC}"
 
 echo ""
 echo "Step 9: Seeding data..."
 if [ "$MODE_CHOICE" = "1" ]; then
-    bunx tsx prisma/seed.ts
+    $EXEC tsx prisma/seed.ts
     echo -e "${GREEN}[OK] Demo data seeded${NC}"
 else
     echo -e "${GREEN}[OK] Skipped demo data for Production Mode${NC}"
@@ -159,7 +167,7 @@ fi
 
 echo ""
 echo "Step 10: Generating Prisma Client..."
-bunx prisma generate
+$EXEC prisma generate
 echo -e "${GREEN}[OK] Prisma Client ready${NC}"
 
 echo ""
@@ -195,5 +203,5 @@ fi
 read -p "  Start dev server now? (y/n, default=y): " START_DEV
 START_DEV=${START_DEV:-y}
 if [[ "$START_DEV" =~ ^[Yy]$ ]]; then
-    bun run dev
+    $PKG_MGR run dev
 fi
