@@ -9,14 +9,14 @@ echo ==================================================
 echo.
 
 echo [Checking prerequisites...]
-where bun >nul 2>nul
+bun --version >nul 2>nul
 if %ERRORLEVEL% EQU 0 (
     set RUNNER=bun
     set PKG_MGR=bun
     set EXEC=bunx
     echo [OK] Bun found
 ) else (
-    where node >nul 2>nul
+    node -v >nul 2>nul
     if %ERRORLEVEL% EQU 0 (
         set RUNNER=node
         set PKG_MGR=npm
