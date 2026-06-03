@@ -4,7 +4,7 @@ import { sanitizeObject } from '@/lib/security/sanitize';
 import { taskSchema } from '@/lib/validations';
 import { orgFilter, orgCreate, requireVerifiedPermission } from '../utils/auth';
 import { insensitiveContains } from '../utils/db';
-import { errorResponse } from '../utils/response';
+import { errorResponse, successResponse, createdResponse } from '../utils/response';
 import { parsePaginationParams, buildPaginationMeta, calculateSkip } from '../utils/pagination';
 import { cacheGetOrSet } from '@/lib/cache/redis';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
@@ -211,7 +211,7 @@ export async function GET(request: NextRequest) {
       };
     });
 
-    return NextResponse.json({ data: tasksWithSubtaskCount, pagination: buildPaginationMeta(page, limit, total) });
+    return successResponse(tasksWithSubtaskCount, { pagination: buildPaginationMeta(page, limit, total) });
   } catch (error) {
     log.error("Error fetching tasks:", error);
     return errorResponse("Failed to fetch tasks", "SERVER_ERROR", 500);
@@ -409,7 +409,7 @@ export async function POST(request: NextRequest) {
               subtasks: true,
             },
           });
-          return NextResponse.json(updatedTask, { status: 201 });
+          return createdResponse(updatedTask);
         }
       } catch (autoAssignError) {
         // Auto-assignment failure should not block task creation
@@ -417,7 +417,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return NextResponse.json(task, { status: 201 });
+    return createdResponse(task);
   } catch (error) {
     log.error("Error creating task:", error);
     return errorResponse("Failed to create task", "SERVER_ERROR", 500);

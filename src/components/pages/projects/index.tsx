@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { projectSchema, type ProjectFormData } from "@/lib/validations";
@@ -20,6 +20,8 @@ import { ProjectCountBar } from "./project-count-bar";
 import { FloatingCompareButton } from "./floating-compare-button";
 import { CompareDialog } from "./compare-dialog";
 import { AddProjectDialog } from "./add-project-dialog";
+import { ToastAction } from "@/components/ui/toast";
+import { BulkActionBar } from "@/components/common/bulk-action-bar";
 
 // ===== MAIN COMPONENT =====
 interface ProjectsListProps {
@@ -41,10 +43,18 @@ export default function ProjectsList({ language }: ProjectsListProps) {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [mapLocation, setMapLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [optimisticDeletedIds, setOptimisticDeletedIds] = useState<Set<string>>(new Set());
+  const deleteTimeouts = useRef<NodeJS.Timeout[]>([]);
   const [showCompare, setShowCompare] = useState(false);
   const [_quickViewProject, setQuickViewProject] = useState<ProjectRow | null>(null);
   const [page, setPage] = useState(1);
   const PAGE_SIZE = 10;
+
+  useEffect(() => {
+    return () => {
+      deleteTimeouts.current.forEach(clearTimeout);
+    };
+  }, []);
   const form = useForm<ProjectFormData>({
     resolver: zodResolver(projectSchema) as unknown as Resolver<ProjectFormData>,
     defaultValues: {
@@ -125,7 +135,23 @@ export default function ProjectsList({ language }: ProjectsListProps) {
     },
   });
 
-  const projects: ProjectRow[] = Array.isArray(data?.projects) ? data.projects : [];
+  // Delete project mutation
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const res = await fetch(`/api/projects/${id}`, {
+        method: "DELETE",
+        headers: getMutationHeaders(),
+      });
+      if (!res.ok) throw new Error("Failed to delete");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
+    },
+  });
+
+  const rawProjects: ProjectRow[] = Array.isArray(data?.projects) ? data.projects : [];
+  const projects = rawProjects.filter(p => !optimisticDeletedIds.has(p.id));
   const totalPages = data?.pagination?.totalPages || 1;
   const allProjectsCount = data?.pagination?.total || 0;
 
@@ -147,10 +173,10 @@ export default function ProjectsList({ language }: ProjectsListProps) {
   };
 
   const toggleSelectAll = useCallback(() => {
-    if (selectedIds.size === Math.min(projects.length, MAX_COMPARE)) {
+    if (selectedIds.size === projects.length && projects.length > 0) {
       setSelectedIds(new Set());
     } else {
-      setSelectedIds(new Set(projects.slice(0, MAX_COMPARE).map((p: ProjectRow) => p.id)));
+      setSelectedIds(new Set(projects.map((p: ProjectRow) => p.id)));
     }
   }, [selectedIds.size, projects]);
 
@@ -162,6 +188,38 @@ export default function ProjectsList({ language }: ProjectsListProps) {
   );
 
   const compareProjects = selectedProjects.slice(0, MAX_COMPARE);
+
+  const handleBulkDelete = () => {
+    const idsToDelete = Array.from(selectedIds);
+    setOptimisticDeletedIds(prev => new Set([...prev, ...idsToDelete]));
+    setSelectedIds(new Set());
+    let isUndone = false;
+    
+    toast.toast({
+      title: isAr ? "تم الحذف مؤقتاً" : "Deleted temporarily",
+      description: isAr ? `تم إخفاء ${idsToDelete.length > 1 ? idsToDelete.length + ' مشاريع' : 'المشروع'}` : `Hidden ${idsToDelete.length} item(s)`,
+      action: (
+        <ToastAction altText="Undo" onClick={() => {
+           isUndone = true;
+           setOptimisticDeletedIds(prev => {
+             const next = new Set(prev);
+             idsToDelete.forEach(id => next.delete(id));
+             return next;
+           });
+        }}>
+          {isAr ? "تراجع" : "Undo"}
+        </ToastAction>
+      ),
+      duration: 5000,
+    });
+    
+    const timeoutId = setTimeout(() => {
+       if (!isUndone) {
+          idsToDelete.forEach(id => deleteMutation.mutate(id));
+       }
+    }, 5000);
+    deleteTimeouts.current.push(timeoutId);
+  };
 
   return (
     <div className="space-y-4">
@@ -204,7 +262,6 @@ export default function ProjectsList({ language }: ProjectsListProps) {
               if (next.has(id)) {
                 next.delete(id);
               } else {
-                if (next.size >= MAX_COMPARE) return prev;
                 next.add(id);
               }
               return next;
@@ -238,13 +295,23 @@ export default function ProjectsList({ language }: ProjectsListProps) {
         onClearSelection={clearSelection}
       />
 
-      {/* Floating Compare Button */}
-      <FloatingCompareButton
-        isAr={isAr}
-        t={t}
-        selectedIdsSize={selectedIds.size}
-        onShowCompare={() => setShowCompare(true)}
+      {/* Bulk Action Bar */}
+      <BulkActionBar
+        ar={isAr}
+        selectedCount={selectedIds.size}
+        onClearSelection={clearSelection}
+        onDeleteSelected={handleBulkDelete}
       />
+
+      {/* Floating Compare Button */}
+      {selectedIds.size > 0 && selectedIds.size <= MAX_COMPARE && (
+        <FloatingCompareButton
+          isAr={isAr}
+          t={t}
+          selectedIdsSize={selectedIds.size}
+          onShowCompare={() => setShowCompare(true)}
+        />
+      )}
 
       {/* Project Comparison Dialog */}
       <CompareDialog

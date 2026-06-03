@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { sanitizeObject } from '@/lib/security/sanitize';
 import { projectSchema } from '@/lib/validations';
 import { orgFilter, orgCreate, requireVerifiedPermission } from '../utils/auth';
-import { errorResponse } from '../utils/response';
+import { errorResponse, successResponse, createdResponse } from '../utils/response';
 import { parsePaginationParams, buildPaginationMeta, calculateSkip } from '../utils/pagination';
 import { cacheGetOrSet, cacheDeletePattern } from '@/lib/cache/redis';
 import { Permission } from '@/lib/auth/types';
@@ -178,10 +178,7 @@ export async function GET(request: NextRequest) {
       30 // Cache project list for 30 seconds
     );
 
-    return NextResponse.json({
-      data: projects,
-      pagination: buildPaginationMeta(page, limit, total),
-    });
+    return successResponse(projects, { pagination: buildPaginationMeta(page, limit, total) });
   } catch (error) {
     log.error("Error fetching projects:", error);
     return errorResponse("Failed to fetch projects", "SERVER_ERROR", 500);
@@ -365,7 +362,7 @@ export async function POST(request: NextRequest) {
     // Also invalidate dashboard cache
     await cacheDeletePattern(`dashboard:${user.organizationId || 'global'}:*`);
 
-    return NextResponse.json(project, { status: 201 });
+    return createdResponse(project);
   } catch (error) {
     log.error("Error creating project:", error);
     return errorResponse("Failed to create project", "SERVER_ERROR", 500);

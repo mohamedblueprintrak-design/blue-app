@@ -21,6 +21,7 @@ import { StatusIcon } from "@/components/ui/status-icon";
 import { formatCurrency } from "@/lib/formatters";
 import { getStatusConfig, getAmountColor } from "./helpers";
 import type { Invoice } from "./types";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface InvoiceTableProps {
   ar: boolean;
@@ -37,6 +38,8 @@ interface InvoiceTableProps {
   onRequestApproval: (inv: Invoice) => void;
   onSendWhatsApp?: (inv: Invoice) => void;
   PAGE_SIZE: number;
+  selectedIds: Set<string>;
+  setSelectedIds: React.Dispatch<React.SetStateAction<Set<string>>>;
 }
 
 export function InvoiceTable({
@@ -54,13 +57,37 @@ export function InvoiceTable({
   onRequestApproval,
   onSendWhatsApp,
   PAGE_SIZE,
+  selectedIds,
+  setSelectedIds,
 }: InvoiceTableProps) {
+  const toggleSelectAll = () => {
+    if (selectedIds.size === paginatedFiltered.length && paginatedFiltered.length > 0) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(paginatedFiltered.map(i => i.id)));
+    }
+  };
+
+  const toggleSelect = (id: string) => {
+    const next = new Set(selectedIds);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setSelectedIds(next);
+  };
+
   return (
     <div className="rounded-xl border border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900 overflow-hidden shadow-sm relative">
       <ScrollArea className="max-h-[calc(100vh-340px)]">
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent bg-slate-50/80 dark:bg-slate-800/50">
+              <TableHead className="w-[40px] px-4">
+                <Checkbox 
+                  checked={paginatedFiltered.length > 0 && selectedIds.size === paginatedFiltered.length}
+                  onCheckedChange={toggleSelectAll}
+                  aria-label="Select all"
+                />
+              </TableHead>
               <TableHead className="text-xs font-semibold">{ar ? "الرقم" : "No."}</TableHead>
               <TableHead className="text-xs font-semibold">{ar ? "العميل" : "Client"}</TableHead>
               <TableHead className="text-xs font-semibold hidden md:table-cell">{ar ? "المشروع" : "Project"}</TableHead>
@@ -88,6 +115,13 @@ export function InvoiceTable({
                       : "bg-slate-50/50 dark:bg-slate-800/20"
                   )}
                 >
+                  <TableCell className="px-4">
+                    <Checkbox 
+                      checked={selectedIds.has(inv.id)}
+                      onCheckedChange={() => toggleSelect(inv.id)}
+                      aria-label={`Select invoice ${inv.number}`}
+                    />
+                  </TableCell>
                   <TableCell className="font-mono text-xs text-slate-500">{inv.number || "—"}</TableCell>
                   <TableCell className="text-sm font-medium text-slate-900 dark:text-white max-w-[150px] truncate">{inv.client.name}</TableCell>
                   <TableCell className="hidden md:table-cell text-xs text-slate-500">{ar ? inv.project.name : inv.project.nameEn || inv.project.name}</TableCell>
@@ -161,7 +195,7 @@ export function InvoiceTable({
             })}
             {filtered.length === 0 && (
               <TableRow>
-                <TableCell colSpan={12} className="text-center py-12 text-slate-400">
+                <TableCell colSpan={13} className="text-center py-12 text-slate-400">
                   {ar ? "لا توجد فواتير" : "No invoices found"}
                 </TableCell>
               </TableRow>

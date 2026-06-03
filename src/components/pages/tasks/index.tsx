@@ -3,6 +3,7 @@
 import { useState, useCallback, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToastFeedback } from "@/hooks/use-toast-feedback";
+import { ToastAction } from "@/components/ui/toast";
 import { DndContext, DragOverlay, closestCorners, PointerSensor, useSensor, useSensors, type DragStartEvent, type DragEndEvent, type DragOverEvent } from "@dnd-kit/core";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { getMutationHeaders } from "@/lib/csrf-client";
@@ -28,6 +29,7 @@ export default function TasksKanban({ language, projectId }: TasksKanbanProps) {
   const [filterProject, setFilterProject] = useState<string>(projectId || "all");
   const [bulkMode, setBulkMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [optimisticDeletedIds, setOptimisticDeletedIds] = useState<Set<string>>(new Set());
   const [filterAssignee, setFilterAssignee] = useState<string>("all");
   const [quickFilter, setQuickFilter] = useState<string>("all");
   const [defaultStatus, setDefaultStatus] = useState<string>("TODO");
@@ -93,7 +95,7 @@ export default function TasksKanban({ language, projectId }: TasksKanbanProps) {
       const failed = results.find((r) => !r.ok);
       if (failed) { const data = await failed.json().catch(() => ({})); throw new Error(extractErrorMessage(data.error, 'Failed to delete some tasks')); }
     },
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["tasks"] }); setSelectedIds(new Set()); toast.deleted(ar ? "المهام المحددة" : "Selected tasks"); },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["tasks"] }); },
     onError: (error: Error) => { toast.showError(ar ? `فشل في حذف المهام: ${error.message}` : `Failed to delete tasks: ${error.message}`); },
   });
 
@@ -177,11 +179,12 @@ export default function TasksKanban({ language, projectId }: TasksKanbanProps) {
   // ===== Quick Filter Logic =====
   const now = new Date();
   const getQuickFilteredTasks = () => {
+    const aliveTasks = tasks.filter(t => !optimisticDeletedIds.has(t.id));
     switch (quickFilter) {
-      case "URGENT": return tasks.filter((t) => t.priority === "URGENT");
-      case "OVERDUE": return tasks.filter((t) => t.dueDate && new Date(t.dueDate) < now);
-      case "governmental": return tasks.filter((t) => t.taskType === "GOVERNMENTAL" || t.taskType === "MANDATORY");
-      default: return tasks;
+      case "URGENT": return aliveTasks.filter((t) => t.priority === "URGENT");
+      case "OVERDUE": return aliveTasks.filter((t) => t.dueDate && new Date(t.dueDate) < now);
+      case "governmental": return aliveTasks.filter((t) => t.taskType === "GOVERNMENTAL" || t.taskType === "MANDATORY");
+      default: return aliveTasks;
     }
   };
   const filteredTasks = getQuickFilteredTasks();
@@ -253,9 +256,34 @@ export default function TasksKanban({ language, projectId }: TasksKanbanProps) {
                 onBulkStatusChange={(val) => bulkStatusMutation.mutate({ ids: Array.from(selectedIds), status: val })}
                 onBulkPriorityChange={(val) => bulkPriorityMutation.mutate({ ids: Array.from(selectedIds), priority: val })}
                 onBulkDelete={() => {
-                  if (confirm(ar ? `حذف ${selectedIds.size} مهمة؟` : `Delete ${selectedIds.size} tasks?`)) {
-                    bulkDeleteMutation.mutate(Array.from(selectedIds));
-                  }
+                  const idsToDelete = Array.from(selectedIds);
+                  setOptimisticDeletedIds(prev => new Set([...prev, ...idsToDelete]));
+                  setSelectedIds(new Set());
+                  let isUndone = false;
+                  
+                  toast.toast({
+                    title: ar ? "تم الحذف مؤقتاً" : "Deleted temporarily",
+                    description: ar ? `تم إخفاء ${idsToDelete.length} مهام` : `Hidden ${idsToDelete.length} task(s)`,
+                    action: (
+                      <ToastAction altText="Undo" onClick={() => {
+                         isUndone = true;
+                         setOptimisticDeletedIds(prev => {
+                           const next = new Set(prev);
+                           idsToDelete.forEach(id => next.delete(id));
+                           return next;
+                         });
+                      }}>
+                        {ar ? "تراجع" : "Undo"}
+                      </ToastAction>
+                    ),
+                    duration: 5000,
+                  });
+                  
+                  setTimeout(() => {
+                     if (!isUndone) {
+                        bulkDeleteMutation.mutate(idsToDelete);
+                     }
+                  }, 5000);
                 }}
                 onClearSelection={() => setSelectedIds(new Set())}
                 isBulkStatusPending={bulkStatusMutation.isPending}

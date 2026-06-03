@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToastFeedback } from "@/hooks/use-toast-feedback";
 import { useForm, type Resolver } from "react-hook-form";
@@ -9,6 +9,8 @@ import { invoiceSchema, type InvoiceFormData } from "@/lib/validations";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { ToastAction } from "@/components/ui/toast";
+import { BulkActionBar } from "@/components/common/bulk-action-bar";
 import { cn } from "@/lib/utils";
 import { generateInvoicePDF } from "@/lib/pdf-utils";
 import { getMutationHeaders } from "@/lib/csrf-client";
@@ -40,7 +42,16 @@ export default function InvoicesPage({ language, projectId }: InvoicesPageProps)
   const [editInvoice, setEditInvoice] = useState<Invoice | null>(null);
   const [printInvoice, setPrintInvoice] = useState<Invoice | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [optimisticDeletedIds, setOptimisticDeletedIds] = useState<Set<string>>(new Set());
+  const deleteTimeouts = useRef<NodeJS.Timeout[]>([]);
   const PAGE_SIZE = 10;
+
+  useEffect(() => {
+    return () => {
+      deleteTimeouts.current.forEach(clearTimeout);
+    };
+  }, []);
 
   const emptyForm = {
     number: "", clientId: "", projectId: projectId || "",
@@ -181,6 +192,7 @@ export default function InvoicesPage({ language, projectId }: InvoicesPageProps)
 
   // Filter
   const filtered = invoices.filter((inv) => {
+    if (optimisticDeletedIds.has(inv.id)) return false;
     const matchSearch =
       inv.number.toLowerCase().includes(search.toLowerCase()) ||
       inv.client?.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -279,8 +291,43 @@ export default function InvoicesPage({ language, projectId }: InvoicesPageProps)
     }
   };
 
+  const handleDeleteWithUndo = (idsToDelete: string[]) => {
+    setOptimisticDeletedIds(prev => new Set([...prev, ...idsToDelete]));
+    setSelectedIds(new Set());
+    let isUndone = false;
+    
+    toast.toast({
+      title: ar ? "تم الحذف مؤقتاً" : "Deleted temporarily",
+      description: ar ? `تم إخفاء ${idsToDelete.length > 1 ? idsToDelete.length + ' فواتير' : 'الفاتورة'}` : `Hidden ${idsToDelete.length} item(s)`,
+      action: (
+        <ToastAction altText="Undo" onClick={() => {
+           isUndone = true;
+           setOptimisticDeletedIds(prev => {
+             const next = new Set(prev);
+             idsToDelete.forEach(id => next.delete(id));
+             return next;
+           });
+        }}>
+          {ar ? "تراجع" : "Undo"}
+        </ToastAction>
+      ),
+      duration: 5000,
+    });
+    
+    const timeoutId = setTimeout(() => {
+       if (!isUndone) {
+          idsToDelete.forEach(id => deleteMutation.mutate(id));
+       }
+    }, 5000);
+    deleteTimeouts.current.push(timeoutId);
+  };
+
   const handleDelete = (id: string) => {
-    if (confirm(ar ? "حذف الفاتورة؟" : "Delete invoice?")) deleteMutation.mutate(id);
+    handleDeleteWithUndo([id]);
+  };
+
+  const handleBulkDelete = () => {
+    handleDeleteWithUndo(Array.from(selectedIds));
   };
 
   const handleRequestApproval = (inv: Invoice) => {
@@ -379,6 +426,13 @@ export default function InvoicesPage({ language, projectId }: InvoicesPageProps)
           overduePct={overduePct}
         />
 
+        <BulkActionBar
+          ar={ar}
+          selectedCount={selectedIds.size}
+          onClearSelection={() => setSelectedIds(new Set())}
+          onDeleteSelected={handleBulkDelete}
+        />
+
         <SummaryCards
           ar={ar}
           totalInvoices={totalInvoices}
@@ -402,6 +456,8 @@ export default function InvoicesPage({ language, projectId }: InvoicesPageProps)
           onRequestApproval={handleRequestApproval}
           onSendWhatsApp={handleSendWhatsApp}
           PAGE_SIZE={PAGE_SIZE}
+          selectedIds={selectedIds}
+          setSelectedIds={setSelectedIds}
         />
 
         <InvoicePrintDialog

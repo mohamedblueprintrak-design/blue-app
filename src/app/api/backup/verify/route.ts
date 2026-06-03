@@ -12,6 +12,7 @@ import { requireVerifiedAdmin } from '@/app/api/utils/auth';
 import { log } from '@/lib/logger';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 import { z } from 'zod';
+import { Prisma } from '@prisma/client';
 
 // Zod schema for verification request
 const verifyBackupSchema = z.object({
@@ -74,7 +75,7 @@ export async function POST(request: NextRequest) {
 
     // If valid SQLite backup, also check for expected tables
     let tables: string[] = [];
-    let recordCounts: Record<string, number> = {};
+    const recordCounts: Record<string, number> = {};
 
     if (result.valid && result.isSQLite) {
       try {
@@ -90,9 +91,7 @@ export async function POST(request: NextRequest) {
         for (const table of keyTables) {
           if (tables.includes(table)) {
             try {
-              const countRows = await db.$queryRawUnsafe<Array<{ count: number }>>(
-                `SELECT COUNT(*) as count FROM "${table}"`
-              );
+              const countRows = await db.$queryRaw<Array<{ count: number }>>`SELECT COUNT(*) as count FROM ${Prisma.raw(`"${table}"`)}`;
               recordCounts[table] = Number(countRows[0]?.count ?? 0);
             } catch {
               recordCounts[table] = -1; // Error reading count

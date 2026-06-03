@@ -125,7 +125,6 @@ export function ProjectTableView({
                   <TableCell>
                     <Checkbox
                       checked={isSelected}
-                      disabled={!isSelected && selectedIds.size >= MAX_COMPARE}
                       onCheckedChange={() => onToggleSelect(project.id)}
                       onClick={(e) => e.stopPropagation()}
                       className="data-[state=checked]:bg-teal-500 data-[state=checked]:border-teal-500"
