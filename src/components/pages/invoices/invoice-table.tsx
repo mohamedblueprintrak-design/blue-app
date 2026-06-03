@@ -1,6 +1,6 @@
 "use client";
 
-import { Receipt, Pencil, Trash2, Printer, FileText, CheckCircle2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Receipt, Pencil, Trash2, Printer, FileText, CheckCircle2, ChevronLeft, ChevronRight, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
@@ -35,6 +35,7 @@ interface InvoiceTableProps {
   onEdit: (inv: Invoice) => void;
   onDelete: (id: string) => void;
   onRequestApproval: (inv: Invoice) => void;
+  onSendWhatsApp?: (inv: Invoice) => void;
   PAGE_SIZE: number;
 }
 
@@ -51,6 +52,7 @@ export function InvoiceTable({
   onEdit,
   onDelete,
   onRequestApproval,
+  onSendWhatsApp,
   PAGE_SIZE,
 }: InvoiceTableProps) {
   return (
@@ -110,6 +112,14 @@ export function InvoiceTable({
                         </TooltipTrigger>
                         <TooltipContent side="top" className="text-xs">{ar ? "طباعة" : "Print"}</TooltipContent>
                       </Tooltip>
+                      {onSendWhatsApp && (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-7 w-7 text-green-600 hover:text-green-700 dark:text-green-500 hover:bg-green-50 dark:hover:bg-green-900/20" onClick={() => onSendWhatsApp(inv)} aria-label="Send WhatsApp"><MessageCircle className="h-3.5 w-3.5" /></Button>
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="text-xs">{ar ? "إرسال واتساب" : "Send WhatsApp"}</TooltipContent>
+                        </Tooltip>
+                      )}
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Button variant="ghost" size="icon" className="h-7 w-7 text-slate-500 hover:text-slate-700 dark:text-slate-400" onClick={() => onExportPDF(inv)} aria-label="Export PDF"><FileText className="h-3.5 w-3.5" /></Button>
