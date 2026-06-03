@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { timingSafeCompare } from '@/lib/middleware/security';
 import { checkRedisHealth } from '@/lib/cache/redis';
 import { isStripeConfigured, getStripe } from '@/lib/stripe';
 import { getStorageProvider } from '@/lib/storage';
@@ -198,7 +199,7 @@ export async function GET(request: NextRequest) {
   const bearerToken = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null;
 
   const isAuthenticated =
-    healthCheckSecret && bearerToken === healthCheckSecret;
+    healthCheckSecret && bearerToken && await timingSafeCompare(bearerToken, healthCheckSecret);
 
   // Unauthenticated: return only basic status
   if (!isAuthenticated) {

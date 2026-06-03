@@ -6,7 +6,9 @@ import { dictionaries, type DictionaryPath } from "@/lib/i18n/dictionaries";
 
 function getLangSnapshot(): "ar" | "en" {
   if (typeof window === "undefined") return "ar";
-  return (localStorage.getItem("blueprint-lang") as "ar" | "en") || "ar";
+  const match = document.cookie.match(new RegExp('(^| )blueprint-lang=([^;]+)'));
+  if (match) return match[2] as "ar" | "en";
+  return (localStorage.getItem("blueprint-lang") as "ar" | "en") || "ar"; // Fallback for migration
 }
 
 function getServerSnapshot(): "ar" | "en" {
@@ -62,7 +64,7 @@ export function useLanguage() {
 
   const toggleLanguage = () => {
     const next = lang === "ar" ? "en" : "ar";
-    localStorage.setItem("blueprint-lang", next);
+    localStorage.setItem("blueprint-lang", next); // Keep for migration/sync
     document.cookie = `blueprint-lang=${next}; path=/; max-age=31536000`;
     document.documentElement.dir = next === "ar" ? "rtl" : "ltr";
     document.documentElement.lang = next;

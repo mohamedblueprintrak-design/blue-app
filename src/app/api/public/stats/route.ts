@@ -10,14 +10,20 @@
  * If you need org-scoped stats, use the /api/dashboard endpoint instead.
  */
 
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { db, isDatabaseAvailable } from '@/lib/db';
 import { cacheGetOrSet } from '@/lib/cache/redis';
 import { log } from '@/lib/logger';
+import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    // If DB is not available, return fallback static data
+    const { allowed } = await withRateLimit(request, 'loose');
+    if (!allowed) return rateLimitResponse();
+
+    const orgId = request.nextUrl.searchParams.get('orgId') || request.headers.get('x-tenant-id');
+    const orgWhere = orgId ? { organizationId: orgId } : (process.env.MULTI_TENANT === 'true' ? { organizationId: '__DENIED__' } : {});
+
     if (!await isDatabaseAvailable()) {
       return NextResponse.json({
         completedProjects: 0,
@@ -29,20 +35,20 @@ export async function GET() {
     }
 
     const result = await cacheGetOrSet(
-      'public:landing-stats',
+      `public:landing-stats:${orgId || 'global'}`,
       async () => {
         // NOTE: These counts are intentionally cross-tenant for the public landing page.
         // In multi-tenant mode, this shows the platform's total stats, not any single org's.
         // Org-scoped data is available via /api/dashboard (requires auth + orgFilter).
         const [completedProjects, totalClients, ongoingProjects] = await Promise.all([
-          db.project.count({ where: { status: 'COMPLETED' } }),
-          db.client.count(),
-          db.project.count({ where: { status: { in: ['ACTIVE', 'DELAYED', 'ON_HOLD'] } } }),
+          db.project.count({ where: { status: 'COMPLETED', ...orgWhere } }),
+          db.client.count({ where: orgWhere }),
+          db.project.count({ where: { status: { in: ['ACTIVE', 'DELAYED', 'ON_HOLD'] }, ...orgWhere } }),
         ]);
 
         // Count distinct engineering disciplines from project types
         const disciplineResult = await db.project.findMany({
-          where: { type: { not: "" } },
+          where: { type: { not: "" }, ...orgWhere },
           select: { type: true },
           distinct: ['type'],
         });

@@ -70,7 +70,7 @@ export default async function RootLayout({
             This is the standard Next.js pattern for preventing FOUC (flash of unstyled content). */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var l=localStorage.getItem("blueprint-lang")||"ar";document.documentElement.lang=l;document.documentElement.dir=l==="ar"?"rtl":"ltr"}catch(e){}})()`,
+            __html: `(function(){try{var m=document.cookie.match(/(^| )blueprint-lang=([^;]+)/);var l=m?m[2]:(localStorage.getItem("blueprint-lang")||"ar");document.documentElement.lang=l;document.documentElement.dir=l==="ar"?"rtl":"ltr"}catch(e){}})()`,
           }}
         />
       </head>
