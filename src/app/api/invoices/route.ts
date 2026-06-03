@@ -327,46 +327,40 @@ export async function POST(request: NextRequest) {
     const lineItems = itemsValidation.data.map(item => sanitizeObject(item as unknown as Record<string, unknown>)) as unknown as typeof itemsValidation.data;
 
     const subtotal = lineItems.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
-    const tax = subtotal * TAX_RATE;
-    const total = subtotal + tax;
-
-    const finalNumber = number || await invoiceService.generateInvoiceNumber(ctx.organizationId || "");
-
-    const invoice = await db.invoice.create({
-      data: {
-        number: finalNumber,
+    // tax is calculated inside createInvoice dynamically from DB settings
+    const invoice = await invoiceService.createInvoice(
+      {
         clientId,
         projectId,
         issueDate: new Date(issueDate),
         dueDate: new Date(dueDate),
-        status: (status || "DRAFT"),
         subtotal,
-        tax,
-        total,
-        remaining: total,
-        ...orgCreate(ctx),
-        createdById: ctx.userId,
-        items: {
-          create: lineItems.map((item) => ({
-            description: item.description || "",
-            quantity: item.quantity || 0,
-            unitPrice: item.unitPrice || 0,
-            total: item.total || (item.quantity * item.unitPrice),
-          })),
-        },
+        items: lineItems.map((item) => ({
+          description: item.description || "",
+          quantity: item.quantity || 0,
+          unitPrice: item.unitPrice || 0,
+          total: item.total || (item.quantity * item.unitPrice),
+        }))
       },
-      include: {
-        client: { select: { id: true, name: true, company: true } },
-        project: { select: { id: true, name: true, nameEn: true, number: true } },
-        items: { orderBy: { createdAt: "asc" } },
-      },
-    });
+      ctx.organizationId || "",
+      ctx.userId
+    );
+
+    // If a custom status or number was provided (for migration/testing), we could update it, 
+    // but typically creation defaults to DRAFT.
+    if (status && status !== 'DRAFT') {
+      await db.invoice.update({
+        where: { id: invoice.id },
+        data: { status }
+      });
+      invoice.status = status;
+    }
 
     // Invalidate dashboard and invoice caches after invoice creation
     await cacheDeletePattern(`dashboard:${ctx.organizationId || 'global'}:*`);
     await invalidateCache('invoices');
 
-    log.info("Invoice created", { invoiceId: invoice.id, number: invoice.number, total, createdBy: ctx.userId });
+    log.info("Invoice created", { invoiceId: invoice.id, number: invoice.number, total: invoice.total, createdBy: ctx.userId });
 
     return NextResponse.json(invoice, { status: 201 });
   } catch (error) {

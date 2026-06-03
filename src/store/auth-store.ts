@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { getRolePermissions } from "@/lib/auth/modules/authorization";
 import { Permission } from "@/lib/auth/types";
+import { queryClient } from "@/components/providers/react-query-provider";
 
 interface User {
   id: string;
@@ -66,6 +67,7 @@ export const useAuthStore = create<AuthStore>()(
       } catch {
         // Network error — clear local state anyway
       }
+      queryClient.clear();
       set({
         user: null,
         isAuthenticated: false,

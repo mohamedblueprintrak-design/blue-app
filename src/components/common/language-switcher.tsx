@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { useLocale } from "next-intl";
+import { useLang } from "@/hooks/use-lang";
 import { Globe } from "lucide-react";
 import {
   DropdownMenu,
@@ -13,7 +13,7 @@ import {
 
 export function LanguageSwitcher() {
   const router = useRouter();
-  const locale = useLocale();
+  const locale = useLang();
 
   const switchLanguage = (newLocale: string) => {
     document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=31536000`;

@@ -58,6 +58,7 @@ export interface CreateInvoiceInput {
   subtotal?: number;
   taxRate?: number;
   notes?: string;
+  items?: { description: string; quantity: number; unitPrice: number; total: number }[];
 }
 
 /**
@@ -197,6 +198,21 @@ class InvoiceService {
           paidAmount: 0,
           remaining: total,
           status: 'DRAFT',
+          ...(data.items && data.items.length > 0 ? {
+            items: {
+              create: data.items.map(item => ({
+                description: item.description,
+                quantity: item.quantity,
+                unitPrice: item.unitPrice,
+                total: item.total
+              }))
+            }
+          } : {})
+        },
+        include: {
+          client: { select: { id: true, name: true, company: true } },
+          project: { select: { id: true, name: true, nameEn: true, number: true } },
+          items: { orderBy: { createdAt: "asc" } },
         },
       });
 
@@ -326,23 +342,37 @@ class InvoiceService {
     organizationId: string,
     userId: string
   ): Promise<Invoice> {
-    const invoice = await db.invoice.findFirst({
-      where: { id, organizationId },
+    return await db.$transaction(async (tx) => {
+      // Use atomic increment to prevent race conditions
+      const updated = await tx.invoice.update({
+        where: { id, organizationId },
+        data: {
+          paidAmount: { increment: amount }
+        }
+      });
+
+      const newPaidAmount = Number(updated.paidAmount);
+      const total = Number(updated.total);
+      const status = newPaidAmount >= total ? 'PAID' : 'PARTIALLY_PAID';
+      const remaining = Math.max(0, total - newPaidAmount);
+
+      const finalInvoice = await tx.invoice.update({
+        where: { id, organizationId },
+        data: { status, remaining }
+      });
+
+      await logAudit({
+        userId,
+        organizationId,
+        entityType: 'invoice',
+        entityId: id,
+        action: 'payment',
+        description: `تسجيل دفعة للفاتورة: ${finalInvoice.number} بقيمة ${amount}`,
+        metadata: { projectId: finalInvoice.projectId, amount, newStatus: status },
+      });
+
+      return finalInvoice;
     });
-
-    if (!invoice) {
-      throw new Error('Invoice not found or access denied');
-    }
-
-    const newPaidAmount = Number(invoice.paidAmount) + amount;
-    const status = newPaidAmount >= Number(invoice.total) ? 'PAID' : 'PARTIALLY_PAID';
-
-    return this.updateInvoice(
-      id,
-      { paidAmount: new Prisma.Decimal(newPaidAmount), status: status as Invoice['status'] },
-      organizationId,
-      userId
-    );
   }
 
   /**

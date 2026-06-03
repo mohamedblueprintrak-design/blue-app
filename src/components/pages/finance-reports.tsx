@@ -10,7 +10,15 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
+import dynamic from 'next/dynamic';
+const BarChart = dynamic<any>(() => import('recharts').then((mod: any) => mod.BarChart), { ssr: false });
+const Bar = dynamic<any>(() => import('recharts').then((mod: any) => mod.Bar), { ssr: false });
+const XAxis = dynamic<any>(() => import('recharts').then((mod: any) => mod.XAxis), { ssr: false });
+const YAxis = dynamic<any>(() => import('recharts').then((mod: any) => mod.YAxis), { ssr: false });
+const CartesianGrid = dynamic<any>(() => import('recharts').then((mod: any) => mod.CartesianGrid), { ssr: false });
+const Tooltip = dynamic<any>(() => import('recharts').then((mod: any) => mod.Tooltip), { ssr: false });
+const ResponsiveContainer = dynamic<any>(() => import('recharts').then((mod: any) => mod.ResponsiveContainer), { ssr: false });
+const Legend = dynamic<any>(() => import('recharts').then((mod: any) => mod.Legend), { ssr: false });
 
 import { DollarSign, TrendingUp, TrendingDown, Wallet, ArrowUpRight, ArrowDownRight, Briefcase, FileText, FileSpreadsheet, Loader2, Target, BarChart3, Activity } from 'lucide-react'
 

@@ -74,7 +74,7 @@ export default function QuickActions({ language }: QuickActionsProps) {
   };
 
   return (
-    <div className="fixed bottom-6 z-40" style={{ [isAr ? "left" : "right"]: "24px" }}>
+    <div className="fixed bottom-24 md:bottom-6 z-40" style={{ [isAr ? "left" : "right"]: "24px" }}>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <motion.div whileTap={{ scale: 0.95 }}>

@@ -140,6 +140,20 @@ export async function POST(request: NextRequest) {
         password: hashedPassword,
         ...orgCreate(ctx),
       },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        phone: true,
+        role: true,
+        department: true,
+        position: true,
+        isActive: true,
+        avatar: true,
+        organizationId: true,
+        createdAt: true,
+        updatedAt: true
+      }
     });
 
     // Invalidate dashboard and user caches after user creation
