@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requirePermission, orgFilter } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
-import { getCompanyCurrency } from '@/lib/currency';
+import { getCompanyCurrency } from '@/lib/currency-server';
 
 // ============================================
 // Budget vs Actual Comparison

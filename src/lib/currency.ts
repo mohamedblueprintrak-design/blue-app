@@ -46,38 +46,7 @@ export const DEFAULT_EXCHANGE_RATES: Record<string, number> = {
   OMR: 0.1049,
 };
 
-import { cacheGetOrSet } from './cache/redis';
-import { log } from './logger';
-
-const EXCHANGE_API_URL = 'https://api.exchangerate-api.com/v4/latest/AED';
-
-/**
- * Fetch live exchange rates relative to AED.
- * Uses Redis cache to avoid hitting API rate limits.
- * Falls back to DEFAULT_EXCHANGE_RATES if API fails.
- */
-export async function getLiveExchangeRates(): Promise<Record<string, number>> {
-  return cacheGetOrSet(
-    'live_exchange_rates',
-    async () => {
-      try {
-        const response = await fetch(EXCHANGE_API_URL, { next: { revalidate: 43200 } }); // 12 hours
-        if (!response.ok) throw new Error(`API returned ${response.status}`);
-        
-        const data = await response.json();
-        if (data && data.rates && data.base === 'AED') {
-          log.info('[Currency] Live exchange rates updated from API');
-          return data.rates as Record<string, number>;
-        }
-        throw new Error('Invalid data format from exchange API');
-      } catch (error) {
-        log.error('[Currency] Failed to fetch live exchange rates, using defaults', error);
-        return DEFAULT_EXCHANGE_RATES;
-      }
-    },
-    43200 // Cache for 12 hours
-  );
-}
+// Note: Server-only exchange rate logic moved to currency-server.ts
 
 // ==================== Formatting ====================
 
@@ -215,19 +184,4 @@ export function getCurrencyName(currency: string, language: 'ar' | 'en' = 'en'):
   return language === 'ar' ? info.nameAr : info.name;
 }
 
-import { db } from './db';
-
-/**
- * Get the company's default currency
- */
-export async function getCompanyCurrency(organizationId?: string | null): Promise<string> {
-  try {
-    const settings = await db.companySettings.findFirst({
-      where: organizationId ? { organizationId } : {},
-      select: { currency: true },
-    });
-    return settings?.currency || 'AED';
-  } catch {
-    return 'AED';
-  }
-}
+// Note: Server-only getCompanyCurrency logic moved to currency-server.ts

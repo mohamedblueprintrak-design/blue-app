@@ -7,7 +7,7 @@ import { sanitizeString, escapeSqlLike } from '@/lib/security/sanitize';
 import { hasPermission } from '@/lib/auth/modules/authorization';
 import { Permission } from '@/lib/auth/types';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
-import { getCompanyCurrency } from '@/lib/currency';
+import { getCompanyCurrency } from '@/lib/currency-server';
 
 interface SearchResult {
   type: string;

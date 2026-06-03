@@ -167,7 +167,13 @@ export function orgFilterNested(ctx: AuthContext, parentRelation: string): Recor
 export function orgCheck(ctx: AuthContext, record: { organizationId?: string | null } | null): NextResponse | null {
   if (!record) return null; // Record not found — let the caller handle 404
   if (process.env.MULTI_TENANT !== 'true') return null; // Single-tenant: no org check needed
-  if (!ctx.organizationId) return forbiddenResponse('No organization assigned');
+  
+  // If user has no org, they can only access records that also have no org
+  if (!ctx.organizationId) {
+    if (!record.organizationId) return null;
+    return forbiddenResponse('No organization assigned');
+  }
+  
   if (record.organizationId && record.organizationId !== ctx.organizationId) {
     return forbiddenResponse('Resource does not belong to your organization');
   }

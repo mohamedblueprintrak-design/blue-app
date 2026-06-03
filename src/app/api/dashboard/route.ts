@@ -4,7 +4,7 @@ import { requireVerifiedPermission, orgFilter } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { cacheGetOrSet } from '@/lib/cache/redis';
 import { log } from '@/lib/logger';
-import { getCompanyCurrency } from '@/lib/currency';
+import { getCompanyCurrency } from '@/lib/currency-server';
 
 export async function GET(request: NextRequest) {
   try {

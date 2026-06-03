@@ -1,4 +1,3 @@
-import { log } from '@/lib/logger';
 
 /**
  * Centralized Secret Management
@@ -57,8 +56,9 @@ export function getJwtSecretBytes(): Uint8Array {
 
   // Development/Test: Allow dev secret with strong warning (only once)
   if (!secret || secret.length < 32) {
+// No winston import needed here since this runs in Edge Runtime
     if (!_warnedOnce) {
-      log.warn(
+      console.warn(
         'SECURITY WARNING: JWT_SECRET is not properly configured!' +
         '\n   Using development-only secret. DO NOT use in production!' +
         '\n   Set JWT_SECRET in your .env file (min 32 characters)' +

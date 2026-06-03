@@ -5,7 +5,7 @@ import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
 import { z } from 'zod';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
-import { getCompanyCurrency } from '@/lib/currency';
+import { getCompanyCurrency } from '@/lib/currency-server';
 
 // Zod schema for commission creation
 const commissionCreateSchema = z.object({

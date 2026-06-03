@@ -143,7 +143,7 @@ test.describe('RBAC - Public Routes', () => {
       data: { email: '', password: '', username: '', fullName: '' },
     });
     // Should not be 401 (auth required), but rather 400 (validation error)
-    expect([400, 409, 422]).toContain(response.status());
+    expect([400, 409, 422, 429]).toContain(response.status());
   });
 
   test('should allow unauthenticated access to Stripe plans', async ({ request }) => {

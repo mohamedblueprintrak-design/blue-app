@@ -387,6 +387,7 @@ export const ROLE_PERMISSIONS: Record<string, Permission[]> = {
     Permission.INVOICE_READ,
     Permission.CONTRACT_READ,
     Permission.CONTRACTOR_READ,
+    Permission.DOCUMENT_READ,
     // New read-only permissions for Viewer
     Permission.BID_READ,
     Permission.MEETING_READ,

@@ -6,7 +6,7 @@ import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 import { z } from 'zod';
-import { getCompanyCurrency } from '@/lib/currency';
+import { getCompanyCurrency } from '@/lib/currency-server';
 
 // Zod schema for guarantee letter creation
 const guaranteeLetterCreateSchema = z.object({

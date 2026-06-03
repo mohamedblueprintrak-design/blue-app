@@ -12,7 +12,7 @@ import { requireVerifiedPermission, orgFilter, type AuthContext } from '@/app/ap
 import { Permission } from '@/lib/auth/types';
 import { db } from '@/lib/db';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
-import { getCompanyCurrency } from '@/lib/currency';
+import { getCompanyCurrency } from '@/lib/currency-server';
 import type {
   FinancialReportData,
   ProjectReportData,

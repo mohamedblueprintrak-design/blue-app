@@ -9,7 +9,7 @@ import type { ChatMessage } from '@/lib/ai/providers/types';
 import { log } from '@/lib/logger';
 import { getEngineeringContext, CONSTRUCTION_COSTS_RAK } from '@/lib/ai/engineering-knowledge';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
-import { getCompanyCurrency } from '@/lib/currency';
+import { getCompanyCurrency } from '@/lib/currency-server';
 
 import {
   getZAI,

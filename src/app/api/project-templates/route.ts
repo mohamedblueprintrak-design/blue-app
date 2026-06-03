@@ -3,7 +3,7 @@ import { NextRequest } from 'next/server';
 import { requirePermission, orgFilter } from '@/app/api/utils/auth';
 import { errorResponse, successResponse, createdResponse, handleApiError } from '@/app/api/utils/response';
 import { Permission } from '@/lib/auth/types';
-import { getCompanyCurrency } from '@/lib/currency';
+import { getCompanyCurrency } from '@/lib/currency-server';
 
 /**
  * GET /api/project-templates

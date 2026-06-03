@@ -5,7 +5,7 @@ import { errorResponse, createdResponse, notFoundResponse, handleApiError } from
 import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
 import { cacheDeletePattern } from '@/lib/cache/redis';
-import { getCompanyCurrency } from '@/lib/currency';
+import { getCompanyCurrency } from '@/lib/currency-server';
 
 interface RouteContext {
   params: Promise<{ id: string }>;
