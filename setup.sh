@@ -1,177 +1,199 @@
 #!/bin/bash
-echo "============================================"
-echo "  BluePrint - Engineering Consultancy ERP"
-echo "  Setup Script"
-echo "============================================"
+# MacOS / Linux setup script for BluePrint ERP
+
+export LANG=en_US.UTF-8
+
+GREEN='\033[0;32m'
+CYAN='\033[0;36m'
+YELLOW='\033[1;33m'
+RED='\033[0;31m'
+NC='\033[0m'
+
+echo -e "${CYAN}╔══════════════════════════════════════════════════╗${NC}"
+echo -e "${CYAN}║     🔵 BluePrint - Engineering Consultancy ERP   ║${NC}"
+echo -e "${CYAN}╚══════════════════════════════════════════════════╝${NC}"
 echo ""
 
-# Check Bun
-if ! command -v bun &> /dev/null; then
-    echo "[ERROR] Bun is not installed!"
-    echo "Install Bun: curl -fsSL https://bun.sh/install | bash"
+echo "[Checking prerequisites...]"
+
+if command -v bun >/dev/null 2>&1; then
+    echo -e "${GREEN}[OK] Bun found${NC}"
+else
+    echo -e "${RED}[ERROR] Bun is not installed!${NC}"
     exit 1
 fi
 
-# Ask for database type
-echo "============================================"
-echo "  Database Configuration"
-echo "============================================"
+if command -v git >/dev/null 2>&1; then
+    echo -e "${GREEN}[OK] Git found${NC}"
+else
+    echo -e "${RED}[ERROR] Git is not installed!${NC}"
+    exit 1
+fi
+
+if command -v openssl >/dev/null 2>&1; then
+    echo -e "${GREEN}[OK] OpenSSL found${NC}"
+else
+    echo -e "${YELLOW}[WARN] OpenSSL not found, using Bun crypto${NC}"
+fi
+
 echo ""
-echo "  Choose your database:"
-echo "  [1] PostgreSQL (RECOMMENDED - production-grade)"
-echo "  [2] SQLite (simple local dev - no external DB needed)"
+echo -e "${CYAN}════════════════════════════════════════════════${NC}"
+echo -e "${CYAN}  Step 1: Choose Mode — اختار الوضع${NC}"
+echo -e "${CYAN}════════════════════════════════════════════════${NC}"
 echo ""
-read -p "Enter choice (1 or 2, default=2): " DB_CHOICE
+echo -e "  [1] Demo Mode — وضع العرض التجريبي"
+echo -e "      • Auto-filled login credentials"
+echo -e "      • Sample projects, invoices, tasks"
+echo ""
+echo -e "  [2] Production Mode — وضع الإنتاج"
+echo -e "      • Requires SMTP for email"
+echo -e "      • No demo data"
+echo ""
+read -p "  Enter choice (1 or 2, default=1): " MODE_CHOICE
+MODE_CHOICE=${MODE_CHOICE:-1}
+
+echo ""
+echo -e "${CYAN}════════════════════════════════════════════════${NC}"
+echo -e "${CYAN}  Step 2: Choose Database — اختار قاعدة البيانات${NC}"
+echo -e "${CYAN}════════════════════════════════════════════════${NC}"
+echo ""
+echo -e "  [1] PostgreSQL — للإنتاج"
+echo -e "  [2] SQLite — للتجربة السريعة"
+echo ""
+read -p "  Enter choice (1 or 2, default=2): " DB_CHOICE
 DB_CHOICE=${DB_CHOICE:-2}
 
-# [0/7] Ensure latest code is used
 echo ""
-echo "[0/7] Checking for latest code..."
-if command -v git &> /dev/null; then
-    if [ -d .git ]; then
-        echo "  Pulling latest code from GitHub..."
-        if git pull origin main 2>&1; then
-            echo "  [OK] Latest code pulled"
-        else
-            echo "  [WARN] git pull failed. Continuing with local code..."
-        fi
-    else
-        echo "  Not a git repository (archive download). Converting to git..."
-        git init 2>/dev/null
-        git remote add origin https://github.com/mohamedblueprintrak-design/blue.git 2>/dev/null
-        if git fetch --depth=1 origin main 2>&1; then
-            if git reset --hard origin/main 2>&1; then
-                echo "  [OK] Latest code downloaded from GitHub"
-            else
-                echo "  [WARN] git reset failed. Continuing with archive code..."
-            fi
-        else
-            echo "  [WARN] git fetch failed. Continuing with archive code..."
-        fi
-    fi
+echo "Step 3: Generating Secrets..."
+if command -v openssl >/dev/null 2>&1; then
+    JWT_SECRET=$(openssl rand -hex 32)
+    ENCRYPTION_KEY=$(openssl rand -hex 32)
+    CSRF_SECRET=$(openssl rand -hex 32)
 else
-    echo "  [SKIP] Git not installed. Using current code."
-    echo "  TIP: Install Git for auto-updates."
+    JWT_SECRET=$(bun -e "console.log(require('crypto').randomBytes(32).toString('hex'))")
+    ENCRYPTION_KEY=$(bun -e "console.log(require('crypto').randomBytes(32).toString('hex'))")
+    CSRF_SECRET=$(bun -e "console.log(require('crypto').randomBytes(32).toString('hex'))")
 fi
+echo -e "${GREEN}[OK] Secrets generated${NC}"
 
 echo ""
-echo "[1/7] Creating .env file..."
-if [ ! -f .env ]; then
-    cp .env.example .env 2>/dev/null
-    if [ ! -f .env ]; then
-        echo 'DATABASE_URL="file:./db/custom.db"' > .env
-        echo 'JWT_SECRET=VGVzdEtleUZvckRldmVsb3BtZW50T25seTIzNDU2Nzg5MA==' >> .env
-        echo 'NEXTAUTH_SECRET="blueprint-dev-secret-key-2025-do-not-use-in-production"' >> .env
-        echo 'NEXTAUTH_URL="http://localhost:3000"' >> .env
-        echo 'DEMO_MODE=true' >> .env
-    fi
-    echo "  [OK] .env file created"
-else
-    echo "  [OK] .env file already exists"
+echo "Step 4: Creating .env file..."
+if [ -f .env ]; then
+    cp .env .env.backup
+    echo -e "${GREEN}[OK] Old .env backed up to .env.backup${NC}"
 fi
 
-# Configure database based on choice
+if [ "$MODE_CHOICE" = "1" ]; then
+    DEMO_MODE="true"
+    NODE_ENV="development"
+else
+    DEMO_MODE="false"
+    NODE_ENV="production"
+fi
+
 if [ "$DB_CHOICE" = "1" ]; then
-    echo ""
-    echo "  Configuring for PostgreSQL..."
-    echo "  Make sure PostgreSQL is running and accessible."
-    echo "  The default URL is: postgresql://blueprint:blueprint_dev@localhost:5432/blueprint?schema=public"
-    echo "  Edit .env to change the DATABASE_URL if needed."
-    echo ""
-    echo "  IMPORTANT: The Prisma schema uses provider = \"postgresql\" by default."
-    echo "  If you previously used SQLite, the schema is already configured for PostgreSQL."
+    DATABASE_URL="\"postgresql://blueprint:blueprint_dev@localhost:5432/blueprint?schema=public\""
 else
-    echo ""
-    echo "  Configuring for SQLite (simple local development)..."
-    echo "  You need to switch the Prisma schema to SQLite provider."
-    echo "  In prisma/schema.prisma:"
-    echo "    1. Change provider = \"postgresql\" to provider = \"sqlite\""
-    echo "    2. Remove all @db.Text and @db.VarChar() annotations"
-    echo "  Then set DATABASE_URL in .env to: \"file:./db/custom.db\""
-    echo ""
-    echo "  Or use Docker: docker-compose up -d postgres"
+    DATABASE_URL="\"file:./db/custom.db\""
+fi
+
+cat > .env << EOL
+DATABASE_URL=$DATABASE_URL
+JWT_SECRET="$JWT_SECRET"
+NEXTAUTH_SECRET="$JWT_SECRET"
+CSRF_SECRET="$CSRF_SECRET"
+ENCRYPTION_KEY="$ENCRYPTION_KEY"
+DEMO_MODE=$DEMO_MODE
+NODE_ENV=$NODE_ENV
+NEXTAUTH_URL="http://localhost:3000"
+SMTP_HOST=""
+SMTP_PORT="587"
+SMTP_USER=""
+SMTP_PASS=""
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=""
+STRIPE_SECRET_KEY=""
+STRIPE_WEBHOOK_SECRET=""
+EOL
+echo -e "${GREEN}[OK] .env configured${NC}"
+
+echo ""
+echo "Step 5: Configuring Prisma schema..."
+if [ "$DB_CHOICE" = "1" ]; then
+    if [ -f prisma/schema.postgresql.prisma ]; then
+        cp prisma/schema.postgresql.prisma prisma/schema.prisma
+        echo -e "${GREEN}[OK] PostgreSQL schema set${NC}"
+    fi
+else
+    if [ -f prisma/schema.sqlite.prisma ]; then
+        cp prisma/schema.sqlite.prisma prisma/schema.prisma
+        echo -e "${GREEN}[OK] SQLite schema set${NC}"
+    fi
 fi
 
 echo ""
-echo "[2/7] Installing dependencies..."
+echo "Step 6: Cleaning old files..."
+rm -rf .next
+if [ "$DB_CHOICE" = "2" ]; then
+    rm -f db/custom.db
+fi
+echo -e "${GREEN}[OK] Cleaned${NC}"
+
+echo ""
+echo "Step 7: Installing dependencies (bun install)..."
 bun install
-echo "  [OK] Dependencies installed"
+echo -e "${GREEN}[OK] Dependencies installed${NC}"
 
 echo ""
-echo "[3/7] Cleaning build cache..."
-if [ -d .next ]; then
-    rm -rf .next
-    echo "  [OK] Build cache cleared"
+echo "Step 8: Creating Database Tables..."
+bunx prisma db push
+echo -e "${GREEN}[OK] Database schema pushed${NC}"
+
+echo ""
+echo "Step 9: Seeding data..."
+if [ "$MODE_CHOICE" = "1" ]; then
+    bunx tsx prisma/seed.ts
+    echo -e "${GREEN}[OK] Demo data seeded${NC}"
 else
-    echo "  [OK] No build cache to clear"
-fi
-# Remove deprecated middleware/proxy files (causes [[...slug]] route conflict in Next.js 16)
-if [ -f src/middleware.ts ]; then
-    rm src/middleware.ts
-    echo "  [OK] Removed deprecated middleware.ts"
-fi
-if [ -f src/proxy.ts ]; then
-    rm src/proxy.ts
-    echo "  [OK] Removed deprecated proxy.ts"
+    echo -e "${GREEN}[OK] Skipped demo data for Production Mode${NC}"
 fi
 
 echo ""
-echo "[4/7] Setting up database..."
-if [ "$DB_CHOICE" = "1" ]; then
-    echo "  Running Prisma migrations for PostgreSQL..."
-    bunx prisma migrate deploy 2>/dev/null || {
-        echo "  [WARN] migrate deploy failed. Trying migrate dev..."
-        bunx prisma migrate dev --name init
-    }
-else
-    if [ -f db/custom.db ]; then
-        rm db/custom.db
-        echo "  [OK] Old database removed"
-    fi
-    bunx prisma db push
-fi
-echo "  [OK] Database tables created"
-
-echo ""
-echo "[5/7] Seeding demo data..."
-bunx tsx prisma/seed.ts
-echo "  [OK] Demo data seeded"
-
-echo ""
-echo "[6/7] Generating Prisma client..."
+echo "Step 10: Generating Prisma Client..."
 bunx prisma generate
-echo "  [OK] Prisma client generated"
+echo -e "${GREEN}[OK] Prisma Client ready${NC}"
 
 echo ""
-echo "[7/7] Starting dev server..."
+echo -e "${CYAN}╔══════════════════════════════════════════════════╗${NC}"
+echo -e "${CYAN}║          ✅ Setup Complete! — تم الإعداد!         ║${NC}"
+echo -e "${CYAN}╚══════════════════════════════════════════════════╝${NC}"
 echo ""
-echo "============================================"
-echo "  Setup Complete!"
-echo "============================================"
-echo ""
-echo "  Login: admin@blueprint.ae / Admin@BP2024!"
-echo "  URL:   http://localhost:3000"
-echo ""
-if [ "$DB_CHOICE" = "1" ]; then
-    echo "  Database: PostgreSQL"
+echo "┌──────────────────────────────────────────────┐"
+if [ "$MODE_CHOICE" = "1" ]; then
+    echo "│  Mode:     DEMO — عرض تجريبي                 │"
 else
-    echo "  Database: SQLite"
+    echo "│  Mode:     PRODUCTION — وضع الإنتاج          │"
 fi
-echo "  For PostgreSQL setup guide, see MIGRATION.md"
-echo ""
-echo "  Starting dev server..."
-echo "  Press Ctrl+C to stop"
-echo "============================================"
+echo "│  URL:      http://localhost:3000              │"
+if [ "$MODE_CHOICE" = "1" ]; then
+    echo "│  Email:    admin@blueprint.ae                 │"
+    echo "│  Password: Admin@BP2024!                     │"
+fi
+if [ "$DB_CHOICE" = "1" ]; then
+    echo "│  Database: PostgreSQL                         │"
+else
+    echo "│  Database: SQLite                             │"
+fi
+echo "└──────────────────────────────────────────────┘"
 echo ""
 
-# Kill any process using port 3000
-echo "Checking port 3000..."
-PORT_PID=$(lsof -ti:3000 2>/dev/null || true)
-if [ -n "$PORT_PID" ]; then
-    echo "  [WARN] Port 3000 is in use by PID $PORT_PID - killing process..."
-    kill -9 $PORT_PID 2>/dev/null || true
-    sleep 2
+if [ "$MODE_CHOICE" = "2" ]; then
+    echo -e "${YELLOW}⚠️ NOTE FOR PRODUCTION:${NC}"
+    echo "Please edit .env to configure your SMTP and Stripe keys before going live."
+    echo ""
 fi
-echo "  [OK] Port 3000 is free"
 
-bun run dev
+read -p "  Start dev server now? (y/n, default=y): " START_DEV
+START_DEV=${START_DEV:-y}
+if [[ "$START_DEV" =~ ^[Yy]$ ]]; then
+    bun run dev
+fi
