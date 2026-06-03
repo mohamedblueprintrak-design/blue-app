@@ -1,5 +1,8 @@
 "use client";
 
+import { useState } from "react";
+import SignDocumentDialog from "@/components/common/sign-document-dialog";
+
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -19,6 +22,7 @@ import { getStatusConfig, getTypeLabel, getAmendmentStatus } from "./helpers";
 
 export function ContractDetailPanel({ contract, ar, onClose, onEdit }: { contract: ContractDetail; ar: boolean; onClose: () => void; onEdit: () => void }) {
   const statusCfg = getStatusConfig(contract.status);
+  const [signDialogOpen, setSignDialogOpen] = useState(false);
 
   return (
     <div className="w-full lg:w-[420px] flex-shrink-0 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900 overflow-hidden shadow-sm">
@@ -180,6 +184,13 @@ export function ContractDetailPanel({ contract, ar, onClose, onEdit }: { contrac
                   {getTypeLabel(contract.type, ar)}
                 </Badge>
               </div>
+
+              <div className="flex flex-col gap-2 w-full mt-4 pt-2 border-t border-slate-100 dark:border-slate-800">
+                <Button variant="outline" className="w-full justify-start text-[#133371] border-[#133371]/20 hover:bg-[#133371]/5 dark:text-blue-400 dark:border-blue-900/50 dark:hover:bg-blue-900/20" onClick={() => setSignDialogOpen(true)}>
+                  <Pencil className="h-4 w-4 me-2" />
+                  {ar ? "توقيع العقد إلكترونياً" : "E-Sign Contract"}
+                </Button>
+              </div>
             </div>
           </div>
 
@@ -265,6 +276,14 @@ export function ContractDetailPanel({ contract, ar, onClose, onEdit }: { contrac
           </div>
         </div>
       </ScrollArea>
+
+      <SignDocumentDialog
+        open={signDialogOpen}
+        onOpenChange={setSignDialogOpen}
+        documentId={contract.id}
+        documentName={contract.title}
+        language={ar ? "ar" : "en"}
+      />
     </div>
   );
 }
