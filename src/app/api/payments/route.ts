@@ -8,6 +8,7 @@ import { parsePaginationParams, buildPaginationMeta, calculateSkip } from '../ut
 import { insensitiveContains } from '../utils/db';
 import { sanitizeObject } from '@/lib/security/sanitize';
 import { cachedQuery, invalidateCache, CACHE_TTL, buildCacheKey } from '@/lib/cache/query-cache';
+import { cacheGet, cacheSet } from '@/lib/cache/redis';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 
 export async function GET(request: NextRequest) {
@@ -88,6 +89,14 @@ export async function POST(request: NextRequest) {
 
     // Idempotency / Double-charge prevention
     const idempotencyKey = request.headers.get('idempotency-key');
+    if (idempotencyKey) {
+      const redisKey = `idempotency:payment:${ctx.userId}:${idempotencyKey}`;
+      const cachedResult = await cacheGet(redisKey);
+      if (cachedResult) {
+        log.info("Idempotency key hit. Returning cached payment response.", { userId: ctx.userId, idempotencyKey });
+        return NextResponse.json(cachedResult, { status: 200 });
+      }
+    }
     
     // Check for exact duplicate payment within the last 2 minutes (prevents double-clicks)
     const recentDuplicate = await db.payment.findFirst({
@@ -101,7 +110,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (recentDuplicate) {
-      log.warn("Prevented double-charge (idempotency)", { userId: ctx.userId, amount, projectId });
+      log.warn("Prevented double-charge (time-based)", { userId: ctx.userId, amount, projectId });
       return NextResponse.json(recentDuplicate, { status: 200 });
     }
 
@@ -125,6 +134,12 @@ export async function POST(request: NextRequest) {
 
     // Invalidate payment caches after creation
     await invalidateCache('payments');
+
+    if (idempotencyKey) {
+      const redisKey = `idempotency:payment:${ctx.userId}:${idempotencyKey}`;
+      // Cache the result for 24 hours (86400 seconds)
+      await cacheSet(redisKey, payment, 86400);
+    }
 
     return NextResponse.json(payment, { status: 201 });
   } catch (error) {

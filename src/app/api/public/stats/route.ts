@@ -48,18 +48,13 @@ export async function GET() {
         });
         const engineeringDisciplines = disciplineResult.length || 6; // fallback to 6 if no data
 
-        // Fetch company settings (we'll just get the first one for the public landing page)
-        const companySettings = await db.companySettings.findFirst({
-          select: { phone: true, email: true, address: true, workingHours: true }
-        });
-
         return {
           completedProjects,
           satisfiedClients: totalClients,
           engineeringDisciplines,
           ongoingProjects,
           source: 'database',
-          company: companySettings || {
+          company: {
             phone: "+971 50 161 1234",
             email: "info@blueprint-rak.com",
             address: "رأس الخيمة، الإمارات العربية المتحدة",

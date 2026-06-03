@@ -14,9 +14,16 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { token } = body as { token?: string };
 
-    // Graceful degradation: if secret key is not configured, always succeed
+    // Fail-closed in production if secret key is not configured
     if (!TURNSTILE_SECRET_KEY) {
-      return NextResponse.json({ success: true });
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('Turnstile bypassed in development due to missing TURNSTILE_SECRET_KEY');
+        return NextResponse.json({ success: true });
+      }
+      return NextResponse.json(
+        { success: false, error: "Turnstile is not configured correctly." },
+        { status: 500 }
+      );
     }
 
     // If no token was provided, fail

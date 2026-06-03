@@ -40,20 +40,13 @@ function withCorsHeaders(response: NextResponse, request?: Request): NextRespons
     } else if (process.env.NEXT_PUBLIC_APP_URL) {
       response.headers.set('Access-Control-Allow-Origin', process.env.NEXT_PUBLIC_APP_URL);
     } else {
-      // SECURITY: Use the request's own origin as fallback instead of
-      // hardcoding localhost:3000. This prevents CORS misconfiguration
-      // when the app runs on a non-standard port or host.
-      const requestOrigin = request.headers.get('origin');
-      if (requestOrigin) {
-        response.headers.set('Access-Control-Allow-Origin', requestOrigin);
-      } else if (process.env.NODE_ENV === 'development') {
-        // Only use localhost in development if explicitly configured via CORS_DEV_ORIGIN
+      // SECURITY: Removed the CORS reflector that echoed back any origin.
+      // If the origin doesn't match CORS_ORIGINS or NEXT_PUBLIC_APP_URL, we do NOT
+      // set Access-Control-Allow-Origin, forcing the browser to block cross-origin requests.
+      if (process.env.NODE_ENV === 'development') {
         const devOrigin = process.env.CORS_DEV_ORIGIN || 'http://localhost:3000';
         response.headers.set('Access-Control-Allow-Origin', devOrigin);
       }
-      // In production with no matching origin and no NEXT_PUBLIC_APP_URL,
-      // leave Access-Control-Allow-Origin unset — the browser will block
-      // cross-origin requests, which is the secure default.
     }
   } else {
     // Fallback for non-proxied deployments without a request reference

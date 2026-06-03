@@ -3,6 +3,7 @@ import { db } from '@/lib/db';
 import { log } from '@/lib/logger';
 import { logAudit } from '@/lib/services/audit.service';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
+import { requireVerifiedAuth } from '@/app/api/utils/auth';
 
 /**
  * GET /api/profile/export-data
@@ -22,13 +23,9 @@ import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 export async function GET(request: NextRequest) {
   try {
     // ── Authentication ──────────────────────────────────────────────
-    const userId = request.headers.get('x-user-id');
-    if (!userId) {
-      return NextResponse.json(
-        { error: 'يرجى تسجيل الدخول' },
-        { status: 401 }
-      );
-    }
+    const authResult = await requireVerifiedAuth(request);
+    if ('error' in authResult) return authResult.error;
+    const userId = authResult.user.userId;
 
     // ── Rate Limiting: 1 export per hour ────────────────────────────
     const { result: rateLimitResult } = await withRateLimit(request, 'export');
