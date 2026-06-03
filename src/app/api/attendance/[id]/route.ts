@@ -81,10 +81,6 @@ export async function PUT(
       return NextResponse.json({ error: "Attendance record not found" }, { status: 404 });
     }
 
-    const body = await request.json();
-    const sanitizedBody = sanitizeObject(body);
-
-    // Zod validation for attendance update fields
     const attendanceUpdateSchema = z.object({
       checkIn: z.string().max(50).optional(),
       checkOut: z.string().max(50).optional(),
@@ -92,11 +88,14 @@ export async function PUT(
       workHours: z.coerce.number().min(0).max(24).optional(),
       overtimeHours: z.coerce.number().min(0).max(24).optional(),
     });
-    const validation = attendanceUpdateSchema.safeParse(sanitizedBody);
+
+    const body = await request.json();
+    const validation = attendanceUpdateSchema.safeParse(body);
     if (!validation.success) {
       return NextResponse.json({ error: validation.error.issues[0].message }, { status: 400 });
     }
-    const validatedData = validation.data;
+    const sanitizedBody = sanitizeObject(validation.data);
+    const validatedData = sanitizedBody;
 
     const attendance = await db.attendance.update({
       where: { id },

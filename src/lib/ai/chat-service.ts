@@ -419,7 +419,7 @@ export async function fetchContextData(topics: string[], userRole: string, userI
           where: { status: 'PENDING', ...orgWhere },
           take: 5,
           include: {
-            employee: { select: { name: true } },
+            user: { select: { name: true } },
           },
         }),
       ]);
@@ -428,7 +428,7 @@ export async function fetchContextData(topics: string[], userRole: string, userI
         totalEmployees: employees.length,
         activeEmployees: employees.filter(e => e.user?.isActive).length,
         pendingLeaves: pendingLeaves.map(l => ({
-          employeeName: l.employee.name,
+          employeeName: l.user.name,
           type: l.type,
           startDate: l.startDate.toISOString(),
           endDate: l.endDate.toISOString(),

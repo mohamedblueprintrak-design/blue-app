@@ -652,11 +652,11 @@ async function main() {
   // ========== 11. BOQ Items (5 from src/lib/seed.ts) ==========
   await db.bOQItem.createMany({
     data: [
-      { projectId: project1.id, code: 'CIV-001', description: 'حفر أساسات', unit: 'م³', quantity: 250, unitPrice: 45, total: 11250, totalPrice: 11250, category: 'CIVIL' },
-      { projectId: project1.id, code: 'CIV-002', description: 'صب خرسانة للأساسات', unit: 'م³', quantity: 180, unitPrice: 280, total: 50400, totalPrice: 50400, category: 'CIVIL' },
-      { projectId: project1.id, code: 'STL-001', description: 'حديد تسليح #12-32', unit: 'طن', quantity: 35, unitPrice: 3500, total: 122500, totalPrice: 122500, category: 'STRUCTURAL' },
-      { projectId: project1.id, code: 'FIN-001', description: 'بلاط أرضيات رخام', unit: 'م²', quantity: 450, unitPrice: 180, total: 81000, totalPrice: 81000, category: 'FINISHING' },
-      { projectId: project1.id, code: 'ELC-001', description: 'لوحة توزيع رئيسية', unit: 'لوحة', quantity: 1, unitPrice: 8500, total: 8500, totalPrice: 8500, category: 'ELECTRICAL' },
+      { projectId: project1.id, code: 'CIV-001', description: 'حفر أساسات', unit: 'م³', quantity: 250, unitPrice: 45, total: 11250, category: 'CIVIL' },
+      { projectId: project1.id, code: 'CIV-002', description: 'صب خرسانة للأساسات', unit: 'م³', quantity: 180, unitPrice: 280, total: 50400, category: 'CIVIL' },
+      { projectId: project1.id, code: 'STL-001', description: 'حديد تسليح #12-32', unit: 'طن', quantity: 35, unitPrice: 3500, total: 122500, category: 'STRUCTURAL' },
+      { projectId: project1.id, code: 'FIN-001', description: 'بلاط أرضيات رخام', unit: 'م²', quantity: 450, unitPrice: 180, total: 81000, category: 'FINISHING' },
+      { projectId: project1.id, code: 'ELC-001', description: 'لوحة توزيع رئيسية', unit: 'لوحة', quantity: 1, unitPrice: 8500, total: 8500, category: 'ELECTRICAL' },
     ],
   });
   console.info('✅ 5 BOQ items created');

@@ -1,0 +1,61 @@
+export function getStatusConfig(status: string) {
+  const configs: Record<string, { ar: string; en: string; color: string }> = {
+    ACTIVE: { ar: "نشط", en: "Active", color: "bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300" },
+    ON_LEAVE: { ar: "إجازة", en: "On Leave", color: "bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300" },
+    TERMINATED: { ar: "منتهي", en: "Terminated", color: "bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300" },
+  };
+  return configs[status] || configs.ACTIVE;
+}
+
+export function getInitials(name: string) {
+  return name
+    .split(" ")
+    .map((n) => n.charAt(0))
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+}
+
+const avatarColors = [
+  "bg-teal-100 dark:bg-teal-900 text-teal-700 dark:text-teal-300",
+  "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300",
+  "bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300",
+  "bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300",
+  "bg-cyan-100 dark:bg-cyan-900 text-cyan-700 dark:text-cyan-300",
+  "bg-rose-100 dark:bg-rose-900 text-rose-700 dark:text-rose-300",
+  "bg-violet-100 dark:bg-violet-900 text-violet-700 dark:text-violet-300",
+  "bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300",
+];
+
+export function getAvatarColor(name: string) {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return avatarColors[Math.abs(hash) % avatarColors.length];
+}
+
+export const departmentColors: Record<string, string> = {
+  "الهندسة المعمارية": "bg-violet-500",
+  "الهندسة الإنشائية": "bg-blue-500",
+  "الهندسة الكهربائية": "bg-amber-500",
+  "الهندسة الميكانيكية": "bg-teal-500",
+  "الإدارة": "bg-slate-500",
+  "المالية": "bg-green-500",
+  "الموارد البشرية": "bg-rose-500",
+  "Architecture": "bg-violet-500",
+  "Structural": "bg-blue-500",
+  "Electrical": "bg-amber-500",
+  "Mechanical": "bg-teal-500",
+  "Management": "bg-slate-500",
+  "Finance": "bg-green-500",
+  "HR": "bg-rose-500",
+};
+
+export const skillTags: Record<string, { color: string }> = {
+  "AutoCAD": { color: "bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300" },
+  "Revit": { color: "bg-violet-100 text-violet-700 dark:bg-violet-900/50 dark:text-violet-300" },
+  "Primavera": { color: "bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300" },
+  "Excel": { color: "bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300" },
+  "Project Management": { color: "bg-teal-100 text-teal-700 dark:bg-teal-900/50 dark:text-teal-300" },
+};

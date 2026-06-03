@@ -115,13 +115,15 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    const { projectId, title, severity, location, assigneeId, photos, notes, status } = validation.data;
+    const validatedData = sanitizeObject(validation.data);
+
+    const { projectId, title, description, severity, status, assigneeId, location, photos, notes } = validatedData;
 
     const defect = await db.defect.create({
       data: {
         projectId,
-        title: title || "",
-        severity: (severity || "NORMAL"),
+        title,
+        severity: severity as any,
         location: location || "",
         assigneeId: assigneeId || null,
         photos: photos || "",

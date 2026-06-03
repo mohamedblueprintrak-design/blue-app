@@ -136,8 +136,8 @@ export async function POST(request: NextRequest) {
           const roleInfo = roleNames[user.role] || { ar: user.role, en: user.role };
           userInfo = `Current user: ${user.name} (${user.email}), Role: ${roleInfo.ar} / ${roleInfo.en}, Department: ${user.department || 'N/A'}, Position: ${user.position || 'N/A'}`;
         }
-      } catch {
-        // Continue without user info
+      } catch (userErr) {
+        log.error('[AI Chat] Error fetching user info:', userErr);
       }
     }
 
@@ -280,7 +280,7 @@ ${contextSection}`;
                       title: (conversation as Record<string, unknown> & { title?: string })?.title || message.substring(0, 50),
                     },
                   });
-                } catch { /* non-fatal */ }
+                } catch (dbErr) { log.error('[AI Chat] Non-fatal DB error saving ZAI msg:', dbErr); }
                 controller.enqueue(sseEvent({ type: 'done', message: { content: fullText, conversationId, provider: usedProvider, model: usedModel } }));
                 controller.close();
               } catch (err) {
@@ -326,7 +326,7 @@ ${contextSection}`;
                       title: (conversation as Record<string, unknown> & { title?: string })?.title || message.substring(0, 50),
                     },
                   });
-                } catch { /* non-fatal */ }
+                } catch (dbErr) { log.error('[AI Chat] Non-fatal DB error saving ZAI direct msg:', dbErr); }
                 controller.enqueue(sseEvent({ type: 'done', message: { content: fullText, conversationId, provider: usedProvider, model: usedModel } }));
                 controller.close();
               } catch (err) {
@@ -387,7 +387,7 @@ ${contextSection}`;
                     title: (conversation as Record<string, unknown> & { title?: string })?.title || message.substring(0, 50),
                   },
                 });
-              } catch { /* non-fatal */ }
+              } catch (dbErr) { log.error('[AI Chat] Non-fatal DB error saving demo msg:', dbErr); }
               controller.enqueue(sseEvent({ type: 'done', message: { content: demoText, conversationId, provider: usedProvider, model: usedModel } }));
               controller.close();
             } catch (err) {

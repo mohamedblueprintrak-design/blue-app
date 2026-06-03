@@ -1449,7 +1449,6 @@ model BOQItem {
   unit           String   @default("")
   quantity       Decimal  @default(0)
   unitPrice      Decimal  @default(0)
-  totalPrice     Decimal  @default(0)
   total          Decimal  @default(0)
   category       String   @default("civil") // civil, structural, electrical, finishing
   organizationId String? // SaaS multi-tenant organization
@@ -1559,7 +1558,7 @@ model Leave {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  employee     User          @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  user         User          @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   approver     User?         @relation("LeaveApprover", fields: [approvedById], references: [id], onDelete: SetNull)
   organization Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
   deletedAt    DateTime? // Soft delete

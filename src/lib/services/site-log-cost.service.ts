@@ -224,7 +224,7 @@ export async function getBOQVariance(
       0
     );
 
-    const budget = Number(boqItem.totalPrice) || (Number(boqItem.quantity) * Number(boqItem.unitPrice));
+    const budget = Number(boqItem.total) || (Number(boqItem.quantity) * Number(boqItem.unitPrice));
     const variance = Number(budget) - Number(actualCost);
     const variancePercent = Number(budget) !== 0 ? (Number(variance) / Number(budget)) * 100 : 0;
     
@@ -396,7 +396,7 @@ export async function getProjectCostSummary(projectId: string): Promise<{
   });
 
   const totalBudget = boqItems.reduce(
-    (sum, item) => sum + Number(item.totalPrice || (Number(item.quantity) * Number(item.unitPrice))),
+    (sum, item) => sum + Number(item.total || (Number(item.quantity) * Number(item.unitPrice))),
     0
   );
 
@@ -426,7 +426,7 @@ export async function getProjectCostSummary(projectId: string): Promise<{
     if (!byCategory[cat]) {
       byCategory[cat] = { budget: 0, actual: 0, variance: 0 };
     }
-    byCategory[cat].budget += Number(boqItem.totalPrice) || (Number(boqItem.quantity) * Number(boqItem.unitPrice));
+    byCategory[cat].budget += Number(boqItem.total) || (Number(boqItem.quantity) * Number(boqItem.unitPrice));
   }
 
   // Calculate actual cost by category

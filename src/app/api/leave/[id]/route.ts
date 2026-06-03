@@ -24,9 +24,9 @@ export async function GET(
     const id = idResult.id;
 
     const leave = await db.leave.findFirst({
-      where: { id, deletedAt: null, employee: { ...orgFilter(ctx) } },
+      where: { id, deletedAt: null, user: { ...orgFilter(ctx) } },
       include: {
-        employee: {
+        user: {
           select: {
             id: true,
             name: true,
@@ -79,7 +79,7 @@ export async function PUT(
 
     // Verify leave record belongs to user's org
     const existingLeave = await db.leave.findFirst({
-      where: { id, employee: { ...orgFilter(ctx) } },
+      where: { id, user: { ...orgFilter(ctx) } },
     });
     if (!existingLeave) {
       return NextResponse.json({ error: "Leave request not found" }, { status: 404 });
@@ -109,7 +109,7 @@ export async function PUT(
         ...(validatedData.status === 'APPROVED' && { approvedById: ctx.userId }),
       },
       include: {
-        employee: {
+        user: {
           select: {
             id: true,
             name: true,
@@ -158,7 +158,7 @@ export async function DELETE(
 
     // Verify leave record belongs to user's org
     const existingLeave = await db.leave.findFirst({
-      where: { id, employee: { ...orgFilter(ctx) } },
+      where: { id, user: { ...orgFilter(ctx) } },
     });
     if (!existingLeave) {
       return NextResponse.json({ error: "Leave request not found" }, { status: 404 });

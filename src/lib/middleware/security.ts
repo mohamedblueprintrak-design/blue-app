@@ -62,14 +62,16 @@ export function addSecurityHeaders(
 }
 
 export async function timingSafeCompare(a: string, b: string): Promise<boolean> {
-  if (a.length !== b.length) return false;
   const encoder = new TextEncoder();
-  const aKey = await crypto.subtle.importKey('raw', encoder.encode(a), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
-  const bKey = await crypto.subtle.importKey('raw', encoder.encode(b), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
-  const aSig = await crypto.subtle.sign('HMAC', aKey, new Uint8Array(0));
-  const bSig = await crypto.subtle.sign('HMAC', bKey, new Uint8Array(0));
-  const aArr = new Uint8Array(aSig);
-  const bArr = new Uint8Array(bSig);
+  const aBuffer = encoder.encode(a);
+  const bBuffer = encoder.encode(b);
+  
+  const aHash = await crypto.subtle.digest('SHA-256', aBuffer);
+  const bHash = await crypto.subtle.digest('SHA-256', bBuffer);
+  
+  const aArr = new Uint8Array(aHash);
+  const bArr = new Uint8Array(bHash);
+  
   let result = 0;
   for (let i = 0; i < aArr.length; i++) {
     result |= aArr[i] ^ bArr[i];

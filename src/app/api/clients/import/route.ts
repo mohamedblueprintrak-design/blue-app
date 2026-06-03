@@ -156,10 +156,8 @@ export async function POST(request: NextRequest) {
       };
 
       // Perform sanitation
-      const sanitized = sanitizeObject(mappedRow);
+      const validation = clientSchema.safeParse(mappedRow);
       
-      // Validate with schema
-      const validation = clientSchema.safeParse(sanitized);
       if (!validation.success) {
         errors.push({
           row: i + 2, // 1-based index including header
@@ -168,7 +166,7 @@ export async function POST(request: NextRequest) {
         continue;
       }
 
-      const valid = validation.data;
+      const valid = sanitizeObject(validation.data);
       const sanitizedEmail = valid.email ? sanitizeEmail(valid.email) : "";
 
       try {

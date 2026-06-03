@@ -110,14 +110,13 @@ export async function POST(request: NextRequest) {
     const _ctx = result.user;
 
     const rawBody = await request.json();
-    const body = sanitizeObject(rawBody);
+    const validation = attendanceCreateSchema.safeParse(rawBody);
 
-    // Zod validation for attendance fields
-    const validation = attendanceCreateSchema.safeParse(body);
     if (!validation.success) {
       return NextResponse.json({ error: validation.error.issues[0].message }, { status: 400 });
     }
-    const { employeeId, date, checkIn, checkOut, status, workHours, overtimeHours } = validation.data;
+    const body = sanitizeObject(validation.data);
+    const { employeeId, date, checkIn, checkOut, status, workHours, overtimeHours } = body;
 
     // Check for existing record
     const existing = await db.attendance.findFirst({

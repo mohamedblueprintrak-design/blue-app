@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
     }));
 
     // Attendance org filter — Attendance is scoped through employee → user
-    const attendanceOrgWhere = { employee: { user: { ...orgFilter(ctx) } } };
+    const attendanceOrgWhere = { user: { user: { ...orgFilter(ctx) } } };
 
     // Today's attendance stats
     const today = new Date();
@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
         ...orgWhere,
       },
       include: {
-        employee: { select: { id: true, name: true, department: true, position: true } },
+        user: { select: { id: true, name: true, department: true, position: true } },
         approver: { select: { name: true } },
       },
     });

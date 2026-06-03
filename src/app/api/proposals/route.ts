@@ -91,7 +91,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: validation.error, errors: validation.errors }, { status: 400 });
     }
 
-    const { number, clientId, projectId, status, items, notes } = body;
+    const { number, clientId, projectId, status } = validation.data;
+    const items = (body as any).items;
+    const notes = (body as any).notes;
 
     const lineItems = items || [];
     const subtotal = lineItems.reduce((sum: number, item: { quantity: number; unitPrice: number }) => sum + (item.quantity * item.unitPrice), 0);

@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
 
     const where: Record<string, unknown> = {
       deletedAt: null,
-      employee: { ...orgFilter(ctx) },
+      user: { ...orgFilter(ctx) },
     };
 
     if (employeeId && employeeId !== "all") {
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
     const leaves = await db.leave.findMany({
       where,
       include: {
-        employee: {
+        user: {
           select: {
             id: true,
             name: true,
@@ -62,12 +62,12 @@ export async function GET(request: NextRequest) {
     today.setHours(0, 0, 0, 0);
 
     const [pendingCount, approvedThisMonth, onLeaveToday] = await Promise.all([
-      db.leave.count({ where: { status: "PENDING", employee: { ...orgFilter(ctx) } } }),
+      db.leave.count({ where: { status: "PENDING", user: { ...orgFilter(ctx) } } }),
       db.leave.count({
         where: {
           status: "APPROVED",
           startDate: { gte: startOfMonth },
-          employee: { ...orgFilter(ctx) },
+          user: { ...orgFilter(ctx) },
         },
       }),
       db.leave.count({
@@ -75,7 +75,7 @@ export async function GET(request: NextRequest) {
           status: "APPROVED",
           startDate: { lte: today },
           endDate: { gte: today },
-          employee: { ...orgFilter(ctx) },
+          user: { ...orgFilter(ctx) },
         },
       }),
     ]);
@@ -106,14 +106,14 @@ export async function POST(request: NextRequest) {
     const ctx = rbac.user;
 
     const body = await request.json();
-    const sanitizedBody = sanitizeObject(body);
-
-    const validation = validateRequest(leaveCreateSchema, sanitizedBody);
+    const validation = validateRequest(leaveCreateSchema, body);
     if (!validation.success) {
       return NextResponse.json({ error: validation.error, errors: validation.errors }, { status: 400 });
     }
+    const sanitizedBody = sanitizeObject(validation.data);
 
-    const { employeeId, type, startDate, endDate, days, reason } = sanitizedBody;
+    const { employeeId, type, startDate, endDate, reason } = sanitizedBody;
+    const days = Math.ceil((new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 3600 * 24)) || 1;
 
     const leave = await db.leave.create({
       data: {
@@ -122,12 +122,12 @@ export async function POST(request: NextRequest) {
         type: type || "ANNUAL",
         startDate: new Date(startDate),
         endDate: new Date(endDate),
-        days: parseInt(days) || 1,
+        days: days || 1,
         reason: reason || "",
         status: "PENDING",
       },
       include: {
-        employee: {
+        user: {
           select: {
             id: true,
             name: true,
