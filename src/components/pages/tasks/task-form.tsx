@@ -89,6 +89,7 @@ export function TaskForm({
         } catch (e) {}
       }
       
+      // eslint-disable-next-line
       const subscription = watch((value) => {
         const timeout = setTimeout(() => {
           localStorage.setItem("draft_task_form", JSON.stringify(value));

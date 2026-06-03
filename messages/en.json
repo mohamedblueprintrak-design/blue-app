@@ -1,25 +1,105 @@
 {
-  "Common": {
+  "common": {
     "save": "Save",
     "cancel": "Cancel",
-    "edit": "Edit",
     "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "add": "Add",
     "search": "Search...",
     "loading": "Loading...",
-    "error": "An error occurred"
-  },
-  "Navigation": {
+    "actions": "Actions",
+    "status": "Status",
+    "date": "Date",
+    "total": "Total",
+    "description": "Description",
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "company": "Company",
+    "project": "Project",
+    "client": "Client",
+    "invoice": "Invoice",
     "dashboard": "Dashboard",
-    "projects": "Projects",
-    "tasks": "Tasks",
-    "clients": "Clients",
-    "invoices": "Invoices",
-    "settings": "Settings"
+    "settings": "Settings",
+    "logout": "Log Out",
+    "profile": "Profile",
+    "success": "Success",
+    "error": "Error",
+    "yes": "Yes",
+    "no": "No"
   },
-  "Dashboard": {
-    "welcome": "Welcome",
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome back",
     "totalProjects": "Total Projects",
-    "activeTasks": "Active Tasks",
-    "revenue": "Revenue"
+    "activeProjects": "Active Projects",
+    "completedProjects": "Completed Projects",
+    "pendingProjects": "Pending Projects"
+  },
+  "invoices": {
+    "title": "Invoices",
+    "invoiceNo": "Invoice No.",
+    "issueDate": "Issue Date",
+    "dueDate": "Due Date",
+    "subtotal": "Subtotal",
+    "tax": "Tax",
+    "grandTotal": "Grand Total",
+    "amountPaid": "Amount Paid",
+    "balanceDue": "Balance Due",
+    "draft": "Draft",
+    "sent": "Sent",
+    "paid": "Paid",
+    "partiallyPaid": "Partially Paid",
+    "overdue": "Overdue",
+    "cancelled": "Cancelled"
+  },
+  "projects": {
+    "title": "Projects",
+    "addNew": "Add New Project",
+    "edit": "Edit Project",
+    "delete": "Delete Project",
+    "projectName": "Project Name",
+    "client": "Client",
+    "status": "Status",
+    "progress": "Progress",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "budget": "Budget",
+    "description": "Description",
+    "noProjects": "No projects found."
+  },
+  "tasks": {
+    "title": "Tasks",
+    "addNew": "Add New Task",
+    "edit": "Edit Task",
+    "delete": "Delete Task",
+    "taskName": "Task Name",
+    "assignee": "Assignee",
+    "priority": "Priority",
+    "dueDate": "Due Date",
+    "status": "Status",
+    "noTasks": "No tasks found."
+  },
+  "clients": {
+    "title": "Clients",
+    "addNew": "Add New Client",
+    "edit": "Edit Client",
+    "delete": "Delete Client",
+    "clientName": "Client Name",
+    "email": "Email",
+    "phone": "Phone",
+    "company": "Company",
+    "trn": "Tax Registration Number (TRN)",
+    "import": "Import Clients",
+    "noClients": "No clients found."
+  },
+  "settings": {
+    "title": "Settings",
+    "profile": "Profile Settings",
+    "organization": "Organization Settings",
+    "security": "Security Settings",
+    "billing": "Billing & Plans",
+    "notifications": "Notification Settings"
   }
 }

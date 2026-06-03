@@ -63,9 +63,12 @@ export function useLanguage() {
   const toggleLanguage = () => {
     const next = lang === "ar" ? "en" : "ar";
     localStorage.setItem("blueprint-lang", next);
+    document.cookie = `blueprint-lang=${next}; path=/; max-age=31536000`;
     document.documentElement.dir = next === "ar" ? "rtl" : "ltr";
     document.documentElement.lang = next;
     window.dispatchEvent(new Event("blueprint-lang-change"));
+    // Refresh page to apply new language messages on the server
+    window.location.reload();
   };
   
   return { lang, language: lang, ar, isAr: ar, t, toggleLanguage };

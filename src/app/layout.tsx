@@ -9,6 +9,8 @@ import { ErrorBoundary } from "@/components/common/error-boundary";
 import { SafeWebSocketProvider } from "@/lib/websocket/safe-websocket-provider";
 import { SkipNavLink } from "@/components/common/accessible-components";
 import CookieConsent from "@/components/common/cookie-consent";
+import {NextIntlClientProvider} from 'next-intl';
+import {getMessages} from 'next-intl/server';
 const ibmPlexArabic = IBM_Plex_Sans_Arabic({
   variable: "--font-ibm-plex-arabic",
   subsets: ["arabic", "latin"],
@@ -47,11 +49,12 @@ export const viewport: Viewport = {
   userScalable: true,
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const messages = await getMessages();
   return (
     <html lang="ar" dir="rtl" suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
@@ -80,7 +83,9 @@ export default function RootLayout({
             <CsrfProvider>
               <SafeWebSocketProvider>
                 <ErrorBoundary locale="ar">
-                  {children}
+                  <NextIntlClientProvider messages={messages}>
+                    {children}
+                  </NextIntlClientProvider>
                 </ErrorBoundary>
               </SafeWebSocketProvider>
               <Toaster />

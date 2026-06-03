@@ -159,6 +159,7 @@ export default function ProjectsList({ language }: ProjectsListProps) {
   // Auto-save draft logic
   useEffect(() => {
     if (showAddDialog) {
+      // eslint-disable-next-line
       const subscription = form.watch((value) => {
         const timeout = setTimeout(() => {
           localStorage.setItem("draft_project_form", JSON.stringify(value));

@@ -1,25 +1,105 @@
 {
-  "Common": {
+  "common": {
     "save": "حفظ",
     "cancel": "إلغاء",
-    "edit": "تعديل",
     "delete": "حذف",
+    "edit": "تعديل",
+    "create": "إنشاء",
+    "add": "إضافة",
     "search": "بحث...",
     "loading": "جاري التحميل...",
-    "error": "حدث خطأ"
+    "actions": "الإجراءات",
+    "status": "الحالة",
+    "date": "التاريخ",
+    "total": "الإجمالي",
+    "description": "الوصف",
+    "name": "الاسم",
+    "email": "البريد الإلكتروني",
+    "phone": "الهاتف",
+    "company": "الشركة",
+    "project": "المشروع",
+    "client": "العميل",
+    "invoice": "الفاتورة",
+    "dashboard": "لوحة التحكم",
+    "settings": "الإعدادات",
+    "logout": "تسجيل الخروج",
+    "profile": "الملف الشخصي",
+    "success": "تم بنجاح",
+    "error": "خطأ",
+    "yes": "نعم",
+    "no": "لا"
   },
-  "Navigation": {
-    "dashboard": "لوحة القيادة",
-    "projects": "المشاريع",
-    "tasks": "المهام",
-    "clients": "العملاء",
-    "invoices": "الفواتير",
-    "settings": "الإعدادات"
-  },
-  "Dashboard": {
-    "welcome": "مرحباً",
+  "dashboard": {
+    "title": "لوحة التحكم",
+    "welcome": "مرحباً بك مجدداً",
     "totalProjects": "إجمالي المشاريع",
-    "activeTasks": "المهام النشطة",
-    "revenue": "الإيرادات"
+    "activeProjects": "المشاريع النشطة",
+    "completedProjects": "المشاريع المكتملة",
+    "pendingProjects": "المشاريع المعلقة"
+  },
+  "invoices": {
+    "title": "الفواتير",
+    "invoiceNo": "رقم الفاتورة",
+    "issueDate": "تاريخ الإصدار",
+    "dueDate": "تاريخ الاستحقاق",
+    "subtotal": "المجموع الفرعي",
+    "tax": "الضريبة",
+    "grandTotal": "الإجمالي الكلي",
+    "amountPaid": "المبلغ المدفوع",
+    "balanceDue": "المبلغ المستحق",
+    "draft": "مسودة",
+    "sent": "مرسلة",
+    "paid": "مدفوعة",
+    "partiallyPaid": "مدفوعة جزئياً",
+    "overdue": "متأخرة",
+    "cancelled": "ملغية"
+  },
+  "projects": {
+    "title": "المشاريع",
+    "addNew": "إضافة مشروع جديد",
+    "edit": "تعديل المشروع",
+    "delete": "حذف المشروع",
+    "projectName": "اسم المشروع",
+    "client": "العميل",
+    "status": "الحالة",
+    "progress": "التقدم",
+    "startDate": "تاريخ البدء",
+    "endDate": "تاريخ الانتهاء",
+    "budget": "الميزانية",
+    "description": "الوصف",
+    "noProjects": "لم يتم العثور على مشاريع."
+  },
+  "tasks": {
+    "title": "المهام",
+    "addNew": "إضافة مهمة جديدة",
+    "edit": "تعديل المهمة",
+    "delete": "حذف المهمة",
+    "taskName": "اسم المهمة",
+    "assignee": "المسؤول",
+    "priority": "الأولولية",
+    "dueDate": "تاريخ الاستحقاق",
+    "status": "الحالة",
+    "noTasks": "لم يتم العثور على مهام."
+  },
+  "clients": {
+    "title": "العملاء",
+    "addNew": "إضافة عميل جديد",
+    "edit": "تعديل العميل",
+    "delete": "حذف العميل",
+    "clientName": "اسم العميل",
+    "email": "البريد الإلكتروني",
+    "phone": "الهاتف",
+    "company": "الشركة",
+    "trn": "الرقم الضريبي (TRN)",
+    "import": "استيراد العملاء",
+    "noClients": "لم يتم العثور على عملاء."
+  },
+  "settings": {
+    "title": "الإعدادات",
+    "profile": "إعدادات الملف الشخصي",
+    "organization": "إعدادات المؤسسة",
+    "security": "إعدادات الأمان",
+    "billing": "الاشتراكات والفوترة",
+    "notifications": "إعدادات الإشعارات"
   }
 }
