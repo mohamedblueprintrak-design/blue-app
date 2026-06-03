@@ -6,8 +6,14 @@ import { validateRequest, paymentUpdateSchema, validateIdParam } from '@/lib/api
 import { log } from '@/lib/logger';
 import { sanitizeObject } from '@/lib/security/sanitize';
 
+import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
+
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { allowed: _allowed, result: rlResult } = await withRateLimit(request, 'api');
+    const blocked = rateLimitResponse(rlResult);
+    if (blocked) return blocked;
+
     const result = await requireVerifiedPermission(request, Permission.PAYMENT_READ);
     if ('error' in result) return result.error;
     const ctx = result.user;
@@ -38,6 +44,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { allowed: _allowed, result: rlResult } = await withRateLimit(request, 'strict');
+    const blocked = rateLimitResponse(rlResult);
+    if (blocked) return blocked;
+
     const result = await requireVerifiedPermission(request, Permission.PAYMENT_UPDATE);
     if ('error' in result) return result.error;
     const ctx = result.user;

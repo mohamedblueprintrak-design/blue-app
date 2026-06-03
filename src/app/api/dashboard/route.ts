@@ -4,6 +4,7 @@ import { requireVerifiedPermission, orgFilter } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { cacheGetOrSet } from '@/lib/cache/redis';
 import { log } from '@/lib/logger';
+import { getCompanyCurrency } from '@/lib/currency';
 
 export async function GET(request: NextRequest) {
   try {
@@ -124,6 +125,9 @@ export async function GET(request: NextRequest) {
           take: 500, // Limit to prevent loading unbounded datasets
         });
 
+        // Fetch company currency
+        const companyCurrency = await getCompanyCurrency(ctx.organizationId);
+
         // ===== Compute derived data =====
 
         // Invoice stats
@@ -236,8 +240,8 @@ export async function GET(request: NextRequest) {
             type: 'overdue_invoice',
             titleAr: `فاتورة متأخرة: ${inv.number}`,
             titleEn: `Overdue Invoice: ${inv.number}`,
-            descriptionAr: `فاتورة بمبلغ ${inv.remaining.toLocaleString()} AED مستحقة للسداد - ${inv.client?.company || inv.client?.name || ''}`,
-            descriptionEn: `Invoice of ${inv.remaining.toLocaleString()} AED is overdue - ${inv.client?.company || inv.client?.name || ''}`,
+            descriptionAr: `فاتورة بمبلغ ${inv.remaining.toLocaleString()} ${companyCurrency} مستحقة للسداد - ${inv.client?.company || inv.client?.name || ''}`,
+            descriptionEn: `Invoice of ${inv.remaining.toLocaleString()} ${companyCurrency} is overdue - ${inv.client?.company || inv.client?.name || ''}`,
             timestamp: inv.dueDate?.toISOString() || new Date().toISOString(),
             severity: 'high',
           });

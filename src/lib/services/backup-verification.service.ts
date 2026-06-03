@@ -221,9 +221,9 @@ class BackupVerificationService {
     if (isSQLiteBackup) {
       try {
         // Open the backup file directly using better-sqlite3 (optional dependency)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const Database = (await import('better-sqlite3') as any).default;
-        const backupDb = new Database(backupPath, { readonly: true }) as any;
+        const sqlite = await import('better-sqlite3');
+        const DatabaseConstructor = ('default' in sqlite ? sqlite.default : sqlite) as unknown as typeof import('better-sqlite3');
+        const backupDb = new DatabaseConstructor(backupPath, { readonly: true });
 
         try {
           const result = backupDb.pragma('integrity_check');
@@ -243,9 +243,9 @@ class BackupVerificationService {
 
       // ── Step 6: Read record counts from key tables ─────────────────────
       try {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const Database2 = (await import('better-sqlite3') as any).default;
-        const backupDb2 = new Database2(backupPath, { readonly: true }) as any;
+        const sqlite2 = await import('better-sqlite3');
+        const DatabaseConstructor2 = ('default' in sqlite2 ? sqlite2.default : sqlite2) as unknown as typeof import('better-sqlite3');
+        const backupDb2 = new DatabaseConstructor2(backupPath, { readonly: true });
 
         try {
           // Get list of tables

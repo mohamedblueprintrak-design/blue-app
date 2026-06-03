@@ -12,6 +12,7 @@ import { requireVerifiedPermission, orgFilter, type AuthContext } from '@/app/ap
 import { Permission } from '@/lib/auth/types';
 import { db } from '@/lib/db';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
+import { getCompanyCurrency } from '@/lib/currency';
 import type {
   FinancialReportData,
   ProjectReportData,
@@ -139,7 +140,7 @@ async function generateFinancialReport(lang: 'ar' | 'en', user: AuthContext) {
       totalOverdue: Number(overdueSum._sum.remaining || 0),
     },
     rows,
-    currency: 'AED',
+    currency: await getCompanyCurrency(user.organizationId),
     language: lang,
   };
 
@@ -259,7 +260,7 @@ async function generateClientReport(lang: 'ar' | 'en', user: AuthContext) {
       totalInvoiced: c.invoices.reduce((s, inv) => s + Number(inv.total), 0),
       totalPaid: c.invoices.reduce((s, inv) => s + Number(inv.paidAmount), 0),
     })),
-    currency: 'AED',
+    currency: await getCompanyCurrency(user.organizationId),
     language: lang,
   };
 
@@ -302,7 +303,7 @@ async function generateInvoiceReport(lang: 'ar' | 'en', user: AuthContext) {
       issueDate: new Date(inv.issueDate).toLocaleDateString('en-GB'),
       dueDate: new Date(inv.dueDate).toLocaleDateString('en-GB'),
     })),
-    currency: 'AED',
+    currency: await getCompanyCurrency(user.organizationId),
     language: lang,
   };
 

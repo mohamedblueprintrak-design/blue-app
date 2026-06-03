@@ -40,10 +40,13 @@ export interface TenderDoc {
 }
 
 export interface TendersResponse {
-  tenders: TenderItem[];
-  total: number;
-  page: number;
-  limit: number;
+  data: TenderItem[];
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
 }
 
 export interface TenderFormData {

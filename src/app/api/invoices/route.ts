@@ -193,7 +193,7 @@ export async function GET(request: NextRequest) {
       return { invoices, total };
     }, CACHE_TTL.INVOICES);
 
-    return NextResponse.json({ invoices, pagination: buildPaginationMeta(page, limit, total) });
+    return NextResponse.json({ data: invoices, pagination: buildPaginationMeta(page, limit, total) });
   } catch (error) {
     log.error("Error fetching invoices:", error);
     return errorResponse("Failed to fetch invoices", "SERVER_ERROR", 500);
@@ -302,18 +302,19 @@ export async function POST(request: NextRequest) {
     const ctx = rbac.user;
 
     const rawBody = await request.json();
-    const body = sanitizeObject(rawBody);
 
-    // Zod validation for invoice fields
-    const validation = invoiceSchema.safeParse(body);
+    // 1. Zod validation for invoice fields (BEFORE sanitization)
+    const validation = invoiceSchema.safeParse(rawBody);
     if (!validation.success) {
       return errorResponse(validation.error.issues[0].message, "VALIDATION_ERROR", 400);
     }
-    const validatedData = validation.data;
+    
+    // 2. Sanitize the validated data
+    const validatedData = sanitizeObject(validation.data);
     const { number, clientId, projectId, issueDate, dueDate, status } = validatedData;
 
-    // Validate invoice line items with Zod instead of using any[]
-    const rawItems = (body as Record<string, unknown>).items;
+    // Validate invoice line items with Zod
+    const rawItems = (rawBody as Record<string, unknown>).items;
     const itemsValidation = z.array(invoiceItemSchema).safeParse(rawItems);
     if (!itemsValidation.success) {
       return NextResponse.json(
@@ -321,7 +322,9 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    const lineItems = itemsValidation.data;
+    
+    // Sanitize the validated items
+    const lineItems = sanitizeObject(itemsValidation.data);
 
     const subtotal = lineItems.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
     const tax = subtotal * TAX_RATE;

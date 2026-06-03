@@ -86,8 +86,8 @@ export async function POST(request: NextRequest) {
   const signature = request.headers.get('x-hub-signature-256');
   const rawBody = await request.text();
 
-  if (signature && !whatsappService.verifyWebhookSignature(signature, rawBody)) {
-    log.warn('[WhatsApp Webhook] Invalid signature — rejecting payload');
+  if (!signature || !whatsappService.verifyWebhookSignature(signature, rawBody)) {
+    log.warn('[WhatsApp Webhook] Missing or invalid signature — rejecting payload');
     return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
   }
 

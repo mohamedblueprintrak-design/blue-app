@@ -63,7 +63,7 @@ export async function GET(request: NextRequest) {
       return { contracts, total };
     }, CACHE_TTL.CONTRACTS);
 
-    return NextResponse.json({ contracts, pagination: buildPaginationMeta(page, limit, total) });
+    return NextResponse.json({ data: contracts, pagination: buildPaginationMeta(page, limit, total) });
   } catch (error) {
     log.error("Error fetching contracts:", error);
     return NextResponse.json(

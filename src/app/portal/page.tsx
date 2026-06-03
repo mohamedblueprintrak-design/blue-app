@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { Building2, Phone, Mail, MapPin, FileText, MessageCircle, Download, CheckCircle2, Circle, AlertCircle, CreditCard, ChevronLeft, Shield, Eye, Calendar, User, ArrowRight, LogOut, Loader2, Inbox } from 'lucide-react'
 
@@ -233,6 +233,29 @@ export default function PortalPage() {
   const [dataLoading, setDataLoading] = useState(false);
   const [activeSection, setActiveSection] = useState<PortalView>("dashboard");
 
+  const [company, setCompany] = useState({
+    phone: "+971 7 123 4567",
+    email: "info.blueprintrak@gmail.com",
+    address: "رأس الخيمة - الإمارات العربية المتحدة",
+    workingHours: "08:00-17:00"
+  });
+
+  useEffect(() => {
+    fetch('/api/public/stats')
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (data && data.company) {
+          setCompany({
+            phone: data.company.phone || "+971 7 123 4567",
+            email: data.company.email || "info.blueprintrak@gmail.com",
+            address: data.company.address || "رأس الخيمة - الإمارات العربية المتحدة",
+            workingHours: data.company.workingHours || "08:00-17:00"
+          });
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   const activeProject = portalData?.project ?? null;
 
   const fetchPortalData = useCallback(async (projNumber: string, ph: string) => {
@@ -368,12 +391,12 @@ export default function PortalPage() {
             <div className="mt-8 text-center space-y-2">
               <p className="text-sm text-slate-500">هل تحتاج مساعدة؟</p>
               <div className="flex items-center justify-center gap-4">
-                <a href="tel:+971501611234" className="flex items-center gap-1.5 text-sm text-teal-600 hover:text-teal-700">
+                <a href={`tel:${company.phone}`} className="flex items-center gap-1.5 text-sm text-teal-600 hover:text-teal-700">
                   <Phone className="h-3.5 w-3.5" />
-                  <span dir="ltr">+971 7 123 4567</span>
+                  <span dir="ltr">{company.phone}</span>
                 </a>
                 <a
-                  href="https://wa.me/971501611234"
+                  href={`https://wa.me/${company.phone.replace(/[^0-9]/g, "")}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-1.5 text-sm text-green-600 hover:text-green-700"
@@ -721,22 +744,22 @@ export default function PortalPage() {
               <div className="bg-gradient-to-r from-teal-600 to-cyan-600 p-6 text-white">
                 <h3 className="text-base font-bold mb-4">تواصل معنا</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <a href="tel:+971501611234" className="flex items-center gap-3 bg-white/10 hover:bg-white/20 rounded-lg p-3 transition-colors">
+                  <a href={`tel:${company.phone}`} className="flex items-center gap-3 bg-white/10 hover:bg-white/20 rounded-lg p-3 transition-colors">
                     <Phone className="h-5 w-5 shrink-0" />
                     <div>
                       <p className="text-xs text-white/70">الهاتف</p>
-                      <p className="text-sm font-medium" dir="ltr">+971 7 123 4567</p>
+                      <p className="text-sm font-medium" dir="ltr">{company.phone}</p>
                     </div>
                   </a>
-                  <a href="mailto:info.blueprintrak@gmail.com" className="flex items-center gap-3 bg-white/10 hover:bg-white/20 rounded-lg p-3 transition-colors">
+                  <a href={`mailto:${company.email}`} className="flex items-center gap-3 bg-white/10 hover:bg-white/20 rounded-lg p-3 transition-colors">
                     <Mail className="h-5 w-5 shrink-0" />
                     <div>
                       <p className="text-xs text-white/70">البريد الإلكتروني</p>
-                      <p className="text-sm font-medium">info.blueprintrak@gmail.com</p>
+                      <p className="text-sm font-medium">{company.email}</p>
                     </div>
                   </a>
                   <a
-                    href={`https://wa.me/${activeProject.managerPhone?.replace(/[^0-9]/g, "") || "971501234567"}`}
+                    href={`https://wa.me/${activeProject.managerPhone?.replace(/[^0-9]/g, "") || company.phone.replace(/[^0-9]/g, "")}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-3 bg-green-500/30 hover:bg-green-500/40 rounded-lg p-3 transition-colors border border-green-400/30"
@@ -751,7 +774,7 @@ export default function PortalPage() {
                     <MapPin className="h-5 w-5 shrink-0" />
                     <div>
                       <p className="text-xs text-white/70">العنوان</p>
-                      <p className="text-sm font-medium">رأس الخيمة - الإمارات</p>
+                      <p className="text-sm font-medium">{company.address}</p>
                     </div>
                   </div>
                 </div>

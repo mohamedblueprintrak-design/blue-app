@@ -20,6 +20,7 @@ import { log } from '@/lib/logger';
 import type { AuthContext } from '@/app/api/utils/auth';
 import { notificationService } from '@/lib/services/notification.service';
 import { createAuditEntry } from '@/lib/services/audit-helper';
+import { cacheManager } from '@/lib/cache/cache-manager';
 
 // ============================================
 // Types
@@ -55,9 +56,6 @@ export interface AutoAssignmentResult {
   assignedUserId?: string;
   reason: string;
 }
-
-// Round-robin state tracker (in-memory; in production use Redis)
-const roundRobinCounters = new Map<string, number>();
 
 // ============================================
 // Condition Evaluation
@@ -173,12 +171,12 @@ async function resolveAssignee(
       if (users.length === 0) return null;
 
       // Get or initialize the counter for this team
-      const counterKey = `${organizationId || 'global'}:${assignToId}`;
-      const currentIndex = roundRobinCounters.get(counterKey) ?? 0;
+      const counterKey = `rr:${organizationId || 'global'}:${assignToId}`;
+      const currentIndex = (await cacheManager.get<number>(counterKey)) ?? 0;
       const selectedUser = users[currentIndex % users.length];
 
       // Increment the counter for next time
-      roundRobinCounters.set(counterKey, currentIndex + 1);
+      await cacheManager.set(counterKey, currentIndex + 1, { ttl: 86400 * 30 }); // 30 days
 
       return selectedUser.id;
     }

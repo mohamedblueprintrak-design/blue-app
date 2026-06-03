@@ -7,6 +7,7 @@ import { sanitizeString, escapeSqlLike } from '@/lib/security/sanitize';
 import { hasPermission } from '@/lib/auth/modules/authorization';
 import { Permission } from '@/lib/auth/types';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
+import { getCompanyCurrency } from '@/lib/currency';
 
 interface SearchResult {
   type: string;
@@ -141,12 +142,13 @@ export async function GET(request: NextRequest) {
       });
     }
 
+    const companyCurrency = await getCompanyCurrency(ctx.organizationId);
     for (const inv of invoices) {
       grouped.invoice.push({
         type: 'invoice',
         id: inv.id,
         title: inv.number || '—',
-        subtitle: `${inv.total.toLocaleString()} AED`,
+        subtitle: `${inv.total.toLocaleString()} ${companyCurrency}`,
         status: inv.status,
       });
     }

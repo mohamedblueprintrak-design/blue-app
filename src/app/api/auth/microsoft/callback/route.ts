@@ -78,11 +78,19 @@ export async function GET(request: NextRequest) {
     // ── Exchange authorization code for tokens ─────────────────────
     const clientId = process.env.MICROSOFT_CLIENT_ID;
     const clientSecret = process.env.MICROSOFT_CLIENT_SECRET;
+    const codeVerifier = request.cookies.get('microsoft_oauth_verifier')?.value;
 
     if (!clientId || !clientSecret) {
       log.error('Microsoft OAuth callback: missing credentials');
       return NextResponse.redirect(
         `${baseUrl}/login?error=${encodeURIComponent('تسجيل الدخول عبر Microsoft غير مفعل')}`
+      );
+    }
+
+    if (!codeVerifier) {
+      log.security('Microsoft OAuth callback: missing code_verifier (PKCE)');
+      return NextResponse.redirect(
+        `${baseUrl}/login?error=${encodeURIComponent('رمز التحقق غير صالح')}`
       );
     }
 
@@ -97,6 +105,7 @@ export async function GET(request: NextRequest) {
         client_secret: clientSecret,
         redirect_uri: redirectUri,
         grant_type: 'authorization_code',
+        code_verifier: codeVerifier,
       }),
     });
 
@@ -242,8 +251,12 @@ export async function GET(request: NextRequest) {
     // ── Redirect to dashboard with cookies set ─────────────────────
     const response = NextResponse.redirect(`${baseUrl}/dashboard`);
 
-    // Clear the OAuth state cookie
+    // Clear the OAuth state and PKCE cookies
     response.cookies.set('microsoft_oauth_state', '', {
+      path: '/',
+      maxAge: 0,
+    });
+    response.cookies.set('microsoft_oauth_verifier', '', {
       path: '/',
       maxAge: 0,
     });

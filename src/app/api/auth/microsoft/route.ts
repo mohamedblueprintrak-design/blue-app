@@ -25,6 +25,15 @@ export async function GET(request: NextRequest) {
     // Generate CSRF state token
     const state = randomBytes(32).toString('hex');
 
+    // Generate PKCE code verifier and challenge
+    const code_verifier = randomBytes(32).toString('base64url');
+    // Using Web Crypto API for SHA256 hashing to generate code challenge
+    const code_challenge_buffer = await crypto.subtle.digest(
+      'SHA-256',
+      new TextEncoder().encode(code_verifier)
+    );
+    const code_challenge = Buffer.from(code_challenge_buffer).toString('base64url');
+
     // Build redirect URI — must match what's registered in Azure AD / Entra ID
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || new URL(request.url).origin;
     const redirectUri = `${baseUrl}/api/auth/microsoft/callback`;
@@ -37,12 +46,23 @@ export async function GET(request: NextRequest) {
     microsoftAuthUrl.searchParams.set('scope', 'openid profile email User.Read');
     microsoftAuthUrl.searchParams.set('state', state);
     microsoftAuthUrl.searchParams.set('response_mode', 'query');
+    microsoftAuthUrl.searchParams.set('code_challenge', code_challenge);
+    microsoftAuthUrl.searchParams.set('code_challenge_method', 'S256');
 
     // Redirect to Microsoft's consent screen
     const response = NextResponse.redirect(microsoftAuthUrl.toString());
 
     // Store state in a short-lived cookie for CSRF verification in the callback
     response.cookies.set('microsoft_oauth_state', state, {
+      path: '/',
+      maxAge: 10 * 60, // 10 minutes
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+    });
+
+    // Store code_verifier for PKCE validation in the callback
+    response.cookies.set('microsoft_oauth_verifier', code_verifier, {
       path: '/',
       maxAge: 10 * 60, // 10 minutes
       httpOnly: true,

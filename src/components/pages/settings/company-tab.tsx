@@ -146,8 +146,8 @@ export function CompanyTab({
               value={(formData.currency as string) || settings?.currency || "AED"}
               onChange={(e) => updateField("currency", e.target.value)}
               dir="ltr"
-              disabled
               className="h-10 rounded-lg"
+              placeholder="e.g. AED, USD, EUR"
             />
           </div>
         </div>

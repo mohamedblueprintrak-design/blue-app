@@ -5,6 +5,7 @@ import { errorResponse, createdResponse, notFoundResponse, handleApiError } from
 import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
 import { cacheDeletePattern } from '@/lib/cache/redis';
+import { getCompanyCurrency } from '@/lib/currency';
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -92,7 +93,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
         contractorId: contractorId || null,
         type: template.category?.toLowerCase() || 'villa',
         budget: customizations?.budget || template.defaultBudget || 0,
-        currency: template.currency || 'AED',
+        currency: template.currency || await getCompanyCurrency(user.organizationId),
         startDate,
         expectedDuration: template.defaultDurationDays || 0,
         description: template.description || '',

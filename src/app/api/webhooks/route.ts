@@ -116,7 +116,7 @@ export async function POST(request: NextRequest) {
 
     // Validate events
     const invalidEvents = data.events.filter(
-      (e) => !VALID_EVENTS.includes(e as any) && e !== '*' // eslint-disable-line @typescript-eslint/no-explicit-any
+      (e) => !VALID_EVENTS.includes(e as typeof VALID_EVENTS[number]) && e !== '*'
     );
     if (invalidEvents.length > 0) {
       return errorResponse(

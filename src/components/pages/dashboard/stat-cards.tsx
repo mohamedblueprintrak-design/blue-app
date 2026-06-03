@@ -1,13 +1,11 @@
 "use client";
 
-import { motion } from "framer-motion";
 import {
   Card,
   CardContent,
 } from "@/components/ui/card";
 import { ArrowUpRight, ArrowDownRight, XCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { fadeUp, stagger } from "./animations";
 import type { StatCardConfig } from "./types";
 
 interface StatCardsProps {
@@ -16,10 +14,7 @@ interface StatCardsProps {
 
 export function StatCards({ statCards }: StatCardsProps) {
   return (
-    <motion.div
-      initial="hidden"
-      animate="visible"
-      variants={stagger}
+    <div
       className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
     >
       {statCards.map((card, i) => {
@@ -37,7 +32,7 @@ export function StatCards({ statCards }: StatCardsProps) {
           : "bg-red-400 dark:bg-red-500";
 
         return (
-          <motion.div key={i} variants={fadeUp} custom={i}>
+          <div key={i} className="animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both" style={{ animationDelay: `${i * 100}ms` }}>
             <Card
               className={cn(
                 "rounded-xl border-slate-200/80 dark:border-slate-700/50 transition-all duration-300 ease-out",
@@ -109,9 +104,9 @@ export function StatCards({ statCards }: StatCardsProps) {
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
+          </div>
         );
       })}
-    </motion.div>
+    </div>
   );
 }

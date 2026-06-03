@@ -64,13 +64,15 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     if (!idResult.success) return idResult.response;
     const id = idResult.id;
     const body = await request.json();
-    const sanitizedBody = sanitizeObject(body);
 
-    // Zod validation for invoice update fields
-    const validation = validateRequest(invoiceUpdateSchema, sanitizedBody);
+    // 1. Zod validation for invoice update fields (BEFORE sanitization)
+    const validation = validateRequest(invoiceUpdateSchema, body);
     if (!validation.success) {
       return NextResponse.json({ error: validation.error, errors: validation.errors }, { status: 400 });
     }
+    
+    // 2. Sanitize the validated data
+    const validatedData = sanitizeObject(validation.data);
 
     const existing = await db.invoice.findUnique({ where: { id } });
     if (!existing || existing.deletedAt) {
@@ -89,15 +91,16 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     let total: number = Number(existing.total);
 
     let lineItems: z.infer<typeof invoiceItemUpdateSchema>[] | null = null;
-    if (sanitizedBody.items && Array.isArray(sanitizedBody.items)) {
-      const itemsValidation = z.array(invoiceItemUpdateSchema).safeParse(sanitizedBody.items);
+    const rawItems = (body as Record<string, unknown>).items;
+    if (rawItems && Array.isArray(rawItems)) {
+      const itemsValidation = z.array(invoiceItemUpdateSchema).safeParse(rawItems);
       if (!itemsValidation.success) {
         return NextResponse.json(
           { error: "Invalid invoice items: " + itemsValidation.error.issues[0].message },
           { status: 400 }
         );
       }
-      lineItems = itemsValidation.data;
+      lineItems = sanitizeObject(itemsValidation.data);
       subtotal = lineItems.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
       tax = subtotal * TAX_RATE;
       total = subtotal + tax;

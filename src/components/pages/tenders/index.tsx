@@ -40,8 +40,8 @@ export default function TendersPage({ language: _language }: TendersPageProps) {
     },
   });
 
-  const tenders = data?.tenders || [];
-  const total = data?.total || 0;
+  const tenders = data?.data || [];
+  const total = data?.pagination?.total || 0;
 
   // Fetch tender detail
   const { data: tenderDetail } = useQuery<TenderDetail>({

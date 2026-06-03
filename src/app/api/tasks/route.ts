@@ -181,10 +181,11 @@ export async function GET(request: NextRequest) {
             select: { id: true, name: true, email: true, avatar: true },
           },
           subtasks: {
-            select: { id: true, status: true },
+            where: { status: "DONE" },
+            select: { id: true },
           },
           _count: {
-            select: { comments: true },
+            select: { comments: true, subtasks: true },
           },
         },
         orderBy: { createdAt: "desc" },
@@ -200,16 +201,12 @@ export async function GET(request: NextRequest) {
 
     // Calculate subtask completion for each task
     const tasksWithSubtaskCount = tasks.map((task) => {
-      const totalSubtasks = task.subtasks.length;
-      const completedSubtasks = task.subtasks.filter(
-        (s) => s.status === "DONE"
-      ).length;
       return {
         ...task,
         commentCount: task._count.comments,
         _count: {
-          subtasks: totalSubtasks,
-          completedSubtasks,
+          subtasks: task._count.subtasks,
+          completedSubtasks: task.subtasks.length,
         },
       };
     });

@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requirePermission, orgFilter } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
+import { getCompanyCurrency } from '@/lib/currency';
 
 // ============================================
 // Budget vs Actual Comparison
@@ -220,6 +221,7 @@ export async function GET(
       .map(([month, data]) => ({ month, ...data }));
 
     // Build alerts
+    const companyCurrency = await getCompanyCurrency(ctx.organizationId);
     const alerts: BudgetAlert[] = [];
 
     for (const cat of categories) {
@@ -227,7 +229,7 @@ export async function GET(
         alerts.push({
           type: "over_budget",
           category: cat.category,
-          message: `${cat.category} is over budget by ${Math.abs(cat.remaining).toLocaleString()} AED (${Math.abs(cat.variancePercent)}% over)`,
+          message: `${cat.category} is over budget by ${Math.abs(cat.remaining).toLocaleString()} ${companyCurrency} (${Math.abs(cat.variancePercent)}% over)`,
         });
       } else if (cat.status === "at_risk") {
         alerts.push({

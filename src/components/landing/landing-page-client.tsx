@@ -22,6 +22,12 @@ export default function LandingPageClient() {
 
   // Dynamic stats — fetched from API, fallback to defaults
   const [stats, setStats] = useState(DEFAULT_STATS);
+  const [company, setCompany] = useState({
+    phone: "+971 50 161 1234",
+    email: "info@blueprint-rak.com",
+    address: "رأس الخيمة، الإمارات العربية المتحدة",
+    workingHours: "08:00-17:00",
+  });
 
   useEffect(() => {
     fetch('/api/public/stats')
@@ -34,6 +40,9 @@ export default function LandingPageClient() {
             { ...DEFAULT_STATS[2], value: data.engineeringDisciplines || 0, suffix: "" },
             { ...DEFAULT_STATS[3], value: data.ongoingProjects || 0, suffix: data.ongoingProjects > 0 ? "+" : "" },
           ]);
+          if (data.company) {
+            setCompany(data.company);
+          }
         }
       })
       .catch(() => {});
@@ -378,7 +387,7 @@ export default function LandingPageClient() {
       </section>
 
       {/* ===== CONTACT SECTION ===== */}
-      <ContactSection />
+      <ContactSection company={company} />
 
       {/* ===== FOOTER ===== */}
       <footer className="bg-[#0A1628] py-12">

@@ -407,6 +407,21 @@ export default function ServicesPage() {
 
   const t = (ar: string, en: string) => (language === "ar" ? ar : en);
 
+  const [company, setCompany] = useState({
+    phone: "+971 50 161 1234",
+  });
+
+  useEffect(() => {
+    fetch('/api/public/stats')
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (data && data.company) {
+          setCompany({ phone: data.company.phone || "+971 50 161 1234" });
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col">
       <ParallaxBackground />
@@ -680,7 +695,7 @@ export default function ServicesPage() {
                     </Button>
                   </motion.div>
                 </Link>
-                <a href="tel:+971501611234">
+                <a href={`tel:${company.phone}`}>
                   <Button
                     variant="outline"
                     className="w-full sm:w-auto px-8 h-12 border-white/30 text-white hover:bg-white/10 rounded-xl text-base"

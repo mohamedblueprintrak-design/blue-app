@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
       ? rawEmployees
       : rawEmployees.map(({ salary: _salary, ...rest }) => rest);
 
-    return NextResponse.json({ employees: sanitizedEmployees, pagination: buildPaginationMeta(page, limit, total) });
+    return NextResponse.json({ data: sanitizedEmployees, pagination: buildPaginationMeta(page, limit, total) });
   } catch (error) {
     log.error("GET /api/employees error:", error);
     return NextResponse.json({ error: "Failed to fetch employees" }, { status: 500 });

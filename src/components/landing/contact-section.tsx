@@ -11,9 +11,23 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SERVICES } from "@/components/landing/data";
 
-export function ContactSection() {
+interface ContactSectionProps {
+  company?: {
+    phone?: string;
+    email?: string;
+    address?: string;
+    workingHours?: string;
+  };
+}
+
+export function ContactSection({ company }: ContactSectionProps = {}) {
   const { lang: language } = useLanguage();
   const t = (ar: string, en: string) => (language === "ar" ? ar : en);
+
+  const contactEmail = company?.email || "info@blueprint-rak.com";
+  const contactPhone = company?.phone || "+971 50 161 1234";
+  const contactAddress = company?.address || "رأس الخيمة، الإمارات العربية المتحدة";
+  const contactWorkingHours = company?.workingHours || "08:00-17:00";
 
   const [formName, setFormName] = useState("");
   const [formPhone, setFormPhone] = useState("");
@@ -77,7 +91,7 @@ export function ContactSection() {
                 </div>
                 <div>
                   <div className="text-white font-medium">{t("اتصل بنا", "Call Us")}</div>
-                  <div className="text-blue-200 text-sm mt-1" dir="ltr">+971 50 161 1234</div>
+                  <div className="text-blue-200 text-sm mt-1" dir="ltr">{contactPhone}</div>
                 </div>
               </div>
               <div className="flex items-start gap-4">
@@ -86,7 +100,7 @@ export function ContactSection() {
                 </div>
                 <div>
                   <div className="text-white font-medium">{t("البريد الإلكتروني", "Email")}</div>
-                  <div className="text-blue-200 text-sm mt-1">info@blueprint-rak.com</div>
+                  <div className="text-blue-200 text-sm mt-1">{contactEmail}</div>
                 </div>
               </div>
               <div className="flex items-start gap-4">
@@ -95,7 +109,7 @@ export function ContactSection() {
                 </div>
                 <div>
                   <div className="text-white font-medium">{t("العنوان", "Address")}</div>
-                  <div className="text-blue-200 text-sm mt-1">{t("رأس الخيمة، الإمارات العربية المتحدة", "Ras Al Khaimah, UAE")}</div>
+                  <div className="text-blue-200 text-sm mt-1">{contactAddress}</div>
                 </div>
               </div>
               <div className="flex items-start gap-4">
@@ -104,7 +118,7 @@ export function ContactSection() {
                 </div>
                 <div>
                   <div className="text-white font-medium">{t("ساعات العمل", "Working Hours")}</div>
-                  <div className="text-blue-200 text-sm mt-1">{t("الأحد - الخميس: 8 صباحاً - 6 مساءً", "Sun - Thu: 8 AM - 6 PM")}</div>
+                  <div className="text-blue-200 text-sm mt-1">{contactWorkingHours}</div>
                 </div>
               </div>
             </div>
@@ -134,7 +148,7 @@ export function ContactSection() {
                 </div>
                 <div>
                   <Label htmlFor="contact-phone" className="text-blue-200 text-sm mb-1.5 block">{t("رقم الهاتف", "Phone Number")}</Label>
-                  <Input id="contact-phone" value={formPhone} onChange={e => setFormPhone(e.target.value)} required placeholder="+971 50 XXX XXXX" className="bg-white/5 border-white/10 text-white placeholder:text-blue-200/40 focus:border-blue-400/50" dir="ltr" />
+                  <Input id="contact-phone" value={formPhone} onChange={e => setFormPhone(e.target.value)} required placeholder={contactPhone} className="bg-white/5 border-white/10 text-white placeholder:text-blue-200/40 focus:border-blue-400/50" dir="ltr" />
                 </div>
                 <div>
                   <Label htmlFor="contact-email" className="text-blue-200 text-sm mb-1.5 block">{t("البريد الإلكتروني", "Email")}</Label>

@@ -4,6 +4,7 @@ import { requireVerifiedPermission, orgFilter } from '@/app/api/utils/auth';
 import { log } from '@/lib/logger';
 import { Permission } from '@/lib/auth/types';
 import { validateRequest, validateIdParam, tenderUpdateSchema } from '@/lib/api-validation';
+import { sanitizeObject } from '@/lib/security/sanitization';
 
 export async function GET(
   request: NextRequest,
@@ -70,6 +71,9 @@ export async function PUT(
       return NextResponse.json({ error: validation.error, errors: validation.errors }, { status: 400 });
     }
 
+    // SECURITY: Sanitization (After Validation)
+    const sanitizedData = sanitizeObject(validation.data || body);
+
     // SECURITY: Verify the tender belongs to the user's organization
     const existing = await db.tender.findFirst({ where: { id, deletedAt: null, ...orgFilter(ctx) } });
     if (!existing) {
@@ -99,7 +103,7 @@ export async function PUT(
       source,
       sourceUrl,
       assignedTo,
-    } = body;
+    } = sanitizedData;
 
     const tender = await db.tender.update({
       where: { id },

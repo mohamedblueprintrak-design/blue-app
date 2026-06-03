@@ -3,6 +3,7 @@ import { NextRequest } from 'next/server';
 import { requirePermission, orgFilter } from '@/app/api/utils/auth';
 import { errorResponse, successResponse, createdResponse, handleApiError } from '@/app/api/utils/response';
 import { Permission } from '@/lib/auth/types';
+import { getCompanyCurrency } from '@/lib/currency';
 
 /**
  * GET /api/project-templates
@@ -89,7 +90,7 @@ export async function POST(request: NextRequest) {
         icon: icon || null,
         defaultBudget: defaultBudget || null,
         defaultDurationDays: defaultDurationDays || null,
-        currency: currency || 'AED',
+        currency: currency || await getCompanyCurrency(user.organizationId),
         stages: typeof stages === 'string' ? stages : JSON.stringify(stages),
         isActive: true,
         usageCount: 0,

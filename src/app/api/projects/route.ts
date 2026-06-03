@@ -235,7 +235,7 @@ export async function GET(request: NextRequest) {
  *                 default: VILLA
  *               budget:
  *                 type: number
- *                 description: Project budget in AED
+ *                 description: Project budget in company currency
  *                 example: 2500000
  *               startDate:
  *                 type: string

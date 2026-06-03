@@ -7,6 +7,7 @@ import { useNavStore } from "@/store/nav-store";
 import { AlertCircle } from "lucide-react";
 import { FolderKanban, Receipt, TrendingUp, CheckSquare } from "lucide-react";
 import { useDashboardLayout, WidgetSlot, DashboardLayoutManager } from "@/components/pages/dashboard-layout-manager";
+import dynamic from "next/dynamic";
 
 import type { DashboardData, StatCardConfig } from "./dashboard/types";
 import { formatCurrency, formatNumber } from "./dashboard/helpers";
@@ -18,15 +19,16 @@ import { MyTasksWidget } from "./dashboard/my-tasks-widget";
 import { WelcomeSection } from "./dashboard/welcome-section";
 import { StatCards } from "./dashboard/stat-cards";
 import { QuickOverview } from "./dashboard/quick-overview";
-import { RevenueDepartment } from "./dashboard/revenue-department";
 import { SystemStatus } from "./dashboard/system-status";
 import { RecentProjectsAlerts } from "./dashboard/recent-projects-alerts";
 import { GanttTimeline } from "./dashboard/gantt-timeline";
 import { DeadlinesTeam } from "./dashboard/deadlines-team";
 import { ActivityFeed } from "./dashboard/activity-feed";
-import { ChartsSection } from "./dashboard/charts-section";
 import { DeptWorkload } from "./dashboard/dept-workload";
-import { ProjectHealthBudget } from "./dashboard/project-health-budget";
+
+const RevenueDepartment = dynamic(() => import("./dashboard/revenue-department").then(m => m.RevenueDepartment), { ssr: false, loading: () => <WidgetSkeleton /> });
+const ChartsSection = dynamic(() => import("./dashboard/charts-section").then(m => m.ChartsSection), { ssr: false, loading: () => <WidgetSkeleton /> });
+const ProjectHealthBudget = dynamic(() => import("./dashboard/project-health-budget").then(m => m.ProjectHealthBudget), { ssr: false, loading: () => <WidgetSkeleton /> });
 
 // ===== Main Dashboard Component =====
 export default function Dashboard({ language }: { language: "ar" | "en" }) {

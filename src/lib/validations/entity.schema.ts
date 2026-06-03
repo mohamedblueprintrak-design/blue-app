@@ -24,6 +24,32 @@ export const clientCreateSchema = z.object({
 
 export type ClientCreateData = z.infer<typeof clientCreateSchema>;
 
+// ===== Tender =====
+
+export const tenderCreateSchema = z.object({
+  tenderNumber: z.string().max(100).optional().default(''),
+  title: z.string().min(1, 'العنوان مطلوب').max(300),
+  authority: z.string().max(200).optional().default(''),
+  projectType: z.string().max(100).optional().default(''),
+  description: z.string().max(5000).optional().default(''),
+  estimatedBudget: safeNumber,
+  currency: z.string().max(10).optional().default('AED'),
+  closingDate: z.string().datetime({ offset: true }).or(z.string()).or(z.null()).optional(),
+  submissionDate: z.string().datetime({ offset: true }).or(z.string()).or(z.null()).optional(),
+  qualifications: z.string().max(2000).optional().default(''),
+  requiredDocs: z.string().max(2000).optional().default(''),
+  status: z.string().max(50).optional().default('IDENTIFIED'),
+  winnerName: z.string().max(200).optional().default(''),
+  lostReason: z.string().max(1000).optional().default(''),
+  competitorAnalysis: z.string().max(5000).optional().default(''),
+  notes: z.string().max(5000).optional().default(''),
+  source: z.string().max(200).optional().default(''),
+  sourceUrl: z.string().max(1000).optional().default(''),
+  assignedTo: z.string().max(100).or(z.null()).optional(),
+});
+
+export type TenderCreateData = z.infer<typeof tenderCreateSchema>;
+
 // ===== Invoice =====
 
 export const invoiceCreateSchema = z.object({

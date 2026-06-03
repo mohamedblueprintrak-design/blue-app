@@ -6,6 +6,7 @@ import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 import { z } from 'zod';
+import { getCompanyCurrency } from '@/lib/currency';
 
 // Zod schema for guarantee letter creation
 const guaranteeLetterCreateSchema = z.object({
@@ -93,7 +94,7 @@ export async function POST(request: NextRequest) {
         guaranteeNumber: guaranteeNumber || "",
         bankName: bankName || "",
         amount: amount || 0,
-        currency: (currency || "AED") as Currency,
+        currency: (currency || await getCompanyCurrency(ctx.organizationId)) as Currency,
         issueDate: issueDate ? new Date(issueDate) : null,
         expiryDate: expiryDate ? new Date(expiryDate) : null,
         status: (status || "ACTIVE"),

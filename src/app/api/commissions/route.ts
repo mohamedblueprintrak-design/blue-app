@@ -5,6 +5,7 @@ import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
 import { z } from 'zod';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
+import { getCompanyCurrency } from '@/lib/currency';
 
 // Zod schema for commission creation
 const commissionCreateSchema = z.object({
@@ -78,7 +79,7 @@ export async function POST(request: NextRequest) {
         projectId: projectId || null,
         type: type || "project_referral",
         amount: parseFloat(String(amount)) || 0,
-        currency: "AED",
+        currency: await getCompanyCurrency(ctx.organizationId),
         percentage: parseFloat(String(percentage)) || 0,
         baseAmount: parseFloat(String(baseAmount)) || 0,
         description: description || "",

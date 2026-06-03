@@ -26,6 +26,27 @@ const SERVICE_LINKS = [
 export default function PublicFooter() {
   const { lang: language } = useLanguage();
   const t = (ar: string, en: string) => (language === "ar" ? ar : en);
+  
+  const [company, setCompany] = useState({
+    phone: "+971 50 161 1234",
+    email: "info.blueprintrak@gmail.com",
+    address: "رأس الخيمة - الإمارات العربية المتحدة"
+  });
+
+  useEffect(() => {
+    fetch('/api/public/stats')
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (data && data.company) {
+          setCompany({
+            phone: data.company.phone || "+971 50 161 1234",
+            email: data.company.email || "info.blueprintrak@gmail.com",
+            address: data.company.address || "رأس الخيمة - الإمارات العربية المتحدة"
+          });
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <footer className="bg-[#060E1F] text-white pt-16 pb-8">
@@ -96,15 +117,15 @@ export default function PublicFooter() {
             <ul className="space-y-3">
               <li className="flex items-start gap-2 text-sm text-blue-200/50">
                 <MapPin className="w-4 h-4 text-[#4A6FA5] shrink-0 mt-0.5" />
-                {t("رأس الخيمة - الإمارات العربية المتحدة", "Ras Al Khaimah - UAE")}
+                {company.address}
               </li>
               <li className="flex items-center gap-2 text-sm text-blue-200/50">
                 <Phone className="w-4 h-4 text-[#4A6FA5] shrink-0" />
-                <span dir="ltr">+971 50 161 1234</span>
+                <span dir="ltr">{company.phone}</span>
               </li>
               <li className="flex items-center gap-2 text-sm text-blue-200/50">
                 <Mail className="w-4 h-4 text-[#4A6FA5] shrink-0" />
-                info.blueprintrak@gmail.com
+                {company.email}
               </li>
             </ul>
           </div>
@@ -119,7 +140,7 @@ export default function PublicFooter() {
 
       {/* Floating WhatsApp */}
       <a
-        href="https://wa.me/971501611234?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D8%8C%20%D8%A3%D8%B1%D9%8A%D8%AF%20%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%B9%D9%86%20%D8%AE%D8%AF%D9%85%D8%A7%D8%AA%D9%83%D9%85"
+        href={`https://wa.me/${company.phone.replace(/[^0-9]/g, '')}?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D8%8C%20%D8%A3%D8%B1%D9%8A%D8%AF%20%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%B9%D9%86%20%D8%AE%D8%AF%D9%85%D8%A7%D8%AA%D9%83%D9%85`}
         target="_blank"
         rel="noopener noreferrer"
         className="fixed bottom-6 left-6 z-[60] w-14 h-14 bg-[#25D366] hover:bg-[#20BD5A] rounded-full flex items-center justify-center shadow-xl shadow-[#25D366]/30 hover:shadow-[#25D366]/50 transition-all duration-300 hover:scale-110"

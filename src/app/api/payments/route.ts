@@ -8,9 +8,14 @@ import { parsePaginationParams, buildPaginationMeta, calculateSkip } from '../ut
 import { insensitiveContains } from '../utils/db';
 import { sanitizeObject } from '@/lib/security/sanitize';
 import { cachedQuery, invalidateCache, CACHE_TTL, buildCacheKey } from '@/lib/cache/query-cache';
+import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 
 export async function GET(request: NextRequest) {
   try {
+    const { allowed: _allowed, result: rlResult } = await withRateLimit(request, 'api');
+    const blocked = rateLimitResponse(rlResult);
+    if (blocked) return blocked;
+
     // RBAC CHECK (JWT-verified for payments)
     const rbac = await requireVerifiedPermission(request, Permission.INVOICE_READ);
     if ('error' in rbac) return rbac.error;
@@ -61,6 +66,10 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const { allowed: _allowed, result: rlResult } = await withRateLimit(request, 'strict');
+    const blocked = rateLimitResponse(rlResult);
+    if (blocked) return blocked;
+
     // RBAC CHECK (JWT-verified for payments)
     const rbac = await requireVerifiedPermission(request, Permission.PAYMENT_CREATE);
     if ('error' in rbac) return rbac.error;

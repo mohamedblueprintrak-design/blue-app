@@ -9,6 +9,7 @@ import type { ChatMessage } from '@/lib/ai/providers/types';
 import { log } from '@/lib/logger';
 import { getEngineeringContext, CONSTRUCTION_COSTS_RAK } from '@/lib/ai/engineering-knowledge';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
+import { getCompanyCurrency } from '@/lib/currency';
 
 import {
   getZAI,
@@ -161,6 +162,8 @@ export async function POST(request: NextRequest) {
 
     const engineeringContext = getEngineeringContext(message);
 
+    const companyCurrency = await getCompanyCurrency(authCtx.organizationId);
+
     const systemPrompt = `أنت "بلو" (Blue)، المساعد الذكي المتخصص في الهندسة المدنية والإنشائية في الإمارات العربية المتحدة. أنت تعمل داخل نظام BluePrint لإدارة مكاتب الاستشارات الهندسية.
 
 ## هويتك وخبراتك
@@ -172,7 +175,7 @@ export async function POST(request: NextRequest) {
 
 ## ما يمكنك فعله (قدرات حقيقية)
 1. **حسابات هندسية**: حساب الأحمال، أبعاد الخرسانة، كمية الحديد، سمك البلاطة
-2. **تكاليف البناء**: تقدير تكاليف بناء على أسعار السوق الإماراتي (AED)
+2. **تكاليف البناء**: تقدير تكاليف بناء على أسعار السوق الإماراتي (${companyCurrency})
 3. **الموافقات الحكومية**: إرشادات حول إجراءات البلدية والدفاع المدني والهيئة
 4. **تحليل المشاريع**: مراجعة بيانات المشاريع والمهام والفواتير من قاعدة البيانات
 5. **تقييم المخاطر**: تحديد المخاطر الهندسية والمالية واقتراح حلول
@@ -182,7 +185,7 @@ export async function POST(request: NextRequest) {
 
 ## قواعد الرد
 - أجب باللغة العربية دائماً إلا إذا طلب المستخدم الإنجليزية
-- استخدم وحدات القياس الإماراتية (AED للأسعار، kN/m² للأحمال، mm للأبعاد)
+- استخدم وحدات القياس (العملة: ${companyCurrency}، kN/m² للأحمال، mm للأبعاد)
 - اذكر الكود أو المواصفة المعتمدة عند تقديم معلومات فنية
 - قدم أرقاماً محددة وليس عامة (مثلاً: "سمك البلاطة 150mm" وليس "سمك مناسب")
 - اربط الإجابة ببيانات المشروع الفعلية من قاعدة البيانات عندما تكون متاحة
@@ -199,13 +202,13 @@ export async function POST(request: NextRequest) {
 - منصة إدارة استشارات هندسية في الإمارات
 - يتعامل مع المشاريع (فلل، مباني، تجاري، صناعي)
 - يتتبع المهام بلوحات كانبان (todo, in_progress, review, done)
-- عمليات مالية بالدرهم (فواتير، مدفوعات، مقترحات، ميزانيات)
+- عمليات مالية (${companyCurrency}) (فواتير، مدفوعات، مقترحات، ميزانيات)
 - إدارة الموقع (زيارات، عيوب، يومية موقع، RFI، submittals)
 - موافقات حكومية (البلدية، FEWA، Etisalat، الدفاع المدني)
 - وحدات الموارد البشرية (موظفون، حضور، إجازات)
 - إدارة المقاولين مع نظام تقييم
 - إدارة العطاءات مع تقييم معيار موزون
-- العملة: AED (درهم إماراتي)
+- العملة: ${companyCurrency}
 ${engineeringContext}
 ${userInfo ? `\n\n${userInfo}` : ''}
 ${projectContextSection}

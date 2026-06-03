@@ -4,6 +4,8 @@ import { requireVerifiedPermission, orgFilter, orgCreate } from '@/app/api/utils
 import { log } from '@/lib/logger';
 import { Permission } from '@/lib/auth/types';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
+import { tenderCreateSchema } from '@/lib/validations/entity.schema';
+import { sanitizeObject } from '@/lib/security/sanitization';
 
 export async function GET(request: NextRequest) {
   const { allowed: _allowed, result } = await withRateLimit(request, 'api');
@@ -63,7 +65,15 @@ export async function GET(request: NextRequest) {
       }),
     ]);
 
-    return NextResponse.json({ tenders, total, page, limit });
+    return NextResponse.json({
+      data: tenders,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit)
+      }
+    });
   } catch (error) {
     log.error("Error fetching tenders:", error);
     return NextResponse.json(
@@ -84,6 +94,19 @@ export async function POST(request: NextRequest) {
     const ctx = rbac.user;
 
     const body = await request.json();
+
+    // 1. Zod Validation
+    const validationResult = tenderCreateSchema.safeParse(body);
+    if (!validationResult.success) {
+      return NextResponse.json(
+        { error: "بيانات غير صالحة", details: validationResult.error.format() },
+        { status: 400 }
+      );
+    }
+
+    // 2. Sanitization (After Validation)
+    const sanitizedData = sanitizeObject(validationResult.data);
+    
     const {
       tenderNumber,
       title,
@@ -104,36 +127,29 @@ export async function POST(request: NextRequest) {
       source,
       sourceUrl,
       assignedTo,
-    } = body;
-
-    if (!title) {
-      return NextResponse.json(
-        { error: "Title is required" },
-        { status: 400 }
-      );
-    }
+    } = sanitizedData;
 
     const tender = await db.tender.create({
       data: {
-        tenderNumber: tenderNumber || "",
+        tenderNumber,
         title,
-        authority: authority || "",
-        projectType: projectType || "",
-        description: description || "",
-        estimatedBudget: estimatedBudget ? parseFloat(estimatedBudget) : 0,
-        currency: currency || "AED",
+        authority,
+        projectType,
+        description,
+        estimatedBudget,
+        currency,
         closingDate: closingDate ? new Date(closingDate) : null,
         submissionDate: submissionDate ? new Date(submissionDate) : null,
-        qualifications: qualifications || "",
-        requiredDocs: requiredDocs || "",
-        status: status || "IDENTIFIED",
-        winnerName: winnerName || "",
-        lostReason: lostReason || "",
-        competitorAnalysis: competitorAnalysis || "",
-        notes: notes || "",
-        source: source || "",
-        sourceUrl: sourceUrl || "",
-        assignedTo: assignedTo || null,
+        qualifications,
+        requiredDocs,
+        status,
+        winnerName,
+        lostReason,
+        competitorAnalysis,
+        notes,
+        source,
+        sourceUrl,
+        assignedTo,
         ...orgCreate(ctx),
         createdById: ctx.userId,
       },
