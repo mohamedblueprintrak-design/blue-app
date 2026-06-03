@@ -3,4 +3,7 @@
 // semantically aligned with its role (JWT auth proxy, CSRF, rate-limit, security headers).
 // This file simply re-exports so Next.js picks it up automatically.
 
-export { proxy as middleware, config } from './auth-proxy';
+export { proxy as middleware } from './auth-proxy';
+export const config = {
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|sw.js).*)'],
+};

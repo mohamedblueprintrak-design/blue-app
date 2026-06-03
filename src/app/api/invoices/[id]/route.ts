@@ -83,7 +83,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     const orgError = orgCheck(user, existing);
     if (orgError) return orgError;
 
-    const validatedData = validation.data;
+    const validatedUpdateData = validation.data;
 
     // Validate invoice items if provided
     let subtotal: number = Number(existing.subtotal);
@@ -100,7 +100,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
           { status: 400 }
         );
       }
-      lineItems = sanitizeObject(itemsValidation.data);
+      lineItems = itemsValidation.data.map(item => sanitizeObject(item as unknown as Record<string, unknown>)) as unknown as typeof itemsValidation.data;
       subtotal = lineItems.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
       tax = subtotal * TAX_RATE;
       total = subtotal + tax;

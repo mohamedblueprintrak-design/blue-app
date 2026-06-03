@@ -227,7 +227,7 @@ class BackupVerificationService {
 
         try {
           const result = backupDb.pragma('integrity_check');
-          integrityCheckResult = result?.[0]?.integrity_check || 'unknown';
+          integrityCheckResult = (result as any)?.[0]?.integrity_check || 'unknown';
 
           if (integrityCheckResult !== 'ok') {
             log.error(`[BackupVerify] SQLite integrity check failed for ${backupPath}: ${integrityCheckResult}`);

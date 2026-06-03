@@ -5,7 +5,7 @@ import { log } from '@/lib/logger';
 import { Permission } from '@/lib/auth/types';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 import { tenderCreateSchema } from '@/lib/validations/entity.schema';
-import { sanitizeObject } from '@/lib/security/sanitization';
+import { sanitizeObject } from '@/lib/security/sanitize';
 
 export async function GET(request: NextRequest) {
   const { allowed: _allowed, result } = await withRateLimit(request, 'api');

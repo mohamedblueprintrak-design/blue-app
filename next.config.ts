@@ -190,4 +190,3 @@ const withSerwist = withSerwistInit({
 });
 
 export default withSerwist(finalConfig);
-

@@ -4,7 +4,7 @@ import { requireVerifiedPermission, orgFilter } from '@/app/api/utils/auth';
 import { log } from '@/lib/logger';
 import { Permission } from '@/lib/auth/types';
 import { validateRequest, validateIdParam, tenderUpdateSchema } from '@/lib/api-validation';
-import { sanitizeObject } from '@/lib/security/sanitization';
+import { sanitizeObject } from '@/lib/security/sanitize';
 
 export async function GET(
   request: NextRequest,
@@ -114,7 +114,7 @@ export async function PUT(
         ...(projectType !== undefined && { projectType }),
         ...(description !== undefined && { description }),
         ...(estimatedBudget !== undefined && {
-          estimatedBudget: estimatedBudget ? parseFloat(estimatedBudget) : 0,
+          estimatedBudget: estimatedBudget ? Number(estimatedBudget) : 0,
         }),
         ...(currency !== undefined && { currency }),
         ...(closingDate !== undefined && {

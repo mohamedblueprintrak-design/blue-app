@@ -1,0 +1,25 @@
+{
+  "Common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "search": "Search...",
+    "loading": "Loading...",
+    "error": "An error occurred"
+  },
+  "Navigation": {
+    "dashboard": "Dashboard",
+    "projects": "Projects",
+    "tasks": "Tasks",
+    "clients": "Clients",
+    "invoices": "Invoices",
+    "settings": "Settings"
+  },
+  "Dashboard": {
+    "welcome": "Welcome",
+    "totalProjects": "Total Projects",
+    "activeTasks": "Active Tasks",
+    "revenue": "Revenue"
+  }
+}

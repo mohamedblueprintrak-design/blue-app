@@ -1,0 +1,25 @@
+{
+  "Common": {
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "edit": "تعديل",
+    "delete": "حذف",
+    "search": "بحث...",
+    "loading": "جاري التحميل...",
+    "error": "حدث خطأ"
+  },
+  "Navigation": {
+    "dashboard": "لوحة القيادة",
+    "projects": "المشاريع",
+    "tasks": "المهام",
+    "clients": "العملاء",
+    "invoices": "الفواتير",
+    "settings": "الإعدادات"
+  },
+  "Dashboard": {
+    "welcome": "مرحباً",
+    "totalProjects": "إجمالي المشاريع",
+    "activeTasks": "المهام النشطة",
+    "revenue": "الإيرادات"
+  }
+}
