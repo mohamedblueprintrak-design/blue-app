@@ -1,5 +1,7 @@
 <div dir="rtl">
 
+<img src="public/logo.png" alt="BluePrint Logo" width="200" />
+
 # 🔵 BluePrint - Engineering Consultancy ERP
 **نظام متكامل لإدارة مكاتب الاستشارات الهندسية في الإمارات العربية المتحدة**
 
@@ -90,5 +92,13 @@ chmod +x setup.sh
 
 ## 📞 الدعم والمساهمة
 هذا المشروع مخصص للاستخدام المؤسسي. إذا واجهت أي مشاكل أثناء الإعداد أو التشغيل، يرجى مراجعة سجلات الخطأ (Logs) أو التواصل مع فريق التطوير.
+
+---
+
+## 📞 التواصل (Contact)
+
+- **رقم الهاتف (Phone)**: +971 50 161 1234
+- **البريد الإلكتروني (Email)**: info.blueprintrak@gmail.com
+- **الموقع (Location)**: Ras Al Khaimah, UAE
 
 </div>

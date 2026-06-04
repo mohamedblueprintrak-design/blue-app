@@ -180,7 +180,7 @@ export async function GET(request: NextRequest) {
         db.invoice.findMany({
           where: Object.keys(where).length > 0 ? where : undefined,
           include: {
-            client: { select: { id: true, name: true, company: true } },
+            client: { select: { id: true, name: true, company: true, phone: true } },
             project: { select: { id: true, name: true, nameEn: true, number: true } },
             items: { orderBy: { createdAt: "asc" } },
           },

@@ -24,18 +24,9 @@ export async function GET(
     const id = idResult.id;
 
     const leave = await db.leave.findFirst({
-      where: { id, deletedAt: null, user: { ...orgFilter(ctx) } },
+      where: { id, deletedAt: null, employee: { ...orgFilter(ctx) } },
       include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            avatar: true,
-            department: true,
-            position: true,
-          },
-        },
+        employee: { include: { user: { select: { id: true, name: true, email: true, avatar: true } } } },
         approver: {
           select: {
             id: true,
@@ -79,20 +70,21 @@ export async function PUT(
 
     // Verify leave record belongs to user's org
     const existingLeave = await db.leave.findFirst({
-      where: { id, user: { ...orgFilter(ctx) } },
+      where: { id, employee: { ...orgFilter(ctx) } },
     });
     if (!existingLeave) {
       return NextResponse.json({ error: "Leave request not found" }, { status: 404 });
     }
 
     const body = await request.json();
-    const sanitizedBody = sanitizeObject(body);
+    const validation = validateRequest(leaveUpdateSchema, body);
 
     // Zod validation for leave update fields
-    const validation = validateRequest(leaveUpdateSchema, sanitizedBody);
+    
     if (!validation.success) {
       return NextResponse.json({ error: validation.error, errors: validation.errors }, { status: 400 });
     }
+    const sanitizedBody = sanitizeObject(validation.data);
 
     const validatedData = validation.data;
 
@@ -109,16 +101,7 @@ export async function PUT(
         ...(validatedData.status === 'APPROVED' && { approvedById: ctx.userId }),
       },
       include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            avatar: true,
-            department: true,
-            position: true,
-          },
-        },
+        employee: { include: { user: { select: { id: true, name: true, email: true, avatar: true } } } },
         approver: {
           select: {
             id: true,
@@ -158,7 +141,7 @@ export async function DELETE(
 
     // Verify leave record belongs to user's org
     const existingLeave = await db.leave.findFirst({
-      where: { id, user: { ...orgFilter(ctx) } },
+      where: { id, employee: { ...orgFilter(ctx) } },
     });
     if (!existingLeave) {
       return NextResponse.json({ error: "Leave request not found" }, { status: 404 });

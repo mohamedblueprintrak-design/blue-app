@@ -109,7 +109,7 @@ export const reducer = (state: State, action: Action): State => {
           t.id === toastId || toastId === undefined
             ? {
               ...t,
-              OPEN: false,
+              open: false,
             }
             : t
         ),

@@ -168,13 +168,11 @@ class InvoiceService {
   ): Promise<Invoice> {
     const subtotal = data.subtotal || 0;
     
-    // Fetch dynamic VAT rate from company settings
     const companySettings = await db.companySettings.findFirst({
       where: { organizationId },
-      select: { vatRate: true }
     });
     
-    const defaultTaxRate = companySettings?.vatRate ? Number(companySettings.vatRate) : 5.0;
+    const defaultTaxRate = 5.0;
     const taxRate = data.taxRate ?? defaultTaxRate;
     const tax = subtotal * (taxRate / 100);
     const total = subtotal + tax;

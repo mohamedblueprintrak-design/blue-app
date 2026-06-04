@@ -316,13 +316,11 @@ export async function POST(request: NextRequest) {
     const user = rbac.user;
 
     const rawBody = await request.json();
-    const body = sanitizeObject(rawBody);
-
-    // Zod validation for task fields
-    const validation = taskSchema.safeParse(body);
+    const validation = taskSchema.safeParse(rawBody);
     if (!validation.success) {
       return errorResponse(validation.error.issues[0].message, "VALIDATION_ERROR", 400);
     }
+    const body = sanitizeObject(validation.data);
     const validatedData = validation.data;
 
     // progress is not part of the schema but may be passed

@@ -77,13 +77,14 @@ export async function POST(request: NextRequest) {
     const ctx = rbac.user;
 
     const body = await request.json();
-    const sanitizedBody = sanitizeObject(body);
+    const validation = validateRequest(paymentCreateSchema, body);
 
     // Zod validation for payment fields
-    const validation = validateRequest(paymentCreateSchema, sanitizedBody);
+    
     if (!validation.success) {
       return NextResponse.json({ error: validation.error, errors: validation.errors }, { status: 400 });
     }
+    const sanitizedBody = sanitizeObject(validation.data);
 
     const { voucherNumber, projectId, amount, payMethod, beneficiary, referenceNumber, description } = validation.data;
 

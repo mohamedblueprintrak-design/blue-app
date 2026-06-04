@@ -280,7 +280,10 @@ ${contextSection}`;
                       title: (conversation as Record<string, unknown> & { title?: string })?.title || message.substring(0, 50),
                     },
                   });
-                } catch (dbErr) { log.error('[AI Chat] Non-fatal DB error saving ZAI msg:', dbErr); }
+                } catch (dbErr) { 
+                  log.error('[AI Chat] Non-fatal DB error saving ZAI msg:', dbErr);
+                  throw dbErr;
+                }
                 controller.enqueue(sseEvent({ type: 'done', message: { content: fullText, conversationId, provider: usedProvider, model: usedModel } }));
                 controller.close();
               } catch (err) {
@@ -326,7 +329,10 @@ ${contextSection}`;
                       title: (conversation as Record<string, unknown> & { title?: string })?.title || message.substring(0, 50),
                     },
                   });
-                } catch (dbErr) { log.error('[AI Chat] Non-fatal DB error saving ZAI direct msg:', dbErr); }
+                } catch (dbErr) { 
+                  log.error('[AI Chat] Non-fatal DB error saving ZAI direct msg:', dbErr);
+                  throw dbErr;
+                }
                 controller.enqueue(sseEvent({ type: 'done', message: { content: fullText, conversationId, provider: usedProvider, model: usedModel } }));
                 controller.close();
               } catch (err) {
@@ -387,7 +393,10 @@ ${contextSection}`;
                     title: (conversation as Record<string, unknown> & { title?: string })?.title || message.substring(0, 50),
                   },
                 });
-              } catch (dbErr) { log.error('[AI Chat] Non-fatal DB error saving demo msg:', dbErr); }
+              } catch (dbErr) { 
+                log.error('[AI Chat] Non-fatal DB error saving demo msg:', dbErr);
+                throw dbErr;
+              }
               controller.enqueue(sseEvent({ type: 'done', message: { content: demoText, conversationId, provider: usedProvider, model: usedModel } }));
               controller.close();
             } catch (err) {
@@ -465,6 +474,7 @@ ${contextSection}`;
             });
           } catch (dbError) {
             log.error('[AI Chat] Database error saving AI response:', dbError);
+            throw dbError;
           }
 
           controller.enqueue(sseEvent({

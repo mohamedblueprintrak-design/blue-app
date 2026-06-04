@@ -113,16 +113,14 @@ export async function POST(request: NextRequest) {
     const ctx = result.user;
 
     const rawBody = await request.json();
-    const sanitizedBody = sanitizeObject(rawBody);
-
-    // Zod validation for risk fields
-    const validation = riskCreateSchema.safeParse(sanitizedBody);
+    const validation = riskCreateSchema.safeParse(rawBody);
     if (!validation.success) {
       return NextResponse.json(
         { error: validation.error.issues[0].message },
         { status: 400 }
       );
     }
+    const sanitizedBody = sanitizeObject(validation.data);
     const {
       projectId,
       title,

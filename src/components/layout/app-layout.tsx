@@ -162,6 +162,7 @@ import LogoImage from "@/components/ui/logo-image";
 
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { AppHeader } from "@/components/layout/app-header";
+import { GuidedTour } from "@/components/guided-tour";
 
 // ===== MAIN APP LAYOUT =====
 
@@ -423,6 +424,9 @@ export default function AppLayout({ language }: AppLayoutProps) {
       <WelcomeNotification />
       <ShortcutsOverlay language={language} open={showShortcuts} onOpenChange={setShowShortcuts} />
       <MobileBottomNav language={language} />
+      
+      {/* Guided Tour for Demo Mode */}
+      <GuidedTour language={language} />
 
       {/* Onboarding wizard — shown as overlay for new users */}
       {showOnboarding && onboardingChecked && (

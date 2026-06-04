@@ -236,11 +236,16 @@ async function main() {
     { id: 'emp-struct', userId: structuralUser.id, department: 'القسم الإنشائي', position: 'مهندسة إنشائية', salary: 20000, hireDate: new Date('2022-06-15') },
     { id: 'emp-mep', userId: mepUser.id, department: 'القسم الكهروميكانيكي', position: 'مهندس كهربائي', salary: 20000, hireDate: new Date('2021-09-01') },
     { id: 'emp-pm', userId: pmUser.id, department: 'إدارة المشاريع', position: 'مدير مشاريع', salary: 28000, hireDate: new Date('2020-06-01') },
+    { id: 'emp-site', userId: siteUser.id, department: 'الهندسة والتنفيذ', position: 'مهندس موقع', salary: 18000, hireDate: new Date('2021-11-10') },
+    { id: 'emp-acc', userId: accUser.id, department: 'المالية', position: 'محاسب', salary: 15000, hireDate: new Date('2022-01-05') },
+    { id: 'emp-sec', userId: secUser.id, department: 'الإدارة', position: 'سكرتيرة', salary: 12000, hireDate: new Date('2023-04-20') },
+    { id: 'emp-draft', userId: _draftUser.id, department: 'القسم المعماري', position: 'رسام هندسي', salary: 10000, hireDate: new Date('2023-08-15') },
+    { id: 'emp-elec', userId: _elecUser.id, department: 'القسم الكهروميكانيكي', position: 'مهندس كهربائي مساعد', salary: 16000, hireDate: new Date('2022-11-01') },
   ];
   for (const e of empData) {
     await db.employee.create({ data: { ...e, employmentStatus: 'ACTIVE', organizationId: org1.id } });
   }
-  console.info('✅ 5 employees created');
+  console.info('✅ 10 employees created');
 
   // ========== 4. Clients (4 basic + 6 diverse) ==========
   const client1 = await db.client.create({
@@ -321,7 +326,7 @@ async function main() {
       organizationId: org1.id,
     },
   });
-  const _client8 = await db.client.create({
+  const client8 = await db.client.create({
     data: {
       clientType: 'INDIVIDUAL', name: 'raj Kumar Sharma', nameEn: 'Raj Kumar Sharma',
       email: 'raj.sharma@outlook.com', phone: '+971-55-344-5566', whatsapp: '+971-55-344-5566',
@@ -532,7 +537,7 @@ async function main() {
       createdById: adminUser.id, organizationId: org2.id, managerId: pmUser.id, expectedDuration: 540,
     },
   });
-  const _project10 = await db.project.create({
+  const project10 = await db.project.create({
     data: {
       number: `PRJ-${currentYearStr}-010`, name: 'مشروع الأشغال العامة', nameEn: 'Public Works Project',
       clientId: client10.id, location: 'رأس الخيمة', plotNumber: 'RAK-PUB-0567',
@@ -661,7 +666,7 @@ async function main() {
   });
   console.info('✅ 5 BOQ items created');
 
-  // ========== 12. Invoices (6) ==========
+  // ========== 12. Invoices (15) ==========
   await db.invoice.createMany({
     data: [
       // INV-001 (paid) — WITHIN last 6 months so revenue shows!
@@ -676,9 +681,20 @@ async function main() {
       { number: `INV-${currentYearStr}-005`, clientId: client3.id, projectId: project3.id, issueDate: daysFromNow(0), dueDate: daysFromNow(30), subtotal: 150000, tax: 9000, total: 159000, paidAmount: 0, remaining: 159000, status: 'DRAFT' },
       // INV-006 (paid) — WITHIN last 6 months!
       { number: `INV-${currentYearStr}-006`, clientId: client4.id, projectId: project4.id, issueDate: monthsAgo(5), dueDate: monthsAgo(4), subtotal: 180000, tax: 10800, total: 190800, paidAmount: 190800, remaining: 0, status: 'PAID' },
+      
+      // New Invoices for Demo
+      { number: `INV-${currentYearStr}-007`, clientId: client4.id, projectId: project4.id, issueDate: monthsAgo(1), dueDate: daysFromNow(10), subtotal: 45000, tax: 2250, total: 47250, paidAmount: 0, remaining: 47250, status: 'SENT' },
+      { number: `INV-${currentYearStr}-008`, clientId: client5.id, projectId: project5.id, issueDate: monthsAgo(3), dueDate: monthsAgo(2), subtotal: 120000, tax: 6000, total: 126000, paidAmount: 126000, remaining: 0, status: 'PAID' },
+      { number: `INV-${currentYearStr}-009`, clientId: client6.id, projectId: project6.id, issueDate: monthsAgo(6), dueDate: monthsAgo(5), subtotal: 250000, tax: 12500, total: 262500, paidAmount: 262500, remaining: 0, status: 'PAID' },
+      { number: `INV-${currentYearStr}-010`, clientId: client7.id, projectId: project7.id, issueDate: monthsAgo(2), dueDate: monthsAgo(1), subtotal: 80000, tax: 4000, total: 84000, paidAmount: 40000, remaining: 44000, status: 'PARTIALLY_PAID' },
+      { number: `INV-${currentYearStr}-011`, clientId: client8.id, projectId: project8.id, issueDate: monthsAgo(4), dueDate: monthsAgo(3), subtotal: 95000, tax: 4750, total: 99750, paidAmount: 0, remaining: 99750, status: 'OVERDUE' },
+      { number: `INV-${currentYearStr}-012`, clientId: client9.id, projectId: project9.id, issueDate: daysFromNow(-5), dueDate: daysFromNow(25), subtotal: 35000, tax: 1750, total: 36750, paidAmount: 0, remaining: 36750, status: 'SENT' },
+      { number: `INV-${currentYearStr}-013`, clientId: client10.id, projectId: project10.id, issueDate: daysFromNow(2), dueDate: daysFromNow(32), subtotal: 200000, tax: 10000, total: 210000, paidAmount: 0, remaining: 210000, status: 'DRAFT' },
+      { number: `INV-${currentYearStr}-014`, clientId: client1.id, projectId: project1.id, issueDate: monthsAgo(1), dueDate: daysFromNow(15), subtotal: 15000, tax: 750, total: 15750, paidAmount: 15750, remaining: 0, status: 'PAID' },
+      { number: `INV-${currentYearStr}-015`, clientId: client2.id, projectId: project2.id, issueDate: monthsAgo(2), dueDate: monthsAgo(1), subtotal: 55000, tax: 2750, total: 57750, paidAmount: 0, remaining: 57750, status: 'OVERDUE' },
     ],
   });
-  console.info('✅ 6 invoices created');
+  console.info('✅ 15 invoices created');
 
   // ========== 13. Contracts (3) ==========
   await db.contract.createMany({

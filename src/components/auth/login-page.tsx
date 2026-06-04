@@ -604,22 +604,44 @@ export default function LoginPage({ language }: LoginPageProps) {
                             {isAr ? "تذكرني" : "Remember me"}
                           </span>
                         </label>
-
-                        <Select value={selectedRole} onValueChange={handleRoleSelect}>
-                          <SelectTrigger className="h-8 w-auto min-w-[120px] text-xs bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700">
-                            <User className="h-3 w-3 me-1.5 text-slate-400" />
-                            <SelectValue placeholder={isAr ? "اختر الدور" : "Select Role"} />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {ROLES.map((role) => (
-                              <SelectItem key={role.value} value={role.value}>
-                                {isAr ? role.labelAr : role.labelEn}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
                       </div>
                     </>
+                  )}
+
+                  {/* Demo Mode Quick Login Buttons */}
+                  {demoCredentials.length > 0 && !requires2FA && (
+                    <div className="pt-2 pb-1">
+                      <p className="text-xs text-slate-500 mb-2 font-medium">{isAr ? "دخول سريع (العرض التجريبي):" : "Quick Login (Demo):"}</p>
+                      <div className="grid grid-cols-3 gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="h-8 text-[11px] bg-slate-50 dark:bg-slate-800"
+                          onClick={() => handleRoleSelect("admin@blueprint.ae")}
+                        >
+                          {isAr ? "المدير العام" : "Admin"}
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="h-8 text-[11px] bg-slate-50 dark:bg-slate-800"
+                          onClick={() => handleRoleSelect("pm@blueprint.ae")}
+                        >
+                          {isAr ? "مدير مشاريع" : "Manager"}
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="h-8 text-[11px] bg-slate-50 dark:bg-slate-800"
+                          onClick={() => handleRoleSelect("eng@blueprint.ae")}
+                        >
+                          {isAr ? "مهندس" : "Engineer"}
+                        </Button>
+                      </div>
+                    </div>
                   )}
 
                   {/* Submit Button */}

@@ -62,17 +62,16 @@ export async function PUT(
     if (!idResult.success) return idResult.response;
     const id = idResult.id;
     const body = await request.json();
-    const sanitizedBody = sanitizeObject(body);
+    const validation = validateRequest(riskUpdateSchema, body);
 
    // Zod validation for update fields
 
-   const validation = validateRequest(riskUpdateSchema, sanitizedBody);
-
-   if (!validation.success) {
+   
+    if (!validation.success) {
 
      return NextResponse.json({ error: validation.error, errors: validation.errors }, { status: 400 });
-
-   }
+    }
+    const sanitizedBody = sanitizeObject(validation.data);
 
     // Verify org ownership before update
     const orgWhere = orgFilterNested(ctx, 'project');

@@ -375,7 +375,7 @@ export default function InvoicesPage({ language, projectId }: InvoicesPageProps)
       headers: getMutationHeaders(),
       body: JSON.stringify({
         type: "invoice",
-        to: (inv.client as any).phone || "+971501234567", // Fallback for demo
+        to: inv.client?.phone || "+971501234567", // Fallback for demo
         invoice: {
           invoiceNumber: inv.number,
           clientName: inv.client.name,

@@ -57,13 +57,14 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     if (!idResult.success) return idResult.response;
     const id = idResult.id;
     const body = await request.json();
-    const sanitizedBody = sanitizeObject(body);
+    const validation = validateRequest(paymentUpdateSchema, body);
 
     // Zod validation for payment update fields
-    const validation = validateRequest(paymentUpdateSchema, sanitizedBody);
+    
     if (!validation.success) {
       return NextResponse.json({ error: validation.error, errors: validation.errors }, { status: 400 });
     }
+    const sanitizedBody = sanitizeObject(validation.data);
 
     const { status, amount, payMethod, beneficiary, referenceNumber, description } = validation.data;
 

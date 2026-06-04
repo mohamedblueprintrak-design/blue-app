@@ -66,6 +66,17 @@ export async function timingSafeCompare(a: string, b: string): Promise<boolean> 
   const aBuffer = encoder.encode(a);
   const bBuffer = encoder.encode(b);
   
+  if (aBuffer.byteLength !== bBuffer.byteLength) {
+    // Prevent timing attack by performing a dummy hash calculation
+    const dummyHash = await crypto.subtle.digest('SHA-256', bBuffer);
+    const dummyArr = new Uint8Array(dummyHash);
+    let result = 0;
+    for (let i = 0; i < dummyArr.length; i++) {
+      result |= dummyArr[i] ^ dummyArr[i];
+    }
+    return false;
+  }
+  
   const aHash = await crypto.subtle.digest('SHA-256', aBuffer);
   const bHash = await crypto.subtle.digest('SHA-256', bBuffer);
   

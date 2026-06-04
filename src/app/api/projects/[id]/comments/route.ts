@@ -78,13 +78,14 @@ export async function POST(
     }
 
     const body = await request.json();
-    const sanitizedBody = sanitizeObject(body);
+    const validation = validateRequest(commentCreateSchema, body);
 
     // Zod validation for comment content
-    const validation = validateRequest(commentCreateSchema, sanitizedBody);
+    
     if (!validation.success) {
       return NextResponse.json({ error: validation.error, errors: validation.errors }, { status: 400 });
     }
+    const sanitizedBody = sanitizeObject(validation.data);
 
     const { content } = validation.data;
 

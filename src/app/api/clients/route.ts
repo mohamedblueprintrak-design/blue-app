@@ -231,13 +231,11 @@ export async function POST(request: NextRequest) {
     const user = rbac.user;
 
     const rawBody = await request.json();
-    const body = sanitizeObject(rawBody);
-
-    // Zod validation for client fields
-    const validation = clientSchema.safeParse(body);
+    const validation = clientSchema.safeParse(rawBody);
     if (!validation.success) {
       return errorResponse(validation.error.issues[0].message, "VALIDATION_ERROR", 400);
     }
+    const body = sanitizeObject(validation.data);
     const validatedData = validation.data;
     const sanitizedEmail = validatedData.email ? sanitizeEmail(validatedData.email) : "";
 

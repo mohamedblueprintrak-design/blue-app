@@ -77,13 +77,14 @@ export async function POST(request: NextRequest) {
     const ctx = rbac.user;
 
     const rawBody = await request.json();
-    const body = sanitizeObject(rawBody);
+    const validation = validateRequest(budgetCreateSchema, rawBody);
 
     // Zod validation for budget create fields
-    const validation = validateRequest(budgetCreateSchema, body);
+    
     if (!validation.success) {
       return NextResponse.json({ error: validation.error, errors: validation.errors }, { status: 400 });
     }
+    const body = sanitizeObject(validation.data);
     const validatedData = validation.data;
     const { projectId, parentId, name, category, planned, actual, committed } = validatedData;
 

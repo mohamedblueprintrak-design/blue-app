@@ -115,13 +115,14 @@ export async function PUT(
     if (!idResult.success) return idResult.response;
     const id = idResult.id;
     const rawBody = await request.json();
-    const body = sanitizeObject(rawBody);
+    const validation = validateRequest(clientUpdateSchema, rawBody);
 
     // Zod validation for client update fields
-    const validation = validateRequest(clientUpdateSchema, body);
+    
     if (!validation.success) {
       return NextResponse.json({ error: validation.error, errors: validation.errors }, { status: 400 });
     }
+    const body = sanitizeObject(validation.data);
 
     const existing = await db.client.findUnique({ where: { id } });
     if (!existing || existing.deletedAt) {

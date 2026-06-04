@@ -51,12 +51,13 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     if (!idResult.success) return idResult.response;
     const id = idResult.id;
     const body = await request.json();
-    const sanitizedBody = sanitizeObject(body);
+    const validation = validateRequest(defectUpdateSchema, body);
     // Zod validation for update fields
-    const validation = validateRequest(defectUpdateSchema, sanitizedBody);
+    
     if (!validation.success) {
       return NextResponse.json({ error: validation.error, errors: validation.errors }, { status: 400 });
     }
+    const sanitizedBody = sanitizeObject(validation.data);
     const { title, severity, location, assigneeId, photos, resolutionNotes, status } = sanitizedBody;
 
     const orgWhere = orgFilterNested(ctx, 'project');

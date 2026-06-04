@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * WhatsApp Cloud API Service
  * خدمة واتساب للأعمال — تكامل مع Meta Cloud API

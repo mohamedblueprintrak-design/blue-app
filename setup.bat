@@ -9,26 +9,29 @@ echo ==================================================
 echo.
 
 echo [Checking prerequisites...]
-bun --version >nul 2>nul
+where bun >nul 2>nul
 if %ERRORLEVEL% EQU 0 (
     set RUNNER=bun
     set PKG_MGR=bun
     set EXEC=bunx
     echo [OK] Bun found
-) else (
-    node -v >nul 2>nul
-    if %ERRORLEVEL% EQU 0 (
-        set RUNNER=node
-        set PKG_MGR=npm
-        set EXEC=npx
-        echo [OK] Node.js found ^(Fallback from Bun^)
-    ) else (
-        echo [ERROR] Neither Bun nor Node.js found! Please install Node.js.
-        pause
-        exit /b 1
-    )
+    goto check_git
 )
 
+where node >nul 2>nul
+if %ERRORLEVEL% EQU 0 (
+    set RUNNER=node
+    set PKG_MGR=npm
+    set EXEC=npx
+    echo [OK] Node.js found ^(Fallback from Bun^)
+    goto check_git
+)
+
+echo [ERROR] Neither Bun nor Node.js found! Please install Node.js.
+pause
+exit /b 1
+
+:check_git
 where git >nul 2>nul
 if %ERRORLEVEL% NEQ 0 (
     echo [ERROR] Git not found
@@ -38,7 +41,7 @@ if %ERRORLEVEL% NEQ 0 (
     echo [OK] Git found
 )
 
-echo [OK] OpenSSL / Crypto ready (via Bun)
+echo [OK] OpenSSL / Crypto ready
 echo.
 
 echo ================================================

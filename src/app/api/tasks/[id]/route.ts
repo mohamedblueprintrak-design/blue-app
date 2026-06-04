@@ -80,13 +80,14 @@ export async function PUT(
     if (!idResult.success) return idResult.response;
     const id = idResult.id;
     const rawBody = await request.json();
-    const body = sanitizeObject(rawBody);
+    const validation = validateRequest(taskUpdateSchema, rawBody);
 
     // Zod validation for task update fields
-    const validation = validateRequest(taskUpdateSchema, body);
+    
     if (!validation.success) {
       return NextResponse.json({ error: validation.error, errors: validation.errors }, { status: 400 });
     }
+    const body = sanitizeObject(validation.data);
 
     // Check task exists
     const existing = await db.task.findUnique({ where: { id } });

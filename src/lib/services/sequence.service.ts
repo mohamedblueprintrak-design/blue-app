@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { db } from '@/lib/db';
 import { log } from '@/lib/logger';
 

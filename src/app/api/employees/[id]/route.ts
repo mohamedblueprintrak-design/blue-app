@@ -86,13 +86,14 @@ export async function PUT(
     }
 
     const body = await request.json();
-    const sanitizedBody = sanitizeObject(body);
+    const validation = validateRequest(employeeUpdateSchema, body);
 
     // Zod validation for employee update fields
-    const validation = validateRequest(employeeUpdateSchema, sanitizedBody);
+    
     if (!validation.success) {
       return NextResponse.json({ error: validation.error, errors: validation.errors }, { status: 400 });
     }
+    const sanitizedBody = sanitizeObject(validation.data);
 
     const validatedData = validation.data;
 

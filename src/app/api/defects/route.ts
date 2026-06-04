@@ -105,16 +105,14 @@ export async function POST(request: NextRequest) {
     const ctx = result.user;
 
     const rawBody = await request.json();
-    const body = sanitizeObject(rawBody);
-
-    // Zod validation for defect fields
-    const validation = defectCreateSchema.safeParse(body);
+    const validation = defectCreateSchema.safeParse(rawBody);
     if (!validation.success) {
       return NextResponse.json(
         { error: validation.error.issues[0].message },
         { status: 400 }
       );
     }
+    const body = sanitizeObject(validation.data);
     const validatedData = sanitizeObject(validation.data);
 
     const { projectId, title, description, severity, status, assigneeId, location, photos, notes } = validatedData;
@@ -123,7 +121,7 @@ export async function POST(request: NextRequest) {
       data: {
         projectId,
         title,
-        severity: severity as any,
+        severity: severity,
         location: location || "",
         assigneeId: assigneeId || null,
         photos: photos || "",

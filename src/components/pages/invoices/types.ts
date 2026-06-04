@@ -20,7 +20,7 @@ export interface Invoice {
   currency: string;
   clientId: string;
   projectId: string;
-  client: { id: string; name: string; company: string };
+  client: { id: string; name: string; company: string; phone?: string | null };
   project: { id: string; name: string; nameEn: string; number: string };
   items: InvoiceItem[];
 }

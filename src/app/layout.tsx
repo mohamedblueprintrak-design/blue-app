@@ -11,6 +11,7 @@ import { SkipNavLink } from "@/components/common/accessible-components";
 import CookieConsent from "@/components/common/cookie-consent";
 import {NextIntlClientProvider} from 'next-intl';
 import {getMessages} from 'next-intl/server';
+import { DemoBanner } from "@/components/demo-banner";
 const ibmPlexArabic = IBM_Plex_Sans_Arabic({
   variable: "--font-ibm-plex-arabic",
   subsets: ["arabic", "latin"],
@@ -84,6 +85,7 @@ export default async function RootLayout({
               <SafeWebSocketProvider>
                 <ErrorBoundary locale="ar">
                   <NextIntlClientProvider messages={messages}>
+                    {process.env.DEMO_MODE === "true" && <DemoBanner />}
                     {children}
                   </NextIntlClientProvider>
                 </ErrorBoundary>

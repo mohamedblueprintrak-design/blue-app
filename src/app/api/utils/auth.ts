@@ -368,6 +368,21 @@ export async function requireVerifiedAuth(
     return { error: unauthorizedResponse() };
   }
 
+  // DEMO MODE PROTECTION: Protect core data from modification
+  if (process.env.DEMO_MODE === 'true' && process.env.NODE_ENV !== 'development') {
+    const method = request.method;
+    const path = request.nextUrl.pathname;
+    
+    // Prevent modification or deletion of users in Demo Mode
+    if ((method === 'DELETE' || method === 'PUT') && path.startsWith('/api/users')) {
+      return { error: forbiddenResponse('Modification of users is disabled in Demo Mode.') };
+    }
+    // Prevent deletion of projects in Demo Mode
+    if (method === 'DELETE' && path.startsWith('/api/projects')) {
+      return { error: forbiddenResponse('Deletion of projects is disabled in Demo Mode.') };
+    }
+  }
+
   // Step 2: Extract and verify the JWT
   const token = getTokenFromRequest(request);
   if (!token) {

@@ -82,13 +82,14 @@ export async function PUT(
     if (!idResult.success) return idResult.response;
     const id = idResult.id;
     const body = await request.json();
-    const sanitizedBody = sanitizeObject(body);
+    const validation = validateRequest(contractUpdateSchema, body);
 
     // Zod validation for contract update fields
-    const validation = validateRequest(contractUpdateSchema, sanitizedBody);
+    
     if (!validation.success) {
       return NextResponse.json({ error: validation.error, errors: validation.errors }, { status: 400 });
     }
+    const sanitizedBody = sanitizeObject(validation.data);
 
     const orgWhere = orgFilter(ctx);
     const existing = await db.contract.findFirst({ where: { id, ...orgWhere } });

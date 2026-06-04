@@ -145,13 +145,14 @@ export async function PUT(
     if (!idResult.success) return idResult.response;
     const id = idResult.id;
     const rawBody = await request.json();
-    const body = sanitizeObject(rawBody);
+    const validation = validateRequest(projectUpdateSchema, rawBody);
 
     // Zod validation for project update fields
-    const validation = validateRequest(projectUpdateSchema, body);
+    
     if (!validation.success) {
       return NextResponse.json({ error: validation.error, errors: validation.errors }, { status: 400 });
     }
+    const body = sanitizeObject(validation.data);
 
     // Check project exists and is not soft-deleted
     const existing = await db.project.findUnique({ where: { id } });

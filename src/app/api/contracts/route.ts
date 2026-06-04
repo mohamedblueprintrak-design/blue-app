@@ -85,16 +85,14 @@ export async function POST(request: NextRequest) {
     const ctx = rbac.user;
 
     const rawBody = await request.json();
-    const body = sanitizeObject(rawBody);
-
-    // Zod validation for contract fields
-    const validation = contractSchema.safeParse(body);
+    const validation = contractSchema.safeParse(rawBody);
     if (!validation.success) {
       return NextResponse.json(
         { error: validation.error.issues[0].message },
         { status: 400 }
       );
     }
+    const body = sanitizeObject(validation.data);
     const validatedData = validation.data;
     const {
       number,

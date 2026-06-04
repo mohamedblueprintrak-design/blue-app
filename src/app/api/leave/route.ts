@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
 
     const where: Record<string, unknown> = {
       deletedAt: null,
-      user: { ...orgFilter(ctx) },
+      employee: { ...orgFilter(ctx) },
     };
 
     if (employeeId && employeeId !== "all") {
@@ -34,16 +34,7 @@ export async function GET(request: NextRequest) {
     const leaves = await db.leave.findMany({
       where,
       include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            avatar: true,
-            department: true,
-            position: true,
-          },
-        },
+        employee: { include: { user: { select: { id: true, name: true, email: true, avatar: true } } } },
         approver: {
           select: {
             id: true,
@@ -62,12 +53,12 @@ export async function GET(request: NextRequest) {
     today.setHours(0, 0, 0, 0);
 
     const [pendingCount, approvedThisMonth, onLeaveToday] = await Promise.all([
-      db.leave.count({ where: { status: "PENDING", user: { ...orgFilter(ctx) } } }),
+      db.leave.count({ where: { status: "PENDING", employee: { ...orgFilter(ctx) } } }),
       db.leave.count({
         where: {
           status: "APPROVED",
           startDate: { gte: startOfMonth },
-          user: { ...orgFilter(ctx) },
+          employee: { ...orgFilter(ctx) },
         },
       }),
       db.leave.count({
@@ -75,7 +66,7 @@ export async function GET(request: NextRequest) {
           status: "APPROVED",
           startDate: { lte: today },
           endDate: { gte: today },
-          user: { ...orgFilter(ctx) },
+          employee: { ...orgFilter(ctx) },
         },
       }),
     ]);
@@ -127,16 +118,7 @@ export async function POST(request: NextRequest) {
         status: "PENDING",
       },
       include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            avatar: true,
-            department: true,
-            position: true,
-          },
-        },
+        employee: { include: { user: { select: { id: true, name: true, email: true, avatar: true } } } },
         approver: {
           select: {
             id: true,
