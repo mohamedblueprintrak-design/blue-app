@@ -195,27 +195,13 @@ export async function POST(request: NextRequest) {
       if (existingDoc) {
         // Archive the current version as a DocumentVersion record
         const oldVersion = existingDoc.version;
-        const newVersion = oldVersion + 1;
-
-        await db.documentVersion.create({
-          data: {
-            documentId: existingDoc.id,
-            version: oldVersion,
-            fileName: existingDoc.name,
-            filePath: existingDoc.filePath,
-            fileSize: typeof existingDoc.fileSize === 'number' ? existingDoc.fileSize : 0,
-            mimeType: fileContentType,
-            changeSummary: changeSummary || `Archived version ${oldVersion}`,
-            uploadedById: ctx.userId,
-            ...orgCreate(ctx),
-          },
-        });
+        // DocumentVersion model was deleted, so we just update the document in place
 
         // Update the existing document with the new file
         const updatedDocument = await db.document.update({
           where: { id: existingDoc.id },
           data: {
-            version: newVersion,
+            version: oldVersion + 1,
             fileType: ext,
             fileSize,
             filePath,
@@ -234,7 +220,7 @@ export async function POST(request: NextRequest) {
         log.info('[Documents] New version uploaded (via duplicate name)', {
           documentId: existingDoc.id,
           oldVersion,
-          newVersion,
+          newVersion: oldVersion + 1,
           fileName: name,
           changeSummary,
         });

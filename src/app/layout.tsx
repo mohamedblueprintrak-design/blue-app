@@ -70,6 +70,8 @@ export default async function RootLayout({
             localStorage and sets document direction. No user input is interpolated.
             This is the standard Next.js pattern for preventing FOUC (flash of unstyled content). */}
         <script
+          id="lang-script"
+          suppressHydrationWarning
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var m=document.cookie.match(/(^| )blueprint-lang=([^;]+)/);var l=m?m[2]:(localStorage.getItem("blueprint-lang")||"ar");document.documentElement.lang=l;document.documentElement.dir=l==="ar"?"rtl":"ltr"}catch(e){}})()`,
           }}
@@ -87,11 +89,11 @@ export default async function RootLayout({
                   <NextIntlClientProvider messages={messages}>
                     {process.env.DEMO_MODE === "true" && <DemoBanner />}
                     {children}
+                    <CookieConsent />
                   </NextIntlClientProvider>
                 </ErrorBoundary>
               </SafeWebSocketProvider>
               <Toaster />
-              <CookieConsent />
             </CsrfProvider>
           </ReactQueryProvider>
         </ThemeProvider>

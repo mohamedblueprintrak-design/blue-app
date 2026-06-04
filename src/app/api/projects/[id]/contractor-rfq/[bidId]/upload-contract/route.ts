@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { requireVerifiedPermission, orgCheck } from '@/app/api/utils/auth';
+import { requireVerifiedPermission, orgCheck, orgCreate } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { handleApiError } from '@/lib/api-error';
 import { validateIdParam } from '@/lib/api-validation';
@@ -80,6 +80,7 @@ export async function POST(
           fileSize: buffer.length,
           category: 'CONTRACT',
           filePath: `/uploads/${fileName}`,
+          ...orgCreate(ctx),
         },
       });
     }

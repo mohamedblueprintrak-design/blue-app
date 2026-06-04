@@ -26,16 +26,7 @@ export async function POST(request: NextRequest) {
     // Get exchange rates from settings if not provided
     let rates = body.rates;
     if (!rates) {
-      const settings = await db.companySettings.findFirst();
-      if (settings?.exchangeRates) {
-        try {
-          rates = { ...DEFAULT_EXCHANGE_RATES, ...JSON.parse(settings.exchangeRates) };
-        } catch {
-          rates = DEFAULT_EXCHANGE_RATES;
-        }
-      } else {
-        rates = DEFAULT_EXCHANGE_RATES;
-      }
+      rates = DEFAULT_EXCHANGE_RATES;
     }
 
     const converted = convertCurrency(amount, from, to, rates);

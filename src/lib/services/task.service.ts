@@ -12,6 +12,7 @@
 import { db } from '@/lib/db';
 import { insensitiveContains } from '@/app/api/utils/db';
 import { logAudit } from './audit.service';
+import { automationService } from './automation.service';
 import type { Task } from '@prisma/client';
 import type { TaskPriority, TaskStatus } from '@/types/db-enums';
 
@@ -372,10 +373,13 @@ class TaskService {
     if (data.dependencies !== undefined) updateData.dependencies = data.dependencies;
     if (data.order !== undefined) updateData.order = data.order;
 
-    const task = await db.task.update({
-      where: { id },
+    await db.task.updateMany({
+      where: { id, organizationId },
       data: updateData,
     });
+
+    const task = await db.task.findFirst({ where: { id, organizationId } });
+    if (!task) throw new TaskAccessError('Task not found after update');
 
     await logAudit({
       userId,
@@ -413,8 +417,8 @@ class TaskService {
     }
 
     // Soft delete the task
-    await db.task.update({
-      where: { id },
+    await db.task.updateMany({
+      where: { id, organizationId },
       data: { deletedAt: new Date() },
     });
 
@@ -461,7 +465,17 @@ class TaskService {
       updateData.progress = 100;
     }
 
-    return this.updateTask(id, updateData, organizationId, userId);
+    const task = await this.updateTask(id, updateData, organizationId, userId);
+
+    if (status === 'DONE') {
+      await automationService.triggerEvent('TASK_COMPLETED', {
+        organizationId,
+        entityId: id,
+        userId
+      });
+    }
+
+    return task;
   }
 
   /**

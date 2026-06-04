@@ -226,8 +226,9 @@ export function isDemoMode(): boolean {
  * Call this at app startup to prevent accidental production use.
  */
 export function validateDemoMode(): void {
+  // Production demo mode hard-block removed per USER request to allow explanation/demo mode in production
   if (process.env.NODE_ENV === "production" && process.env.DEMO_MODE === "true") {
-    throw new Error("CRITICAL SECURITY ALERT: DEMO_MODE cannot be enabled in production.");
+    console.warn("WARNING: DEMO_MODE is enabled in production. Demo credentials can be accessed.");
   }
 }
 

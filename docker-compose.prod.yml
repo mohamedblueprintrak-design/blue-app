@@ -96,6 +96,7 @@ services:
     # Remove the ports section entirely for production
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - postgres_backup:/var/backups/postgresql
     networks:
       - blueprint-network
     healthcheck:
@@ -125,6 +126,8 @@ services:
       - redis_data:/data
     networks:
       - blueprint-network
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
     # SECURITY: Use password authentication
     command: >
       redis-server 
@@ -211,6 +214,8 @@ volumes:
   postgres_data:
     driver: local
   redis_data:
+    driver: local
+  postgres_backup:
     driver: local
   uploads:
     driver: local

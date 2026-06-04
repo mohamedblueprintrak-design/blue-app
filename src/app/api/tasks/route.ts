@@ -10,7 +10,7 @@ import { cacheGetOrSet } from '@/lib/cache/redis';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
-import { applyAutoAssignment } from '@/lib/services/auto-assignment.service';
+// import { applyAutoAssignment } from '@/lib/services/auto-assignment.service';
 
 /**
  * @openapi
@@ -370,50 +370,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Apply auto-assignment if no assignee was explicitly provided
-    if (!assigneeId) {
-      try {
-        // Build entity data for rule evaluation from the task and its project
-        const entityData: Record<string, unknown> = {
-          id: task.id,
-          title: task.title,
-          description: task.description,
-          priority: task.priority,
-          status: task.status,
-          taskType: task.taskType,
-          projectId: task.projectId,
-          projectType: task.project?.type || null,
-          createdById: task.createdById,
-        };
-
-        const autoAssigneeId = await applyAutoAssignment(
-          task.id,
-          entityData,
-          user.organizationId,
-          user
-        );
-
-        if (autoAssigneeId) {
-          // Re-fetch the task with the updated assignee to include in response
-          const updatedTask = await db.task.findUnique({
-            where: { id: task.id },
-            include: {
-              project: {
-                select: { id: true, name: true, nameEn: true, number: true },
-              },
-              assignee: {
-                select: { id: true, name: true, email: true, avatar: true },
-              },
-              subtasks: true,
-            },
-          });
-          return createdResponse(updatedTask);
-        }
-      } catch (autoAssignError) {
-        // Auto-assignment failure should not block task creation
-        log.warn('[TaskCreate] Auto-assignment failed:', { error: String(autoAssignError) });
-      }
-    }
+    // Auto-assignment disabled
 
     return createdResponse(task);
   } catch (error) {

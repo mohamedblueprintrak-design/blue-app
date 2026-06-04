@@ -111,9 +111,6 @@ export async function GET(request: NextRequest) {
         invoiceOverdue: true,
         projectUpdates: true,
         slaWarnings: true,
-        channels: DEFAULT_CHANNELS,
-        categories: DEFAULT_CATEGORIES,
-        quietHours: DEFAULT_QUIET_HOURS,
       });
     }
 
@@ -126,9 +123,6 @@ export async function GET(request: NextRequest) {
       invoiceOverdue: settings.invoiceOverdue,
       projectUpdates: settings.projectUpdates,
       slaWarnings: settings.slaWarnings,
-      channels: safeParseJson(settings.channels, DEFAULT_CHANNELS),
-      categories: safeParseJson(settings.categories, DEFAULT_CATEGORIES),
-      quietHours: safeParseJson(settings.quietHours, DEFAULT_QUIET_HOURS),
     });
   } catch (error: unknown) {
     return handleApiError(error, 'NotificationSettings GET');
@@ -163,29 +157,7 @@ export async function PUT(request: NextRequest) {
       where: { userId: ctx.userId },
     });
 
-    const mergedChannels = JSON.stringify(
-      data.channels
-        ? { ...safeParseJson(existing?.channels, DEFAULT_CHANNELS), ...data.channels }
-        : safeParseJson(existing?.channels, DEFAULT_CHANNELS)
-    );
 
-    const mergedCategories = JSON.stringify(
-      data.categories
-        ? {
-            ...safeParseJson(existing?.categories, DEFAULT_CATEGORIES),
-            ...Object.fromEntries(
-              Object.entries(data.categories).filter(([, v]) => v !== undefined)
-                .map(([k, v]) => [k, { ...safeParseJson(existing?.categories, DEFAULT_CATEGORIES)[k as keyof typeof DEFAULT_CATEGORIES], ...v }])
-            ),
-          }
-        : safeParseJson(existing?.categories, DEFAULT_CATEGORIES)
-    );
-
-    const mergedQuietHours = JSON.stringify(
-      data.quietHours
-        ? { ...safeParseJson(existing?.quietHours, DEFAULT_QUIET_HOURS), ...data.quietHours }
-        : safeParseJson(existing?.quietHours, DEFAULT_QUIET_HOURS)
-    );
 
     const orgData = orgCreate(ctx);
 
@@ -200,9 +172,6 @@ export async function PUT(request: NextRequest) {
         ...(data.invoiceOverdue !== undefined && { invoiceOverdue: data.invoiceOverdue }),
         ...(data.projectUpdates !== undefined && { projectUpdates: data.projectUpdates }),
         ...(data.slaWarnings !== undefined && { slaWarnings: data.slaWarnings }),
-        channels: mergedChannels,
-        categories: mergedCategories,
-        quietHours: mergedQuietHours,
       },
       create: {
         userId: ctx.userId,
@@ -214,9 +183,6 @@ export async function PUT(request: NextRequest) {
         invoiceOverdue: data.invoiceOverdue ?? true,
         projectUpdates: data.projectUpdates ?? true,
         slaWarnings: data.slaWarnings ?? true,
-        channels: mergedChannels,
-        categories: mergedCategories,
-        quietHours: mergedQuietHours,
         ...orgData,
       },
     });
@@ -230,9 +196,6 @@ export async function PUT(request: NextRequest) {
       invoiceOverdue: settings.invoiceOverdue,
       projectUpdates: settings.projectUpdates,
       slaWarnings: settings.slaWarnings,
-      channels: safeParseJson(settings.channels, DEFAULT_CHANNELS),
-      categories: safeParseJson(settings.categories, DEFAULT_CATEGORIES),
-      quietHours: safeParseJson(settings.quietHours, DEFAULT_QUIET_HOURS),
     });
   } catch (error: unknown) {
     return handleApiError(error, 'NotificationSettings PUT');

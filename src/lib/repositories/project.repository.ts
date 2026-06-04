@@ -98,9 +98,9 @@ export class ProjectRepository extends BaseRepository<Project> {
   /**
    * Find project by project number
    */
-  async findByProjectNumber(number: string): Promise<Project | null> {
-    return this.delegate.findUnique({
-      where: { number },
+  async findByProjectNumber(number: string, organizationId: string): Promise<Project | null> {
+    return this.delegate.findFirst({
+      where: { number, organizationId },
     });
   }
 
@@ -145,10 +145,11 @@ export class ProjectRepository extends BaseRepository<Project> {
    */
   async findManyByManager(
     managerId: string,
+    organizationId: string,
     options?: FindManyOptions
   ): Promise<Project[]> {
     return this.delegate.findMany({
-      where: { managerId },
+      where: { managerId, organizationId },
       skip: options?.skip,
       take: options?.take,
       orderBy: options?.orderBy || { createdAt: 'desc' },

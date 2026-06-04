@@ -150,7 +150,7 @@ enum UtilityConnectionStatus {
 
 model User {
   id                  String    @id @default(cuid())
-  email               String    @unique
+  email               String    
   password            String    @default("") // Auth service always hashes passwords before saving; empty default prevents accidental login
   name                String    @default("")
   phone               String    @default("")
@@ -179,8 +179,8 @@ model User {
   failedLoginAttempts Int       @default(0)
   lockedUntil         DateTime?
   preferences         String?   @default("{}")
-  googleId            String?   @unique // Google OAuth sub ID — for social login
-  microsoftId         String?   @unique // Microsoft OAuth sub ID — for social login
+  googleId            String?    // Google OAuth sub ID — for social login
+  microsoftId         String?    // Microsoft OAuth sub ID — for social login
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 
@@ -228,6 +228,9 @@ model User {
   @@index([name])
   @@index([role])
   @@index([isActive])
+  @@unique([email, organizationId])
+  @@unique([googleId, organizationId])
+  @@unique([microsoftId, organizationId])
 }
 
 // ==================== REFRESH TOKENS ====================
@@ -262,11 +265,11 @@ model CompanySettings {
   timezone       String   @default("Asia/Dubai")
   workingDays    String   @default("sat,sun,mon,tue,wed,thu") // comma-separated UAE work week (Saturday-Thursday)
   workingHours   String   @default("08:00-17:00")
-  organizationId String? // SaaS multi-tenant organization
+  organizationId String // SaaS multi-tenant organization
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
 
   @@index([organizationId])
 }
@@ -275,7 +278,7 @@ model CompanySettings {
 
 model Project {
   id                    String    @id @default(cuid())
-  number                String    @unique
+  number      String    
   name                  String    @default("")
   nameEn                String    @default("")
   clientId              String
@@ -302,7 +305,7 @@ model Project {
   municipalityChecklist String    @default("") // JSON: [{id,label,checked,stage}]
   managerId             String?
   createdById           String
-  organizationId        String? // SaaS multi-tenant organization
+  organizationId String // SaaS multi-tenant organization
   deletedAt             DateTime? // Soft delete
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
@@ -311,7 +314,7 @@ model Project {
   contractor                 Contractor?                  @relation("ProjectContractor", fields: [contractorId], references: [id])
   createdBy                  User                         @relation("CreatedProjects", fields: [createdById], references: [id])
   manager                    User?                        @relation("ProjectManager", fields: [managerId], references: [id])
-  organization               Organization?                @relation(fields: [organizationId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
   assignments                ProjectAssignment[]
   tasks                      Task[]
   stages                     ProjectStage[]
@@ -366,6 +369,7 @@ model Project {
   @@index([managerId])
   @@index([organizationId, deletedAt])
   @@index([organizationId, status, deletedAt])
+  @@unique([number, organizationId])
 }
 
 // ==================== MUNICIPALITY CORRESPONDENCE ====================
@@ -613,7 +617,7 @@ model Task {
   actualHours    Float?
   isMilestone    Boolean   @default(false)
   order          Int       @default(0)
-  organizationId String? // SaaS multi-tenant organization
+  organizationId String // SaaS multi-tenant organization
   createdById    String?
   deletedAt      DateTime? // Soft delete
   parentId       String?
@@ -624,7 +628,7 @@ model Task {
   assignee     User?         @relation(fields: [assigneeId], references: [id], onDelete: SetNull)
   subtasks     Task[]        @relation("TaskSubtask")
   parent       Task?         @relation("TaskSubtask", fields: [parentId], references: [id])
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
   comments     TaskComment[]
 
   @@index([projectId])
@@ -678,14 +682,14 @@ model Contract {
   startDate      DateTime?
   deletedAt      DateTime? // Soft delete
   endDate        DateTime?
-  organizationId String?
+  organizationId String
   createdById    String?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
   client       Client              @relation(fields: [clientId], references: [id])
   project      Project             @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  organization Organization?       @relation(fields: [organizationId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
   amendments   ContractAmendment[]
   documents    Document[]
 
@@ -728,7 +732,7 @@ model Invoice {
   paidAmount     Decimal   @default(0)
   remaining      Decimal   @default(0)
   status         String    @default("draft") // draft, sent, partially_paid, paid, overdue, cancelled
-  organizationId String? // SaaS multi-tenant organization
+  organizationId String // SaaS multi-tenant organization
   createdById    String?
   deletedAt      DateTime? // Soft delete
   createdAt      DateTime  @default(now())
@@ -739,7 +743,7 @@ model Invoice {
   items           InvoiceItem[]
   invoicePayments InvoicePayment[]
   payments        Payment[]
-  organization    Organization?    @relation(fields: [organizationId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
 
   @@unique([number, organizationId], name: "invoice_number_org_unique")
   @@index([clientId])
@@ -1591,14 +1595,14 @@ model Document {
   filePath       String    @default("")
   uploadedById   String?
   deletedAt      DateTime? // Soft delete
-  organizationId String?
+  organizationId String
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
   project      Project?      @relation(fields: [projectId], references: [id])
   contract     Contract?     @relation(fields: [contractId], references: [id])
   uploader     User?         @relation("DocumentUploader", fields: [uploadedById], references: [id])
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
 
   @@index([projectId])
   @@index([organizationId])
@@ -2340,6 +2344,7 @@ model Organization {
   slaBreaches                SLABreach[]
   notificationSettings       NotificationSettings[]
   aiChatConversations        AIChatConversation[]
+  featureFlags               FeatureFlag[]
   aiChatMessages             AIChatMessage[]
   projectWorkflows           ProjectWorkflow[]
   retainages                 Retainage[]
@@ -2524,6 +2529,29 @@ model NotificationSettings {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+  @@index([organizationId])
+}
+
+// ==================== FEATURE FLAGS ====================
+
+model FeatureFlag {
+  id              String   @id @default(cuid())
+  key             String   @unique
+  name            String
+  nameAr          String?
+  description     String?
+  descriptionAr   String?
+  enabled         Boolean  @default(false)
+  enabledForOrgs  String?  // JSON array of organization IDs
+  enabledForRoles String?  // JSON array of roles
+  percentage      Int      @default(100)
+  organizationId  String?  // Optional relation for org-specific flags
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  organization    Organization? @relation(fields: [organizationId], references: [id])
+
+  @@index([key])
   @@index([organizationId])
 }
 

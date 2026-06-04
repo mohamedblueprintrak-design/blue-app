@@ -10,6 +10,7 @@ import { db } from '@/lib/db';
 import { insensitiveContains } from '@/app/api/utils/db';
 import { logAudit } from './audit.service';
 import { sequenceService } from './sequence.service';
+import { automationService } from './automation.service';
 import { Invoice, Prisma } from '@prisma/client';
 
 /**
@@ -328,7 +329,15 @@ class InvoiceService {
    * Mark invoice as sent
    */
   async markAsSent(id: string, organizationId: string, userId: string): Promise<Invoice> {
-    return this.updateInvoice(id, { status: 'SENT' } as Partial<Invoice>, organizationId, userId);
+    const invoice = await this.updateInvoice(id, { status: 'SENT' } as Partial<Invoice>, organizationId, userId);
+    
+    await automationService.triggerEvent('INVOICE_SENT', {
+      organizationId,
+      entityId: id,
+      userId
+    });
+
+    return invoice;
   }
 
   /**
@@ -355,22 +364,28 @@ class InvoiceService {
       }
 
       // Use atomic increment to prevent race conditions
-      const updated = await tx.invoice.update({
-        where: { id },
+      await tx.invoice.updateMany({
+        where: { id, organizationId },
         data: {
           paidAmount: { increment: amount }
         }
       });
+
+      const updated = await tx.invoice.findFirst({ where: { id, organizationId }});
+      if (!updated) throw new Error('Invoice not found after update');
 
       const newPaidAmount = Number(updated.paidAmount);
       const total = Number(updated.total);
       const status = newPaidAmount >= total ? 'PAID' : 'PARTIALLY_PAID';
       const remaining = Math.max(0, total - newPaidAmount);
 
-      const finalInvoice = await tx.invoice.update({
-        where: { id },
+      await tx.invoice.updateMany({
+        where: { id, organizationId },
         data: { status, remaining }
       });
+
+      const finalInvoice = await tx.invoice.findFirst({ where: { id, organizationId }});
+      if (!finalInvoice) throw new Error('Invoice not found after final update');
 
       await logAudit({
         userId,

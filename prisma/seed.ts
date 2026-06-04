@@ -552,19 +552,19 @@ async function main() {
 
   // ========== 7. Project Assignments (13 from prisma/seed.ts) ==========
   const assignments = [
-    { projectId: project1.id, userId: pmUser.id, role: 'MANAGER' as const },
-    { projectId: project1.id, userId: engineerUser.id, role: 'TEAM_MEMBER' as const },
-    { projectId: project1.id, userId: structuralUser.id, role: 'TEAM_MEMBER' as const },
-    { projectId: project1.id, userId: mepUser.id, role: 'TEAM_MEMBER' as const },
-    { projectId: project2.id, userId: pmUser.id, role: 'MANAGER' as const },
-    { projectId: project2.id, userId: engineerUser.id, role: 'TEAM_MEMBER' as const },
-    { projectId: project2.id, userId: structuralUser.id, role: 'TEAM_MEMBER' as const },
-    { projectId: project3.id, userId: pmUser.id, role: 'MANAGER' as const },
-    { projectId: project3.id, userId: engineerUser.id, role: 'TEAM_MEMBER' as const },
-    { projectId: project3.id, userId: mepUser.id, role: 'TEAM_MEMBER' as const },
-    { projectId: project4.id, userId: adminUser.id, role: 'MANAGER' as const },
-    { projectId: project5.id, userId: pmUser.id, role: 'MANAGER' as const },
-    { projectId: project5.id, userId: structuralUser.id, role: 'TEAM_MEMBER' as const },
+    { projectId: project1.id, userId: pmUser.id, role: 'MANAGER' as const , organizationId: org1.id },
+    { projectId: project1.id, userId: engineerUser.id, role: 'TEAM_MEMBER' as const , organizationId: org1.id },
+    { projectId: project1.id, userId: structuralUser.id, role: 'TEAM_MEMBER' as const , organizationId: org1.id },
+    { projectId: project1.id, userId: mepUser.id, role: 'TEAM_MEMBER' as const , organizationId: org1.id },
+    { projectId: project2.id, userId: pmUser.id, role: 'MANAGER' as const , organizationId: org1.id },
+    { projectId: project2.id, userId: engineerUser.id, role: 'TEAM_MEMBER' as const , organizationId: org1.id },
+    { projectId: project2.id, userId: structuralUser.id, role: 'TEAM_MEMBER' as const , organizationId: org1.id },
+    { projectId: project3.id, userId: pmUser.id, role: 'MANAGER' as const , organizationId: org1.id },
+    { projectId: project3.id, userId: engineerUser.id, role: 'TEAM_MEMBER' as const , organizationId: org1.id },
+    { projectId: project3.id, userId: mepUser.id, role: 'TEAM_MEMBER' as const , organizationId: org1.id },
+    { projectId: project4.id, userId: adminUser.id, role: 'MANAGER' as const , organizationId: org1.id },
+    { projectId: project5.id, userId: pmUser.id, role: 'MANAGER' as const , organizationId: org1.id },
+    { projectId: project5.id, userId: structuralUser.id, role: 'TEAM_MEMBER' as const , organizationId: org1.id },
   ];
   for (const assignment of assignments) {
     await db.projectAssignment.create({ data: assignment });
@@ -575,62 +575,62 @@ async function main() {
   await db.task.createMany({
     data: [
       // Base tasks — in_progress
-      { projectId: project1.id, title: 'إعداد المخططات المعمارية النهائية', description: 'مراجعة وإكمال جميع المخططات المعمارية للفيلا', assigneeId: engineerUser.id, priority: 'HIGH', status: 'IN_PROGRESS', startDate: monthsAgo(2), dueDate: daysFromNow(15), progress: 70 },
-      { projectId: project1.id, title: 'تصميم مخططات الأساسات', description: 'تصميم مخططات الأساسات بناءً على تقرير التربة', assigneeId: structuralUser.id, priority: 'HIGH', status: 'IN_PROGRESS', startDate: monthsAgo(3), dueDate: daysFromNow(10), progress: 50 },
+      { projectId: project1.id, title: 'إعداد المخططات المعمارية النهائية', description: 'مراجعة وإكمال جميع المخططات المعمارية للفيلا', assigneeId: engineerUser.id, priority: 'HIGH', status: 'IN_PROGRESS', startDate: monthsAgo(2), dueDate: daysFromNow(15), progress: 70 , organizationId: org1.id },
+      { projectId: project1.id, title: 'تصميم مخططات الأساسات', description: 'تصميم مخططات الأساسات بناءً على تقرير التربة', assigneeId: structuralUser.id, priority: 'HIGH', status: 'IN_PROGRESS', startDate: monthsAgo(3), dueDate: daysFromNow(10), progress: 50 , organizationId: org1.id },
       // todo tasks
-      { projectId: project1.id, title: 'تصميم نظام التكييف المركزي', description: 'إعداد مخططات ونظام التكييف المركزي للفيلا', assigneeId: mepUser.id, priority: 'MEDIUM', status: 'TODO', startDate: daysFromNow(3), dueDate: daysFromNow(30), progress: 0 },
-      { projectId: project1.id, title: 'تقديم المستندات للبلدية', description: 'تجهيز وتقديم جميع المستندات المطلوبة للبلدية', assigneeId: pmUser.id, priority: 'URGENT', status: 'TODO', startDate: daysFromNow(5), dueDate: daysFromNow(20), progress: 0, taskType: 'GOVERNMENTAL' },
+      { projectId: project1.id, title: 'تصميم نظام التكييف المركزي', description: 'إعداد مخططات ونظام التكييف المركزي للفيلا', assigneeId: mepUser.id, priority: 'MEDIUM', status: 'TODO', startDate: daysFromNow(3), dueDate: daysFromNow(30), progress: 0 , organizationId: org1.id },
+      { projectId: project1.id, title: 'تقديم المستندات للبلدية', description: 'تجهيز وتقديم جميع المستندات المطلوبة للبلدية', assigneeId: pmUser.id, priority: 'URGENT', status: 'TODO', startDate: daysFromNow(5), dueDate: daysFromNow(20), progress: 0, taskType: 'GOVERNMENTAL' , organizationId: org1.id },
       // in_progress tasks
-      { projectId: project2.id, title: 'إعداد المخططات الأولية', description: 'إعداد المخططات المعمارية الأولية للمبنى السكني', assigneeId: engineerUser.id, priority: 'HIGH', status: 'IN_PROGRESS', startDate: monthsAgo(1), dueDate: daysFromNow(20), progress: 60 },
-      { projectId: project2.id, title: 'دراسة التربة والأساسات', description: 'إجراء دراسة التربة وتصميم نظام الأساسات', assigneeId: structuralUser.id, priority: 'HIGH', status: 'IN_PROGRESS', startDate: monthsAgo(2), dueDate: daysFromNow(30), progress: 30 },
+      { projectId: project2.id, title: 'إعداد المخططات الأولية', description: 'إعداد المخططات المعمارية الأولية للمبنى السكني', assigneeId: engineerUser.id, priority: 'HIGH', status: 'IN_PROGRESS', startDate: monthsAgo(1), dueDate: daysFromNow(20), progress: 60 , organizationId: org1.id },
+      { projectId: project2.id, title: 'دراسة التربة والأساسات', description: 'إجراء دراسة التربة وتصميم نظام الأساسات', assigneeId: structuralUser.id, priority: 'HIGH', status: 'IN_PROGRESS', startDate: monthsAgo(2), dueDate: daysFromNow(30), progress: 30 , organizationId: org1.id },
       // todo task
-      { projectId: project2.id, title: 'تصميم الأنظمة الكهربائية', description: 'تصميم جميع الأنظمة الكهربائية للمبنى', assigneeId: mepUser.id, priority: 'MEDIUM', status: 'TODO', startDate: daysFromNow(7), dueDate: daysFromNow(25), progress: 0 },
+      { projectId: project2.id, title: 'تصميم الأنظمة الكهربائية', description: 'تصميم جميع الأنظمة الكهربائية للمبنى', assigneeId: mepUser.id, priority: 'MEDIUM', status: 'TODO', startDate: daysFromNow(7), dueDate: daysFromNow(25), progress: 0 , organizationId: org1.id },
       // in_progress task
-      { projectId: project3.id, title: 'مفهوم التصميم التجاري', description: 'إعداد مفهوم التصميم للمجمع التجاري', assigneeId: engineerUser.id, priority: 'HIGH', status: 'IN_PROGRESS', startDate: monthsAgo(1), dueDate: daysFromNow(5), progress: 40 },
-      { projectId: project5.id, title: 'مراجعة التصميم الإنشائي', description: 'مراجعة وتحديث التصميم الإنشائي للمنشأة', assigneeId: structuralUser.id, priority: 'URGENT', status: 'IN_PROGRESS', startDate: monthsAgo(3), dueDate: daysFromNow(7), progress: 25 },
+      { projectId: project3.id, title: 'مفهوم التصميم التجاري', description: 'إعداد مفهوم التصميم للمجمع التجاري', assigneeId: engineerUser.id, priority: 'HIGH', status: 'IN_PROGRESS', startDate: monthsAgo(1), dueDate: daysFromNow(5), progress: 40 , organizationId: org1.id },
+      { projectId: project5.id, title: 'مراجعة التصميم الإنشائي', description: 'مراجعة وتحديث التصميم الإنشائي للمنشأة', assigneeId: structuralUser.id, priority: 'URGENT', status: 'IN_PROGRESS', startDate: monthsAgo(3), dueDate: daysFromNow(7), progress: 25 , organizationId: org1.id },
 
       // GOVERNMENTAL tasks
-      { projectId: project5.id, title: 'تجديد رخصة البناء البلدية', titleAr: 'تجديد رخصة البناء البلدية', description: 'تقديم طلب تجديد رخصة البناء لدى بلدية رأس الخيمة مع المستندات المطلوبة', assigneeId: secUser.id, priority: 'URGENT', status: 'IN_PROGRESS', startDate: monthsAgo(1), dueDate: daysFromNow(10), progress: 40, taskType: 'GOVERNMENTAL', slaDays: 15, estimatedHours: 20 },
-      { projectId: project6.id, title: 'تقديم المخططات للجهات الحكومية', titleAr: 'تقديم المخططات للجهات الحكومية', description: 'تقديم المخططات المعتمدة لبلدية رأس الخيمة والدفاع المدني', assigneeId: pmUser.id, priority: 'HIGH', status: 'TODO', startDate: daysFromNow(2), dueDate: daysFromNow(20), progress: 0, taskType: 'GOVERNMENTAL', slaDays: 20, estimatedHours: 30 },
+      { projectId: project5.id, title: 'تجديد رخصة البناء البلدية', titleAr: 'تجديد رخصة البناء البلدية', description: 'تقديم طلب تجديد رخصة البناء لدى بلدية رأس الخيمة مع المستندات المطلوبة', assigneeId: secUser.id, priority: 'URGENT', status: 'IN_PROGRESS', startDate: monthsAgo(1), dueDate: daysFromNow(10), progress: 40, taskType: 'GOVERNMENTAL', slaDays: 15, estimatedHours: 20 , organizationId: org1.id },
+      { projectId: project6.id, title: 'تقديم المخططات للجهات الحكومية', titleAr: 'تقديم المخططات للجهات الحكومية', description: 'تقديم المخططات المعتمدة لبلدية رأس الخيمة والدفاع المدني', assigneeId: pmUser.id, priority: 'HIGH', status: 'TODO', startDate: daysFromNow(2), dueDate: daysFromNow(20), progress: 0, taskType: 'GOVERNMENTAL', slaDays: 20, estimatedHours: 30 , organizationId: org1.id },
 
       // MANDATORY tasks
-      { projectId: project2.id, title: 'الحصول على شهادة الدفاع المدني', titleAr: 'الحصول على شهادة الدفاع المدني', description: 'إكمال متطلبات الدفاع المدني الإلزامية للحصول على شهادة المطابقة', assigneeId: siteUser.id, priority: 'HIGH', status: 'IN_PROGRESS', startDate: monthsAgo(1), dueDate: daysFromNow(15), progress: 60, taskType: 'MANDATORY', slaDays: 30, estimatedHours: 40 },
-      { projectId: project1.id, title: 'فحص الأساسات الإلزامي', titleAr: 'فحص الأساسات الإلزامي', description: 'الفحص الإلزامي للأساسات قبل صب الخرسانة', assigneeId: structuralUser.id, priority: 'URGENT', status: 'TODO', startDate: daysFromNow(1), dueDate: daysFromNow(7), progress: 0, taskType: 'MANDATORY', estimatedHours: 8 },
+      { projectId: project2.id, title: 'الحصول على شهادة الدفاع المدني', titleAr: 'الحصول على شهادة الدفاع المدني', description: 'إكمال متطلبات الدفاع المدني الإلزامية للحصول على شهادة المطابقة', assigneeId: siteUser.id, priority: 'HIGH', status: 'IN_PROGRESS', startDate: monthsAgo(1), dueDate: daysFromNow(15), progress: 60, taskType: 'MANDATORY', slaDays: 30, estimatedHours: 40 , organizationId: org1.id },
+      { projectId: project1.id, title: 'فحص الأساسات الإلزامي', titleAr: 'فحص الأساسات الإلزامي', description: 'الفحص الإلزامي للأساسات قبل صب الخرسانة', assigneeId: structuralUser.id, priority: 'URGENT', status: 'TODO', startDate: daysFromNow(1), dueDate: daysFromNow(7), progress: 0, taskType: 'MANDATORY', estimatedHours: 8 , organizationId: org1.id },
 
       // CLIENT approval tasks
-      { projectId: project3.id, title: 'موافقة العميل على التصميم النهائي', titleAr: 'موافقة العميل على التصميم النهائي', description: 'إرسال التصميم النهائي للعميل للموافقة قبل تقديمه للبلدية', assigneeId: engineerUser.id, priority: 'HIGH', status: 'IN_PROGRESS', startDate: monthsAgo(1), dueDate: daysFromNow(3), progress: 50, taskType: 'CLIENT', estimatedHours: 4 },
+      { projectId: project3.id, title: 'موافقة العميل على التصميم النهائي', titleAr: 'موافقة العميل على التصميم النهائي', description: 'إرسال التصميم النهائي للعميل للموافقة قبل تقديمه للبلدية', assigneeId: engineerUser.id, priority: 'HIGH', status: 'IN_PROGRESS', startDate: monthsAgo(1), dueDate: daysFromNow(3), progress: 50, taskType: 'CLIENT', estimatedHours: 4 , organizationId: org1.id },
 
       // STANDARD tasks
-      { projectId: project7.id, title: 'إعداد كمية الحصر (BOQ)', titleAr: 'إعداد كمية الحصر', description: 'إعداد جدول كميات الحصر للمشروع السكني', assigneeId: accUser.id, priority: 'MEDIUM', status: 'IN_PROGRESS', startDate: monthsAgo(1), dueDate: daysFromNow(10), progress: 35, taskType: 'STANDARD', estimatedHours: 60 },
+      { projectId: project7.id, title: 'إعداد كمية الحصر (BOQ)', titleAr: 'إعداد كمية الحصر', description: 'إعداد جدول كميات الحصر للمشروع السكني', assigneeId: accUser.id, priority: 'MEDIUM', status: 'IN_PROGRESS', startDate: monthsAgo(1), dueDate: daysFromNow(10), progress: 35, taskType: 'STANDARD', estimatedHours: 60 , organizationId: org1.id },
       // review task
-      { projectId: project8.id, title: 'مراجعة مخططات MEP', titleAr: 'مراجعة مخططات MEP', description: 'مراجعة شاملة لمخططات الكهرباء والميكانيكا والسباكة', assigneeId: mepUser.id, priority: 'HIGH', status: 'REVIEW', startDate: monthsAgo(1), dueDate: daysFromNow(3), progress: 85, taskType: 'STANDARD', estimatedHours: 25 },
+      { projectId: project8.id, title: 'مراجعة مخططات MEP', titleAr: 'مراجعة مخططات MEP', description: 'مراجعة شاملة لمخططات الكهرباء والميكانيكا والسباكة', assigneeId: mepUser.id, priority: 'HIGH', status: 'REVIEW', startDate: monthsAgo(1), dueDate: daysFromNow(3), progress: 85, taskType: 'STANDARD', estimatedHours: 25 , organizationId: org1.id },
       // todo task
-      { projectId: project9.id, title: 'دراسة جدوى المشروع', titleAr: 'دراسة جدوى المشروع', description: 'إعداد دراسة جدوى تفصيلية للمشروع التجاري الجديد', assigneeId: pmUser.id, priority: 'MEDIUM', status: 'TODO', startDate: daysFromNow(0), dueDate: daysFromNow(30), progress: 0, taskType: 'STANDARD', estimatedHours: 80 },
+      { projectId: project9.id, title: 'دراسة جدوى المشروع', titleAr: 'دراسة جدوى المشروع', description: 'إعداد دراسة جدوى تفصيلية للمشروع التجاري الجديد', assigneeId: pmUser.id, priority: 'MEDIUM', status: 'TODO', startDate: daysFromNow(0), dueDate: daysFromNow(30), progress: 0, taskType: 'STANDARD', estimatedHours: 80 , organizationId: org1.id },
 
       // INTERNAL task
-      { projectId: project1.id, title: 'تحديث نظام إدارة الجودة', titleAr: 'تحديث نظام إدارة الجودة', description: 'مراجعة وتحديث إجراءات إدارة الجودة الداخلية', assigneeId: adminUser.id, priority: 'NORMAL', status: 'TODO', startDate: daysFromNow(5), dueDate: daysFromNow(25), progress: 0, taskType: 'INTERNAL', estimatedHours: 15 },
+      { projectId: project1.id, title: 'تحديث نظام إدارة الجودة', titleAr: 'تحديث نظام إدارة الجودة', description: 'مراجعة وتحديث إجراءات إدارة الجودة الداخلية', assigneeId: adminUser.id, priority: 'NORMAL', status: 'TODO', startDate: daysFromNow(5), dueDate: daysFromNow(25), progress: 0, taskType: 'INTERNAL', estimatedHours: 15 , organizationId: org1.id },
 
       // Done task
-      { projectId: project4.id, title: 'أرشفة مستندات المشروع المكتمل', titleAr: 'أرشفة مستندات المشروع المكتمل', description: 'أرشفة جميع المستندات والمخططات للمشروع المكتمل', assigneeId: secUser.id, priority: 'NORMAL', status: 'DONE', startDate: monthsAgo(3), dueDate: monthsAgo(2), endDate: monthsAgo(2), progress: 100, taskType: 'STANDARD', estimatedHours: 10, actualHours: 12 },
+      { projectId: project4.id, title: 'أرشفة مستندات المشروع المكتمل', titleAr: 'أرشفة مستندات المشروع المكتمل', description: 'أرشفة جميع المستندات والمخططات للمشروع المكتمل', assigneeId: secUser.id, priority: 'NORMAL', status: 'DONE', startDate: monthsAgo(3), dueDate: monthsAgo(2), endDate: monthsAgo(2), progress: 100, taskType: 'STANDARD', estimatedHours: 10, actualHours: 12 , organizationId: org1.id },
 
       // Milestone task
-      { projectId: project7.id, title: 'تسليم المرحلة الأولى - الهيكل الخرساني', titleAr: 'تسليم المرحلة الأولى', description: 'تسليم المرحلة الأولى من المشروع - اكتمال الهيكل الخرساني', assigneeId: structuralUser.id, priority: 'HIGH', status: 'IN_PROGRESS', startDate: monthsAgo(6), dueDate: daysFromNow(30), progress: 75, taskType: 'STANDARD', isMilestone: true, estimatedHours: 200 },
+      { projectId: project7.id, title: 'تسليم المرحلة الأولى - الهيكل الخرساني', titleAr: 'تسليم المرحلة الأولى', description: 'تسليم المرحلة الأولى من المشروع - اكتمال الهيكل الخرساني', assigneeId: structuralUser.id, priority: 'HIGH', status: 'IN_PROGRESS', startDate: monthsAgo(6), dueDate: daysFromNow(30), progress: 75, taskType: 'STANDARD', isMilestone: true, estimatedHours: 200 , organizationId: org1.id },
     ],
   });
   console.info('✅ 21 tasks created');
 
   // ========== 9. Project Stages (10 from src/lib/seed.ts) ==========
   const stages = [
-    { projectId: project1.id, department: 'ARCHITECTURAL' as const, stageName: 'مفهوم التصميم', stageOrder: 1, status: 'APPROVED' as const },
-    { projectId: project1.id, department: 'ARCHITECTURAL' as const, stageName: 'تطوير المخططات', stageOrder: 2, status: 'IN_PROGRESS' as const },
-    { projectId: project1.id, department: 'ARCHITECTURAL' as const, stageName: 'المستندات الأولية', stageOrder: 3, status: 'NOT_STARTED' as const },
-    { projectId: project1.id, department: 'ARCHITECTURAL' as const, stageName: 'التصيير ثلاثي الأبعاد', stageOrder: 4, status: 'NOT_STARTED' as const },
-    { projectId: project1.id, department: 'STRUCTURAL' as const, stageName: 'تقرير التربة', stageOrder: 1, status: 'APPROVED' as const },
-    { projectId: project1.id, department: 'STRUCTURAL' as const, stageName: 'مخطط الأساسات', stageOrder: 2, status: 'IN_PROGRESS' as const },
-    { projectId: project1.id, department: 'STRUCTURAL' as const, stageName: 'العتلات والأعمدة', stageOrder: 3, status: 'NOT_STARTED' as const },
-    { projectId: project2.id, department: 'ARCHITECTURAL' as const, stageName: 'مفهوم التصميم', stageOrder: 1, status: 'APPROVED' as const },
-    { projectId: project2.id, department: 'ARCHITECTURAL' as const, stageName: 'تطوير المخططات', stageOrder: 2, status: 'IN_PROGRESS' as const },
-    { projectId: project2.id, department: 'STRUCTURAL' as const, stageName: 'تقرير التربة', stageOrder: 1, status: 'IN_PROGRESS' as const },
+    { projectId: project1.id, department: 'ARCHITECTURAL' as const, stageName: 'مفهوم التصميم', stageOrder: 1, status: 'APPROVED' as const , organizationId: org1.id },
+    { projectId: project1.id, department: 'ARCHITECTURAL' as const, stageName: 'تطوير المخططات', stageOrder: 2, status: 'IN_PROGRESS' as const , organizationId: org1.id },
+    { projectId: project1.id, department: 'ARCHITECTURAL' as const, stageName: 'المستندات الأولية', stageOrder: 3, status: 'NOT_STARTED' as const , organizationId: org1.id },
+    { projectId: project1.id, department: 'ARCHITECTURAL' as const, stageName: 'التصيير ثلاثي الأبعاد', stageOrder: 4, status: 'NOT_STARTED' as const , organizationId: org1.id },
+    { projectId: project1.id, department: 'STRUCTURAL' as const, stageName: 'تقرير التربة', stageOrder: 1, status: 'APPROVED' as const , organizationId: org1.id },
+    { projectId: project1.id, department: 'STRUCTURAL' as const, stageName: 'مخطط الأساسات', stageOrder: 2, status: 'IN_PROGRESS' as const , organizationId: org1.id },
+    { projectId: project1.id, department: 'STRUCTURAL' as const, stageName: 'العتلات والأعمدة', stageOrder: 3, status: 'NOT_STARTED' as const , organizationId: org1.id },
+    { projectId: project2.id, department: 'ARCHITECTURAL' as const, stageName: 'مفهوم التصميم', stageOrder: 1, status: 'APPROVED' as const , organizationId: org1.id },
+    { projectId: project2.id, department: 'ARCHITECTURAL' as const, stageName: 'تطوير المخططات', stageOrder: 2, status: 'IN_PROGRESS' as const , organizationId: org1.id },
+    { projectId: project2.id, department: 'STRUCTURAL' as const, stageName: 'تقرير التربة', stageOrder: 1, status: 'IN_PROGRESS' as const , organizationId: org1.id },
   ];
   for (const stage of stages) {
     await db.projectStage.create({ data: stage });
@@ -639,15 +639,15 @@ async function main() {
 
   // ========== 10. Schedule Phases (9 from src/lib/seed.ts) ==========
   const schedulePhases = [
-    { projectId: project1.id, section: 'architectural', phaseOrder: 1, phaseName: 'المخطط المبدئي', duration: 14, maxDuration: 21, status: 'COMPLETED' as const, startDate: monthsAgo(14), endDate: monthsAgo(13, 15) },
-    { projectId: project1.id, section: 'architectural', phaseOrder: 2, phaseName: 'تطوير التصميم', duration: 30, maxDuration: 50, status: 'IN_PROGRESS' as const, startDate: monthsAgo(13, 15), endDate: monthsAgo(11) },
-    { projectId: project1.id, section: 'architectural', phaseOrder: 3, phaseName: 'المخططات النهائية', duration: 25, maxDuration: 40, status: 'NOT_STARTED' as const },
-    { projectId: project1.id, section: 'architectural', phaseOrder: 4, phaseName: 'الموافقة البلدية', duration: 30, maxDuration: 50, status: 'NOT_STARTED' as const },
-    { projectId: project1.id, section: 'structural', phaseOrder: 1, phaseName: 'دراسة التربة', duration: 10, maxDuration: 21, status: 'COMPLETED' as const, startDate: monthsAgo(14), endDate: monthsAgo(13, 25) },
-    { projectId: project1.id, section: 'structural', phaseOrder: 2, phaseName: 'تصميم الأساسات', duration: 20, maxDuration: 35, status: 'IN_PROGRESS' as const, startDate: monthsAgo(13, 26), endDate: monthsAgo(12, 14) },
-    { projectId: project1.id, section: 'structural', phaseOrder: 3, phaseName: 'تصميم الهيكل', duration: 25, maxDuration: 40, status: 'NOT_STARTED' as const },
-    { projectId: project1.id, section: 'governmental', phaseOrder: 1, phaseName: 'تقديم البلدية', duration: 5, maxDuration: 7, status: 'COMPLETED' as const, startDate: monthsAgo(12, 15), endDate: monthsAgo(12, 20) },
-    { projectId: project1.id, section: 'governmental', phaseOrder: 2, phaseName: 'مراجعة البلدية', duration: 30, maxDuration: 50, status: 'IN_PROGRESS' as const, startDate: monthsAgo(12, 21), endDate: monthsAgo(11, 22) },
+    { projectId: project1.id, section: 'architectural', phaseOrder: 1, phaseName: 'المخطط المبدئي', duration: 14, maxDuration: 21, status: 'COMPLETED' as const, startDate: monthsAgo(14), endDate: monthsAgo(13, 15) , organizationId: org1.id },
+    { projectId: project1.id, section: 'architectural', phaseOrder: 2, phaseName: 'تطوير التصميم', duration: 30, maxDuration: 50, status: 'IN_PROGRESS' as const, startDate: monthsAgo(13, 15), endDate: monthsAgo(11) , organizationId: org1.id },
+    { projectId: project1.id, section: 'architectural', phaseOrder: 3, phaseName: 'المخططات النهائية', duration: 25, maxDuration: 40, status: 'NOT_STARTED' as const , organizationId: org1.id },
+    { projectId: project1.id, section: 'architectural', phaseOrder: 4, phaseName: 'الموافقة البلدية', duration: 30, maxDuration: 50, status: 'NOT_STARTED' as const , organizationId: org1.id },
+    { projectId: project1.id, section: 'structural', phaseOrder: 1, phaseName: 'دراسة التربة', duration: 10, maxDuration: 21, status: 'COMPLETED' as const, startDate: monthsAgo(14), endDate: monthsAgo(13, 25) , organizationId: org1.id },
+    { projectId: project1.id, section: 'structural', phaseOrder: 2, phaseName: 'تصميم الأساسات', duration: 20, maxDuration: 35, status: 'IN_PROGRESS' as const, startDate: monthsAgo(13, 26), endDate: monthsAgo(12, 14) , organizationId: org1.id },
+    { projectId: project1.id, section: 'structural', phaseOrder: 3, phaseName: 'تصميم الهيكل', duration: 25, maxDuration: 40, status: 'NOT_STARTED' as const , organizationId: org1.id },
+    { projectId: project1.id, section: 'governmental', phaseOrder: 1, phaseName: 'تقديم البلدية', duration: 5, maxDuration: 7, status: 'COMPLETED' as const, startDate: monthsAgo(12, 15), endDate: monthsAgo(12, 20) , organizationId: org1.id },
+    { projectId: project1.id, section: 'governmental', phaseOrder: 2, phaseName: 'مراجعة البلدية', duration: 30, maxDuration: 50, status: 'IN_PROGRESS' as const, startDate: monthsAgo(12, 21), endDate: monthsAgo(11, 22) , organizationId: org1.id },
   ];
   for (const phase of schedulePhases) {
     await db.schedulePhase.create({ data: phase });
@@ -657,11 +657,11 @@ async function main() {
   // ========== 11. BOQ Items (5 from src/lib/seed.ts) ==========
   await db.bOQItem.createMany({
     data: [
-      { projectId: project1.id, code: 'CIV-001', description: 'حفر أساسات', unit: 'م³', quantity: 250, unitPrice: 45, total: 11250, category: 'CIVIL' },
-      { projectId: project1.id, code: 'CIV-002', description: 'صب خرسانة للأساسات', unit: 'م³', quantity: 180, unitPrice: 280, total: 50400, category: 'CIVIL' },
-      { projectId: project1.id, code: 'STL-001', description: 'حديد تسليح #12-32', unit: 'طن', quantity: 35, unitPrice: 3500, total: 122500, category: 'STRUCTURAL' },
-      { projectId: project1.id, code: 'FIN-001', description: 'بلاط أرضيات رخام', unit: 'م²', quantity: 450, unitPrice: 180, total: 81000, category: 'FINISHING' },
-      { projectId: project1.id, code: 'ELC-001', description: 'لوحة توزيع رئيسية', unit: 'لوحة', quantity: 1, unitPrice: 8500, total: 8500, category: 'ELECTRICAL' },
+      { projectId: project1.id, code: 'CIV-001', description: 'حفر أساسات', unit: 'م³', quantity: 250, unitPrice: 45, total: 11250, category: 'CIVIL' , organizationId: org1.id },
+      { projectId: project1.id, code: 'CIV-002', description: 'صب خرسانة للأساسات', unit: 'م³', quantity: 180, unitPrice: 280, total: 50400, category: 'CIVIL' , organizationId: org1.id },
+      { projectId: project1.id, code: 'STL-001', description: 'حديد تسليح #12-32', unit: 'طن', quantity: 35, unitPrice: 3500, total: 122500, category: 'STRUCTURAL' , organizationId: org1.id },
+      { projectId: project1.id, code: 'FIN-001', description: 'بلاط أرضيات رخام', unit: 'م²', quantity: 450, unitPrice: 180, total: 81000, category: 'FINISHING' , organizationId: org1.id },
+      { projectId: project1.id, code: 'ELC-001', description: 'لوحة توزيع رئيسية', unit: 'لوحة', quantity: 1, unitPrice: 8500, total: 8500, category: 'ELECTRICAL' , organizationId: org1.id },
     ],
   });
   console.info('✅ 5 BOQ items created');
@@ -670,28 +670,28 @@ async function main() {
   await db.invoice.createMany({
     data: [
       // INV-001 (paid) — WITHIN last 6 months so revenue shows!
-      { number: `INV-${currentYearStr}-001`, clientId: client1.id, projectId: project1.id, issueDate: monthsAgo(4), dueDate: monthsAgo(3), subtotal: 62500, tax: 3750, total: 66250, paidAmount: 66250, remaining: 0, status: 'PAID' },
+      { number: `INV-${currentYearStr}-001`, clientId: client1.id, projectId: project1.id, issueDate: monthsAgo(4), dueDate: monthsAgo(3), subtotal: 62500, tax: 3750, total: 66250, paidAmount: 66250, remaining: 0, status: 'PAID' , organizationId: org1.id },
       // INV-002 (partially_paid) — WITHIN last 6 months
-      { number: `INV-${currentYearStr}-002`, clientId: client1.id, projectId: project1.id, issueDate: monthsAgo(2), dueDate: monthsAgo(1), subtotal: 62500, tax: 3750, total: 66250, paidAmount: 33250, remaining: 33000, status: 'PARTIALLY_PAID' },
+      { number: `INV-${currentYearStr}-002`, clientId: client1.id, projectId: project1.id, issueDate: monthsAgo(2), dueDate: monthsAgo(1), subtotal: 62500, tax: 3750, total: 66250, paidAmount: 33250, remaining: 33000, status: 'PARTIALLY_PAID' , organizationId: org1.id },
       // INV-003 (overdue)
-      { number: `INV-${currentYearStr}-003`, clientId: client2.id, projectId: project2.id, issueDate: monthsAgo(3), dueDate: monthsAgo(2), subtotal: 170000, tax: 10200, total: 180200, paidAmount: 0, remaining: 180200, status: 'OVERDUE' },
+      { number: `INV-${currentYearStr}-003`, clientId: client2.id, projectId: project2.id, issueDate: monthsAgo(3), dueDate: monthsAgo(2), subtotal: 170000, tax: 10200, total: 180200, paidAmount: 0, remaining: 180200, status: 'OVERDUE' , organizationId: org1.id },
       // INV-004 (sent)
-      { number: `INV-${currentYearStr}-004`, clientId: client2.id, projectId: project5.id, issueDate: monthsAgo(1), dueDate: daysFromNow(15), subtotal: 100000, tax: 6000, total: 106000, paidAmount: 0, remaining: 106000, status: 'SENT' },
+      { number: `INV-${currentYearStr}-004`, clientId: client2.id, projectId: project5.id, issueDate: monthsAgo(1), dueDate: daysFromNow(15), subtotal: 100000, tax: 6000, total: 106000, paidAmount: 0, remaining: 106000, status: 'SENT' , organizationId: org1.id },
       // INV-005 (draft)
-      { number: `INV-${currentYearStr}-005`, clientId: client3.id, projectId: project3.id, issueDate: daysFromNow(0), dueDate: daysFromNow(30), subtotal: 150000, tax: 9000, total: 159000, paidAmount: 0, remaining: 159000, status: 'DRAFT' },
+      { number: `INV-${currentYearStr}-005`, clientId: client3.id, projectId: project3.id, issueDate: daysFromNow(0), dueDate: daysFromNow(30), subtotal: 150000, tax: 9000, total: 159000, paidAmount: 0, remaining: 159000, status: 'DRAFT' , organizationId: org1.id },
       // INV-006 (paid) — WITHIN last 6 months!
-      { number: `INV-${currentYearStr}-006`, clientId: client4.id, projectId: project4.id, issueDate: monthsAgo(5), dueDate: monthsAgo(4), subtotal: 180000, tax: 10800, total: 190800, paidAmount: 190800, remaining: 0, status: 'PAID' },
+      { number: `INV-${currentYearStr}-006`, clientId: client4.id, projectId: project4.id, issueDate: monthsAgo(5), dueDate: monthsAgo(4), subtotal: 180000, tax: 10800, total: 190800, paidAmount: 190800, remaining: 0, status: 'PAID' , organizationId: org1.id },
       
       // New Invoices for Demo
-      { number: `INV-${currentYearStr}-007`, clientId: client4.id, projectId: project4.id, issueDate: monthsAgo(1), dueDate: daysFromNow(10), subtotal: 45000, tax: 2250, total: 47250, paidAmount: 0, remaining: 47250, status: 'SENT' },
-      { number: `INV-${currentYearStr}-008`, clientId: client5.id, projectId: project5.id, issueDate: monthsAgo(3), dueDate: monthsAgo(2), subtotal: 120000, tax: 6000, total: 126000, paidAmount: 126000, remaining: 0, status: 'PAID' },
-      { number: `INV-${currentYearStr}-009`, clientId: client6.id, projectId: project6.id, issueDate: monthsAgo(6), dueDate: monthsAgo(5), subtotal: 250000, tax: 12500, total: 262500, paidAmount: 262500, remaining: 0, status: 'PAID' },
-      { number: `INV-${currentYearStr}-010`, clientId: client7.id, projectId: project7.id, issueDate: monthsAgo(2), dueDate: monthsAgo(1), subtotal: 80000, tax: 4000, total: 84000, paidAmount: 40000, remaining: 44000, status: 'PARTIALLY_PAID' },
-      { number: `INV-${currentYearStr}-011`, clientId: client8.id, projectId: project8.id, issueDate: monthsAgo(4), dueDate: monthsAgo(3), subtotal: 95000, tax: 4750, total: 99750, paidAmount: 0, remaining: 99750, status: 'OVERDUE' },
-      { number: `INV-${currentYearStr}-012`, clientId: client9.id, projectId: project9.id, issueDate: daysFromNow(-5), dueDate: daysFromNow(25), subtotal: 35000, tax: 1750, total: 36750, paidAmount: 0, remaining: 36750, status: 'SENT' },
-      { number: `INV-${currentYearStr}-013`, clientId: client10.id, projectId: project10.id, issueDate: daysFromNow(2), dueDate: daysFromNow(32), subtotal: 200000, tax: 10000, total: 210000, paidAmount: 0, remaining: 210000, status: 'DRAFT' },
-      { number: `INV-${currentYearStr}-014`, clientId: client1.id, projectId: project1.id, issueDate: monthsAgo(1), dueDate: daysFromNow(15), subtotal: 15000, tax: 750, total: 15750, paidAmount: 15750, remaining: 0, status: 'PAID' },
-      { number: `INV-${currentYearStr}-015`, clientId: client2.id, projectId: project2.id, issueDate: monthsAgo(2), dueDate: monthsAgo(1), subtotal: 55000, tax: 2750, total: 57750, paidAmount: 0, remaining: 57750, status: 'OVERDUE' },
+      { number: `INV-${currentYearStr}-007`, clientId: client4.id, projectId: project4.id, issueDate: monthsAgo(1), dueDate: daysFromNow(10), subtotal: 45000, tax: 2250, total: 47250, paidAmount: 0, remaining: 47250, status: 'SENT' , organizationId: org1.id },
+      { number: `INV-${currentYearStr}-008`, clientId: client5.id, projectId: project5.id, issueDate: monthsAgo(3), dueDate: monthsAgo(2), subtotal: 120000, tax: 6000, total: 126000, paidAmount: 126000, remaining: 0, status: 'PAID' , organizationId: org1.id },
+      { number: `INV-${currentYearStr}-009`, clientId: client6.id, projectId: project6.id, issueDate: monthsAgo(6), dueDate: monthsAgo(5), subtotal: 250000, tax: 12500, total: 262500, paidAmount: 262500, remaining: 0, status: 'PAID' , organizationId: org1.id },
+      { number: `INV-${currentYearStr}-010`, clientId: client7.id, projectId: project7.id, issueDate: monthsAgo(2), dueDate: monthsAgo(1), subtotal: 80000, tax: 4000, total: 84000, paidAmount: 40000, remaining: 44000, status: 'PARTIALLY_PAID' , organizationId: org1.id },
+      { number: `INV-${currentYearStr}-011`, clientId: client8.id, projectId: project8.id, issueDate: monthsAgo(4), dueDate: monthsAgo(3), subtotal: 95000, tax: 4750, total: 99750, paidAmount: 0, remaining: 99750, status: 'OVERDUE' , organizationId: org1.id },
+      { number: `INV-${currentYearStr}-012`, clientId: client9.id, projectId: project9.id, issueDate: daysFromNow(-5), dueDate: daysFromNow(25), subtotal: 35000, tax: 1750, total: 36750, paidAmount: 0, remaining: 36750, status: 'SENT' , organizationId: org1.id },
+      { number: `INV-${currentYearStr}-013`, clientId: client10.id, projectId: project10.id, issueDate: daysFromNow(2), dueDate: daysFromNow(32), subtotal: 200000, tax: 10000, total: 210000, paidAmount: 0, remaining: 210000, status: 'DRAFT' , organizationId: org1.id },
+      { number: `INV-${currentYearStr}-014`, clientId: client1.id, projectId: project1.id, issueDate: monthsAgo(1), dueDate: daysFromNow(15), subtotal: 15000, tax: 750, total: 15750, paidAmount: 15750, remaining: 0, status: 'PAID' , organizationId: org1.id },
+      { number: `INV-${currentYearStr}-015`, clientId: client2.id, projectId: project2.id, issueDate: monthsAgo(2), dueDate: monthsAgo(1), subtotal: 55000, tax: 2750, total: 57750, paidAmount: 0, remaining: 57750, status: 'OVERDUE' , organizationId: org1.id },
     ],
   });
   console.info('✅ 15 invoices created');
@@ -699,9 +699,9 @@ async function main() {
   // ========== 13. Contracts (3) ==========
   await db.contract.createMany({
     data: [
-      { number: `CTR-${currentYearStr}-001`, title: 'عقد تصميم فيلا المنطقة الأولى', clientId: client1.id, projectId: project1.id, value: 250000, type: 'ENGINEERING_SERVICES', status: 'ACTIVE', signedByName: 'محمد بن راشد', signedByTitle: 'المدير التنفيذي', startDate: monthsAgo(14), endDate: monthsFromNow(2) },
-      { number: `CTR-${currentYearStr}-002`, title: 'عقد تصميم المبنى السكني', clientId: client2.id, projectId: project2.id, value: 850000, type: 'ENGINEERING_SERVICES', status: 'ACTIVE', signedByName: 'أحمد الشامسي', signedByTitle: 'رئيس مجلس الإدارة', startDate: monthsAgo(12), endDate: monthsFromNow(6) },
-      { number: `CTR-${currentYearStr}-003`, title: 'عقد الاستشارات الهندسية - المجمع التجاري', clientId: client3.id, projectId: project3.id, value: 1200000, type: 'CONSULTING', status: 'PENDING_SIGNATURE', signedByName: 'سعاد الكتبي', signedByTitle: 'مديرة التطوير', startDate: monthsAgo(8), endDate: monthsFromNow(12) },
+      { number: `CTR-${currentYearStr}-001`, title: 'عقد تصميم فيلا المنطقة الأولى', clientId: client1.id, projectId: project1.id, value: 250000, type: 'ENGINEERING_SERVICES', status: 'ACTIVE', signedByName: 'محمد بن راشد', signedByTitle: 'المدير التنفيذي', startDate: monthsAgo(14), endDate: monthsFromNow(2) , organizationId: org1.id },
+      { number: `CTR-${currentYearStr}-002`, title: 'عقد تصميم المبنى السكني', clientId: client2.id, projectId: project2.id, value: 850000, type: 'ENGINEERING_SERVICES', status: 'ACTIVE', signedByName: 'أحمد الشامسي', signedByTitle: 'رئيس مجلس الإدارة', startDate: monthsAgo(12), endDate: monthsFromNow(6) , organizationId: org1.id },
+      { number: `CTR-${currentYearStr}-003`, title: 'عقد الاستشارات الهندسية - المجمع التجاري', clientId: client3.id, projectId: project3.id, value: 1200000, type: 'CONSULTING', status: 'PENDING_SIGNATURE', signedByName: 'سعاد الكتبي', signedByTitle: 'مديرة التطوير', startDate: monthsAgo(8), endDate: monthsFromNow(12) , organizationId: org1.id },
     ],
   });
   console.info('✅ 3 contracts created');
@@ -709,9 +709,9 @@ async function main() {
   // ========== 14. Site Visits (3 - most detailed with gateDescription, neighborDesc) ==========
   await db.siteVisit.createMany({
     data: [
-      { projectId: project1.id, date: monthsAgo(2), plotNumber: 'RKN-LOT-4521', municipality: 'DUBAI', gateDescription: 'بوابة رئيسية من الشارع مع باب جانبي', neighborDesc: 'فيلا مجاورة من الجهة الشرقية وأرض فارغة غرباً', buildingDesc: 'أرض فضاء 800م² مع أساسات خرسانية قديمة', status: 'APPROVED' },
-      { projectId: project2.id, date: monthsAgo(1), plotNumber: 'ADH-LOT-7892', municipality: 'ABU_DHABI', gateDescription: 'مدخل رئيسي من شارعين', neighborDesc: 'مبنى سكني شمالاً ومحل تجاري جنوباً', buildingDesc: 'أرض 2500م² مسطحة مع خدمات أساسية', status: 'SUBMITTED' },
-      { projectId: project5.id, date: monthsAgo(3), plotNumber: 'RAK-LOT-3311', municipality: 'RAS_AL_KHAIMAH', gateDescription: 'بوابة صناعية مع منطقة تحميل', neighborDesc: 'مصنعان مجاوران من الجهة الشرقية والغربية', buildingDesc: 'أرض صناعية 5000م² مع مباني مخازن قديمة', status: 'APPROVED' },
+      { projectId: project1.id, date: monthsAgo(2), plotNumber: 'RKN-LOT-4521', municipality: 'DUBAI', gateDescription: 'بوابة رئيسية من الشارع مع باب جانبي', neighborDesc: 'فيلا مجاورة من الجهة الشرقية وأرض فارغة غرباً', buildingDesc: 'أرض فضاء 800م² مع أساسات خرسانية قديمة', status: 'APPROVED' , organizationId: org1.id },
+      { projectId: project2.id, date: monthsAgo(1), plotNumber: 'ADH-LOT-7892', municipality: 'ABU_DHABI', gateDescription: 'مدخل رئيسي من شارعين', neighborDesc: 'مبنى سكني شمالاً ومحل تجاري جنوباً', buildingDesc: 'أرض 2500م² مسطحة مع خدمات أساسية', status: 'SUBMITTED' , organizationId: org1.id },
+      { projectId: project5.id, date: monthsAgo(3), plotNumber: 'RAK-LOT-3311', municipality: 'RAS_AL_KHAIMAH', gateDescription: 'بوابة صناعية مع منطقة تحميل', neighborDesc: 'مصنعان مجاوران من الجهة الشرقية والغربية', buildingDesc: 'أرض صناعية 5000م² مع مباني مخازن قديمة', status: 'APPROVED' , organizationId: org1.id },
     ],
   });
   console.info('✅ 3 site visits created');
@@ -719,8 +719,8 @@ async function main() {
   // ========== 15. Site Diaries (2 - most detailed) ==========
   await db.siteDiary.createMany({
     data: [
-      { projectId: project1.id, date: monthsAgo(1), weather: 'HOT', workerCount: 12, workDescription: 'صب الخرسانة للأساسات - المرحلة الثانية', issues: 'تأخر وصول الحديد ساعة واحدة', safetyNotes: 'تم التأكد من معدات السلامة لجميع العمال', equipment: 'خلاطة خرسانة، رافعة برجية', materials: '50 طن حديد تسليح، 120 م³ خرسانة' },
-      { projectId: project2.id, date: monthsAgo(1, 12), weather: 'PARTLY_CLOUDY', workerCount: 8, workDescription: 'الحفر وتجهيز موقع الأساسات', issues: 'تم اكتشاف صخور صلبة في المنطقة الشرقية', safetyNotes: 'تم إيقاف العمل مؤقتاً بسبب هطول أمطار خفيفة', equipment: 'حفارة، شاحنة نقل', materials: 'لا يوجد' },
+      { projectId: project1.id, date: monthsAgo(1), weather: 'HOT', workerCount: 12, workDescription: 'صب الخرسانة للأساسات - المرحلة الثانية', issues: 'تأخر وصول الحديد ساعة واحدة', safetyNotes: 'تم التأكد من معدات السلامة لجميع العمال', equipment: 'خلاطة خرسانة، رافعة برجية', materials: '50 طن حديد تسليح، 120 م³ خرسانة' , organizationId: org1.id },
+      { projectId: project2.id, date: monthsAgo(1, 12), weather: 'PARTLY_CLOUDY', workerCount: 8, workDescription: 'الحفر وتجهيز موقع الأساسات', issues: 'تم اكتشاف صخور صلبة في المنطقة الشرقية', safetyNotes: 'تم إيقاف العمل مؤقتاً بسبب هطول أمطار خفيفة', equipment: 'حفارة، شاحنة نقل', materials: 'لا يوجد' , organizationId: org1.id },
     ],
   });
   console.info('✅ 2 site diaries created');
@@ -728,8 +728,8 @@ async function main() {
   // ========== 16. Meetings (3 - with notes) ==========
   await db.meeting.createMany({
     data: [
-      { projectId: project1.id, title: 'اجتماع مراجعة التصميم المعماري', date: daysFromNow(2), time: '10:00', duration: 90, location: 'مكتب بلوبرنت - غرفة الاجتماعات', type: 'ONSITE', notes: 'مراجعة المخططات المعمارية مع العميل' },
-      { projectId: project2.id, title: 'اجتماع متابعة المشروع', date: daysFromNow(5), time: '14:00', duration: 60, location: 'أونلاين - Zoom', type: 'ONLINE', notes: 'متابعة تقدم المشروع ومناقشة التحديات' },
+      { projectId: project1.id, title: 'اجتماع مراجعة التصميم المعماري', date: daysFromNow(2), time: '10:00', duration: 90, location: 'مكتب بلوبرنت - غرفة الاجتماعات', type: 'ONSITE', notes: 'مراجعة المخططات المعمارية مع العميل' , organizationId: org1.id },
+      { projectId: project2.id, title: 'اجتماع متابعة المشروع', date: daysFromNow(5), time: '14:00', duration: 60, location: 'أونلاين - Zoom', type: 'ONLINE', notes: 'متابعة تقدم المشروع ومناقشة التحديات' , organizationId: org1.id },
       { title: 'اجتماع الفريق الأسبوعي', date: daysFromNow(1), time: '09:00', duration: 45, location: 'مكتب بلوبرنت', type: 'ONSITE', notes: 'مراجعة أحمال العمل والمهام الأسبوعية' },
     ],
   });
@@ -748,9 +748,9 @@ async function main() {
   // ========== 18. Government Approvals (3) ==========
   await db.govApproval.createMany({
     data: [
-      { projectId: project1.id, authority: 'MUN', status: 'SUBMITTED', submissionDate: monthsAgo(1) },
-      { projectId: project2.id, authority: 'MUN', status: 'PENDING' },
-      { projectId: project1.id, authority: 'FEWA', status: 'PENDING' },
+      { projectId: project1.id, authority: 'MUN', status: 'SUBMITTED', submissionDate: monthsAgo(1) , organizationId: org1.id },
+      { projectId: project2.id, authority: 'MUN', status: 'PENDING' , organizationId: org1.id },
+      { projectId: project1.id, authority: 'FEWA', status: 'PENDING' , organizationId: org1.id },
     ],
   });
   console.info('✅ 3 government approvals created');
@@ -768,7 +768,7 @@ async function main() {
   // ========== 20. Proposals (1 - with notes) ==========
   await db.proposal.createMany({
     data: [
-      { number: `PRP-${currentYearStr}-001`, clientId: client3.id, projectId: project3.id, subtotal: 1200000, tax: 72000, total: 1272000, status: 'SENT', notes: 'عرض أسعار شامل التصميم والإشراف' },
+      { number: `PRP-${currentYearStr}-001`, clientId: client3.id, projectId: project3.id, subtotal: 1200000, tax: 72000, total: 1272000, status: 'SENT', notes: 'عرض أسعار شامل التصميم والإشراف' , organizationId: org1.id },
     ],
   });
   console.info('✅ 1 proposal created');
@@ -788,12 +788,12 @@ async function main() {
   // ========== 22. Bids (6 from prisma/seed.ts) ==========
   await db.bid.createMany({
     data: [
-      { projectId: project1.id, contractorId: contractor1.id, contractorName: contractor1.companyName, amount: 220000, technicalScore: 85, financialScore: 90, totalScore: 87.5, status: 'ACCEPTED', deadline: monthsAgo(14) },
-      { projectId: project1.id, contractorId: contractor4.id, contractorName: contractor4.companyName, amount: 245000, technicalScore: 90, financialScore: 75, totalScore: 82.5, status: 'REJECTED', deadline: monthsAgo(14) },
-      { projectId: project2.id, contractorId: contractor3.id, contractorName: contractor3.companyName, amount: 780000, technicalScore: 88, financialScore: 85, totalScore: 86.5, status: 'ACCEPTED', deadline: monthsAgo(12) },
-      { projectId: project3.id, contractorId: contractor2.id, contractorName: contractor2.companyName, amount: 1100000, technicalScore: 82, financialScore: 88, totalScore: 85, status: 'ACCEPTED', deadline: monthsAgo(8) },
-      { projectId: project5.id, contractorId: contractor1.id, contractorName: contractor1.companyName, amount: 550000, technicalScore: 80, financialScore: 82, totalScore: 81, status: 'SUBMITTED', deadline: monthsAgo(12) },
-      { projectId: project5.id, contractorId: contractor3.id, contractorName: contractor3.companyName, amount: 580000, technicalScore: 85, financialScore: 78, totalScore: 81.5, status: 'SUBMITTED', deadline: monthsAgo(12) },
+      { projectId: project1.id, contractorId: contractor1.id, contractorName: contractor1.companyName, amount: 220000, technicalScore: 85, financialScore: 90, totalScore: 87.5, status: 'ACCEPTED', deadline: monthsAgo(14) , organizationId: org1.id },
+      { projectId: project1.id, contractorId: contractor4.id, contractorName: contractor4.companyName, amount: 245000, technicalScore: 90, financialScore: 75, totalScore: 82.5, status: 'REJECTED', deadline: monthsAgo(14) , organizationId: org1.id },
+      { projectId: project2.id, contractorId: contractor3.id, contractorName: contractor3.companyName, amount: 780000, technicalScore: 88, financialScore: 85, totalScore: 86.5, status: 'ACCEPTED', deadline: monthsAgo(12) , organizationId: org1.id },
+      { projectId: project3.id, contractorId: contractor2.id, contractorName: contractor2.companyName, amount: 1100000, technicalScore: 82, financialScore: 88, totalScore: 85, status: 'ACCEPTED', deadline: monthsAgo(8) , organizationId: org1.id },
+      { projectId: project5.id, contractorId: contractor1.id, contractorName: contractor1.companyName, amount: 550000, technicalScore: 80, financialScore: 82, totalScore: 81, status: 'SUBMITTED', deadline: monthsAgo(12) , organizationId: org1.id },
+      { projectId: project5.id, contractorId: contractor3.id, contractorName: contractor3.companyName, amount: 580000, technicalScore: 85, financialScore: 78, totalScore: 81.5, status: 'SUBMITTED', deadline: monthsAgo(12) , organizationId: org1.id },
     ],
   });
   console.info('✅ 6 bids created');
@@ -801,11 +801,11 @@ async function main() {
   // ========== 23. Approvals (5 from prisma/seed.ts) ==========
   await db.approval.createMany({
     data: [
-      { projectId: project1.id, entityType: 'invoice', entityId: 'seed-inv-001', title: `موافقة فاتورة INV-${currentYearStr}-007`, description: 'فاتورة خدمات هندسية', status: 'PENDING', requestedBy: 'أحمد المنصوري', assignedTo: 'سعيد الحوسني', step: 1, totalSteps: 2, amount: 45000, createdAt: new Date(now.getTime() - 2 * 3600000) },
-      { projectId: project2.id, entityType: 'purchase_order', entityId: 'seed-po-002', title: `موافقة أمر شراء PO-${currentYearStr}-003`, description: 'مواد بناء', status: 'PENDING', requestedBy: 'خالد الرميثي', assignedTo: 'سعيد الحوسني', step: 2, totalSteps: 3, amount: 128000, createdAt: new Date(now.getTime() - 5 * 3600000) },
-      { entityType: 'leave', entityId: 'seed-leave-003', title: 'موافقة إجازة سنوية', description: 'إجازة 5 أيام', status: 'APPROVED', requestedBy: 'محمد الشامسي', assignedTo: 'أحمد المنصوري', step: 1, totalSteps: 1, amount: 0, notes: 'تمت الموافقة', createdAt: new Date(now.getTime() - 2 * 86400000) },
-      { projectId: project3.id, entityType: 'change_order', entityId: 'seed-co-004', title: `موافقة أمر تغيير CO-${currentYearStr}-001`, description: 'تغيير في التصميم المعماري', status: 'REJECTED', requestedBy: 'فاطمة الكعبي', assignedTo: 'سعيد الحوسني', step: 1, totalSteps: 2, amount: 75000, notes: 'التكلفة مرتفعة', createdAt: new Date(now.getTime() - 4 * 86400000) },
-      { projectId: project1.id, entityType: 'payment', entityId: 'seed-pay-005', title: 'موافقة دفعة مقدمة', description: 'دفعة مقدمة 30%', status: 'PENDING', requestedBy: 'خالد الرميثي', assignedTo: 'أحمد المنصوري', step: 1, totalSteps: 1, amount: 90000, createdAt: new Date(now.getTime() - 12 * 3600000) },
+      { projectId: project1.id, entityType: 'invoice', entityId: 'seed-inv-001', title: `موافقة فاتورة INV-${currentYearStr}-007`, description: 'فاتورة خدمات هندسية', status: 'PENDING', requestedBy: 'أحمد المنصوري', assignedTo: 'سعيد الحوسني', step: 1, totalSteps: 2, amount: 45000, createdAt: new Date(now.getTime() - 2 * 3600000) , organizationId: org1.id },
+      { projectId: project2.id, entityType: 'purchase_order', entityId: 'seed-po-002', title: `موافقة أمر شراء PO-${currentYearStr}-003`, description: 'مواد بناء', status: 'PENDING', requestedBy: 'خالد الرميثي', assignedTo: 'سعيد الحوسني', step: 2, totalSteps: 3, amount: 128000, createdAt: new Date(now.getTime() - 5 * 3600000) , organizationId: org1.id },
+      { entityType: 'leave', entityId: 'seed-leave-003', title: 'موافقة إجازة سنوية', description: 'إجازة 5 أيام', status: 'APPROVED', requestedBy: 'محمد الشامسي', assignedTo: 'أحمد المنصوري', step: 1, totalSteps: 1, amount: 0, notes: 'تمت الموافقة', createdAt: new Date(now.getTime() - 2 * 86400000) , organizationId: org1.id },
+      { projectId: project3.id, entityType: 'change_order', entityId: 'seed-co-004', title: `موافقة أمر تغيير CO-${currentYearStr}-001`, description: 'تغيير في التصميم المعماري', status: 'REJECTED', requestedBy: 'فاطمة الكعبي', assignedTo: 'سعيد الحوسني', step: 1, totalSteps: 2, amount: 75000, notes: 'التكلفة مرتفعة', createdAt: new Date(now.getTime() - 4 * 86400000) , organizationId: org1.id },
+      { projectId: project1.id, entityType: 'payment', entityId: 'seed-pay-005', title: 'موافقة دفعة مقدمة', description: 'دفعة مقدمة 30%', status: 'PENDING', requestedBy: 'خالد الرميثي', assignedTo: 'أحمد المنصوري', step: 1, totalSteps: 1, amount: 90000, createdAt: new Date(now.getTime() - 12 * 3600000) , organizationId: org1.id },
     ],
   });
   console.info('✅ 5 approvals created');
@@ -815,14 +815,14 @@ async function main() {
   if (tasks.length >= 4) {
     await db.taskComment.createMany({
       data: [
-        { taskId: tasks[0].id, userId: engineerUser.id, content: 'تم مراجعة المخططات الأولية ويحتاج بعض التعديلات على الواجهات', createdAt: new Date(now.getTime() - 3 * 3600000) },
-        { taskId: tasks[0].id, userId: structuralUser.id, content: 'أوافق على التعديلات المطلوبة @أحمد يرجى التحديث', createdAt: new Date(now.getTime() - 2 * 3600000) },
-        { taskId: tasks[0].id, userId: engineerUser.id, content: 'تم تحديث المخططات حسب الملاحظات', createdAt: new Date(now.getTime() - 1 * 3600000) },
-        { taskId: tasks[1].id, userId: structuralUser.id, content: 'التصميم الإنشائي جاهز للمراجعة @سارة', createdAt: new Date(now.getTime() - 8 * 3600000) },
-        { taskId: tasks[1].id, userId: mepUser.id, content: 'تم اعتماد الحسابات من قبل البلدية', createdAt: new Date(now.getTime() - 5 * 3600000) },
-        { taskId: tasks[2].id, userId: engineerUser.id, content: 'تم تقديم الأوراق إلى البلدية بالأمس', createdAt: new Date(now.getTime() - 24 * 3600000) },
-        { taskId: tasks[2].id, userId: pmUser.id, content: 'متى الموعد المتوقع للرد من البلدية؟', createdAt: new Date(now.getTime() - 18 * 3600000) },
-        { taskId: tasks[3].id, userId: structuralUser.id, content: 'تصميم كهرباء المبنى في المراحل النهائية', createdAt: new Date(now.getTime() - 6 * 3600000) },
+        { taskId: tasks[0].id, userId: engineerUser.id, content: 'تم مراجعة المخططات الأولية ويحتاج بعض التعديلات على الواجهات', createdAt: new Date(now.getTime() - 3 * 3600000) , organizationId: org1.id },
+        { taskId: tasks[0].id, userId: structuralUser.id, content: 'أوافق على التعديلات المطلوبة @أحمد يرجى التحديث', createdAt: new Date(now.getTime() - 2 * 3600000) , organizationId: org1.id },
+        { taskId: tasks[0].id, userId: engineerUser.id, content: 'تم تحديث المخططات حسب الملاحظات', createdAt: new Date(now.getTime() - 1 * 3600000) , organizationId: org1.id },
+        { taskId: tasks[1].id, userId: structuralUser.id, content: 'التصميم الإنشائي جاهز للمراجعة @سارة', createdAt: new Date(now.getTime() - 8 * 3600000) , organizationId: org1.id },
+        { taskId: tasks[1].id, userId: mepUser.id, content: 'تم اعتماد الحسابات من قبل البلدية', createdAt: new Date(now.getTime() - 5 * 3600000) , organizationId: org1.id },
+        { taskId: tasks[2].id, userId: engineerUser.id, content: 'تم تقديم الأوراق إلى البلدية بالأمس', createdAt: new Date(now.getTime() - 24 * 3600000) , organizationId: org1.id },
+        { taskId: tasks[2].id, userId: pmUser.id, content: 'متى الموعد المتوقع للرد من البلدية؟', createdAt: new Date(now.getTime() - 18 * 3600000) , organizationId: org1.id },
+        { taskId: tasks[3].id, userId: structuralUser.id, content: 'تصميم كهرباء المبنى في المراحل النهائية', createdAt: new Date(now.getTime() - 6 * 3600000) , organizationId: org1.id },
       ],
     });
     console.info('✅ 8 task comments created');
@@ -831,10 +831,10 @@ async function main() {
   // ========== 25. NEW: Payments (4 linked to invoices) ==========
   await db.payment.createMany({
     data: [
-      { projectId: project1.id, voucherNumber: `PAY-${currentYearStr}-001`, amount: 66250, payMethod: 'TRANSFER', beneficiary: 'بلوبرنت للاستشارات الهندسية', referenceNumber: `TRF-${currentYearStr}-001`, status: 'COMPLETED', approvedById: adminUser.id, description: `دفعة فاتورة INV-${currentYearStr}-001 - كامل المبلغ` },
-      { projectId: project1.id, voucherNumber: `PAY-${currentYearStr}-002`, amount: 33250, payMethod: 'CHEQUE', beneficiary: 'بلوبرنت للاستشارات الهندسية', referenceNumber: `CHQ-${currentYearStr}-045`, status: 'COMPLETED', approvedById: adminUser.id, description: `دفعة جزئية فاتورة INV-${currentYearStr}-002` },
-      { projectId: project4.id, voucherNumber: `PAY-${currentYearStr}-003`, amount: 190800, payMethod: 'TRANSFER', beneficiary: 'بلوبرنت للاستشارات الهندسية', referenceNumber: `TRF-${currentYearStr}-003`, status: 'COMPLETED', approvedById: adminUser.id, description: `دفعة فاتورة INV-${currentYearStr}-006 - كامل المبلغ` },
-      { projectId: project2.id, voucherNumber: `PAY-${currentYearStr}-004`, amount: 50000, payMethod: 'TRANSFER', beneficiary: 'شركة الأنظمة الميكانيكية', referenceNumber: `TRF-${currentYearStr}-004`, status: 'PENDING', description: 'دفعة مقدمة للمقاول - أعمال MEP' },
+      { projectId: project1.id, voucherNumber: `PAY-${currentYearStr}-001`, amount: 66250, payMethod: 'TRANSFER', beneficiary: 'بلوبرنت للاستشارات الهندسية', referenceNumber: `TRF-${currentYearStr}-001`, status: 'COMPLETED', approvedById: adminUser.id, description: `دفعة فاتورة INV-${currentYearStr}-001 - كامل المبلغ` , organizationId: org1.id },
+      { projectId: project1.id, voucherNumber: `PAY-${currentYearStr}-002`, amount: 33250, payMethod: 'CHEQUE', beneficiary: 'بلوبرنت للاستشارات الهندسية', referenceNumber: `CHQ-${currentYearStr}-045`, status: 'COMPLETED', approvedById: adminUser.id, description: `دفعة جزئية فاتورة INV-${currentYearStr}-002` , organizationId: org1.id },
+      { projectId: project4.id, voucherNumber: `PAY-${currentYearStr}-003`, amount: 190800, payMethod: 'TRANSFER', beneficiary: 'بلوبرنت للاستشارات الهندسية', referenceNumber: `TRF-${currentYearStr}-003`, status: 'COMPLETED', approvedById: adminUser.id, description: `دفعة فاتورة INV-${currentYearStr}-006 - كامل المبلغ` , organizationId: org1.id },
+      { projectId: project2.id, voucherNumber: `PAY-${currentYearStr}-004`, amount: 50000, payMethod: 'TRANSFER', beneficiary: 'شركة الأنظمة الميكانيكية', referenceNumber: `TRF-${currentYearStr}-004`, status: 'PENDING', description: 'دفعة مقدمة للمقاول - أعمال MEP' , organizationId: org1.id },
     ],
   });
   console.info('✅ 4 payments created');
@@ -843,20 +843,20 @@ async function main() {
   await db.budget.createMany({
     data: [
       // Project 1 budgets
-      { projectId: project1.id, name: 'الميزانية الإجمالية', category: 'overall', planned: 250000, actual: 162500, committed: 200000, remaining: 50000, deviation: -12500 },
-      { projectId: project1.id, name: 'الأعمال المعمارية', category: 'architectural', planned: 100000, actual: 65000, committed: 80000, remaining: 20000, deviation: -5000 },
-      { projectId: project1.id, name: 'الأعمال الإنشائية', category: 'structural', planned: 90000, actual: 55000, committed: 70000, remaining: 20000, deviation: -5000 },
-      { projectId: project1.id, name: 'الأعمال الكهربائية', category: 'electrical', planned: 60000, actual: 42500, committed: 50000, remaining: 10000, deviation: -2500 },
+      { projectId: project1.id, name: 'الميزانية الإجمالية', category: 'overall', planned: 250000, actual: 162500, committed: 200000, remaining: 50000, deviation: -12500 , organizationId: org1.id },
+      { projectId: project1.id, name: 'الأعمال المعمارية', category: 'architectural', planned: 100000, actual: 65000, committed: 80000, remaining: 20000, deviation: -5000 , organizationId: org1.id },
+      { projectId: project1.id, name: 'الأعمال الإنشائية', category: 'structural', planned: 90000, actual: 55000, committed: 70000, remaining: 20000, deviation: -5000 , organizationId: org1.id },
+      { projectId: project1.id, name: 'الأعمال الكهربائية', category: 'electrical', planned: 60000, actual: 42500, committed: 50000, remaining: 10000, deviation: -2500 , organizationId: org1.id },
       // Project 2 budgets
-      { projectId: project2.id, name: 'الميزانية الإجمالية', category: 'overall', planned: 850000, actual: 340000, committed: 500000, remaining: 350000, deviation: 10000 },
-      { projectId: project2.id, name: 'الأعمال المعمارية', category: 'architectural', planned: 350000, actual: 140000, committed: 200000, remaining: 150000, deviation: 5000 },
-      { projectId: project2.id, name: 'الأعمال الإنشائية', category: 'structural', planned: 300000, actual: 120000, committed: 180000, remaining: 120000, deviation: 0 },
+      { projectId: project2.id, name: 'الميزانية الإجمالية', category: 'overall', planned: 850000, actual: 340000, committed: 500000, remaining: 350000, deviation: 10000 , organizationId: org1.id },
+      { projectId: project2.id, name: 'الأعمال المعمارية', category: 'architectural', planned: 350000, actual: 140000, committed: 200000, remaining: 150000, deviation: 5000 , organizationId: org1.id },
+      { projectId: project2.id, name: 'الأعمال الإنشائية', category: 'structural', planned: 300000, actual: 120000, committed: 180000, remaining: 120000, deviation: 0 , organizationId: org1.id },
       // Project 3 budgets
-      { projectId: project3.id, name: 'الميزانية الإجمالية', category: 'overall', planned: 1200000, actual: 240000, committed: 400000, remaining: 800000, deviation: 0 },
-      { projectId: project3.id, name: 'الأعمال المعمارية', category: 'architectural', planned: 500000, actual: 100000, committed: 150000, remaining: 350000, deviation: 0 },
+      { projectId: project3.id, name: 'الميزانية الإجمالية', category: 'overall', planned: 1200000, actual: 240000, committed: 400000, remaining: 800000, deviation: 0 , organizationId: org1.id },
+      { projectId: project3.id, name: 'الأعمال المعمارية', category: 'architectural', planned: 500000, actual: 100000, committed: 150000, remaining: 350000, deviation: 0 , organizationId: org1.id },
       // Project 5 budgets
-      { projectId: project5.id, name: 'الميزانية الإجمالية', category: 'overall', planned: 600000, actual: 210000, committed: 350000, remaining: 250000, deviation: -15000 },
-      { projectId: project5.id, name: 'الأعمال الإنشائية', category: 'structural', planned: 250000, actual: 87500, committed: 150000, remaining: 100000, deviation: -5000 },
+      { projectId: project5.id, name: 'الميزانية الإجمالية', category: 'overall', planned: 600000, actual: 210000, committed: 350000, remaining: 250000, deviation: -15000 , organizationId: org1.id },
+      { projectId: project5.id, name: 'الأعمال الإنشائية', category: 'structural', planned: 250000, actual: 87500, committed: 150000, remaining: 100000, deviation: -5000 , organizationId: org1.id },
     ],
   });
   console.info('✅ 11 budget items created (across 4 projects)');
@@ -864,10 +864,10 @@ async function main() {
   // ========== 27. NEW: Defects (4) ==========
   await db.defect.createMany({
     data: [
-      { projectId: project1.id, title: 'تشقق في الجدار الشرقي', severity: 'HIGH', location: 'الطابق الأرضي - الجدار الشرقي', assigneeId: structuralUser.id, status: 'IN_PROGRESS', resolutionNotes: 'تم أخذ العينات للتحليل' },
-      { projectId: project2.id, title: 'تسريب مياه في مواقف السيارات', severity: 'MEDIUM', location: 'طابق المواقف B1', assigneeId: mepUser.id, status: 'OPEN' },
-      { projectId: project5.id, title: 'عدم مطابقة خرسانة الأعمدة', severity: 'CRITICAL', location: 'الطابق الثالث - أعمدة C3-C5', assigneeId: structuralUser.id, status: 'OPEN' },
-      { projectId: project7.id, title: 'كسر في بلاط المدخل', severity: 'NORMAL', location: 'المدخل الرئيسي', status: 'RESOLVED', resolutionNotes: 'تم استبدال البلاط التالف' },
+      { projectId: project1.id, title: 'تشقق في الجدار الشرقي', severity: 'HIGH', location: 'الطابق الأرضي - الجدار الشرقي', assigneeId: structuralUser.id, status: 'IN_PROGRESS', resolutionNotes: 'تم أخذ العينات للتحليل' , organizationId: org1.id },
+      { projectId: project2.id, title: 'تسريب مياه في مواقف السيارات', severity: 'MEDIUM', location: 'طابق المواقف B1', assigneeId: mepUser.id, status: 'OPEN' , organizationId: org1.id },
+      { projectId: project5.id, title: 'عدم مطابقة خرسانة الأعمدة', severity: 'CRITICAL', location: 'الطابق الثالث - أعمدة C3-C5', assigneeId: structuralUser.id, status: 'OPEN' , organizationId: org1.id },
+      { projectId: project7.id, title: 'كسر في بلاط المدخل', severity: 'NORMAL', location: 'المدخل الرئيسي', status: 'RESOLVED', resolutionNotes: 'تم استبدال البلاط التالف' , organizationId: org1.id },
     ],
   });
   console.info('✅ 4 defects created');
@@ -875,9 +875,9 @@ async function main() {
   // ========== 28. NEW: RFIs (3) ==========
   await db.rFI.createMany({
     data: [
-      { projectId: project1.id, number: 'RFI-001', subject: 'توضيح مواصبات الخرسانة', description: 'نرجو توضيح الدرجة المطلوبة للخرسانة في الأساسات', fromId: structuralUser.id, toId: pmUser.id, priority: 'HIGH', dueDate: daysFromNow(7), status: 'REPLIED', response: 'درجة خرسانة C40 للأساسات كما هو موضح في المواصفات الفنية' },
-      { projectId: project2.id, number: 'RFI-002', subject: 'تعديل مسار الكابلات', description: 'هل يمكن تعديل مسار الكابلات الرئيسية لتجنب التعارض مع أنابيب التكييف', fromId: mepUser.id, toId: engineerUser.id, priority: 'NORMAL', dueDate: daysFromNow(15), status: 'OPEN' },
-      { projectId: project5.id, number: 'RFI-003', subject: 'مواصفات الحديد المستخدم', description: 'نرجو تأكيد نوع وقطر حديد التسليح المستخدم في الأعمدة', fromId: structuralUser.id, toId: pmUser.id, priority: 'URGENT', status: 'OPEN' },
+      { projectId: project1.id, number: 'RFI-001', subject: 'توضيح مواصبات الخرسانة', description: 'نرجو توضيح الدرجة المطلوبة للخرسانة في الأساسات', fromId: structuralUser.id, toId: pmUser.id, priority: 'HIGH', dueDate: daysFromNow(7), status: 'REPLIED', response: 'درجة خرسانة C40 للأساسات كما هو موضح في المواصفات الفنية' , organizationId: org1.id },
+      { projectId: project2.id, number: 'RFI-002', subject: 'تعديل مسار الكابلات', description: 'هل يمكن تعديل مسار الكابلات الرئيسية لتجنب التعارض مع أنابيب التكييف', fromId: mepUser.id, toId: engineerUser.id, priority: 'NORMAL', dueDate: daysFromNow(15), status: 'OPEN' , organizationId: org1.id },
+      { projectId: project5.id, number: 'RFI-003', subject: 'مواصفات الحديد المستخدم', description: 'نرجو تأكيد نوع وقطر حديد التسليح المستخدم في الأعمدة', fromId: structuralUser.id, toId: pmUser.id, priority: 'URGENT', status: 'OPEN' , organizationId: org1.id },
     ],
   });
   console.info('✅ 3 RFIs created');
@@ -885,9 +885,9 @@ async function main() {
   // ========== 29. NEW: Leave Requests (3) ==========
   await db.leave.createMany({
     data: [
-      { employeeId: engineerUser.id, type: 'ANNUAL', startDate: daysFromNow(5), endDate: daysFromNow(8), days: 3, reason: 'إجازة سنوية', status: 'PENDING' },
-      { employeeId: structuralUser.id, type: 'SICK', startDate: monthsAgo(1), endDate: monthsAgo(1, 10), days: 1, reason: 'مراجعة طبية', status: 'APPROVED', approvedById: adminUser.id },
-      { employeeId: mepUser.id, type: 'EMERGENCY', startDate: daysFromNow(10), endDate: daysFromNow(12), days: 2, reason: 'ظرف عائلي طارئ', status: 'PENDING' },
+      { employeeId: engineerUser.id, type: 'ANNUAL', startDate: daysFromNow(5), endDate: daysFromNow(8), days: 3, reason: 'إجازة سنوية', status: 'PENDING' , organizationId: org1.id },
+      { employeeId: structuralUser.id, type: 'SICK', startDate: monthsAgo(1), endDate: monthsAgo(1, 10), days: 1, reason: 'مراجعة طبية', status: 'APPROVED', approvedById: adminUser.id , organizationId: org1.id },
+      { employeeId: mepUser.id, type: 'EMERGENCY', startDate: daysFromNow(10), endDate: daysFromNow(12), days: 2, reason: 'ظرف عائلي طارئ', status: 'PENDING' , organizationId: org1.id },
     ],
   });
   console.info('✅ 3 leave requests created');
@@ -896,17 +896,17 @@ async function main() {
   await db.document.createMany({
     data: [
       // Project 1 documents
-      { projectId: project1.id, name: 'مخطط معماري - الطابق الأرضي.pdf', fileType: 'pdf', fileSize: 2500000, category: 'drawings', version: 3, filePath: '/uploads/prj-001/arch-ground-floor-v3.pdf', uploadedById: engineerUser.id },
-      { projectId: project1.id, name: 'تقرير التربة.pdf', fileType: 'pdf', fileSize: 1200000, category: 'report', version: 1, filePath: '/uploads/prj-001/soil-report.pdf', uploadedById: structuralUser.id },
-      { projectId: project1.id, name: 'عقد التصميم.pdf', fileType: 'pdf', fileSize: 800000, category: 'contract', version: 1, filePath: '/uploads/prj-001/design-contract.pdf', uploadedById: adminUser.id },
+      { projectId: project1.id, name: 'مخطط معماري - الطابق الأرضي.pdf', fileType: 'pdf', fileSize: 2500000, category: 'drawings', version: 3, filePath: '/uploads/prj-001/arch-ground-floor-v3.pdf', uploadedById: engineerUser.id , organizationId: org1.id },
+      { projectId: project1.id, name: 'تقرير التربة.pdf', fileType: 'pdf', fileSize: 1200000, category: 'report', version: 1, filePath: '/uploads/prj-001/soil-report.pdf', uploadedById: structuralUser.id , organizationId: org1.id },
+      { projectId: project1.id, name: 'عقد التصميم.pdf', fileType: 'pdf', fileSize: 800000, category: 'contract', version: 1, filePath: '/uploads/prj-001/design-contract.pdf', uploadedById: adminUser.id , organizationId: org1.id },
       // Project 2 documents
-      { projectId: project2.id, name: 'مخطط إنشائي - الأساسات.pdf', fileType: 'pdf', fileSize: 3100000, category: 'drawings', version: 2, filePath: '/uploads/prj-002/struct-foundation-v2.pdf', uploadedById: structuralUser.id },
-      { projectId: project2.id, name: 'مواصفات الخرسانة.docx', fileType: 'docx', fileSize: 450000, category: 'specs', version: 1, filePath: '/uploads/prj-002/concrete-specs.docx', uploadedById: structuralUser.id },
+      { projectId: project2.id, name: 'مخطط إنشائي - الأساسات.pdf', fileType: 'pdf', fileSize: 3100000, category: 'drawings', version: 2, filePath: '/uploads/prj-002/struct-foundation-v2.pdf', uploadedById: structuralUser.id , organizationId: org1.id },
+      { projectId: project2.id, name: 'مواصفات الخرسانة.docx', fileType: 'docx', fileSize: 450000, category: 'specs', version: 1, filePath: '/uploads/prj-002/concrete-specs.docx', uploadedById: structuralUser.id , organizationId: org1.id },
       // Project 3 documents
-      { projectId: project3.id, name: 'دراسة الجدوى الاقتصادية.pdf', fileType: 'pdf', fileSize: 1800000, category: 'report', version: 1, filePath: '/uploads/prj-003/feasibility-study.pdf', uploadedById: pmUser.id },
-      { projectId: project3.id, name: 'مخطط الموقع العام.pdf', fileType: 'pdf', fileSize: 2200000, category: 'drawings', version: 1, filePath: '/uploads/prj-003/site-plan.pdf', uploadedById: engineerUser.id },
+      { projectId: project3.id, name: 'دراسة الجدوى الاقتصادية.pdf', fileType: 'pdf', fileSize: 1800000, category: 'report', version: 1, filePath: '/uploads/prj-003/feasibility-study.pdf', uploadedById: pmUser.id , organizationId: org1.id },
+      { projectId: project3.id, name: 'مخطط الموقع العام.pdf', fileType: 'pdf', fileSize: 2200000, category: 'drawings', version: 1, filePath: '/uploads/prj-003/site-plan.pdf', uploadedById: engineerUser.id , organizationId: org1.id },
       // Project 5 documents
-      { projectId: project5.id, name: 'تقرير الحسابات الإنشائية.pdf', fileType: 'pdf', fileSize: 900000, category: 'calculations', version: 2, filePath: '/uploads/prj-005/structural-calcs-v2.pdf', uploadedById: structuralUser.id },
+      { projectId: project5.id, name: 'تقرير الحسابات الإنشائية.pdf', fileType: 'pdf', fileSize: 900000, category: 'calculations', version: 2, filePath: '/uploads/prj-005/structural-calcs-v2.pdf', uploadedById: structuralUser.id , organizationId: org1.id },
     ],
   });
   console.info('✅ 8 documents created (across 4 projects)');
@@ -914,9 +914,9 @@ async function main() {
   // ========== 31. NEW: Client Interactions (3) ==========
   await db.clientInteraction.createMany({
     data: [
-      { projectId: project1.id, clientId: client1.id, type: 'MEETING', date: monthsAgo(1), subject: 'مراجعة التصميم المعماري', description: 'اجتماع مع العميل لمراجعة المخططات المعمارية النهائية', outcome: 'تمت الموافقة على التصميم مع تعديلات بسيطة على الواجهة' },
-      { projectId: project2.id, clientId: client2.id, type: 'CALL', date: daysFromNow(-5), subject: 'متابعة تأخر المشروع', description: 'مكالمة هاتفية لمتابعة تقدم المشروع ومناقشة أسباب التأخير', outcome: 'العميل يطلب تسريع الإنجاز مع إمكانية تمديد الموعد' },
-      { projectId: project3.id, clientId: client3.id, type: 'EMAIL', date: monthsAgo(1), subject: 'إرسال عرض الأسعار', description: 'إرسال عرض أسعار شامل التصميم والإشراب عبر البريد الإلكتروني', outcome: 'في انتظار رد العميل' },
+      { projectId: project1.id, clientId: client1.id, type: 'MEETING', date: monthsAgo(1), subject: 'مراجعة التصميم المعماري', description: 'اجتماع مع العميل لمراجعة المخططات المعمارية النهائية', outcome: 'تمت الموافقة على التصميم مع تعديلات بسيطة على الواجهة' , organizationId: org1.id },
+      { projectId: project2.id, clientId: client2.id, type: 'CALL', date: daysFromNow(-5), subject: 'متابعة تأخر المشروع', description: 'مكالمة هاتفية لمتابعة تقدم المشروع ومناقشة أسباب التأخير', outcome: 'العميل يطلب تسريع الإنجاز مع إمكانية تمديد الموعد' , organizationId: org1.id },
+      { projectId: project3.id, clientId: client3.id, type: 'EMAIL', date: monthsAgo(1), subject: 'إرسال عرض الأسعار', description: 'إرسال عرض أسعار شامل التصميم والإشراب عبر البريد الإلكتروني', outcome: 'في انتظار رد العميل' , organizationId: org1.id },
     ],
   });
   console.info('✅ 3 client interactions created');
@@ -924,10 +924,10 @@ async function main() {
   // ========== 32. NEW: Risks (4) ==========
   await db.risk.createMany({
     data: [
-      { projectId: project1.id, title: 'تأخر توريد مواد البناء', category: 'SCHEDULE', probability: 3, impact: 4, score: 12, status: 'OPEN', mitigationPlan: 'التعاقد مع مورد بديل وتخزين احتياطي من المواد الأساسية', strategy: 'MITIGATE', createdById: adminUser.id },
-      { projectId: project2.id, title: 'تجاوز الميزانية المتوقعة', category: 'FINANCIAL', probability: 4, impact: 4, score: 16, status: 'MITIGATED', mitigationPlan: 'مراجعة الميزانية شهريا والتفاوض على أسعار ثابتة مع الموردين', strategy: 'MITIGATE', createdById: adminUser.id },
-      { projectId: project5.id, title: 'عدم مطابقة المواصفات', category: 'TECHNICAL', probability: 2, impact: 5, score: 10, status: 'OPEN', mitigationPlan: 'فحص جميع الموارد قبل التوريد واعتماد عينات مسبقا', strategy: 'MITIGATE', createdById: pmUser.id },
-      { projectId: project3.id, title: 'تأخر موافقات البلدية', category: 'EXTERNAL', probability: 3, impact: 3, score: 9, status: 'CLOSED', mitigationPlan: 'تقديم المستندات مبكرا ومتابعة دورية مع البلدية', strategy: 'MITIGATE', createdById: adminUser.id },
+      { projectId: project1.id, title: 'تأخر توريد مواد البناء', category: 'SCHEDULE', probability: 3, impact: 4, score: 12, status: 'OPEN', mitigationPlan: 'التعاقد مع مورد بديل وتخزين احتياطي من المواد الأساسية', strategy: 'MITIGATE', createdById: adminUser.id , organizationId: org1.id },
+      { projectId: project2.id, title: 'تجاوز الميزانية المتوقعة', category: 'FINANCIAL', probability: 4, impact: 4, score: 16, status: 'MITIGATED', mitigationPlan: 'مراجعة الميزانية شهريا والتفاوض على أسعار ثابتة مع الموردين', strategy: 'MITIGATE', createdById: adminUser.id , organizationId: org1.id },
+      { projectId: project5.id, title: 'عدم مطابقة المواصفات', category: 'TECHNICAL', probability: 2, impact: 5, score: 10, status: 'OPEN', mitigationPlan: 'فحص جميع الموارد قبل التوريد واعتماد عينات مسبقا', strategy: 'MITIGATE', createdById: pmUser.id , organizationId: org1.id },
+      { projectId: project3.id, title: 'تأخر موافقات البلدية', category: 'EXTERNAL', probability: 3, impact: 3, score: 9, status: 'CLOSED', mitigationPlan: 'تقديم المستندات مبكرا ومتابعة دورية مع البلدية', strategy: 'MITIGATE', createdById: adminUser.id , organizationId: org1.id },
     ],
   });
   console.info('✅ 4 risks created');
@@ -935,9 +935,9 @@ async function main() {
   // ========== 33. NEW: Submittals (3) ==========
   await db.submittal.createMany({
     data: [
-      { projectId: project1.id, number: 'SUB-001', title: 'مواصفات الخرسانة الجاهزة', type: 'MATERIAL', status: 'APPROVED', revisionNumber: 1 },
-      { projectId: project2.id, number: 'SUB-002', title: 'كتالوج المصاعد', type: 'EQUIPMENT', status: 'UNDER_REVIEW', revisionNumber: 1 },
-      { projectId: project3.id, number: 'SUB-003', title: 'عينات بلاط الأرضيات', type: 'SAMPLE', status: 'REJECTED', revisionNumber: 2 },
+      { projectId: project1.id, number: 'SUB-001', title: 'مواصفات الخرسانة الجاهزة', type: 'MATERIAL', status: 'APPROVED', revisionNumber: 1 , organizationId: org1.id },
+      { projectId: project2.id, number: 'SUB-002', title: 'كتالوج المصاعد', type: 'EQUIPMENT', status: 'UNDER_REVIEW', revisionNumber: 1 , organizationId: org1.id },
+      { projectId: project3.id, number: 'SUB-003', title: 'عينات بلاط الأرضيات', type: 'SAMPLE', status: 'REJECTED', revisionNumber: 2 , organizationId: org1.id },
     ],
   });
   console.info('✅ 3 submittals created');
@@ -945,8 +945,8 @@ async function main() {
   // ========== 34. NEW: Change Orders (2) ==========
   await db.changeOrder.createMany({
     data: [
-      { projectId: project1.id, number: 'CO-001', description: 'تغيير شكل وحجم المسبح بناء على طلب العميل', type: 'CHANGE', costImpact: 15000, timeImpact: '5 أيام', status: 'APPROVED' },
-      { projectId: project2.id, number: 'CO-002', description: 'ترقية نظام التكييف من نظام تقليدي إلى نظام VRV', type: 'CHANGE', costImpact: 45000, timeImpact: '10 أيام', status: 'PENDING' },
+      { projectId: project1.id, number: 'CO-001', description: 'تغيير شكل وحجم المسبح بناء على طلب العميل', type: 'CHANGE', costImpact: 15000, timeImpact: '5 أيام', status: 'APPROVED' , organizationId: org1.id },
+      { projectId: project2.id, number: 'CO-002', description: 'ترقية نظام التكييف من نظام تقليدي إلى نظام VRV', type: 'CHANGE', costImpact: 45000, timeImpact: '10 أيام', status: 'PENDING' , organizationId: org1.id },
     ],
   });
   console.info('✅ 2 change orders created');
@@ -954,8 +954,8 @@ async function main() {
   // ========== 35. NEW: Transmittals (2) ==========
   await db.transmittal.createMany({
     data: [
-      { projectId: project1.id, number: 'TRN-001', subject: 'إرسال مخططات للبلدية', fromId: secUser.id, toName: 'بلدية دبي', toCompany: 'بلدية دبي', deliveryMethod: 'MANUAL', status: 'REPLIED' },
-      { projectId: project2.id, number: 'TRN-002', subject: 'إرسال تقرير التربة', fromId: pmUser.id, toName: 'شركة البناء الحديث', toCompany: 'المقاول - شركة البناء الحديث', deliveryMethod: 'EMAIL', status: 'RECEIVED' },
+      { projectId: project1.id, number: 'TRN-001', subject: 'إرسال مخططات للبلدية', fromId: secUser.id, toName: 'بلدية دبي', toCompany: 'بلدية دبي', deliveryMethod: 'MANUAL', status: 'REPLIED' , organizationId: org1.id },
+      { projectId: project2.id, number: 'TRN-002', subject: 'إرسال تقرير التربة', fromId: pmUser.id, toName: 'شركة البناء الحديث', toCompany: 'المقاول - شركة البناء الحديث', deliveryMethod: 'EMAIL', status: 'RECEIVED' , organizationId: org1.id },
     ],
   });
   console.info('✅ 2 transmittals created');
@@ -972,8 +972,8 @@ async function main() {
   // ========== 38. NEW: Purchase Orders (2) ==========
   await db.purchaseOrder.createMany({
     data: [
-      { projectId: project1.id, number: 'PO-001', supplierId: supplier1.id, amount: 70000, status: 'APPROVED', createdById: pmUser.id },
-      { projectId: project2.id, number: 'PO-002', supplierId: supplier2.id, amount: 28000, status: 'DRAFT', createdById: structuralUser.id },
+      { projectId: project1.id, number: 'PO-001', supplierId: supplier1.id, amount: 70000, status: 'APPROVED', createdById: pmUser.id , organizationId: org1.id },
+      { projectId: project2.id, number: 'PO-002', supplierId: supplier2.id, amount: 28000, status: 'DRAFT', createdById: structuralUser.id , organizationId: org1.id },
     ],
   });
   console.info('✅ 2 purchase orders created');
@@ -981,8 +981,8 @@ async function main() {
   // ========== 39. NEW: Guarantee Letters (2) ==========
   await db.guaranteeLetter.createMany({
     data: [
-      { projectId: project1.id, guaranteeNumber: 'GL-001', type: 'ADVANCE_PAYMENT', amount: 25000, bankName: 'بنك رأس الخيمة الوطني', issueDate: monthsAgo(14), expiryDate: monthsFromNow(2), status: 'ACTIVE' },
-      { projectId: project2.id, guaranteeNumber: 'GL-002', type: 'PERFORMANCE', amount: 85000, bankName: 'بنك دبي التجاري', issueDate: monthsAgo(12), expiryDate: monthsFromNow(6), status: 'ACTIVE' },
+      { projectId: project1.id, guaranteeNumber: 'GL-001', type: 'ADVANCE_PAYMENT', amount: 25000, bankName: 'بنك رأس الخيمة الوطني', issueDate: monthsAgo(14), expiryDate: monthsFromNow(2), status: 'ACTIVE' , organizationId: org1.id },
+      { projectId: project2.id, guaranteeNumber: 'GL-002', type: 'PERFORMANCE', amount: 85000, bankName: 'بنك دبي التجاري', issueDate: monthsAgo(12), expiryDate: monthsFromNow(6), status: 'ACTIVE' , organizationId: org1.id },
     ],
   });
   console.info('✅ 2 guarantee letters created');
@@ -999,8 +999,8 @@ async function main() {
   // ========== 41. NEW: Commissions (2) ==========
   await db.commission.createMany({
     data: [
-      { userId: pmUser.id, projectId: project1.id, type: 'project_referral', amount: 5000, currency: 'AED', percentage: 2, baseAmount: 250000, status: 'PENDING', description: 'عمولة إحالة مشروع فيلا المنطقة الأولى' },
-      { userId: engineerUser.id, projectId: project2.id, type: 'project_referral', amount: 12000, currency: 'AED', percentage: 1.5, baseAmount: 800000, status: 'APPROVED', description: 'عمولة إحالة مشروع المبنى السكني' },
+      { userId: pmUser.id, projectId: project1.id, type: 'project_referral', amount: 5000, currency: 'AED', percentage: 2, baseAmount: 250000, status: 'PENDING', description: 'عمولة إحالة مشروع فيلا المنطقة الأولى' , organizationId: org1.id },
+      { userId: engineerUser.id, projectId: project2.id, type: 'project_referral', amount: 12000, currency: 'AED', percentage: 1.5, baseAmount: 800000, status: 'APPROVED', description: 'عمولة إحالة مشروع المبنى السكني' , organizationId: org1.id },
     ],
   });
   console.info('✅ 2 commissions created');
@@ -1013,8 +1013,8 @@ async function main() {
   // ========== 42b. Violations (2) — require checklistId from supervision checklists above ==========
   await db.violation.createMany({
     data: [
-      { checklistId: checklist2.id, projectId: project5.id, type: 'SAFETY', severity: 'HIGH', description: 'رصد عمال بدون خوذات وأحذية أمان في الموقع', contractorName: 'شركة البناء الحديث', status: 'RESOLVED', resolutionNotes: 'تم إلزام جميع العمال بارتداء معدات الوقاية وتوقيع عقوبات على المخالفين' },
-      { checklistId: checklist1.id, projectId: project1.id, type: 'SAFETY', severity: 'MEDIUM', description: 'رصد أعمال بناء خارج ساعات العمل المسموح بها', status: 'OPEN' },
+      { checklistId: checklist2.id, projectId: project5.id, type: 'SAFETY', severity: 'HIGH', description: 'رصد عمال بدون خوذات وأحذية أمان في الموقع', contractorName: 'شركة البناء الحديث', status: 'RESOLVED', resolutionNotes: 'تم إلزام جميع العمال بارتداء معدات الوقاية وتوقيع عقوبات على المخالفين' , organizationId: org1.id },
+      { checklistId: checklist1.id, projectId: project1.id, type: 'SAFETY', severity: 'MEDIUM', description: 'رصد أعمال بناء خارج ساعات العمل المسموح بها', status: 'OPEN' , organizationId: org1.id },
     ],
   });
   console.info('✅ 2 violations created');

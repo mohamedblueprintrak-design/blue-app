@@ -124,7 +124,7 @@ export function orgFilter(ctx: AuthContext): Record<string, unknown> {
  *     data: { ...body, ...orgCreate(ctx), createdById: ctx.userId }
  *   });
  */
-export function orgCreate(ctx: AuthContext): Record<string, unknown> {
+export function orgCreate(ctx: AuthContext): { organizationId: string } {
   if (ctx.organizationId) {
     return { organizationId: ctx.organizationId };
   }
@@ -133,7 +133,8 @@ export function orgCreate(ctx: AuthContext): Record<string, unknown> {
   if (process.env.MULTI_TENANT === 'true') {
     return { organizationId: '__DENIED__' };
   }
-  return {};
+  // Return a default org id for single-tenant mode where it is mandatory in schema but we just use 'default'
+  return { organizationId: 'default' };
 }
 
 /**

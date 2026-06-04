@@ -824,6 +824,29 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
                   <p className="text-sm font-medium text-slate-900 dark:text-white mt-1">{new Date(viewDoc.createdAt).toLocaleString(ar ? "ar-AE" : "en-US")}</p>
                 </div>
               </div>
+              
+              {/* Document Preview section */}
+              {viewDoc.filePath && (
+                <div className="mt-4 border-t border-slate-200 dark:border-slate-800 pt-4">
+                  <Label className="text-xs text-slate-400 dark:text-slate-500 mb-2 block">{ar ? "معاينة المستند" : "Document Preview"}</Label>
+                  {["jpg", "jpeg", "png", "gif", "webp"].includes((viewDoc.fileType || "").toLowerCase()) ? (
+                    <div className="rounded-md overflow-hidden border border-slate-200 dark:border-slate-700">
+                      <img src={viewDoc.filePath} alt={viewDoc.name} className="w-full h-auto max-h-[300px] object-contain bg-slate-50 dark:bg-slate-900" />
+                    </div>
+                  ) : ["pdf"].includes((viewDoc.fileType || "").toLowerCase()) ? (
+                    <div className="rounded-md overflow-hidden border border-slate-200 dark:border-slate-700 h-[400px]">
+                      <iframe src={viewDoc.filePath} className="w-full h-full" title={viewDoc.name} />
+                    </div>
+                  ) : (
+                    <div className="p-8 text-center border rounded-md bg-slate-50 dark:bg-slate-800/50">
+                      <p className="text-sm text-slate-500">{ar ? "المعاينة غير متاحة لهذا النوع من الملفات" : "Preview not available for this file type"}</p>
+                      <Button variant="outline" size="sm" className="mt-3" onClick={() => window.open(viewDoc.filePath, '_blank')}>
+                        {ar ? "تحميل الملف" : "Download File"}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
             </>
           )}
         </DialogContent>

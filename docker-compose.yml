@@ -23,6 +23,7 @@ services:
     restart: unless-stopped
     ports:
       - "3000:3000"
+    env_file: .env
     environment:
       - NODE_ENV=development
       # SECURITY: All secrets from environment variables — NO default passwords in production
@@ -112,6 +113,8 @@ services:
     image: redis:7-alpine
     container_name: blueprint-redis
     restart: unless-stopped
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-dev_redis_password}
     # SECURITY: In development, keep ports for debugging
     # In production, remove this section entirely
     ports:
@@ -181,6 +184,28 @@ services:
     profiles:
       - production
 
+  # ============================================
+  # Backup Service
+  # ============================================
+  backup_service:
+    image: postgres:16-alpine
+    container_name: blueprint-backup
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - backup_data:/backups
+    command: >
+      /bin/sh -c '
+        echo "0 3 * * * pg_dump -U $$POSTGRES_USER -h postgres -d $$POSTGRES_DB -F c -f /backups/db-$$(date +\\%Y\\%m\\%d).dump" > /etc/crontabs/root && crond -f
+      '
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - blueprint-network
+    profiles:
+      - production
+
 # ============================================
 # Networks
 # ============================================
@@ -197,4 +222,6 @@ volumes:
   redis_data:
     driver: local
   uploads:
+    driver: local
+  backup_data:
     driver: local

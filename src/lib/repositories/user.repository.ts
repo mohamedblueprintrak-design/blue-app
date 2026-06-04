@@ -41,7 +41,7 @@ export interface UpdateUserData {
   name?: string;
   email?: string;
   phone?: string;
-  jobTitle?: string;
+  position?: string;
   department?: string;
   language?: string;
   theme?: string;
@@ -64,7 +64,7 @@ export class UserRepository extends BaseRepository<User> {
    */
   async findByEmail(email: string): Promise<User | null> {
     return this.delegate.findFirst({
-      where: { email: email.toLowerCase() },
+      where: { email: email.toLowerCase(), deletedAt: null },
     });
   }
 
@@ -73,7 +73,7 @@ export class UserRepository extends BaseRepository<User> {
    */
   async findByUsername(name: string): Promise<User | null> {
     return this.delegate.findFirst({
-      where: { name },
+      where: { name, deletedAt: null },
     });
   }
 

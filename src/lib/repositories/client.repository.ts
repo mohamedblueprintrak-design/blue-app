@@ -30,7 +30,6 @@ export interface CreateClientData {
   address?: string;
   city?: string;
   country?: string;
-  contactPerson?: string;
   taxNumber?: string;
   creditLimit?: number;
   paymentTerms?: number;
@@ -48,7 +47,6 @@ export interface UpdateClientData {
   address?: string;
   city?: string;
   country?: string;
-  contactPerson?: string;
   taxNumber?: string;
   creditLimit?: number;
   paymentTerms?: number;
@@ -119,7 +117,7 @@ export class ClientRepository extends BaseRepository<Client> {
         OR: [
           { name: insensitiveContains(query) },
           { email: insensitiveContains(query) },
-          { contactPerson: insensitiveContains(query) },
+          { phone: insensitiveContains(query) },
         ],
       },
       skip: options?.skip,

@@ -90,8 +90,9 @@ COPY --from=builder /app/prisma ./prisma
 # Create uploads directory
 RUN mkdir -p /app/uploads && chown -R nextjs:nodejs /app/uploads
 
-# Install postgresql-client for migrations
-RUN apk add --no-cache postgresql-client
+# Install postgresql-client for migrations and Prisma CLI
+RUN apk add --no-cache postgresql-client && \
+    npm install -g prisma
 
 # Copy entrypoint script
 COPY --from=builder /app/docker-entrypoint.sh ./

@@ -89,6 +89,20 @@ export async function POST(request: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
+    // SECURITY FIX: Magic number validation (Content sniffing protection)
+    const hex = buffer.subarray(0, 12).toString("hex").toUpperCase();
+    const isJPEG = hex.startsWith("FFD8FF");
+    const isPNG = hex.startsWith("89504E470D0A1A0A");
+    const isGIF = hex.startsWith("47494638");
+    const isWebP = hex.startsWith("52494646") && hex.substring(16, 24) === "57454250";
+
+    if (!isJPEG && !isPNG && !isGIF && !isWebP) {
+      return NextResponse.json(
+        { error: "نوع الملف غير صالح أو تم التلاعب به" },
+        { status: 400 }
+      );
+    }
+
     // Ensure directory exists
     if (!existsSync(AVATAR_DIR)) {
       await mkdir(AVATAR_DIR, { recursive: true });

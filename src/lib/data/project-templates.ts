@@ -336,37 +336,6 @@ export const PROJECT_TEMPLATES: ProjectTemplateDef[] = [
  * Creates templates only if they don't already exist (by name).
  */
 export async function seedProjectTemplates(createdById: string, organizationId?: string): Promise<number> {
-  let created = 0;
-
-  for (const tpl of PROJECT_TEMPLATES) {
-    // Check if template already exists
-    const existing = await db.projectTemplate.findFirst({
-      where: { name: tpl.name, organizationId: organizationId || null },
-    });
-
-    if (existing) continue;
-
-    await db.projectTemplate.create({
-      data: {
-        name: tpl.name,
-        nameAr: tpl.nameAr,
-        description: tpl.description,
-        descriptionAr: tpl.descriptionAr,
-        category: tpl.category,
-        icon: tpl.icon,
-        defaultBudget: tpl.defaultBudget,
-        defaultDurationDays: tpl.defaultDurationDays,
-        currency: tpl.currency,
-        stages: JSON.stringify(tpl.stages),
-        isActive: true,
-        usageCount: 0,
-        createdById,
-        organizationId: organizationId || null,
-      },
-    });
-
-    created++;
-  }
-
-  return created;
+  // ProjectTemplate model has been deleted to simplify the schema
+  return 0;
 }

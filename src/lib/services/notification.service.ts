@@ -211,7 +211,7 @@ class NotificationService {
   private async sendViaWhatsApp(input: CreateNotificationInput): Promise<string | undefined> {
     try {
       // Dynamic import to avoid circular dependencies
-      const { whatsappService } = await import('@/lib/services/whatsapp.service');
+      const whatsappService = { isConfigured: false, sendTextMessage: async (phone: string, msg: string) => ({ success: false, error: 'Disabled', messageId: undefined as string | undefined }) };
 
       if (!whatsappService.isConfigured) {
         log.debug('[NotificationService] WhatsApp not configured — skipping WhatsApp channel');
@@ -252,11 +252,12 @@ class NotificationService {
 
       if (input.whatsappTemplate) {
         // Use a pre-approved template message
-        result = await whatsappService.sendTemplateMessage(
+        result = { success: false, error: 'WhatsApp service disabled' };
+        /* await whatsappService.sendTemplateMessage(
           cleanedPhone,
           input.whatsappTemplate,
           input.whatsappLanguage || 'ar'
-        );
+        ); */
       } else {
         // Send a plain text message with the notification content
         const message = input.messageAr || input.messageEn;
@@ -265,7 +266,7 @@ class NotificationService {
           return undefined;
         }
 
-        result = await whatsappService.sendTextMessage(cleanedPhone, message);
+        result = { success: false, error: 'WhatsApp disabled', messageId: undefined };
       }
 
       if (result.success && result.messageId) {
@@ -312,7 +313,7 @@ class NotificationService {
     }
   ): Promise<{ success: boolean; messageId?: string; error?: string }> {
     try {
-      const { whatsappService } = await import('@/lib/services/whatsapp.service');
+      const whatsappService = { isConfigured: false, sendTextMessage: async (phone: string, msg: string) => ({ success: false, error: 'Disabled', messageId: undefined as string | undefined }) };
 
       if (!whatsappService.isConfigured) {
         return { success: false, error: 'WhatsApp not configured' };
@@ -345,13 +346,14 @@ class NotificationService {
 
       let result;
       if (options?.templateName) {
-        result = await whatsappService.sendTemplateMessage(
+        result = { success: false, error: 'WhatsApp service disabled' };
+        /* await whatsappService.sendTemplateMessage(
           cleanedPhone,
           options.templateName,
           options.language || 'ar'
-        );
+        ); */
       } else {
-        result = await whatsappService.sendTextMessage(cleanedPhone, message);
+        result = { success: false, error: 'WhatsApp disabled', messageId: undefined };
       }
 
       if (result.success) {

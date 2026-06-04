@@ -52,70 +52,11 @@ export {
   type InvoiceStats
 } from './invoice.service';
 
-// ============================================
-// NEW: SLA Monitoring Service
-// خدمة مراقبة SLA
-// ============================================
-export {
-  checkSLABreaches,
-  getSLAStatistics,
-  resolveSLABreach,
-  type SLACheckResult,
-  type SLAMonitorReport
-} from './sla-monitor.service';
 
-// ============================================
-// NEW: Project Template Service
-// خدمة قوالب المشاريع
-// ============================================
-export {
-  initializeTemplates,
-  createTasksFromTemplate,
-  getAvailableTemplates,
-  getTemplateDetails,
-  PREDEFINED_TEMPLATES,
-  type CreateProjectFromTemplateInput,
-  type TemplateTaskData
-} from './project-template.service';
 
-// ============================================
-// NEW: Notification Service
-// خدمة الإشعارات الموحدة
-// ============================================
-export {
-  notificationService,
-  type NotificationType,
-  type CreateNotificationInput,
-  type NotificationChannel,
-  type NotificationChannelConfig,
-} from './notification.service';
 
-// ============================================
-// NEW: WhatsApp Business API Service
-// خدمة واتساب للأعمال
-// ============================================
-export {
-  whatsappService,
-  type WhatsAppSendResult,
-  type TemplateComponent,
-  type TemplateParameter,
-  type InvoiceNotificationData,
-  type ProjectUpdateData,
-  type MessageStatusResult,
-  type WhatsAppTemplate,
-} from './whatsapp.service';
 
-// ============================================
-// NEW: Milestone Service
-// خدمة مراحل الدفع
-// ============================================
-export {
-  milestoneService,
-  type MilestoneStatus,
-  type CreateMilestoneInput,
-  type UpdateMilestoneInput,
-  type MilestoneSummary,
-} from './milestone.service';
+
 
 // ============================================
 // NEW: Report Builder Service
