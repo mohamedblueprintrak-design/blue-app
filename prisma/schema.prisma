@@ -2778,18 +2778,3 @@ model PushSubscription {
   @@index([userId])
 }
 
-
-
-model CommunicationConsent {
-  id             String   @id @default(cuid())
-  organizationId String
-  phoneNumber    String
-  channel        String   @default("whatsapp")
-  optIn          Boolean  @default(false)
-  updatedAt      DateTime @updatedAt
-  createdAt      DateTime @default(now())
-  
-  @@unique([organizationId, phoneNumber, channel])
-  @@index([organizationId])
-  @@index([phoneNumber])
-}
