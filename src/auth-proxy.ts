@@ -208,8 +208,8 @@ export async function proxy(request: NextRequest) {
       );
       return addSecurityHeaders(response, nonce, rlInfo);
     }
-    const dashboardUrl = new URL('/dashboard', request.url);
-    return NextResponse.redirect(dashboardUrl);
+    const loginUrl = new URL('/login', request.url);
+    return NextResponse.redirect(loginUrl);
   }
 
   try {
@@ -228,8 +228,8 @@ export async function proxy(request: NextRequest) {
         );
         return addSecurityHeaders(response, nonce, rlInfo);
       }
-      const dashboardUrl = new URL('/dashboard', request.url);
-      return NextResponse.redirect(dashboardUrl);
+      const loginUrl = new URL('/login', request.url);
+      return NextResponse.redirect(loginUrl);
     }
 
     const userId = payload.userId as string;
@@ -276,8 +276,8 @@ export async function proxy(request: NextRequest) {
       );
       return addSecurityHeaders(response, nonce, rlInfo);
     }
-    const dashboardUrl = new URL('/dashboard', request.url);
-    return NextResponse.redirect(dashboardUrl);
+    const loginUrl = new URL('/login', request.url);
+    return NextResponse.redirect(loginUrl);
   }
 }
 

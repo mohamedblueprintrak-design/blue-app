@@ -144,7 +144,10 @@ class TaskService {
     const limit = pagination?.limit || 20;
     const skip = (page - 1) * limit;
 
-    const where: Record<string, unknown> = { deletedAt: null };
+    const where: Record<string, unknown> = { 
+      deletedAt: null,
+      project: { createdBy: { organizationId } }
+    };
 
     // Apply filters
     if (filters?.status) where.status = filters.status;

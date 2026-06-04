@@ -341,9 +341,18 @@ class InvoiceService {
     userId: string
   ): Promise<Invoice> {
     return await db.$transaction(async (tx) => {
+      // First verify the invoice belongs to the organization
+      const invoice = await tx.invoice.findFirst({
+        where: { id, organizationId },
+      });
+
+      if (!invoice) {
+        throw new Error('Invoice not found or access denied');
+      }
+
       // Use atomic increment to prevent race conditions
       const updated = await tx.invoice.update({
-        where: { id, organizationId },
+        where: { id },
         data: {
           paidAmount: { increment: amount }
         }
@@ -355,7 +364,7 @@ class InvoiceService {
       const remaining = Math.max(0, total - newPaidAmount);
 
       const finalInvoice = await tx.invoice.update({
-        where: { id, organizationId },
+        where: { id },
         data: { status, remaining }
       });
 

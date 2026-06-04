@@ -75,6 +75,7 @@ export function hasAllPermissions(userRole: Role, permissions: Permission[]): bo
  */
 export function isRoleAtLeast(userRole: Role, requiredRole: Role): boolean {
   const userLevel = ROLE_HIERARCHY[normalizeRole(userRole)] || ROLE_HIERARCHY[userRole] || 0;
+  if (userLevel === 0) return false;
   const requiredLevel = ROLE_HIERARCHY[normalizeRole(requiredRole)] || ROLE_HIERARCHY[requiredRole] || 0;
   return userLevel >= requiredLevel;
 }
@@ -366,7 +367,7 @@ export function canAccessResource(
       read: Permission.EMPLOYEE_READ,
       write: Permission.EMPLOYEE_UPDATE,
       delete: Permission.EMPLOYEE_DELETE,
-      create: Permission.EMPLOYEE_READ, // No EMPLOYEE_CREATE in Permission enum; use READ as fallback
+      create: Permission.USER_CREATE, // Use USER_CREATE instead of EMPLOYEE_READ
     },
     budget: {
       read: Permission.BUDGET_MANAGE,  // Only BUDGET_MANAGE exists
