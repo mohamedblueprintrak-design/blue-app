@@ -131,7 +131,7 @@ export async function GET(request: NextRequest) {
     let isNewUser = false;
 
     // 1. Try to find user by googleId
-    user = await db.user.findUnique({
+    user = await db.user.findFirst({
       where: { googleId },
     });
 
