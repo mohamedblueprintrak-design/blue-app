@@ -275,7 +275,7 @@ model CompanySettings {
 
 model Project {
   id                    String    @id @default(cuid())
-  number                String    @unique
+  number                String
   name                  String    @default("")
   nameEn                String    @default("")
   clientId              String
@@ -366,6 +366,7 @@ model Project {
   @@index([managerId])
   @@index([organizationId, deletedAt])
   @@index([organizationId, status, deletedAt])
+  @@unique([number, organizationId], name: "project_number_org_unique")
 }
 
 // ==================== MUNICIPALITY CORRESPONDENCE ====================
@@ -703,13 +704,16 @@ model ContractAmendment {
   description String   @default("")
   date        DateTime
   status      String   @default("pending")
+  organizationId String? // SaaS multi-tenant organization
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  contract Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  contract     Contract      @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  organization Organization? @relation(fields: [organizationId], references: [id])
 
   @@index([contractId])
   @@index([status])
+  @@index([organizationId])
 }
 
 // ==================== INVOICES ====================
@@ -2289,6 +2293,7 @@ model Organization {
   budgets                    Budget[]
   proposals                  Proposal[]
   contracts                  Contract[]
+  contractAmendments         ContractAmendment[]
   bids                       Bid[]
   defects                    Defect[]
   risks                      Risk[]

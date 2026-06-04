@@ -22,7 +22,6 @@ export {
   generateEmailVerificationToken,
   generateToken,
   verifyToken,
-  verifyRefreshToken,
   verifyPasswordResetToken,
   verifyEmailVerificationToken,
   getTokenExpiration,

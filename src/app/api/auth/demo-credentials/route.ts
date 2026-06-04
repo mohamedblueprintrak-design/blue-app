@@ -17,12 +17,10 @@ export async function GET() {
     return NextResponse.json({ credentials: [] });
   }
 
-  // Map from server-side DemoCredential to client-side format.
-  // The client expects { email, password, role, labelAr, labelEn }
-  // while the server type has additional fields (nameAr, nameEn).
+  // SECURITY: Map from server-side DemoCredential to client-side format.
+  // Passwords are NOT exposed to the client — use POST /api/auth/demo-login instead.
   const credentials = DEMO_CREDENTIALS.map(c => ({
     email: c.email,
-    password: c.password,
     role: c.role,
     labelAr: c.labelAr,
     labelEn: c.labelEn,

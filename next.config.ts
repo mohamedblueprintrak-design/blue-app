@@ -19,8 +19,7 @@ const nextConfig: NextConfig = {
   output: 'standalone',
   poweredByHeader: false,
   typescript: {
-    // Temporarily ignoring build errors so the demo can run despite removed Prisma models
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
   reactStrictMode: true,
 

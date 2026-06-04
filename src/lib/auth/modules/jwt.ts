@@ -86,26 +86,7 @@ export async function generateAccessToken(
     .sign(secret);
 }
 
-/**
- * Generate a refresh token
- * Long-lived token for refreshing access tokens
- *
- * @deprecated Use generateDbRefreshToken from @/lib/auth/token-utils instead.
- * JWT-based refresh tokens don't support rotation or reuse detection.
- * This function is kept for backward compatibility only.
- */
-export async function generateRefreshToken(userId: string): Promise<string> {
-  const secret = getJwtSecret();
-  const config = getJwtConfig();
-  
-  return new SignJWT({ userId, type: 'refresh' })
-    .setProtectedHeader({ alg: JWT_ALG })
-    .setIssuedAt()
-    .setIssuer(JWT_ISSUER)
-    .setAudience(JWT_AUDIENCE)
-    .setExpirationTime(config.refreshExpiresIn)
-    .sign(secret);
-}
+
 
 /**
  * Generate a password reset token
@@ -207,34 +188,7 @@ export async function verifyToken(token: string): Promise<JwtPayload | null> {
   }
 }
 
-/**
- * Verify refresh token
- *
- * @deprecated Use DB-based refresh token verification instead (see @/lib/auth/token-utils).
- * JWT-based refresh tokens don't support rotation or reuse detection.
- *
- * This function verifies the JWT directly (bypassing verifyToken which rejects
- * non-access tokens) to support the deprecated JWT refresh flow.
- */
-export async function verifyRefreshToken(
-  token: string
-): Promise<{ userId: string } | null> {
-  try {
-    const secret = getJwtSecret();
-    const { payload } = await jwtVerify(token, secret, {
-      issuer: JWT_ISSUER,
-      audience: JWT_AUDIENCE,
-    });
-    
-    if (payload.type !== 'refresh') {
-      return null;
-    }
-    
-    return { userId: payload.userId as string };
-  } catch {
-    return null;
-  }
-}
+
 
 /**
  * Verify password reset token

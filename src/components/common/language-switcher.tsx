@@ -16,7 +16,7 @@ export function LanguageSwitcher() {
   const locale = useLang();
 
   const switchLanguage = (newLocale: string) => {
-    document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=31536000`;
+    document.cookie = `blueprint-lang=${newLocale}; path=/; max-age=31536000`;
     router.refresh();
   };
 

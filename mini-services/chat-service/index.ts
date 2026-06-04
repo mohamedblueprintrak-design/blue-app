@@ -341,14 +341,14 @@ function handleConnection(socket: TypedSocket) {
 // ============================================
 
 function setupEventHandlers(socket: TypedSocket) {
-  // Join organization room
+  // Join organization room (with auth verification)
   socket.on('join_organization', (organizationId: string) => {
-    joinRoom(socket, 'organization', organizationId);
-    // Update the user's tracked organization
     const userConnection = connectedUsers.get(socket.id);
-    if (userConnection) {
-      userConnection.organizationId = organizationId;
+    if (!userConnection || userConnection.organizationId !== organizationId) {
+      socket.emit('error', { message: 'Unauthorized: you do not belong to this organization', code: 'ORG_MISMATCH' });
+      return;
     }
+    joinRoom(socket, 'organization', organizationId);
   });
 
   // Leave organization room

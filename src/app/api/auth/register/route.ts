@@ -20,7 +20,7 @@ import { UserRole } from '@prisma/client';
 import { validateRequest, registerSchema } from '@/lib/api-validation';
 import { log } from '@/lib/logger';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
-import { validatePasswordStrength } from '@/lib/auth/modules/password';
+import { validatePasswordStrength, checkPasswordBreached } from '@/lib/auth/modules/password';
 import {
   AUTH_COOKIE_NAME,
   REFRESH_COOKIE_NAME,
@@ -200,6 +200,16 @@ async function handleRegister(
       return errorResponse(
         passwordValidation.errors.join('. '),
         'WEAK_PASSWORD',
+        400
+      );
+    }
+
+    // SECURITY: Check if the password has been found in known data breaches
+    const isBreached = await checkPasswordBreached(data.password);
+    if (isBreached) {
+      return errorResponse(
+        'This password has been found in a data breach. Please choose a different password.',
+        'BREACHED_PASSWORD',
         400
       );
     }

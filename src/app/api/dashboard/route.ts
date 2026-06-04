@@ -8,7 +8,6 @@ import { getCompanyCurrency } from '@/lib/currency-server';
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('Headers received in /api/dashboard:', Array.from(request.headers.entries()));
     const authResult = await requireVerifiedPermission(request, Permission.REPORTS_READ);
     if ('error' in authResult) return authResult.error;
     const ctx = authResult.user;

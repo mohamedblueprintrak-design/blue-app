@@ -146,10 +146,7 @@ class AuthenticationService {
     const { verifyToken } = await import('./modules/jwt');
     return verifyToken(token);
   }
-  async verifyRefreshToken(token: string) {
-    const { verifyRefreshToken } = await import('./modules/jwt');
-    return verifyRefreshToken(token);
-  }
+
   async verifyPasswordResetToken(token: string): Promise<{ userId: string } | null> {
     try {
       const secret = this.getJwtSecret();

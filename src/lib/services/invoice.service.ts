@@ -340,6 +340,10 @@ class InvoiceService {
     organizationId: string,
     userId: string
   ): Promise<Invoice> {
+    if (amount <= 0) {
+      throw new Error('Payment amount must be positive');
+    }
+
     return await db.$transaction(async (tx) => {
       // First verify the invoice belongs to the organization
       const invoice = await tx.invoice.findFirst({

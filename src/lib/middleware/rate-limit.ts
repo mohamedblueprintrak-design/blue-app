@@ -68,7 +68,8 @@ export function classifyRateLimitTier(pathname: string): RateLimitTier | null {
     pathname === '/api/auth/forgot-password' ||
     pathname === '/api/auth/reset-password' ||
     pathname === '/api/profile/delete-account' ||
-    pathname === '/api/profile/password'
+    pathname === '/api/profile/password' ||
+    pathname === '/api/demo/reset'
   ) {
     return 'strict';
   }

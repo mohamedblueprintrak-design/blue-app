@@ -60,8 +60,8 @@ export abstract class BaseRepository<T> implements IRepository<T> {
    * Find entity by ID
    */
   async findById(id: string): Promise<T | null> {
-    return this.delegate.findUnique({
-      where: { id },
+    return this.delegate.findFirst({
+      where: { id, deletedAt: null },
     });
   }
 
@@ -70,7 +70,7 @@ export abstract class BaseRepository<T> implements IRepository<T> {
    */
   async findOne(where: Record<string, unknown>): Promise<T | null> {
     return this.delegate.findFirst({
-      where,
+      where: { ...where, deletedAt: null },
     });
   }
 
@@ -78,6 +78,19 @@ export abstract class BaseRepository<T> implements IRepository<T> {
    * Find multiple entities with pagination and filtering
    */
   async findMany(options?: FindManyOptions): Promise<T[]> {
+    return this.delegate.findMany({
+      skip: options?.skip,
+      take: options?.take,
+      where: { ...options?.where, deletedAt: null },
+      orderBy: options?.orderBy,
+      include: options?.include,
+    });
+  }
+
+  /**
+   * Find multiple entities including soft-deleted records (for admin use)
+   */
+  async findManyIncludingDeleted(options?: FindManyOptions): Promise<T[]> {
     return this.delegate.findMany({
       skip: options?.skip,
       take: options?.take,

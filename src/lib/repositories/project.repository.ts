@@ -17,12 +17,12 @@ export interface ProjectWithDetails extends Project {
   client?: {
     id: string;
     name: string;
-    EMAIL: string | null;
+    email: string | null;
   } | null;
   manager?: {
     id: string;
-    fullName: string | null;
-    EMAIL: string;
+    name: string | null;
+    email: string;
   } | null;
   _count?: {
     tasks: number;
@@ -83,10 +83,10 @@ export class ProjectRepository extends BaseRepository<Project> {
       where: { id },
       include: {
         client: {
-          select: { id: true, name: true, EMAIL: true },
+          select: { id: true, name: true, email: true },
         },
-        MANAGER: {
-          select: { id: true, fullName: true, EMAIL: true },
+        manager: {
+          select: { id: true, name: true, email: true },
         },
         _count: {
           select: { tasks: true, documents: true, risks: true },

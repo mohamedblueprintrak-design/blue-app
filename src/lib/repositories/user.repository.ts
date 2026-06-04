@@ -27,10 +27,9 @@ export interface UserWithOrganization extends User {
  * Data transfer object for creating a user
  */
 export interface CreateUserData {
-  EMAIL: string;
-  username: string;
+  email: string;
+  name: string;
   password: string;
-  fullName?: string;
   role?: string;
   organizationId?: string;
 }
@@ -39,7 +38,7 @@ export interface CreateUserData {
  * Data transfer object for updating a user
  */
 export interface UpdateUserData {
-  fullName?: string;
+  name?: string;
   email?: string;
   phone?: string;
   jobTitle?: string;
@@ -72,9 +71,9 @@ export class UserRepository extends BaseRepository<User> {
   /**
    * Find user by username
    */
-  async findByUsername(username: string): Promise<User | null> {
-    return this.delegate.findUnique({
-      where: { username },
+  async findByUsername(name: string): Promise<User | null> {
+    return this.delegate.findFirst({
+      where: { name },
     });
   }
 
@@ -86,7 +85,7 @@ export class UserRepository extends BaseRepository<User> {
       where: {
         OR: [
           { email: identifier.toLowerCase() },
-          { username: identifier },
+          { name: identifier },
         ],
       },
       include: {
@@ -146,7 +145,7 @@ export class UserRepository extends BaseRepository<User> {
   async updateLastLogin(id: string): Promise<void> {
     await this.delegate.update({
       where: { id },
-      data: { lastLoginAt: new Date() },
+      data: { lastLogin: new Date() },
     });
   }
 
@@ -185,7 +184,7 @@ export class UserRepository extends BaseRepository<User> {
    */
   async existsByUsername(username: string): Promise<boolean> {
     const count = await this.delegate.count({
-      where: { username },
+      where: { name: username },
     });
     return count > 0;
   }
@@ -196,7 +195,7 @@ export class UserRepository extends BaseRepository<User> {
   async findActiveByOrganization(organizationId: string): Promise<User[]> {
     return this.delegate.findMany({
       where: { organizationId, isActive: true },
-      orderBy: { fullName: 'asc' },
+      orderBy: { name: 'asc' },
     });
   }
 

@@ -6,6 +6,7 @@ import { Permission } from '@/lib/auth/types';
 import { validateRequest, changePasswordSchema } from '@/lib/api-validation';
 import { hash, compare } from "bcryptjs";
 import { log } from '@/lib/logger';
+import { validatePasswordStrength, checkPasswordBreached } from '@/lib/auth/modules/password';
 
 /**
  * PUT /api/profile/password - Change password
@@ -76,6 +77,15 @@ export async function PUT(request: NextRequest) {
         );
       }
 
+      // SECURITY: Check if the new password has been found in data breaches
+      const isBreached = await checkPasswordBreached(newPassword);
+      if (isBreached) {
+        return NextResponse.json(
+          { error: 'This password has been found in a data breach. Please choose a different password.' },
+          { status: 400 }
+        );
+      }
+
       // Always hash the new password with bcrypt before storing
       const hashedPassword = await hash(newPassword, 12);
       await db.user.update({
@@ -96,9 +106,18 @@ export async function PUT(request: NextRequest) {
       // ── Admin resetting another user's password ──
       // No current password required — admin override
       const newPassword = body.newPassword;
-      if (!newPassword || typeof newPassword !== 'string' || newPassword.length < 8) {
+      if (!newPassword || typeof newPassword !== 'string') {
         return NextResponse.json(
-          { error: "كلمة المرور الجديدة يجب أن تكون 8 أحرف على الأقل" },
+          { error: "كلمة المرور الجديدة مطلوبة" },
+          { status: 400 }
+        );
+      }
+
+      // SECURITY: Use full password strength validation instead of simple length check
+      const passwordValidation = validatePasswordStrength(newPassword);
+      if (!passwordValidation.valid) {
+        return NextResponse.json(
+          { error: passwordValidation.errors.join('. ') },
           { status: 400 }
         );
       }
@@ -119,6 +138,15 @@ export async function PUT(request: NextRequest) {
         return NextResponse.json(
           { error: "غير مصرح بإعادة تعيين كلمة مرور هذا المستخدم" },
           { status: 403 }
+        );
+      }
+
+      // SECURITY: Check if the new password has been found in data breaches
+      const isBreached = await checkPasswordBreached(newPassword);
+      if (isBreached) {
+        return NextResponse.json(
+          { error: 'This password has been found in a data breach. Please choose a different password.' },
+          { status: 400 }
         );
       }
 

@@ -90,6 +90,13 @@ COPY --from=builder /app/prisma ./prisma
 # Create uploads directory
 RUN mkdir -p /app/uploads && chown -R nextjs:nodejs /app/uploads
 
+# Install postgresql-client for migrations
+RUN apk add --no-cache postgresql-client
+
+# Copy entrypoint script
+COPY --from=builder /app/docker-entrypoint.sh ./
+RUN chmod +x ./docker-entrypoint.sh
+
 # Set proper ownership
 RUN chown -R nextjs:nodejs /app
 
@@ -107,5 +114,6 @@ ENV HOSTNAME="0.0.0.0"
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
     CMD wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1
 
-# Start the application
+# Start the application via entrypoint
+ENTRYPOINT ["./docker-entrypoint.sh"]
 CMD ["node", "server.js"]

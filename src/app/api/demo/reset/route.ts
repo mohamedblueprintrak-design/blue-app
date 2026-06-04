@@ -1,11 +1,20 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import path from 'path';
+import { requireVerifiedAuth } from '@/app/api/utils/auth';
 
 const execAsync = promisify(exec);
 
-export async function POST() {
+// RATE LIMITING: This endpoint should be rate-limited at the infrastructure level
+// (e.g., via Nginx/Cloudflare) to prevent abuse. Consider adding application-level
+// rate limiting with withRateLimit() if infrastructure-level protection is insufficient.
+
+export async function POST(request: NextRequest) {
+  // SECURITY: Require authenticated user before any operation
+  const authResult = await requireVerifiedAuth(request);
+  if ('error' in authResult) return authResult.error;
+
   if (process.env.DEMO_MODE !== 'true') {
     return NextResponse.json(
       { error: 'Demo mode is not enabled' },

@@ -8,21 +8,21 @@
  */
 
 import { NextResponse } from 'next/server';
+import { serverErrorResponse } from '@/app/api/utils/response';
+import { log } from '@/lib/logger';
 
 /**
  * Safely handles API errors - returns generic message in production,
  * detailed message in development
  */
 export function handleApiError(error: unknown, context?: string): NextResponse {
-  // Log the full error server-side
-  console.error(`[API Error${context ? ` - ${context}` : ''}]`, error);
+  // Log the full error server-side using Winston
+  const message = error instanceof Error ? error.message : 'Unknown error';
+  log.error(`[API Error${context ? ` - ${context}` : ''}] ${message}`, { error });
 
-  // In development, return detailed errors for debugging
   if (process.env.NODE_ENV === 'development') {
-    const message = error instanceof Error ? error.message : 'Unknown error';
-    return NextResponse.json({ error: message }, { status: 500 });
+    return serverErrorResponse(message);
   }
 
-  // In production, return generic error
-  return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  return serverErrorResponse('Internal server error');
 }

@@ -146,7 +146,7 @@ class TaskService {
 
     const where: Record<string, unknown> = { 
       deletedAt: null,
-      project: { createdBy: { organizationId } }
+      organizationId,
     };
 
     // Apply filters
@@ -212,7 +212,7 @@ class TaskService {
       where: {
         id,
         deletedAt: null,
-        project: { createdBy: { organizationId } },
+        organizationId,
       },
       include: {
         project: {
@@ -245,7 +245,7 @@ class TaskService {
       const project = await db.project.findFirst({
         where: {
           id: data.projectId,
-          createdBy: { organizationId },
+          organizationId,
         },
         select: { id: true },
       });
@@ -260,7 +260,7 @@ class TaskService {
       const parentTask = await db.task.findFirst({
         where: {
           id: data.parentId,
-          project: { createdBy: { organizationId } },
+          organizationId,
         },
         select: { id: true },
       });
@@ -326,7 +326,7 @@ class TaskService {
     const oldTask = await db.task.findFirst({
       where: {
         id,
-        project: { createdBy: { organizationId } },
+        organizationId,
       },
     });
 
@@ -339,7 +339,7 @@ class TaskService {
       const newProject = await db.project.findFirst({
         where: {
           id: data.projectId,
-          createdBy: { organizationId },
+          organizationId,
         },
         select: { id: true },
       });
@@ -403,7 +403,7 @@ class TaskService {
     const task = await db.task.findFirst({
       where: {
         id,
-        project: { createdBy: { organizationId } },
+        organizationId,
       },
     });
 
@@ -477,7 +477,7 @@ class TaskService {
     const project = await db.project.findFirst({
       where: {
         id: projectId,
-        createdBy: { organizationId },
+        organizationId,
       },
       select: { id: true },
     });
@@ -525,14 +525,14 @@ class TaskService {
       db.task.groupBy({
         by: ['status'],
         where: {
-          project: { createdBy: { organizationId } },
+          organizationId,
           deletedAt: null,
         },
         _count: true,
       }),
       db.task.count({
         where: {
-          project: { createdBy: { organizationId } },
+          organizationId,
           deletedAt: null,
           dueDate: { lt: new Date() },
           status: { notIn: ['DONE', 'CANCELLED'] },

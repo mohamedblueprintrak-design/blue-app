@@ -7,12 +7,9 @@ import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 
 export function DemoBanner() {
-  const [isVisible, setIsVisible] = useState(true);
   const [isResetting, setIsResetting] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
-
-  if (!isVisible) return null;
 
   const handleReset = async () => {
     try {
@@ -64,13 +61,6 @@ export function DemoBanner() {
           )}
           إعادة تعيين البيانات
         </Button>
-        <button 
-          onClick={() => setIsVisible(false)}
-          className="p-1 hover:bg-blue-700 rounded transition-colors ml-2"
-          aria-label="إخفاء الشريط"
-        >
-          <X className="h-4 w-4" />
-        </button>
       </div>
     </div>
   );
