@@ -228,8 +228,20 @@ export function useWebSocket(options: UseWebSocketOptions): UseWebSocketReturn {
   }, []);
 
   const markNotificationRead = useCallback((notificationId: string) => {
-    socketRef.current?.emit('mark_notification_read', notificationId);
-    setNotificationCount((prev) => Math.max(0, prev - 1));
+    // Optimistic update with rollback
+    setNotificationCount((prev) => {
+      const next = Math.max(0, prev - 1);
+      
+      socketRef.current?.emit('mark_notification_read', notificationId, (response?: { error?: string }) => {
+        if (response?.error) {
+          // Rollback on error
+          setNotificationCount(prev);
+          callbacksRef.current.onError?.({ message: response.error, code: 'MARK_READ_FAILED' });
+        }
+      });
+      
+      return next;
+    });
   }, []);
 
   const disconnect = useCallback(() => {
@@ -319,6 +331,9 @@ export function useGlobalWebSocket(token?: string): {
       if (globalSocket) {
         globalSocket.off('connect', onConnect);
         globalSocket.off('disconnect', onDisconnect);
+        // Clean up socket on unmount to prevent memory leaks and zombie connections
+        globalSocket.disconnect();
+        globalSocket = null;
       }
     };
   }, [token]);

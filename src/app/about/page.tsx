@@ -42,16 +42,22 @@ const fadeInUp = {
 };
 
 export default function AboutPage() {
-  const [language, setLanguage] = useState<"ar" | "en">(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem("blueprint-lang");
-      if (saved === "ar" || saved === "en") return saved;
-    }
-    return "ar";
-  });
+  const [language, setLanguage] = useState<"ar" | "en">("ar");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
+  }, []);
 
   // React to language changes from header toggle
   useEffect(() => {
+    const saved = localStorage.getItem("blueprint-lang") as "ar" | "en" | null;
+    if (saved) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setLanguage(saved);
+    }
+    
     const handleLangChange = () => {
       const current = localStorage.getItem("blueprint-lang") as "ar" | "en" | null;
       if (current) setLanguage(current);
@@ -64,7 +70,7 @@ export default function AboutPage() {
     };
   }, []);
 
-  const t = (ar: string, en: string) => (language === "ar" ? ar : en);
+  const t = (ar: string, en: string) => (!mounted || language === "ar" ? ar : en);
 
   return (
     <div className="min-h-screen flex flex-col bg-white">

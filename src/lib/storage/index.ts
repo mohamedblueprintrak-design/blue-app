@@ -20,12 +20,18 @@ import { LocalStorageProvider } from './local';
 import { S3StorageProvider } from './s3';
 import { v4 as uuidv4 } from 'uuid';
 
+let providerInstance: StorageProvider | null = null;
+
 export function getStorageProvider(): StorageProvider {
+  if (providerInstance) return providerInstance;
+
   const type = process.env.STORAGE_TYPE || 'local';
   if (type === 's3') {
-    return new S3StorageProvider();
+    providerInstance = new S3StorageProvider();
+  } else {
+    providerInstance = new LocalStorageProvider();
   }
-  return new LocalStorageProvider();
+  return providerInstance;
 }
 
 /**

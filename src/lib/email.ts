@@ -336,10 +336,9 @@ async function executeSendEmail(options: EmailOptions): Promise<EmailResult> {
 
   const provider = detectProvider();
 
-  // Dev mode — no transport configured, log to console
   if (provider === 'dev') {
     log.warn('[Email] No email transport configured — email simulated (not actually sent)', { from: emailFrom, to, subject });
-    log.info('[Email] Email content (dev mode)', { from: emailFrom, to, subject, html: html.substring(0, 500) + '...', text: text?.substring(0, 200) });
+    log.info('[Email] Email content (dev mode)', { from: emailFrom, to, subject, text: text?.substring(0, 200) });
     return { sent: false, simulated: true, provider: 'dev' };
   }
 

@@ -175,7 +175,7 @@ export const emailTemplates = {
     return {
       subject: 'مرحباً بك في BluePrint',
       html: wrapEmailTemplate(content, 'مرحباً بك'),
-      text: `مرحباً ${escapeHtml(name)}،\n\nنرحب بك في منصة BluePrint لإدارة مكاتب الاستشارات الهندسية.\n\nتم إنشاء حسابك بنجاح. يمكنك الآن الوصول إلى جميع خدمات المنصة.\n\nمع أطيب التحيات،\nفريق BluePrint`,
+      text: `مرحباً ${name}،\n\nنرحب بك في منصة BluePrint لإدارة مكاتب الاستشارات الهندسية.\n\nتم إنشاء حسابك بنجاح. يمكنك الآن الوصول إلى جميع خدمات المنصة.\n\nمع أطيب التحيات،\nفريق BluePrint`,
     };
   },
 
@@ -222,7 +222,7 @@ export const emailTemplates = {
     return {
       subject: `فاتورة جديدة: ${escapeHtml(invoiceNumber)}`,
       html: wrapEmailTemplate(content, 'فاتورة جديدة'),
-      text: `عزيزي/عزيزتي ${escapeHtml(clientName)}،\n\nتم إنشاء فاتورة جديدة باسمك.\n\nرقم الفاتورة: ${escapeHtml(invoiceNumber)}\nالمبلغ: ${formattedAmount}\n${dueDate ? `تاريخ الاستحقاق: ${escapeHtml(dueDate)}\n` : ''}\nيرجى مراجعة الفاتورة وإتمام عملية الدفع.\n\nمع أطيب التحيات،\nفريق BluePrint`,
+      text: `عزيزي/عزيزتي ${clientName}،\n\nتم إنشاء فاتورة جديدة باسمك.\n\nرقم الفاتورة: ${invoiceNumber}\nالمبلغ: ${formattedAmount}\n${dueDate ? `تاريخ الاستحقاق: ${dueDate}\n` : ''}\nيرجى مراجعة الفاتورة وإتمام عملية الدفع.\n\nمع أطيب التحيات،\nفريق BluePrint`,
     };
   },
 
@@ -285,7 +285,7 @@ export const emailTemplates = {
     return {
       subject: `مهمة جديدة: ${escapeHtml(taskTitle)}`,
       html: wrapEmailTemplate(content, 'مهمة جديدة'),
-      text: `مرحباً ${escapeHtml(userName)}，\n\nتم تعيين مهمة جديدة لك.\n\nعنوان المهمة: ${escapeHtml(taskTitle)}\nالمشروع: ${escapeHtml(projectName)}\n${priority ? `الأولوية: ${priorityLabels[priority] || priority}\n` : ''}${dueDate ? `تاريخ الاستحقاق: ${escapeHtml(dueDate)}\n` : ''}\nيرجى مراجعة المهمة والبدء في تنفيذها.\n\nمع أطيب التحيات،\nفريق BluePrint`,
+      text: `مرحباً ${userName}，\n\nتم تعيين مهمة جديدة لك.\n\nعنوان المهمة: ${taskTitle}\nالمشروع: ${projectName}\n${priority ? `الأولوية: ${priorityLabels[priority] || priority}\n` : ''}${dueDate ? `تاريخ الاستحقاق: ${dueDate}\n` : ''}\nيرجى مراجعة المهمة والبدء في تنفيذها.\n\nمع أطيب التحيات،\nفريق BluePrint`,
     };
   },
 
@@ -309,7 +309,7 @@ export const emailTemplates = {
     return {
       subject: 'إعادة تعيين كلمة المرور',
       html: wrapEmailTemplate(content, 'إعادة تعيين كلمة المرور'),
-      text: `مرحباً ${escapeHtml(userName)}،\n\nتلقينا طلباً لإعادة تعيين كلمة المرور الخاصة بحسابك.\n\nاضغط على الرابط التالي لإعادة تعيين كلمة المرور:\n${resetLink}\n\nسينتهي هذا الرابط خلال ${expiresInMinutes} دقيقة.\n\nإذا لم تطلب إعادة تعيين كلمة المرور، يمكنك تجاهل هذه الرسالة.\n\nمع أطيب التحيات،\nفريق BluePrint`,
+      text: `مرحباً ${userName}،\n\nتلقينا طلباً لإعادة تعيين كلمة المرور الخاصة بحسابك.\n\nاضغط على الرابط التالي لإعادة تعيين كلمة المرور:\n${resetLink}\n\nسينتهي هذا الرابط خلال ${expiresInMinutes} دقيقة.\n\nإذا لم تطلب إعادة تعيين كلمة المرور، يمكنك تجاهل هذه الرسالة.\n\nمع أطيب التحيات،\nفريق BluePrint`,
     };
   },
 
@@ -339,7 +339,7 @@ export const emailTemplates = {
     return {
       subject: 'تحقق من بريدك الإلكتروني - BluePrint',
       html: wrapEmailTemplate(content, 'التحقق من البريد الإلكتروني'),
-      text: `مرحباً ${escapeHtml(userName)}،\n\nشكراً لتسجيلك في منصة BluePrint.\n\nيرجى التحقق من بريدك الإلكتروني بالضغط على الرابط التالي:\n${verificationLink}\n\nسينتهي هذا الرابط خلال ${expiresInHours} ساعة.\n\nإذا لم تقم بإنشاء حساب، يمكنك تجاهل هذه الرسالة.\n\nمع أطيب التحيات،\nفريق BluePrint`,
+      text: `مرحباً ${userName}،\n\nشكراً لتسجيلك في منصة BluePrint.\n\nيرجى التحقق من بريدك الإلكتروني بالضغط على الرابط التالي:\n${verificationLink}\n\nسينتهي هذا الرابط خلال ${expiresInHours} ساعة.\n\nإذا لم تقم بإنشاء حساب، يمكنك تجاهل هذه الرسالة.\n\nمع أطيب التحيات،\nفريق BluePrint`,
     };
   },
 
@@ -364,7 +364,7 @@ export const emailTemplates = {
     return {
       subject: 'تم التحقق من بريدك الإلكتروني - BluePrint',
       html: wrapEmailTemplate(content, 'تم التحقق من البريد'),
-      text: `مرحباً ${escapeHtml(userName)}،\n\nتم التحقق من بريدك الإلكتروني بنجاح.\n\nيمكنك الآن الوصول الكامل إلى جميع ميزات منصة BluePrint.\n\nمع أطيب التحيات،\nفريق BluePrint`,
+      text: `مرحباً ${userName}،\n\nتم التحقق من بريدك الإلكتروني بنجاح.\n\nيمكنك الآن الوصول الكامل إلى جميع ميزات منصة BluePrint.\n\nمع أطيب التحيات،\nفريق BluePrint`,
     };
   },
 
@@ -396,7 +396,7 @@ export const emailTemplates = {
     return {
       subject: 'تم تفعيل المصادقة الثنائية - BluePrint',
       html: wrapEmailTemplate(content, 'تفعيل المصادقة الثنائية'),
-      text: `مرحباً ${escapeHtml(userName)}،\n\nتم تفعيل المصادقة الثنائية على حسابك بنجاح.\n\nحسابك الآن محمي بطريقة إضافية.\n\nإذا لم تقم بتفعيل هذه الميزة، يرجى التواصل مع الدعم فوراً.\n\nمع أطيب التحيات،\nفريق BluePrint`,
+      text: `مرحباً ${userName}،\n\nتم تفعيل المصادقة الثنائية على حسابك بنجاح.\n\nحسابك الآن محمي بطريقة إضافية.\n\nإذا لم تقم بتفعيل هذه الميزة، يرجى التواصل مع الدعم فوراً.\n\nمع أطيب التحيات،\nفريق BluePrint`,
     };
   },
 
@@ -425,7 +425,7 @@ export const emailTemplates = {
     return {
       subject: `رمز التحقق الخاص بك - BluePrint`,
       html: wrapEmailTemplate(content, 'رمز التحقق'),
-      text: `مرحباً ${escapeHtml(userName)}،\n\nرمز التحقق الخاص بك هو: ${code}\n\nسينتهي هذا الرمز خلال ${expiresInMinutes} دقائق.\n\nإذا لم تطلب هذا الرمز، يرجى تجاهل هذه الرسالة.\n\nمع أطيب التحيات،\nفريق BluePrint`,
+      text: `مرحباً ${userName}،\n\nرمز التحقق الخاص بك هو: ${code}\n\nسينتهي هذا الرمز خلال ${expiresInMinutes} دقائق.\n\nإذا لم تطلب هذا الرمز، يرجى تجاهل هذه الرسالة.\n\nمع أطيب التحيات،\nفريق BluePrint`,
     };
   },
 
@@ -467,7 +467,7 @@ export const emailTemplates = {
     return {
       subject: 'تسجيل دخول جديد - BluePrint',
       html: wrapEmailTemplate(content, 'تسجيل دخول جديد'),
-      text: `مرحباً ${escapeHtml(userName)}،\n\nتم تسجيل الدخول إلى حسابك من جهاز جديد.\n\nالجهاز: ${escapeHtml(device)}\nالموقع: ${escapeHtml(location)}\nالوقت: ${escapeHtml(time)}\n\nإذا لم تكن أنت، يرجى تأمين حسابك فوراً.\n\nمع أطيب التحيات،\nفريق BluePrint`,
+      text: `مرحباً ${userName}،\n\nتم تسجيل الدخول إلى حسابك من جهاز جديد.\n\nالجهاز: ${device}\nالموقع: ${location}\nالوقت: ${time}\n\nإذا لم تكن أنت، يرجى تأمين حسابك فوراً.\n\nمع أطيب التحيات،\nفريق BluePrint`,
     };
   },
 
@@ -494,7 +494,7 @@ export const emailTemplates = {
     return {
       subject: escapeHtml(title),
       html: wrapEmailTemplate(content, escapeHtml(title)),
-      text: `مرحباً ${escapeHtml(name)}،\n\n${escapeHtml(message)}\n${link ? `\nعرض التفاصيل: ${link}\n` : ''}\nمع أطيب التحيات،\nفريق BluePrint`,
+      text: `مرحباً ${name}،\n\n${message}\n${link ? `\nعرض التفاصيل: ${link}\n` : ''}\nمع أطيب التحيات،\nفريق BluePrint`,
     };
   },
 };
