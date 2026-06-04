@@ -1,6 +1,6 @@
 import { db } from '@/lib/db';
 import { NextRequest } from 'next/server';
-import { requirePermission } from '@/app/api/utils/auth';
+import { requireVerifiedPermission } from '@/app/api/utils/auth';
 import { errorResponse, successResponse, handleApiError } from '@/app/api/utils/response';
 import { Permission } from '@/lib/auth/types';
 import { DEFAULT_EXCHANGE_RATES, SUPPORTED_CURRENCIES } from '@/lib/currency';
@@ -11,7 +11,7 @@ import { DEFAULT_EXCHANGE_RATES, SUPPORTED_CURRENCIES } from '@/lib/currency';
  */
 export async function GET(request: NextRequest) {
   try {
-    const rbac = requirePermission(request, Permission.SETTINGS_READ);
+    const rbac = await requireVerifiedPermission(request, Permission.SETTINGS_READ);
     if ('error' in rbac) return rbac.error;
 
     const settings = await db.companySettings.findFirst();
@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
  */
 export async function PUT(request: NextRequest) {
   try {
-    const rbac = requirePermission(request, Permission.SETTINGS_UPDATE);
+    const rbac = await requireVerifiedPermission(request, Permission.SETTINGS_UPDATE);
     if ('error' in rbac) return rbac.error;
 
     const body = await request.json();

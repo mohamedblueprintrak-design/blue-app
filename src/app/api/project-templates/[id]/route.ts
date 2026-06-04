@@ -1,6 +1,6 @@
 import { db } from '@/lib/db';
 import { NextRequest } from 'next/server';
-import { requirePermission, orgCheck, orgFilter } from '@/app/api/utils/auth';
+import { requireVerifiedPermission, orgCheck, orgFilter } from '@/app/api/utils/auth';
 import { errorResponse, successResponse, notFoundResponse, handleApiError } from '@/app/api/utils/response';
 import { Permission } from '@/lib/auth/types';
 
@@ -14,7 +14,7 @@ interface RouteContext {
  */
 export async function GET(request: NextRequest, context: RouteContext) {
   try {
-    const rbac = requirePermission(request, Permission.PROJECT_READ);
+    const rbac = await requireVerifiedPermission(request, Permission.PROJECT_READ);
     if ('error' in rbac) return rbac.error;
     const user = rbac.user;
 
@@ -48,7 +48,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
  */
 export async function PUT(request: NextRequest, context: RouteContext) {
   try {
-    const rbac = requirePermission(request, Permission.PROJECT_UPDATE);
+    const rbac = await requireVerifiedPermission(request, Permission.PROJECT_UPDATE);
     if ('error' in rbac) return rbac.error;
     const user = rbac.user;
 
@@ -96,7 +96,7 @@ export async function PUT(request: NextRequest, context: RouteContext) {
  */
 export async function DELETE(request: NextRequest, context: RouteContext) {
   try {
-    const rbac = requirePermission(request, Permission.PROJECT_DELETE);
+    const rbac = await requireVerifiedPermission(request, Permission.PROJECT_DELETE);
     if ('error' in rbac) return rbac.error;
     const user = rbac.user;
 

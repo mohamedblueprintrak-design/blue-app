@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { requirePermission } from '@/app/api/utils/auth';
+import { requireVerifiedPermission } from '@/app/api/utils/auth';
 import { errorResponse, successResponse, handleApiError } from '@/app/api/utils/response';
 import { Permission } from '@/lib/auth/types';
 import { convertCurrency, DEFAULT_EXCHANGE_RATES } from '@/lib/currency';
@@ -13,7 +13,7 @@ import { db } from '@/lib/db';
  */
 export async function POST(request: NextRequest) {
   try {
-    const rbac = requirePermission(request, Permission.SETTINGS_READ);
+    const rbac = await requireVerifiedPermission(request, Permission.SETTINGS_READ);
     if ('error' in rbac) return rbac.error;
 
     const body = await request.json();

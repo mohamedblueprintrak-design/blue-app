@@ -158,6 +158,9 @@ export async function generateToken(
   
   if (options?.expiresIn) {
     token.setExpirationTime(options.expiresIn);
+  } else {
+    // SECURITY FIX: Never allow tokens to live forever. Use a reasonable default.
+    token.setExpirationTime('1h');
   }
   
   if (options?.type) {

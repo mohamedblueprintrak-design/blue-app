@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "postinstall": "prisma generate",
-    "setup": "bunx prisma db push && bunx tsx prisma/seed.ts",
+    "setup": "npx prisma db push && npx tsx prisma/seed.ts",
     "dev": "next dev -p 3000 --webpack",
     "build": "next build",
     "start": "node .next/standalone/server.js",
@@ -14,10 +14,10 @@
     "test": "npx cross-env NODE_OPTIONS='--experimental-vm-modules' jest --config jest.config.ts",
     "test:watch": "npx cross-env NODE_OPTIONS='--experimental-vm-modules' jest --watch",
     "test:coverage": "npx cross-env NODE_OPTIONS='--experimental-vm-modules' jest --coverage",
-    "test:e2e": "bunx playwright test",
-    "test:e2e:ui": "bunx playwright test --ui",
+    "test:e2e": "npx playwright test",
+    "test:e2e:ui": "npx playwright test --ui",
     "db:push": "prisma db push",
-    "db:seed": "bunx tsx prisma/seed.ts",
+    "db:seed": "npx tsx prisma/seed.ts",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:reset": "prisma migrate reset"
@@ -150,7 +150,7 @@
     ]
   },
   "prisma": {
-    "seed": "bunx tsx prisma/seed.ts"
+    "seed": "npx tsx prisma/seed.ts"
   },
   "overrides": {
     "postcss": "^8.5.10"

@@ -1,6 +1,6 @@
 import { db } from '@/lib/db';
 import { NextRequest } from 'next/server';
-import { requirePermission, orgCheck, orgCreate } from '@/app/api/utils/auth';
+import { requireVerifiedPermission, orgCheck, orgCreate } from '@/app/api/utils/auth';
 import { errorResponse, createdResponse, notFoundResponse, handleApiError } from '@/app/api/utils/response';
 import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
@@ -28,7 +28,7 @@ interface RouteContext {
  */
 export async function POST(request: NextRequest, context: RouteContext) {
   try {
-    const rbac = requirePermission(request, Permission.PROJECT_CREATE);
+    const rbac = await requireVerifiedPermission(request, Permission.PROJECT_CREATE);
     if ('error' in rbac) return rbac.error;
     const user = rbac.user;
 

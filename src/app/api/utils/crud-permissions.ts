@@ -19,7 +19,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { requirePermission, requireAuthContext, AuthContext, orgFilter, orgCreate } from './auth';
+import { requireVerifiedPermission, requireAuthContext, AuthContext, orgFilter, orgCreate } from './auth';
 import { Permission } from '@/lib/auth/types';
 import { hasPermission } from '@/lib/auth/modules/authorization';
 import { forbiddenResponse, unauthorizedResponse } from './response';

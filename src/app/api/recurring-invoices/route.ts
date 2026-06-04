@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { requirePermission, orgFilter, orgCreate } from '@/app/api/utils/auth';
+import { requireVerifiedPermission, orgFilter, orgCreate } from '@/app/api/utils/auth';
 import { errorResponse } from '@/app/api/utils/response';
 import { log } from '@/lib/logger';
 import { Permission } from '@/lib/auth/types';
@@ -36,7 +36,7 @@ const createRecurringInvoiceSchema = z.object({
  */
 export async function GET(request: NextRequest) {
   try {
-    const rbac = requirePermission(request, Permission.INVOICE_READ);
+    const rbac = await requireVerifiedPermission(request, Permission.INVOICE_READ);
     if ('error' in rbac) return rbac.error;
     const ctx = rbac.user;
 
@@ -90,7 +90,7 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const rbac = requirePermission(request, Permission.INVOICE_CREATE);
+    const rbac = await requireVerifiedPermission(request, Permission.INVOICE_CREATE);
     if ('error' in rbac) return rbac.error;
     const ctx = rbac.user;
 

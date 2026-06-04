@@ -21,6 +21,22 @@ import {
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
+// Dangerous MIME types that should NEVER be allowed for upload (CWE-434)
+const BLOCKED_MIME_TYPES = [
+  'application/x-sh',
+  'application/x-executable',
+  'application/x-msdos-program',
+  'application/x-msdownload',
+  'application/x-bat',
+  'application/x-csh',
+  'application/x-ksh',
+  'application/x-shellscript',
+  'text/x-php',
+  'text/x-python',
+  'text/x-perl',
+  'text/x-shellscript',
+];
+
 export class S3StorageProvider implements StorageProvider {
   private client: S3Client;
   private bucket: string;
@@ -57,6 +73,38 @@ export class S3StorageProvider implements StorageProvider {
   }
 
   /**
+   * Validate content type against strict allowlist
+   * SECURITY FIX (CWE-434): Strict allowlist ONLY — no broad wildcard fallbacks.
+   */
+  private validateContentType(contentType: string): void {
+    if (!contentType || typeof contentType !== 'string') {
+      throw new Error('Content type is required');
+    }
+
+    const baseContentType = contentType.split(';')[0].trim().toLowerCase();
+
+    if (BLOCKED_MIME_TYPES.some(blocked => baseContentType === blocked)) {
+      throw new Error(`File type blocked for security: ${baseContentType}`);
+    }
+
+    const ALLOWED_TYPES = [
+      'application/pdf',
+      'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/bmp', 'image/tiff',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/msword',
+      'application/vnd.ms-excel',
+      'text/plain', 'text/csv',
+      'application/zip', 'application/x-rar-compressed',
+      'application/dwg', 'application/dxf',
+    ];
+
+    if (!ALLOWED_TYPES.includes(baseContentType)) {
+      throw new Error(`File type not allowed: ${baseContentType}`);
+    }
+  }
+
+  /**
    * Upload a file to S3
    * @param key - The S3 object key
    * @param data - The file data as a Buffer
@@ -65,6 +113,9 @@ export class S3StorageProvider implements StorageProvider {
    */
   async upload(key: string, data: Buffer, contentType: string): Promise<string> {
     try {
+      // SECURITY: Validate content type against strict allowlist (CWE-434)
+      this.validateContentType(contentType);
+
       const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
       if (data.length > MAX_FILE_SIZE) {
         throw new Error(`File size exceeds maximum allowed (${MAX_FILE_SIZE / 1024 / 1024}MB)`);

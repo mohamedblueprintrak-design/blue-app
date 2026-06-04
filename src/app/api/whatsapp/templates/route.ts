@@ -13,7 +13,7 @@
 
 import { NextRequest } from 'next/server';
 import { whatsappService } from '@/lib/services/whatsapp.service';
-import { requirePermission } from '@/app/api/utils/auth';
+import { requireVerifiedPermission } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import {
   successResponse,
@@ -28,7 +28,7 @@ import { log } from '@/lib/logger';
 
 export async function GET(request: NextRequest) {
   // Auth check — require SETTINGS_UPDATE permission
-  const authResult = requirePermission(request, Permission.SETTINGS_UPDATE);
+  const rbac = await requireVerifiedPermission(request, Permission.SETTINGS_UPDATE);
   if ('error' in authResult) return authResult.error;
 
   try {

@@ -103,7 +103,7 @@ export async function proxy(request: NextRequest) {
 
   if (rateLimitTier) {
     const clientIp = getProxyClientIP(request.headers);
-    const rlResult = checkProxyRateLimit(clientIp, rateLimitTier);
+    const rlResult = await checkProxyRateLimit(clientIp, rateLimitTier);
 
     if (!rlResult.allowed) {
       const response = NextResponse.json(

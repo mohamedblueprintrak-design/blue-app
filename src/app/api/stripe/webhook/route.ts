@@ -217,12 +217,48 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
   const { organizationId, planId } = subscription.metadata || {};
 
-  log.info('Subscription created', {
-    id: subscription.id,
-    status: subscription.status,
-    organizationId,
-    planId,
-  });
+  if (!organizationId || !planId) {
+    log.warn('Missing metadata in subscription created event', { id: subscription.id });
+    return;
+  }
+
+  try {
+    const existingSubscription = await db.subscription.findFirst({
+      where: { stripeSubscriptionId: subscription.id },
+    });
+
+    if (!existingSubscription) {
+      await db.subscription.create({
+        data: {
+          organizationId,
+          planId,
+          status: mapStripeStatus(subscription.status) as any,
+          stripeSubscriptionId: subscription.id,
+          stripeCustomerId: subscription.customer as string,
+          currentPeriodStart: new Date(getSubscriptionPeriod(subscription).current_period_start * 1000),
+          currentPeriodEnd: new Date(getSubscriptionPeriod(subscription).current_period_end * 1000),
+        },
+      });
+
+      await db.organization.update({
+        where: { id: organizationId },
+        data: { planId },
+      });
+    }
+
+    log.info('Subscription created', {
+      id: subscription.id,
+      status: subscription.status,
+      organizationId,
+      planId,
+    });
+  } catch (dbError) {
+    log.error('DB error in handleSubscriptionCreated', {
+      error: dbError instanceof Error ? dbError.message : dbError,
+      subscriptionId: subscription.id,
+    });
+    throw dbError;
+  }
 }
 
 /**

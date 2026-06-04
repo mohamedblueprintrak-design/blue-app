@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
-import { requirePermission, requireVerifiedPermission, orgFilter, orgCreate } from '@/app/api/utils/auth';
+import { requireVerifiedPermission, orgFilter, orgCreate } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
 import { sanitizeObject } from '@/lib/security/sanitize';
@@ -20,7 +20,7 @@ export async function GET(
     const { id } = await params;
 
     // RBAC CHECK
-    const rbac = requirePermission(request, Permission.DOCUMENT_READ);
+    const rbac = await requireVerifiedPermission(request, Permission.DOCUMENT_READ);
     if ('error' in rbac) return rbac.error;
     const ctx = rbac.user;
 

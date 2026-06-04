@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { requirePermission, orgFilter } from '@/app/api/utils/auth';
+import { requireVerifiedPermission, orgFilter } from '@/app/api/utils/auth';
 import { errorResponse } from '@/app/api/utils/response';
 import { log } from '@/lib/logger';
 import { Permission } from '@/lib/auth/types';
@@ -63,7 +63,7 @@ function validateWebhookUrl(url: string, type: string): string | null {
  */
 export async function GET(request: NextRequest) {
   try {
-    const rbac = requirePermission(request, Permission.SETTINGS_READ);
+    const rbac = await requireVerifiedPermission(request, Permission.SETTINGS_READ);
     if ('error' in rbac) return rbac.error;
     const ctx = rbac.user;
 
@@ -96,7 +96,7 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const rbac = requirePermission(request, Permission.SETTINGS_UPDATE);
+    const rbac = await requireVerifiedPermission(request, Permission.SETTINGS_UPDATE);
     if ('error' in rbac) return rbac.error;
     const ctx = rbac.user;
 

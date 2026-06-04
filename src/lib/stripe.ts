@@ -268,6 +268,7 @@ export async function createCheckoutSession(params: {
   successUrl: string;
   cancelUrl: string;
   metadata?: Record<string, string>;
+  idempotencyKey?: string;
 }): Promise<Stripe.Checkout.Session | null> {
   return safeStripeOp(async (s) => {
     return s.checkout.sessions.create({
@@ -292,7 +293,7 @@ export async function createCheckoutSession(params: {
         address: 'auto',
         name: 'auto',
       },
-    });
+    }, params.idempotencyKey ? { idempotencyKey: params.idempotencyKey } : undefined);
   });
 }
 
@@ -350,6 +351,7 @@ export async function createPaymentIntent(params: {
   customerId?: string;
   description?: string;
   metadata?: Record<string, string>;
+  idempotencyKey?: string;
 }): Promise<Stripe.PaymentIntent | null> {
   return safeStripeOp(async (s) => {
     return s.paymentIntents.create({
@@ -361,7 +363,7 @@ export async function createPaymentIntent(params: {
       automatic_payment_methods: {
         enabled: true,
       },
-    });
+    }, params.idempotencyKey ? { idempotencyKey: params.idempotencyKey } : undefined);
   });
 }
 
@@ -496,6 +498,7 @@ export async function createSubscription(params: {
   priceId: string;
   trialPeriodDays?: number;
   metadata?: Record<string, string>;
+  idempotencyKey?: string;
 }): Promise<Stripe.Subscription | null> {
   return safeStripeOp(async (s) => {
     return s.subscriptions.create({
@@ -508,7 +511,7 @@ export async function createSubscription(params: {
         save_default_payment_method: 'on_subscription',
       },
       expand: ['latest_invoice.payment_intent'],
-    });
+    }, params.idempotencyKey ? { idempotencyKey: params.idempotencyKey } : undefined);
   });
 }
 

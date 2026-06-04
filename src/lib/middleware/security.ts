@@ -63,22 +63,11 @@ export function addSecurityHeaders(
 
 export async function timingSafeCompare(a: string, b: string): Promise<boolean> {
   const encoder = new TextEncoder();
-  const aBuffer = encoder.encode(a);
-  const bBuffer = encoder.encode(b);
   
-  if (aBuffer.byteLength !== bBuffer.byteLength) {
-    // Prevent timing attack by performing a dummy hash calculation
-    const dummyHash = await crypto.subtle.digest('SHA-256', bBuffer);
-    const dummyArr = new Uint8Array(dummyHash);
-    let result = 0;
-    for (let i = 0; i < dummyArr.length; i++) {
-      result |= dummyArr[i] ^ dummyArr[i];
-    }
-    return false;
-  }
-  
-  const aHash = await crypto.subtle.digest('SHA-256', aBuffer);
-  const bHash = await crypto.subtle.digest('SHA-256', bBuffer);
+  // Hash both inputs first to normalize their lengths to 32 bytes (SHA-256)
+  // This completely eliminates length-based timing leaks before comparison.
+  const aHash = await crypto.subtle.digest('SHA-256', encoder.encode(a));
+  const bHash = await crypto.subtle.digest('SHA-256', encoder.encode(b));
   
   const aArr = new Uint8Array(aHash);
   const bArr = new Uint8Array(bHash);

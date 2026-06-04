@@ -94,7 +94,7 @@ export async function GET(
       total: project.tasks.length,
       TODO: project.tasks.filter((t) => t.status === "TODO").length,
       inProgress: project.tasks.filter((t) => t.status === "IN_PROGRESS").length,
-      REVIEW: project.tasks.filter((t) => t.status === "REVIEW").length,
+      REVIEW: project.tasks.filter((t) => t.status === "IN_REVIEW").length,
       DONE: project.tasks.filter((t) => t.status === "DONE").length,
     };
 
@@ -164,9 +164,8 @@ export async function PUT(
     const orgError = orgCheck(user, existing);
     if (orgError) return orgError;
 
-    const validatedData = validation.data;
     const data: Record<string, unknown> = {};
-    for (const [key, value] of Object.entries(validatedData)) {
+    for (const [key, value] of Object.entries(body)) {
       if (value !== undefined) {
         // Convert date strings to Date objects
         if ((key === 'startDate' || key === 'endDate') && value) {

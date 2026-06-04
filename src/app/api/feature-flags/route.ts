@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requirePermission } from "@/app/api/utils/auth";
+import { requireVerifiedPermission } from "@/app/api/utils/auth";
 import { Permission } from "@/lib/auth/types";
 import { getAllFlags, upsertFlag, invalidateFlagsCache } from "@/lib/feature-flags";
 import { log } from "@/lib/logger";
@@ -9,7 +9,7 @@ import { log } from "@/lib/logger";
  */
 export async function GET(request: NextRequest) {
   try {
-    const rbac = requirePermission(request, Permission.SETTINGS_READ);
+    const rbac = await requireVerifiedPermission(request, Permission.SETTINGS_READ);
     if ("error" in rbac) return rbac.error;
 
     const flags = await getAllFlags();
@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const rbac = requirePermission(request, Permission.SETTINGS_UPDATE);
+    const rbac = await requireVerifiedPermission(request, Permission.SETTINGS_UPDATE);
     if ("error" in rbac) return rbac.error;
 
     const body = await request.json();
@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
  */
 export async function PUT(request: NextRequest) {
   try {
-    const rbac = requirePermission(request, Permission.SETTINGS_UPDATE);
+    const rbac = await requireVerifiedPermission(request, Permission.SETTINGS_UPDATE);
     if ("error" in rbac) return rbac.error;
 
     const body = await request.json();

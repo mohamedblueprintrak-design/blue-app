@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
-import { requirePermission, orgFilter } from '@/app/api/utils/auth';
+import { requireVerifiedPermission, orgFilter } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
 import { getCompanyCurrency } from '@/lib/currency-server';
@@ -54,7 +54,7 @@ export async function GET(
     const { id: projectId } = await params;
 
     // RBAC CHECK
-    const rbac = requirePermission(request, Permission.PROJECT_READ);
+    const rbac = await requireVerifiedPermission(request, Permission.PROJECT_READ);
     if ('error' in rbac) return rbac.error;
     const ctx = rbac.user;
 

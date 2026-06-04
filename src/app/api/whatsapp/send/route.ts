@@ -19,7 +19,7 @@
 import { NextRequest } from 'next/server';
 import { whatsappService } from '@/lib/services/whatsapp.service';
 import type { TemplateComponent, InvoiceNotificationData, ProjectUpdateData } from '@/lib/services/whatsapp.service';
-import { requirePermission } from '@/app/api/utils/auth';
+import { requireVerifiedPermission } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import {
   successResponse,
@@ -110,7 +110,7 @@ type SendRequestBody =
 
 export async function POST(request: NextRequest) {
   // Step 1: Auth check — require SETTINGS_UPDATE permission
-  const authResult = requirePermission(request, Permission.SETTINGS_UPDATE);
+  const rbac = await requireVerifiedPermission(request, Permission.SETTINGS_UPDATE);
   if ('error' in authResult) return authResult.error;
 
   const { user } = authResult;

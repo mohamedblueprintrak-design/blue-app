@@ -187,13 +187,21 @@ class AuthenticationService {
    * Logout user
    */
   async logout(userId: string): Promise<void> {
-    // Log audit
+    // Revoke all refresh tokens for this user
+    await db.refreshToken.updateMany({
+      where: { 
+        userId,
+        revokedAt: null
+      },
+      data: { revokedAt: new Date() },
+    });
+    
     await logAudit({
       userId,
       entityType: 'user',
       entityId: userId,
       action: 'logout',
-      description: 'User logged out',
+      description: 'User logged out from all devices',
     });
   }
   

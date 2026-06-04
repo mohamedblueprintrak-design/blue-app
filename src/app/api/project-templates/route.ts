@@ -1,6 +1,6 @@
 import { db } from '@/lib/db';
 import { NextRequest } from 'next/server';
-import { requirePermission, orgFilter } from '@/app/api/utils/auth';
+import { requireVerifiedPermission, orgFilter } from '@/app/api/utils/auth';
 import { errorResponse, successResponse, createdResponse, handleApiError } from '@/app/api/utils/response';
 import { Permission } from '@/lib/auth/types';
 import { getCompanyCurrency } from '@/lib/currency-server';
@@ -12,7 +12,7 @@ import { getCompanyCurrency } from '@/lib/currency-server';
  */
 export async function GET(request: NextRequest) {
   try {
-    const rbac = requirePermission(request, Permission.PROJECT_READ);
+    const rbac = await requireVerifiedPermission(request, Permission.PROJECT_READ);
     if ('error' in rbac) return rbac.error;
     const user = rbac.user;
 
@@ -66,7 +66,7 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const rbac = requirePermission(request, Permission.PROJECT_CREATE);
+    const rbac = await requireVerifiedPermission(request, Permission.PROJECT_CREATE);
     if ('error' in rbac) return rbac.error;
     const user = rbac.user;
 

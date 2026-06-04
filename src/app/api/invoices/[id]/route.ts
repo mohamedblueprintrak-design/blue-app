@@ -107,6 +107,14 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     const newPaid = validatedData.paidAmount !== undefined ? validatedData.paidAmount : Number(existing.paidAmount);
+    
+    if (newPaid < 0) {
+      return NextResponse.json({ error: "paidAmount cannot be negative" }, { status: 400 });
+    }
+    if (newPaid > total) {
+      return NextResponse.json({ error: "paidAmount cannot exceed the invoice total" }, { status: 400 });
+    }
+
     const newRemaining = total - newPaid;
 
     const invoice = await db.$transaction(async (tx) => {

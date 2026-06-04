@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { requirePermission, orgFilter } from '@/app/api/utils/auth';
+import { requireVerifiedPermission, orgFilter } from '@/app/api/utils/auth';
 import { errorResponse, notFoundResponse } from '@/app/api/utils/response';
 import { log } from '@/lib/logger';
 import { Permission } from '@/lib/auth/types';
@@ -38,7 +38,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const rbac = requirePermission(request, Permission.SETTINGS_READ);
+    const rbac = await requireVerifiedPermission(request, Permission.SETTINGS_READ);
     if ('error' in rbac) return rbac.error;
     const ctx = rbac.user;
 
@@ -71,7 +71,7 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const rbac = requirePermission(request, Permission.SETTINGS_UPDATE);
+    const rbac = await requireVerifiedPermission(request, Permission.SETTINGS_UPDATE);
     if ('error' in rbac) return rbac.error;
     const ctx = rbac.user;
 
@@ -136,7 +136,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const rbac = requirePermission(request, Permission.SETTINGS_UPDATE);
+    const rbac = await requireVerifiedPermission(request, Permission.SETTINGS_UPDATE);
     if ('error' in rbac) return rbac.error;
     const ctx = rbac.user;
 
@@ -171,7 +171,7 @@ export async function POST_test(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const rbac = requirePermission(request, Permission.SETTINGS_UPDATE);
+    const rbac = await requireVerifiedPermission(request, Permission.SETTINGS_UPDATE);
     if ('error' in rbac) return rbac.error;
     const ctx = rbac.user;
 

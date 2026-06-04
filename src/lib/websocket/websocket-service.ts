@@ -219,6 +219,14 @@ function handleConnection(socket: Socket<ClientToServerEvents, ServerToClientEve
 function setupEventHandlers(socket: Socket<ClientToServerEvents, ServerToClientEvents, DefaultEventsMap, SocketData>) {
   // Join organization room
   socket.on('join_organization', (organizationId: string) => {
+    if (socket.data.organizationId !== organizationId) {
+      log.warn('[WebSocket] Unauthorized attempt to join organization room', {
+        userId: socket.data.userId,
+        attemptedOrgId: organizationId,
+        actualOrgId: socket.data.organizationId,
+      });
+      return;
+    }
     joinRoom(socket, 'organization', organizationId);
   });
 
@@ -275,7 +283,12 @@ function setupEventHandlers(socket: Socket<ClientToServerEvents, ServerToClientE
 
   // Unsubscribe from entity updates
   socket.on('unsubscribe_from_entity', (data: { entityType: string; entityId: string }) => {
-    leaveRoom(socket, 'entity' as RoomType, `${data.entityType}:${data.entityId}`);
+    const orgId = socket.data.organizationId;
+    if (orgId) {
+      leaveRoom(socket, 'entity' as RoomType, `org:${orgId}:${data.entityType}:${data.entityId}`);
+    } else {
+      leaveRoom(socket, 'entity' as RoomType, `${data.entityType}:${data.entityId}`);
+    }
   });
 
   // Typing indicators

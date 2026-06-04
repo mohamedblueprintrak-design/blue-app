@@ -8,6 +8,7 @@ import { getCompanyCurrency } from '@/lib/currency-server';
 
 export async function GET(request: NextRequest) {
   try {
+    console.log('Headers received in /api/dashboard:', Array.from(request.headers.entries()));
     const authResult = await requireVerifiedPermission(request, Permission.REPORTS_READ);
     if ('error' in authResult) return authResult.error;
     const ctx = authResult.user;
@@ -18,7 +19,10 @@ export async function GET(request: NextRequest) {
     // Build org filter for direct queries on models with organizationId
     const orgWhere = orgFilter(ctx);
     // Build org filter for models that filter through project relationship
-    const projectOrgWhere = ctx.organizationId ? { project: { organizationId: ctx.organizationId } } : {};
+    // SECURITY: If ctx.organizationId is null/missing, use __DENIED__ sentinel to prevent data leak
+    const projectOrgWhere = ctx.organizationId 
+      ? { project: { organizationId: ctx.organizationId } } 
+      : { project: { organizationId: '__DENIED__' } };
 
     // Build cache key based on user's org and query params
     const cacheKey = `dashboard:${ctx.organizationId || 'global'}:${statsOnly ? 'stats' : 'full'}`;
