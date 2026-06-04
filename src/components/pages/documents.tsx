@@ -919,7 +919,6 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
           documentId={versionHistoryDoc.id}
           documentName={versionHistoryDoc.name}
           currentVersion={versionHistoryDoc.version}
-          language={language}
           onClose={() => setVersionHistoryDoc(null)}
         />
       </div>

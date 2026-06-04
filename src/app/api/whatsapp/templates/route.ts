@@ -29,7 +29,7 @@ import { log } from '@/lib/logger';
 export async function GET(request: NextRequest) {
   // Auth check — require SETTINGS_UPDATE permission
   const rbac = await requireVerifiedPermission(request, Permission.SETTINGS_UPDATE);
-  if ('error' in authResult) return authResult.error;
+  if ('error' in rbac) return rbac.error;
 
   try {
     // Check if WhatsApp service is configured

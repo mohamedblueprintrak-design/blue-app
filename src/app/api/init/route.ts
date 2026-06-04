@@ -101,7 +101,7 @@ export async function POST(request: NextRequest) {
         } catch {
           // User may have been created concurrently — try update
           try {
-            await db.user.update({
+            await db.user.updateMany({
               where: { email: cred.email },
               data: { password: hash, isActive: true, role: cred.role as UserRole },
             });

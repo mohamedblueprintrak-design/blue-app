@@ -781,7 +781,7 @@ class WhatsAppService {
       if (!sanitized) return false;
 
       // Ensure backward compatibility if the model is not fully deployed yet
-      const dynamicDb = db as Record<string, unknown>;
+      const dynamicDb = db as unknown as Record<string, unknown>;
       if (!dynamicDb.communicationConsent) {
          // Default to true during transition period
          return true;
@@ -845,7 +845,7 @@ class WhatsAppService {
           relatedType: params.relatedType,
           relatedId: params.relatedId,
           clientId: params.clientId,
-          messageId: params.messageId,
+          messageId: params.messageId || `msg_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
           organizationId: params.organizationId,
           sentAt: new Date(),
         },

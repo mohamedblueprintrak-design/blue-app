@@ -26,7 +26,7 @@ export async function GET(
     const leave = await db.leave.findFirst({
       where: { id, deletedAt: null, employee: { ...orgFilter(ctx) } },
       include: {
-        employee: { include: { user: { select: { id: true, name: true, email: true, avatar: true } } } },
+        employee: { select: { id: true, name: true, email: true, avatar: true } },
         approver: {
           select: {
             id: true,
@@ -101,7 +101,7 @@ export async function PUT(
         ...(validatedData.status === 'APPROVED' && { approvedById: ctx.userId }),
       },
       include: {
-        employee: { include: { user: { select: { id: true, name: true, email: true, avatar: true } } } },
+        employee: { select: { id: true, name: true, email: true, avatar: true } },
         approver: {
           select: {
             id: true,

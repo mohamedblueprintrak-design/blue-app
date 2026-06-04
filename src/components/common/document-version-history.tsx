@@ -28,7 +28,7 @@ import {
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { getMutationHeaders } from "@/lib/csrf-client";
 
 // ===== Types =====
@@ -67,13 +67,14 @@ function formatFileSize(bytes: number): string {
 // ===== Version Timeline Entry =====
 function VersionTimelineEntry({
   entry,
-  language,
   documentId,
 }: {
   entry: VersionEntry;
   documentId: string;
 }) {
   const t = useTranslations("documentVersionHistory");
+  const locale = useLocale();
+  const isAr = locale === "ar";
   const isCurrent = entry.isCurrent;
 
   return (
@@ -178,7 +179,6 @@ function UploadVersionDialog({
   documentName,
   open,
   onOpenChange,
-  language,
 }: {
   documentId: string;
   documentName: string;

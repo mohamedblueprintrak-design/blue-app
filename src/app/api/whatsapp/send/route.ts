@@ -111,9 +111,9 @@ type SendRequestBody =
 export async function POST(request: NextRequest) {
   // Step 1: Auth check — require SETTINGS_UPDATE permission
   const rbac = await requireVerifiedPermission(request, Permission.SETTINGS_UPDATE);
-  if ('error' in authResult) return authResult.error;
+  if ('error' in rbac) return rbac.error;
 
-  const { user } = authResult;
+  const { user } = rbac;
 
   // Step 2: Rate limit check
   const clientIp = getClientIP(request.headers);

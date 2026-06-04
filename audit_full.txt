@@ -1,0 +1,78 @@
+<USER_REQUEST>
+ مشاكل مؤكدة 100% (مع الكود الفعلي)
+🔴 حرجة — تكسر النظام أو تسرب بيانات
+1. Middleware Matcher يستثني كل /api/* routes
+typescript
+
+// src/middleware.ts
+export const config = {
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|sw.js).*)'],
+};
+التأثير: الـ CSRF protection + Rate Limiting + JWT verification في الـ auth-proxy ما يشتغلش على أي API route. كل الحماية اللي في البروكسي بلا فائدة على الـ APIs.
+
+2. WebSocket join_organization بدون تحقق من الصلاحيات
+typescript
+
+// websocket-service.ts
+socket.on('join_organization', (data) => {
+  socket.join(`org:${data.organizationId}`);  // ← أي مستخدم يدخل أي org!
+});
+التأثير: أي مستخدم يسمع تحديثات أي مؤسسة في الوقت الحقيقي — تسريب بيانات بين المستأجرين.
+
+3. WebSocket Room Name Mismatch
+subscribe_to_entity ينضم لغرفة org:{orgId}:{entityType}:{entityId}
+unsubscribe_from_entity يغادر غرفة {entityType}:{entityId} (بدون org prefix)
+الغرف مختلفة → إلغاء الاشتراك ما يشتغلش
+4. S3 Storage بدون التحقق من نوع الملف
+typescript
+
+// storage/s3.ts - upload method
+// مافيهash أي فحص لـ Content-Type أو MIME type
+// LocalStorageProvider عنده allowlist + blocked types
+// S3StorageProvider مافيهash شي
+التأثير: رفع ملفات خطيرة (SVG مع XSS, shell scripts, إلخ).
+
+5. Dashboard تسريب بيانات متعدد المستأجرين
+typescript
+
+const projectOrgWhere = ctx.organizationId 
+  ? { project: { organizationId: ctx.organizationId } } 
+  : {};  // ← Empty filter = كل بيانات كل المؤسسات
+6. logout() ما يلغي Refresh Tokens
+typescript
+
+async logout(userId: string): Promise<void> {
+  await logAudit({ userId, action: 'logout', description: 'User log
+<truncated 4963 bytes>
+p-service.ts
+60	WhatsApp بدون opt-in/consent management	🟡	whatsapp.service.ts
+61	Storage provider يتعمل new في كل استدعاء	🟢	storage/index.ts
+62	Email templates تطبق escapeHtml على plain text	🟢	email-templates.ts
+63	Dev mode يسجل أول 500 حرف من HTML email	🟢	email.ts
+64	About page hydration mismatch من localStorage	🟢	about/page.tsx
+65	WebSocket globalSocket ما يتقفلش عند unmount	🟡	use-websocket.ts
+66	Notification count optimistic update بدون rollback	🟡	use-websocket.ts
+
+📊 الإحصائية النهائية
+الخطورة
+العدد
+نسبة
+🔴 حرجة	7	10.6%
+🟠 عالية	23	34.8%
+🟡 متوسطة	25	37.9%
+🟢 منخفضة	11	16.7%
+الإجمالي	66	100%
+
+🎯 أهم 7 إصلاحات (بالترتيب — الأكثر تأثيراً)
+أصلح Middleware Matcher — شمل /api/* عشان CSRF + Rate Limiting يشتغلوا
+أصلح WebSocket join_organization — أضف تحقق إن المستخدم ينتمي للـ org
+أصلح Dashboard data leakage — استخدم __DENIED__ sentinel مثل orgFilter()
+أصلح logout() — ألغِ كل Refresh Tokens للمستخدم + أضف audit log
+أصلح S3 upload — أضف content-type validation مثل LocalStorageProvider
+أصلح Sanitization — استخدم body (المطهر) بدل validation.data (الخام) في كل الـ routes
+أصلح isRoleAtLeast — أضف guard للـ requiredRole مش بس userRole
+هذه المرة المراجعة دقيقة ومبنية على الكود الفعلي مع تحقق من كل نقطة. تبي أبدأ أصلح لك أي مشكلة من هذي؟   عايزك تشوف الكلام دا صحيح ولا لا و عايزك تراجع الشات بيني و بينك و تشوف اية الاصلاحات الي نقصانا و اية الي نسيناة و رتبهم عشان نعملهم 
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-06-04T10:41:20+04:00.
+</ADDITIONAL_METADATA>

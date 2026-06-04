@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
     const leaves = await db.leave.findMany({
       where,
       include: {
-        employee: { include: { user: { select: { id: true, name: true, email: true, avatar: true } } } },
+        employee: { select: { id: true, name: true, email: true, avatar: true } },
         approver: {
           select: {
             id: true,
@@ -118,7 +118,7 @@ export async function POST(request: NextRequest) {
         status: "PENDING",
       },
       include: {
-        employee: { include: { user: { select: { id: true, name: true, email: true, avatar: true } } } },
+        employee: { select: { id: true, name: true, email: true, avatar: true } },
         approver: {
           select: {
             id: true,

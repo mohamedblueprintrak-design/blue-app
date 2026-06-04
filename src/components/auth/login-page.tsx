@@ -467,7 +467,7 @@ export default function LoginPage({ language }: LoginPageProps) {
                 {/* Google Login Button */}
                 {showGoogleButton && !requires2FA && (
                   <div className="space-y-4">
-                    <GoogleLoginButton language={language} />
+                    <GoogleLoginButton />
                     <div className="relative">
                       <div className="absolute inset-0 flex items-center">
                         <span className="w-full border-t border-slate-200 dark:border-slate-700" />

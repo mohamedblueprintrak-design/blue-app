@@ -121,7 +121,7 @@ function evaluateConditions(
  */
 async function resolveAssignee(
   assignToType: AssignToType,
-  assignToId: string,
+  assignToId: string | null,
   organizationId: string | null
 ): Promise<string | null> {
   switch (assignToType) {
@@ -132,7 +132,7 @@ async function resolveAssignee(
     case 'role': {
       // Find the first user with this role in the organization
       const where: Record<string, unknown> = {
-        role: assignToId,
+        role: assignToId || '',
         isActive: true,
         deletedAt: null,
       };
@@ -240,7 +240,7 @@ export async function createRule(data: {
       isActive: data.isActive ?? true,
       priority: data.priority ?? 0,
       createdById: data.createdById,
-      organizationId: data.organizationId,
+      organizationId: data.organizationId || "",
     },
   });
 
@@ -389,7 +389,7 @@ export async function evaluateRules(
         ruleId: rule.id,
         ruleName: rule.name,
         assignToType,
-        assignToId: rule.assignToId,
+        assignToId: rule.assignToId || "",
         action,
         assignedUserId: assignedUserId ?? undefined,
         reason: assignedUserId
@@ -471,7 +471,7 @@ export async function evaluateAutoAssignmentRules(
         ruleId: rule.id,
         ruleName: rule.name,
         assignToType,
-        assignToId: rule.assignToId,
+        assignToId: rule.assignToId || "",
         action,
         assignedUserId: assignedUserId ?? undefined,
         reason: assignedUserId
@@ -678,7 +678,7 @@ export async function testAutoAssignmentRule(
     ruleId: rule.id,
     ruleName: rule.name,
     assignToType,
-    assignToId: rule.assignToId,
+    assignToId: rule.assignToId || "",
     action,
     assignedUserId: assignedUserId ?? undefined,
     reason: assignedUserId

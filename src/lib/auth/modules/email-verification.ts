@@ -105,7 +105,7 @@ export async function verifyEmail(token: string): Promise<AuthResponse> {
     }
 
     // Find user by email
-    const user = await db.user.findUnique({
+    const user = await db.user.findFirst({
       where: { email: verificationToken.email },
     });
 
@@ -176,7 +176,7 @@ export async function verifyEmail(token: string): Promise<AuthResponse> {
  */
 export async function resendVerificationEmail(email: string): Promise<AuthResponse> {
   try {
-    const user = await db.user.findUnique({
+    const user = await db.user.findFirst({
       where: { email: email.toLowerCase() },
     });
 

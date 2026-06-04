@@ -226,7 +226,7 @@ class WebhookService {
           where: { id: webhook.id },
           data: {
             failureCount: 0,
-            lastTriggeredAt: new Date(),
+            lastTriggered: new Date(),
           },
         });
 
@@ -320,7 +320,7 @@ class WebhookService {
       // Update lastTriggeredAt on success
       await db.webhookIntegration.update({
         where: { id: webhook.id },
-        data: { lastTriggeredAt: new Date() },
+        data: { lastTriggered: new Date() },
       });
 
       return { success: true, status: response.status };

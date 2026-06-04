@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
         ...orgWhere,
       },
       include: {
-        employee: { select: { id: true, department: true, position: true, user: { select: { id: true, name: true } } } },
+        employee: { select: { id: true, department: true, position: true, name: true } },
         approver: { select: { name: true } },
       },
     });
