@@ -28,6 +28,7 @@ import {
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 import { getMutationHeaders } from "@/lib/csrf-client";
 
 // ===== Types =====
@@ -70,11 +71,9 @@ function VersionTimelineEntry({
   documentId,
 }: {
   entry: VersionEntry;
-  language: "ar" | "en";
   documentId: string;
 }) {
-  const isAr = language === "ar";
-  const t = (ar: string, en: string) => (isAr ? ar : en);
+  const t = useTranslations("documentVersionHistory");
   const isCurrent = entry.isCurrent;
 
   return (
@@ -116,7 +115,7 @@ function VersionTimelineEntry({
             <div className="flex items-center gap-1.5 shrink-0">
               {isCurrent && (
                 <Badge variant="outline" className="text-[9px] h-5 bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400 border-teal-200 dark:border-teal-800/40">
-                  {t("الحالي", "Current")}
+                  {t("current")}
                 </Badge>
               )}
               <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">
@@ -163,7 +162,7 @@ function VersionTimelineEntry({
                 }}
               >
                 <Download className="h-3 w-3" />
-                {t("تحميل", "Download")}
+                {t("download")}
               </Button>
             )}
           </div>
@@ -185,10 +184,8 @@ function UploadVersionDialog({
   documentName: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  language: "ar" | "en";
 }) {
-  const isAr = language === "ar";
-  const t = (ar: string, en: string) => (isAr ? ar : en);
+  const t = useTranslations("documentVersionHistory");
   const queryClient = useQueryClient();
   const [changeSummary, setChangeSummary] = useState("");
 
@@ -222,32 +219,32 @@ function UploadVersionDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Upload className="h-4 w-4 text-teal-500" />
-            {t("رفع إصدار جديد", "Upload New Version")}
+            {t("uploadNewVersion")}
           </DialogTitle>
           <DialogDescription>
-            {t("أضف إصداراً جديداً من المستند", "Add a new version of the document")}
+            {t("uploadNewVersionDesc")}
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-3">
           <div>
-            <Label className="text-xs text-slate-500">{t("المستند", "Document")}</Label>
+            <Label className="text-xs text-slate-500">{t("document")}</Label>
             <p className="text-sm font-medium text-slate-900 dark:text-white mt-0.5 truncate">
               {documentName}
             </p>
           </div>
           <div>
-            <Label className="text-xs text-slate-500">{t("ملخص التغييرات", "Change Summary")}</Label>
+            <Label className="text-xs text-slate-500">{t("changeSummary")}</Label>
             <Input
               value={changeSummary}
               onChange={(e) => setChangeSummary(e.target.value)}
-              placeholder={t("ما الذي تغير في هذا الإصدار؟", "What changed in this version?")}
+              placeholder={t("changeSummaryPlaceholder")}
               className="mt-1 h-8 text-sm"
             />
           </div>
         </div>
         <DialogFooter className="gap-2">
           <Button variant="outline" size="sm" onClick={() => onOpenChange(false)} className="h-8">
-            {t("إلغاء", "Cancel")}
+            {t("cancel")}
           </Button>
           <Button
             size="sm"
@@ -256,8 +253,8 @@ function UploadVersionDialog({
             disabled={uploadMutation.isPending}
           >
             {uploadMutation.isPending
-              ? t("جاري الرفع...", "Uploading...")
-              : t("رفع الإصدار", "Upload Version")}
+              ? t("uploading")
+              : t("uploadVersion")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -270,7 +267,6 @@ interface DocumentVersionHistoryProps {
   documentId: string;
   documentName: string;
   currentVersion: number;
-  language: "ar" | "en";
   onClose?: () => void;
 }
 
@@ -278,11 +274,9 @@ export default function DocumentVersionHistory({
   documentId,
   documentName,
   currentVersion,
-  language,
   onClose,
 }: DocumentVersionHistoryProps) {
-  const isAr = language === "ar";
-  const t = (ar: string, en: string) => (isAr ? ar : en);
+  const t = useTranslations("documentVersionHistory");
   const [showUploadDialog, setShowUploadDialog] = useState(false);
 
   const { data: versionData, isLoading } = useQuery<VersionHistoryData>({
@@ -304,7 +298,7 @@ export default function DocumentVersionHistory({
     fileName: documentName,
     fileSize: 0,
     mimeType: "",
-    changeSummary: isAr ? "الإصدار الحالي" : "Current version",
+    changeSummary: t("currentVersion"),
     uploadedBy: null,
     createdAt: new Date().toISOString(),
     isCurrent: true,
@@ -323,7 +317,7 @@ export default function DocumentVersionHistory({
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-semibold flex items-center gap-2">
             <History className="h-4 w-4 text-teal-500" />
-            {t("سجل الإصدارات", "Version History")}
+            {t("versionHistory")}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -344,9 +338,9 @@ export default function DocumentVersionHistory({
           <div className="flex items-center justify-between">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
               <History className="h-4 w-4 text-teal-500" />
-              {t("سجل الإصدارات", "Version History")}
+              {t("versionHistory")}
               <Badge variant="secondary" className="text-[10px] h-5">
-                {allVersions.length} {t("إصدار", "versions")}
+                {allVersions.length} {t("versionsCount")}
               </Badge>
             </CardTitle>
             <div className="flex items-center gap-1.5">
@@ -356,7 +350,7 @@ export default function DocumentVersionHistory({
                 onClick={() => setShowUploadDialog(true)}
               >
                 <Plus className="h-3 w-3" />
-                {t("إصدار جديد", "New Version")}
+                {t("newVersion")}
               </Button>
               {onClose && (
                 <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onClose}>
@@ -370,9 +364,9 @@ export default function DocumentVersionHistory({
           {allVersions.length === 0 ? (
             <div className="text-center py-8 text-slate-400 dark:text-slate-500">
               <History className="h-8 w-8 mx-auto mb-2 opacity-40" />
-              <p className="text-sm">{t("لا توجد إصدارات سابقة", "No previous versions")}</p>
+              <p className="text-sm">{t("noPreviousVersions")}</p>
               <p className="text-xs mt-1">
-                {t("الإصدار الحالي هو v", "Current version is v")}{currentVersion}
+                {t("currentVersionIs")}{currentVersion}
               </p>
             </div>
           ) : (
@@ -382,7 +376,6 @@ export default function DocumentVersionHistory({
                   <VersionTimelineEntry
                     key={entry.id}
                     entry={entry}
-                    language={language}
                     documentId={documentId}
                   />
                 ))}
@@ -397,7 +390,6 @@ export default function DocumentVersionHistory({
         documentName={documentName}
         open={showUploadDialog}
         onOpenChange={setShowUploadDialog}
-        language={language}
       />
     </>
   );

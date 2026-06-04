@@ -25,6 +25,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import NotificationDropdown from "@/components/notification-dropdown";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { cn } from "@/lib/utils";
+import { useTranslations, useLocale } from "next-intl";
 
 
 
@@ -32,7 +33,11 @@ import { cn } from "@/lib/utils";
 function AppHeader() {
   const { user, logout } = useAuthStore();
   const { currentPage, setCurrentPage } = useNavStore();
-  const { language, toggleLanguage, t, isAr } = useLanguage();
+  const locale = useLocale();
+  const t = useTranslations("layout.header");
+  const tTitle = useTranslations("pageTitles");
+  const isAr = locale === "ar";
+  const { toggleLanguage } = useLanguage();
   const [searchFocused, setSearchFocused] = useState(false);
 
   const pageTitle = pageTitleMap[currentPage] || { ar: "لوحة التحكم", en: "Dashboard" };
@@ -63,7 +68,7 @@ function AppHeader() {
 
       {/* Page Title */}
       <h1 className="text-base font-semibold text-slate-900 dark:text-white flex-1 truncate">
-        {t(pageTitle.ar, pageTitle.en)}
+        {tTitle(currentPage) || (isAr ? pageTitle.ar : pageTitle.en)}
       </h1>
 
       {/* Action Buttons */}
@@ -81,7 +86,7 @@ function AppHeader() {
           )} />
           <input
             type="text"
-            placeholder={t("بحث...", "Search...")}
+            placeholder={t("search")}
             className={cn(
               "h-9 w-full bg-transparent ps-9 pe-16 text-xs text-slate-900 dark:text-white",
               "placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none",
@@ -122,7 +127,7 @@ function AppHeader() {
               </Button>
             </TooltipTrigger>
             <TooltipContent side="bottom">
-              <p>{t("البحث", "Search")}</p>
+              <p>{t("searchBtn")}</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -142,13 +147,13 @@ function AppHeader() {
               </Button>
             </TooltipTrigger>
             <TooltipContent side="bottom">
-              <p>{language === "ar" ? "English" : "عربي"}</p>
+              <p>{locale === "ar" ? "English" : "عربي"}</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
 
         {/* Theme Toggle */}
-        <ThemeToggle label={t("الوضع الليلي", "Dark Mode")} />
+        <ThemeToggle label={t("darkMode")} />
 
         {/* Notifications Dropdown Bell */}
         <NotificationDropdown />
@@ -191,7 +196,7 @@ function AppHeader() {
                   <div className="flex items-center gap-1.5 mt-0.5">
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
                     <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
-                      {t("متصل", "Online")}
+                      {t("online")}
                     </span>
                   </div>
                 </div>
@@ -204,12 +209,12 @@ function AppHeader() {
             <DropdownMenuSeparator />
             <DropdownMenuItem className="cursor-pointer" onClick={() => useNavStore.getState().setCurrentPage("settings")}>
               <Settings className="me-2 h-4 w-4" />
-              {t("الإعدادات", "Settings")}
+              {t("settings")}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem className="cursor-pointer text-red-600 dark:text-red-400 focus:text-red-600" onClick={handleLogout}>
               <LogOut className="me-2 h-4 w-4" />
-              {t("تسجيل الخروج", "Sign Out")}
+              {t("signOut")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

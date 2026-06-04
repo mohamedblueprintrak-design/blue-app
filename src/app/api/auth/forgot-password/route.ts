@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     const { email } = validation.data;
 
     // Find user
-    const user = await db.user.findUnique({
+    const user = await db.user.findFirst({
       where: { email: email.toLowerCase() },
     });
 

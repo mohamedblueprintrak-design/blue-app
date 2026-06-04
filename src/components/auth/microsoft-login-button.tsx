@@ -3,10 +3,9 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils";import { useTranslations } from "next-intl";
 
 interface MicrosoftLoginButtonProps {
-  language?: "ar" | "en";
   className?: string;
 }
 
@@ -33,9 +32,9 @@ function MicrosoftIcon({ className }: { className?: string }) {
  * - Supports RTL
  * - Shows loading state during redirect
  */
-export default function MicrosoftLoginButton({ language = "ar", className }: MicrosoftLoginButtonProps) {
+export default function MicrosoftLoginButton({ className }: MicrosoftLoginButtonProps) {
+  const t = useTranslations("auth");
   const [isLoading, setIsLoading] = useState(false);
-  const isAr = language === "ar";
 
   const handleClick = () => {
     setIsLoading(true);
@@ -65,8 +64,8 @@ export default function MicrosoftLoginButton({ language = "ar", className }: Mic
         <MicrosoftIcon className="w-5 h-5 me-3" />
       )}
       {isLoading
-        ? (isAr ? "جاري التحويل إلى Microsoft..." : "Redirecting to Microsoft...")
-        : (isAr ? "تسجيل الدخول بحساب Microsoft" : "Sign in with Microsoft")}
+        ? t("redirectingMicrosoft")
+        : t("continueMicrosoft")}
     </Button>
   );
 }

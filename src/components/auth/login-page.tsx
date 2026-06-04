@@ -34,9 +34,10 @@ import { SkipNavContent } from "@/components/common/accessible-components";
 import { extractErrorMessage } from "@/lib/api/fetch-client";
 import GoogleLoginButton from "@/components/auth/google-login-button";
 import TurnstileCaptcha from "@/components/auth/turnstile-captcha";
+import { useTranslations, useLocale } from "next-intl";
 
 interface LoginPageProps {
-  language: "ar" | "en";
+  language?: "ar" | "en";
 }
 
 // DEMO ONLY — these demo emails are shown for demo mode testing only
@@ -112,7 +113,9 @@ export default function LoginPage({ language }: LoginPageProps) {
   const { login } = useAuthStore();
   const { toast: _toast } = useToast();
 
-  const isAr = language === "ar";
+  const locale = useLocale();
+  const isAr = locale === "ar";
+  const t = useTranslations("login");
 
   // Fetch demo credentials from server (only returned in demo mode)
   useEffect(() => {
@@ -149,16 +152,16 @@ export default function LoginPage({ language }: LoginPageProps) {
         });
         const verifyData = await verifyRes.json();
         if (!verifyData.success) {
-          setError(isAr ? "فشل التحقق من الكابتشا، يرجى المحاولة مرة أخرى" : "Captcha verification failed, please try again");
+          setError(t("errors.captchaFailedRetry"));
           return;
         }
       } catch {
-        setError(isAr ? "فشل التحقق من الكابتشا" : "Captcha verification failed");
+        setError(t("errors.captchaFailed"));
         return;
       }
     } else if (!captchaToken && process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY) {
       // Turnstile is configured but user hasn't completed captcha
-      setError(isAr ? "يرجى إكمال التحقق من الكابتشا" : "Please complete the captcha verification");
+      setError(t("errors.captchaRequired"));
       return;
     }
 
@@ -174,7 +177,7 @@ export default function LoginPage({ language }: LoginPageProps) {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(extractErrorMessage(data.error, isAr ? "حدث خطأ" : "An error occurred"));
+        setError(extractErrorMessage(data.error, t("errors.generic")));
         return;
       }
 
@@ -191,7 +194,7 @@ export default function LoginPage({ language }: LoginPageProps) {
         avatar: data.avatar,
       });
     } catch {
-      setError(isAr ? "حدث خطأ في الاتصال" : "Connection error");
+      setError(t("errors.connection"));
     } finally {
       setIsLoading(false);
     }
@@ -210,7 +213,7 @@ export default function LoginPage({ language }: LoginPageProps) {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(extractErrorMessage(data.error, isAr ? "كود التحقق غير صحيح" : "Invalid verification code"));
+        setError(extractErrorMessage(data.error, t("errors.invalidCode")));
         return;
       }
       login({
@@ -221,7 +224,7 @@ export default function LoginPage({ language }: LoginPageProps) {
         avatar: data.avatar,
       });
     } catch {
-      setError(isAr ? "حدث خطأ في الاتصال" : "Connection error");
+      setError(t("errors.connection"));
     } finally {
       setIsLoading(false);
     }
@@ -339,7 +342,7 @@ export default function LoginPage({ language }: LoginPageProps) {
                   BluePrint
                 </h1>
                 <p className="text-[11px] text-white/60 font-medium">
-                  {isAr ? "نظام إدارة الاستشارات الهندسية" : "Engineering Consultancy Management"}
+                  {t("subtitle")}
                 </p>
               </div>
             </div>
@@ -352,7 +355,7 @@ export default function LoginPage({ language }: LoginPageProps) {
                 <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-1.5 border border-white/10">
                   <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                   <span className="text-[11px] text-white/80 font-medium">
-                    {isAr ? "مزايا النظام" : "System Features"}
+                    {t("systemFeatures")}
                   </span>
                 </div>
 
@@ -423,9 +426,7 @@ export default function LoginPage({ language }: LoginPageProps) {
           {/* Bottom tagline */}
           <div className="animate-fade-in">
             <p className="text-xs text-white/40 leading-relaxed">
-              {isAr
-                ? "حلول هندسية متكاملة لإدارة مكاتب الاستشارات في الإمارات العربية المتحدة"
-                : "Comprehensive engineering solutions for consultancy management in the UAE"}
+              {t("tagline")}
             </p>
             <p className="text-[11px] text-white/25 mt-2">
               © 2025 BluePrint
@@ -452,13 +453,13 @@ export default function LoginPage({ language }: LoginPageProps) {
                   <div>
                     <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
                       {requires2FA
-                        ? (isAr ? "التحقق الثنائي" : "Two-Factor Auth")
-                        : (isAr ? "تسجيل الدخول" : "Sign In")}
+                        ? t("twoFactorAuth")
+                        : t("signIn")}
                     </h1>
                     <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                       {requires2FA
-                        ? (isAr ? "يرجى إدخال رمز التحقق من تطبيق المصادقة" : "Please enter the verification code from your authenticator app")
-                        : (isAr ? "مرحباً بك، أدخل بياناتك للمتابعة" : "Welcome back, enter your credentials to continue")}
+                        ? t("twoFactorPrompt")
+                        : t("welcomePrompt")}
                     </p>
                   </div>
                 </div>
@@ -473,7 +474,7 @@ export default function LoginPage({ language }: LoginPageProps) {
                       </div>
                       <div className="relative flex justify-center text-xs uppercase">
                         <span className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl px-2 text-slate-400 dark:text-slate-500">
-                          {isAr ? "أو" : "or"}
+                          {t("or")}
                         </span>
                       </div>
                     </div>
@@ -496,7 +497,7 @@ export default function LoginPage({ language }: LoginPageProps) {
                     <div className="space-y-4">
                       <div className="space-y-1.5">
                         <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                          {isAr ? "كود التحقق (6 أرقام)" : "Verification Code (6 digits)"}
+                          {t("verificationCode")}
                         </label>
                         <Input
                           type="text"
@@ -515,7 +516,7 @@ export default function LoginPage({ language }: LoginPageProps) {
                         className="w-full text-xs text-slate-500"
                         onClick={() => { setRequires2FA(false); setTwoFactorCode(""); }}
                       >
-                        {isAr ? "العودة لتسجيل الدخول" : "Back to Sign In"}
+                        {t("backToSignIn")}
                       </Button>
                     </div>
                   ) : (
@@ -523,13 +524,13 @@ export default function LoginPage({ language }: LoginPageProps) {
                       {/* Email Field */}
                       <div className="space-y-1.5">
                         <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                          {isAr ? "البريد الإلكتروني" : "Email"}
+                          {t("email")}
                         </label>
                         <div className="relative">
                           <Mail className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                           <Input
                             type="email"
-                            placeholder={isAr ? "أدخل بريدك الإلكتروني" : "Enter your email"}
+                            placeholder={t("emailPlaceholder")}
                             value={email || ""}
                             onChange={(e) => setEmail(e.target.value)}
                             required
@@ -548,21 +549,21 @@ export default function LoginPage({ language }: LoginPageProps) {
                       <div className="space-y-1.5">
                         <div className="flex items-center justify-between">
                           <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                            {isAr ? "كلمة المرور" : "Password"}
+                            {t("password")}
                           </label>
                           <button
                             type="button"
                             onClick={handleForgotPassword}
                             className="text-xs text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 transition-colors"
                           >
-                            {isAr ? "نسيت كلمة المرور؟" : "Forgot Password?"}
+                            {t("forgotPassword")}
                           </button>
                         </div>
                         <div className="relative">
                           <Lock className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                           <Input
                             type={showPassword ? "text" : "password"}
-                            placeholder={isAr ? "أدخل كلمة المرور" : "Enter your password"}
+                            placeholder={t("passwordPlaceholder")}
                             value={password || ""}
                             onChange={(e) => setPassword(e.target.value)}
                             required
@@ -601,7 +602,7 @@ export default function LoginPage({ language }: LoginPageProps) {
                             className="data-[state=checked]:bg-teal-500 data-[state=checked]:border-teal-500"
                           />
                           <span className="text-sm text-slate-600 dark:text-slate-400">
-                            {isAr ? "تذكرني" : "Remember me"}
+                            {t("rememberMe")}
                           </span>
                         </label>
                       </div>
@@ -611,7 +612,7 @@ export default function LoginPage({ language }: LoginPageProps) {
                   {/* Demo Mode Quick Login Buttons */}
                   {demoCredentials.length > 0 && !requires2FA && (
                     <div className="pt-2 pb-1">
-                      <p className="text-xs text-slate-500 mb-2 font-medium">{isAr ? "دخول سريع (العرض التجريبي):" : "Quick Login (Demo):"}</p>
+                      <p className="text-xs text-slate-500 mb-2 font-medium">{t("quickLogin")}</p>
                       <div className="grid grid-cols-3 gap-2">
                         <Button
                           type="button"
@@ -620,7 +621,7 @@ export default function LoginPage({ language }: LoginPageProps) {
                           className="h-8 text-[11px] bg-slate-50 dark:bg-slate-800"
                           onClick={() => handleRoleSelect("admin@blueprint.ae")}
                         >
-                          {isAr ? "المدير العام" : "Admin"}
+                          {t("roles.admin")}
                         </Button>
                         <Button
                           type="button"
@@ -629,7 +630,7 @@ export default function LoginPage({ language }: LoginPageProps) {
                           className="h-8 text-[11px] bg-slate-50 dark:bg-slate-800"
                           onClick={() => handleRoleSelect("pm@blueprint.ae")}
                         >
-                          {isAr ? "مدير مشاريع" : "Manager"}
+                          {t("roles.manager")}
                         </Button>
                         <Button
                           type="button"
@@ -638,7 +639,7 @@ export default function LoginPage({ language }: LoginPageProps) {
                           className="h-8 text-[11px] bg-slate-50 dark:bg-slate-800"
                           onClick={() => handleRoleSelect("eng@blueprint.ae")}
                         >
-                          {isAr ? "مهندس" : "Engineer"}
+                          {t("roles.engineer")}
                         </Button>
                       </div>
                     </div>
@@ -659,16 +660,16 @@ export default function LoginPage({ language }: LoginPageProps) {
                     {!dbReady ? (
                       <>
                         <Loader2 className="h-4 w-4 animate-spin me-2" />
-                        {isAr ? "جاري تهيئة النظام..." : "Initializing..."}
+                        {t("initializing")}
                       </>
                     ) : isLoading ? (
                       <>
                         <Loader2 className="h-4 w-4 animate-spin me-2" />
-                        {isAr ? "جاري تسجيل الدخول..." : "Signing in..."}
+                        {t("signingIn")}
                       </>
                     ) : (
                       <>
-                        {requires2FA ? (isAr ? "تأكيد" : "Verify") : (isAr ? "تسجيل الدخول" : "Sign In")}
+                        {requires2FA ? t("verify") : t("signIn")}
                         <ChevronLeft className="h-4 w-4 ms-2 rtl:rotate-180" />
                       </>
                     )}
@@ -681,7 +682,7 @@ export default function LoginPage({ language }: LoginPageProps) {
                     <div className="flex items-center gap-2">
                       <div className="w-1.5 h-1.5 rounded-full bg-amber-500 flex-shrink-0" />
                       <span className="text-[11px] text-amber-700 dark:text-amber-400 font-medium">
-                        {isAr ? "وضع العرض — كلمة المرور تم تعبأتها تلقائياً" : "Demo mode — Password auto-filled"}
+                        {t("demoMode")}
                       </span>
                     </div>
                   </div>
@@ -692,7 +693,7 @@ export default function LoginPage({ language }: LoginPageProps) {
 
                 {/* Footer inside card */}
                 <p className="text-center text-[10px] text-slate-400 dark:text-slate-500 pt-1">
-                  © 2025 BluePrint - {isAr ? "نظام إدارة الاستشارات الهندسية" : "Engineering Consultancy Management"}
+                  © 2025 BluePrint - {t("subtitle")}
                 </p>
               </div>
             </div>

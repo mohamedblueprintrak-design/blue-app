@@ -380,17 +380,17 @@ function setupEventHandlers(socket: TypedSocket) {
 
   // Subscribe to entity updates
   socket.on('subscribe_to_entity', (data: { entityType: string; entityId: string }) => {
-    joinRoom(socket, 'entity', `${data.entityType}:${data.entityId}`);
+    joinRoom(socket, 'entity', `${socket.data.organizationId}:${data.entityType}:${data.entityId}`);
   });
 
   // Unsubscribe from entity updates
   socket.on('unsubscribe_from_entity', (data: { entityType: string; entityId: string }) => {
-    leaveRoom(socket, 'entity', `${data.entityType}:${data.entityId}`);
+    leaveRoom(socket, 'entity', `${socket.data.organizationId}:${data.entityType}:${data.entityId}`);
   });
 
   // Typing start indicator
   socket.on('typing_start', (data: { entityType: string; entityId: string }) => {
-    const room = getRoomName('entity', `${data.entityType}:${data.entityId}`);
+    const room = getRoomName('entity', `${socket.data.organizationId}:${data.entityType}:${data.entityId}`);
     const payload: TypingPayload = {
       userId: socket.data.userId,
       userName: socket.data.userName,
@@ -405,7 +405,7 @@ function setupEventHandlers(socket: TypedSocket) {
 
   // Typing stop indicator
   socket.on('typing_stop', (data: { entityType: string; entityId: string }) => {
-    const room = getRoomName('entity', `${data.entityType}:${data.entityId}`);
+    const room = getRoomName('entity', `${socket.data.organizationId}:${data.entityType}:${data.entityId}`);
     const payload: TypingPayload = {
       userId: socket.data.userId,
       userName: socket.data.userName,

@@ -149,8 +149,10 @@ export async function POST(request: Request) {
     // Extract client IP for security logging
     const clientIp = getClientIP(request.headers);
 
-    const user = await db.user.findUnique({
-      where: { email },
+    const user = await db.user.findFirst({
+      where: { 
+        email: email.toLowerCase() 
+      },
       select: {
         id: true,
         email: true,

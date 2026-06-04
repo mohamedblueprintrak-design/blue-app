@@ -38,29 +38,29 @@ export async function POST(request: NextRequest) {
       } else {
         // Fallback: If we couldn't find the refresh token, try to get userId from the request context
         const ctx = getAuthContext(request);
-        if (ctx?.id) {
+        if (ctx?.userId) {
           await db.refreshToken.updateMany({
             where: { 
-              userId: ctx.id,
+              userId: ctx.userId,
               revokedAt: null
             },
             data: { revokedAt: new Date() },
           });
-          log.info('All refresh tokens revoked on logout via auth context', { userId: ctx.id });
+          log.info('All refresh tokens revoked on logout via auth context', { userId: ctx.userId });
         }
       }
     } else {
       // No refresh token cookie, but maybe we have the auth context
       const ctx = getAuthContext(request);
-      if (ctx?.id) {
+      if (ctx?.userId) {
         await db.refreshToken.updateMany({
           where: { 
-            userId: ctx.id,
+            userId: ctx.userId,
             revokedAt: null
           },
           data: { revokedAt: new Date() },
         });
-        log.info('All refresh tokens revoked on logout via auth context', { userId: ctx.id });
+        log.info('All refresh tokens revoked on logout via auth context', { userId: ctx.userId });
       }
     }
   } catch (error) {

@@ -69,7 +69,7 @@ export async function GET(request: NextRequest) {
     // Step 3: Fetch related data in parallel
     const [invoices, documents] = await Promise.all([
       db.invoice.findMany({
-        where: { projectId: project.id, deletedAt: null },
+        where: { projectId: project.id, organizationId: project.organizationId, deletedAt: null },
         select: {
           id: true,
           number: true,
@@ -86,7 +86,7 @@ export async function GET(request: NextRequest) {
         orderBy: { issueDate: "desc" },
       }),
       db.document.findMany({
-        where: { projectId: project.id },
+        where: { projectId: project.id, organizationId: project.organizationId },
         select: {
           id: true,
           name: true,

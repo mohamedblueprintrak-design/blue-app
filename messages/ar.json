@@ -27,7 +27,10 @@
     "success": "تم بنجاح",
     "error": "خطأ",
     "yes": "نعم",
-    "no": "لا"
+    "no": "لا",
+    "errorLoadingData": "حدث خطأ في تحميل البيانات",
+    "errorLoadingDashboard": "لم نتمكن من تحميل لوحة التحكم. يرجى المحاولة مرة أخرى.",
+    "retry": "إعادة المحاولة"
   },
   "dashboard": {
     "title": "لوحة التحكم",
@@ -101,5 +104,123 @@
     "security": "إعدادات الأمان",
     "billing": "الاشتراكات والفوترة",
     "notifications": "إعدادات الإشعارات"
+  },
+  "auth": {
+    "redirectingGoogle": "جاري التحويل إلى جوجل...",
+    "continueGoogle": "تسجيل الدخول عبر جوجل",
+    "redirectingMicrosoft": "جاري التحويل إلى Microsoft...",
+    "continueMicrosoft": "تسجيل الدخول بحساب Microsoft"
+  },
+  "cookieConsent": {
+    "title": "إشعار ملفات تعريف الارتباط",
+    "weUseCookies": "نستخدم ملفات تعريف الارتباط",
+    "description": "نستخدم ملفات تعريف الارتباط لتحسين تجربتك وتحليل استخدام الموقع. يمكنك اختيار أنواع ملفات تعريف الارتباط التي تسمح بها.",
+    "settings": "الإعدادات",
+    "rejectNonEssential": "رفض غير الأساسية",
+    "acceptAll": "قبول الكل",
+    "cookieSettings": "إعدادات ملفات تعريف الارتباط",
+    "settingsDescription": "اختر أنواع ملفات تعريف الارتباط التي تسمح بها. لا يمكن تعطيل ملفات تعريف الارتباط الأساسية.",
+    "required": "مطلوب",
+    "saveSettings": "حفظ الإعدادات",
+    "categories": {
+      "essential": {
+        "label": "أساسية",
+        "desc": "مطلوبة لعمل الموقع بشكل صحيح. لا يمكن تعطيلها."
+      },
+      "analytics": {
+        "label": "تحليلات",
+        "desc": "تساعدنا على فهم كيفية تفاعل الزوار مع الموقع."
+      },
+      "marketing": {
+        "label": "تسويق",
+        "desc": "تُستخدم لتتبع الزوار عبر المواقع لأغراض إعلانية."
+      },
+      "functional": {
+        "label": "وظيفية",
+        "desc": "تمكّن الوظائف المحسّنة والتخصيص."
+      }
+    }
+  },
+  "documentVersionHistory": {
+    "current": "الحالي",
+    "download": "تحميل",
+    "uploadNewVersion": "رفع إصدار جديد",
+    "uploadNewVersionDesc": "أضف إصداراً جديداً من المستند",
+    "document": "المستند",
+    "changeSummary": "ملخص التغييرات",
+    "changeSummaryPlaceholder": "ما الذي تغير في هذا الإصدار؟",
+    "cancel": "إلغاء",
+    "uploading": "جاري الرفع...",
+    "uploadVersion": "رفع الإصدار",
+    "currentVersion": "الإصدار الحالي",
+    "versionHistory": "سجل الإصدارات",
+    "versionsCount": "إصدار",
+    "newVersion": "إصدار جديد",
+    "noPreviousVersions": "لا توجد إصدارات سابقة",
+    "currentVersionIs": "الإصدار الحالي هو v"
+  },
+  "login": {
+    "roles": {
+      "admin": "المدير العام",
+      "manager": "مدير مشاريع",
+      "archEng": "مهندس معماري",
+      "structEng": "مهندس إنشائي",
+      "elecEng": "مهندس كهربائي",
+      "siteEng": "مهندس موقع",
+      "mepEng": "مهندس ميكانيكا",
+      "draftsman": "رسام",
+      "accountant": "محاسب",
+      "secretary": "سكرتيرة",
+      "hr": "موارد بشرية",
+      "viewer": "مشاهد",
+      "engineer": "مهندس"
+    },
+    "features": {
+      "advancedProj": {
+        "title": "إدارة المشاريع المتقدمة",
+        "desc": "تتبع المشاريع والمراحل والمواعيد النهائية"
+      },
+      "smartTask": {
+        "title": "تتبع المهام الذكي",
+        "desc": "لوحة كانبان مع أولويات وSLA"
+      },
+      "reports": {
+        "title": "التقارير والتحليلات",
+        "desc": "تقارير مالية وتقارير المشاريع والإنتاجية"
+      },
+      "team": {
+        "title": "إدارة الفرق والموارد",
+        "desc": "الحضور والإجازات وأحمال العمل"
+      }
+    },
+    "errors": {
+      "generic": "حدث خطأ",
+      "captchaFailedRetry": "فشل التحقق من الكابتشا، يرجى المحاولة مرة أخرى",
+      "captchaFailed": "فشل التحقق من الكابتشا",
+      "captchaRequired": "يرجى إكمال التحقق من الكابتشا",
+      "connection": "حدث خطأ في الاتصال",
+      "invalidCode": "كود التحقق غير صحيح"
+    },
+    "subtitle": "نظام إدارة الاستشارات الهندسية",
+    "systemFeatures": "مزايا النظام",
+    "tagline": "حلول هندسية متكاملة لإدارة مكاتب الاستشارات في الإمارات العربية المتحدة",
+    "twoFactorAuth": "التحقق الثنائي",
+    "signIn": "تسجيل الدخول",
+    "twoFactorPrompt": "يرجى إدخال رمز التحقق من تطبيق المصادقة",
+    "welcomePrompt": "مرحباً بك، أدخل بياناتك للمتابعة",
+    "or": "أو",
+    "verificationCode": "كود التحقق (6 أرقام)",
+    "backToSignIn": "العودة لتسجيل الدخول",
+    "email": "البريد الإلكتروني",
+    "emailPlaceholder": "أدخل بريدك الإلكتروني",
+    "password": "كلمة المرور",
+    "forgotPassword": "نسيت كلمة المرور؟",
+    "passwordPlaceholder": "أدخل كلمة المرور",
+    "rememberMe": "تذكرني",
+    "quickLogin": "دخول سريع (العرض التجريبي):",
+    "initializing": "جاري تهيئة النظام...",
+    "signingIn": "جاري تسجيل الدخول...",
+    "verify": "تأكيد",
+    "demoMode": "وضع العرض — كلمة المرور تم تعبأتها تلقائياً"
   }
 }

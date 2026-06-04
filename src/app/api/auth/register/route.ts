@@ -178,11 +178,11 @@ async function handleRegister(
 
   try {
     // Check if email already exists
-    const existingEmail = await db.user.findUnique({
+    const existingUser = await db.user.findFirst({
       where: { email: data.email.toLowerCase() },
     });
     
-    if (existingEmail) {
+    if (existingUser) {
       // SECURITY: Perform a dummy hash computation to prevent timing attacks (CWE-208)
       // by balancing execution time between existing and non-existing email flows.
       await hash(data.password, 12);

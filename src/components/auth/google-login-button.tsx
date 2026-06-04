@@ -3,10 +3,9 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils";import { useTranslations } from "next-intl";
 
 interface GoogleLoginButtonProps {
-  language?: "ar" | "en";
   className?: string;
 }
 
@@ -45,9 +44,9 @@ function GoogleIcon({ className }: { className?: string }) {
  * - Supports RTL
  * - Shows loading state during redirect
  */
-export default function GoogleLoginButton({ language = "ar", className }: GoogleLoginButtonProps) {
+export default function GoogleLoginButton({ className }: GoogleLoginButtonProps) {
+  const t = useTranslations("auth");
   const [isLoading, setIsLoading] = useState(false);
-  const isAr = language === "ar";
 
   const handleClick = () => {
     setIsLoading(true);
@@ -77,8 +76,8 @@ export default function GoogleLoginButton({ language = "ar", className }: Google
         <GoogleIcon className="w-5 h-5 me-3" />
       )}
       {isLoading
-        ? (isAr ? "جاري التحويل إلى جوجل..." : "Redirecting to Google...")
-        : (isAr ? "تسجيل الدخول عبر جوجل" : "Continue with Google")}
+        ? t("redirectingGoogle")
+        : t("continueGoogle")}
     </Button>
   );
 }

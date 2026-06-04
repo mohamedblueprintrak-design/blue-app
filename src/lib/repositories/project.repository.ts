@@ -36,7 +36,7 @@ export interface ProjectWithDetails extends Project {
  */
 export interface CreateProjectData {
   name: string;
-  projectNumber?: string;
+  number?: string;
   location?: string;
   projectType?: string;
   description?: string;
@@ -58,7 +58,7 @@ export interface UpdateProjectData {
   location?: string;
   projectType?: string;
   status?: string;
-  progressPercentage?: number;
+  progress?: number;
   description?: string;
   contractValue?: number;
   actualStartDate?: Date;
@@ -98,9 +98,9 @@ export class ProjectRepository extends BaseRepository<Project> {
   /**
    * Find project by project number
    */
-  async findByProjectNumber(projectNumber: string): Promise<Project | null> {
+  async findByProjectNumber(number: string): Promise<Project | null> {
     return this.delegate.findUnique({
-      where: { projectNumber },
+      where: { number },
     });
   }
 
@@ -161,7 +161,7 @@ export class ProjectRepository extends BaseRepository<Project> {
   async updateProgress(id: string, progress: number): Promise<Project> {
     return this.delegate.update({
       where: { id },
-      data: { progressPercentage: progress },
+      data: { progress },
     });
   }
 
@@ -203,7 +203,7 @@ export class ProjectRepository extends BaseRepository<Project> {
         organizationId,
         OR: [
           { name: insensitiveContains(query) },
-          { projectNumber: insensitiveContains(query) },
+          { number: insensitiveContains(query) },
           { location: insensitiveContains(query) },
         ],
       },
@@ -229,7 +229,7 @@ export class ProjectRepository extends BaseRepository<Project> {
       }),
       this.delegate.aggregate({
         where: { organizationId, status: 'ACTIVE' },
-        _avg: { progressPercentage: true },
+        _avg: { progress: true },
       }),
       this.delegate.groupBy({
         by: ['status'],
@@ -246,7 +246,7 @@ export class ProjectRepository extends BaseRepository<Project> {
     return {
       total: totalCount,
       totalValue: valueAggregate._sum.contractValue || 0,
-      averageProgress: progressAggregate._avg.progressPercentage || 0,
+      averageProgress: progressAggregate._avg.progress || 0,
       byStatus,
     };
   }

@@ -27,7 +27,10 @@
     "success": "Success",
     "error": "Error",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "errorLoadingData": "Error loading data",
+    "errorLoadingDashboard": "We couldn't load the dashboard. Please try again.",
+    "retry": "Retry"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -101,5 +104,123 @@
     "security": "Security Settings",
     "billing": "Billing & Plans",
     "notifications": "Notification Settings"
+  },
+  "auth": {
+    "redirectingGoogle": "Redirecting to Google...",
+    "continueGoogle": "Continue with Google",
+    "redirectingMicrosoft": "Redirecting to Microsoft...",
+    "continueMicrosoft": "Sign in with Microsoft"
+  },
+  "cookieConsent": {
+    "title": "Cookie consent notice",
+    "weUseCookies": "We use cookies",
+    "description": "We use cookies to enhance your experience and analyze site usage. You can choose which types of cookies you allow.",
+    "settings": "Settings",
+    "rejectNonEssential": "Reject Non-Essential",
+    "acceptAll": "Accept All",
+    "cookieSettings": "Cookie Settings",
+    "settingsDescription": "Choose which types of cookies you allow. Essential cookies cannot be disabled.",
+    "required": "Required",
+    "saveSettings": "Save Settings",
+    "categories": {
+      "essential": {
+        "label": "Essential",
+        "desc": "Required for the website to function properly. Cannot be disabled."
+      },
+      "analytics": {
+        "label": "Analytics",
+        "desc": "Help us understand how visitors interact with the website."
+      },
+      "marketing": {
+        "label": "Marketing",
+        "desc": "Used to track visitors across websites for advertising purposes."
+      },
+      "functional": {
+        "label": "Functional",
+        "desc": "Enable enhanced functionality and personalization."
+      }
+    }
+  },
+  "documentVersionHistory": {
+    "current": "Current",
+    "download": "Download",
+    "uploadNewVersion": "Upload New Version",
+    "uploadNewVersionDesc": "Add a new version of the document",
+    "document": "Document",
+    "changeSummary": "Change Summary",
+    "changeSummaryPlaceholder": "What changed in this version?",
+    "cancel": "Cancel",
+    "uploading": "Uploading...",
+    "uploadVersion": "Upload Version",
+    "currentVersion": "Current version",
+    "versionHistory": "Version History",
+    "versionsCount": "versions",
+    "newVersion": "New Version",
+    "noPreviousVersions": "No previous versions",
+    "currentVersionIs": "Current version is v"
+  },
+  "login": {
+    "roles": {
+      "admin": "Admin",
+      "manager": "Manager",
+      "archEng": "Arch. Eng",
+      "structEng": "Struct. Eng",
+      "elecEng": "Elec. Eng",
+      "siteEng": "Site Eng",
+      "mepEng": "MEP Eng",
+      "draftsman": "Draftsman",
+      "accountant": "Accountant",
+      "secretary": "Secretary",
+      "hr": "HR",
+      "viewer": "Viewer",
+      "engineer": "Engineer"
+    },
+    "features": {
+      "advancedProj": {
+        "title": "Advanced Project Management",
+        "desc": "Track projects, stages, and deadlines"
+      },
+      "smartTask": {
+        "title": "Smart Task Tracking",
+        "desc": "Kanban board with priorities & SLA"
+      },
+      "reports": {
+        "title": "Reports & Analytics",
+        "desc": "Financial, project & productivity reports"
+      },
+      "team": {
+        "title": "Team & Resource Management",
+        "desc": "Attendance, leave & workload tracking"
+      }
+    },
+    "errors": {
+      "generic": "An error occurred",
+      "captchaFailedRetry": "Captcha verification failed, please try again",
+      "captchaFailed": "Captcha verification failed",
+      "captchaRequired": "Please complete the captcha verification",
+      "connection": "Connection error",
+      "invalidCode": "Invalid verification code"
+    },
+    "subtitle": "Engineering Consultancy Management",
+    "systemFeatures": "System Features",
+    "tagline": "Comprehensive engineering solutions for consultancy management in the UAE",
+    "twoFactorAuth": "Two-Factor Auth",
+    "signIn": "Sign In",
+    "twoFactorPrompt": "Please enter the verification code from your authenticator app",
+    "welcomePrompt": "Welcome back, enter your credentials to continue",
+    "or": "or",
+    "verificationCode": "Verification Code (6 digits)",
+    "backToSignIn": "Back to Sign In",
+    "email": "Email",
+    "emailPlaceholder": "Enter your email",
+    "password": "Password",
+    "forgotPassword": "Forgot Password?",
+    "passwordPlaceholder": "Enter your password",
+    "rememberMe": "Remember me",
+    "quickLogin": "Quick Login (Demo):",
+    "initializing": "Initializing...",
+    "signingIn": "Signing in...",
+    "verify": "Verify",
+    "demoMode": "Demo mode — Password auto-filled"
   }
 }

@@ -5,7 +5,7 @@ import { validateRequest, resetPasswordSchema } from '@/lib/api-validation';
 import { log } from '@/lib/logger';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 import { hashToken } from '@/lib/auth/token-utils';
-import { validatePasswordStrength } from '@/lib/auth/modules/password';
+import { validatePasswordStrength, checkPasswordBreached } from '@/lib/auth/modules/password';
 
 export async function POST(request: NextRequest) {
   try {
@@ -26,6 +26,15 @@ export async function POST(request: NextRequest) {
     if (!passwordValidation.valid) {
       return NextResponse.json(
         { error: passwordValidation.errors.join('. ') },
+        { status: 400 }
+      );
+    }
+
+    // Check if password has been compromised in a data breach
+    const isBreached = await checkPasswordBreached(password);
+    if (isBreached) {
+      return NextResponse.json(
+        { error: 'This password has been found in a data breach. Please choose a different password.' },
         { status: 400 }
       );
     }
@@ -53,7 +62,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Find user by the email in the reset token record
-    const user = await db.user.findUnique({
+    const user = await db.user.findFirst({
       where: { email: resetRecord.email },
     });
 

@@ -285,6 +285,7 @@ class TaskService {
         estimatedHours: data.estimatedHours,
         isMilestone: data.isMilestone || false,
         color: data.color,
+        organizationId: organizationId,
       },
     });
 

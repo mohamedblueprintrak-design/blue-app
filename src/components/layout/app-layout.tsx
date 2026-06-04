@@ -163,6 +163,7 @@ import LogoImage from "@/components/ui/logo-image";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { AppHeader } from "@/components/layout/app-header";
 import { GuidedTour } from "@/components/guided-tour";
+import { useTranslations, useLocale } from "next-intl";
 
 // ===== MAIN APP LAYOUT =====
 
@@ -173,7 +174,9 @@ interface AppLayoutProps {
 
 export default function AppLayout({ language }: AppLayoutProps) {
   const { currentPage, currentProjectId } = useNavStore();
-  const isAr = language === "ar";
+  const locale = useLocale();
+  const t = useTranslations("layout");
+  const isAr = locale === "ar";
 
   useKeyboardShortcuts();
   usePushNotifications();
@@ -277,7 +280,7 @@ export default function AppLayout({ language }: AppLayoutProps) {
         <AppHeader />
         <Breadcrumbs language={language} />
 
-        <main className="flex-1 p-4 lg:p-6 bg-slate-50 dark:bg-slate-950 dot-pattern-content custom-scrollbar overflow-y-auto" role="main" aria-label={language === "ar" ? "المحتوى الرئيسي" : "Main content"}>
+        <main className="flex-1 p-4 lg:p-6 bg-slate-50 dark:bg-slate-950 dot-pattern-content custom-scrollbar overflow-y-auto" role="main" aria-label={t("mainContent")}>
           <SkipNavContent />
           <ErrorBoundary locale={language}>
           <Suspense fallback={<PageLoadingSkeleton />}>
@@ -405,10 +408,10 @@ export default function AppLayout({ language }: AppLayoutProps) {
                 <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
                   <LogoImage size={64} className="mb-4 bg-slate-100 dark:bg-slate-800 [&>div]:opacity-40" />
                   <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
-                    {isAr ? "قيد التطوير" : "Under Development"}
+                    {t("underDevelopment")}
                   </h2>
                   <p className="text-sm text-slate-500 dark:text-slate-400 max-w-md">
-                    {isAr ? "هذه الصفحة قيد التطوير" : "This page is under development"}
+                    {t("underDevelopmentDesc")}
                   </p>
                 </div>
               )}

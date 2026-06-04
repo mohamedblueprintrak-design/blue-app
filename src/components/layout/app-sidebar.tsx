@@ -35,6 +35,7 @@ import { useLanguage } from "@/hooks/use-lang";
 import SidebarStats from "@/components/layout/sidebar-stats";
 import LogoImage from "@/components/ui/logo-image";
 import { cn } from "@/lib/utils";
+import { useTranslations, useLocale } from "next-intl";
 
 // ===== ICON MAP =====
 const iconMap: Record<string, LucideIcon> = {
@@ -80,7 +81,8 @@ function getIcon(iconName: string): LucideIcon {
 
 // ===== SIDEBAR QUICK STATS =====
 function SidebarQuickStats() {
-  const { language } = useLanguage();
+  const locale = useLocale();
+  const t = useTranslations("layout.sidebar");
 
   const { data } = useQuery({
     queryKey: ["sidebar-stats"],
@@ -100,14 +102,14 @@ function SidebarQuickStats() {
       <div className="flex items-center justify-between text-[11px] px-2 py-1 rounded-md bg-slate-50/60 dark:bg-slate-800/30">
         <span className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
           <Activity className="h-3 w-3 text-teal-500" />
-          {language === "ar" ? "المشاريع النشطة" : "Active Projects"}
+          {t("activeProjects")}
         </span>
         <span className="font-bold text-teal-600 dark:text-teal-400 tabular-nums">{activeProjects}</span>
       </div>
       <div className="flex items-center justify-between text-[11px] px-2 py-1 rounded-md bg-slate-50/60 dark:bg-slate-800/30">
         <span className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
           <AlertTriangle className="h-3 w-3 text-amber-500" />
-          {language === "ar" ? "المهام المستحقة" : "Overdue Tasks"}
+          {t("overdueTasks")}
         </span>
         <span className={`font-bold tabular-nums ${overdueTasks > 0 ? "text-amber-600 dark:text-amber-400" : "text-slate-400"}`}>
           {overdueTasks}
@@ -138,7 +140,10 @@ function groupNavItems(items: NavItem[]) {
 function AppSidebar() {
   const { user } = useAuthStore();
   const { currentPage, setCurrentPage } = useNavStore();
-  const { t, isAr } = useLanguage();
+  const locale = useLocale();
+  const t = useTranslations("layout.sidebar");
+  const tNav = useTranslations("navItems");
+  const isAr = locale === "ar";
   const [expandedItems, setExpandedItems] = useState<string[]>(["projects"]);
   const { state } = useSidebar();
 
@@ -180,10 +185,10 @@ function AppSidebar() {
             <SidebarMenuButton
               isActive={isActive}
               onClick={() => handleNavClick(item)}
-              tooltip={t(item.labelAr, item.labelEn)}
+              tooltip={tNav(`${item.id}.label`) || (isAr ? item.labelAr : item.labelEn)}
             >
               <Icon className="h-[18px] w-[18px]" />
-              <span>{t(item.labelAr, item.labelEn)}</span>
+              <span>{tNav(`${item.id}.label`) || (isAr ? item.labelAr : item.labelEn)}</span>
               <ChevronDown
                 className={cn(
                   "ms-auto h-4 w-4 shrink-0 transition-transform duration-200",
@@ -202,7 +207,7 @@ function AppSidebar() {
                         onClick={() => handleNavClick(child)}
                       >
                         <ChildIcon className="h-3.5 w-3.5" />
-                        <span>{t(child.labelAr, child.labelEn)}</span>
+                        <span>{tNav(`${child.id}.label`) || (isAr ? child.labelAr : child.labelEn)}</span>
                       </SidebarMenuSubButton>
                     </SidebarMenuSubItem>
                   );
@@ -214,10 +219,10 @@ function AppSidebar() {
           <SidebarMenuButton
             isActive={currentPage === item.id}
             onClick={() => setCurrentPage(item.id)}
-            tooltip={t(item.labelAr, item.labelEn)}
+            tooltip={tNav(`${item.id}.label`) || (isAr ? item.labelAr : item.labelEn)}
           >
             <Icon className="h-[18px] w-[18px]" />
-            <span>{t(item.labelAr, item.labelEn)}</span>
+            <span>{tNav(`${item.id}.label`) || (isAr ? item.labelAr : item.labelEn)}</span>
           </SidebarMenuButton>
         )}
       </SidebarMenuItem>
@@ -238,7 +243,7 @@ function AppSidebar() {
                 BluePrint
               </span>
               <span className="text-[10px] text-slate-400 dark:text-slate-500 leading-none mt-1">
-                {t("نظام إدارة الاستشارات", "Consultancy Management")}
+                {t("subtitle")}
               </span>
             </div>
           )}
@@ -251,7 +256,7 @@ function AppSidebar() {
         {/* Main Navigation */}
         <SidebarGroup>
           <SidebarGroupLabel>
-            {t("الرئيسية", "Main")}
+            {t("groupMain")}
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="gap-0.5">
@@ -264,7 +269,7 @@ function AppSidebar() {
         {groups.business.length > 0 && (
           <SidebarGroup>
             <SidebarGroupLabel>
-              {t("الإدارة", "Management")}
+              {t("groupManagement")}
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu className="gap-0.5">
@@ -278,7 +283,7 @@ function AppSidebar() {
         {groups.tools.length > 0 && (
           <SidebarGroup>
             <SidebarGroupLabel>
-              {t("الأدوات", "Tools")}
+              {t("groupTools")}
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu className="gap-0.5">
@@ -292,7 +297,7 @@ function AppSidebar() {
         {groups.system.length > 0 && (
           <SidebarGroup>
             <SidebarGroupLabel>
-              {t("النظام", "System")}
+              {t("groupSystem")}
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu className="gap-0.5">

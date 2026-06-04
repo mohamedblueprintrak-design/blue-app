@@ -150,7 +150,7 @@ enum UtilityConnectionStatus {
 
 model User {
   id                  String    @id @default(cuid())
-  email               String    @unique
+  email               String
   password            String    @default("") // Auth service always hashes passwords before saving; empty default prevents accidental login
   name                String    @default("")
   phone               String    @default("")
@@ -179,8 +179,8 @@ model User {
   failedLoginAttempts Int       @default(0)
   lockedUntil         DateTime?
   preferences         String?   @default("{}")
-  googleId            String?   @unique // Google OAuth sub ID — for social login
-  microsoftId         String?   @unique // Microsoft OAuth sub ID — for social login
+  googleId            String?   // Google OAuth sub ID — for social login
+  microsoftId         String?   // Microsoft OAuth sub ID — for social login
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 
@@ -228,6 +228,10 @@ model User {
   @@index([name])
   @@index([role])
   @@index([isActive])
+  @@index([email])
+  @@unique([email, organizationId], name: "user_email_org_unique")
+  @@unique([googleId, organizationId], name: "user_google_org_unique")
+  @@unique([microsoftId, organizationId], name: "user_microsoft_org_unique")
 }
 
 // ==================== REFRESH TOKENS ====================
@@ -275,7 +279,7 @@ model CompanySettings {
 
 model Project {
   id                    String    @id @default(cuid())
-  number                String
+  number                String    @unique
   name                  String    @default("")
   nameEn                String    @default("")
   clientId              String
@@ -366,7 +370,6 @@ model Project {
   @@index([managerId])
   @@index([organizationId, deletedAt])
   @@index([organizationId, status, deletedAt])
-  @@unique([number, organizationId], name: "project_number_org_unique")
 }
 
 // ==================== MUNICIPALITY CORRESPONDENCE ====================
@@ -704,16 +707,13 @@ model ContractAmendment {
   description String   @default("")
   date        DateTime
   status      String   @default("pending")
-  organizationId String? // SaaS multi-tenant organization
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  contract     Contract      @relation(fields: [contractId], references: [id], onDelete: Cascade)
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  contract Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
 
   @@index([contractId])
   @@index([status])
-  @@index([organizationId])
 }
 
 // ==================== INVOICES ====================
@@ -2293,7 +2293,6 @@ model Organization {
   budgets                    Budget[]
   proposals                  Proposal[]
   contracts                  Contract[]
-  contractAmendments         ContractAmendment[]
   bids                       Bid[]
   defects                    Defect[]
   risks                      Risk[]

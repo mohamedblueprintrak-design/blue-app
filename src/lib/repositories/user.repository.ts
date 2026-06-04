@@ -63,7 +63,7 @@ export class UserRepository extends BaseRepository<User> {
    * Find user by email address
    */
   async findByEmail(email: string): Promise<User | null> {
-    return this.delegate.findUnique({
+    return this.delegate.findFirst({
       where: { email: email.toLowerCase() },
     });
   }

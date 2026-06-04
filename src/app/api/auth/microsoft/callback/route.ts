@@ -176,7 +176,7 @@ export async function GET(request: NextRequest) {
       log.info('Microsoft OAuth: existing user logged in', { userId: user.id });
     } else {
       // 2. Try to find user by email (link existing account)
-      user = await db.user.findUnique({
+      user = await db.user.findFirst({
         where: { email: microsoftEmail },
       });
 
