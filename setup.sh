@@ -100,9 +100,9 @@ else
 fi
 
 if [ "$DB_CHOICE" = "1" ]; then
-    DATABASE_URL="\"postgresql://blueprint:blueprint_dev@localhost:5432/blueprint?schema=public\""
+    DATABASE_URL="postgresql://blueprint:blueprint_dev@localhost:5432/blueprint?schema=public"
 else
-    DATABASE_URL="\"file:./db/custom.db\""
+    DATABASE_URL="file:./db/custom.db"
 fi
 
 cat > .env << EOL

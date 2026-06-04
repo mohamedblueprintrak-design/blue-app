@@ -95,9 +95,9 @@ if "%MODE_CHOICE%"=="1" (
 )
 
 if "%DB_CHOICE%"=="1" (
-    set DATABASE_URL="postgresql://blueprint:blueprint_dev@localhost:5432/blueprint?schema=public"
+    set DATABASE_URL=postgresql://blueprint:blueprint_dev@localhost:5432/blueprint?schema=public
 ) else (
-    set DATABASE_URL="file:./db/custom.db"
+    set DATABASE_URL=file:./db/custom.db
 )
 
 (
