@@ -10,38 +10,9 @@ export interface RateLimitEntry {
   resetTime: number;
 }
 
-import { createClient } from 'redis';
-import type { RedisClientType } from 'redis';
-
-let redisClient: RedisClientType | null = null;
-let redisConnectionPromise: Promise<void> | null = null;
-
-async function getRedisClient(): Promise<RedisClientType | null> {
-  const redisUrl = process.env.REDIS_URL;
-  if (!redisUrl) return null;
-
-  if (redisClient) return redisClient;
-  if (redisConnectionPromise) {
-    await redisConnectionPromise;
-    return redisClient;
-  }
-
-  redisConnectionPromise = (async () => {
-    try {
-      redisClient = createClient({
-        url: redisUrl,
-        socket: { reconnectStrategy: false }
-      });
-      redisClient.on('error', () => {});
-      await redisClient.connect();
-    } catch {
-      redisClient = null;
-    }
-  })();
-
-  await redisConnectionPromise;
-  return redisClient;
-}
+// Removed standard 'redis' package import because it uses Node.js modules 
+// (net, tls, timers/promises) which are NOT supported in Next.js Edge Runtime (middleware).
+// Falling back to in-memory store for rate limiting in middleware.
 
 export const RATE_LIMIT_TIERS: Record<RateLimitTier, RateLimitConfig> = {
   strict:  { maxRequests: 5,   windowMs: 60_000 },  // 5 req/min  — login, register, password reset
@@ -271,49 +242,8 @@ export async function checkProxyRateLimit(ip: string, tier: RateLimitTier): Prom
   const key = `${tier}:${ip}`;
   const now = Date.now();
 
-  const client = await getRedisClient();
-
-  if (client) {
-    const windowStart = now - config.windowMs;
-    const luaScript = `
-      local key = KEYS[1]
-      local now = tonumber(ARGV[1])
-      local windowStart = tonumber(ARGV[2])
-      local maxRequests = tonumber(ARGV[3])
-      local windowMs = tonumber(ARGV[4])
-      
-      redis.call('ZREMRANGEBYSCORE', key, 0, windowStart)
-      local count = redis.call('ZCARD', key)
-      
-      if count >= maxRequests then
-        return {0, count, redis.call('ZSCORE', key, redis.call('ZRANGE', key, 0, 0)[1]) or now}
-      end
-      
-      redis.call('ZADD', key, now, now .. ':' .. ARGV[5])
-      redis.call('PEXPIRE', key, windowMs)
-      
-      return {1, count + 1, now + windowMs}
-    `;
-
-    try {
-      const result = await client.eval(luaScript, {
-        keys: [key],
-        arguments: [now.toString(), windowStart.toString(), config.maxRequests.toString(), config.windowMs.toString(), crypto.randomUUID()],
-      }) as [number, number, number];
-
-      const [allowed, count, resetTime] = result;
-
-      return {
-        allowed: allowed === 1,
-        tier,
-        remaining: Math.max(0, config.maxRequests - count),
-        resetTime,
-        retryAfter: allowed === 0 ? Math.ceil((resetTime - now) / 1000) : undefined,
-      };
-    } catch (e) {
-      // fallback to memory if eval fails
-    }
-  }
+  // Redis client removed for Edge Runtime compatibility
+  // In-memory fallback used exclusively for edge rate-limiting
 
   // Memory Fallback
   cleanupRateLimitStore();
