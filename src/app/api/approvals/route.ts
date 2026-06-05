@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { validateBody, approvalCreateSchema } from '@/lib/api-validation';
-import { requireVerifiedPermission, orgFilter} from '@/app/api/utils/auth';
+import { requireVerifiedPermission, orgFilter, orgCreate} from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
   try {
     const result = await requireVerifiedPermission(request, Permission.APPROVAL_CREATE);
     if ('error' in result) return result.error;
-    const _ctx = result.user;
+    const ctx = result.user;
 
     const body = await validateBody(request, approvalCreateSchema);
     if (body instanceof NextResponse) return body;
@@ -88,6 +88,7 @@ export async function POST(request: NextRequest) {
         step: step || 1,
         totalSteps: totalSteps || 1,
         amount: amount || 0,
+        ...orgCreate(ctx),
       },
     });
 

@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 import { log } from '@/lib/logger';
-import { requireVerifiedPermission, orgCheck } from '@/app/api/utils/auth';
+import { requireVerifiedPermission, orgCheck, orgCreate } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { forbiddenResponse } from '@/app/api/utils/response';
 import { validateIdParam } from '@/lib/api-validation';
@@ -86,6 +86,7 @@ export async function POST(
             weight: parsedWeight,
             notes: notes || "",
             evaluatedBy: user.name || user.userId,
+            ...orgCreate(user),
           },
         });
       }

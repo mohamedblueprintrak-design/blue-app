@@ -34,7 +34,7 @@ export async function POST(
     const { initWorkflow, seedDefaultWorkflowTemplates } = await import('@/lib/workflow-engine');
 
     // Ensure templates exist
-    await seedDefaultWorkflowTemplates();
+    await seedDefaultWorkflowTemplates(project.organizationId);
 
     // Init workflow
     const workflow = await initWorkflow(id);

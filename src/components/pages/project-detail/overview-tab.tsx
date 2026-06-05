@@ -439,9 +439,7 @@ export default function OverviewTab({ project, language }: { project: ProjectDat
                     <a href={`tel:${project.client.phone}`} className="p-1 rounded-md hover:bg-teal-50 dark:hover:bg-teal-900/20 transition-colors" title={t("اتصال", "Call")}>
                       <Phone className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" />
                     </a>
-                    <a href={`https://wa.me/${project.client?.phone?.replace(/[^0-9]/g, "")}`} target="_blank" rel="noopener noreferrer" className="p-1 rounded-md hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors" title="WhatsApp">
-                      <MessageCircle className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-                    </a>
+
                     <span className="font-medium text-slate-900 dark:text-white text-xs" dir="ltr">{project.client.phone}</span>
                   </>
                 )}
@@ -502,9 +500,7 @@ export default function OverviewTab({ project, language }: { project: ProjectDat
                         <a href={`tel:${project.contractor.phone}`} className="p-1 rounded-md hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors">
                           <Phone className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
                         </a>
-                        <a href={`https://wa.me/${project.contractor?.phone?.replace(/[^0-9]/g, "")}`} target="_blank" rel="noopener noreferrer" className="p-1 rounded-md hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors">
-                          <MessageCircle className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-                        </a>
+
                         <span className="font-medium text-slate-900 dark:text-white text-xs" dir="ltr">{project.contractor.phone}</span>
                       </>
                     )}

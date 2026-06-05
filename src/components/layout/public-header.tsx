@@ -20,13 +20,15 @@ const NAV_LINKS = [
 export default function PublicHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { lang: language } = useLanguage();
-  const [languageState, setLanguageState] = useState<"ar" | "en">(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem("blueprint-lang");
-      if (saved === "ar" || saved === "en") return saved;
+  const [languageState, setLanguageState] = useState<"ar" | "en">(language);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("blueprint-lang");
+    if (saved === "ar" || saved === "en") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setLanguageState(saved);
     }
-    return language;
-  });
+  }, []);
 
   const [scrolled, setScrolled] = useState(false);
   const currentLang = languageState;

@@ -2,7 +2,7 @@ import { db } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 import { log } from '@/lib/logger';
 import { Permission } from '@/lib/auth/types';
-import { orgFilter, requireVerifiedPermission } from '../utils/auth';
+import { orgFilter, requireVerifiedPermission, orgCreate } from '../utils/auth';
 
 export async function GET(request: NextRequest) {
   const rbac = await requireVerifiedPermission(request, Permission.CLIENT_READ);
@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const rbac = await requireVerifiedPermission(request, Permission.CLIENT_CREATE);
   if ('error' in rbac) return rbac.error;
-  const _auth = rbac.user;
+  const auth = rbac.user;
 
   try {
     const body = await request.json();
@@ -55,6 +55,7 @@ export async function POST(request: NextRequest) {
         referredEmail: referredEmail || "",
         projectId: projectId || null,
         notes: notes || "",
+        ...orgCreate(auth),
       },
       include: {
         referrer: { select: { id: true, name: true, email: true } },

@@ -369,31 +369,6 @@ export default function InvoicesPage({ language, projectId }: InvoicesPageProps)
     });
   };
 
-  const handleSendWhatsApp = (inv: Invoice) => {
-    fetch("/api/whatsapp/send", {
-      method: "POST",
-      headers: getMutationHeaders(),
-      body: JSON.stringify({
-        type: "invoice",
-        to: inv.client?.phone || "+971501234567", // Fallback for demo
-        invoice: {
-          invoiceNumber: inv.number,
-          clientName: inv.client.name,
-          amount: inv.total,
-          currency: "AED",
-          dueDate: inv.dueDate.split("T")[0],
-          paymentUrl: `https://blueprint.ae/portal/invoices/${inv.id}`
-        }
-      })
-    })
-    .then((res) => {
-      if (!res.ok) throw new Error("Failed");
-      toast.showSuccess(ar ? "تم إرسال الفاتورة عبر واتساب" : "Invoice sent via WhatsApp");
-    })
-    .catch(() => {
-      toast.showError(ar ? "فشل إرسال الفاتورة عبر واتساب" : "Failed to send via WhatsApp");
-    });
-  };
 
   const handleFormClose = () => {
     setShowDialog(false);
@@ -485,7 +460,6 @@ export default function InvoicesPage({ language, projectId }: InvoicesPageProps)
           onEdit={openEdit}
           onDelete={handleDelete}
           onRequestApproval={handleRequestApproval}
-          onSendWhatsApp={handleSendWhatsApp}
           PAGE_SIZE={PAGE_SIZE}
           selectedIds={selectedIds}
           setSelectedIds={setSelectedIds}

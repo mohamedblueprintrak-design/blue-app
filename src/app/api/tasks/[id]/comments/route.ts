@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 import { log } from '@/lib/logger';
-import { requireVerifiedPermission } from '@/app/api/utils/auth';
+import { requireVerifiedPermission, orgCreate } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { forbiddenResponse } from '@/app/api/utils/response';
 import { validateIdParam, validateRequest, commentCreateSchema } from '@/lib/api-validation';
@@ -99,6 +99,7 @@ export async function POST(
         content: content.trim(),
         taskId: id,
         userId: user.userId,
+        ...orgCreate(user),
       },
       include: {
         user: {
@@ -141,6 +142,7 @@ export async function POST(
               isRead: false,
               relatedEntityType: "task",
               relatedEntityId: id,
+              ...orgCreate(user),
             },
           });
         }

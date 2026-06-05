@@ -212,7 +212,7 @@ export function AddInteractionDialog({ open, onOpenChange, newInteraction, setNe
               <Select value={newInteraction.type} onValueChange={v => setNewInteraction(p => ({ ...p, type: v }))}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {(['meeting', 'call', 'email', 'whatsapp'] as const).map(t => (
+                  {(['meeting', 'call', 'email'] as const).map(t => (
                     <SelectItem key={t} value={t}>{getInteractionTypeLabel(t)}</SelectItem>
                   ))}
                 </SelectContent>

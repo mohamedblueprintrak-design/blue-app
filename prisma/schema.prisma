@@ -160,7 +160,7 @@ model User {
   position            String    @default("")
   isActive            Boolean   @default(true)
   lastLogin           DateTime?
-  organizationId      String? // SaaS multi-tenant organization
+  organizationId      String // SaaS multi-tenant organization
   deletedAt           DateTime? // Soft delete
   // Email verification
   emailVerified       DateTime?
@@ -184,7 +184,7 @@ model User {
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 
-  organization           Organization?         @relation(fields: [organizationId], references: [id])
+  organization           Organization          @relation(fields: [organizationId], references: [id])
   projects               ProjectAssignment[]
   tasks                  Task[]
   assignedDefects        Defect[]
@@ -275,11 +275,11 @@ model CompanySettings {
   workingDays     String   @default("sat,sun,mon,tue,wed,thu") // comma-separated UAE work week (Saturday-Thursday)
   workingHours    String   @default("08:00-17:00")
   exchangeRates   String? // JSON string of cached exchange rates
-  organizationId  String? // SaaS multi-tenant organization
+  organizationId  String // SaaS multi-tenant organization
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
 
   @@index([organizationId])
 }
@@ -316,7 +316,7 @@ model Project {
   municipalityChecklist String    @default("") // JSON: [{id,label,checked,stage}]
   managerId             String?
   createdById           String
-  organizationId        String? // SaaS multi-tenant organization
+  organizationId        String // SaaS multi-tenant organization
   deletedAt             DateTime? // Soft delete
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
@@ -325,7 +325,7 @@ model Project {
   contractor                 Contractor?                  @relation("ProjectContractor", fields: [contractorId], references: [id])
   createdBy                  User                         @relation("CreatedProjects", fields: [createdById], references: [id])
   manager                    User?                        @relation("ProjectManager", fields: [managerId], references: [id])
-  organization               Organization?                @relation(fields: [organizationId], references: [id])
+  organization               Organization                 @relation(fields: [organizationId], references: [id])
   assignments                ProjectAssignment[]
   tasks                      Task[]
   milestones                 Milestone[]
@@ -399,12 +399,12 @@ model MunicipalityCorrespondence {
   status             String    @default("PENDING") // PENDING, UNDER_REVIEW, APPROVED, REJECTED, AMENDMENT_REQUIRED
   notes              String    @default("")
   responseNotes      String    @default("")
-  organizationId     String? // SaaS multi-tenant organization
+  organizationId     String // SaaS multi-tenant organization
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
 
-  project      Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  project      Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id])
   deletedAt    DateTime? // Soft delete
 
   @@index([projectId])
@@ -414,16 +414,16 @@ model MunicipalityCorrespondence {
 }
 
 model ProjectComment {
-  id             String        @id @default(cuid())
+  id             String       @id @default(cuid())
   content        String
   projectId      String
-  project        Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  project        Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
   userId         String
-  user           User          @relation(fields: [userId], references: [id])
-  organizationId String?
-  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  user           User         @relation(fields: [userId], references: [id])
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
   deletedAt      DateTime? // Soft delete
 
   @@index([userId])
@@ -433,14 +433,14 @@ model ProjectComment {
 }
 
 model ProjectAssignment {
-  id             String        @id @default(cuid())
+  id             String       @id @default(cuid())
   projectId      String
   userId         String
-  role           String        @default("team_member")
-  organizationId String?
-  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  role           String       @default("team_member")
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
 
   project   Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
   user      User      @relation(fields: [userId], references: [id])
@@ -462,12 +462,12 @@ model ProjectStage {
   status         String   @default("NOT_STARTED") // NOT_STARTED, IN_PROGRESS, SUBMITTED, APPROVED, REJECTED
   engineerId     String?
   notes          String   @default("")
-  organizationId String? // SaaS multi-tenant organization
+  organizationId String // SaaS multi-tenant organization
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  project      Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  project      Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id])
 
   @@index([projectId, department])
   @@index([status])
@@ -481,12 +481,12 @@ model MunicipalRejection {
   count             Int       @default(0)
   notes             String    @default("")
   lastRejectionDate DateTime?
-  organizationId    String? // SaaS multi-tenant organization
+  organizationId    String // SaaS multi-tenant organization
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 
-  project      Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  project      Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id])
 
   @@unique([projectId, department])
   @@index([organizationId])
@@ -503,12 +503,12 @@ model GovApproval {
   approvalDate   DateTime?
   rejectionCount Int                      @default(0)
   notes          String                   @default("")
-  organizationId String? // SaaS multi-tenant organization
+  organizationId String // SaaS multi-tenant organization
   createdAt      DateTime                 @default(now())
   updatedAt      DateTime                 @updatedAt
 
-  project      Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  project      Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id])
 
   @@unique([projectId, authority])
   @@index([status])
@@ -554,7 +554,7 @@ model Client {
   // Credit & Status
   creditUsed     Decimal   @default(0)
   isActive       Boolean   @default(true)
-  organizationId String? // SaaS multi-tenant organization
+  organizationId String // SaaS multi-tenant organization
   createdById    String?
   deletedAt      DateTime? // Soft delete
   createdAt      DateTime  @default(now())
@@ -562,7 +562,7 @@ model Client {
 
   projects            Project[]
   invoices            Invoice[]
-  organization        Organization?        @relation(fields: [organizationId], references: [id])
+  organization        Organization         @relation(fields: [organizationId], references: [id])
   contracts           Contract[]
   proposals           Proposal[]
   interactions        ClientInteraction[]
@@ -591,13 +591,13 @@ model ClientInteraction {
   subject        String   @default("")
   description    String   @default("")
   outcome        String   @default("")
-  organizationId String? // SaaS multi-tenant organization
+  organizationId String // SaaS multi-tenant organization
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  project      Project       @relation(fields: [projectId], references: [id])
-  client       Client        @relation(fields: [clientId], references: [id])
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  project      Project      @relation(fields: [projectId], references: [id])
+  client       Client       @relation(fields: [clientId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
 
   @@index([clientId])
   @@index([projectId])
@@ -632,7 +632,7 @@ model Task {
   // Milestones
   isMilestone    Boolean   @default(false)
   order          Int       @default(0)
-  organizationId String? // SaaS multi-tenant organization
+  organizationId String // SaaS multi-tenant organization
   createdById    String?
   deletedAt      DateTime? // Soft delete
   parentId       String?
@@ -643,7 +643,7 @@ model Task {
   assignee     User?         @relation(fields: [assigneeId], references: [id], onDelete: SetNull)
   subtasks     Task[]        @relation("TaskSubtask")
   parent       Task?         @relation("TaskSubtask", fields: [parentId], references: [id])
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  organization Organization  @relation(fields: [organizationId], references: [id])
   comments     TaskComment[]
 
   @@index([projectId])
@@ -662,15 +662,15 @@ model Task {
 // ==================== TASK COMMENTS ====================
 
 model TaskComment {
-  id             String        @id @default(cuid())
+  id             String       @id @default(cuid())
   content        String
   taskId         String
   userId         String
-  organizationId String?
-  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   deletedAt      DateTime? // Soft delete
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
 
   task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
   user User @relation(fields: [userId], references: [id])
@@ -697,14 +697,14 @@ model Contract {
   startDate      DateTime?
   deletedAt      DateTime? // Soft delete
   endDate        DateTime?
-  organizationId String?
+  organizationId String
   createdById    String?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
   client       Client              @relation(fields: [clientId], references: [id])
   project      Project             @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  organization Organization?       @relation(fields: [organizationId], references: [id])
+  organization Organization        @relation(fields: [organizationId], references: [id])
   amendments   ContractAmendment[]
   documents    Document[]
 
@@ -716,18 +716,20 @@ model Contract {
 }
 
 model ContractAmendment {
-  id          String   @id @default(cuid())
-  contractId  String
-  number      String   @default("")
-  description String   @default("")
-  date        DateTime
-  status      String   @default("pending")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id             String   @id @default(cuid())
+  contractId     String
+  organizationId String
+  number         String   @default("")
+  description    String   @default("")
+  date           DateTime
+  status         String   @default("pending")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   contract Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
 
   @@index([contractId])
+  @@index([organizationId])
   @@index([status])
 }
 
@@ -747,7 +749,7 @@ model Invoice {
   paidAmount     Decimal   @default(0)
   remaining      Decimal   @default(0)
   status         String    @default("draft") // draft, sent, partially_paid, paid, overdue, cancelled
-  organizationId String? // SaaS multi-tenant organization
+  organizationId String // SaaS multi-tenant organization
   createdById    String?
   deletedAt      DateTime? // Soft delete
   createdAt      DateTime  @default(now())
@@ -759,7 +761,7 @@ model Invoice {
   milestones        Milestone[]
   invoicePayments   InvoicePayment[]
   payments          Payment[]
-  organization      Organization?      @relation(fields: [organizationId], references: [id])
+  organization      Organization       @relation(fields: [organizationId], references: [id])
   whatsAppMessages  WhatsAppMessage[]
   recurringInvoices RecurringInvoice[]
 
@@ -822,7 +824,7 @@ model Payment {
   status          String   @default("pending") // pending, approved, completed, cancelled
   approvedById    String?
   description     String   @default("")
-  organizationId  String?
+  organizationId  String
   createdById     String?
   updatedById     String?
   createdAt       DateTime @default(now())
@@ -833,7 +835,7 @@ model Payment {
   creator         User?            @relation("PaymentCreator", fields: [createdById], references: [id])
   updater         User?            @relation("PaymentUpdater", fields: [updatedById], references: [id])
   project         Project?         @relation(fields: [projectId], references: [id])
-  organization    Organization?    @relation(fields: [organizationId], references: [id])
+  organization    Organization     @relation(fields: [organizationId], references: [id])
   invoicePayments InvoicePayment[]
 
   @@index([organizationId])
@@ -855,7 +857,7 @@ model Proposal {
   total          Decimal  @default(0)
   status         String   @default("draft") // draft, sent, accepted, rejected, expired
   notes          String   @default("")
-  organizationId String?
+  organizationId String
   createdById    String?
   updatedById    String?
   createdAt      DateTime @default(now())
@@ -865,7 +867,7 @@ model Proposal {
   project      Project?       @relation(fields: [projectId], references: [id])
   creator      User?          @relation("ProposalCreator", fields: [createdById], references: [id])
   updater      User?          @relation("ProposalUpdater", fields: [updatedById], references: [id])
-  organization Organization?  @relation(fields: [organizationId], references: [id])
+  organization Organization   @relation(fields: [organizationId], references: [id])
   items        ProposalItem[]
   deletedAt    DateTime? // Soft delete
 
@@ -921,14 +923,14 @@ model Contractor {
   iban               String    @default("")
   isActive           Boolean   @default(true)
   notes              String    @default("")
-  organizationId     String? // SaaS multi-tenant organization
+  organizationId     String // SaaS multi-tenant organization
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
 
   projects     Project[]              @relation("ProjectContractor")
   bids         Bid[]
   evaluations  ContractorEvaluation[]
-  organization Organization?          @relation(fields: [organizationId], references: [id])
+  organization Organization           @relation(fields: [organizationId], references: [id])
   deletedAt    DateTime? // Soft delete
 
   @@unique([crNumber, organizationId], name: "contractor_cr_org_unique")
@@ -950,13 +952,13 @@ model ContractorEvaluation {
   notes          String   @default("")
   evaluatedBy    String   @default("")
   bidId          String?
-  organizationId String? // SaaS multi-tenant organization
+  organizationId String // SaaS multi-tenant organization
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  contractor   Contractor    @relation(fields: [contractorId], references: [id], onDelete: Cascade)
-  bid          Bid?          @relation(fields: [bidId], references: [id])
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  contractor   Contractor   @relation(fields: [contractorId], references: [id], onDelete: Cascade)
+  bid          Bid?         @relation(fields: [bidId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
 
   @@index([projectId])
   @@index([bidId])
@@ -988,14 +990,14 @@ model Bid {
   contractFile      String    @default("")
   contractSignedAt  DateTime?
   isAwarded         Boolean   @default(false)
-  organizationId    String?
+  organizationId    String
   createdById       String?
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 
   project      Project                @relation(fields: [projectId], references: [id], onDelete: Cascade)
   contractor   Contractor?            @relation(fields: [contractorId], references: [id])
-  organization Organization?          @relation(fields: [organizationId], references: [id])
+  organization Organization           @relation(fields: [organizationId], references: [id])
   evaluations  ContractorEvaluation[]
   deletedAt    DateTime? // Soft delete
 
@@ -1019,18 +1021,18 @@ model Budget {
   committed      Decimal  @default(0)
   remaining      Decimal  @default(0)
   deviation      Decimal  @default(0)
-  organizationId String?
+  organizationId String
   createdById    String?
   updatedById    String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  project      Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  parent       Budget?       @relation("BudgetHierarchy", fields: [parentId], references: [id])
-  children     Budget[]      @relation("BudgetHierarchy")
-  creator      User?         @relation("BudgetCreator", fields: [createdById], references: [id])
-  updater      User?         @relation("BudgetUpdater", fields: [updatedById], references: [id])
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  project      Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  parent       Budget?      @relation("BudgetHierarchy", fields: [parentId], references: [id])
+  children     Budget[]     @relation("BudgetHierarchy")
+  creator      User?        @relation("BudgetCreator", fields: [createdById], references: [id])
+  updater      User?        @relation("BudgetUpdater", fields: [updatedById], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
   deletedAt    DateTime? // Soft delete
 
   @@index([organizationId])
@@ -1053,14 +1055,14 @@ model SiteVisit {
   photos          String    @default("") // JSON array of photo URLs
   status          String    @default("draft") // draft, submitted, approved
   notes           String    @default("")
-  organizationId  String?
+  organizationId  String
   createdById     String?
   deletedAt       DateTime? // Soft delete
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
-  project      Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  project      Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id])
 
   @@index([organizationId])
   @@index([projectId])
@@ -1079,14 +1081,14 @@ model Defect {
   resolutionNotes String    @default("")
   status          String    @default("open") // open, in_progress, resolved
   deletedAt       DateTime? // Soft delete
-  organizationId  String?
+  organizationId  String
   createdById     String?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
-  project      Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  assignee     User?         @relation(fields: [assigneeId], references: [id], onDelete: SetNull)
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  project      Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  assignee     User?        @relation(fields: [assigneeId], references: [id], onDelete: SetNull)
+  organization Organization @relation(fields: [organizationId], references: [id])
 
   @@index([projectId])
   @@index([organizationId])
@@ -1107,13 +1109,13 @@ model SiteDiary {
   equipment       String    @default("")
   materials       String    @default("")
   photos          String    @default("")
-  organizationId  String? // SaaS multi-tenant organization
+  organizationId  String // SaaS multi-tenant organization
   deletedAt       DateTime? // Soft delete
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
-  project      Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  project      Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id])
 
   @@index([projectId])
   @@index([date])
@@ -1135,14 +1137,14 @@ model RFI {
   dueDate        DateTime?
   response       String    @default("")
   status         String    @default("open") // open, replied, closed
-  organizationId String? // SaaS multi-tenant organization
+  organizationId String // SaaS multi-tenant organization
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
-  project      Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  from         User          @relation("RFIFrom", fields: [fromId], references: [id])
-  to           User          @relation("RFITo", fields: [toId], references: [id])
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  project      Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  from         User         @relation("RFIFrom", fields: [fromId], references: [id])
+  to           User         @relation("RFITo", fields: [toId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
   deletedAt    DateTime? // Soft delete
 
   @@index([projectId])
@@ -1165,13 +1167,13 @@ model Submittal {
   contractor     String    @default("")
   revisionNumber Int       @default(1)
   status         String    @default("under_review") // under_review, approved, rejected, resubmit
-  organizationId String? // SaaS multi-tenant organization
+  organizationId String // SaaS multi-tenant organization
   deletedAt      DateTime? // Soft delete
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
-  project      Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  project      Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id])
 
   @@index([projectId])
   @@index([status])
@@ -1190,12 +1192,12 @@ model ChangeOrder {
   timeImpact     String   @default("")
   description    String   @default("")
   status         String   @default("pending") // pending, approved, rejected
-  organizationId String? // SaaS multi-tenant organization
+  organizationId String // SaaS multi-tenant organization
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  project      Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  project      Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id])
   deletedAt    DateTime? // Soft delete
 
   @@index([projectId])
@@ -1218,14 +1220,14 @@ model Transmittal {
   toPhone        String    @default("")
   deliveryMethod String    @default("email") // email, manual, courier
   status         String    @default("sent")
-  organizationId String? // SaaS multi-tenant organization
+  organizationId String // SaaS multi-tenant organization
   deletedAt      DateTime? // Soft delete
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
   project      Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
   from         User              @relation("TransmittalFrom", fields: [fromId], references: [id])
-  organization Organization?     @relation(fields: [organizationId], references: [id])
+  organization Organization      @relation(fields: [organizationId], references: [id])
   items        TransmittalItem[]
 
   @@index([projectId])
@@ -1269,13 +1271,13 @@ model Risk {
   mitigationPlan String   @default("")
   strategy       String   @default("mitigate") // avoid, mitigate, transfer, accept
   status         String   @default("open")
-  organizationId String?
+  organizationId String
   createdById    String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  project      Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  project      Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id])
   actions      RiskAction[]
   deletedAt    DateTime? // Soft delete
 
@@ -1317,13 +1319,13 @@ model Meeting {
   location       String   @default("")
   type           String   @default("onsite") // onsite, online
   notes          String   @default("")
-  organizationId String?
+  organizationId String
   createdById    String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
   project      Project?          @relation(fields: [projectId], references: [id], onDelete: SetNull)
-  organization Organization?     @relation(fields: [organizationId], references: [id])
+  organization Organization      @relation(fields: [organizationId], references: [id])
   attendees    MeetingAttendee[]
   agenda       MeetingAgenda[]
   deletedAt    DateTime? // Soft delete
@@ -1375,12 +1377,12 @@ model BOQItem {
   totalPrice     Decimal  @default(0)
   total          Decimal  @default(0)
   category       String   @default("civil") // civil, structural, electrical, finishing
-  organizationId String? // SaaS multi-tenant organization
+  organizationId String // SaaS multi-tenant organization
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  project      Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  project      Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id])
   deletedAt    DateTime? // Soft delete
 
   @@index([projectId])
@@ -1402,12 +1404,12 @@ model SchedulePhase {
   status         String    @default("NOT_STARTED") // NOT_STARTED, IN_PROGRESS, COMPLETED
   startDate      DateTime?
   endDate        DateTime?
-  organizationId String?
+  organizationId String
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
-  project      Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  project      Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id])
   deletedAt    DateTime? // Soft delete
 
   @@index([projectId, section])
@@ -1426,12 +1428,12 @@ model Employee {
   salary           Decimal   @default(0)
   employmentStatus String    @default("active") // active, on_leave, terminated
   hireDate         DateTime?
-  organizationId   String? // SaaS multi-tenant organization
+  organizationId   String // SaaS multi-tenant organization
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 
-  user         User          @relation(fields: [userId], references: [id])
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  user         User         @relation(fields: [userId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
   attendance   Attendance[]
   timesheets   Timesheet[]
   deletedAt    DateTime? // Soft delete
@@ -1451,12 +1453,12 @@ model Attendance {
   status         String   @default("present") // present, absent, late, leave
   workHours      Decimal  @default(0)
   overtimeHours  Decimal  @default(0)
-  organizationId String? // SaaS multi-tenant organization
+  organizationId String // SaaS multi-tenant organization
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  employee     Employee      @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  employee     Employee     @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id])
   deletedAt    DateTime? // Soft delete
 
   @@index([employeeId, date])
@@ -1475,13 +1477,13 @@ model Leave {
   reason         String   @default("")
   status         String   @default("pending") // pending, approved, rejected
   approvedById   String?
-  organizationId String? // SaaS multi-tenant organization
+  organizationId String // SaaS multi-tenant organization
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  employee     User          @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-  approver     User?         @relation("LeaveApprover", fields: [approvedById], references: [id])
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  employee     User         @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  approver     User?        @relation("LeaveApprover", fields: [approvedById], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
   deletedAt    DateTime? // Soft delete
 
   @@index([employeeId])
@@ -1503,12 +1505,12 @@ model Supplier {
   rating         Int       @default(0)
   deletedAt      DateTime? // Soft delete
   creditLimit    Decimal   @default(0)
-  organizationId String? // SaaS multi-tenant organization
+  organizationId String // SaaS multi-tenant organization
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
   purchaseOrders PurchaseOrder[]
-  organization   Organization?   @relation(fields: [organizationId], references: [id])
+  organization   Organization    @relation(fields: [organizationId], references: [id])
 
   @@index([deletedAt])
   @@index([category])
@@ -1524,12 +1526,12 @@ model InventoryItem {
   price          Decimal  @default(0)
   location       String   @default("")
   minimumLevel   Float    @default(0)
-  organizationId String? // SaaS multi-tenant organization
+  organizationId String // SaaS multi-tenant organization
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  project      Project?      @relation(fields: [projectId], references: [id])
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  project      Project?     @relation(fields: [projectId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
   deletedAt    DateTime? // Soft delete
 
   @@index([projectId])
@@ -1544,14 +1546,14 @@ model PurchaseOrder {
   projectId      String?
   amount         Decimal  @default(0)
   status         String   @default("draft") // draft, submitted, approved, received, cancelled
-  organizationId String?
+  organizationId String
   createdById    String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
   supplier     Supplier            @relation(fields: [supplierId], references: [id])
   project      Project?            @relation(fields: [projectId], references: [id])
-  organization Organization?       @relation(fields: [organizationId], references: [id])
+  organization Organization        @relation(fields: [organizationId], references: [id])
   items        PurchaseOrderItem[]
   deletedAt    DateTime? // Soft delete
 
@@ -1587,11 +1589,11 @@ model Equipment {
   dailyRate       Decimal   @default(0)
   lastMaintenance DateTime?
   nextMaintenance DateTime?
-  organizationId  String? // SaaS multi-tenant organization
+  organizationId  String // SaaS multi-tenant organization
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
   deletedAt    DateTime? // Soft delete
 
   @@index([status])
@@ -1613,14 +1615,14 @@ model Document {
   filePath       String    @default("")
   uploadedById   String?
   deletedAt      DateTime? // Soft delete
-  organizationId String?
+  organizationId String
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
   project            Project?            @relation(fields: [projectId], references: [id])
   contract           Contract?           @relation(fields: [contractId], references: [id])
   uploader           User?               @relation("DocumentUploader", fields: [uploadedById], references: [id])
-  organization       Organization?       @relation(fields: [organizationId], references: [id])
+  organization       Organization        @relation(fields: [organizationId], references: [id])
   documentSignatures DocumentSignature[]
   documentVersions   DocumentVersion[]
 
@@ -1643,13 +1645,13 @@ model KnowledgeArticle {
   views          Int      @default(0)
   authorId       String?
   projectId      String?
-  organizationId String? // SaaS multi-tenant organization
+  organizationId String // SaaS multi-tenant organization
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  author       User?         @relation(fields: [authorId], references: [id])
-  project      Project?      @relation(fields: [projectId], references: [id])
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  author       User?        @relation(fields: [authorId], references: [id])
+  project      Project?     @relation(fields: [projectId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
   deletedAt    DateTime? // Soft delete
 
   @@index([projectId])
@@ -1674,13 +1676,13 @@ model Notification {
   relatedEntityType String   @default("")
   relatedEntityId   String   @default("")
   link              String   @default("")
-  organizationId    String? // SaaS multi-tenant organization
+  organizationId    String // SaaS multi-tenant organization
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
-  user         User          @relation(fields: [userId], references: [id])
-  project      Project?      @relation(fields: [projectId], references: [id])
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  user         User         @relation(fields: [userId], references: [id])
+  project      Project?     @relation(fields: [projectId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
 
   @@index([userId])
   @@index([isRead])
@@ -1702,13 +1704,13 @@ model ActivityLog {
   oldValues      String?
   newValues      String?
   metadata       String? // JSON string for extra details
-  organizationId String? // SaaS multi-tenant organization
+  organizationId String // SaaS multi-tenant organization
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  user         User          @relation(fields: [userId], references: [id])
-  project      Project?      @relation(fields: [projectId], references: [id])
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  user         User         @relation(fields: [userId], references: [id])
+  project      Project?     @relation(fields: [projectId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
 
   @@index([userId, createdAt])
   @@index([createdAt])
@@ -1733,12 +1735,12 @@ model Approval {
   totalSteps     Int      @default(1) // total steps
   amount         Decimal  @default(0) // relevant financial amount if any
   notes          String   @default("")
-  organizationId String? // SaaS multi-tenant organization
+  organizationId String // SaaS multi-tenant organization
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  project      Project?      @relation(fields: [projectId], references: [id])
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  project      Project?     @relation(fields: [projectId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
 
   @@index([projectId])
   @@index([status])
@@ -1764,14 +1766,14 @@ model BuildingInspection {
   recommendations    String    @default("")
   repairEstimate     Decimal   @default(0)
   status             String    @default("draft")
-  organizationId     String?
+  organizationId     String
   createdById        String?
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
 
   client       Client?             @relation(fields: [clientId], references: [id])
   project      Project?            @relation(fields: [projectId], references: [id])
-  organization Organization?       @relation(fields: [organizationId], references: [id])
+  organization Organization        @relation(fields: [organizationId], references: [id])
   findings     InspectionFinding[]
   photos       InspectionPhoto[]
   deletedAt    DateTime? // Soft delete
@@ -1831,11 +1833,11 @@ model QuoteRequest {
   location       String   @default("")
   message        String   @default("")
   status         String   @default("new") // new, contacted, quoted, converted, lost
-  organizationId String? // SaaS multi-tenant organization
+  organizationId String // SaaS multi-tenant organization
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
 
   @@index([status])
   @@index([createdAt])
@@ -1858,12 +1860,12 @@ model DesignPhase {
   revisionCount  Int       @default(0)
   notes          String    @default("")
   clientApproval Boolean   @default(false)
-  organizationId String? // SaaS multi-tenant organization
+  organizationId String // SaaS multi-tenant organization
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
   project      Project         @relation(fields: [projectId], references: [id])
-  organization Organization?   @relation(fields: [organizationId], references: [id])
+  organization Organization    @relation(fields: [organizationId], references: [id])
   drawings     DesignDrawing[]
   deletedAt    DateTime? // Soft delete
 
@@ -1944,14 +1946,14 @@ model Tender {
   source             String    @default("") // website, referral, direct
   sourceUrl          String    @default("")
   assignedTo         String?
-  organizationId     String?
+  organizationId     String
   createdById        String?
   deletedAt          DateTime? // Soft delete
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
 
   assignedUser User?            @relation("TenderAssignee", fields: [assignedTo], references: [id])
-  organization Organization?    @relation(fields: [organizationId], references: [id])
+  organization Organization     @relation(fields: [organizationId], references: [id])
   documents    TenderDocument[]
 
   @@index([organizationId])
@@ -1991,13 +1993,13 @@ model SupervisionChecklist {
   notes           String    @default("")
   status          String    @default("draft")
   approvedById    String?
-  organizationId  String? // SaaS multi-tenant organization
+  organizationId  String // SaaS multi-tenant organization
   deletedAt       DateTime? // Soft delete
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
   project      Project         @relation(fields: [projectId], references: [id])
-  organization Organization?   @relation(fields: [organizationId], references: [id])
+  organization Organization    @relation(fields: [organizationId], references: [id])
   items        ChecklistItem[]
   violations   Violation[]
 
@@ -2039,14 +2041,14 @@ model Violation {
   photoBefore     String    @default("")
   photoAfter      String    @default("")
   resolutionNotes String    @default("")
-  organizationId  String? // SaaS multi-tenant organization
+  organizationId  String // SaaS multi-tenant organization
   deletedAt       DateTime? // Soft delete
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
   checklist    SupervisionChecklist @relation(fields: [checklistId], references: [id], onDelete: Cascade)
   project      Project              @relation(fields: [projectId], references: [id])
-  organization Organization?        @relation(fields: [organizationId], references: [id])
+  organization Organization         @relation(fields: [organizationId], references: [id])
 
   @@index([projectId])
   @@index([status])
@@ -2072,14 +2074,14 @@ model Commission {
   description    String    @default("")
   approvedById   String?
   paidDate       DateTime?
-  organizationId String? // SaaS multi-tenant organization
+  organizationId String // SaaS multi-tenant organization
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
-  user         User          @relation("CommissionUser", fields: [userId], references: [id])
-  project      Project?      @relation(fields: [projectId], references: [id])
-  approver     User?         @relation("CommissionApprover", fields: [approvedById], references: [id])
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  user         User         @relation("CommissionUser", fields: [userId], references: [id])
+  project      Project?     @relation(fields: [projectId], references: [id])
+  approver     User?        @relation("CommissionApprover", fields: [approvedById], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
   deletedAt    DateTime? // Soft delete
 
   @@index([userId])
@@ -2101,13 +2103,13 @@ model Referral {
   discountGiven  Decimal  @default(0)
   rewardAmount   Decimal  @default(0)
   notes          String   @default("")
-  organizationId String? // SaaS multi-tenant organization
+  organizationId String // SaaS multi-tenant organization
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  referrer     User          @relation("ReferralReferrer", fields: [referrerId], references: [id])
-  project      Project?      @relation(fields: [projectId], references: [id])
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  referrer     User         @relation("ReferralReferrer", fields: [referrerId], references: [id])
+  project      Project?     @relation(fields: [projectId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
   deletedAt    DateTime? // Soft delete
 
   @@index([referrerId])
@@ -2129,11 +2131,11 @@ model MarketingCampaign {
   endDate        DateTime?
   status         String    @default("active")
   notes          String    @default("")
-  organizationId String? // SaaS multi-tenant organization
+  organizationId String // SaaS multi-tenant organization
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
   deletedAt    DateTime? // Soft delete
 
   @@index([status])
@@ -2150,12 +2152,12 @@ model WorkflowTemplate {
   projectType    String    @default("")
   description    String    @default("")
   isActive       Boolean   @default(true)
-  organizationId String? // SaaS multi-tenant organization
+  organizationId String // SaaS multi-tenant organization
   deletedAt      DateTime? // Soft delete
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
-  organization Organization?           @relation(fields: [organizationId], references: [id])
+  organization Organization            @relation(fields: [organizationId], references: [id])
   stages       WorkflowTemplateStage[]
   projects     ProjectWorkflow[]
 
@@ -2202,18 +2204,18 @@ model WorkflowTemplateStep {
 }
 
 model ProjectWorkflow {
-  id             String        @id @default(cuid())
-  projectId      String        @unique
+  id             String       @id @default(cuid())
+  projectId      String       @unique
   templateId     String?
   currentStageId String?
-  status         String        @default("active")
-  progress       Float         @default(0)
-  startedAt      DateTime      @default(now())
+  status         String       @default("active")
+  progress       Float        @default(0)
+  startedAt      DateTime     @default(now())
   completedAt    DateTime?
-  organizationId String?
-  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
 
   project  Project           @relation(fields: [projectId], references: [id])
   template WorkflowTemplate? @relation(fields: [templateId], references: [id])
@@ -2528,8 +2530,8 @@ model SLABreach {
   notifiedUsers   String? // JSON array of user IDs notified
   resolvedAt      DateTime? // When breach was resolved
   resolutionNotes String?
-  organizationId  String?
-  organization    Organization?   @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  organizationId  String
+  organization    Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
 
@@ -2542,23 +2544,23 @@ model SLABreach {
 
 // User Notification Settings
 model NotificationSettings {
-  id                 String        @id @default(cuid())
-  userId             String        @unique
-  emailNotifications Boolean       @default(true)
-  pushNotifications  Boolean       @default(true)
-  taskAssigned       Boolean       @default(true)
-  taskDueSoon        Boolean       @default(true)
-  taskOverdue        Boolean       @default(true)
-  invoiceOverdue     Boolean       @default(true)
-  projectUpdates     Boolean       @default(true)
-  slaWarnings        Boolean       @default(true)
+  id                 String       @id @default(cuid())
+  userId             String       @unique
+  emailNotifications Boolean      @default(true)
+  pushNotifications  Boolean      @default(true)
+  taskAssigned       Boolean      @default(true)
+  taskDueSoon        Boolean      @default(true)
+  taskOverdue        Boolean      @default(true)
+  invoiceOverdue     Boolean      @default(true)
+  projectUpdates     Boolean      @default(true)
+  slaWarnings        Boolean      @default(true)
   channels           String? // JSON string
   categories         String? // JSON string
   quietHours         String? // JSON string
-  organizationId     String?
-  organization       Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
-  createdAt          DateTime      @default(now())
-  updatedAt          DateTime      @updatedAt
+  organizationId     String
+  organization       Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -2570,16 +2572,16 @@ model NotificationSettings {
 
 /// AI Chat Conversation
 model AIChatConversation {
-  id             String        @id @default(cuid())
+  id             String       @id @default(cuid())
   userId         String
-  title          String        @default("")
+  title          String       @default("")
   projectId      String?
-  lastMessageAt  DateTime      @default(now())
-  messageCount   Int           @default(0)
-  organizationId String?
-  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  lastMessageAt  DateTime     @default(now())
+  messageCount   Int          @default(0)
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
 
   user     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   messages AIChatMessage[]
@@ -2592,15 +2594,15 @@ model AIChatConversation {
 
 /// AI Chat Message
 model AIChatMessage {
-  id             String        @id @default(cuid())
+  id             String       @id @default(cuid())
   conversationId String
   role           String // 'user' | 'assistant' | 'system'
   content        String
-  tokens         Int           @default(0)
-  model          String        @default("")
-  organizationId String?
-  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
-  createdAt      DateTime      @default(now())
+  tokens         Int          @default(0)
+  model          String       @default("")
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
 
   conversation AIChatConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 
@@ -2623,10 +2625,10 @@ model SecurityAuditLog {
   details        String? // JSON string for additional details
   status         String   @default("success") // success, failed, blocked
   errorMessage   String?
-  organizationId String? // SaaS multi-tenant organization
+  organizationId String // SaaS multi-tenant organization
   createdAt      DateTime @default(now())
 
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
 
   @@index([userId])
   @@index([action])
@@ -2648,11 +2650,11 @@ model Automation {
   status         String    @default("inactive") // active, inactive, paused
   lastRunAt      DateTime?
   runCount       Int       @default(0)
-  organizationId String?
+  organizationId String
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
   deletedAt    DateTime? // Soft delete
 
   @@index([status])
@@ -2665,7 +2667,7 @@ model Automation {
 /// Retainage tracking for UAE construction projects (5-10% held until completion)
 model Retainage {
   id             String    @id @default(cuid())
-  organizationId String? // SaaS multi-tenant organization
+  organizationId String // SaaS multi-tenant organization
   projectId      String
   invoiceId      String? // Link to invoice that generated this retainage
   percentage     Decimal   @default(0) // Retainage percentage (e.g. 5, 10)
@@ -2677,8 +2679,8 @@ model Retainage {
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
-  project      Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  project      Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id])
 
   @@index([projectId])
   @@index([status])
@@ -2690,7 +2692,7 @@ model Retainage {
 /// Bank guarantees for UAE construction (Performance, Advance Payment, Retention, Bid Bond)
 model GuaranteeLetter {
   id              String    @id @default(cuid())
-  organizationId  String? // SaaS multi-tenant organization
+  organizationId  String // SaaS multi-tenant organization
   projectId       String
   type            String    @default("PERFORMANCE") // PERFORMANCE, ADVANCE_PAYMENT, RETENTION, BID_BOND
   guaranteeNumber String    @default("") // Bank guarantee reference number
@@ -2705,8 +2707,8 @@ model GuaranteeLetter {
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
-  project      Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  project      Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id])
   deletedAt    DateTime? // Soft delete
 
   @@index([projectId])
@@ -2722,7 +2724,7 @@ model GuaranteeLetter {
 /// Monthly progress claims for UAE construction (Interim Payment Applications)
 model ProgressClaim {
   id                String    @id @default(cuid())
-  organizationId    String? // SaaS multi-tenant organization
+  organizationId    String // SaaS multi-tenant organization
   projectId         String
   claimNumber       String    @default("") // e.g. "IPC-001"
   period            String    @default("") // e.g. "March 2025"
@@ -2739,8 +2741,8 @@ model ProgressClaim {
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 
-  project      Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  project      Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id])
   deletedAt    DateTime? // Soft delete
 
   @@index([projectId])
@@ -2765,7 +2767,7 @@ model Timesheet {
   approvedById   String?
   approvedAt     DateTime?
   submittedAt    DateTime?
-  organizationId String?
+  organizationId String
   deletedAt      DateTime? // Soft delete
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
@@ -2773,7 +2775,7 @@ model Timesheet {
   employee     Employee         @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   project      Project?         @relation(fields: [projectId], references: [id], onDelete: SetNull)
   approvedBy   User?            @relation("TimesheetApprover", fields: [approvedById], references: [id], onDelete: SetNull)
-  organization Organization?    @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  organization Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   entries      TimesheetEntry[]
 
   @@unique([employeeId, weekStart])
@@ -2856,13 +2858,13 @@ model DocumentSignature {
   signatureImage String // Base64 or URL
   ipAddress      String?
   userAgent      String?
-  organizationId String?
+  organizationId String
   signedAt       DateTime @default(now())
   createdAt      DateTime @default(now())
 
-  document     Document      @relation(fields: [documentId], references: [id], onDelete: Cascade)
-  user         User          @relation(fields: [userId], references: [id])
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  document     Document     @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
 
   @@index([documentId])
   @@index([userId])
@@ -2881,13 +2883,13 @@ model DocumentVersion {
   mimeType       String   @default("")
   changeSummary  String?
   uploadedById   String
-  organizationId String?
+  organizationId String
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  document     Document      @relation(fields: [documentId], references: [id], onDelete: Cascade)
-  uploadedBy   User          @relation(fields: [uploadedById], references: [id])
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  document     Document     @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  uploadedBy   User         @relation(fields: [uploadedById], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
 
   @@index([documentId])
   @@index([uploadedById])
@@ -2911,12 +2913,12 @@ model ProjectTemplate {
   isActive            Boolean  @default(true)
   usageCount          Int      @default(0)
   createdById         String
-  organizationId      String?
+  organizationId      String
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 
-  createdBy    User          @relation(fields: [createdById], references: [id])
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  createdBy    User         @relation(fields: [createdById], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
 
   @@index([createdById])
   @@index([organizationId])
@@ -2943,15 +2945,15 @@ model RecurringInvoice {
   generationCount    Int       @default(0)
   lastInvoiceId      String?
   createdById        String
-  organizationId     String?
+  organizationId     String
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
 
-  client       Client        @relation(fields: [clientId], references: [id])
-  project      Project?      @relation(fields: [projectId], references: [id])
-  lastInvoice  Invoice?      @relation(fields: [lastInvoiceId], references: [id])
-  createdBy    User          @relation(fields: [createdById], references: [id])
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  client       Client       @relation(fields: [clientId], references: [id])
+  project      Project?     @relation(fields: [projectId], references: [id])
+  lastInvoice  Invoice?     @relation(fields: [lastInvoiceId], references: [id])
+  createdBy    User         @relation(fields: [createdById], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
 
   @@index([clientId])
   @@index([projectId])
@@ -2974,12 +2976,12 @@ model ReportTemplate {
   chartType      String   @default("table") // bar, line, pie, table
   isPublic       Boolean  @default(false)
   createdById    String
-  organizationId String?
+  organizationId String
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  createdBy    User          @relation(fields: [createdById], references: [id])
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  createdBy    User         @relation(fields: [createdById], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
 
   @@index([createdById])
   @@index([organizationId])
@@ -2997,13 +2999,13 @@ model WebhookIntegration {
   isActive       Boolean   @default(true)
   failureCount   Int       @default(0)
   lastTriggered  DateTime?
-  organizationId String?
+  organizationId String
   createdById    String
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
-  createdBy    User          @relation(fields: [createdById], references: [id])
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  createdBy    User         @relation(fields: [createdById], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
 
   @@index([organizationId])
   @@index([createdById])
@@ -3025,7 +3027,7 @@ model WhatsAppMessage {
   templateParams String?
   relatedType    String?
   relatedId      String?
-  organizationId String?
+  organizationId String
   metadata       String? // JSON extra info
   error          String? // JSON error info
   sentAt         DateTime?
@@ -3034,9 +3036,9 @@ model WhatsAppMessage {
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
-  client       Client?       @relation(fields: [clientId], references: [id])
-  organization Organization? @relation(fields: [organizationId], references: [id])
-  invoice      Invoice?      @relation(fields: [invoiceId], references: [id])
+  client       Client?      @relation(fields: [clientId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
+  invoice      Invoice?     @relation(fields: [invoiceId], references: [id])
   invoiceId    String?
 
   @@index([messageId])
@@ -3056,10 +3058,10 @@ model BackupVerification {
   integrityCheck String
   recordCount    String
   errorMessage   String
-  organizationId String?
+  organizationId String
   createdAt      DateTime @default(now())
 
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
 
   @@index([organizationId])
 }
@@ -3077,11 +3079,11 @@ model FeatureFlag {
   enabledForOrgs  String? // JSON array of org IDs
   enabledForRoles String? // JSON array of role names
   percentage      Int      @default(100)
-  organizationId  String? // If null, global flag
+  organizationId  String // If null, global flag
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
 
   @@index([organizationId])
 }
@@ -3099,16 +3101,16 @@ model Milestone {
   status         String
   order          Int
   invoiceId      String?
-  organizationId String?
+  organizationId String
   createdById    String?
   deletedAt      DateTime?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
-  project      Project       @relation(fields: [projectId], references: [id])
-  invoice      Invoice?      @relation(fields: [invoiceId], references: [id])
-  creator      User?         @relation(fields: [createdById], references: [id])
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  project      Project      @relation(fields: [projectId], references: [id])
+  invoice      Invoice?     @relation(fields: [invoiceId], references: [id])
+  creator      User?        @relation(fields: [createdById], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
 
   @@index([projectId])
   @@index([invoiceId])

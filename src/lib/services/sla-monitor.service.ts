@@ -236,6 +236,7 @@ async function createOrUpdateSLABreach(
           daysElapsed: result.daysElapsed,
           slaDays: result.slaDays,
           breachDays: result.breachDays,
+          organizationId: task.organizationId,
         },
       });
 
@@ -298,6 +299,7 @@ async function sendEscalatedNotifications(
           type: 'TASK_DUE' as NotificationType,
           relatedEntityType: 'task',
           relatedEntityId: task.id,
+          organizationId: task.organizationId,
         },
       })
     );
@@ -424,6 +426,7 @@ async function _sendSLANotifications(
           type: 'TASK_DUE' as NotificationType,
           relatedEntityType: 'task',
           relatedEntityId: task.id,
+          organizationId: task.organizationId,
         },
       })
     );

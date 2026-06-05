@@ -21,7 +21,6 @@ import VisitsSection from './features-hub/visits-section'
 import BoqSection from './features-hub/boq-section'
 import TimeSection from './features-hub/time-section'
 import PortalSection from './features-hub/portal-section'
-import WhatsAppSection from './features-hub/whatsapp-section'
 import CommunicationsSection from './features-hub/communications-section'
 import DesignSection from './features-hub/design-section'
 import { AddVisitDialog, AddBoqItemDialog, AddInteractionDialog } from './features-hub/dialogs'
@@ -42,9 +41,6 @@ export default function FeaturesHub({ language }: FeaturesHubProps) {
   const [showAddInteraction, setShowAddInteraction] = useState(false)
   const [showAddBoqItem, setShowAddBoqItem] = useState(false)
   const [contingencyPercent, setContingencyPercent] = useState(10)
-  const [whatsappSearch, setWhatsappSearch] = useState('')
-  const [selectedWhatsappContact, setSelectedWhatsappContact] = useState<string | null>(null)
-  const [whatsappMessage, setWhatsappMessage] = useState('')
   const [newVisit, setNewVisit] = useState({ engineerId: '', projectId: '', date: '', timeIn: '', notes: '' })
   const [newInteraction, setNewInteraction] = useState({ clientId: '', projectId: '', type: 'meeting', date: '', subject: '', description: '', outcome: '' })
   const [boqItems, setBoqItems] = useState<BOQItem[]>(DEMO_BOQ_ITEMS)
@@ -178,19 +174,6 @@ export default function FeaturesHub({ language }: FeaturesHubProps) {
     }, {} as Record<string, number>)
   }, [timeEntries])
 
-  // WhatsApp contacts (unique from projects)
-  const whatsappContacts = useMemo(() => {
-    const contacts: { name: string; phone: string; projectName: string }[] = [
-      { name: 'أحمد المريعي', phone: '+971501112233', projectName: 'فيلا المريعي' },
-      { name: 'خالد الشامسي', phone: '+971502223344', projectName: 'فيلا الشامسي' },
-      { name: 'سالم الكعبي', phone: '+971503334455', projectName: 'فيلا الكعبي' },
-      { name: 'شركة النخيل', phone: '+971504445566', projectName: 'برج النخيل' },
-      { name: 'مجموعة الواحة', phone: '+971505556677', projectName: 'مجمع الواحة التجاري' },
-      { name: 'شركة الخليج', phone: '+971506667788', projectName: 'فندق الخليج' },
-    ]
-    return contacts.filter(c => c.name.includes(whatsappSearch) || c.projectName.includes(whatsappSearch))
-  }, [whatsappSearch])
-
   const filteredInteractions = useMemo(() => {
     return interactions.filter(i => {
       if (commFilter.type !== 'all' && i.type !== commFilter.type) return false
@@ -318,18 +301,6 @@ export default function FeaturesHub({ language }: FeaturesHubProps) {
         />
       )
       case 'portal': return <PortalSection language={language} />
-      case 'whatsapp': return (
-        <WhatsAppSection
-          language={language}
-          whatsappContacts={whatsappContacts}
-          selectedWhatsappContact={selectedWhatsappContact}
-          setSelectedWhatsappContact={setSelectedWhatsappContact}
-          whatsappSearch={whatsappSearch}
-          setWhatsappSearch={setWhatsappSearch}
-          whatsappMessage={whatsappMessage}
-          setWhatsappMessage={setWhatsappMessage}
-        />
-      )
       case 'communications': return (
         <CommunicationsSection
           language={language}

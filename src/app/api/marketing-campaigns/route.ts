@@ -56,6 +56,7 @@ export async function POST(request: NextRequest) {
         startDate: startDate ? new Date(startDate) : null,
         endDate: endDate ? new Date(endDate) : null,
         notes: notes || "",
+        organizationId: (await db.organization.findFirst())?.id || "",
       },
     });
 

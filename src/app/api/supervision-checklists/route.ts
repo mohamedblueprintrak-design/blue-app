@@ -145,6 +145,7 @@ export async function POST(request: NextRequest) {
             photoBefore: v.photoBefore || "",
             photoAfter: v.photoAfter || "",
             resolutionNotes: v.resolutionNotes || "",
+            ...orgCreate(user),
           })),
         } : undefined,
       },

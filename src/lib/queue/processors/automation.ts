@@ -187,10 +187,6 @@ async function executeAction(
       await executeTaskAction(actionConfig, payload, organizationId);
       break;
 
-    case 'webhook':
-      await executeWebhookAction(actionConfig, payload);
-      break;
-
     default:
       log.warn('[Processor/Automation] Unknown action type', { actionType });
   }
@@ -278,6 +274,12 @@ async function executeTaskAction(
     return;
   }
 
+  let orgId = organizationId;
+  if (!orgId) {
+    const org = await db.organization.findFirst();
+    orgId = org?.id || "";
+  }
+
   await db.task.create({
     data: {
       projectId: (projectId as string) || null,
@@ -286,7 +288,7 @@ async function executeTaskAction(
       priority: (priority as TaskPriority) || 'NORMAL',
       dueDate: dueDate ? new Date(dueDate as string) : null,
       status: 'TODO',
-      organizationId: organizationId || null,
+      organizationId: orgId,
     },
   });
 
@@ -297,43 +299,3 @@ async function executeTaskAction(
   });
 }
 
-/**
- * Execute a webhook action
- */
-async function executeWebhookAction(
-  config: Record<string, unknown>,
-  payload: Record<string, unknown>
-): Promise<void> {
-  const { url, method, headers } = config;
-
-  if (!url) {
-    log.warn('[Processor/Automation] Webhook action missing URL');
-    return;
-  }
-
-  try {
-    const response = await fetch(url as string, {
-      method: (method as string) || 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(headers as Record<string, string> || {}),
-      },
-      body: JSON.stringify({
-        timestamp: new Date().toISOString(),
-        payload,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Webhook returned status ${response.status}`);
-    }
-
-    log.info('[Processor/Automation] Webhook action executed', {
-      url,
-      status: response.status,
-    });
-  } catch (error) {
-    log.error('[Processor/Automation] Webhook action failed', error, { url });
-    throw error; // Re-throw to trigger retry
-  }
-}

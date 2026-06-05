@@ -10,7 +10,6 @@ import { cacheGetOrSet } from '@/lib/cache/redis';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
-// import { applyAutoAssignment } from '@/lib/services/auto-assignment.service';
 
 /**
  * @openapi
@@ -370,7 +369,6 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Auto-assignment disabled
 
     return createdResponse(task);
   } catch (error) {

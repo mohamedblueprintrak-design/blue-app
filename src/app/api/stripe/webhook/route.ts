@@ -372,6 +372,11 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
       }
     }
 
+    if (!organizationId) {
+      const org = await db.organization.findFirst();
+      if (org) organizationId = org.id;
+    }
+
     await db.payment.create({
       data: {
         voucherNumber: `INV-${invoice.number || invoice.id}`,
@@ -381,7 +386,7 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
         referenceNumber: paymentIntentId,
         status: 'COMPLETED',
         description: `Stripe Invoice ${invoice.number || invoice.id} - ${invoice.currency?.toUpperCase() || 'USD'} ${(invoice.amount_paid / 100).toFixed(2)}`,
-        ...(organizationId && { organizationId }),
+        organizationId: organizationId || "",
       },
     });
 

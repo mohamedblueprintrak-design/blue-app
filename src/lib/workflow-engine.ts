@@ -90,6 +90,7 @@ export async function initWorkflow(projectId: string, templateId?: string) {
       templateId: template.id,
       status: 'ACTIVE',
       progress: 0,
+      organizationId: project.organizationId,
       stages: {
         create: template.stages.map((stage, stageIdx) => ({
           templateStageId: stage.id,
@@ -484,6 +485,7 @@ async function sendNotification(userId: string, projectId: string, type: Notific
         message,
         relatedEntityType: 'workflow',
         relatedEntityId: relatedEntityId || projectId, // Default to projectId if not specified
+        organizationId: 'org-blueprint-rak', // We might need to look this up, but keeping it simple for now or fetch from project
       },
     });
   } catch {
@@ -499,6 +501,7 @@ export async function createWorkflowTemplate(data: {
   nameEn?: string;
   projectType?: ProjectType;
   description?: string;
+  organizationId: string;
   stages: Array<{
     name: string;
     nameEn?: string;
@@ -523,6 +526,7 @@ export async function createWorkflowTemplate(data: {
       nameEn: data.nameEn || '',
       projectType: data.projectType || '',
       description: data.description || '',
+      organizationId: data.organizationId,
       stages: {
         create: data.stages.map((stage) => ({
           name: stage.name,
@@ -552,7 +556,7 @@ export async function createWorkflowTemplate(data: {
 /**
  * Seed default workflow templates for each project type
  */
-export async function seedDefaultWorkflowTemplates() {
+export async function seedDefaultWorkflowTemplates(organizationId: string) {
   // Role constants matching organizational structure:
   // gm          - المدير العام (General Manager) → reviews everything
   // office_manager - مدير المكتب (Office Manager) → manages administrative work
@@ -712,7 +716,7 @@ export async function seedDefaultWorkflowTemplates() {
       where: { projectType: tpl.projectType as ProjectType, name: tpl.name },
     });
     if (!existing) {
-      await createWorkflowTemplate(tpl as Parameters<typeof createWorkflowTemplate>[0]);
+      await createWorkflowTemplate({ ...tpl, organizationId } as Parameters<typeof createWorkflowTemplate>[0]);
       count++;
     }
   }

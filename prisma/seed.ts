@@ -730,7 +730,7 @@ async function main() {
     data: [
       { projectId: project1.id, title: 'اجتماع مراجعة التصميم المعماري', date: daysFromNow(2), time: '10:00', duration: 90, location: 'مكتب بلوبرنت - غرفة الاجتماعات', type: 'ONSITE', notes: 'مراجعة المخططات المعمارية مع العميل' , organizationId: org1.id },
       { projectId: project2.id, title: 'اجتماع متابعة المشروع', date: daysFromNow(5), time: '14:00', duration: 60, location: 'أونلاين - Zoom', type: 'ONLINE', notes: 'متابعة تقدم المشروع ومناقشة التحديات' , organizationId: org1.id },
-      { title: 'اجتماع الفريق الأسبوعي', date: daysFromNow(1), time: '09:00', duration: 45, location: 'مكتب بلوبرنت', type: 'ONSITE', notes: 'مراجعة أحمال العمل والمهام الأسبوعية' },
+      { title: 'اجتماع الفريق الأسبوعي', date: daysFromNow(1), time: '09:00', duration: 45, location: 'مكتب بلوبرنت', type: 'ONSITE', notes: 'مراجعة أحمال العمل والمهام الأسبوعية', organizationId: org1.id },
     ],
   });
   console.info('✅ 3 meetings created');
@@ -738,9 +738,9 @@ async function main() {
   // ========== 17. Suppliers (3) ==========
   await db.supplier.createMany({
     data: [
-      { name: 'شركة الخليج للمواد الإنشائية', category: 'MATERIALS', email: 'sales@gulf-concrete.ae', phone: '+971-7-222-3344', address: 'رأس الخيمة', rating: 4, creditLimit: 200000 },
-      { name: 'الأفق لأنظمة التكييف', category: 'EQUIPMENT', email: 'info@alofaq-ac.ae', phone: '+971-4-333-4455', address: 'دبي', rating: 5, creditLimit: 350000 },
-      { name: 'النور للأنظمة الكهربائية', category: 'MATERIALS', email: 'orders@alnoor-electric.ae', phone: '+971-2-444-5566', address: 'أبو ظبي', rating: 4, creditLimit: 150000 },
+      { name: 'شركة الخليج للمواد الإنشائية', category: 'MATERIALS', email: 'sales@gulf-concrete.ae', phone: '+971-7-222-3344', address: 'رأس الخيمة', rating: 4, creditLimit: 200000 , organizationId: org1.id },
+      { name: 'الأفق لأنظمة التكييف', category: 'EQUIPMENT', email: 'info@alofaq-ac.ae', phone: '+971-4-333-4455', address: 'دبي', rating: 5, creditLimit: 350000 , organizationId: org1.id },
+      { name: 'النور للأنظمة الكهربائية', category: 'MATERIALS', email: 'orders@alnoor-electric.ae', phone: '+971-2-444-5566', address: 'أبو ظبي', rating: 4, creditLimit: 150000 , organizationId: org1.id },
     ],
   });
   console.info('✅ 3 suppliers created');
@@ -758,9 +758,9 @@ async function main() {
   // ========== 19. Knowledge Articles (3) ==========
   await db.knowledgeArticle.createMany({
     data: [
-      { title: 'دليل إعداد مستندات البلدية', content: 'خطوات إعداد وتقديم المستندات المطلوبة للموافقة البلدية في الإمارات...', category: 'guide', tags: 'بلدية,موافقات,مستندات', views: 45, authorId: adminUser.id },
-      { title: 'معايير تصميم الفلل في دبي', content: 'المتطلبات والمعايير الخاصة بتصميم الفلل وفقاً لأنظمة بلدية دبي...', category: 'guide', tags: 'فلل,تصميم,دبي,معايير', views: 32, authorId: engineerUser.id },
-      { title: 'الأسئلة الشائعة حول أنظمة الدفاع المدني', content: 'إجابات على الأسئلة الأكثر شيوعاً حول متطلبات الدفاع المدني...', category: 'faq', tags: 'دفاع_مدني,سلامة,أسئلة', views: 28, authorId: mepUser.id },
+      { title: 'دليل إعداد مستندات البلدية', content: 'خطوات إعداد وتقديم المستندات المطلوبة للموافقة البلدية في الإمارات...', category: 'guide', tags: 'بلدية,موافقات,مستندات', views: 45, authorId: adminUser.id , organizationId: org1.id },
+      { title: 'معايير تصميم الفلل في دبي', content: 'المتطلبات والمعايير الخاصة بتصميم الفلل وفقاً لأنظمة بلدية دبي...', category: 'guide', tags: 'فلل,تصميم,دبي,معايير', views: 32, authorId: engineerUser.id , organizationId: org1.id },
+      { title: 'الأسئلة الشائعة حول أنظمة الدفاع المدني', content: 'إجابات على الأسئلة الأكثر شيوعاً حول متطلبات الدفاع المدني...', category: 'faq', tags: 'دفاع_مدني,سلامة,أسئلة', views: 28, authorId: mepUser.id , organizationId: org1.id },
     ],
   });
   console.info('✅ 3 knowledge articles created');
@@ -776,11 +776,11 @@ async function main() {
   // ========== 21. Notifications (5) ==========
   await db.notification.createMany({
     data: [
-      { userId: adminUser.id, type: 'INVOICE_OVERDUE', title: 'فاتورة متأخرة', message: `فاتورة INV-${currentYearStr}-003 تجاوزت تاريخ الاستحقاق - 180,200 درهم`, isRead: false, relatedEntityType: 'invoice', createdAt: new Date(Date.now() - 2 * 86400000) },
-      { userId: adminUser.id, type: 'APPROVAL_NEEDED', title: 'موافقة مطلوبة', message: 'طلب إجازة من سارة علي بانتظار موافقتك', isRead: false, relatedEntityType: 'leave', createdAt: new Date(Date.now() - 86400000) },
-      { userId: adminUser.id, type: 'TASK_DUE', title: 'مهمة متأخرة', message: 'مهمة مراجعة التصميم الإنشائي تجاوزت الموعد النهائي', isRead: false, relatedEntityType: 'task', createdAt: new Date(Date.now() - 6 * 3600000) },
-      { userId: adminUser.id, type: 'PROJECT_UPDATE', title: 'تحديث المشروع', message: 'تم تحديث تقدم مشروع فيلا فاخرة إلى 65%', isRead: true, relatedEntityType: 'project', relatedEntityId: project1.id, createdAt: new Date(Date.now() - 5 * 86400000) },
-      { userId: adminUser.id, type: 'PAYMENT_RECEIVED', title: 'دفعة مستلمة', message: 'تم استلام دفعة 33,250 درهم من شركة الإعمار', isRead: true, relatedEntityType: 'invoice', createdAt: new Date(Date.now() - 7 * 86400000) },
+      { userId: adminUser.id, type: 'INVOICE_OVERDUE', title: 'فاتورة متأخرة', message: `فاتورة INV-${currentYearStr}-003 تجاوزت تاريخ الاستحقاق - 180,200 درهم`, isRead: false, relatedEntityType: 'invoice', createdAt: new Date(Date.now() - 2 * 86400000), organizationId: org1.id },
+      { userId: adminUser.id, type: 'APPROVAL_NEEDED', title: 'موافقة مطلوبة', message: 'طلب إجازة من سارة علي بانتظار موافقتك', isRead: false, relatedEntityType: 'leave', createdAt: new Date(Date.now() - 86400000) , organizationId: org1.id },
+      { userId: adminUser.id, type: 'TASK_DUE', title: 'مهمة متأخرة', message: 'مهمة مراجعة التصميم الإنشائي تجاوزت الموعد النهائي', isRead: false, relatedEntityType: 'task', createdAt: new Date(Date.now() - 6 * 3600000) , organizationId: org1.id },
+      { userId: adminUser.id, type: 'PROJECT_UPDATE', title: 'تحديث المشروع', message: 'تم تحديث تقدم مشروع فيلا فاخرة إلى 65%', isRead: true, relatedEntityType: 'project', relatedEntityId: project1.id, createdAt: new Date(Date.now() - 5 * 86400000), organizationId: org1.id },
+      { userId: adminUser.id, type: 'PAYMENT_RECEIVED', title: 'دفعة مستلمة', message: 'تم استلام دفعة 33,250 درهم من شركة الإعمار', isRead: true, relatedEntityType: 'invoice', createdAt: new Date(Date.now() - 7 * 86400000), organizationId: org1.id },
     ],
   });
   console.info('✅ 5 notifications created');

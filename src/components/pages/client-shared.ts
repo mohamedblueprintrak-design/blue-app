@@ -14,7 +14,6 @@ export interface Client {
   idPhoto?: string;
   email: string;
   phone: string;
-  whatsapp?: string;
   extraPhone?: string;
   address: string;
   fullAddress?: string;

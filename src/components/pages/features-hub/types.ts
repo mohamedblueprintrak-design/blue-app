@@ -1,6 +1,6 @@
 // ===== Types for Features Hub =====
 
-export type TabId = 'map' | 'visits' | 'boq' | 'time' | 'portal' | 'whatsapp' | 'communications' | 'design'
+export type TabId = 'map' | 'visits' | 'boq' | 'time' | 'portal' | 'communications' | 'design'
 
 export interface NavItem {
   id: TabId
@@ -89,22 +89,13 @@ export interface ClientInteraction {
   clientName: string
   projectId: string
   projectName: string
-  type: 'meeting' | 'call' | 'email' | 'whatsapp'
+  type: 'meeting' | 'call' | 'email'
   date: string
   subject: string
   description: string
   outcome: string
 }
 
-export interface WhatsAppMessage {
-  id: string
-  contactName: string
-  phone: string
-  message: string
-  timestamp: string
-  direction: 'sent' | 'received'
-  projectName: string
-}
 
 export interface ClientProject {
   id: string

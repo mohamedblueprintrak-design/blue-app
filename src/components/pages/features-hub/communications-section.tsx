@@ -44,8 +44,7 @@ export default function CommunicationsSection({
               <SelectItem value="all">الكل</SelectItem>
               <SelectItem value="MEETING">اجتماعات</SelectItem>
               <SelectItem value="CALL">مكالمات</SelectItem>
-              <SelectItem value="EMAIL">بريد إلكتروني</SelectItem>
-              <SelectItem value="whatsapp">واتساب</SelectItem>
+              <SelectItem value="email">بريد إلكتروني</SelectItem>
             </SelectContent>
           </Select>
           <Button onClick={onAddInteraction} className="bg-teal-600 hover:bg-teal-700 text-white">
@@ -56,7 +55,7 @@ export default function CommunicationsSection({
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {(['meeting', 'call', 'email', 'whatsapp'] as const).map(type => (
+        {(['meeting', 'call', 'email'] as const).map(type => (
           <Card key={type} className="border-slate-200 dark:border-slate-700/50">
             <CardContent className="p-4 flex items-center gap-3">
               <div className={cn('w-10 h-10 rounded-xl flex items-center justify-center',

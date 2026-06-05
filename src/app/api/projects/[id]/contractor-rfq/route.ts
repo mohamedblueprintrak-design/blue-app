@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { handleApiError } from '@/lib/api-error';
-import { requireVerifiedPermission, orgCheck } from '@/app/api/utils/auth';
+import { requireVerifiedPermission, orgCheck, orgCreate } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { forbiddenResponse } from '@/app/api/utils/response';
 import { validateIdParam } from '@/lib/api-validation';
@@ -55,6 +55,7 @@ export async function POST(
             rfqStatus: 'SENT',
             rfqSentAt: new Date(),
             deadline: deadline ? new Date(deadline) : null,
+            ...orgCreate(user),
           },
         });
       })

@@ -208,9 +208,14 @@ export async function createAuditEntry(params: CreateAuditEntryParams): Promise<
       }
     }
 
-    // Generate details if not provided
     const auditDetails =
       details ?? generateDetailsFromDiff(diffOld, diffNew, action);
+
+    let orgId = organizationId;
+    if (!orgId) {
+      const org = await db.organization.findFirst();
+      orgId = org?.id || "";
+    }
 
     await db.activityLog.create({
       data: {
@@ -222,7 +227,7 @@ export async function createAuditEntry(params: CreateAuditEntryParams): Promise<
         details: auditDetails,
         oldValues: storedOldValues,
         newValues: storedNewValues,
-        organizationId: organizationId ?? null,
+        organizationId: orgId,
       },
     });
   } catch (error) {

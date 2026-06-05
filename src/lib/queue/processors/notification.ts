@@ -65,7 +65,14 @@ export async function notificationProcessor(job: Job<NotificationJobData>): Prom
     attempt: job.attemptsMade + 1,
   });
 
-  // 1. Create notification record in database
+  // 1. Resolve organizationId
+  let orgId = _organizationId;
+  if (!orgId) {
+    const org = await db.organization.findFirst();
+    orgId = org?.id || "";
+  }
+
+  // 2. Create notification record in database
   try {
     const notification = await db.notification.create({
       data: {
@@ -80,6 +87,7 @@ export async function notificationProcessor(job: Job<NotificationJobData>): Prom
         priority: priority || 'MEDIUM',
         relatedEntityType: relatedEntityType || '',
         relatedEntityId: relatedEntityId || '',
+        organizationId: orgId,
         isRead: false,
       },
     });

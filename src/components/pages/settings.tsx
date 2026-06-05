@@ -17,7 +17,7 @@ import { AppearanceTab } from "./settings/appearance-tab";
 import { NotificationsTab } from "./settings/notifications-tab";
 import { SecurityTab } from "./settings/security-tab";
 import { BillingTab } from "./settings/billing-tab";
-import { IntegrationsTab } from "./settings/integrations-tab";
+
 import { SettingsSkeleton } from "./settings/settings-skeleton";
 import type { NotificationSettings, PasswordForm, DangerConfirmType } from "./settings/types";
 
@@ -220,10 +220,6 @@ export default function SettingsPage({ language: lang }: Props) {
             <CreditCard className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">{isAr ? "الفواتير" : "Billing"}</span>
           </TabsTrigger>
-          <TabsTrigger value="integrations" className="text-xs px-2 py-2.5 gap-1.5">
-            <Plug className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">{isAr ? "الربط" : "Integrations"}</span>
-          </TabsTrigger>
         </TabsList>
 
         {/* Company Info Tab */}
@@ -290,10 +286,7 @@ export default function SettingsPage({ language: lang }: Props) {
           <BillingTab isAr={isAr} />
         </TabsContent>
 
-        {/* Integrations Tab */}
-        <TabsContent value="integrations" className="mt-4">
-          <IntegrationsTab isAr={isAr} />
-        </TabsContent>
+
       </Tabs>
     </div>
   );

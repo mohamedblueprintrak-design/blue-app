@@ -133,7 +133,7 @@ export abstract class BaseRepository<T> implements IRepository<T> {
    */
   async count(where?: Record<string, unknown>): Promise<number> {
     return this.delegate.count({
-      where,
+      where: { ...where, deletedAt: null },
     });
   }
 
@@ -142,7 +142,7 @@ export abstract class BaseRepository<T> implements IRepository<T> {
    */
   async exists(id: string): Promise<boolean> {
     const count = await this.delegate.count({
-      where: { id },
+      where: { id, deletedAt: null },
     });
     return count > 0;
   }

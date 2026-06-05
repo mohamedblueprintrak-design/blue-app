@@ -118,7 +118,6 @@ export default function ClientFormDialog({ open, onOpenChange, editClient, onSav
       companyEn: watchField("companyEn") || "",
       idNumber: watchField("idNumber") || "",
       nationality: watchField("nationality") || "",
-      whatsapp: watchField("whatsapp") || "",
       extraPhone: watchField("extraPhone") || "",
       fullAddress: JSON.stringify(formAddress),
       servicesWanted: JSON.stringify(formServices),
@@ -397,17 +396,7 @@ export default function ClientFormDialog({ open, onOpenChange, editClient, onSav
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-2">
-                    <Label className="text-sm flex items-center gap-1.5">
-                      <MessageCircle className="h-3.5 w-3.5 text-green-500" />
-                      {ar ? "رقم الواتساب" : "WhatsApp Number"}
-                    </Label>
-                    <Input
-                      {...registerExtra("whatsapp")}
-                      placeholder="+971 XX XXX XXXX"
-                      dir="ltr"
-                    />
-                  </div>
+
                   <div className="space-y-2">
                     <Label className="text-sm">{ar ? "هاتف إضافي" : "Extra Phone"}</Label>
                     <Input

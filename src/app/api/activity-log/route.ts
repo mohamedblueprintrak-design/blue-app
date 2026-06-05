@@ -208,6 +208,7 @@ export async function POST(request: NextRequest) {
         entityId: `sim-${Date.now()}`,
         details: randomDetail,
         metadata: JSON.stringify({ simulated: true, timestamp: new Date().toISOString() }),
+        organizationId: ctx?.organizationId || 'org-blueprint-rak',
       },
       include: {
         user: {

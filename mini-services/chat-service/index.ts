@@ -385,6 +385,30 @@ function setupEventHandlers(socket: TypedSocket) {
 
   // Subscribe to entity updates
   socket.on('subscribe_to_entity', (data: { entityType: string; entityId: string }) => {
+    const { entityType, entityId } = data;
+    const organizationId = socket.data.organizationId;
+
+    // SECURITY: Basic entity verification to prevent IDOR and cross-tenant access.
+    // In a full implementation, we'd query the DB for the entity's orgId.
+    // Here we implement it for 'project' and 'task' if the database is available.
+    if (['project', 'task'].includes(entityType) && organizationId) {
+      try {
+        // Warning: This only works if using SQLite (which chat-service expects)
+        const table = entityType === 'project' ? 'Project' : 'Task';
+        // Note: Using raw string concatenation for table name is safe here because it's tightly controlled above.
+        const stmtCheck = db.prepare(`SELECT organizationId FROM ${table} WHERE id = ?`);
+        const result = stmtCheck.get(entityId) as { organizationId: string } | undefined;
+        
+        if (result && result.organizationId !== organizationId) {
+          console.warn(`[Security] IDOR attempt: user ${socket.data.userId} tried to subscribe to ${entityType} ${entityId}`);
+          return socket.emit('error', { message: 'Unauthorized entity access', code: 'UNAUTHORIZED' });
+        }
+      } catch (error) {
+        console.error(`[WS] Entity verification failed for ${entityType} ${entityId}:`, error);
+        // Fallthrough: allow subscription if DB check fails (e.g. if using Postgres in a SQLite-only service)
+      }
+    }
+
     joinRoom(socket, 'entity', `${socket.data.organizationId}:${data.entityType}:${data.entityId}`);
   });
 

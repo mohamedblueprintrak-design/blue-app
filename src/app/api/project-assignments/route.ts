@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 import { log } from '@/lib/logger';
-import { requireVerifiedPermission, orgFilter } from '@/app/api/utils/auth';
+import { requireVerifiedPermission, orgFilter, orgCreate } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { z } from 'zod';
 
@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
   // RBAC CHECK - requires PROJECT_UPDATE permission
   const rbac = await requireVerifiedPermission(request, Permission.PROJECT_UPDATE);
   if ('error' in rbac) return rbac.error;
-  const _auth = rbac.user;
+  const auth = rbac.user;
 
   try {
     const rawBody = await request.json();
@@ -120,6 +120,7 @@ export async function POST(request: NextRequest) {
         projectId,
         userId,
         role: (role || "TEAM_MEMBER"),
+        ...orgCreate(auth),
       },
       include: {
         user: {

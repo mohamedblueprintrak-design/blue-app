@@ -57,6 +57,7 @@ export async function POST(request: NextRequest) {
     });
 
     let syncedCount = 0;
+    const org = await db.organization.findFirst();
     for (const cred of DEMO_CREDENTIALS) {
       const existing = existingUsers.find(u => u.email === cred.email);
       if (existing) {
@@ -76,6 +77,7 @@ export async function POST(request: NextRequest) {
             data: {
               password: hash,
               isActive: true,
+              organizationId: org?.id || "",
               role: cred.role as UserRole,
             },
           });
@@ -95,6 +97,7 @@ export async function POST(request: NextRequest) {
               department: '',
               position: '',
               isActive: true,
+              organizationId: (await db.organization.findFirst())?.id || "",
             },
           });
           syncedCount++;

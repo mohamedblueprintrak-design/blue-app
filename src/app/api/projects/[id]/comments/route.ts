@@ -94,6 +94,7 @@ export async function POST(
         content,
         projectId: id,
         userId: user.userId,
+        organizationId: user.organizationId || "",
       },
       include: {
         user: {

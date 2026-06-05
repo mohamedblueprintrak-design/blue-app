@@ -1,4 +1,4 @@
-import { requireVerifiedPermission, orgCheck, type AuthContext } from '@/app/api/utils/auth';
+import { requireVerifiedPermission, orgCheck, orgCreate, type AuthContext } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { hasPermission } from '@/lib/auth/modules/authorization';
 import { NextRequest, NextResponse } from 'next/server';
@@ -81,6 +81,7 @@ export async function POST(request: NextRequest) {
             projectId: projectId || null,
             title: message.substring(0, 50),
             messageCount: 0,
+            ...orgCreate(authCtx),
           },
           include: {
             messages: {
@@ -98,6 +99,7 @@ export async function POST(request: NextRequest) {
           conversationId,
           role: 'user',
           content: message,
+          ...orgCreate(authCtx),
         },
       });
     } catch (dbError) {
@@ -270,7 +272,7 @@ ${contextSection}`;
                 // Save to DB
                 try {
                   await db.aIChatMessage.create({
-                    data: { conversationId, role: 'assistant', content: fullText, tokens: 0, model: usedModel },
+                    data: { conversationId, role: 'assistant', content: fullText, tokens: 0, model: usedModel, ...orgCreate(authCtx) },
                   });
                   await db.aIChatConversation.update({
                     where: { id: conversationId },
@@ -319,7 +321,7 @@ ${contextSection}`;
                 await streamFullText(controller, fullText);
                 try {
                   await db.aIChatMessage.create({
-                    data: { conversationId, role: 'assistant', content: fullText, tokens: 0, model: usedModel },
+                    data: { conversationId, role: 'assistant', content: fullText, tokens: 0, model: usedModel, ...orgCreate(authCtx) },
                   });
                   await db.aIChatConversation.update({
                     where: { id: conversationId },
@@ -383,7 +385,7 @@ ${contextSection}`;
               await streamFullText(controller, demoText);
               try {
                 await db.aIChatMessage.create({
-                  data: { conversationId, role: 'assistant', content: demoText, tokens: 0, model: usedModel },
+                  data: { conversationId, role: 'assistant', content: demoText, tokens: 0, model: usedModel, ...orgCreate(authCtx) },
                 });
                 await db.aIChatConversation.update({
                   where: { id: conversationId },
@@ -462,6 +464,7 @@ ${contextSection}`;
                 content: fullText,
                 tokens: 0,
                 model: finalUsedModel,
+                ...orgCreate(authCtx),
               },
             });
             await db.aIChatConversation.update({

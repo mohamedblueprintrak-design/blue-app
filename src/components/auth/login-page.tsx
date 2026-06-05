@@ -609,41 +609,24 @@ export default function LoginPage({ language }: LoginPageProps) {
                     </>
                   )}
 
-                  {/* Demo Mode Quick Login Buttons */}
-                  {demoCredentials.length > 0 && !requires2FA && (
-                    <div className="pt-2 pb-1">
-                      <p className="text-xs text-slate-500 mb-2 font-medium">{t("quickLogin")}</p>
-                      <div className="grid grid-cols-3 gap-2">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          className="h-8 text-[11px] bg-slate-50 dark:bg-slate-800"
-                          onClick={() => handleRoleSelect("admin@blueprint.ae")}
-                        >
-                          {t("roles.admin")}
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          className="h-8 text-[11px] bg-slate-50 dark:bg-slate-800"
-                          onClick={() => handleRoleSelect("pm@blueprint.ae")}
-                        >
-                          {t("roles.manager")}
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          className="h-8 text-[11px] bg-slate-50 dark:bg-slate-800"
-                          onClick={() => handleRoleSelect("eng@blueprint.ae")}
-                        >
-                          {t("roles.engineer")}
-                        </Button>
-                      </div>
-                    </div>
-                  )}
+                  {/* Demo Mode Role Selector */}
+                  <div className="pt-2 pb-1">
+                    <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                      {isAr ? "تسجيل الدخول السريع (وضع العرض):" : "Quick Login (Demo Mode):"}
+                    </p>
+                    <Select value={selectedRole} onValueChange={handleRoleSelect}>
+                      <SelectTrigger className="w-full bg-slate-50/80 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 focus:ring-teal-500/20 focus:border-teal-500">
+                        <SelectValue placeholder={isAr ? "اختر صلاحية الدخول..." : "Select a role..."} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {ROLES.map((role) => (
+                          <SelectItem key={role.value} value={role.value}>
+                            {isAr ? role.labelAr : role.labelEn} - {role.value}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
 
                   {/* Submit Button */}
                   <Button

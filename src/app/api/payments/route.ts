@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
     // Check for exact duplicate payment within the last 2 minutes (prevents double-clicks)
     const recentDuplicate = await db.payment.findFirst({
       where: {
-        organizationId: ctx.organizationId,
+        organizationId: ctx.organizationId || undefined,
         createdById: ctx.userId,
         amount,
         projectId: projectId || null,

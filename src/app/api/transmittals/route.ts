@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
-import { requireVerifiedPermission, orgFilter} from '@/app/api/utils/auth';
+import { requireVerifiedPermission, orgFilter, orgCreate } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
 import { z } from 'zod';
@@ -109,7 +109,7 @@ export async function POST(request: NextRequest) {
     // RBAC CHECK - requires DOCUMENT_CREATE permission
     const rbac = await requireVerifiedPermission(request, Permission.DOCUMENT_CREATE);
     if ('error' in rbac) return rbac.error;
-    const _ctx = rbac.user;
+    const ctx = rbac.user;
 
     const rawBody = await request.json();
 
@@ -161,6 +161,7 @@ export async function POST(request: NextRequest) {
         toPhone: toPhone || "",
         deliveryMethod: (deliveryMethod || "EMAIL"),
         status: status || "SENT",
+        ...orgCreate(ctx),
         items: {
           create: itemsData,
         },

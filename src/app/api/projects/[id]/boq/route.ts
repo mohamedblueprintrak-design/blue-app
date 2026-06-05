@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 import { log } from '@/lib/logger';
-import { requireVerifiedPermission } from '@/app/api/utils/auth';
+import { requireVerifiedPermission, orgCreate } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { forbiddenResponse } from '@/app/api/utils/response';
 import { validateIdParam } from '@/lib/api-validation';
@@ -106,6 +106,7 @@ export async function POST(
         unitPrice,
         total,
         category: category || "CIVIL",
+        ...orgCreate(user),
       },
     });
 

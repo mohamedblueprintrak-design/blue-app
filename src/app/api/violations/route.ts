@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
-import { requireVerifiedPermission, orgFilter } from '../utils/auth';
+import { requireVerifiedPermission, orgFilter, orgCreate } from '../utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
 import { z } from 'zod';
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
 
   const postResult = await requireVerifiedPermission(request, Permission.VIOLATION_CREATE);
   if ('error' in postResult) return postResult.error;
-  const _ctx = postResult.user;
+  const ctx = postResult.user;
   try {
     const rawBody = await request.json();
 
@@ -95,6 +95,7 @@ export async function POST(request: NextRequest) {
         photoBefore: photoBefore || "",
         photoAfter: photoAfter || "",
         resolutionNotes: resolutionNotes || "",
+        ...orgCreate(ctx),
       },
       include: {
         project: { select: { id: true, name: true, nameEn: true, number: true } },

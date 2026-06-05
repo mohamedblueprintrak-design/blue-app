@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { log } from '@/lib/logger';
-import { requireVerifiedPermission, orgFilter } from '../utils/auth';
+import { requireVerifiedPermission, orgFilter, orgCreate } from '../utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { validateRequest, automationCreateSchema } from '@/lib/api-validation';
 
@@ -33,6 +33,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const result = await requireVerifiedPermission(request, Permission.SETTINGS_UPDATE);
   if ('error' in result) return result.error;
+  const ctx = result.user;
 
   try {
     const rawBody = await request.json();
@@ -54,6 +55,7 @@ export async function POST(request: NextRequest) {
         actionType: actionType,
         actionConfig: typeof actionConfig === 'string' ? actionConfig : JSON.stringify(actionConfig ?? {}),
         status: 'INACTIVE',
+        ...orgCreate(ctx),
       },
     });
     return successResponse(created);

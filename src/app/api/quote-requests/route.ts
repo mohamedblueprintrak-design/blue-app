@@ -44,6 +44,11 @@ export async function POST(request: Request) {
       }
     }
 
+    const org = await db.organization.findFirst();
+    if (!org) {
+      return NextResponse.json({ error: "لا يوجد مؤسسة" }, { status: 500 });
+    }
+
     // Sanitize string fields before storing
     const quoteRequest = await db.quoteRequest.create({
       data: {
@@ -57,6 +62,7 @@ export async function POST(request: Request) {
         location: sanitizeString(location || ""),
         message: sanitizeString(message || ""),
         status: "NEW",
+        organizationId: org.id,
       },
     });
 

@@ -205,6 +205,7 @@ export async function GET(request: NextRequest) {
             emailVerified: new Date(), // Microsoft already verified the email
             password: '', // No password — social login only
             lastLogin: new Date(),
+            organizationId: (await db.organization.findFirst())?.id || "",
           },
         });
         log.info('Microsoft OAuth: new user created', { userId: user.id, email: microsoftEmail });

@@ -244,6 +244,11 @@ async function handleRegister(
       organizationId = org.id;
     }
 
+    if (!organizationId) {
+      const defaultOrg = await db.organization.findFirst();
+      organizationId = defaultOrg?.id || "";
+    }
+
     // Determine role - SECURITY FIX: Only admin-created orgs get admin role
     // Regular registration always gets VIEWER role (no privilege escalation)
     const role = organizationId
@@ -274,7 +279,7 @@ async function handleRegister(
       name: user.name ?? "",
       role: user.role as string,
       twoFactorEnabled: false,
-      organizationId: user.organizationId || undefined,
+      organizationId: user.organizationId || "",
       passwordChangedAt: 0, // New user — no password change yet
     });
 

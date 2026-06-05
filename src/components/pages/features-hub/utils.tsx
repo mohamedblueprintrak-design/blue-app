@@ -62,8 +62,7 @@ export function getInteractionIcon(type: string) {
     case 'meeting': return <Users className="h-4 w-4" />
     case 'call': return <PhoneCall className="h-4 w-4" />
     case 'email': return <Mail className="h-4 w-4" />
-    case 'whatsapp': return <MessageCircle className="h-4 w-4" />
-    default: return <FileText className="h-4 w-4" />
+    default: return <PhoneCall className="h-4 w-4" />
   }
 }
 
@@ -72,8 +71,7 @@ export function getInteractionTypeLabel(type: string): string {
     case 'meeting': return 'اجتماع'
     case 'call': return 'مكالمة'
     case 'email': return 'بريد إلكتروني'
-    case 'whatsapp': return 'واتساب'
-    default: return type
+    default: return 'تواصل'
   }
 }
 

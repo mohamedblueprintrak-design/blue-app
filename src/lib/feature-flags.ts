@@ -173,6 +173,12 @@ export async function upsertFlag(data: {
   percentage?: number;
   organizationId?: string;
 }): Promise<FeatureFlagRecord> {
+  let orgId = data.organizationId;
+  if (!orgId) {
+    const org = await db.organization.findFirst();
+    orgId = org?.id || "";
+  }
+
   const result = await db.featureFlag.upsert({
     where: { key: data.key },
     update: {
@@ -184,7 +190,7 @@ export async function upsertFlag(data: {
       ...(data.enabledForOrgs !== undefined && { enabledForOrgs: data.enabledForOrgs }),
       ...(data.enabledForRoles !== undefined && { enabledForRoles: data.enabledForRoles }),
       ...(data.percentage !== undefined && { percentage: data.percentage }),
-      ...(data.organizationId !== undefined && { organizationId: data.organizationId }),
+      ...(orgId && { organizationId: orgId }),
     },
     create: {
       key: data.key,
@@ -196,7 +202,7 @@ export async function upsertFlag(data: {
       enabledForOrgs: data.enabledForOrgs || null,
       enabledForRoles: data.enabledForRoles || null,
       percentage: data.percentage ?? 100,
-      organizationId: data.organizationId || null,
+      organizationId: orgId,
     },
   });
   invalidateFlagsCache();

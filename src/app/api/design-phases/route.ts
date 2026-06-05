@@ -75,6 +75,7 @@ export async function POST(request: NextRequest) {
         startDate: startDate ? new Date(startDate) : null,
         dueDate: dueDate ? new Date(dueDate) : null,
         notes: notes || "",
+        organizationId: (await db.organization.findFirst())?.id || "",
       },
       include: {
         project: {

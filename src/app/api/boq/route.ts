@@ -7,7 +7,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { log } from '@/lib/logger';
 import { Permission } from '@/lib/auth/types';
-import { requireVerifiedPermission, orgFilter } from '../utils/auth';
+import { requireVerifiedPermission, orgFilter, orgCreate } from '../utils/auth';
 import { z } from 'zod';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 import { cachedQuery, invalidateCache, CACHE_TTL, buildCacheKey } from '@/lib/cache/query-cache';
@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
 
   const rbac = await requireVerifiedPermission(request, Permission.BUDGET_MANAGE);
   if ('error' in rbac) return rbac.error;
-  const _auth = rbac.user;
+  const auth = rbac.user;
 
   try {
     const rawBody = await request.json();
@@ -134,6 +134,7 @@ export async function POST(request: NextRequest) {
         unitPrice,
         total,
         category: (category || "CIVIL"),
+        ...orgCreate(auth),
       },
     });
 

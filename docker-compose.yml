@@ -78,6 +78,7 @@ services:
     image: postgres:16-alpine
     container_name: blueprint-postgres
     restart: unless-stopped
+    env_file: .env
     environment:
       POSTGRES_USER: blueprint
       # SECURITY: Password from environment variable — must be set explicitly
@@ -113,6 +114,7 @@ services:
     image: redis:7-alpine
     container_name: blueprint-redis
     restart: unless-stopped
+    env_file: .env
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD:-dev_redis_password}
     # SECURITY: In development, keep ports for debugging
@@ -142,7 +144,7 @@ services:
     healthcheck:
       # SECURITY: Use REDISCLI_AUTH env var instead of -a flag to avoid
       # exposing the password in the process list (/proc)
-      test: ["CMD-SHELL", "REDISCLI_AUTH=$${REDIS_PASSWORD:-dev_redis_password} redis-cli ping"]
+      test: ["CMD-SHELL", "REDISCLI_AUTH=$REDIS_PASSWORD redis-cli ping"]
       interval: 10s
       timeout: 5s
       retries: 5

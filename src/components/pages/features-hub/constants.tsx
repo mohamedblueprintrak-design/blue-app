@@ -1,5 +1,5 @@
-import { MapPin, Calculator, Clock, Globe, MessageCircle, Phone, PenTool, Car } from 'lucide-react'
-import type { DemoProject, DemoEngineer, DemoVisit, BOQItem, TimeEntry, ClientInteraction, WhatsAppMessage, ClientProject, NavItem } from './types'
+import { MapPin, Calculator, Clock, Globe, PhoneCall, PenTool, Car } from 'lucide-react'
+import type { DemoProject, DemoEngineer, DemoVisit, BOQItem, TimeEntry, ClientInteraction, ClientProject, NavItem } from './types'
 
 // ===== Demo Data =====
 export const DEMO_PROJECTS: DemoProject[] = [
@@ -69,17 +69,9 @@ export const DEMO_INTERACTIONS: ClientInteraction[] = [
   { id: 'c1', clientId: '1', clientName: 'أحمد المريعي', projectId: '1', projectName: 'فيلا المريعي', type: 'meeting', date: '2025-04-08', subject: 'مراجعة التصميم النهائي', description: 'تم عقد اجتماع لمراجعة التعديلات المطلوبة على التصميم الداخلي', outcome: 'تمت الموافقة على التعديلات' },
   { id: 'c2', clientId: '2', clientName: 'شركة النخيل للاستثمار', projectId: '2', projectName: 'برج النخيل', type: 'call', date: '2025-04-07', subject: 'متابعة حالة المشروع', description: 'اتصال هاتفي لمناقشة التأخير في تنفيذ الأعمال الإنشائية', outcome: 'طلب تعجيل المقاول' },
   { id: 'c3', clientId: '3', clientName: 'مجموعة الواحة', projectId: '3', projectName: 'مجمع الواحة التجاري', type: 'email', date: '2025-04-06', subject: 'إرسال المخططات المحدثة', description: 'تم إرسال نسخة محدثة من مخططات الطابق الثاني', outcome: 'بانتظار الرد' },
-  { id: 'c4', clientId: '1', clientName: 'أحمد المريعي', projectId: '1', projectName: 'فيلا المريعي', type: 'whatsapp', date: '2025-04-05', subject: 'تأكيد موعد الزيارة', description: 'تأكيد موعد زيارة الموقع يوم الثلاثاء', outcome: 'تم التأكيد' },
+  { id: 'c4', clientId: '1', clientName: 'أحمد المريعي', projectId: '1', projectName: 'فيلا المريعي', type: 'call', date: '2025-04-05', subject: 'تأكيد موعد الزيارة', description: 'تأكيد موعد زيارة الموقع يوم الثلاثاء', outcome: 'تم التأكيد' },
   { id: 'c5', clientId: '6', clientName: 'شركة الخليج للضيافة', projectId: '6', projectName: 'فندق الخليج', type: 'meeting', date: '2025-04-04', subject: 'اجتماع لجنة المراجعة', description: 'اجتماع لمناقشة مخططات MEP مع فريق الفندق', outcome: 'تحتاج تعديلات على مسار التكييف' },
   { id: 'c6', clientId: '7', clientName: 'دائرة الصحة رأس الخيمة', projectId: '7', projectName: 'مركز الصحة', type: 'call', date: '2025-04-03', subject: 'استفسار عن التراخيص', description: 'اتصال بخصوص حالة طلب الترخيص من البلدية', outcome: 'الطلب قيد المراجعة' },
-]
-
-export const DEMO_WHATSAPP_MESSAGES: WhatsAppMessage[] = [
-  { id: 'w1', contactName: 'أحمد المريعي', phone: '+971501112233', message: 'السلام عليكم، متى يمكننا مراجعة التصميم المحدث؟', timestamp: '2025-04-08 10:30', direction: 'received', projectName: 'فيلا المريعي' },
-  { id: 'w2', contactName: 'أحمد المريعي', phone: '+971501112233', message: 'وعليكم السلام، يمكننا يوم الخميس الساعة 10 صباحاً', timestamp: '2025-04-08 10:35', direction: 'sent', projectName: 'فيلا المريعي' },
-  { id: 'w3', contactName: 'خالد الشامسي', phone: '+971502223344', message: 'أريد معرفة حالة المشروع', timestamp: '2025-04-07 14:20', direction: 'received', projectName: 'فيلا الشامسي' },
-  { id: 'w4', contactName: 'خالد الشامسي', phone: '+971502223344', message: 'المشروع متوقف حالياً بانتظار الموافقة. سأرسل لكم التقرير قريباً', timestamp: '2025-04-07 14:45', direction: 'sent', projectName: 'فيلا الشامسي' },
-  { id: 'w5', contactName: 'سالم الكعبي', phone: '+971503334455', message: 'شكراً لكم على العمل الممتاز! المشروع يبدو رائعاً', timestamp: '2025-04-06 09:00', direction: 'received', projectName: 'فيلا الكعبي' },
 ]
 
 export const DEMO_CLIENT_PROJECTS: ClientProject[] = [
@@ -103,13 +95,7 @@ export const DEMO_CLIENT_PROJECTS: ClientProject[] = [
   }
 ]
 
-export const WHATSAPP_TEMPLATES = [
-  'تحية طيبة، نود إعلامكم بأنه تم تحديث حالة المشروع.',
-  'السلام عليكم، نود تأكيد موعد الزيارة الميدانية.',
-  'مرحباً، تم إرسال المخططات المحدثة لمراجعتكم.',
-  'تحية، نود طلب موافقتكم على التعديلات المقترحة.',
-  'السلام عليكم، تقرير سير الأعمال لهذا الأسبوع.',
-]
+
 
 export const PIE_COLORS = ['#0e2a5c', '#f59e0b', '#ef4444', '#8b5cf6', '#3b82f6', '#ec4899', '#10b981', '#f97316']
 
@@ -120,7 +106,6 @@ export const NAV_ITEMS: NavItem[] = [
   { id: 'boq', label: 'حاسبة التكاليف', icon: <Calculator className="h-5 w-5" /> },
   { id: 'time', label: 'إدارة الوقت', icon: <Clock className="h-5 w-5" /> },
   { id: 'portal', label: 'بوابة العملاء', icon: <Globe className="h-5 w-5" /> },
-  { id: 'whatsapp', label: 'واتساب', icon: <MessageCircle className="h-5 w-5" /> },
-  { id: 'communications', label: 'سجل التواصل', icon: <Phone className="h-5 w-5" /> },
+  { id: 'communications', label: 'التواصل', icon: <PhoneCall className="h-5 w-5" /> },
   { id: 'design', label: 'إدارة التصميم', icon: <PenTool className="h-5 w-5" /> },
 ]

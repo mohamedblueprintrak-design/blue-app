@@ -28,7 +28,6 @@ export type NotificationChannel = 'in_app' | 'whatsapp' | 'email';
 /** Configuration for which channels to use for a notification */
 export interface NotificationChannelConfig {
   inApp?: boolean;     // Default: true — persist to DB + WebSocket push
-  whatsapp?: boolean;  // Default: false — send via WhatsApp Business API
   email?: boolean;     // Future: send via email
 }
 
@@ -47,12 +46,6 @@ export interface CreateNotificationInput {
   organizationId?: string;
   /** Override which channels to deliver this notification through */
   channels?: NotificationChannelConfig;
-  /** Phone number for WhatsApp delivery (if not provided, looks up user/client phone) */
-  whatsappPhone?: string;
-  /** WhatsApp template name to use (defaults to free-form text message) */
-  whatsappTemplate?: string;
-  /** WhatsApp template language code (default: "ar") */
-  whatsappLanguage?: string;
 }
 
 // ============================================
@@ -69,7 +62,6 @@ class NotificationService {
   async create(input: CreateNotificationInput): Promise<{
     success: boolean;
     notificationId?: string;
-    whatsappMessageId?: string;
     error?: string;
   }> {
     try {
@@ -79,6 +71,12 @@ class NotificationService {
       // Channel 1: In-App (Database + WebSocket)
       // ============================================
       let notificationId: string | undefined;
+
+      let orgId = input.organizationId;
+      if (!orgId) {
+        const org = await db.organization.findFirst();
+        orgId = org?.id || "";
+      }
 
       if (channels.inApp !== false) {
         const notification = await db.notification.create({
@@ -94,6 +92,7 @@ class NotificationService {
             priority: input.priority || 'MEDIUM',
             relatedEntityType: input.relatedEntityType || '',
             relatedEntityId: input.relatedEntityId || '',
+            organizationId: orgId,
             isRead: false,
           },
         });
@@ -115,16 +114,7 @@ class NotificationService {
         });
       }
 
-      // ============================================
-      // Channel 2: WhatsApp
-      // ============================================
-      let whatsappMessageId: string | undefined;
-
-      if (channels.whatsapp) {
-        whatsappMessageId = await this.sendViaWhatsApp(input);
-      }
-
-      return { success: true, notificationId, whatsappMessageId };
+      return { success: true, notificationId };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       log.error('[NotificationService] Error creating notification:', errorMessage);
@@ -191,185 +181,6 @@ class NotificationService {
     }
   }
 
-  // ============================================
-  // WhatsApp Channel Delivery
-  // ============================================
-
-  /**
-   * Send a notification via WhatsApp Business API.
-   *
-   * Resolution order for phone number:
-   * 1. Explicit `whatsappPhone` on the input
-   * 2. User's `phone` field from the User model
-   * 3. Client's `whatsapp` or `phone` field (if related to a client)
-   *
-   * If a `whatsappTemplate` is provided, sends a template message.
-   * Otherwise, sends a plain text message with the notification content.
-   *
-   * @returns WhatsApp message ID if sent successfully, undefined otherwise
-   */
-  private async sendViaWhatsApp(input: CreateNotificationInput): Promise<string | undefined> {
-    try {
-      // Dynamic import to avoid circular dependencies
-      const whatsappService = { isConfigured: false, sendTextMessage: async (phone: string, msg: string) => ({ success: false, error: 'Disabled', messageId: undefined as string | undefined }) };
-
-      if (!whatsappService.isConfigured) {
-        log.debug('[NotificationService] WhatsApp not configured — skipping WhatsApp channel');
-        return undefined;
-      }
-
-      // Resolve phone number
-      let phone = input.whatsappPhone;
-
-      if (!phone) {
-        // Try to get phone from user record
-        const user = await db.user.findUnique({
-          where: { id: input.userId },
-          select: { phone: true },
-        });
-        phone = user?.phone;
-      }
-
-      if (!phone) {
-        log.debug('[NotificationService] No phone number available for WhatsApp delivery', {
-          userId: input.userId,
-        });
-        return undefined;
-      }
-
-      // Clean phone number — strip non-digits
-      const cleanedPhone = phone.replace(/[^\d]/g, '');
-      if (cleanedPhone.length < 7) {
-        log.warn('[NotificationService] Phone number too short for WhatsApp', {
-          userId: input.userId,
-          phone: cleanedPhone.substring(0, 3) + '...',
-        });
-        return undefined;
-      }
-
-      // Send via template or plain text
-      let result;
-
-      if (input.whatsappTemplate) {
-        // Use a pre-approved template message
-        result = { success: false, error: 'WhatsApp service disabled' };
-        /* await whatsappService.sendTemplateMessage(
-          cleanedPhone,
-          input.whatsappTemplate,
-          input.whatsappLanguage || 'ar'
-        ); */
-      } else {
-        // Send a plain text message with the notification content
-        const message = input.messageAr || input.messageEn;
-        if (!message) {
-          log.debug('[NotificationService] No message content for WhatsApp delivery');
-          return undefined;
-        }
-
-        result = { success: false, error: 'WhatsApp disabled', messageId: undefined };
-      }
-
-      if (result.success && result.messageId) {
-        log.info('[NotificationService] WhatsApp notification sent', {
-          userId: input.userId,
-          phone: cleanedPhone.substring(0, 3) + '...',
-          messageId: result.messageId,
-        });
-        return result.messageId;
-      } else {
-        log.warn('[NotificationService] WhatsApp delivery failed', {
-          userId: input.userId,
-          error: result.error,
-        });
-        return undefined;
-      }
-    } catch (error) {
-      log.error('[NotificationService] WhatsApp channel error', error, {
-        userId: input.userId,
-      });
-      return undefined;
-    }
-  }
-
-  /**
-   * Send a notification via WhatsApp to a client (not a user).
-   * This is useful for client-facing notifications like invoice reminders,
-   * project updates, meeting reminders, etc.
-   *
-   * @param clientId - The client ID to send the WhatsApp message to
-   * @param message - The message text to send
-   * @param options - Optional: template name, language, organizationId, related entity
-   * @returns WhatsApp message ID if sent successfully
-   */
-  async sendWhatsAppToClient(
-    clientId: string,
-    message: string,
-    options?: {
-      templateName?: string;
-      language?: string;
-      organizationId?: string;
-      relatedType?: string;
-      relatedId?: string;
-    }
-  ): Promise<{ success: boolean; messageId?: string; error?: string }> {
-    try {
-      const whatsappService = { isConfigured: false, sendTextMessage: async (phone: string, msg: string) => ({ success: false, error: 'Disabled', messageId: undefined as string | undefined }) };
-
-      if (!whatsappService.isConfigured) {
-        return { success: false, error: 'WhatsApp not configured' };
-      }
-
-      // Look up client's WhatsApp number
-      const client = await db.client.findUnique({
-        where: { id: clientId },
-        select: {
-          whatsapp: true,
-          phone: true,
-          name: true,
-          nameEn: true,
-        },
-      });
-
-      if (!client) {
-        return { success: false, error: 'Client not found' };
-      }
-
-      const phone = client.whatsapp || client.phone;
-      if (!phone) {
-        return { success: false, error: 'Client has no WhatsApp or phone number' };
-      }
-
-      const cleanedPhone = phone.replace(/[^\d]/g, '');
-      if (cleanedPhone.length < 7) {
-        return { success: false, error: 'Invalid phone number format' };
-      }
-
-      let result;
-      if (options?.templateName) {
-        result = { success: false, error: 'WhatsApp service disabled' };
-        /* await whatsappService.sendTemplateMessage(
-          cleanedPhone,
-          options.templateName,
-          options.language || 'ar'
-        ); */
-      } else {
-        result = { success: false, error: 'WhatsApp disabled', messageId: undefined };
-      }
-
-      if (result.success) {
-        log.info('[NotificationService] WhatsApp sent to client', {
-          clientId,
-          messageId: result.messageId,
-        });
-      }
-
-      return { success: result.success, messageId: result.messageId, error: result.error };
-    } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
-      log.error('[NotificationService] Error sending WhatsApp to client', error, { clientId });
-      return { success: false, error: errorMsg };
-    }
-  }
 
   /**
    * Mark notification as read
@@ -435,7 +246,7 @@ class NotificationService {
   /**
    * Notify user of task assignment
    */
-  async notifyTaskAssigned(userId: string, taskName: string, taskNameEn: string, projectId?: string, sendWhatsApp?: boolean): Promise<void> {
+  async notifyTaskAssigned(userId: string, taskName: string, taskNameEn: string, projectId?: string): Promise<void> {
     await this.create({
       userId,
       type: 'TASK_DUE',
@@ -445,14 +256,13 @@ class NotificationService {
       messageEn: `Task "${taskNameEn}" has been assigned to you`,
       projectId,
       priority: 'MEDIUM',
-      channels: sendWhatsApp ? { inApp: true, whatsapp: true } : undefined,
     });
   }
 
   /**
    * Notify user of overdue task
    */
-  async notifyTaskOverdue(userId: string, taskName: string, taskNameEn: string, projectId?: string, sendWhatsApp?: boolean): Promise<void> {
+  async notifyTaskOverdue(userId: string, taskName: string, taskNameEn: string, projectId?: string): Promise<void> {
     await this.create({
       userId,
       type: 'TASK_DUE',
@@ -462,14 +272,13 @@ class NotificationService {
       messageEn: `Task "${taskNameEn}" has passed its due date`,
       projectId,
       priority: 'HIGH',
-      channels: sendWhatsApp ? { inApp: true, whatsapp: true } : undefined,
     });
   }
 
   /**
    * Notify user of invoice overdue
    */
-  async notifyInvoiceOverdue(userId: string, invoiceNumber: string, projectId?: string, sendWhatsApp?: boolean): Promise<void> {
+  async notifyInvoiceOverdue(userId: string, invoiceNumber: string, projectId?: string): Promise<void> {
     await this.create({
       userId,
       type: 'INVOICE_OVERDUE',
@@ -479,14 +288,13 @@ class NotificationService {
       messageEn: `Invoice ${invoiceNumber} has passed its due date`,
       projectId,
       priority: 'HIGH',
-      channels: sendWhatsApp ? { inApp: true, whatsapp: true } : undefined,
     });
   }
 
   /**
    * Notify user of approval required
    */
-  async notifyApprovalRequired(userId: string, approvalType: string, approvalTypeEn: string, projectId?: string, sendWhatsApp?: boolean): Promise<void> {
+  async notifyApprovalRequired(userId: string, approvalType: string, approvalTypeEn: string, projectId?: string): Promise<void> {
     await this.create({
       userId,
       type: 'APPROVAL_NEEDED',
@@ -496,14 +304,13 @@ class NotificationService {
       messageEn: `"${approvalTypeEn}" requires your approval`,
       projectId,
       priority: 'HIGH',
-      channels: sendWhatsApp ? { inApp: true, whatsapp: true } : undefined,
     });
   }
 
   /**
    * Notify user of meeting reminder
    */
-  async notifyMeetingReminder(userId: string, meetingTitle: string, meetingTitleEn: string, sendWhatsApp?: boolean): Promise<void> {
+  async notifyMeetingReminder(userId: string, meetingTitle: string, meetingTitleEn: string): Promise<void> {
     await this.create({
       userId,
       type: 'SYSTEM_ALERT',
@@ -512,7 +319,6 @@ class NotificationService {
       messageAr: `اجتماع "${meetingTitle}" خلال 15 دقيقة`,
       messageEn: `Meeting "${meetingTitleEn}" starts in 15 minutes`,
       priority: 'URGENT',
-      channels: sendWhatsApp ? { inApp: true, whatsapp: true } : undefined,
     });
   }
 }

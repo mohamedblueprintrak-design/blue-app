@@ -10,7 +10,6 @@ const DEFAULT_CHANNELS = {
   inApp: true,
   email: true,
   push: true,
-  webhook: false,
 };
 
 const DEFAULT_CATEGORIES = {
@@ -37,7 +36,6 @@ const channelsSchema = z.object({
   inApp: booleanSchema,
   email: booleanSchema,
   push: booleanSchema,
-  webhook: booleanSchema,
 }).optional();
 
 const categoryEventsSchema = z.record(z.string(), z.boolean()).optional();

@@ -144,43 +144,22 @@ export default function ClientDetailPanel({ client, ar, onClose, onEdit }: Clien
                 </a>
               </div>
             )}
-            {/* Action buttons: WhatsApp + Call */}
+            {/* Action button: Call */}
             <div className="flex gap-2 pt-1">
-              {(client.whatsapp || client.phone) && (
-                <a
-                  href={`https://wa.me/${(client.whatsapp || client.phone || "").replace(/[^0-9+]/g, "")}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-500 hover:bg-green-600 text-white text-xs font-medium transition-colors"
-                >
-                  <MessageCircle className="h-3 w-3" />
-                  {ar ? "واتساب" : "WhatsApp"}
-                </a>
-              )}
               {client.phone && (
-                <a
-                  href={`tel:${client.phone}`}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-medium transition-colors"
+                <a 
+                  href={`tel:${client.phone.replace(/[^0-9+]/g, "")}`}
+                  className="flex items-center justify-center gap-2 p-2.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 transition-colors"
                 >
-                  <Phone className="h-3 w-3" />
+                  <Phone className="h-4 w-4" />
                   {ar ? "اتصال" : "Call"}
                 </a>
               )}
             </div>
-            {client.whatsapp && client.phone && client.whatsapp !== client.phone && (
-              <div className="flex items-center gap-2 text-xs text-slate-400">
-                <div className="w-6 h-6 rounded-md bg-green-50 dark:bg-green-900/20 flex items-center justify-center shrink-0">
-                  <MessageCircle className="h-3 w-3 text-green-500" />
-                </div>
-                <span className="text-green-600 dark:text-green-400">{client.whatsapp}</span>
-              </div>
-            )}
             {client.extraPhone && (
-              <div className="flex items-center gap-2 text-xs text-slate-400">
-                <div className="w-6 h-6 rounded-md bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0">
-                  <Phone className="h-3 w-3 text-slate-500" />
-                </div>
-                <span>{client.extraPhone}</span>
+              <div className="flex flex-col gap-1">
+                <span className="text-xs text-slate-500">{ar ? "رقم إضافي" : "Extra Phone"}</span>
+                <span className="text-sm font-medium text-slate-900 dark:text-slate-100">{client.extraPhone}</span>
               </div>
             )}
           </div>
