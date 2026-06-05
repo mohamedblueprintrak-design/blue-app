@@ -93,6 +93,12 @@ chmod +x setup.sh
 ## 📞 الدعم والمساهمة
 هذا المشروع مخصص للاستخدام المؤسسي. إذا واجهت أي مشاكل أثناء الإعداد أو التشغيل، يرجى مراجعة سجلات الخطأ (Logs) أو التواصل مع فريق التطوير.
 
+### 🛡️ حماية الفرع الرئيسي (Branch Protection)
+لضمان استقرار النظام في بيئة الإنتاج، يرجى تفعيل إعدادات الحماية للفرع الرئيسي `main` عبر إعدادات GitHub (Settings -> Branches -> Add branch protection rule):
+1. **Require a pull request before merging:** لتفعيل مراجعة الكود قبل الدمج.
+2. **Require approvals:** تحديد عدد الموافقات المطلوبة (مثلاً 1 أو 2).
+3. **Require status checks to pass before merging:** تأكد من تحديد اختبارات الـ CI لتمريرها أولاً.
+
 ---
 
 ## 📞 التواصل (Contact)
