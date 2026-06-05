@@ -101,6 +101,17 @@ chmod +x setup.sh
 
 ---
 
+## 🚀 النشر (Deployment)
+يمكنك نشر النظام بسهولة عبر منصة مثل Vercel، أو استخدام الحاويات Docker للبيئات المخصصة.
+
+### باستخدام Docker:
+```bash
+docker-compose up -d
+```
+تأكد من إعداد ملف `.env` وتهيئة قاعدة البيانات في الإنتاج عبر `npx prisma migrate deploy`.
+
+---
+
 ## 📞 التواصل (Contact)
 
 - **رقم الهاتف (Phone)**: +971 50 161 1234
