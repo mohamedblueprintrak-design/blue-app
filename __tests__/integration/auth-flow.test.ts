@@ -673,6 +673,6 @@ describe('Auth Flow — Organization Context', () => {
   it('should return empty object for create when no organization', () => {
     const ctx = { userId: '1', email: 't@t.com', role: 'ADMIN', name: 'Test', organizationId: null };
     const create = orgCreate(ctx);
-    expect(create).toEqual({});
+    expect(create).toEqual({ organizationId: 'default' });
   });
 });

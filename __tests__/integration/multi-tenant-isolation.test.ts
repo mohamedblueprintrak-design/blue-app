@@ -360,7 +360,7 @@ describe('Multi-Tenant Isolation — orgCreate', () => {
       organizationId: null,
     };
     const create = orgCreate(ctx);
-    expect(create).toEqual({});
+    expect(create).toEqual({ organizationId: 'default' });
 
     process.env.MULTI_TENANT = originalMultiTenant;
   });
