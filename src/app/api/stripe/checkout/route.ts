@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
     const ctx = rbac.user;
 
     const body = await request.json();
-    const { planId, interval = 'month', organizationId, email, name } = body;
+    const { planId, interval = 'month', organizationId, email, name, idempotencyKey } = body;
 
     // SECURITY: Verify the organizationId belongs to the authenticated user
     if (organizationId && ctx.organizationId && organizationId !== ctx.organizationId) {
@@ -180,6 +180,7 @@ export async function POST(request: NextRequest) {
         planId,
         interval,
       },
+      idempotencyKey,
     });
 
     if (!session) {

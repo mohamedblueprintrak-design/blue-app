@@ -62,7 +62,7 @@ export const invoiceCreateSchema = z.object({
   subtotal: safeNumber,
   tax: safeNumber,
   total: safeNumber,
-  paidAmount: safeNumber,
+
   remaining: safeNumber,
 });
 

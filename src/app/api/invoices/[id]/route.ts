@@ -106,14 +106,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       total = subtotal + tax;
     }
 
-    const newPaid = validatedData.paidAmount !== undefined ? validatedData.paidAmount : Number(existing.paidAmount);
-    
-    if (newPaid < 0) {
-      return NextResponse.json({ error: "paidAmount cannot be negative" }, { status: 400 });
-    }
-    if (newPaid > total) {
-      return NextResponse.json({ error: "paidAmount cannot exceed the invoice total" }, { status: 400 });
-    }
+    const newPaid = Number(existing.paidAmount);
 
     const newRemaining = total - newPaid;
 

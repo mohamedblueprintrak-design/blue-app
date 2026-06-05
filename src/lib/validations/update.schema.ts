@@ -33,7 +33,7 @@ export const invoiceUpdateSchema = z.object({
   issueDate: z.string().min(1, 'تاريخ الإصدار مطلوب').optional(),
   dueDate: z.string().min(1, 'تاريخ الاستحقاق مطلوب').optional(),
   status: z.string().max(50).optional(),
-  paidAmount: z.coerce.number().optional(),
+
 });
 
 export type InvoiceUpdateData = z.infer<typeof invoiceUpdateSchema>;
