@@ -251,7 +251,7 @@ async function handleRegister(
 
     // Determine role - SECURITY FIX: Only admin-created orgs get admin role
     // Regular registration always gets VIEWER role (no privilege escalation)
-    const role = organizationId
+    const role = data.organizationName
       ? UserRoleValues.ADMIN
       : UserRoleValues.VIEWER;
 

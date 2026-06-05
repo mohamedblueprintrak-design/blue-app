@@ -219,7 +219,7 @@ function handleConnection(socket: Socket<ClientToServerEvents, ServerToClientEve
 function setupEventHandlers(socket: Socket<ClientToServerEvents, ServerToClientEvents, DefaultEventsMap, SocketData>) {
   // Join organization room
   socket.on('join_organization', (organizationId: string) => {
-    if (socket.data.organizationId !== organizationId) {
+    if (!socket.data.organizationId || socket.data.organizationId !== organizationId) {
       log.warn('[WebSocket] Unauthorized attempt to join organization room', {
         userId: socket.data.userId,
         attemptedOrgId: organizationId,

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { requireVerifiedPermission, orgFilter } from '@/app/api/utils/auth';
+import { requireVerifiedPermission, orgFilter, orgFilterNested } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { cacheGetOrSet } from '@/lib/cache/redis';
 import { log } from '@/lib/logger';
@@ -17,11 +17,8 @@ export async function GET(request: NextRequest) {
 
     // Build org filter for direct queries on models with organizationId
     const orgWhere = orgFilter(ctx);
-    // Build org filter for models that filter through project relationship
-    // SECURITY: If ctx.organizationId is null/missing, use __DENIED__ sentinel to prevent data leak
-    const projectOrgWhere = ctx.organizationId 
-      ? { project: { organizationId: ctx.organizationId } } 
-      : { project: { organizationId: '__DENIED__' } };
+    // Use auth utility to safely filter nested relations while supporting both single/multi-tenant
+    const projectOrgWhere = orgFilterNested(ctx, 'project');
 
     // Build cache key based on user's org and query params
     const cacheKey = `dashboard:${ctx.organizationId || 'global'}:${statsOnly ? 'stats' : 'full'}`;
