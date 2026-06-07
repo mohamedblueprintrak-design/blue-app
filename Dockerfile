@@ -16,7 +16,9 @@ COPY package.json bun.lock ./
 COPY prisma ./prisma/
 
 # Install ALL dependencies (including devDependencies for build)
-RUN bun install --frozen-lockfile
+# --ignore-scripts skips prepare:husky (dev-only) and postinstall:prisma-generate
+# We run prisma generate manually below
+RUN bun install --frozen-lockfile --ignore-scripts
 
 # Generate Prisma Client
 RUN bunx prisma generate
@@ -59,7 +61,9 @@ COPY package.json bun.lock ./
 COPY prisma ./prisma/
 
 # Install ONLY production dependencies
-RUN bun install --frozen-lockfile --production
+# --ignore-scripts skips prepare:husky (not installed in prod) and postinstall
+# We run prisma generate manually below
+RUN bun install --frozen-lockfile --production --ignore-scripts
 
 # Generate Prisma Client (production)
 RUN bunx prisma generate
