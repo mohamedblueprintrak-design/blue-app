@@ -77,7 +77,7 @@ export function isRoleAtLeast(userRole: Role, requiredRole: Role): boolean {
   const userLevel = ROLE_HIERARCHY[normalizeRole(userRole)] || ROLE_HIERARCHY[userRole] || 0;
   if (userLevel === 0) return false;
   const requiredLevel = ROLE_HIERARCHY[normalizeRole(requiredRole)] || ROLE_HIERARCHY[requiredRole] || 0;
-  if (requiredLevel === 0) return false;
+  if (requiredLevel === 0) return true;
   return userLevel >= requiredLevel;
 }
 

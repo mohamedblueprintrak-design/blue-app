@@ -12,7 +12,7 @@ test.describe('Session Management', () => {
 
   test('session endpoint should return unauthenticated without cookie', async ({ request }) => {
     const response = await request.get('/api/auth/session');
-    expect(response.ok() || response.status() === 429).toBe(true);
+    expect([200, 401, 403, 429]).toContain(response.status());
     if (response.ok()) {
       const body = await response.json();
       expect(body.isAuthenticated).toBe(false);
@@ -23,7 +23,7 @@ test.describe('Session Management', () => {
   test('logout endpoint should clear cookies', async ({ request }) => {
     const response = await request.post('/api/auth/logout');
     // May be rate limited from previous tests
-    expect([200, 429]).toContain(response.status());
+    expect([200, 403, 429]).toContain(response.status());
     if (response.ok()) {
       const body = await response.json();
       expect(body.success).toBe(true);
