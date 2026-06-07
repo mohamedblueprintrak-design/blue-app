@@ -1,0 +1,157 @@
+# ============================================
+# BluePrint ERP - Staging Deployment
+# ============================================
+# Deploys to staging environment on push to develop branch
+# or manual dispatch. Uses the same Docker image as production
+# but with staging-specific environment variables.
+
+name: Staging Deployment
+
+on:
+  push:
+    branches: [develop]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag to deploy (leave empty for latest)'
+        required: false
+        type: string
+
+concurrency:
+  group: staging-deploy
+  cancel-in-progress: true
+
+env:
+  BUN_VERSION: '1'
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # ============================================
+  # Run Tests on Staging Code
+  # ============================================
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        id: cache-node-modules
+        with:
+          path: node_modules
+          key: node-modules-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            node-modules-${{ runner.os }}-
+
+      - name: Install dependencies
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: bun install --frozen-lockfile
+
+      - name: Generate Prisma Client
+        run: bunx prisma generate
+
+      - name: Run ESLint
+        run: bun run lint
+
+      - name: TypeScript type check
+        run: bunx tsc --noEmit
+
+      - name: Run unit tests
+        run: bun run test --ci --forceExit
+        env:
+          NODE_OPTIONS: "--experimental-vm-modules"
+          DATABASE_URL: "file:./test.db"
+          JWT_SECRET: "test-jwt-secret-for-ci-minimum-32-characters-long"
+          ENCRYPTION_KEY: "aaaa1111bbbb2222cccc3333dddd4444eeee5555ffff6666aaaa7777bbbb8888"
+
+  # ============================================
+  # Build & Push Staging Docker Image
+  # ============================================
+  build:
+    name: Build & Push
+    runs-on: ubuntu-latest
+    needs: test
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=staging
+            type=sha,prefix=staging-
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            NODE_ENV=production
+
+  # ============================================
+  # Deploy to Staging (SSH - optional)
+  # ============================================
+  deploy:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: build
+    if: success() && secrets.STAGING_HOST != ''
+    environment:
+      name: staging
+      url: ${{ vars.STAGING_APP_URL || 'https://staging.blueprint.example.com' }}
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.STAGING_HOST }}
+          username: ${{ secrets.STAGING_USER || 'deploy' }}
+          key: ${{ secrets.STAGING_SSH_KEY }}
+          port: ${{ secrets.STAGING_PORT || '22' }}
+          script: |
+            set -euo pipefail
+            echo "Deploying to staging..."
+            cd /opt/blueprint-staging || exit 1
+            docker compose pull app
+            docker compose up -d --remove-orphans
+            echo "Staging deployment completed!"
+
+      - name: Verify staging health
+        run: |
+          sleep 10
+          APP_URL="${{ vars.STAGING_APP_URL || 'https://staging.blueprint.example.com' }}"
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${APP_URL}/api/health" || echo "000")
+          if [[ "${HTTP_STATUS}" == "200" ]]; then
+            echo "Staging health check passed!"
+          else
+            echo "Warning: Staging health check returned ${HTTP_STATUS}"
+          fi
