@@ -1,3 +1,4 @@
+/* eslint-disable import/no-anonymous-default-export */
 /**
  * BluePrint Projects API Load Test
  *
@@ -83,7 +84,7 @@ export function setup() {
 // Test
 // ─────────────────────────────────────────────────────────────────────────────
 
-export default function (data) {
+export default function (_data) {
   // Authenticate first
   const auth = login();
   if (!auth.success) {

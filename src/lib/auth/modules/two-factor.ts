@@ -8,7 +8,7 @@
  * Used by auth-service.ts facade via dynamic imports.
  */
 
-import { randomBytes, randomInt, timingSafeEqual } from 'crypto';
+import { randomInt, timingSafeEqual } from 'crypto';
 import { generateSecret, generateURI, verify, NobleCryptoPlugin, ScureBase32Plugin } from 'otplib';
 import { db } from '@/lib/db';
 import { log } from '@/lib/logger';

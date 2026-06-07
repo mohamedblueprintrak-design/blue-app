@@ -92,7 +92,9 @@ export async function POST(request: NextRequest) {
     }
 
     const { number, clientId, projectId, status } = validation.data;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const items = (body as any).items;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const notes = (body as any).notes;
 
     const lineItems = items || [];

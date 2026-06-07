@@ -134,7 +134,7 @@ async function getJsPDF() {
 }
 
 // Format number with thousand separators
-function formatNumber(num: number): string {
+function _formatNumber(num: number): string {
   return num.toLocaleString('en-US');
 }
 

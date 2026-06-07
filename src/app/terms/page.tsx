@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useSyncExternalStore } from "react";
 import { motion } from "framer-motion";
 import { FileText, Scale, Shield, AlertTriangle, RefreshCw, Mail } from "lucide-react";
 import PublicHeader from "@/components/layout/public-header";
@@ -16,29 +16,28 @@ const fadeInUp = {
   }),
 };
 
+const emptySubscribe = () => () => {};
+
+function useLang() {
+  const language = useSyncExternalStore(
+    (onChange) => {
+      const handler = () => onChange();
+      window.addEventListener("blueprint-lang-change", handler);
+      window.addEventListener("storage", handler);
+      return () => {
+        window.removeEventListener("blueprint-lang-change", handler);
+        window.removeEventListener("storage", handler);
+      };
+    },
+    () => (localStorage.getItem("blueprint-lang") as "ar" | "en") || "ar",
+    () => "ar" as const
+  );
+  return language;
+}
+
 export default function TermsPage() {
-  const [language, setLanguage] = useState<"ar" | "en">("ar");
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    const saved = localStorage.getItem("blueprint-lang") as "ar" | "en" | null;
-    if (saved) setLanguage(saved);
-
-    const handleLangChange = () => {
-      const current = localStorage.getItem("blueprint-lang") as "ar" | "en" | null;
-      if (current) setLanguage(current);
-    };
-    window.addEventListener("blueprint-lang-change", handleLangChange);
-    window.addEventListener("storage", handleLangChange);
-    return () => {
-      window.removeEventListener("blueprint-lang-change", handleLangChange);
-      window.removeEventListener("storage", handleLangChange);
-    };
-  }, []);
+  const language = useLang();
+  const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
 
   const t = (ar: string, en: string) => (!mounted || language === "ar" ? ar : en);
 

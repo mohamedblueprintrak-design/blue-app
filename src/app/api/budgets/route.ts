@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
     if (!validation.success) {
       return NextResponse.json({ error: validation.error, errors: validation.errors }, { status: 400 });
     }
-    const body = sanitizeObject(validation.data);
+    const _body = sanitizeObject(validation.data);
     const validatedData = validation.data;
     const { projectId, parentId, name, category, planned, actual, committed } = validatedData;
 

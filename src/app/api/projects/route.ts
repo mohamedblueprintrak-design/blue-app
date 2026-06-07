@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { sanitizeObject } from '@/lib/security/sanitize';
 import { projectSchema } from '@/lib/validations';
 import { orgFilter, orgCreate, requireVerifiedPermission } from '../utils/auth';

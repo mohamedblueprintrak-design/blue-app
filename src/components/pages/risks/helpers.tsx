@@ -14,7 +14,7 @@ export function getCategoryBadge(category: string, ar: boolean) {
 }
 
 export function getStrategyBadge(strategy: string, ar: boolean) {
-  const cat = categories.find((c) => c.value === strategy);
+  const _cat = categories.find((c) => c.value === strategy);
   // Use strategies from constants
   const strategies = [
     { value: "AVOID", ar: "\u062a\u062c\u0646\u0628", en: "Avoid", color: "bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300" },

@@ -60,8 +60,6 @@ export function getCategoryConfig(cat: string) {
   return configs[cat] || configs.general;
 }
 
-import { getAvatarColor } from '@/lib/utils';
-
 // Folder tree categories
 export const folderCategories = [
   { key: "all", ar: "كل الملفات", en: "All Files", icon: Folder },

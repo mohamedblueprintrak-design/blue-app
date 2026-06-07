@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 import { log } from '@/lib/logger';
-import { requireVerifiedPermission, orgCreate as _orgCreate, orgFilter} from '@/app/api/utils/auth';
+import { requireVerifiedPermission, orgCreate as _orgCreate } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { forbiddenResponse } from '@/app/api/utils/response';
 import { validateIdParam, validateRequest, commentCreateSchema } from '@/lib/api-validation';
@@ -85,7 +85,7 @@ export async function POST(
     if (!validation.success) {
       return NextResponse.json({ error: validation.error, errors: validation.errors }, { status: 400 });
     }
-    const sanitizedBody = sanitizeObject(validation.data);
+    const _sanitizedBody = sanitizeObject(validation.data);
 
     const { content } = validation.data;
 

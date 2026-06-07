@@ -508,12 +508,12 @@ describe('Multi-Tenant Isolation — Cross-Tenant Leakage Prevention', () => {
 
 describe('Multi-Tenant Isolation — Environment Configuration', () => {
   let orgFilter: typeof import('@/app/api/utils/auth').orgFilter;
-  let orgCheck: typeof import('@/app/api/utils/auth').orgCheck;
+  let _orgCheck: typeof import('@/app/api/utils/auth').orgCheck;
 
   beforeAll(async () => {
     const mod = await import('@/app/api/utils/auth');
     orgFilter = mod.orgFilter;
-    orgCheck = mod.orgCheck;
+    _orgCheck = mod.orgCheck;
   });
 
   afterEach(() => {

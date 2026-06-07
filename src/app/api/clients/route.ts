@@ -235,7 +235,7 @@ export async function POST(request: NextRequest) {
     if (!validation.success) {
       return errorResponse(validation.error.issues[0].message, "VALIDATION_ERROR", 400);
     }
-    const body = sanitizeObject(validation.data);
+    const _body = sanitizeObject(validation.data);
     const validatedData = validation.data;
     const sanitizedEmail = validatedData.email ? sanitizeEmail(validatedData.email) : "";
 

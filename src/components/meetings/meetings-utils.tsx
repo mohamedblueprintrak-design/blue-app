@@ -1,5 +1,5 @@
 import { Monitor, Building2 } from "lucide-react";
-import { cn, getAvatarColor } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 // ===== Types =====
 export interface MeetingItem {

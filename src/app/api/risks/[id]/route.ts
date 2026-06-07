@@ -71,7 +71,7 @@ export async function PUT(
 
      return NextResponse.json({ error: validation.error, errors: validation.errors }, { status: 400 });
     }
-    const sanitizedBody = sanitizeObject(validation.data);
+    const _sanitizedBody = sanitizeObject(validation.data);
 
     // Verify org ownership before update
     const orgWhere = orgFilterNested(ctx, 'project');

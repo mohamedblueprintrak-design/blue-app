@@ -1,3 +1,4 @@
+/* eslint-disable import/no-anonymous-default-export */
 /**
  * BluePrint Auth Load Test
  *
@@ -59,7 +60,7 @@ export function setup() {
 // Test
 // ─────────────────────────────────────────────────────────────────────────────
 
-export default function (data) {
+export default function (_data) {
   // ═══════════════════════════════════════════════════════════════════════════
   // 1. Login — valid credentials
   // ═══════════════════════════════════════════════════════════════════════════

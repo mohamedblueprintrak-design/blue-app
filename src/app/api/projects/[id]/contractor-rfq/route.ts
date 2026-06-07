@@ -3,7 +3,6 @@ import { db } from '@/lib/db';
 import { handleApiError } from '@/lib/api-error';
 import { requireVerifiedPermission, orgCheck, orgCreate } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
-import { forbiddenResponse } from '@/app/api/utils/response';
 import { validateIdParam } from '@/lib/api-validation';
 
 // POST /api/projects/[id]/contractor-rfq - Send RFQ to selected contractors

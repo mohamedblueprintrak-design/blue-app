@@ -1,4 +1,4 @@
-import { Users, PhoneCall, Mail, MessageCircle, FileText } from 'lucide-react'
+import { Users, PhoneCall, Mail } from 'lucide-react'
 
 // ===== Utility Functions =====
 export function formatCurrency(amount: number): string {

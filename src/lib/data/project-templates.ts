@@ -7,7 +7,6 @@
  * project lifecycle for different building types in the UAE/Gulf region.
  */
 
-import { db } from '@/lib/db';
 
 // ==================== Types ====================
 
@@ -335,7 +334,7 @@ export const PROJECT_TEMPLATES: ProjectTemplateDef[] = [
  * Seed project templates into the database.
  * Creates templates only if they don't already exist (by name).
  */
-export async function seedProjectTemplates(createdById: string, organizationId?: string): Promise<number> {
+export async function seedProjectTemplates(_createdById: string, _organizationId?: string): Promise<number> {
   // ProjectTemplate model has been deleted to simplify the schema
   return 0;
 }

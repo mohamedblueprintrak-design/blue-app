@@ -79,7 +79,7 @@ interface EmployeeOption {
 }
 
 // ===== Helpers =====
-const statusDotColors: Record<string, string> = {
+const _statusDotColors: Record<string, string> = {
   PRESENT: "bg-green-500",
   ABSENT: "bg-red-500",
   LATE: "bg-amber-500",

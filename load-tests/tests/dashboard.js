@@ -1,3 +1,4 @@
+/* eslint-disable import/no-anonymous-default-export */
 /**
  * BluePrint Dashboard API Load Test
  *
@@ -63,7 +64,7 @@ export function setup() {
 // Test
 // ─────────────────────────────────────────────────────────────────────────────
 
-export default function (data) {
+export default function (_data) {
   // ═══════════════════════════════════════════════════════════════════════════
   // 1. Public stats (unauthenticated — lightweight)
   // ═══════════════════════════════════════════════════════════════════════════

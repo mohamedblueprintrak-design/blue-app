@@ -11,7 +11,7 @@ import { insensitiveContains } from '@/app/api/utils/db';
 import { logAudit } from './audit.service';
 import { sequenceService } from './sequence.service';
 import { automationService } from './automation.service';
-import { Invoice, Prisma } from '@prisma/client';
+import { Invoice } from '@prisma/client';
 
 /**
  * Invoice filtering options
@@ -169,7 +169,7 @@ class InvoiceService {
   ): Promise<Invoice> {
     const subtotal = data.subtotal || 0;
     
-    const companySettings = await db.companySettings.findFirst({
+    const _companySettings = await db.companySettings.findFirst({
       where: { organizationId },
     });
     

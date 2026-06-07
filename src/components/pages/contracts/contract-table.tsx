@@ -34,7 +34,7 @@ import {
   Inbox,
   FileSignature,
 } from "lucide-react";
-import type { ContractItem, ContractDetail, ClientOption, ProjectOption } from "./types";
+import type { ContractItem, ContractDetail } from "./types";
 import { getStatusConfig } from "./helpers";
 
 interface ContractTableProps {
@@ -74,8 +74,11 @@ export function ContractTable({
   onSelectContract,
   onEditContract,
   onDeleteContract,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   contractDetail,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onCloseDetail,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onEditFromDetail,
 }: ContractTableProps) {
   return (

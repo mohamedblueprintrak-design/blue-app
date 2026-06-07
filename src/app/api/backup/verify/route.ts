@@ -19,7 +19,7 @@ const verifyBackupSchema = z.object({
   filename: z.string()
     .min(1, 'اسم الملف مطلوب')
     .max(255, 'اسم الملف طويل جداً')
-    .regex(/^blueprint_backup_[\w\-]+\.(\db|sql\.gz)$/, 'اسم ملف النسخة الاحتياطية غير صالح'),
+    .regex(/^blueprint_backup_[\w-]+\.(\db|sql\.gz)$/, 'اسم ملف النسخة الاحتياطية غير صالح'),
 });
 
 /**

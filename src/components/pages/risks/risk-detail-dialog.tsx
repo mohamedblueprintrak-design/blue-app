@@ -14,7 +14,6 @@ import {
 import { ShieldAlert } from "lucide-react";
 import { getCategoryBadge, getStrategyBadge, getStatusBadge, getScoreColor } from "./helpers";
 import type { RiskItem } from "./types";
-import { UseMutateFunction } from "@tanstack/react-query";
 
 interface RiskDetailDialogProps {
   ar: boolean;

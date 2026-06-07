@@ -3,7 +3,6 @@ import { requireVerifiedPermission } from '@/app/api/utils/auth';
 import { errorResponse, successResponse, handleApiError } from '@/app/api/utils/response';
 import { Permission } from '@/lib/auth/types';
 import { convertCurrency, DEFAULT_EXCHANGE_RATES } from '@/lib/currency';
-import { db } from '@/lib/db';
 
 /**
  * POST /api/settings/currency/convert

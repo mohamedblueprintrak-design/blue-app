@@ -25,7 +25,6 @@ import { Plus, ShieldAlert, Trash2 } from "lucide-react";
 import { categories, strategies } from "./constants";
 import { getScoreColor, getScoreTextColor } from "./helpers";
 import type { RiskFormData, NewAction, ProjectOption, UserOption } from "./types";
-import { UseMutateFunction } from "@tanstack/react-query";
 
 interface RiskFormDialogProps {
   ar: boolean;

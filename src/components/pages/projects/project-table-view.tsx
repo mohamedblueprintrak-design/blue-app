@@ -17,7 +17,7 @@ import { forwardRef } from "react";
 import { Building2, MapPin, HardHat, Eye, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { ProjectRow } from "./types";
-import { statusConfig, typeConfig, MAX_COMPARE } from "./types";
+import { statusConfig, typeConfig } from "./types";
 
 interface ProjectTableViewProps {
   isAr: boolean;
@@ -37,10 +37,15 @@ interface ProjectTableViewProps {
 }
 
 const VirtuosoTableComponents = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   Scroller: forwardRef((props: any, ref) => <div {...props} ref={ref} className={cn("overflow-auto max-h-[calc(100vh-280px)] w-full custom-scrollbar", props.className)} />),
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   Table: (props: any) => <Table {...props} className={cn("w-full caption-bottom text-sm", props.className)} />,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   TableHead: forwardRef((props: any, ref) => <TableHeader {...props} ref={ref} className="sticky top-0 z-10 bg-slate-50 dark:bg-slate-800/50 shadow-[0_1px_0_0_#e2e8f0] dark:shadow-[0_1px_0_0_#1e293b]" />),
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   TableRow: (props: any) => <TableRow {...props} />,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   TableBody: forwardRef((props: any, ref) => <TableBody {...props} ref={ref} />),
 };
 

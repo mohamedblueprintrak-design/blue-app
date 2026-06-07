@@ -44,6 +44,7 @@ export function EmployeeFormDialog({
   onSave,
   isSaving,
 }: EmployeeFormDialogProps) {
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- emptyForm is a stable default values object
   const emptyForm = {
     userId: "",
     department: "",
@@ -73,7 +74,7 @@ export function EmployeeFormDialog({
     } else {
       reset(emptyForm);
     }
-  }, [employee, reset]);
+  }, [employee, reset, emptyForm]);
 
   return (
     <Dialog

@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    const body = sanitizeObject(validation.data);
+    const _body = sanitizeObject(validation.data);
     const validatedData = validation.data;
     const {
       number,

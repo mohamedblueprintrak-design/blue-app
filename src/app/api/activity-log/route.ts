@@ -1,6 +1,6 @@
 import { db } from '@/lib/db';
 import { NextRequest, NextResponse } from 'next/server';
-import { requireVerifiedPermission, orgFilter} from '@/app/api/utils/auth';
+import { requireVerifiedPermission } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { handleApiError } from '@/lib/api-error';
 import { z } from 'zod';

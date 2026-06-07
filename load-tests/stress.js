@@ -1,3 +1,4 @@
+/* eslint-disable import/no-anonymous-default-export */
 /**
  * BluePrint Stress Test
  *
@@ -52,7 +53,7 @@ export function setup() {
 // Test — same endpoints as load test but at higher concurrency
 // ─────────────────────────────────────────────────────────────────────────────
 
-export default function (data) {
+export default function (_data) {
   const auth = login();
 
   // ── Health check ──────────────────────────────────────────────────────────

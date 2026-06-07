@@ -14,7 +14,7 @@
  *   ./validations/user.schema     — user schemas
  */
 
-import { z, ZodSchema, ZodError } from 'zod';
+import { ZodSchema, ZodError } from 'zod';
 import { NextRequest, NextResponse } from 'next/server';
 import { idParamSchema } from './validations/common.schema';
 

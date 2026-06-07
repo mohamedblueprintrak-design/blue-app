@@ -2,7 +2,7 @@ import { db } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 import { sanitizeObject } from '@/lib/security/sanitize';
 import { requireVerifiedPermission, orgCheck } from '../../utils/auth';
-import { errorResponse, notFoundResponse, forbiddenResponse } from '../../utils/response';
+import { errorResponse, notFoundResponse } from '../../utils/response';
 import { validateRequest, projectUpdateSchema, validateIdParam } from '@/lib/api-validation';
 import { log } from '@/lib/logger';
 import { Permission } from '@/lib/auth/types';

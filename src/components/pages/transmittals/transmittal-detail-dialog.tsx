@@ -1,8 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -26,7 +24,7 @@ import {
   Send,
   Package,
 } from "lucide-react";
-import type { TransmittalItem, TransmittalDetailItem } from "./types";
+import type { TransmittalItem } from "./types";
 import { getDeliveryBadge, getStatusBadge, getPurposeBadge } from "./helpers";
 
 interface TransmittalDetailDialogProps {

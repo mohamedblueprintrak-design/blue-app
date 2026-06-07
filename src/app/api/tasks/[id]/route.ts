@@ -2,7 +2,7 @@ import { db } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 import { sanitizeObject } from '@/lib/security/sanitize';
 import { requireVerifiedPermission, orgCheck } from '../../utils/auth';
-import { errorResponse, notFoundResponse, forbiddenResponse } from '../../utils/response';
+import { errorResponse, notFoundResponse } from '../../utils/response';
 import { validateRequest, taskUpdateSchema, validateIdParam } from '@/lib/api-validation';
 import { log } from '@/lib/logger';
 import { Permission } from '@/lib/auth/types';
@@ -87,7 +87,7 @@ export async function PUT(
     if (!validation.success) {
       return NextResponse.json({ error: validation.error, errors: validation.errors }, { status: 400 });
     }
-    const body = sanitizeObject(validation.data);
+    const _body = sanitizeObject(validation.data);
 
     // Check task exists
     const existing = await db.task.findUnique({ where: { id } });

@@ -22,16 +22,6 @@ import {
   type CookieCategory,
 } from "@/lib/cookie-consent";
 
-/** Read language from localStorage (safe for SSR — returns "ar" as default) */
-function getStoredLang(): "ar" | "en" {
-  if (typeof window === "undefined") return "ar";
-  try {
-    return (localStorage.getItem("blueprint-lang") as "ar" | "en") || "ar";
-  } catch {
-    return "ar";
-  }
-}
-
 export default function CookieConsent() {
   const [visible, setVisible] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);

@@ -112,10 +112,10 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    const body = sanitizeObject(validation.data);
+    const _body = sanitizeObject(validation.data);
     const validatedData = sanitizeObject(validation.data);
 
-    const { projectId, title, description, severity, status, assigneeId, location, photos, notes } = validatedData;
+    const { projectId, title, description: _description, severity, status, assigneeId, location, photos, notes } = validatedData;
 
     const defect = await db.defect.create({
       data: {

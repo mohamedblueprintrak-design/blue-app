@@ -120,7 +120,7 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    const sanitizedBody = sanitizeObject(validation.data);
+    const _sanitizedBody = sanitizeObject(validation.data);
     const {
       projectId,
       title,

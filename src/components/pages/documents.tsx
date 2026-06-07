@@ -831,6 +831,7 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
                   <Label className="text-xs text-slate-400 dark:text-slate-500 mb-2 block">{ar ? "معاينة المستند" : "Document Preview"}</Label>
                   {["jpg", "jpeg", "png", "gif", "webp"].includes((viewDoc.fileType || "").toLowerCase()) ? (
                     <div className="rounded-md overflow-hidden border border-slate-200 dark:border-slate-700">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={viewDoc.filePath} alt={viewDoc.name} className="w-full h-auto max-h-[300px] object-contain bg-slate-50 dark:bg-slate-900" />
                     </div>
                   ) : ["pdf"].includes((viewDoc.fileType || "").toLowerCase()) ? (

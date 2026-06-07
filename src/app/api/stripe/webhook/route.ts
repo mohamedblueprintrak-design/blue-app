@@ -232,6 +232,7 @@ async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
         data: {
           organizationId,
           planId,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           status: mapStripeStatus(subscription.status) as any,
           stripeSubscriptionId: subscription.id,
           stripeCustomerId: subscription.customer as string,

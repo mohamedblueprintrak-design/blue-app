@@ -18,7 +18,7 @@ import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 
 export async function GET(request: NextRequest) {
   try {
-    const { allowed, result: rlResult } = await withRateLimit(request, 'public');
+    const { allowed: _allowed, result: rlResult } = await withRateLimit(request, 'public');
     const blocked = rateLimitResponse(rlResult);
     if (blocked) return blocked;
 

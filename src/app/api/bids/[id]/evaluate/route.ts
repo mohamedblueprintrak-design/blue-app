@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { log } from '@/lib/logger';
 import { requireVerifiedPermission, orgCheck, orgCreate } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
-import { forbiddenResponse } from '@/app/api/utils/response';
 import { validateIdParam } from '@/lib/api-validation';
 
 // POST /api/bids/[id]/evaluate

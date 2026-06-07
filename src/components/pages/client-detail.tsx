@@ -6,7 +6,7 @@ import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Pencil, X, Mail, Phone, MapPin, CreditCard, FileText, FileSignature, MessageCircle, Globe, Home } from 'lucide-react';
+import { Pencil, X, Mail, Phone, MapPin, CreditCard, FileText, FileSignature, Globe, Home } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/lib/formatters";
 import { StatusIcon } from "@/components/ui/status-icon";

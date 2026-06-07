@@ -1,7 +1,5 @@
 "use client";
 
-import { StatusIcon } from "@/components/ui/status-icon";
-import { cn } from "@/lib/utils";
 import type { InvoiceItem } from "./types";
 
 export function getStatusConfig(status: string) {

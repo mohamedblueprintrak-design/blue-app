@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { handleApiError } from '@/lib/api-error';
-import { requireVerifiedPermission, orgFilter} from '@/app/api/utils/auth';
+import { requireVerifiedPermission, forbiddenResponse } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
-import { forbiddenResponse } from '@/app/api/utils/response';
 import { validateIdParam } from '@/lib/api-validation';
 
 // POST /api/projects/[id]/contractor-rfq/analyze - AI analysis of quotes
@@ -30,7 +29,7 @@ export async function POST(
 
     // Multi-tenancy: check org access
     if (user.organizationId && project.organizationId && project.organizationId !== user.organizationId) {
-      return forbiddenResponse();
+      return forbiddenResponse('Organization access denied');
     }
 
     // Get all bids with quotes for this project
