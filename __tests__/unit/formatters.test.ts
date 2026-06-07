@@ -100,7 +100,8 @@ function capitalize(str: string): string {
 describe('Formatters — Currency', () => {
   it('should format AED currency', () => {
     const result = formatCurrency(1500.5);
-    expect(result).toContain('1500');
+    // Arabic locale may format as "1,500" with comma separator
+    expect(result).toMatch(/1[,]?500/);
   });
 
   it('should format zero amount', () => {
@@ -115,7 +116,7 @@ describe('Formatters — Currency', () => {
 
   it('should handle negative amounts', () => {
     const result = formatCurrency(-500);
-    expect(result).toContain('500');
+    expect(result).toMatch(/500/);
   });
 });
 
