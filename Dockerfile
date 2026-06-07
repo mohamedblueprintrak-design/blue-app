@@ -6,7 +6,8 @@
 
 # Stage 1: Dependencies (using Bun for fast, reliable installs)
 FROM oven/bun:1-alpine AS deps
-RUN apk add --no-cache libc6-compat openssl
+# python3, make, g++ needed for native modules (better-sqlite3, sharp)
+RUN apk add --no-cache libc6-compat openssl python3 make g++
 
 WORKDIR /app
 
@@ -49,7 +50,8 @@ RUN bun run build
 # ============================================
 # Stage 3: Install production dependencies only
 FROM oven/bun:1-alpine AS prod-deps
-RUN apk add --no-cache libc6-compat openssl
+# python3, make, g++ needed for native modules (better-sqlite3)
+RUN apk add --no-cache libc6-compat openssl python3 make g++
 
 WORKDIR /app
 

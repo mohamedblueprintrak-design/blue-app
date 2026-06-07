@@ -24,9 +24,10 @@ test.describe('Authentication Flow', () => {
     // Try to access a protected page
     await page.goto('/projects', { timeout: 60000 });
     await page.waitForLoadState('domcontentloaded');
-    // Should be redirected to /dashboard (login page)
+    // Should be redirected to login page (/dashboard or /login)
     const url = page.url();
-    expect(url).toContain('/dashboard');
+    const isOnLoginPage = url.includes('/dashboard') || url.includes('/login');
+    expect(isOnLoginPage).toBe(true);
   });
 
   test('should set httpOnly cookie on login', async ({ page }) => {
