@@ -118,7 +118,7 @@ export async function initializeWebSocket(
       const secretKey = getJwtSecretBytes();
       const { payload: decoded } = await jose.jwtVerify(token, secretKey, {
         issuer: 'blueprint-saas',
-        audience: 'blueprint-users',
+        audience: 'blueprint-ws',
       });
 
       // Get user from database

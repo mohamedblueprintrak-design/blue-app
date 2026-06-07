@@ -44,7 +44,7 @@ if (process.env.NODE_ENV === 'production' && !process.env.JWT_SECRET) {
 }
 const JWT_SECRET = process.env.JWT_SECRET || 'blueprint-dev-secret-do-not-use-in-production-min32chars!';
 const JWT_ISSUER = process.env.JWT_ISSUER || 'blueprint-erp';
-const JWT_AUDIENCE = process.env.JWT_AUDIENCE || 'blueprint-clients';
+const JWT_AUDIENCE = process.env.JWT_AUDIENCE || 'blueprint-ws';
 const CORS_ORIGIN = process.env.CORS_ORIGINS || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
 // ============================================

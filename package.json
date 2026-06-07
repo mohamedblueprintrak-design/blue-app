@@ -10,6 +10,7 @@
     "start": "node .next/standalone/server.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
+    "type-check": "tsc --noEmit",
     "prepare": "husky",
     "test": "npx cross-env NODE_OPTIONS='--experimental-vm-modules' jest --config jest.config.ts",
     "test:watch": "npx cross-env NODE_OPTIONS='--experimental-vm-modules' jest --watch",
