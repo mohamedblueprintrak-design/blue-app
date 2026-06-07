@@ -93,7 +93,7 @@ export function ContractFormDialog({
             <div className="space-y-2">
               <Label className="text-sm">{ar ? "العميل" : "Client"} *</Label>
               <Select
-                // eslint-disable-next-line react-hooks/incompatible-library
+                 
                 value={watch("clientId")}
                 onValueChange={(v) => setValue("clientId", v)}
               >

@@ -348,8 +348,24 @@ function handleConnection(socket: TypedSocket) {
 function setupEventHandlers(socket: TypedSocket) {
   // Join organization room (with auth verification)
   socket.on('join_organization', (organizationId: string) => {
+    if (typeof organizationId !== 'string') {
+      socket.emit('error', { message: 'Invalid organization ID format', code: 'INVALID_INPUT' });
+      return;
+    }
+
     const userConnection = connectedUsers.get(socket.id);
-    if (!userConnection || userConnection.organizationId !== organizationId) {
+    if (!userConnection) {
+      socket.emit('error', { message: 'Unauthorized: not connected properly', code: 'NOT_CONNECTED' });
+      return;
+    }
+
+    // Admins can join any organization room
+    if (socket.data.role === 'ADMIN' || socket.data.role === 'admin') {
+      joinRoom(socket, 'organization', organizationId);
+      return;
+    }
+
+    if (userConnection.organizationId !== organizationId) {
       socket.emit('error', { message: 'Unauthorized: you do not belong to this organization', code: 'ORG_MISMATCH' });
       return;
     }

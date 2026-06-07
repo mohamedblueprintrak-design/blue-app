@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
   try {
     const cacheKey = buildCacheKey('settings', 'company', rbac.user.organizationId || 'global');
 
-    let settings = await cachedQuery(cacheKey, async () => {
+    const settings = await cachedQuery(cacheKey, async () => {
       let settings = await db.companySettings.findFirst({
         where: { ...orgFilter(rbac.user) },
       });

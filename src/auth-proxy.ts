@@ -21,7 +21,7 @@ import {
 const COOKIE_NAME = 'blue_token';
 
 const PUBLIC_API_ROUTES = [
-  '/api/auth/login', '/api/auth/register', '/api/auth/logout',
+  '/api/auth/login', '/api/auth/register',
   '/api/auth/session', '/api/auth/forgot-password', '/api/auth/reset-password',
   '/api/auth/verify-email', '/api/auth/resend-verification',
   '/api/auth/2fa/verify', // Only the verify endpoint is public (uses blue_2fa_temp cookie)
@@ -35,7 +35,7 @@ const PUBLIC_API_ROUTES = [
 
 const CSRF_EXEMPT_PATHS = [
   '/api/stripe/webhook', '/api/health', '/api/auth/login',
-  '/api/auth/register', '/api/auth/logout', '/api/auth/forgot-password',
+  '/api/auth/register', '/api/auth/forgot-password',
   '/api/auth/reset-password', '/api/auth/verify-email', '/api/auth/resend-verification',
   '/api/auth/2fa', '/api/auth/2fa/verify', '/api/auth/2fa/backup-codes',
   '/api/auth/refresh', '/api/auth/ws-token', '/api/seed',

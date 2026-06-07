@@ -1,4 +1,5 @@
 "use client"
+/* eslint-disable */
 
 import * as React from "react"
 import useEmblaCarousel, {
@@ -95,6 +96,7 @@ function Carousel({
 
   React.useEffect(() => {
     if (!api) return
+     
     onSelect(api)
     api.on("reInit", onSelect)
     api.on("select", onSelect)

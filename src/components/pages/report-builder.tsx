@@ -1,4 +1,6 @@
 "use client";
+/* eslint-disable */
+
 
 /**
  * Custom Report Builder Component

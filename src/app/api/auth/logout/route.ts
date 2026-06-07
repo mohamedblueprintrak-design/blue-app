@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
 import { log } from '@/lib/logger';
 import {
   AUTH_COOKIE_NAME,
@@ -8,6 +7,8 @@ import {
   getAuthCookieOptions,
 } from '@/lib/auth/token-utils';
 import { getAuthContext } from '@/app/api/utils/auth';
+import { authService } from '@/lib/auth/auth-service';
+import { db } from '@/lib/db';
 
 /**
  * POST /api/auth/logout
@@ -17,6 +18,7 @@ export async function POST(request: NextRequest) {
   try {
     // Extract refresh token from cookie using safe cookie API
     const refreshToken = request.cookies.get(REFRESH_COOKIE_NAME)?.value || null;
+    let targetUserId = null;
 
     if (refreshToken) {
       // Hash the token and revoke it in the database
@@ -26,42 +28,21 @@ export async function POST(request: NextRequest) {
       });
 
       if (storedToken) {
-        // Revoke ALL refresh tokens for this user to log out from all devices
-        await db.refreshToken.updateMany({
-          where: { 
-            userId: storedToken.userId,
-            revokedAt: null
-          },
-          data: { revokedAt: new Date() },
-        });
-        log.info('All refresh tokens revoked on logout', { userId: storedToken.userId });
-      } else {
-        // Fallback: If we couldn't find the refresh token, try to get userId from the request context
-        const ctx = getAuthContext(request);
-        if (ctx?.userId) {
-          await db.refreshToken.updateMany({
-            where: { 
-              userId: ctx.userId,
-              revokedAt: null
-            },
-            data: { revokedAt: new Date() },
-          });
-          log.info('All refresh tokens revoked on logout via auth context', { userId: ctx.userId });
-        }
+        targetUserId = storedToken.userId;
       }
-    } else {
-      // No refresh token cookie, but maybe we have the auth context
+    }
+
+    if (!targetUserId) {
       const ctx = getAuthContext(request);
       if (ctx?.userId) {
-        await db.refreshToken.updateMany({
-          where: { 
-            userId: ctx.userId,
-            revokedAt: null
-          },
-          data: { revokedAt: new Date() },
-        });
-        log.info('All refresh tokens revoked on logout via auth context', { userId: ctx.userId });
+        targetUserId = ctx.userId;
       }
+    }
+
+    if (targetUserId) {
+      // authService.logout revokes all refresh tokens and logs the audit event
+      await authService.logout(targetUserId);
+      log.info('All refresh tokens revoked on logout', { userId: targetUserId });
     }
   } catch (error) {
     // Log but don't block logout if revocation fails

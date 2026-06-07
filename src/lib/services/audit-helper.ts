@@ -189,22 +189,18 @@ export async function createAuditEntry(params: CreateAuditEntryParams): Promise<
     const { oldValues: diffOld, newValues: diffNew } = computeDiff(oldValues, newValues);
 
     // Determine what to store
-    let storedOldValues: string | null = null;
-    let storedNewValues: string | null = null;
+    const metadataObj: Record<string, unknown> = {};
 
     if (action === 'create') {
-      // For creates, only store the new values (no old values exist)
-      storedNewValues = newValues ? JSON.stringify(newValues) : null;
+      if (newValues) metadataObj.newValues = newValues;
     } else if (action === 'delete') {
-      // For deletes, only store the old values (no new values exist)
-      storedOldValues = oldValues ? JSON.stringify(oldValues) : null;
+      if (oldValues) metadataObj.oldValues = oldValues;
     } else {
-      // For updates, store only the changed fields
       if (Object.keys(diffOld).length > 0) {
-        storedOldValues = JSON.stringify(diffOld);
+        metadataObj.oldValues = diffOld;
       }
       if (Object.keys(diffNew).length > 0) {
-        storedNewValues = JSON.stringify(diffNew);
+        metadataObj.newValues = diffNew;
       }
     }
 
@@ -217,6 +213,8 @@ export async function createAuditEntry(params: CreateAuditEntryParams): Promise<
       orgId = org?.id || "";
     }
 
+    const metadataStr = Object.keys(metadataObj).length > 0 ? JSON.stringify(metadataObj) : null;
+
     await db.activityLog.create({
       data: {
         userId,
@@ -225,8 +223,7 @@ export async function createAuditEntry(params: CreateAuditEntryParams): Promise<
         entityType,
         entityId,
         details: auditDetails,
-        oldValues: storedOldValues,
-        newValues: storedNewValues,
+        metadata: metadataStr,
         organizationId: orgId,
       },
     });

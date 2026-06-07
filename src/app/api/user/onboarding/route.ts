@@ -131,7 +131,7 @@ export async function PATCH(request: NextRequest) {
     // NOTE: Try to save preferences; if the field doesn't exist in the
     // Prisma Client, we skip it (onboarding flag won't persist but the
     // rest of the profile update still works).
-    let updateData: Record<string, unknown> = { ...userUpdateData };
+    const updateData: Record<string, unknown> = { ...userUpdateData };
     try {
       // Test if preferences field is available by doing a dummy select
       await db.user.findUnique({

@@ -207,7 +207,6 @@ model User {
   approvedTimesheets     Timesheet[]           @relation("TimesheetApprover")
   uploadedDocuments      Document[]            @relation("DocumentUploader")
   projectComments        ProjectComment[]
-  milestones             Milestone[]
   comments               TaskComment[]
   tenders                Tender[]              @relation("TenderAssignee")
   commissions            Commission[]          @relation("CommissionUser")
@@ -223,22 +222,15 @@ model User {
   proposalCreated        Proposal[]            @relation("ProposalCreator")
   proposalUpdated        Proposal[]            @relation("ProposalUpdater")
   invoicePayments        InvoicePayment[]
-  documentSignatures     DocumentSignature[]
-  documentVersions       DocumentVersion[]
-  projectTemplates       ProjectTemplate[]
-  recurringInvoices      RecurringInvoice[]
-  reportTemplates        ReportTemplate[]
-  webhookIntegrations    WebhookIntegration[]
 
-  @@unique([email, organizationId], name: "user_email_org_unique")
-  @@unique([googleId, organizationId], name: "user_google_org_unique")
-  @@unique([microsoftId, organizationId], name: "user_microsoft_org_unique")
+  @@unique([email, organizationId])
+  @@unique([googleId, organizationId])
+  @@unique([microsoftId, organizationId])
   @@index([organizationId])
   @@index([deletedAt])
   @@index([name])
   @@index([role])
   @@index([isActive])
-  @@index([email])
 }
 
 // ==================== REFRESH TOKENS ====================
@@ -261,23 +253,21 @@ model RefreshToken {
 // ==================== COMPANY SETTINGS ====================
 
 model CompanySettings {
-  id              String   @id @default(cuid())
-  name            String   @default("مكتب الاستشارات الهندسية")
-  nameEn          String   @default("Engineering Consultancy Office")
-  logo            String   @default("")
-  email           String   @default("")
-  phone           String   @default("")
-  address         String   @default("")
-  taxNumber       String   @default("")
-  currency        String   @default("AED")
-  defaultCurrency String   @default("AED")
-  timezone        String   @default("Asia/Dubai")
-  workingDays     String   @default("sat,sun,mon,tue,wed,thu") // comma-separated UAE work week (Saturday-Thursday)
-  workingHours    String   @default("08:00-17:00")
-  exchangeRates   String? // JSON string of cached exchange rates
-  organizationId  String // SaaS multi-tenant organization
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id             String   @id @default(cuid())
+  name           String   @default("مكتب الاستشارات الهندسية")
+  nameEn         String   @default("Engineering Consultancy Office")
+  logo           String   @default("")
+  email          String   @default("")
+  phone          String   @default("")
+  address        String   @default("")
+  taxNumber      String   @default("")
+  currency       String   @default("AED")
+  timezone       String   @default("Asia/Dubai")
+  workingDays    String   @default("sat,sun,mon,tue,wed,thu") // comma-separated UAE work week (Saturday-Thursday)
+  workingHours   String   @default("08:00-17:00")
+  organizationId String // SaaS multi-tenant organization
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   organization Organization @relation(fields: [organizationId], references: [id])
 
@@ -288,7 +278,7 @@ model CompanySettings {
 
 model Project {
   id                    String    @id @default(cuid())
-  number                String    @unique
+  number                String
   name                  String    @default("")
   nameEn                String    @default("")
   clientId              String
@@ -301,7 +291,6 @@ model Project {
   status                String    @default("active") // active, completed, delayed, on_hold, cancelled
   progress              Float     @default(0)
   budget                Decimal   @default(0)
-  currency              String    @default("AED")
   contractValue         Decimal   @default(0) // Total contract value
   paymentMethod         String    @default("") // cash, cheque, transfer, installments
   paymentSchedule       String    @default("") // JSON: [{milestone,amount,percentage,dueDate,status}]
@@ -328,7 +317,6 @@ model Project {
   organization               Organization                 @relation(fields: [organizationId], references: [id])
   assignments                ProjectAssignment[]
   tasks                      Task[]
-  milestones                 Milestone[]
   stages                     ProjectStage[]
   muniRejections             MunicipalRejection[]
   govApprovals               GovApproval[]
@@ -371,8 +359,8 @@ model Project {
   progressClaims             ProgressClaim[]
   timesheets                 Timesheet[]
   timesheetEntries           TimesheetEntry[]
-  recurringInvoices          RecurringInvoice[]
 
+  @@unique([number, organizationId])
   @@index([clientId])
   @@index([status])
   @@index([contractorId])
@@ -567,8 +555,6 @@ model Client {
   proposals           Proposal[]
   interactions        ClientInteraction[]
   buildingInspections BuildingInspection[]
-  recurringInvoices   RecurringInvoice[]
-  whatsAppMessages    WhatsAppMessage[]
 
   @@unique([email, organizationId], name: "client_email_org_unique")
   @@unique([idNumber, organizationId], name: "client_idnumber_org_unique")
@@ -629,7 +615,6 @@ model Task {
   color          String    @default("")
   estimatedHours Float?
   actualHours    Float?
-  // Milestones
   isMilestone    Boolean   @default(false)
   order          Int       @default(0)
   organizationId String // SaaS multi-tenant organization
@@ -755,15 +740,12 @@ model Invoice {
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
-  client            Client             @relation(fields: [clientId], references: [id])
-  project           Project            @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  items             InvoiceItem[]
-  milestones        Milestone[]
-  invoicePayments   InvoicePayment[]
-  payments          Payment[]
-  organization      Organization       @relation(fields: [organizationId], references: [id])
-  whatsAppMessages  WhatsAppMessage[]
-  recurringInvoices RecurringInvoice[]
+  client          Client           @relation(fields: [clientId], references: [id])
+  project         Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  items           InvoiceItem[]
+  invoicePayments InvoicePayment[]
+  payments        Payment[]
+  organization    Organization     @relation(fields: [organizationId], references: [id])
 
   @@unique([number, organizationId], name: "invoice_number_org_unique")
   @@index([clientId])
@@ -1619,12 +1601,10 @@ model Document {
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
-  project            Project?            @relation(fields: [projectId], references: [id])
-  contract           Contract?           @relation(fields: [contractId], references: [id])
-  uploader           User?               @relation("DocumentUploader", fields: [uploadedById], references: [id])
-  organization       Organization        @relation(fields: [organizationId], references: [id])
-  documentSignatures DocumentSignature[]
-  documentVersions   DocumentVersion[]
+  project      Project?     @relation(fields: [projectId], references: [id])
+  contract     Contract?    @relation(fields: [contractId], references: [id])
+  uploader     User?        @relation("DocumentUploader", fields: [uploadedById], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
 
   @@index([projectId])
   @@index([organizationId])
@@ -1701,8 +1681,6 @@ model ActivityLog {
   entityType     String   @default("")
   entityId       String   @default("")
   details        String   @default("")
-  oldValues      String?
-  newValues      String?
   metadata       String? // JSON string for extra details
   organizationId String // SaaS multi-tenant organization
   createdAt      DateTime @default(now())
@@ -2368,22 +2346,13 @@ model Organization {
   slaBreaches                SLABreach[]
   notificationSettings       NotificationSettings[]
   aiChatConversations        AIChatConversation[]
+  featureFlags               FeatureFlag[]
   aiChatMessages             AIChatMessage[]
   projectWorkflows           ProjectWorkflow[]
   retainages                 Retainage[]
-  milestones                 Milestone[]
-  whatsAppMessages           WhatsAppMessage[]
-  backupVerifications        BackupVerification[]
   guaranteeLetters           GuaranteeLetter[]
   progressClaims             ProgressClaim[]
   timesheets                 Timesheet[]
-  documentSignatures         DocumentSignature[]
-  documentVersions           DocumentVersion[]
-  projectTemplates           ProjectTemplate[]
-  recurringInvoices          RecurringInvoice[]
-  reportTemplates            ReportTemplate[]
-  webhookIntegrations        WebhookIntegration[]
-  featureFlags               FeatureFlag[]
 
   @@index([deletedAt])
 }
@@ -2554,9 +2523,6 @@ model NotificationSettings {
   invoiceOverdue     Boolean      @default(true)
   projectUpdates     Boolean      @default(true)
   slaWarnings        Boolean      @default(true)
-  channels           String? // JSON string
-  categories         String? // JSON string
-  quietHours         String? // JSON string
   organizationId     String
   organization       Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   createdAt          DateTime     @default(now())
@@ -2565,6 +2531,29 @@ model NotificationSettings {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+  @@index([organizationId])
+}
+
+// ==================== FEATURE FLAGS ====================
+
+model FeatureFlag {
+  id              String   @id @default(cuid())
+  key             String   @unique
+  name            String
+  nameAr          String?
+  description     String?
+  descriptionAr   String?
+  enabled         Boolean  @default(false)
+  enabledForOrgs  String? // JSON array of organization IDs
+  enabledForRoles String? // JSON array of roles
+  percentage      Int      @default(100)
+  organizationId  String // Optional relation for org-specific flags
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+
+  @@index([key])
   @@index([organizationId])
 }
 
@@ -2817,302 +2806,4 @@ model PushSubscription {
   updatedAt DateTime @updatedAt
 
   @@index([userId])
-}
-
-// ==================== AUTO ASSIGNMENT ====================
-
-model AutoAssignmentRule {
-  id              String    @id @default(cuid())
-  organizationId  String
-  name            String
-  nameEn          String?
-  nameAr          String?
-  description     String?
-  triggerType     String
-  conditions      String // Stored as JSON string
-  action          String // Stored as JSON string
-  assignToType    String
-  assignToId      String?
-  isActive        Boolean   @default(true)
-  priority        Int       @default(0)
-  createdById     String?
-  lastTriggeredAt DateTime?
-  triggerCount    Int       @default(0)
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  deletedAt       DateTime?
-
-  @@index([organizationId])
-  @@index([triggerType])
-  @@index([isActive])
-}
-
-// ==================== DOCUMENT SIGNATURES ====================
-
-model DocumentSignature {
-  id             String   @id @default(cuid())
-  documentId     String
-  userId         String
-  signerName     String
-  signerRole     String?
-  signatureImage String // Base64 or URL
-  ipAddress      String?
-  userAgent      String?
-  organizationId String
-  signedAt       DateTime @default(now())
-  createdAt      DateTime @default(now())
-
-  document     Document     @relation(fields: [documentId], references: [id], onDelete: Cascade)
-  user         User         @relation(fields: [userId], references: [id])
-  organization Organization @relation(fields: [organizationId], references: [id])
-
-  @@index([documentId])
-  @@index([userId])
-  @@index([organizationId])
-}
-
-// ==================== DOCUMENT VERSIONS ====================
-
-model DocumentVersion {
-  id             String   @id @default(cuid())
-  documentId     String
-  version        Int      @default(1)
-  fileName       String
-  filePath       String
-  fileSize       Int      @default(0)
-  mimeType       String   @default("")
-  changeSummary  String?
-  uploadedById   String
-  organizationId String
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-
-  document     Document     @relation(fields: [documentId], references: [id], onDelete: Cascade)
-  uploadedBy   User         @relation(fields: [uploadedById], references: [id])
-  organization Organization @relation(fields: [organizationId], references: [id])
-
-  @@index([documentId])
-  @@index([uploadedById])
-  @@index([organizationId])
-}
-
-// ==================== PROJECT TEMPLATES ====================
-
-model ProjectTemplate {
-  id                  String   @id @default(cuid())
-  name                String
-  nameAr              String?
-  description         String?
-  descriptionAr       String?
-  category            String?
-  icon                String?
-  defaultBudget       Float?
-  defaultDurationDays Int?
-  currency            String?
-  stages              String // JSON string of stages and tasks
-  isActive            Boolean  @default(true)
-  usageCount          Int      @default(0)
-  createdById         String
-  organizationId      String
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
-
-  createdBy    User         @relation(fields: [createdById], references: [id])
-  organization Organization @relation(fields: [organizationId], references: [id])
-
-  @@index([createdById])
-  @@index([organizationId])
-}
-
-// ==================== RECURRING INVOICES ====================
-
-model RecurringInvoice {
-  id                 String    @id @default(cuid())
-  name               String
-  nameAr             String?
-  clientId           String
-  projectId          String?
-  templateItems      String // JSON string of TemplateItem[]
-  notes              String?
-  notesAr            String?
-  frequency          String // 'WEEKLY', 'MONTHLY', 'QUARTERLY', 'ANNUALLY', 'CUSTOM'
-  customDays         Int?
-  startDate          DateTime
-  endDate            DateTime?
-  lastGeneratedAt    DateTime?
-  nextGenerationDate DateTime
-  isActive           Boolean   @default(true)
-  generationCount    Int       @default(0)
-  lastInvoiceId      String?
-  createdById        String
-  organizationId     String
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
-
-  client       Client       @relation(fields: [clientId], references: [id])
-  project      Project?     @relation(fields: [projectId], references: [id])
-  lastInvoice  Invoice?     @relation(fields: [lastInvoiceId], references: [id])
-  createdBy    User         @relation(fields: [createdById], references: [id])
-  organization Organization @relation(fields: [organizationId], references: [id])
-
-  @@index([clientId])
-  @@index([projectId])
-  @@index([organizationId])
-}
-
-// ==================== REPORT BUILDER ====================
-
-model ReportTemplate {
-  id             String   @id @default(cuid())
-  name           String
-  nameAr         String?
-  description    String?
-  dataSource     String // projects, invoices, tasks, etc.
-  fields         String // JSON array of selected fields and aggregations
-  filters        String // JSON array of filters
-  groupBy        String?
-  sortBy         String?
-  sortOrder      String   @default("desc") // asc, desc
-  chartType      String   @default("table") // bar, line, pie, table
-  isPublic       Boolean  @default(false)
-  createdById    String
-  organizationId String
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-
-  createdBy    User         @relation(fields: [createdById], references: [id])
-  organization Organization @relation(fields: [organizationId], references: [id])
-
-  @@index([createdById])
-  @@index([organizationId])
-}
-
-// ==================== WEBHOOKS ====================
-
-model WebhookIntegration {
-  id             String    @id @default(cuid())
-  name           String
-  type           String // SLACK, TEAMS, CUSTOM
-  url            String
-  events         String // JSON array of event strings
-  secret         String?
-  isActive       Boolean   @default(true)
-  failureCount   Int       @default(0)
-  lastTriggered  DateTime?
-  organizationId String
-  createdById    String
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-
-  createdBy    User         @relation(fields: [createdById], references: [id])
-  organization Organization @relation(fields: [organizationId], references: [id])
-
-  @@index([organizationId])
-  @@index([createdById])
-}
-
-// ==================== WHATSAPP INTEGRATION ====================
-
-model WhatsAppMessage {
-  id             String    @id @default(cuid())
-  messageId      String    @unique
-  fromNumber     String?
-  toNumber       String?
-  direction      String // inbound, outbound
-  type           String // text, document, image, template
-  status         String // received, delivered, read, failed
-  content        String? // Actual message or JSON representation
-  clientId       String?
-  templateName   String?
-  templateParams String?
-  relatedType    String?
-  relatedId      String?
-  organizationId String
-  metadata       String? // JSON extra info
-  error          String? // JSON error info
-  sentAt         DateTime?
-  deliveredAt    DateTime?
-  readAt         DateTime?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-
-  client       Client?      @relation(fields: [clientId], references: [id])
-  organization Organization @relation(fields: [organizationId], references: [id])
-  invoice      Invoice?     @relation(fields: [invoiceId], references: [id])
-  invoiceId    String?
-
-  @@index([messageId])
-  @@index([clientId])
-  @@index([organizationId])
-  @@index([status])
-}
-
-// ==================== BACKUP VERIFICATION ====================
-
-model BackupVerification {
-  id             String   @id @default(cuid())
-  backupPath     String
-  fileSize       Int
-  checksum       String
-  status         String
-  integrityCheck String
-  recordCount    String
-  errorMessage   String
-  organizationId String
-  createdAt      DateTime @default(now())
-
-  organization Organization @relation(fields: [organizationId], references: [id])
-
-  @@index([organizationId])
-}
-
-// ==================== FEATURE FLAGS ====================
-
-model FeatureFlag {
-  id              String   @id @default(cuid())
-  key             String   @unique
-  name            String
-  nameAr          String?
-  description     String?
-  descriptionAr   String?
-  enabled         Boolean  @default(false)
-  enabledForOrgs  String? // JSON array of org IDs
-  enabledForRoles String? // JSON array of role names
-  percentage      Int      @default(100)
-  organizationId  String // If null, global flag
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  organization Organization @relation(fields: [organizationId], references: [id])
-
-  @@index([organizationId])
-}
-
-// ==================== MILESTONES ====================
-
-model Milestone {
-  id             String    @id @default(cuid())
-  projectId      String
-  name           String
-  description    String?
-  amount         Decimal
-  percentage     Decimal
-  dueDate        DateTime?
-  status         String
-  order          Int
-  invoiceId      String?
-  organizationId String
-  createdById    String?
-  deletedAt      DateTime?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-
-  project      Project      @relation(fields: [projectId], references: [id])
-  invoice      Invoice?     @relation(fields: [invoiceId], references: [id])
-  creator      User?        @relation(fields: [createdById], references: [id])
-  organization Organization @relation(fields: [organizationId], references: [id])
-
-  @@index([projectId])
-  @@index([invoiceId])
-  @@index([organizationId])
 }
