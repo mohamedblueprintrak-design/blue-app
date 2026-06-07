@@ -129,7 +129,7 @@ export default function PublicHeader() {
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="p-2 text-[#0A1628] transition-colors"
-              aria-label="Menu"
+              aria-label={t("القائمة", "Menu")}
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>

@@ -246,7 +246,7 @@ export function ProjectTableView({
               className="h-7 w-7"
               disabled={page <= 1}
               onClick={() => onPageChange(page - 1)}
-              aria-label="Previous page"
+              aria-label={isAr ? "الصفحة السابقة" : "Previous page"}
             >
               <ChevronRight className="h-3.5 w-3.5" />
             </Button>
@@ -284,7 +284,7 @@ export function ProjectTableView({
               className="h-7 w-7"
               disabled={page >= totalPages}
               onClick={() => onPageChange(page + 1)}
-              aria-label="Next page"
+              aria-label={isAr ? "الصفحة التالية" : "Next page"}
             >
               <ChevronLeft className="h-3.5 w-3.5" />
             </Button>

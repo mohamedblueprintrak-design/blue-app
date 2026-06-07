@@ -121,7 +121,7 @@ function AppHeader() {
                 size="icon"
                 className="md:hidden h-9 w-9 text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800/60 transition-all duration-200"
                 onClick={() => setCurrentPage("search")}
-                aria-label="Search"
+                aria-label={isAr ? "بحث" : "Search"}
               >
                 <Search className="h-4 w-4" />
               </Button>
@@ -141,7 +141,7 @@ function AppHeader() {
                 size="icon"
                 className="h-9 w-9 text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800/60 transition-all duration-200"
                 onClick={toggleLanguage}
-                aria-label="Toggle language"
+                aria-label={isAr ? "تغيير اللغة" : "Toggle language"}
               >
                 <Globe className="h-4 w-4" />
               </Button>

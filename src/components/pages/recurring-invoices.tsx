@@ -756,7 +756,7 @@ export default function RecurringInvoicesPage({ language }: RecurringInvoicesPag
                               size="icon"
                               className="h-7 w-7 text-red-400"
                               onClick={() => removeItem(idx)}
-                              aria-label="Remove item"
+                              aria-label={ar ? "حذف البند" : "Remove item"}
                             >
                               <X className="h-3.5 w-3.5" />
                             </Button>

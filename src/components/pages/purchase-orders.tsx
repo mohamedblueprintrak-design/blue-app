@@ -878,7 +878,7 @@ export default function PurchaseOrdersPage({ language }: PurchaseOrdersPageProps
                       className="h-7 w-7 text-slate-400 hover:text-red-500"
                       onClick={() => formData.items.length > 1 && removeLineItem(index)}
                       disabled={formData.items.length <= 1}
-                      aria-label="Remove item"
+                      aria-label={ar ? "حذف البند" : "Remove item"}
                     >
                       <Minus className="h-3 w-3" />
                     </Button>
