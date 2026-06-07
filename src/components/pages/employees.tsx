@@ -217,7 +217,7 @@ export default function EmployeesPage({ language }: EmployeesPageProps) {
               size="icon"
               className={`h-8 w-8 rounded-none ${viewMode === "table" ? "bg-slate-100 dark:bg-slate-800" : ""}`}
               onClick={() => setViewMode("table")}
-              aria-label="Table view"
+              aria-label={ar ? "عرض جدول" : "Table view"}
             >
               <LayoutList className="h-3.5 w-3.5" />
             </Button>
@@ -226,7 +226,7 @@ export default function EmployeesPage({ language }: EmployeesPageProps) {
               size="icon"
               className={`h-8 w-8 rounded-none ${viewMode === "grid" ? "bg-slate-100 dark:bg-slate-800" : ""}`}
               onClick={() => setViewMode("grid")}
-              aria-label="Grid view"
+              aria-label={ar ? "عرض شبكي" : "Grid view"}
             >
               <LayoutGrid className="h-3.5 w-3.5" />
             </Button>

@@ -393,7 +393,7 @@ export default function CalendarPage({ language: lang, projectId }: Props) {
               size="icon"
               className="h-9 w-9 bg-white/20 text-white border-0 hover:bg-white/30 backdrop-blur-sm"
               onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
-              aria-label="Previous month"
+              aria-label={isAr ? "الشهر السابق" : "Previous month"}
             >
               {isAr ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
             </Button>
@@ -413,7 +413,7 @@ export default function CalendarPage({ language: lang, projectId }: Props) {
               size="icon"
               className="h-9 w-9 bg-white/20 text-white border-0 hover:bg-white/30 backdrop-blur-sm"
               onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
-              aria-label="Next month"
+              aria-label={isAr ? "الشهر التالي" : "Next month"}
             >
               {isAr ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
             </Button>

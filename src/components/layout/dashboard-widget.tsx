@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useLang } from "@/hooks/use-lang";
 
 interface DashboardWidgetProps {
   id: string;
@@ -41,6 +42,8 @@ export function DashboardWidget({
   onHide,
   className,
 }: DashboardWidgetProps) {
+  const lang = useLang();
+  const ar = lang === "ar";
   const {
     attributes,
     listeners,
@@ -85,7 +88,7 @@ export function DashboardWidget({
             "focus:outline-none focus:ring-2 focus:ring-teal-500/30",
             isDragging && "text-teal-600 dark:text-teal-400 bg-teal-100/60 dark:bg-teal-900/30"
           )}
-          aria-label="Drag to reorder"
+          aria-label={ar ? "اسحب لإعادة الترتيب" : "Drag to reorder"}
           tabIndex={0}
         >
           <GripVertical className="h-4 w-4" />
@@ -108,7 +111,7 @@ export function DashboardWidget({
               size="icon"
               className="h-7 w-7 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
               onClick={onToggleCollapse}
-              aria-label={isCollapsed ? "Expand widget" : "Collapse widget"}
+              aria-label={isCollapsed ? (ar ? "توسيع العنصر" : "Expand widget") : (ar ? "طي العنصر" : "Collapse widget")}
             >
               {isCollapsed ? (
                 <ChevronDown className="h-3.5 w-3.5" />
@@ -125,7 +128,7 @@ export function DashboardWidget({
                 variant="ghost"
                 size="icon"
                 className="h-7 w-7 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity"
-                aria-label="More options"
+                aria-label={ar ? "خيارات أخرى" : "More options"}
               >
                 <MoreHorizontal className="h-3.5 w-3.5" />
               </Button>
@@ -136,7 +139,7 @@ export function DashboardWidget({
                 className="text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400 cursor-pointer"
               >
                 <EyeOff className="h-3.5 w-3.5 me-2" />
-                Hide widget
+                {ar ? "إخفاء العنصر" : "Hide widget"}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

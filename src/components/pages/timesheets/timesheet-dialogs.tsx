@@ -105,7 +105,7 @@ export function TimesheetFormDialog({
         <div className="space-y-6">
           {/* Week navigation */}
           <div className="flex items-center justify-between">
-            <Button variant="outline" size="sm" className="h-8 w-8 p-0" onClick={() => navigateWeek(-1)} aria-label="Previous week">
+            <Button variant="outline" size="sm" className="h-8 w-8 p-0" onClick={() => navigateWeek(-1)} aria-label={ar ? "الأسبوع السابق" : "Previous week"}>
               <ChevronLeft className="h-4 w-4" />
             </Button>
             <span className="text-sm font-medium text-slate-900 dark:text-white">
@@ -119,7 +119,7 @@ export function TimesheetFormDialog({
                 { month: "short", day: "numeric", year: "numeric" }
               )}
             </span>
-            <Button variant="outline" size="sm" className="h-8 w-8 p-0" onClick={() => navigateWeek(1)} aria-label="Next week">
+            <Button variant="outline" size="sm" className="h-8 w-8 p-0" onClick={() => navigateWeek(1)} aria-label={ar ? "الأسبوع التالي" : "Next week"}>
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>

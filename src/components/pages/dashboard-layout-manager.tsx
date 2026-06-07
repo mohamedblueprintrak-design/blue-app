@@ -216,6 +216,7 @@ function SortableWidgetItem({
   isCustomizing: boolean;
   children: React.ReactNode;
 }) {
+  const ar = typeof window !== 'undefined' && localStorage.getItem('blueprint-lang') === 'en' ? false : true;
   const {
     attributes,
     listeners,
@@ -243,7 +244,7 @@ function SortableWidgetItem({
             {...attributes}
             {...listeners}
             className="absolute top-2 start-2 z-10 h-8 w-8 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-center cursor-grab active:cursor-grabbing hover:bg-teal-50 dark:hover:bg-teal-950/30 hover:border-teal-300 dark:hover:border-teal-700 transition-colors"
-            title="Drag to reorder"
+            title={ar ? "اسحب لإعادة الترتيب" : "Drag to reorder"}
           >
             <GripVertical className="h-4 w-4 text-slate-400 group-hover/widget:text-teal-500" />
           </div>

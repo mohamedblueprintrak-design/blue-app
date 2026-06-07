@@ -454,10 +454,10 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
           </div>
           {/* View Toggle */}
           <div className="flex rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <Button variant={viewMode === "grid" ? "secondary" : "ghost"} size="icon" className="h-8 w-8 rounded-none" onClick={() => setViewMode("grid")} aria-label="Grid view">
+            <Button variant={viewMode === "grid" ? "secondary" : "ghost"} size="icon" className="h-8 w-8 rounded-none" onClick={() => setViewMode("grid")} aria-label={ar ? "عرض شبكي" : "Grid view"}>
               <LayoutGrid className="h-3.5 w-3.5" />
             </Button>
-            <Button variant={viewMode === "list" ? "secondary" : "ghost"} size="icon" className="h-8 w-8 rounded-none" onClick={() => setViewMode("list")} aria-label="List view">
+            <Button variant={viewMode === "list" ? "secondary" : "ghost"} size="icon" className="h-8 w-8 rounded-none" onClick={() => setViewMode("list")} aria-label={ar ? "عرض قائمة" : "List view"}>
               <List className="h-3.5 w-3.5" />
             </Button>
           </div>

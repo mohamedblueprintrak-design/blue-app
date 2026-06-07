@@ -80,7 +80,7 @@ export function CompanyTab({
               value={(formData.nameEn as string) || settings?.nameEn || ""}
               onChange={(e) => updateField("nameEn", e.target.value)}
               dir="ltr"
-              placeholder="Engineering Consultancy Office"
+              placeholder={isAr ? "مكتب الاستشارات الهندسية" : "Engineering Consultancy Office"}
               className="h-10 rounded-lg"
             />
           </div>
