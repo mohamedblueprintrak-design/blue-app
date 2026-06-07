@@ -28,6 +28,9 @@ class FeatureFlagService {
     const flag = this.flags.get(key);
     if (!flag) return false;
     if (!flag.enabled) return false;
+    if (flag.allowedRoles && !userRole) {
+      return false; // Role-restricted flag requires a role
+    }
     if (flag.allowedRoles && userRole && !flag.allowedRoles.includes(userRole)) {
       return false;
     }
