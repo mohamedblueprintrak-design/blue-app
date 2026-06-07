@@ -59,7 +59,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     if (!validation.success) {
       return NextResponse.json({ error: validation.error, errors: validation.errors }, { status: 400 });
     }
-    const sanitizedBody = sanitizeObject(validation.data);
+    const _sanitizedBody = sanitizeObject(validation.data);
     const { name, category, planned, actual, committed, remaining, deviation } = validation.data;
 
     const existing = await db.budget.findFirst({ where: { id, project: { ...orgFilter(ctx) } } });

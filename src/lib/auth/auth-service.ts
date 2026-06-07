@@ -15,33 +15,15 @@
  */
 
 import { SignJWT, jwtVerify } from 'jose';
-import { randomBytes, randomInt } from 'crypto';
-import { generateSecret, generateURI, verify, NobleCryptoPlugin, ScureBase32Plugin } from 'otplib';
 import { db } from '@/lib/db';
-import { UserRole } from '@prisma/client';
-import { log } from '@/lib/logger';
 import { 
   Permission, 
   JwtPayload, 
-  LoginRequest, 
-  SignupRequest, 
-  AuthResponse,
-  PasswordChangeRequest,
-  PasswordResetRequest,
-  PasswordResetConfirm,
-  UserRoleValues,
 } from './types';
 import { logAudit } from '@/lib/services/audit.service';
-import { sendEmail } from '@/lib/email';
-import { emailTemplates } from '@/lib/email-templates';
 import { getJwtSecretBytes } from '@/lib/auth/jwt-secret';
 import {
-  hashToken,
-  generateDbRefreshToken,
-  normalizeRoleForClient,
   ACCESS_TOKEN_EXPIRY,
-  encrypt,
-  decrypt,
 } from '@/lib/auth/token-utils';
 import {
   hashPassword as _hashPassword,
@@ -62,7 +44,7 @@ const JWT_ISSUER = 'blueprint-saas';
 const JWT_AUDIENCE = 'blueprint-users';
 
 // Token expiration times — consistent with login/refresh routes
-const ACCESS_TOKEN_EXPIRY_VALUE = ACCESS_TOKEN_EXPIRY; // '15m' — consistent with login/refresh routes
+const _ACCESS_TOKEN_EXPIRY_VALUE = ACCESS_TOKEN_EXPIRY; // '15m' — consistent with login/refresh routes
 const PASSWORD_RESET_EXPIRY = '1h';
 
 /**

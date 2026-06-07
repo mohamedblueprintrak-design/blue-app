@@ -107,7 +107,7 @@ async function main() {
 
   // ========== 0.5. Create Organizations (Multi-Tenant) ==========
   // Default organization — required because organizationId fields use @default("default")
-  const defaultOrg = await db.organization.create({
+  const _defaultOrg = await db.organization.create({
     data: {
       id: 'default',
       name: 'Default Organization',
@@ -966,7 +966,7 @@ async function main() {
   // ========== 37. NEW: Suppliers (3) — created individually to capture IDs for purchase orders ==========
   const supplier1 = await db.supplier.create({ data: { name: 'شركة الإمارات للحديد', category: 'MATERIALS', email: 'sales@emsteel.ae', phone: '+971-2-555-1122', address: 'أبو ظبي', rating: 5, organizationId: org1.id } });
   const supplier2 = await db.supplier.create({ data: { name: 'مؤسسة الخرسانة الجاهزة', category: 'MATERIALS', email: 'orders@rakreadymix.ae', phone: '+971-7-266-3344', address: 'رأس الخيمة', rating: 4, organizationId: org1.id } });
-  const supplier3 = await db.supplier.create({ data: { name: 'شركة الأنارة الحديثة', category: 'EQUIPMENT', email: 'info@modernlight.ae', phone: '+971-4-333-5566', address: 'دبي', rating: 4, organizationId: org1.id } });
+  const _supplier3 = await db.supplier.create({ data: { name: 'شركة الأنارة الحديثة', category: 'EQUIPMENT', email: 'info@modernlight.ae', phone: '+971-4-333-5566', address: 'دبي', rating: 4, organizationId: org1.id } });
   console.info('✅ 3 suppliers created');
 
   // ========== 38. NEW: Purchase Orders (2) ==========

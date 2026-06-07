@@ -1,5 +1,4 @@
 import { Globe, Share2, Footprints, Megaphone, MessageCircle, Users, Phone, Mail, FileText } from 'lucide-react';
-import { StatusIcon } from '@/components/ui/status-icon';
 
 // ===== Types =====
 export interface Client {

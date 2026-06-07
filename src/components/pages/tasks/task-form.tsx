@@ -86,7 +86,7 @@ export function TaskForm({
             setValue(k as keyof TaskFormData, parsed[k]);
           });
           toast.showSuccess(ar ? "تم استعادة المسودة بنجاح" : "Draft restored successfully");
-        } catch (e) {}
+        } catch (_e) { /* intentional */ }
       }
       
       // eslint-disable-next-line

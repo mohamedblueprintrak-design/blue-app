@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToastFeedback } from "@/hooks/use-toast-feedback";
 import type { EmployeeFormData } from "@/lib/validations";
-import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/lib/formatters";
 import { getMutationHeaders } from "@/lib/csrf-client";
 import { Button } from "@/components/ui/button";
@@ -24,9 +23,7 @@ import {
 import {
   Plus,
   Search,
-  Eye,
   Pencil,
-  Trash2,
   Mail,
   Phone,
   Building2,

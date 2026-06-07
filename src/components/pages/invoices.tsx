@@ -11,7 +11,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ToastAction } from "@/components/ui/toast";
 import { BulkActionBar } from "@/components/common/bulk-action-bar";
-import { cn } from "@/lib/utils";
 import { generateInvoicePDF } from "@/lib/pdf-utils";
 import { getMutationHeaders } from "@/lib/csrf-client";
 import { extractErrorMessage } from "@/lib/api/fetch-client";
@@ -48,8 +47,9 @@ export default function InvoicesPage({ language, projectId }: InvoicesPageProps)
   const PAGE_SIZE = 10;
 
   useEffect(() => {
+    const currentTimeouts = deleteTimeouts.current;
     return () => {
-      deleteTimeouts.current.forEach(clearTimeout);
+      currentTimeouts.forEach(clearTimeout);
     };
   }, []);
 
@@ -223,7 +223,7 @@ export default function InvoicesPage({ language, projectId }: InvoicesPageProps)
         status: inv.status,
       }, language);
       toast.showSuccess(ar ? "تم تصدير الفاتورة PDF" : "Invoice PDF exported");
-    } catch (e) {
+    } catch (_e) {
       toast.showError(ar ? "فشل تصدير الفاتورة" : "Failed to export PDF");
     }
   };
@@ -407,10 +407,11 @@ export default function InvoicesPage({ language, projectId }: InvoicesPageProps)
                 const parsed = JSON.parse(draft);
                 setFormData(parsed);
                 Object.keys(parsed).forEach(k => {
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   setValue(k as any, parsed[k]);
                 });
                 toast.showSuccess(ar ? "تم استعادة المسودة بنجاح" : "Draft restored successfully");
-              } catch (e) {
+              } catch (_e) {
                 setFormData(emptyForm);
               }
             } else {

@@ -1,88 +1,11 @@
 "use client";
 
-import { useState, useEffect, useCallback, Fragment, Suspense } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { useAuthStore } from "@/store/auth-store";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import { useNavStore } from "@/store/nav-store";
-import { getNavItems, normalizeRole, roleLabelsAr, type NavItem, type Role } from "@/lib/permissions";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
   SidebarInset,
   SidebarProvider,
-  SidebarTrigger,
-  SidebarRail,
-  useSidebar,
 } from "@/components/ui/sidebar";
-import {
-  Search,
-  Bell,
-  Globe,
-  LogOut,
-  User,
-  Settings,
-  LayoutDashboard,
-  FolderKanban,
-  HardHat,
-  Truck,
-  Package,
-  Warehouse,
-  UsersRound,
-  Clock,
-  CalendarOff,
-  BarChart3,
-  ChevronDown,
-  Activity,
-  Sparkles,
-  AlertTriangle,
-  Shield,
-  // ShieldCheck,
-  PenTool,
-  Gavel,
-  SearchCheck,
-  ClipboardCheck,
-  Gift,
-  UserPlus,
-  BookOpen,
-  Plus,
-  CheckCircle2,
-  TrendingUp,
-  TrendingDown,
-  Wallet,
-  Wind,
-  Headphones,
-  Calendar,
-  BookMarked,
-  type LucideIcon,
-} from "lucide-react";
 import dynamic from 'next/dynamic';
 
 // Loading fallback for dynamic imports
@@ -140,7 +63,6 @@ import KnowledgePage from "@/components/pages/knowledge";
 import CalendarPage from "@/components/pages/calendar";
 import SearchPage from "@/components/pages/search";
 
-import { useLanguage } from "@/hooks/use-lang";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { usePushNotifications } from "@/hooks/use-push-notifications";
 import Breadcrumbs from "@/components/layout/breadcrumbs";
@@ -148,15 +70,11 @@ import QuickActions from "@/components/layout/quick-actions";
 import WelcomeModal from "@/components/layout/welcome-modal";
 import OnboardingWizard from "@/components/onboarding/onboarding-wizard";
 import ShortcutsOverlay from "@/components/layout/shortcuts-overlay";
-import SidebarStats from "@/components/layout/sidebar-stats";
 import MobileBottomNav from "@/components/layout/mobile-bottom-nav";
-import NotificationDropdown from "@/components/notification-dropdown";
 import WelcomeNotification from "@/components/welcome-notification";
-import { ThemeToggle } from "@/components/theme-toggle";
 import ErrorBoundary from '@/components/common/error-boundary';
 import { SkipNavContent } from '@/components/common/accessible-components';
 import { PageLoadingSkeleton } from '@/components/common/page-loading-skeleton';
-import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import LogoImage from "@/components/ui/logo-image";
 

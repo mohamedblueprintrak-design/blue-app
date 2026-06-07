@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 import { requireVerifiedPermission, orgCheck } from '../../utils/auth';
-import { errorResponse, notFoundResponse, forbiddenResponse } from '../../utils/response';
+import { errorResponse, notFoundResponse } from '../../utils/response';
 import { validateRequest, invoiceUpdateSchema, invoiceItemUpdateSchema, validateIdParam } from '@/lib/api-validation';
 import { z } from 'zod';
 import { Permission } from '@/lib/auth/types';
@@ -83,7 +83,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     const orgError = orgCheck(user, existing);
     if (orgError) return orgError;
 
-    const validatedUpdateData = validation.data;
+    const _validatedUpdateData = validation.data;
 
     // Validate invoice items if provided
     let subtotal: number = Number(existing.subtotal);

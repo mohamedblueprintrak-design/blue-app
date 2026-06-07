@@ -51,8 +51,9 @@ export default function ProjectsList({ language }: ProjectsListProps) {
   const PAGE_SIZE = 10;
 
   useEffect(() => {
+    const currentTimeouts = deleteTimeouts.current;
     return () => {
-      deleteTimeouts.current.forEach(clearTimeout);
+      currentTimeouts.forEach(clearTimeout);
     };
   }, []);
   const form = useForm<ProjectFormData>({
@@ -256,7 +257,7 @@ export default function ProjectsList({ language }: ProjectsListProps) {
                 form.setValue(k as keyof ProjectFormData, parsed[k]);
               });
               toast.showSuccess(isAr ? "تم استعادة المسودة بنجاح" : "Draft restored successfully");
-            } catch (e) {}
+            } catch (_e) { /* intentional */ }
           }
           setShowAddDialog(true);
         }}

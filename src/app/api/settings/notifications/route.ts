@@ -6,13 +6,13 @@ import { z } from 'zod';
 
 // ── Default structures ─────────────────────────────────────────────────────
 
-const DEFAULT_CHANNELS = {
+const _DEFAULT_CHANNELS = {
   inApp: true,
   email: true,
   push: true,
 };
 
-const DEFAULT_CATEGORIES = {
+const _DEFAULT_CATEGORIES = {
   invoices: { created: true, paid: true, overdue: true },
   tasks: { assigned: true, due_soon: true, overdue: true, completed: true },
   projects: { created: true, status_change: true },
@@ -22,7 +22,7 @@ const DEFAULT_CATEGORIES = {
   system: { security_alerts: true, billing: true },
 };
 
-const DEFAULT_QUIET_HOURS = {
+const _DEFAULT_QUIET_HOURS = {
   enabled: false,
   start: '22:00',
   end: '08:00',
@@ -73,7 +73,7 @@ const updateSchema = z.object({
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
-function safeParseJson<T>(value: string | null | undefined, fallback: T): T {
+function _safeParseJson<T>(value: string | null | undefined, fallback: T): T {
   if (!value) return fallback;
   try {
     return { ...fallback, ...JSON.parse(value) };
@@ -151,7 +151,7 @@ export async function PUT(request: NextRequest) {
     const data = validation.data;
 
     // Merge with existing settings for JSON fields
-    const existing = await db.notificationSettings.findUnique({
+    const _existing = await db.notificationSettings.findUnique({
       where: { userId: ctx.userId },
     });
 

@@ -2,7 +2,7 @@ import { db } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 import { invoiceSchema } from '@/lib/validations';
 import { sanitizeObject } from '@/lib/security/sanitize';
-import { requireVerifiedPermission, orgFilter, orgCreate } from '../utils/auth';
+import { requireVerifiedPermission, orgFilter } from '../utils/auth';
 import { errorResponse } from '../utils/response';
 import { parsePaginationParams, buildPaginationMeta, calculateSkip } from '../utils/pagination';
 import { insensitiveContains } from '../utils/db';
@@ -13,10 +13,7 @@ import { cachedQuery, invalidateCache, CACHE_TTL, buildCacheKey } from '@/lib/ca
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 import { log } from '@/lib/logger';
 
-// Tax rate - configurable via environment variable (default from shared constants)
-import { VAT_RATE } from '@/lib/constants';
-const TAX_RATE = parseFloat(process.env.TAX_RATE || String(VAT_RATE));
-
+// Tax rate handled by invoiceService
 import { invoiceService } from '@/lib/services/invoice.service';
 
 // Zod schema for invoice line items validation
@@ -311,7 +308,7 @@ export async function POST(request: NextRequest) {
     
     // 2. Sanitize the validated data
     const validatedData = sanitizeObject(validation.data);
-    const { number, clientId, projectId, issueDate, dueDate, status } = validatedData;
+    const { number: _number, clientId, projectId, issueDate, dueDate, status } = validatedData;
 
     // Validate invoice line items with Zod
     const rawItems = (rawBody as Record<string, unknown>).items;

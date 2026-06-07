@@ -1,5 +1,4 @@
-import { Plus, Pencil, Trash2, Eye, MessageSquare, Upload, ArrowUpDown, FolderKanban, CheckSquare, FileSignature, Receipt, FileText, Video, Users, UserPlus, AlertCircle } from 'lucide-react';
-import { getAvatarColor } from '@/lib/utils';
+import { Plus, Pencil, Trash2, Eye, MessageSquare, Upload, ArrowUpDown, FolderKanban, CheckSquare, FileSignature, Receipt, FileText, Video, Users, UserPlus } from 'lucide-react';
 
 export type ActionType = "CREATE" | "UPDATE" | "DELETE" | "view" | "status_change" | "comment" | "upload";
 export type EntityType = "project" | "task" | "contract" | "invoice" | "document" | "MEETING" | "client" | "employee";

@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
 import { getAuthContext } from '@/app/api/utils/auth';
 import { successResponse } from '@/app/api/utils/response';
 import { log } from '@/lib/logger';
@@ -7,7 +6,7 @@ import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 
 export async function POST(request: NextRequest) {
   try {
-    const { allowed, result: rlResult } = await withRateLimit(request, 'public');
+    const { allowed: _allowed, result: rlResult } = await withRateLimit(request, 'public');
     const blocked = rateLimitResponse(rlResult);
     if (blocked) return blocked;
 

@@ -1,14 +1,10 @@
-import { requireVerifiedPermission, orgCheck, type AuthContext } from '@/app/api/utils/auth';
+import { orgCheck, type AuthContext } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { hasPermission } from '@/lib/auth/modules/authorization';
-import { NextRequest, NextResponse } from 'next/server';
+
 import { db, isDatabaseAvailable } from '@/lib/db';
-import { validateBody, aiChatSchema } from '@/lib/api-validation';
-import { providerRegistry } from '@/lib/ai/providers/registry';
-import type { ChatMessage } from '@/lib/ai/providers/types';
 import { log } from '@/lib/logger';
-import { getEngineeringContext, CONSTRUCTION_COSTS_RAK } from '@/lib/ai/engineering-knowledge';
-import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
+import { CONSTRUCTION_COSTS_RAK } from '@/lib/ai/engineering-knowledge';
 
 // AIChatConversation and AIChatMessage are now accessed directly via db.aIChatConversation
 // and db.aIChatMessage since all Prisma models are generated.

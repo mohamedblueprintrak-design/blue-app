@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { log } from '@/lib/logger';
 import { requireVerifiedPermission, orgCheck } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
-import { forbiddenResponse } from '@/app/api/utils/response';
 import { validateRequest, validateIdParam, designDrawingUpdateSchema } from '@/lib/api-validation';
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {

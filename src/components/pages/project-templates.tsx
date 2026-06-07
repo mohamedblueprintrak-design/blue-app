@@ -177,11 +177,11 @@ export function ProjectTemplatesPage({ isAr, userRole }: ProjectTemplatesPagePro
   }, []);
 
   useEffect(() => {
-    loadTemplates(category); // eslint-disable-line react-hooks/set-state-in-effect
+    loadTemplates(category);
   }, [category, loadTemplates]);
 
   useEffect(() => {
-    if (instantiateOpen) loadClients(); // eslint-disable-line react-hooks/set-state-in-effect
+    if (instantiateOpen) loadClients();
   }, [instantiateOpen, loadClients]);
 
   // ==================== Handlers ====================

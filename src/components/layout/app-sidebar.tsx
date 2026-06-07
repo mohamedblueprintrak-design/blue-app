@@ -4,7 +4,6 @@ import { useAuthStore } from "@/store/auth-store";
 import { useNavStore } from "@/store/nav-store";
 import { getNavItems, normalizeRole, roleLabelsAr, type NavItem, type Role } from "@/lib/permissions";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
   Sidebar,
@@ -28,10 +27,9 @@ import {
   UsersRound, Clock, CalendarOff, BarChart3, ChevronDown, Activity, Sparkles,
   AlertTriangle, Shield, PenTool, Gavel, SearchCheck, ClipboardCheck, Gift,
   UserPlus, BookOpen, Plus, CheckCircle2, TrendingUp, TrendingDown, Wallet, Wind,
-  Headphones, Calendar, BookMarked, Search, Bell, Globe, LogOut, User, Settings,
+  Headphones, Calendar, BookMarked, Search, Bell, User, Settings,
   type LucideIcon
 } from "lucide-react";
-import { useLanguage } from "@/hooks/use-lang";
 import SidebarStats from "@/components/layout/sidebar-stats";
 import LogoImage from "@/components/ui/logo-image";
 import { cn } from "@/lib/utils";
@@ -81,7 +79,7 @@ function getIcon(iconName: string): LucideIcon {
 
 // ===== SIDEBAR QUICK STATS =====
 function SidebarQuickStats() {
-  const locale = useLocale();
+  const _locale = useLocale();
   const t = useTranslations("layout.sidebar");
 
   const { data } = useQuery({
@@ -140,10 +138,10 @@ function groupNavItems(items: NavItem[]) {
 function AppSidebar() {
   const { user } = useAuthStore();
   const { currentPage, setCurrentPage } = useNavStore();
-  const locale = useLocale();
+  const _locale = useLocale();
   const t = useTranslations("layout.sidebar");
   const tNav = useTranslations("navItems");
-  const isAr = locale === "ar";
+  const isAr = _locale === "ar";
   const [expandedItems, setExpandedItems] = useState<string[]>(["projects"]);
   const { state } = useSidebar();
 

@@ -1,7 +1,5 @@
 "use client";
 
-import { cn } from "@/lib/utils";
-
 export function getStatusConfig(status: string) {
   const configs: Record<string, { ar: string; en: string; color: string; pill: string }> = {
     DRAFT: {

@@ -16,7 +16,6 @@ import {
   Loader2,
   Eye,
   EyeOff,
-  User,
   Languages,
   FolderKanban,
   ListChecks,

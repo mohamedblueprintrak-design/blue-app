@@ -36,7 +36,7 @@ interface HealthData {
 }
 
 // Empty state when health endpoint is unavailable
-const NO_DATA = (isAr: boolean) => [] as const;
+const NO_DATA = (_isAr: boolean) => [] as const;
 
 function mapHealthToServices(health: HealthData, isAr: boolean) {
   const dbStatus = health.database?.status === 'connected' ? 'operational' as const : 'warning' as const;

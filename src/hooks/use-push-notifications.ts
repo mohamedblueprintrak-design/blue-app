@@ -45,7 +45,7 @@ export function usePushNotifications() {
           }
 
           if (permission !== "granted") {
-            console.log("[PushNotifications] Notification permission denied");
+            console.info("[PushNotifications] Notification permission denied");
             return;
           }
 
@@ -69,7 +69,7 @@ export function usePushNotifications() {
           throw new Error("Failed to subscribe on server");
         }
 
-        console.log("[PushNotifications] Subscribed successfully to push notifications");
+        console.info("[PushNotifications] Subscribed successfully to push notifications");
       } catch (error) {
         console.error("[PushNotifications] Error subscribing to push notifications", error);
       }

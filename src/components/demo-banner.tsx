@@ -1,15 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { AlertTriangle, RefreshCw, X } from 'lucide-react';
+import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { useRouter } from 'next/navigation';
 
 export function DemoBanner() {
   const [isResetting, setIsResetting] = useState(false);
   const { toast } = useToast();
-  const router = useRouter();
+
 
   const handleReset = async () => {
     try {
@@ -27,7 +26,7 @@ export function DemoBanner() {
       
       // Force reload to reflect new data
       window.location.href = '/dashboard';
-    } catch (error) {
+    } catch (_error) {
       toast({
         title: 'خطأ',
         description: 'حدث خطأ أثناء إعادة تعيين البيانات التجريبية.',

@@ -11,13 +11,21 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import dynamic from 'next/dynamic';
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const BarChart = dynamic<any>(() => import('recharts').then((mod: any) => mod.BarChart), { ssr: false });
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const Bar = dynamic<any>(() => import('recharts').then((mod: any) => mod.Bar), { ssr: false });
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const XAxis = dynamic<any>(() => import('recharts').then((mod: any) => mod.XAxis), { ssr: false });
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const YAxis = dynamic<any>(() => import('recharts').then((mod: any) => mod.YAxis), { ssr: false });
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const CartesianGrid = dynamic<any>(() => import('recharts').then((mod: any) => mod.CartesianGrid), { ssr: false });
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const Tooltip = dynamic<any>(() => import('recharts').then((mod: any) => mod.Tooltip), { ssr: false });
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const ResponsiveContainer = dynamic<any>(() => import('recharts').then((mod: any) => mod.ResponsiveContainer), { ssr: false });
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const Legend = dynamic<any>(() => import('recharts').then((mod: any) => mod.Legend), { ssr: false });
 
 import { DollarSign, TrendingUp, TrendingDown, Wallet, ArrowUpRight, ArrowDownRight, Briefcase, FileText, FileSpreadsheet, Loader2, Target, BarChart3, Activity } from 'lucide-react'

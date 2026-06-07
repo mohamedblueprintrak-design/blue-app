@@ -122,7 +122,7 @@ export async function PUT(
     if (!validation.success) {
       return NextResponse.json({ error: validation.error, errors: validation.errors }, { status: 400 });
     }
-    const body = sanitizeObject(validation.data);
+    const _body = sanitizeObject(validation.data);
 
     const existing = await db.client.findUnique({ where: { id } });
     if (!existing || existing.deletedAt) {

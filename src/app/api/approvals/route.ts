@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { validateBody, approvalCreateSchema } from '@/lib/api-validation';
-import { requireVerifiedPermission, orgFilter, orgCreate} from '@/app/api/utils/auth';
+import { requireVerifiedPermission, orgCreate} from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';

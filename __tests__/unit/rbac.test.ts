@@ -6,7 +6,7 @@
  * to ensure tests match the real implementation.
  */
 
-import { Permission, ROLE_PERMISSIONS, UserRoleValues } from '@/lib/auth/types';
+import { Permission, UserRoleValues } from '@/lib/auth/types';
 import {
   hasPermission,
   hasAnyPermission,

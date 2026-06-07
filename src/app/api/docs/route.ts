@@ -21,7 +21,7 @@ export async function GET() {
   try {
     const specs = getSwaggerSpec();
     return NextResponse.json(specs);
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json(
       { error: 'Failed to generate API documentation' },
       { status: 500 }

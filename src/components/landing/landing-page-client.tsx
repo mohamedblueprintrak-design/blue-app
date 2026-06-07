@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useLanguage } from "@/hooks/use-lang";
 import { motion, AnimatePresence } from "framer-motion";
-import { Building2, Compass, Phone, Mail, MapPin, Users, Award, Clock, Zap, MessageCircle, Star, CheckCircle2, Menu, X, Target, Headphones, ArrowUpRight, FileCheck } from 'lucide-react'
+import { Building2, Compass, Phone, Users, Award, Zap, Star, Menu, X, Target, Headphones, ArrowUpRight, FileCheck } from 'lucide-react'
 
 import { Button } from '@/components/ui/button';
 import LogoImage from '@/components/ui/logo-image';

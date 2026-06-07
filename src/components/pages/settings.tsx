@@ -9,7 +9,6 @@ import {
   Bell,
   Shield,
   CreditCard,
-  Plug,
 } from "lucide-react";
 import { getMutationHeaders } from "@/lib/csrf-client";
 import { CompanyTab } from "./settings/company-tab";
@@ -55,9 +54,9 @@ export default function SettingsPage({ language: lang }: Props) {
   const [dangerConfirm, setDangerConfirm] = useState<DangerConfirmType>("");
   const [dangerError, setDangerError] = useState("");
   const [dangerSuccess, setDangerSuccess] = useState("");
-  const [logoUploading, setLogoUploading] = useState(false);
-  const [logoPreview, setLogoPreview] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [_logoUploading, _setLogoUploading] = useState(false);
+  const [_logoPreview, _setLogoPreview] = useState<string | null>(null);
+  const _fileInputRef = useRef<HTMLInputElement>(null);
 
   // Fetch user preferences (accent color, notification settings)
   const { data: preferences } = useQuery({
@@ -93,7 +92,7 @@ export default function SettingsPage({ language: lang }: Props) {
         body: JSON.stringify({ accentColor: color }),
       });
       if (!res.ok) {
-        const data = await res.json();
+        const _data = await res.json();
       }
     } catch {
       // Error already shown via UI
@@ -112,7 +111,7 @@ export default function SettingsPage({ language: lang }: Props) {
         body: JSON.stringify({ notifications: settings }),
       });
       if (!res.ok) {
-        const data = await res.json();
+        const _data = await res.json();
       }
     } catch {
       // Error already shown via UI
@@ -231,8 +230,8 @@ export default function SettingsPage({ language: lang }: Props) {
             workingDays={workingDays}
             saving={saving}
             saved={saved}
-            logoUploading={logoUploading}
-            logoPreview={logoPreview}
+            logoUploading={_logoUploading}
+            logoPreview={_logoPreview}
             updateField={updateField}
             toggleWorkingDay={toggleWorkingDay}
             handleSave={handleSave}

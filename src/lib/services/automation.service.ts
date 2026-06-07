@@ -80,11 +80,11 @@ class AutomationService {
     });
   }
 
-  private async handleProjectCreated(payload: AutomationEventPayload) {
+  private async handleProjectCreated(_payload: AutomationEventPayload) {
     // Notify managers
   }
 
-  private async handleUserInvited(payload: AutomationEventPayload) {
+  private async handleUserInvited(_payload: AutomationEventPayload) {
     // handled inside auth service usually, but can be centralized here
   }
 }

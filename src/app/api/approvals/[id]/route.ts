@@ -3,7 +3,6 @@ import { db } from '@/lib/db';
 import { log } from '@/lib/logger';
 import { requireVerifiedPermission, orgCheck } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
-import { forbiddenResponse } from '@/app/api/utils/response';
 import { validateRequest, validateIdParam, approvalUpdateSchema } from '@/lib/api-validation';
 
 // GET: Get a single approval

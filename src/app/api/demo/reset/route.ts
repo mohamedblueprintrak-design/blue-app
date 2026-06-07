@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { exec } from 'child_process';
 import { promisify } from 'util';
-import path from 'path';
 import { requireVerifiedAuth } from '@/app/api/utils/auth';
 
 const execAsync = promisify(exec);
@@ -34,7 +33,7 @@ export async function POST(request: NextRequest) {
     await execAsync(command, { cwd });
 
     return NextResponse.json({ success: true, message: 'Demo data reset successfully' });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Failed to reset demo data:', error);
     return NextResponse.json(
       { error: 'Failed to reset demo data' },

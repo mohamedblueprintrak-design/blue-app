@@ -1,3 +1,4 @@
+/* eslint-disable import/no-anonymous-default-export */
 /**
  * BluePrint Load Test
  *
@@ -11,7 +12,7 @@
 import http from 'k6/http';
 import { check, group, sleep } from 'k6';
 import { Trend } from 'k6/metrics';
-import { BASE_URL, THRESHOLDS, login, thinkTime, randomPick } from './config.js';
+import { BASE_URL, THRESHOLDS, login, thinkTime } from './config.js';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Custom metrics — per-endpoint trends
@@ -55,7 +56,7 @@ export function setup() {
 // Test
 // ─────────────────────────────────────────────────────────────────────────────
 
-export default function (data) {
+export default function (_data) {
   // ── Authenticate ──────────────────────────────────────────────────────────
   const auth = login();
   if (!auth.success) {
