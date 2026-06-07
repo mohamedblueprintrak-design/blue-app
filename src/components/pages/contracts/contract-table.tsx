@@ -74,9 +74,12 @@ export function ContractTable({
   onSelectContract,
   onEditContract,
   onDeleteContract,
-  _contractDetail,
-  _onCloseDetail,
-  _onEditFromDetail,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  contractDetail,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  onCloseDetail,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  onEditFromDetail,
 }: ContractTableProps) {
   return (
     <div className="space-y-4">
