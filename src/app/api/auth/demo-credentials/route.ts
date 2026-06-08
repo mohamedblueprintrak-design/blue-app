@@ -17,10 +17,14 @@ export async function GET() {
     return NextResponse.json({ credentials: [] });
   }
 
-  // SECURITY: Map from server-side DemoCredential to client-side format.
-  // Passwords are NOT exposed to the client — use POST /api/auth/demo-login instead.
+  // DEMO MODE: Include passwords so the Quick Login auto-fill works.
+  // This endpoint is ONLY reachable when DEMO_MODE=true — passwords are
+  // already public in the seed data and source code, so exposing them here
+  // is safe and necessary for the "select role → auto-fill email + password"
+  // UX on the login page.
   const credentials = DEMO_CREDENTIALS.map(c => ({
     email: c.email,
+    password: c.password,
     role: c.role,
     labelAr: c.labelAr,
     labelEn: c.labelEn,
