@@ -220,8 +220,13 @@ export function formatPrice(amount: number, currency: string = 'AED'): string {
   return formatter.format(amount);
 }
 
-export function mapStripeStatus(stripeStatus: Stripe.Subscription.Status): string {
-  const statusMap: Record<string, string> = {
+export type AppSubscriptionStatus = 'ACTIVE' | 'PAST_DUE' | 'CANCELED' | 'UNPAID' | 'TRIALING' | 'INCOMPLETE' | 'EXPIRED' | 'PAUSED' | 'UNKNOWN';
+
+/** The subset of AppSubscriptionStatus that matches the Prisma SubscriptionStatus enum */
+export type DbSubscriptionStatus = 'ACTIVE' | 'PAST_DUE' | 'CANCELED' | 'TRIALING';
+
+export function mapStripeStatus(stripeStatus: Stripe.Subscription.Status): AppSubscriptionStatus {
+  const statusMap: Record<string, AppSubscriptionStatus> = {
     active: 'ACTIVE',
     past_due: 'PAST_DUE',
     canceled: 'CANCELED',
@@ -231,7 +236,13 @@ export function mapStripeStatus(stripeStatus: Stripe.Subscription.Status): strin
     incomplete_expired: 'EXPIRED',
     paused: 'PAUSED',
   };
-  return statusMap[stripeStatus] || 'unknown';
+  return statusMap[stripeStatus] || 'UNKNOWN';
+}
+
+/** Map any AppSubscriptionStatus to a valid DB SubscriptionStatus value */
+export function toDbStatus(status: AppSubscriptionStatus): DbSubscriptionStatus {
+  const validStatuses: DbSubscriptionStatus[] = ['ACTIVE', 'PAST_DUE', 'CANCELED', 'TRIALING'];
+  return validStatuses.includes(status as DbSubscriptionStatus) ? (status as DbSubscriptionStatus) : 'CANCELED';
 }
 
 

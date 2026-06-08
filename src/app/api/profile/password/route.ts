@@ -88,18 +88,20 @@ export async function PUT(request: NextRequest) {
 
       // Always hash the new password with bcrypt before storing
       const hashedPassword = await hash(newPassword, 12);
-      await db.user.update({
-        where: { id: userRecord.id },
-        data: {
-          password: hashedPassword,
-          passwordChangedAt: new Date(),  // Invalidate existing tokens
-        },
-      });
 
-      // Invalidate all existing refresh tokens for security
-      await db.refreshToken.deleteMany({
-        where: { userId: userRecord.id },
-      });
+      // Update password and invalidate refresh tokens atomically
+      await db.$transaction([
+        db.user.update({
+          where: { id: userRecord.id },
+          data: {
+            password: hashedPassword,
+            passwordChangedAt: new Date(),  // Invalidate existing tokens
+          },
+        }),
+        db.refreshToken.deleteMany({
+          where: { userId: userRecord.id },
+        }),
+      ]);
 
       return NextResponse.json({ success: true });
     } else {
@@ -152,18 +154,20 @@ export async function PUT(request: NextRequest) {
 
       // Hash the new password
       const hashedPassword = await hash(newPassword, 12);
-      await db.user.update({
-        where: { id: userRecord.id },
-        data: {
-          password: hashedPassword,
-          passwordChangedAt: new Date(),  // Invalidate existing tokens
-        },
-      });
 
-      // Invalidate all existing refresh tokens for the target user
-      await db.refreshToken.deleteMany({
-        where: { userId: userRecord.id },
-      });
+      // Update password and invalidate refresh tokens atomically
+      await db.$transaction([
+        db.user.update({
+          where: { id: userRecord.id },
+          data: {
+            password: hashedPassword,
+            passwordChangedAt: new Date(),  // Invalidate existing tokens
+          },
+        }),
+        db.refreshToken.deleteMany({
+          where: { userId: userRecord.id },
+        }),
+      ]);
 
       // Audit log for admin password reset
       log.info('Admin password reset', {

@@ -407,8 +407,7 @@ export default function InvoicesPage({ language, projectId }: InvoicesPageProps)
                 const parsed = JSON.parse(draft);
                 setFormData(parsed);
                 Object.keys(parsed).forEach(k => {
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  setValue(k as any, parsed[k]);
+                  setValue(k as keyof InvoiceFormData, parsed[k as keyof InvoiceFormData]);
                 });
                 toast.showSuccess(ar ? "تم استعادة المسودة بنجاح" : "Draft restored successfully");
               } catch (_e) {

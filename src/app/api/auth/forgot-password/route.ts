@@ -36,23 +36,23 @@ export async function POST(request: NextRequest) {
     }
 
     // Invalidate existing tokens for this user to prevent misuse of old tokens
-    await db.passwordResetToken.deleteMany({
-      where: { userId: user.id },
-    });
-
-    // Generate reset token — raw token is sent to user, only hash is stored
+    // and create a new token atomically in a transaction to prevent partial failure
     const resetToken = randomBytes(32).toString("hex");
+    const hashedResetToken = await hashToken(resetToken);
 
-    // Store HASHED token in the PasswordResetToken model (not User.resetToken)
-    // The raw token is only sent via email — never stored in plaintext
-    await db.passwordResetToken.create({
-      data: {
-        email: user.email,
-        token: await hashToken(resetToken),
-        userId: user.id,
-        expiresAt: new Date(Date.now() + 60 * 60 * 1000), // 1 hour
-      },
-    });
+    await db.$transaction([
+      db.passwordResetToken.deleteMany({
+        where: { userId: user.id },
+      }),
+      db.passwordResetToken.create({
+        data: {
+          email: user.email,
+          token: hashedResetToken,
+          userId: user.id,
+          expiresAt: new Date(Date.now() + 60 * 60 * 1000), // 1 hour
+        },
+      }),
+    ]);
 
     // Send email
     const protocol = request.headers.get("x-forwarded-proto") || "https";
