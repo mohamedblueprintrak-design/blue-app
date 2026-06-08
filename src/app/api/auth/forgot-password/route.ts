@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
     const resetUrl = `${baseUrl}/reset-password?token=${resetToken}`;
 
     try {
-      const template = emailTemplates.passwordReset(user.name || "المستخدم", resetUrl);
+      const template = emailTemplates.passwordReset(user.name || "المستخدم", resetUrl, 60);
       await sendEmail({
         to: user.email,
         subject: template.subject,

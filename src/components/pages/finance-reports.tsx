@@ -16,7 +16,7 @@ import dynamic from 'next/dynamic';
 // Their internal prop types (ForwardRef, defaultProps, etc.) are not compatible
 // with next/dynamic's generic type constraints. Using `dynamic<any>` preserves
 // JSX prop inference at the usage site while allowing recharts' complex types.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- recharts internal types are incompatible with dynamic<>() generics
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- recharts ForwardRef types incompatible with dynamic<>()
 const BarChart = dynamic<any>(() => import('recharts').then((mod: any) => mod.BarChart), { ssr: false });
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const Bar = dynamic<any>(() => import('recharts').then((mod: any) => mod.Bar), { ssr: false });

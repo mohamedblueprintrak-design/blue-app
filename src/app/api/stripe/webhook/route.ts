@@ -284,25 +284,50 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
     const { organizationId, planId } = subscription.metadata || {};
 
     await db.$transaction(async (tx) => {
-      await tx.subscription.upsert({
+      // SECURITY: If metadata is missing, we cannot create a subscription record.
+      // This means the subscription.updated event arrived before the
+      // checkout.session.completed event that contains the metadata.
+      // In the `create` path, we must have both organizationId and planId.
+      // If they're missing, throw so Stripe retries the webhook later.
+      const existingSub = await tx.subscription.findUnique({
         where: { stripeSubscriptionId: subscription.id },
-        update: {
-          status: toDbStatus(status),
-          currentPeriodStart: new Date(period.current_period_start * 1000),
-          currentPeriodEnd: new Date(period.current_period_end * 1000),
-          cancelAtPeriodEnd: period.cancel_at_period_end,
-        },
-        create: {
-          organizationId: organizationId || '',
-          planId: planId || '',
-          status: toDbStatus(status),
-          stripeSubscriptionId: subscription.id,
-          stripeCustomerId: subscription.customer as string,
-          currentPeriodStart: new Date(period.current_period_start * 1000),
-          currentPeriodEnd: new Date(period.current_period_end * 1000),
-          cancelAtPeriodEnd: period.cancel_at_period_end,
-        },
       });
+
+      if (existingSub) {
+        // Update existing subscription
+        await tx.subscription.update({
+          where: { stripeSubscriptionId: subscription.id },
+          data: {
+            status: toDbStatus(status),
+            currentPeriodStart: new Date(period.current_period_start * 1000),
+            currentPeriodEnd: new Date(period.current_period_end * 1000),
+            cancelAtPeriodEnd: period.cancel_at_period_end,
+            // Update org/plan if metadata is present (e.g., plan upgrade)
+            ...(organizationId ? { organizationId } : {}),
+            ...(planId ? { planId } : {}),
+          },
+        });
+      } else {
+        // Create new subscription — requires organizationId and planId
+        if (!organizationId || !planId) {
+          throw new Error(
+            `[Stripe] subscription.updated arrived before checkout — missing org/plan metadata. ` +
+            `Will retry. subscriptionId=${subscription.id}`
+          );
+        }
+        await tx.subscription.create({
+          data: {
+            organizationId,
+            planId,
+            status: toDbStatus(status),
+            stripeSubscriptionId: subscription.id,
+            stripeCustomerId: subscription.customer as string,
+            currentPeriodStart: new Date(period.current_period_start * 1000),
+            currentPeriodEnd: new Date(period.current_period_end * 1000),
+            cancelAtPeriodEnd: period.cancel_at_period_end,
+          },
+        });
+      }
     });
 
     log.info(`Subscription updated: ${subscription.id}, status: ${status}`);

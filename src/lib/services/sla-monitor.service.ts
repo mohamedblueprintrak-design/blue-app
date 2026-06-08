@@ -13,13 +13,29 @@
  */
 
 import { db, isDatabaseAvailable } from '@/lib/db';
-import { TaskType, SLABreachStatus } from '@prisma/client';
+import { TaskType, SLABreachStatus, Prisma } from '@prisma/client';
 import type { NotificationType } from '@/types/db-enums';
 import { log } from '@/lib/logger';
 
 // ============================================
 // Types
 // ============================================
+
+/**
+ * Properly typed Task with relations needed for SLA monitoring.
+ * Replaces the previous `any` type which hid field name bugs
+ * (e.g., `task.assignedTo` should be `task.assigneeId`,
+ * `task.governmentEntity` doesn't exist on the Task model).
+ */
+type SLATaskWithRelations = Prisma.TaskGetPayload<{
+  include: {
+    project: {
+      include: {
+        manager: true;
+      };
+    };
+  };
+}>;
 
 export interface SLACheckResult {
   taskId: string;
@@ -204,16 +220,20 @@ export async function checkSLABreaches(): Promise<SLAMonitorReport> {
 /**
  * Create or update SLA breach record
  * إنشاء أو تحديث سجل تجاوز SLA
+ *
+ * Note: The SLABreach model does not have a two-way relation from Task,
+ * so we look up the breach by taskId directly rather than via task.slaBreaches.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Prisma generated types lag behind schema; slaBreaches relation not yet in TaskInclude
-type SLATaskWithRelations = any;
-
 async function createOrUpdateSLABreach(
   task: SLATaskWithRelations,
   result: SLACheckResult
 ): Promise<void> {
   try {
-    const existingBreach = task.slaBreaches[0];
+    // Look up existing breach by taskId (no two-way relation on Task model)
+    const existingBreach = await db.sLABreach.findFirst({
+      where: { taskId: task.id },
+      orderBy: { createdAt: 'desc' },
+    });
 
     if (existingBreach) {
       // Update existing breach
@@ -265,8 +285,8 @@ async function sendEscalatedNotifications(
 
     // Level 1 (Warning): Notification to assigned user
     if (escalationLevel >= ESCALATION_LEVELS.WARNING) {
-      if (task.assignedTo) {
-        usersToNotify.push(task.assignedTo);
+      if (task.assigneeId) {
+        usersToNotify.push(task.assigneeId);
       }
     }
 
@@ -318,7 +338,7 @@ async function sendEscalatedNotifications(
  * Get notification title based on escalation level
  */
 function getEscalatedNotificationTitle(result: SLACheckResult, task: SLATaskWithRelations): string {
-  const entity = task.governmentEntity ? ` [${task.governmentEntity}]` : '';
+  const entity = task.taskType === 'GOVERNMENTAL' ? ' [Government]' : '';
   
   switch (result.escalationLevel) {
     case ESCALATION_LEVELS.WARNING:
@@ -336,7 +356,7 @@ function getEscalatedNotificationTitle(result: SLACheckResult, task: SLATaskWith
  * Get notification message based on escalation level
  */
 function getEscalatedNotificationMessage(result: SLACheckResult, task: SLATaskWithRelations): string {
-  const entity = task.governmentEntity ? ` (${task.governmentEntity})` : '';
+  const entity = task.taskType === 'GOVERNMENTAL' ? ' (Government)' : '';
   
   switch (result.escalationLevel) {
     case ESCALATION_LEVELS.WARNING: {
@@ -369,7 +389,7 @@ function getSLANotificationTitle(status: SLABreachStatus, taskName: string): str
  * Get notification message based on breach details (legacy compatibility)
  */
 function getSLANotificationMessage(result: SLACheckResult, task: SLATaskWithRelations): string {
-  const entity = task.governmentEntity ? ` (${task.governmentEntity})` : '';
+  const entity = task.taskType === 'GOVERNMENTAL' ? ' (Government)' : '';
   
   if (result.status === SLABreachStatus.WARNING) {
     const daysRemaining = result.slaDays - result.daysElapsed;
@@ -398,8 +418,8 @@ async function _sendSLANotifications(
   try {
     const usersToNotify: string[] = [];
 
-    if (task.assignedTo) {
-      usersToNotify.push(task.assignedTo);
+    if (task.assigneeId) {
+      usersToNotify.push(task.assigneeId);
     }
 
     if (task.project?.managerId) {
