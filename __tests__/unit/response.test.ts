@@ -207,7 +207,7 @@ describe('Response — unauthorizedResponse', () => {
     const response = unauthorizedResponse();
     const body = await response.json();
     expect(body.error.code).toBe('UNAUTHORIZED');
-    expect(body.error.message).toBe('يرجى تسجيل الدخول');
+    expect(body.error.message).toBe('يرجى تسجيل الدخول / Please log in');
   });
 
   it('should use custom message when provided', async () => {
@@ -240,7 +240,7 @@ describe('Response — forbiddenResponse', () => {
     const response = forbiddenResponse();
     const body = await response.json();
     expect(body.error.code).toBe('FORBIDDEN');
-    expect(body.error.message).toBe('غير مصرح لك بالوصول');
+    expect(body.error.message).toBe('غير مصرح لك بالوصول / Access denied');
   });
 
   it('should use custom message', async () => {
@@ -267,7 +267,7 @@ describe('Response — notFoundResponse', () => {
     const response = notFoundResponse();
     const body = await response.json();
     expect(body.error.code).toBe('NOT_FOUND');
-    expect(body.error.message).toBe('غير موجود');
+    expect(body.error.message).toBe('غير موجود / Not found');
   });
 });
 
@@ -288,7 +288,7 @@ describe('Response — serverErrorResponse', () => {
     const response = serverErrorResponse();
     const body = await response.json();
     expect(body.error.code).toBe('SERVER_ERROR');
-    expect(body.error.message).toBe('خطأ في الخادم');
+    expect(body.error.message).toBe('خطأ في الخادم / Server error');
   });
 });
 
