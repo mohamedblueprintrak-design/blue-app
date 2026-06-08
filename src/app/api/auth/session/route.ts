@@ -53,12 +53,13 @@ export async function GET(request: NextRequest) {
         department: true,
         position: true,
         isActive: true,
+        deletedAt: true,
         lastLogin: true,
         createdAt: true,
       },
     });
 
-    if (!user || !user.isActive) {
+    if (!user || !user.isActive || user.deletedAt) {
       return NextResponse.json(
         { success: false, user: null, isAuthenticated: false },
         { status: 200 }

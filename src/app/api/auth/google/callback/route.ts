@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { log } from '@/lib/logger';
 import { logAudit } from '@/lib/services/audit.service';
+import { SignJWT } from 'jose';
+import { getJwtSecretBytes } from '@/lib/auth/jwt-secret';
 import {
   generateAuthToken,
   generateDbRefreshToken,
@@ -193,6 +195,32 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(
         `${baseUrl}/login?error=${encodeURIComponent('الحساب غير نشط. تواصل مع الإدارة.')}`
       );
+    }
+
+    // ── 2FA Check: If user has 2FA enabled, redirect to 2FA verification instead of issuing tokens ──
+    if (user.twoFactorEnabled) {
+      // Generate a temporary 2FA token (same as the login route)
+      const tempToken = await new SignJWT({ userId: user.id, type: '2fa-pending' })
+        .setProtectedHeader({ alg: 'HS256' })
+        .setIssuer('blueprint-saas')
+        .setAudience('blueprint-2fa')
+        .setExpirationTime('5m')
+        .setIssuedAt()
+        .sign(getJwtSecretBytes());
+
+      log.info('Google OAuth: 2FA required, redirecting to verification', { userId: user.id });
+
+      const response = NextResponse.redirect(`${baseUrl}/dashboard?requires2FA=true`);
+      response.cookies.set('blue_2fa_temp', tempToken, {
+        path: '/',
+        maxAge: 5 * 60,
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+      });
+      // Clear the OAuth state cookie
+      response.cookies.set('google_oauth_state', '', { path: '/', maxAge: 0 });
+      return response;
     }
 
     // ── Create JWT and set cookies (same pattern as regular login) ──

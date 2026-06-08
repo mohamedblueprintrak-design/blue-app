@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
     log.error('Error revoking refresh token on logout:', error);
   }
 
-  // Always clear both cookies regardless of revocation outcome
+  // Always clear all auth cookies regardless of revocation outcome
   const response = NextResponse.json({
     success: true,
     message: 'Logged out successfully',
@@ -65,6 +65,24 @@ export async function POST(request: NextRequest) {
 
   response.cookies.set(REFRESH_COOKIE_NAME, '', {
     ...getAuthCookieOptions(0),
+  });
+
+  // Clear 2FA temp token (if present from an abandoned 2FA flow)
+  response.cookies.set('blue_2fa_temp', '', {
+    path: '/',
+    maxAge: 0,
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+  });
+
+  // Clear CSRF token
+  response.cookies.set('csrf_token', '', {
+    path: '/',
+    maxAge: 0,
+    httpOnly: false,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
   });
 
   return response;

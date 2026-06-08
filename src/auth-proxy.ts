@@ -37,7 +37,7 @@ const CSRF_EXEMPT_PATHS = [
   '/api/stripe/webhook', '/api/health', '/api/auth/login',
   '/api/auth/register', '/api/auth/forgot-password',
   '/api/auth/reset-password', '/api/auth/verify-email', '/api/auth/resend-verification',
-  '/api/auth/2fa', '/api/auth/2fa/verify', '/api/auth/2fa/backup-codes',
+  '/api/auth/2fa/verify', '/api/auth/2fa/backup-codes',
   '/api/auth/refresh', '/api/auth/ws-token', '/api/seed',
   '/api/quote-requests', '/api/cron/cleanup', '/api/public/stats',
   '/api/auth/google', '/api/auth/google/callback', // Google OAuth social login
@@ -165,6 +165,16 @@ export async function proxy(request: NextRequest) {
           audience: 'blueprint-users',
         });
 
+        // SECURITY: Reject non-access token types (e.g. '2fa-pending', 'password-reset')
+        // Password-reset tokens share the same issuer/audience but should NEVER
+        // be accepted as authentication — they only contain userId and type.
+        const tokenType = payload.type as string | undefined;
+        if (tokenType && tokenType !== 'access') {
+          // Silently skip for public routes — don't set auth headers
+          const response = NextResponse.next();
+          return addSecurityHeaders(response, nonce, rlInfo);
+        }
+
         const pubIat = payload.iat as number | undefined;
         const pubPasswordChangedAt = payload.passwordChangedAt as number | undefined;
         if (pubIat && pubPasswordChangedAt && pubPasswordChangedAt > pubIat) {
@@ -218,6 +228,25 @@ export async function proxy(request: NextRequest) {
       audience: 'blueprint-users',
     });
 
+    // SECURITY: Reject non-access token types (e.g. '2fa-pending', 'password-reset')
+    // Password-reset tokens share the same issuer/audience but should NEVER
+    // be accepted as authentication. Without this check, a password-reset token
+    // would pass verification and set x-user-* headers with undefined values.
+    const tokenType = payload.type as string | undefined;
+    if (tokenType && tokenType !== 'access') {
+      if (pathname.startsWith('/api/')) {
+        const response = NextResponse.json(
+          { error: 'Invalid token type' },
+          { status: 401 }
+        );
+        response.cookies.set('blue_token', '', { path: '/', maxAge: 0, httpOnly: true, sameSite: 'lax' });
+        response.cookies.set('blue_refresh_token', '', { path: '/', maxAge: 0, httpOnly: true, sameSite: 'lax' });
+        return addSecurityHeaders(response, nonce, rlInfo);
+      }
+      const loginUrl = new URL('/login', request.url);
+      return NextResponse.redirect(loginUrl);
+    }
+
     const iat = payload.iat as number | undefined;
     const passwordChangedAt = payload.passwordChangedAt as number | undefined;
     if (iat && passwordChangedAt && passwordChangedAt > iat) {
@@ -226,6 +255,8 @@ export async function proxy(request: NextRequest) {
           { error: 'يرجى تسجيل الدخول' },
           { status: 401 }
         );
+        response.cookies.set('blue_token', '', { path: '/', maxAge: 0, httpOnly: true, sameSite: 'lax' });
+        response.cookies.set('blue_refresh_token', '', { path: '/', maxAge: 0, httpOnly: true, sameSite: 'lax' });
         return addSecurityHeaders(response, nonce, rlInfo);
       }
       const loginUrl = new URL('/login', request.url);

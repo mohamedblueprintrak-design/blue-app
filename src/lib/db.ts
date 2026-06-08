@@ -25,6 +25,19 @@ export const db =
 if (process.env.NODE_ENV !== 'production') globalThis.prisma = db
 
 /**
+ * Enable SQLite foreign key enforcement.
+ * SQLite does NOT enforce foreign keys by default — this means onDelete: Cascade
+ * in the Prisma schema is silently ignored, and orphaned records accumulate.
+ * Enabling this PRAGMA ensures cascading deletes work and prevents data inconsistency.
+ */
+if (process.env.DATABASE_URL?.startsWith('file:')) {
+  db.$executeRawUnsafe('PRAGMA foreign_keys = ON').catch((err) => {
+    // Log but don't crash — FK enforcement is a safety net, not a hard requirement
+    console.warn('[db] Failed to enable SQLite foreign key enforcement:', err);
+  });
+}
+
+/**
  * Graceful shutdown handler — ensures PrismaClient disconnects properly
  * when the Node.js process exits, preventing dangling connections.
  *
