@@ -211,29 +211,41 @@ export function errorResponse(message: string, code = 'ERROR', status = 400, req
 
 /**
  * Create an unauthorized error response
+ * Default message is bilingual (Arabic / English) since the API cannot know
+ * the client's locale. Callers should pass a locale-appropriate message
+ * when the request context is available.
  */
-export function unauthorizedResponse(message = 'يرجى تسجيل الدخول', requestId?: string): NextResponse<ApiErrorResponse> {
+export function unauthorizedResponse(message = 'يرجى تسجيل الدخول / Please log in', requestId?: string): NextResponse<ApiErrorResponse> {
   return errorResponse(message, 'UNAUTHORIZED', 401, requestId);
 }
 
 /**
  * Create a forbidden error response
+ * Default message is bilingual (Arabic / English) since the API cannot know
+ * the client's locale. Callers should pass a locale-appropriate message
+ * when the request context is available.
  */
-export function forbiddenResponse(message = 'غير مصرح لك بالوصول', requestId?: string): NextResponse<ApiErrorResponse> {
+export function forbiddenResponse(message = 'غير مصرح لك بالوصول / Access denied', requestId?: string): NextResponse<ApiErrorResponse> {
   return errorResponse(message, 'FORBIDDEN', 403, requestId);
 }
 
 /**
  * Create a not found error response
+ * Default message is bilingual (Arabic / English) since the API cannot know
+ * the client's locale. Callers should pass a locale-appropriate message
+ * when the request context is available.
  */
-export function notFoundResponse(message = 'غير موجود', requestId?: string): NextResponse<ApiErrorResponse> {
+export function notFoundResponse(message = 'غير موجود / Not found', requestId?: string): NextResponse<ApiErrorResponse> {
   return errorResponse(message, 'NOT_FOUND', 404, requestId);
 }
 
 /**
  * Create a server error response
+ * Default message is bilingual (Arabic / English) since the API cannot know
+ * the client's locale. Callers should pass a locale-appropriate message
+ * when the request context is available.
  */
-export function serverErrorResponse(message = 'خطأ في الخادم', requestId?: string): NextResponse<ApiErrorResponse> {
+export function serverErrorResponse(message = 'خطأ في الخادم / Server error', requestId?: string): NextResponse<ApiErrorResponse> {
   return errorResponse(message, 'SERVER_ERROR', 500, requestId);
 }
 

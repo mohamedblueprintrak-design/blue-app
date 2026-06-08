@@ -30,7 +30,19 @@
     "no": "لا",
     "errorLoadingData": "حدث خطأ في تحميل البيانات",
     "errorLoadingDashboard": "لم نتمكن من تحميل لوحة التحكم. يرجى المحاولة مرة أخرى.",
-    "retry": "إعادة المحاولة"
+    "retry": "إعادة المحاولة",
+    "undo": "تراجع"
+  },
+  "toast": {
+    "created": "تم الإنشاء بنجاح",
+    "createdItem": "تم إنشاء {item}",
+    "updated": "تم التحديث بنجاح",
+    "updatedItem": "تم تحديث {item}",
+    "deleted": "تم الحذف بنجاح",
+    "deletedItem": "تم حذف {item}",
+    "error": "حدث خطأ",
+    "operationFailed": "فشل تنفيذ العملية",
+    "operationFailedWith": "فشل تنفيذ العملية: {operation}"
   },
   "dashboard": {
     "title": "لوحة التحكم",

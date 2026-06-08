@@ -30,7 +30,19 @@
     "no": "No",
     "errorLoadingData": "Error loading data",
     "errorLoadingDashboard": "We couldn't load the dashboard. Please try again.",
-    "retry": "Retry"
+    "retry": "Retry",
+    "undo": "Undo"
+  },
+  "toast": {
+    "created": "Created successfully",
+    "createdItem": "{item} created",
+    "updated": "Updated successfully",
+    "updatedItem": "{item} updated",
+    "deleted": "Deleted successfully",
+    "deletedItem": "{item} deleted",
+    "error": "Error occurred",
+    "operationFailed": "Operation failed",
+    "operationFailedWith": "Operation failed: {operation}"
   },
   "dashboard": {
     "title": "Dashboard",

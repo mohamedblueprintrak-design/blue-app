@@ -1,4 +1,5 @@
 import { useToast } from "@/hooks/use-toast";
+import { useTranslations } from "next-intl";
 
 interface ToastFeedbackOptions {
   ar: boolean;
@@ -6,6 +7,7 @@ interface ToastFeedbackOptions {
 
 export function useToastFeedback({ ar }: ToastFeedbackOptions) {
   const { toast } = useToast();
+  const t = useTranslations("toast");
 
   const showSuccess = (message: string, description?: string) => {
     toast({
@@ -25,32 +27,28 @@ export function useToastFeedback({ ar }: ToastFeedbackOptions) {
 
   const created = (itemName: string) =>
     showSuccess(
-      ar ? "تم الإنشاء بنجاح" : "Created successfully",
-      ar ? `تم إنشاء ${itemName}` : `${itemName} created`
+      t("created"),
+      t("createdItem", { item: itemName })
     );
 
   const updated = (itemName: string) =>
     showSuccess(
-      ar ? "تم التحديث بنجاح" : "Updated successfully",
-      ar ? `تم تحديث ${itemName}` : `${itemName} updated`
+      t("updated"),
+      t("updatedItem", { item: itemName })
     );
 
   const deleted = (itemName: string) =>
     showSuccess(
-      ar ? "تم الحذف بنجاح" : "Deleted successfully",
-      ar ? `تم حذف ${itemName}` : `${itemName} deleted`
+      t("deleted"),
+      t("deletedItem", { item: itemName })
     );
 
   const error = (operation?: string) =>
     showError(
-      ar ? "حدث خطأ" : "Error occurred",
+      t("error"),
       operation
-        ? ar
-          ? `فشل تنفيذ العملية: ${operation}`
-          : `Operation failed: ${operation}`
-        : ar
-          ? "فشل تنفيذ العملية"
-          : "Operation failed"
+        ? t("operationFailedWith", { operation })
+        : t("operationFailed")
     );
 
   return { showSuccess, showError, created, updated, deleted, error, toast };
