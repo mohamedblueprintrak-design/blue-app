@@ -22,13 +22,17 @@ export async function POST(request: NextRequest) {
 
     if (refreshToken) {
       // Hash the token and revoke it in the database
-      const tokenHash = await hashToken(refreshToken);
-      const storedToken = await db.refreshToken.findUnique({
-        where: { tokenHash },
-      });
+      try {
+        const tokenHash = await hashToken(refreshToken);
+        const storedToken = await db.refreshToken.findUnique({
+          where: { tokenHash },
+        });
 
-      if (storedToken) {
-        targetUserId = storedToken.userId;
+        if (storedToken) {
+          targetUserId = storedToken.userId;
+        }
+      } catch {
+        // Orphaned token or DB error — continue with logout anyway
       }
     }
 

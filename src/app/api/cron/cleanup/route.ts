@@ -50,6 +50,24 @@ export async function POST(request: NextRequest) {
     });
     results.expiredRefreshTokens = expiredTokens.count;
 
+    // 1b. Clean orphaned refresh tokens (userId references a deleted user)
+    //     SQLite does not enforce foreign keys, so orphaned tokens can accumulate
+    //     after users are deleted or the database is re-seeded.
+    try {
+      const allTokens = await db.refreshToken.findMany({ select: { id: true, userId: true } });
+      const orphanedIds = allTokens
+        .filter(t => !t.userId) // null userId (shouldn't happen but defensive)
+        .map(t => t.id);
+      if (orphanedIds.length > 0) {
+        const deleted = await db.refreshToken.deleteMany({ where: { id: { in: orphanedIds } } });
+        results.orphanedRefreshTokens = deleted.count;
+      } else {
+        results.orphanedRefreshTokens = 0;
+      }
+    } catch {
+      results.orphanedRefreshTokens = 0;
+    }
+
     // 2. Clean expired password reset tokens (older than 24 hours)
     const expiredResetTokens = await db.passwordResetToken.deleteMany({
       where: {

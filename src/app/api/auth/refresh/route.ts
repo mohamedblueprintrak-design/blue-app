@@ -41,6 +41,8 @@ export async function POST(request: NextRequest) {
     const tokenHash = await hashToken(refreshToken);
 
     // Find the refresh token record
+    // NOTE: SQLite does not enforce foreign keys, so orphaned tokens (userId
+    // pointing to a deleted user) can exist. We handle this gracefully.
     const storedToken = await db.refreshToken.findUnique({
       where: { tokenHash },
       include: {
@@ -64,6 +66,20 @@ export async function POST(request: NextRequest) {
         { error: 'Invalid refresh token' },
         { status: 401 }
       );
+    }
+
+    // Orphaned token — user was deleted but token still exists (SQLite FK not enforced)
+    if (!storedToken.user) {
+      // Clean up the orphaned token and reject the request
+      await db.refreshToken.delete({ where: { id: storedToken.id } }).catch(() => {});
+      const response = NextResponse.json(
+        { error: 'User no longer exists' },
+        { status: 401 }
+      );
+      // Clear the invalid refresh token cookie
+      response.cookies.set(REFRESH_COOKIE_NAME, '', { ...getAuthCookieOptions(0), maxAge: 0 });
+      response.cookies.set(AUTH_COOKIE_NAME, '', { ...getAuthCookieOptions(0), maxAge: 0 });
+      return response;
     }
 
     // Check if token has been revoked
