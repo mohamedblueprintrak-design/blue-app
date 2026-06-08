@@ -241,13 +241,15 @@ export class ProjectRepository extends BaseRepository<Project> {
 
     const byStatus: Record<string, number> = {};
     for (const item of statusCounts) {
-      byStatus[item.status] = item._count;
+      const status = (item as Record<string, unknown>).status as string;
+      const count = (item as Record<string, unknown>)._count as number;
+      byStatus[status] = count;
     }
 
     return {
       total: totalCount,
-      totalValue: valueAggregate._sum.contractValue || 0,
-      averageProgress: progressAggregate._avg.progress || 0,
+      totalValue: ((valueAggregate as Record<string, unknown>)._sum as Record<string, unknown>).contractValue as number || 0,
+      averageProgress: ((progressAggregate as Record<string, unknown>)._avg as Record<string, unknown>).progress as number || 0,
       byStatus,
     };
   }

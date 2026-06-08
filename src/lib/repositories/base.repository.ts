@@ -38,14 +38,19 @@ export interface IRepository<T> {
  * Minimal interface for Prisma model delegate operations.
  * Constrains the `any` escape hatch to the known CRUD methods
  * that BaseRepository actually calls, while preserving generic return types via T.
+ *
+ * Includes findUnique, aggregate, and groupBy for subclass use.
  */
 interface PrismaModelDelegate<T> {
   findFirst(args?: Record<string, unknown>): Promise<T | null>;
+  findUnique(args?: Record<string, unknown>): Promise<T | null>;
   findMany(args?: Record<string, unknown>): Promise<T[]>;
   create(args: Record<string, unknown>): Promise<T>;
   update(args: Record<string, unknown>): Promise<T>;
   delete(args: Record<string, unknown>): Promise<void>;
   count(args?: Record<string, unknown>): Promise<number>;
+  aggregate(args?: Record<string, unknown>): Promise<Record<string, unknown>>;
+  groupBy(args?: Record<string, unknown>): Promise<Record<string, unknown>[]>;
 }
 
 /**

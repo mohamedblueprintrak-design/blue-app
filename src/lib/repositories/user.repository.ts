@@ -211,7 +211,9 @@ export class UserRepository extends BaseRepository<User> {
 
     const counts: Record<string, number> = {};
     for (const item of roleCounts) {
-      counts[item.role] = item._count;
+      const role = (item as Record<string, unknown>).role as string;
+      const count = (item as Record<string, unknown>)._count as number;
+      counts[role] = count;
     }
 
     return counts;

@@ -129,10 +129,10 @@ export class ClientRepository extends BaseRepository<Client> {
    * Check if client has active projects
    */
   async hasActiveProjects(id: string, organizationId: string): Promise<boolean> {
-    const count = await this.delegate.project?.count?.({
+    const count = await this.prisma.project.count({
       where: { clientId: id, organizationId, status: 'ACTIVE' },
     });
-    return (count || 0) > 0;
+    return count > 0;
   }
 
   /**
