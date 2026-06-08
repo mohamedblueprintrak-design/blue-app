@@ -4,6 +4,24 @@ import { z } from "zod";
 const optionalString = z.string().optional().default("");
 const positiveNumberStr = z.string().optional().default("0");
 
+// ===== Enum types matching Prisma schema =====
+// These replace the previous z.string() for status/priority fields,
+// which accepted arbitrary strings and could cause Prisma runtime crashes.
+const TaskPriorityEnum = z.enum(['LOW', 'NORMAL', 'HIGH', 'URGENT']);
+const TaskStatusEnum = z.enum(['TODO', 'IN_PROGRESS', 'REVIEW', 'DONE', 'CANCELLED']);
+const InvoiceStatusEnum = z.enum(['DRAFT', 'SENT', 'PARTIALLY_PAID', 'PAID', 'OVERDUE', 'CANCELLED']);
+const ContractStatusEnum = z.enum(['DRAFT', 'ACTIVE', 'COMPLETED', 'TERMINATED', 'CANCELLED']);
+const ContractTypeEnum = z.enum(['ENGINEERING_SERVICES', 'SUPERVISION', 'CONSULTATION', 'DESIGN', 'MANAGEMENT', 'OTHER']);
+const MeetingTypeEnum = z.enum(['ONSITE', 'ONLINE', 'HYBRID']);
+const EmployeeStatusEnum = z.enum(['ACTIVE', 'ON_LEAVE', 'TERMINATED', 'PROBATION']);
+const SupplierCategoryEnum = z.enum(['MATERIALS', 'EQUIPMENT', 'SERVICES', 'SUBCONTRACTOR', 'OTHER']);
+const SiteVisitStatusEnum = z.enum(['DRAFT', 'SUBMITTED', 'APPROVED', 'REJECTED']);
+const DefectSeverityEnum = z.enum(['LOW', 'NORMAL', 'HIGH', 'CRITICAL']);
+const SubmittalStatusEnum = z.enum(['UNDER_REVIEW', 'APPROVED', 'REJECTED', 'REVISION_REQUIRED']);
+const ChangeOrderTypeEnum = z.enum(['ADDITION', 'DELETION', 'MODIFICATION']);
+const ChangeOrderStatusEnum = z.enum(['PENDING', 'APPROVED', 'REJECTED', 'CANCELLED']);
+const RfiPriorityEnum = z.enum(['LOW', 'NORMAL', 'HIGH', 'URGENT']);
+
 // ===== Project =====
 export const projectSchema = z.object({
   number: z.string().optional().default(""),
@@ -44,8 +62,8 @@ export const taskSchema = z.object({
   description: z.string().optional().default(""),
   projectId: z.string().optional().default(""),
   assigneeId: z.string().optional().default(""),
-  priority: z.string().min(1, "Priority is required").default("NORMAL"),
-  status: z.string().min(1, "Status is required").default("TODO"),
+  priority: TaskPriorityEnum.default("NORMAL"),
+  status: TaskStatusEnum.default("TODO"),
   startDate: z.string().optional().default(""),
   dueDate: z.string().optional().default(""),
   taskType: z.enum(['STANDARD', 'GOVERNMENTAL', 'MANDATORY', 'CLIENT', 'INTERNAL']).optional().default('STANDARD'),
@@ -62,7 +80,7 @@ export const invoiceSchema = z.object({
   projectId: z.string().min(1, "Project is required"),
   issueDate: z.string().min(1, "Issue date is required"),
   dueDate: z.string().min(1, "Due date is required"),
-  status: z.string().min(1, "Status is required").default("DRAFT"),
+  status: InvoiceStatusEnum.default("DRAFT"),
 });
 
 export type InvoiceFormData = z.infer<typeof invoiceSchema>;
@@ -75,7 +93,7 @@ export const meetingSchema = z.object({
   duration: z.number().min(15, "Duration must be at least 15 minutes").default(60),
   projectId: z.string().optional().default(""),
   location: z.string().optional().default(""),
-  type: z.string().min(1, "Type is required").default("ONSITE"),
+  type: MeetingTypeEnum.default("ONSITE"),
   notes: z.string().optional().default(""),
 });
 
@@ -88,8 +106,8 @@ export const contractSchema = z.object({
   clientId: z.string().min(1, "Client is required"),
   projectId: z.string().min(1, "Project is required"),
   value: z.string().min(1, "Value is required").default("0"),
-  type: z.string().min(1, "Type is required").default("ENGINEERING_SERVICES"),
-  status: z.string().optional().default("DRAFT"),
+  type: ContractTypeEnum.default("ENGINEERING_SERVICES"),
+  status: ContractStatusEnum.optional().default("DRAFT"),
   startDate: z.string().optional().default(""),
   endDate: z.string().optional().default(""),
 });
@@ -102,7 +120,7 @@ export const employeeSchema = z.object({
   department: z.string().min(1, "Department is required"),
   position: z.string().min(1, "Position is required"),
   salary: z.string().optional().default("0"),
-  employmentStatus: z.string().optional().default("ACTIVE"),
+  employmentStatus: EmployeeStatusEnum.optional().default("ACTIVE"),
   hireDate: z.string().optional().default(""),
 });
 
@@ -111,7 +129,7 @@ export type EmployeeFormData = z.infer<typeof employeeSchema>;
 // ===== Supplier =====
 export const supplierSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  category: z.string().min(1, "Category is required").default("MATERIALS"),
+  category: SupplierCategoryEnum.default("MATERIALS"),
   email: z.string().email("Invalid email address").or(z.literal("")).optional().default(""),
   phone: z.string().optional().default(""),
   address: optionalString,
@@ -130,7 +148,7 @@ export const siteVisitSchema = z.object({
   gateDescription: z.string().optional().default(""),
   neighborDesc: z.string().optional().default(""),
   buildingDesc: z.string().optional().default(""),
-  status: z.string().optional().default("DRAFT"),
+  status: SiteVisitStatusEnum.optional().default("DRAFT"),
   notes: z.string().optional().default(""),
 });
 
@@ -140,7 +158,7 @@ export type SiteVisitFormData = z.infer<typeof siteVisitSchema>;
 export const defectSchema = z.object({
   title: z.string().min(1, "Title is required"),
   projectId: z.string().min(1, "Project is required"),
-  severity: z.string().min(1, "Severity is required").default("NORMAL"),
+  severity: DefectSeverityEnum.default("NORMAL"),
   location: z.string().optional().default(""),
   assigneeId: z.string().optional().default(""),
   photos: z.string().optional().default(""),
@@ -157,7 +175,7 @@ export const submittalSchema = z.object({
   type: z.string().optional().default(""),
   contractor: z.string().optional().default(""),
   revisionNumber: z.string().optional().default("1"),
-  status: z.string().min(1, "Status is required").default("UNDER_REVIEW"),
+  status: SubmittalStatusEnum.default("UNDER_REVIEW"),
 });
 
 export type SubmittalFormData = z.infer<typeof submittalSchema>;
@@ -166,8 +184,8 @@ export type SubmittalFormData = z.infer<typeof submittalSchema>;
 export const changeOrderSchema = z.object({
   projectId: z.string().min(1, "Project is required"),
   number: z.string().min(1, "Number is required"),
-  type: z.string().optional().default("ADDITION"),
-  status: z.string().optional().default("PENDING"),
+  type: ChangeOrderTypeEnum.optional().default("ADDITION"),
+  status: ChangeOrderStatusEnum.optional().default("PENDING"),
   costImpact: z.string().optional().default("0"),
   timeImpact: z.string().optional().default(""),
   description: z.string().optional().default(""),
@@ -183,7 +201,7 @@ export const rfiSchema = z.object({
   description: z.string().optional().default(""),
   fromId: z.string().min(1, "From is required"),
   toId: z.string().min(1, "To is required"),
-  priority: z.string().optional().default("NORMAL"),
+  priority: RfiPriorityEnum.optional().default("NORMAL"),
   dueDate: z.string().optional().default(""),
 });
 

@@ -65,8 +65,8 @@ export function TaskForm({
       description: "",
       projectId: projectId || "",
       assigneeId: "",
-      priority: "NORMAL",
-      status: "TODO",
+      priority: "NORMAL" as const,
+      status: "TODO" as const,
       startDate: "",
       dueDate: "",
       taskType: 'STANDARD' as const,
@@ -203,7 +203,7 @@ export function TaskForm({
               <Label className="text-sm">{ar ? "الأولوية" : "Priority"}</Label>
               <Select
                 value={watch("priority")}
-                onValueChange={(v) => setValue("priority", v)}
+                onValueChange={(v) => setValue("priority", v as TaskFormData["priority"])}
               >
                 <SelectTrigger className={cn(errors.priority && "border-red-500 focus:ring-red-500/20")}>
                   <SelectValue />

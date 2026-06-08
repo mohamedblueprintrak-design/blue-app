@@ -153,7 +153,7 @@ export default function Submittals({ language, projectId }: SubmittalsProps) {
     },
   });
 
-  const defaultSubForm = { projectId: projectId || "", number: "", title: "", type: "", contractor: "", revisionNumber: "1", status: "UNDER_REVIEW" };
+  const defaultSubForm = { projectId: projectId || "", number: "", title: "", type: "", contractor: "", revisionNumber: "1", status: "UNDER_REVIEW" as const };
   const [_formData, setFormData] = useState(defaultSubForm);
 
   const form = useForm<SubmittalFormData>({ resolver: zodResolver(submittalSchema) as unknown as Resolver<SubmittalFormData>, defaultValues: defaultSubForm });
@@ -440,7 +440,7 @@ export default function Submittals({ language, projectId }: SubmittalsProps) {
               </div>
               <div className="space-y-2">
                 <Label className="text-sm">{ar ? "الحالة" : "Status"}</Label>
-                <Select value={watch("status")} onValueChange={(v) => setValue("status", v)}>
+                <Select value={watch("status")} onValueChange={(v) => setValue("status", v as SubmittalFormData["status"])}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="UNDER_REVIEW">{ar ? "قيد المراجعة" : "Under Review"}</SelectItem>

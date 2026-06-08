@@ -135,7 +135,7 @@ export default function SuppliersPage({ language }: SuppliersPageProps) {
 
   // Form state
   const emptyForm = {
-    name: "", category: "MATERIALS", email: "", phone: "",
+    name: "", category: "MATERIALS" as SupplierFormData["category"], email: "", phone: "",
     address: "", rating: "0", creditLimit: "0",
   };
   const [_formData, setFormData] = useState(emptyForm);
@@ -254,7 +254,7 @@ export default function SuppliersPage({ language }: SuppliersPageProps) {
     setEditSupplier(supplier);
     const values = {
       name: supplier.name,
-      category: supplier.category,
+      category: supplier.category as SupplierFormData["category"],
       email: supplier.email,
       phone: supplier.phone,
       address: supplier.address,
@@ -491,7 +491,7 @@ export default function SuppliersPage({ language }: SuppliersPageProps) {
                 <Select
                   // eslint-disable-next-line react-hooks/incompatible-library
                   value={watch("category")}
-                  onValueChange={(v) => setValue("category", v)}
+                  onValueChange={(v) => setValue("category", v as SupplierFormData["category"])}
                 >
                   <SelectTrigger>
                     <SelectValue />

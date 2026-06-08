@@ -252,7 +252,7 @@ export default function InvoicesPage({ language, projectId }: InvoicesPageProps)
       projectId: inv.projectId,
       issueDate: inv.issueDate.split("T")[0],
       dueDate: inv.dueDate.split("T")[0],
-      status: inv.status,
+      status: inv.status as InvoiceFormData["status"],
     });
     setFormData({
       number: inv.number,

@@ -2,7 +2,7 @@ import { db } from '@/lib/db';
 import { NextRequest, NextResponse } from 'next/server';
 import { requireVerifiedAuth, orgFilter } from '@/app/api/utils/auth';
 import { log } from '@/lib/logger';
-import { handleApiError } from '@/lib/api-error';
+import { handleApiErrorWithLogging as handleApiError } from '@/lib/api-error';
 import { sanitizeString, escapeSqlLike } from '@/lib/security/sanitize';
 import { hasPermission } from '@/lib/auth/modules/authorization';
 import { Permission } from '@/lib/auth/types';

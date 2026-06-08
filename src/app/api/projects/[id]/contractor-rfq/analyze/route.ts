@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { handleApiError } from '@/lib/api-error';
+import { handleApiErrorWithLogging as handleApiError } from '@/lib/api-error';
 import { requireVerifiedPermission, forbiddenResponse } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { validateIdParam } from '@/lib/api-validation';

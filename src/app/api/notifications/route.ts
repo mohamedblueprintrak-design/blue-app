@@ -4,7 +4,7 @@ import { requireVerifiedAuth, orgFilter } from '@/app/api/utils/auth';
 import { hasPermission } from '@/lib/auth/modules/authorization';
 import { Permission } from '@/lib/auth/types';
 import { parsePaginationParams, buildPaginationMeta, calculateSkip } from '../utils/pagination';
-import { handleApiError } from '@/lib/api-error';
+import { handleApiErrorWithLogging as handleApiError } from '@/lib/api-error';
 import { z } from 'zod';
 
 // Zod schema for notification update

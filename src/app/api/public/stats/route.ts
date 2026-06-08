@@ -5,9 +5,11 @@
  * Returns aggregate counts for the landing page hero section.
  * Uses a short cache (60s) to avoid hammering the DB on every page view.
  *
- * SECURITY (multi-tenant): When MULTI_TENANT=true, this endpoint returns
- * aggregate counts across ALL organizations for the public landing page.
- * If you need org-scoped stats, use the /api/dashboard endpoint instead.
+ * SECURITY (multi-tenant): In multi-tenant mode, the orgId parameter is
+ * accepted ONLY if it matches a whitelisted set of public org IDs
+ * (via PUBLIC_ORG_IDS env var). If no valid orgId is provided,
+ * global aggregate stats across all orgs are returned (safe for landing page).
+ * Per-org stats for arbitrary org IDs are NEVER exposed without auth.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -22,8 +24,29 @@ export async function GET(request: NextRequest) {
     const blocked = rateLimitResponse(rlResult);
     if (blocked) return blocked;
 
-    const orgId = request.nextUrl.searchParams.get('orgId') || request.headers.get('x-tenant-id');
-    const orgWhere = orgId ? { organizationId: orgId } : (process.env.MULTI_TENANT === 'true' ? { organizationId: '__DENIED__' } : {});
+    // SECURITY: Validate orgId against a whitelist of publicly-shareable org IDs.
+    // In multi-tenant mode, arbitrary org IDs can be used to enumerate data.
+    // Only allow orgs explicitly listed in PUBLIC_ORG_IDS env var (comma-separated).
+    const rawOrgId = request.nextUrl.searchParams.get('orgId') || request.headers.get('x-tenant-id');
+    const isMultiTenant = process.env.MULTI_TENANT === 'true';
+    let orgId: string | null = null;
+
+    if (rawOrgId) {
+      // Validate against whitelist
+      const publicOrgIds = process.env.PUBLIC_ORG_IDS?.split(',').map(o => o.trim()).filter(Boolean) || [];
+      if (publicOrgIds.includes(rawOrgId)) {
+        orgId = rawOrgId;
+      } else if (isMultiTenant) {
+        // In multi-tenant mode, reject unknown org IDs — don't expose arbitrary org data
+        orgId = null;
+      } else {
+        // Single-tenant: allow any orgId (there should only be one org anyway)
+        orgId = rawOrgId;
+      }
+    }
+
+    // In multi-tenant without a valid orgId, return global stats (safe for landing page)
+    const orgWhere = orgId ? { organizationId: orgId } : (isMultiTenant ? {} : {});
 
     if (!await isDatabaseAvailable()) {
       return NextResponse.json({

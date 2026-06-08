@@ -123,10 +123,6 @@ export async function POST(request: NextRequest) {
       return errorResponse(`Maximum ${MAX_ROWS} rows allowed`, "VALIDATION_ERROR", 400);
     }
 
-    let successCount = 0;
-    const errors: { row: number; error: string }[] = [];
-
-
     // Normalize field mapping (handles common variants of headers)
     const mapField = (row: Record<string, unknown>, keys: string[]): string => {
       for (const k of keys) {
@@ -138,6 +134,10 @@ export async function POST(request: NextRequest) {
       }
       return "";
     };
+
+    // First pass: validate all rows before any DB writes
+    const validClients: { data: Record<string, unknown>; rowIndex: number }[] = [];
+    const errors: { row: number; error: string }[] = [];
 
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i];
@@ -155,7 +155,7 @@ export async function POST(request: NextRequest) {
         serviceNotes: mapField(row, ["servicenotes", "service notes", "ملاحظات الخدمة"]),
       };
 
-      // Perform sanitation
+      // Perform validation
       const validation = clientSchema.safeParse(mappedRow);
       
       if (!validation.success) {
@@ -169,29 +169,43 @@ export async function POST(request: NextRequest) {
       const valid = sanitizeObject(validation.data);
       const sanitizedEmail = valid.email ? sanitizeEmail(valid.email) : "";
 
-      try {
-        await db.client.create({
-          data: {
-            name: valid.name,
-            company: valid.company || "",
-            email: sanitizedEmail,
-            phone: valid.phone || "",
-            address: valid.address || "",
-            taxNumber: valid.taxNumber || "",
-            creditLimit: valid.creditLimit ? parseFloat(valid.creditLimit) : 0,
-            paymentTerms: valid.paymentTerms || "",
-            ...orgCreate(user),
-            createdById: user.userId,
-          },
-        });
-        successCount++;
-      } catch (err: unknown) {
-        log.error("Failed to insert client row during import:", err instanceof Error ? err : new Error(String(err)));
-        errors.push({
-          row: i + 2,
-          error: "Database error: " + (err instanceof Error ? err.message : "Failed to save"),
-        });
-      }
+      validClients.push({
+        data: {
+          name: valid.name,
+          company: valid.company || "",
+          email: sanitizedEmail,
+          phone: valid.phone || "",
+          address: valid.address || "",
+          taxNumber: valid.taxNumber || "",
+          creditLimit: valid.creditLimit ? parseFloat(valid.creditLimit) : 0,
+          paymentTerms: valid.paymentTerms || "",
+          ...orgCreate(user),
+          createdById: user.userId,
+        },
+        rowIndex: i + 2,
+      });
+    }
+
+    // Second pass: insert all valid rows in a single transaction for atomicity
+    let successCount = 0;
+    try {
+      await db.$transaction(async (tx) => {
+        for (const client of validClients) {
+          try {
+            await tx.client.create({ data: client.data as Parameters<typeof tx.client.create>[0]['data'] });
+            successCount++;
+          } catch (err: unknown) {
+            log.error("Failed to insert client row during import:", err instanceof Error ? err : new Error(String(err)));
+            errors.push({
+              row: client.rowIndex,
+              error: "Database error: " + (err instanceof Error ? err.message : "Failed to save"),
+            });
+          }
+        }
+      });
+    } catch (txError) {
+      log.error("Transaction error during client import:", txError);
+      return errorResponse("An error occurred during import processing", "SERVER_ERROR", 500);
     }
 
     // 6. Cache invalidation

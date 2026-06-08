@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { createWorkflowTemplate } from '@/lib/workflow-engine'
 import { requireVerifiedPermission, orgFilter } from '@/app/api/utils/auth';
-import { handleApiError } from '@/lib/api-error';
+import { handleApiErrorWithLogging as handleApiError } from '@/lib/api-error';
 import { Permission } from '@/lib/auth/types';
 
 // POST /api/workflows/templates - Create template

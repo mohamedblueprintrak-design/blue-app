@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { requireVerifiedPermission, orgCheck, orgCreate } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
-import { handleApiError } from '@/lib/api-error';
+import { handleApiErrorWithLogging as handleApiError } from '@/lib/api-error';
 import { validateIdParam } from '@/lib/api-validation';
 
 const ALLOWED_MIME_TYPES = ['application/pdf'];

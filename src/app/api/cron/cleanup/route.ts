@@ -55,8 +55,12 @@ export async function POST(request: NextRequest) {
     //     after users are deleted or the database is re-seeded.
     try {
       const allTokens = await db.refreshToken.findMany({ select: { id: true, userId: true } });
+      // Build a set of existing user IDs to check against
+      const existingUsers = await db.user.findMany({ select: { id: true } });
+      const existingUserIds = new Set(existingUsers.map(u => u.id));
+      // An orphaned token is one where userId is null OR points to a deleted user
       const orphanedIds = allTokens
-        .filter(t => !t.userId) // null userId (shouldn't happen but defensive)
+        .filter(t => !t.userId || !existingUserIds.has(t.userId))
         .map(t => t.id);
       if (orphanedIds.length > 0) {
         const deleted = await db.refreshToken.deleteMany({ where: { id: { in: orphanedIds } } });

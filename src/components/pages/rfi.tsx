@@ -200,7 +200,7 @@ export default function RFI({ language, projectId }: RFIProps) {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["rfi"] }),
   });
 
-  const defaultRfiForm = { projectId: projectId || "", number: "", subject: "", description: "", fromId: "", toId: "", priority: "NORMAL", dueDate: "" };
+  const defaultRfiForm = { projectId: projectId || "", number: "", subject: "", description: "", fromId: "", toId: "", priority: "NORMAL" as const, dueDate: "" };
   const [_formData, setFormData] = useState(defaultRfiForm);
 
   const form = useForm<RfiFormData>({ resolver: zodResolver(rfiSchema) as unknown as Resolver<RfiFormData>, defaultValues: defaultRfiForm });
@@ -515,7 +515,7 @@ export default function RFI({ language, projectId }: RFIProps) {
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label className="text-sm">{ar ? "الأولوية" : "Priority"}</Label>
-                <Select value={watch("priority")} onValueChange={(v) => setValue("priority", v)}>
+                <Select value={watch("priority")} onValueChange={(v) => setValue("priority", v as RfiFormData["priority"])}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="NORMAL">{ar ? "عادي" : "Normal"}</SelectItem>

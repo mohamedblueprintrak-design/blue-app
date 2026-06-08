@@ -233,7 +233,7 @@ export default function Meetings({ language, projectId }: MeetingsProps) {
       time: "09:00",
       duration: 60,
       location: "",
-      type: "ONSITE",
+      type: "ONSITE" as const,
       notes: "",
     },
   });
@@ -695,7 +695,7 @@ export default function Meetings({ language, projectId }: MeetingsProps) {
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm">{ar ? "النوع" : "Type"}</Label>
-                  <Select value={watch("type")} onValueChange={(v) => setValue("type", v)}>
+                  <Select value={watch("type")} onValueChange={(v) => setValue("type", v as MeetingFormData["type"])}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="ONSITE">{ar ? "حضوري" : "On-site"}</SelectItem>

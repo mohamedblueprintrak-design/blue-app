@@ -147,7 +147,7 @@ export function InvoiceFormDialog({
             </div>
             <div className="space-y-1">
               <Label className="text-xs">{ar ? "الحالة" : "Status"}</Label>
-              <Select value={watch("status")} onValueChange={(v) => { setValue("status", v); setFormData({ ...formData, status: v }); }}>
+              <Select value={watch("status")} onValueChange={(v) => { setValue("status", v as InvoiceFormData["status"]); setFormData({ ...formData, status: v }); }}>
                 <SelectTrigger className="h-8 text-sm rounded-lg"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="DRAFT">{ar ? "مسودة" : "Draft"}</SelectItem>

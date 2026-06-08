@@ -7,7 +7,11 @@ import { withRateLimit, rateLimitResponse } from "@/lib/rate-limit-middleware";
  * Public portal API — allows clients to look up their project by
  * project number + registered phone number (no JWT required).
  *
- * GET /api/portal?projectNumber=PRJ-2024-001&phone=0501234567
+ * GET /api/portal?projectNumber=PRJ-2024-001&phone=0501234567&orgId=org_xxx
+ *
+ * SECURITY: The orgId parameter is REQUIRED in multi-tenant mode to prevent
+ * cross-tenant data leakage. In single-tenant mode, it is optional and
+ * defaults to the first (only) organization.
  *
  * Rate-limited with 'public' limiter to prevent brute-force phone+project lookups.
  */
@@ -29,9 +33,33 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Step 1: Find client by phone number
+    // SECURITY: In multi-tenant mode, require orgId to prevent cross-tenant data leakage.
+    // In single-tenant mode, default to the first organization.
+    const orgId = searchParams.get("orgId")?.trim();
+    const isMultiTenant = process.env.MULTI_TENANT === 'true';
+    let resolvedOrgId = orgId;
+
+    if (!resolvedOrgId) {
+      if (isMultiTenant) {
+        return NextResponse.json(
+          { error: "orgId is required in multi-tenant mode" },
+          { status: 400 }
+        );
+      }
+      // Single-tenant: use the first (only) organization
+      const firstOrg = await db.organization.findFirst({ select: { id: true } });
+      if (!firstOrg) {
+        return NextResponse.json(
+          { error: "Invalid project number or phone" },
+          { status: 401 }
+        );
+      }
+      resolvedOrgId = firstOrg.id;
+    }
+
+    // Step 1: Find client by phone number — SCOPED by organizationId to prevent cross-tenant leak
     const client = await db.client.findFirst({
-      where: { phone },
+      where: { phone, organizationId: resolvedOrgId },
       select: { id: true, name: true, nameEn: true, phone: true },
     });
 

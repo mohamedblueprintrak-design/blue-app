@@ -169,7 +169,7 @@ export default function Defects({ language, projectId }: DefectsProps) {
     },
   });
 
-  const defaultDefectForm = { projectId: projectId || "", title: "", severity: "NORMAL", location: "", assigneeId: "", photos: "", notes: "" };
+  const defaultDefectForm = { projectId: projectId || "", title: "", severity: "NORMAL" as const, location: "", assigneeId: "", photos: "", notes: "" };
   const [_formData, setFormData] = useState(defaultDefectForm);
 
   const form = useForm<DefectFormData>({
@@ -470,7 +470,7 @@ export default function Defects({ language, projectId }: DefectsProps) {
               </div>
               <div className="space-y-2">
                 <Label className="text-sm">{ar ? "الخطورة" : "Severity"}</Label>
-                <Select value={watch("severity")} onValueChange={(v) => setValue("severity", v)}>
+                <Select value={watch("severity")} onValueChange={(v) => setValue("severity", v as DefectFormData["severity"])}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="NORMAL">{ar ? "عادي" : "Normal"}</SelectItem>

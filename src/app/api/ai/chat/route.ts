@@ -102,7 +102,14 @@ export async function POST(request: NextRequest) {
       });
     } catch (dbError) {
       log.error('[AI Chat] Database error during conversation lookup/create:', dbError);
-      conversation = null;
+      // SECURITY: Don't silently set conversation=null and attempt to continue.
+      // If the DB is down, creating a new conversation will also fail, and we
+      // risk creating duplicate conversations or losing existing history.
+      // Instead, return a clear error so the client can retry.
+      return NextResponse.json(
+        { error: 'Database temporarily unavailable. Please try again.' },
+        { status: 503 }
+      );
     }
 
     // Build history from database messages (or empty if db is unavailable)

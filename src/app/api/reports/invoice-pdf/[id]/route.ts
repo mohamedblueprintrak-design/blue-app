@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateInvoicePDFBuffer } from '@/lib/pdf/invoice-pdf';
 import { log } from '@/lib/logger';
-import { handleApiError } from '@/lib/api-error';
+import { handleApiErrorWithLogging as handleApiError } from '@/lib/api-error';
 import { requireVerifiedPermission, orgCheck } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { validateIdParam } from '@/lib/api-validation';

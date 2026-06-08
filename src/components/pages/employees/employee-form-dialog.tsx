@@ -50,7 +50,7 @@ export function EmployeeFormDialog({
     department: "",
     position: "",
     salary: "0",
-    employmentStatus: "ACTIVE",
+    employmentStatus: "ACTIVE" as const,
     hireDate: "",
   };
 
@@ -68,7 +68,7 @@ export function EmployeeFormDialog({
         department: employee.department,
         position: employee.position,
         salary: String(employee.salary),
-        employmentStatus: employee.employmentStatus,
+        employmentStatus: employee.employmentStatus as EmployeeFormData["employmentStatus"],
         hireDate: employee.hireDate ? employee.hireDate.split("T")[0] : "",
       });
     } else {
@@ -147,7 +147,7 @@ export function EmployeeFormDialog({
               <Label className="text-sm">{ar ? "حالة التوظيف" : "Employment Status"}</Label>
               <Select
                 value={watch("employmentStatus")}
-                onValueChange={(v) => setValue("employmentStatus", v)}
+                onValueChange={(v) => setValue("employmentStatus", v as EmployeeFormData["employmentStatus"])}
               >
                 <SelectTrigger>
                   <SelectValue />
