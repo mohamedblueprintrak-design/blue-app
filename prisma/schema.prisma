@@ -227,6 +227,14 @@ model User {
   twoFactorSecret         TwoFactorSecret?
   twoFactorChallenges     TwoFactorChallenge[]
   pushSubscriptions       PushSubscription[]
+  designPhases            DesignPhase[]             @relation("DesignPhaseDesigner")
+  projectStages           ProjectStage[]            @relation("ProjectStageEngineer")
+  supervisionChecklists   SupervisionChecklist[]    @relation("SupervisionChecklistEngineer")
+  approvedChecklists      SupervisionChecklist[]    @relation("SupervisionChecklistApprover")
+  designDrawings          DesignDrawing[]           @relation("DesignDrawingUploader")
+  designRevisions         DesignRevision[]         @relation("DesignRevisionUploader")
+  certifiedProgressClaims ProgressClaim[]           @relation("ProgressClaimCertifier")
+  securityAuditLogs       SecurityAuditLog[]        @relation("SecurityAuditLogUser")
 
   @@unique([email, organizationId])
   @@unique([googleId, organizationId])
@@ -364,6 +372,9 @@ model Project {
   progressClaims             ProgressClaim[]
   timesheets                 Timesheet[]
   timesheetEntries           TimesheetEntry[]
+  contractorEvaluations      ContractorEvaluation[]
+  slaBreaches                SLABreach[]
+  aiChatConversations        AIChatConversation[]
 
   @@unique([number, organizationId])
   @@index([clientId])
@@ -461,6 +472,7 @@ model ProjectStage {
 
   project      Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  engineer     User?        @relation("ProjectStageEngineer", fields: [engineerId], references: [id], onDelete: SetNull)
 
   @@index([projectId, department])
   @@index([status])
@@ -635,6 +647,7 @@ model Task {
   parent       Task?         @relation("TaskSubtask", fields: [parentId], references: [id], onDelete: SetNull)
   organization Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   comments     TaskComment[]
+  slaBreaches  SLABreach[]
 
   @@index([projectId])
   @@index([assigneeId])
@@ -717,6 +730,7 @@ model ContractAmendment {
   updatedAt      DateTime @updatedAt
 
   contract Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@index([contractId])
   @@index([organizationId])
@@ -750,6 +764,7 @@ model Invoice {
   items           InvoiceItem[]
   invoicePayments InvoicePayment[]
   payments        Payment[]
+  retainages      Retainage[]
   organization    Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@unique([number, organizationId], name: "invoice_number_org_unique")
@@ -774,6 +789,7 @@ model InvoiceItem {
   createdAt   DateTime @default(now())
 
   invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  boqItem BOQItem? @relation(fields: [boqItemId], references: [id], onDelete: SetNull)
 
   @@index([invoiceId])
   @@index([boqItemId])
@@ -821,7 +837,7 @@ model Payment {
   approver        User?            @relation("PaymentApprover", fields: [approvedById], references: [id], onDelete: SetNull)
   creator         User?            @relation("PaymentCreator", fields: [createdById], references: [id], onDelete: SetNull)
   updater         User?            @relation("PaymentUpdater", fields: [updatedById], references: [id], onDelete: SetNull)
-  project         Project?         @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  project         Project?         @relation(fields: [projectId], references: [id], onDelete: Cascade)
   organization    Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   invoicePayments InvoicePayment[]
 
@@ -944,6 +960,7 @@ model ContractorEvaluation {
   updatedAt      DateTime @updatedAt
 
   contractor   Contractor   @relation(fields: [contractorId], references: [id], onDelete: Cascade)
+  project      Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
   bid          Bid?         @relation(fields: [bidId], references: [id], onDelete: SetNull)
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
@@ -1370,6 +1387,7 @@ model BOQItem {
 
   project      Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  invoiceItems InvoiceItem[]
   deletedAt    DateTime? // Soft delete
 
   @@index([projectId])
@@ -1517,7 +1535,7 @@ model InventoryItem {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  project      Project?     @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  project      Project?     @relation(fields: [projectId], references: [id], onDelete: Cascade)
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   deletedAt    DateTime? // Soft delete
 
@@ -1539,7 +1557,7 @@ model PurchaseOrder {
   updatedAt      DateTime @updatedAt
 
   supplier     Supplier            @relation(fields: [supplierId], references: [id], onDelete: Restrict)
-  project      Project?            @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  project      Project?            @relation(fields: [projectId], references: [id], onDelete: Cascade)
   organization Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   items        PurchaseOrderItem[]
   deletedAt    DateTime? // Soft delete
@@ -1755,7 +1773,7 @@ model BuildingInspection {
   updatedAt          DateTime  @updatedAt
 
   client       Client?             @relation(fields: [clientId], references: [id], onDelete: SetNull)
-  project      Project?            @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  project      Project?            @relation(fields: [projectId], references: [id], onDelete: Cascade)
   organization Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   findings     InspectionFinding[]
   photos       InspectionPhoto[]
@@ -1783,6 +1801,7 @@ model InspectionFinding {
   updatedAt     DateTime @updatedAt
 
   inspection BuildingInspection @relation(fields: [inspectionId], references: [id], onDelete: Cascade)
+  inspectionPhotos InspectionPhoto[]
 
   @@index([status])
   @@index([inspectionId])
@@ -1798,8 +1817,10 @@ model InspectionPhoto {
   updatedAt    DateTime @updatedAt
 
   inspection BuildingInspection @relation(fields: [inspectionId], references: [id], onDelete: Cascade)
+  finding    InspectionFinding? @relation(fields: [findingId], references: [id], onDelete: Cascade)
 
   @@index([inspectionId])
+  @@index([findingId])
 }
 
 // ==================== PUBLIC QUOTE REQUESTS ====================
@@ -1849,6 +1870,7 @@ model DesignPhase {
 
   project      Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
   organization Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  designer     User?           @relation("DesignPhaseDesigner", fields: [designerId], references: [id], onDelete: SetNull)
   drawings     DesignDrawing[]
   deletedAt    DateTime? // Soft delete
 
@@ -1880,6 +1902,7 @@ model DesignDrawing {
   updatedAt     DateTime  @updatedAt
 
   designPhase DesignPhase      @relation(fields: [designPhaseId], references: [id], onDelete: Cascade)
+  uploadedBy  User?            @relation("DesignDrawingUploader", fields: [uploadedById], references: [id], onDelete: SetNull)
   revisions   DesignRevision[]
   deletedAt   DateTime? // Soft delete
 
@@ -1901,6 +1924,7 @@ model DesignRevision {
   updatedAt    DateTime @updatedAt
 
   drawing DesignDrawing @relation(fields: [drawingId], references: [id], onDelete: Cascade)
+  uploadedBy User? @relation("DesignRevisionUploader", fields: [uploadedById], references: [id], onDelete: SetNull)
 
   @@index([drawingId])
   @@index([uploadedById])
@@ -1983,6 +2007,8 @@ model SupervisionChecklist {
 
   project      Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
   organization Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  engineer     User?           @relation("SupervisionChecklistEngineer", fields: [engineerId], references: [id], onDelete: SetNull)
+  approvedBy   User?           @relation("SupervisionChecklistApprover", fields: [approvedById], references: [id], onDelete: SetNull)
   items        ChecklistItem[]
   violations   Violation[]
 
@@ -2062,7 +2088,7 @@ model Commission {
   updatedAt      DateTime  @updatedAt
 
   user         User?        @relation("CommissionUser", fields: [userId], references: [id], onDelete: Cascade)
-  project      Project?     @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  project      Project?     @relation(fields: [projectId], references: [id], onDelete: Cascade)
   approver     User?        @relation("CommissionApprover", fields: [approvedById], references: [id], onDelete: SetNull)
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   deletedAt    DateTime? // Soft delete
@@ -2162,6 +2188,7 @@ model WorkflowTemplateStage {
 
   template WorkflowTemplate       @relation(fields: [templateId], references: [id], onDelete: Cascade)
   steps    WorkflowTemplateStep[]
+  workflowStages WorkflowStage[]
 
   @@index([templateId, order])
 }
@@ -2182,6 +2209,7 @@ model WorkflowTemplateStep {
   updatedAt        DateTime @updatedAt
 
   stage WorkflowTemplateStage @relation(fields: [stageId], references: [id], onDelete: Cascade)
+  workflowSteps WorkflowStep[]
 
   @@index([stageId, order])
 }
@@ -2202,6 +2230,9 @@ model ProjectWorkflow {
 
   project  Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
   template WorkflowTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  // currentStageId is a FK reference to WorkflowStage but is not modeled as a Prisma relation
+  // because multiple workflows can reference the same stage, creating a many-to-one that
+  // conflicts with the one-to-many workflow→stages relation. The FK is maintained at the DB level.
   stages   WorkflowStage[]
 
   @@index([projectId])
@@ -2228,6 +2259,7 @@ model WorkflowStage {
 
   assignee User?           @relation("WorkflowStageAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
   workflow ProjectWorkflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  templateStage WorkflowTemplateStage? @relation(fields: [templateStageId], references: [id], onDelete: SetNull)
   steps    WorkflowStep[]
 
   @@index([workflowId, order])
@@ -2258,6 +2290,7 @@ model WorkflowStep {
 
   assignee User?         @relation("WorkflowStepAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
   stage    WorkflowStage @relation(fields: [stageId], references: [id], onDelete: Cascade)
+  templateStep WorkflowTemplateStep? @relation(fields: [templateStepId], references: [id], onDelete: SetNull)
 
   @@index([stageId, order])
   @@index([status])
@@ -2358,6 +2391,7 @@ model Organization {
   guaranteeLetters           GuaranteeLetter[]
   progressClaims             ProgressClaim[]
   timesheets                 Timesheet[]
+  contractAmendments         ContractAmendment[]
 
   @@index([deletedAt])
 }
@@ -2515,6 +2549,8 @@ model SLABreach {
   resolutionNotes String?
   organizationId  String
   organization    Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  task            Task            @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  project         Project?        @relation(fields: [projectId], references: [id], onDelete: Cascade)
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
 
@@ -2587,6 +2623,7 @@ model AIChatConversation {
   updatedAt      DateTime     @updatedAt
 
   user     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project  Project?        @relation(fields: [projectId], references: [id], onDelete: SetNull)
   messages AIChatMessage[]
 
   @@index([userId])
@@ -2632,6 +2669,7 @@ model SecurityAuditLog {
   createdAt      DateTime @default(now())
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User?        @relation("SecurityAuditLogUser", fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([userId])
   @@index([action])
@@ -2683,6 +2721,7 @@ model Retainage {
   updatedAt      DateTime  @updatedAt
 
   project      Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  invoice      Invoice?     @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@index([projectId])
@@ -2746,6 +2785,7 @@ model ProgressClaim {
 
   project      Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  certifiedBy  User?        @relation("ProgressClaimCertifier", fields: [certifiedById], references: [id], onDelete: SetNull)
   deletedAt    DateTime? // Soft delete
 
   @@index([projectId])

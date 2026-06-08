@@ -11,13 +11,9 @@ import type { jsPDF } from 'jspdf';
 export type JsPDFConstructor = typeof jsPDF;
 
 /** The autoTable plugin function (the default export of jspdf-autotable) */
- 
-// The autoTable function signature is (doc: jsPDF, options: UserOptions) => void,
-// but UserOptions is a deeply nested type from jspdf-autotable that doesn't
-// cleanly interoperate with our generic Record<string, unknown>. Using `any`
-// here is the pragmatic choice — the actual usage sites (autoTable(doc, {...}))
-// are fully type-safe at runtime since jsPDF validates the options.
-export type AutoTablePlugin = any;
+// Uses the exact type from the jspdf-autotable package instead of `any`.
+// This gives us full type checking on autoTable() calls.
+export type AutoTablePlugin = typeof import('jspdf-autotable').default;
 
 /** Cached jsPDF modules from dynamic import */
 export interface JsPdfCache {

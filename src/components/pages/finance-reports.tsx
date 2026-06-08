@@ -12,26 +12,18 @@ import {
 } from "@/components/ui/table";
 import dynamic from 'next/dynamic';
 
-// Recharts components are dynamically imported to avoid SSR issues.
-// Their internal prop types (ForwardRef, defaultProps, etc.) are not compatible
-// with next/dynamic's generic type constraints. Using `dynamic<any>` preserves
-// JSX prop inference at the usage site while allowing recharts' complex types.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- recharts ForwardRef types incompatible with dynamic<>()
-const BarChart = dynamic<any>(() => import('recharts').then((mod: any) => mod.BarChart), { ssr: false });
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const Bar = dynamic<any>(() => import('recharts').then((mod: any) => mod.Bar), { ssr: false });
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const XAxis = dynamic<any>(() => import('recharts').then((mod: any) => mod.XAxis), { ssr: false });
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const YAxis = dynamic<any>(() => import('recharts').then((mod: any) => mod.YAxis), { ssr: false });
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const CartesianGrid = dynamic<any>(() => import('recharts').then((mod: any) => mod.CartesianGrid), { ssr: false });
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const Tooltip = dynamic<any>(() => import('recharts').then((mod: any) => mod.Tooltip), { ssr: false });
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const ResponsiveContainer = dynamic<any>(() => import('recharts').then((mod: any) => mod.ResponsiveContainer), { ssr: false });
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const Legend = dynamic<any>(() => import('recharts').then((mod: any) => mod.Legend), { ssr: false });
+// Recharts components use ForwardRef + defaultProps which are incompatible with
+// next/dynamic's generic type constraints. Using `dynamic<any>` is the standard
+// workaround. We no longer annotate `(mod: any)` since TypeScript correctly
+// infers the module type from `import('recharts')`.
+const BarChart = dynamic<any>(() => import('recharts').then((mod) => mod.BarChart), { ssr: false });
+const Bar = dynamic<any>(() => import('recharts').then((mod) => mod.Bar), { ssr: false });
+const XAxis = dynamic<any>(() => import('recharts').then((mod) => mod.XAxis), { ssr: false });
+const YAxis = dynamic<any>(() => import('recharts').then((mod) => mod.YAxis), { ssr: false });
+const CartesianGrid = dynamic<any>(() => import('recharts').then((mod) => mod.CartesianGrid), { ssr: false });
+const Tooltip = dynamic<any>(() => import('recharts').then((mod) => mod.Tooltip), { ssr: false });
+const ResponsiveContainer = dynamic<any>(() => import('recharts').then((mod) => mod.ResponsiveContainer), { ssr: false });
+const Legend = dynamic<any>(() => import('recharts').then((mod) => mod.Legend), { ssr: false });
 
 import { DollarSign, TrendingUp, TrendingDown, Wallet, ArrowUpRight, ArrowDownRight, Briefcase, FileText, FileSpreadsheet, Loader2, Target, BarChart3, Activity } from 'lucide-react'
 

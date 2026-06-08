@@ -13,7 +13,7 @@
  * Race condition protections:
  * - Uses upsert on @@unique([stripeSubscriptionId]) to prevent duplicate subscriptions
  * - Wraps multi-step operations in db.$transaction() for atomicity
- * - Checks updateMany result counts to detect no-op updates
+ * - Idempotency: tracks processed event IDs to prevent duplicate payment records
  * - Never assigns payments to arbitrary organizations
  */
 
@@ -27,6 +27,25 @@ import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 
 // Webhook secret from environment
 const _WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || '';
+
+// In-memory set of recently processed event IDs for idempotency.
+// Prevents duplicate payment records when Stripe redelivers the same event.
+// Entries expire after 5 minutes to bound memory usage.
+const processedEventIds = new Map<string, number>();
+const EVENT_ID_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+function isEventProcessed(eventId: string): boolean {
+  const now = Date.now();
+  // Clean up expired entries
+  for (const [id, ts] of processedEventIds) {
+    if (now - ts > EVENT_ID_TTL_MS) processedEventIds.delete(id);
+  }
+  return processedEventIds.has(eventId);
+}
+
+function markEventProcessed(eventId: string): void {
+  processedEventIds.set(eventId, Date.now());
+}
 
 export async function POST(request: NextRequest) {
   // Rate limiting — public limiter (200 req/min) for webhooks
@@ -55,6 +74,12 @@ export async function POST(request: NextRequest) {
       { error: 'Webhook signature verification failed' },
       { status: 400 }
     );
+  }
+
+  // Idempotency check — skip already-processed events (Stripe redelivers on 500)
+  if (isEventProcessed(event.id)) {
+    log.info(`Duplicate Stripe event skipped: ${event.id} (${event.type})`);
+    return NextResponse.json({ received: true });
   }
 
   // Log the event for payment audit trail
@@ -90,6 +115,9 @@ export async function POST(request: NextRequest) {
       default:
         log.info(`Unhandled webhook event type: ${event.type}`);
     }
+
+    // Mark event as processed only after successful handling
+    markEventProcessed(event.id);
 
     return NextResponse.json({ received: true });
   } catch (error) {
@@ -156,7 +184,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     const finalPeriodStart = periodStart;
     const finalPeriodEnd = periodEnd;
 
-    // FIX: Use upsert within a transaction to prevent race conditions.
+    // Use upsert within a transaction to prevent race conditions.
     // The @@unique([stripeSubscriptionId]) constraint ensures only one subscription
     // is created per Stripe subscription, even when concurrent webhooks arrive.
     await db.$transaction(async (tx) => {
@@ -223,7 +251,7 @@ async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
     const dbStatus = toDbStatus(status);
     const period = getSubscriptionPeriod(subscription);
 
-    // FIX: Use upsert within a transaction to prevent duplicate subscriptions
+    // Use upsert within a transaction to prevent duplicate subscriptions
     await db.$transaction(async (tx) => {
       await tx.subscription.upsert({
         where: { stripeSubscriptionId: subscription.id },
@@ -270,62 +298,59 @@ async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
 /**
  * Handle customer.subscription.updated event
  *
- * Uses upsert on stripeSubscriptionId so that if the subscription hasn't been
- * created yet (race with checkout.session.completed), it will be created instead
- * of silently no-oping.
+ * FIX: Converted from findUnique + conditional branch to pure upsert.
+ * The previous pattern had a race condition where two concurrent calls could
+ * both see existingSub === null and both attempt create, causing a unique
+ * constraint violation. The upsert pattern is atomic and serializable.
+ *
+ * When the subscription doesn't exist yet (race with checkout) and metadata
+ * is missing, we throw so Stripe retries after the checkout event arrives.
  */
 async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
   const status = mapStripeStatus(subscription.status);
   const period = getSubscriptionPeriod(subscription);
+  const { organizationId, planId } = subscription.metadata || {};
 
   try {
-    // FIX: Use upsert instead of updateMany to handle the case where
-    // the subscription hasn't been created yet by a concurrent webhook
-    const { organizationId, planId } = subscription.metadata || {};
-
     await db.$transaction(async (tx) => {
-      // SECURITY: If metadata is missing, we cannot create a subscription record.
-      // This means the subscription.updated event arrived before the
-      // checkout.session.completed event that contains the metadata.
-      // In the `create` path, we must have both organizationId and planId.
-      // If they're missing, throw so Stripe retries the webhook later.
-      const existingSub = await tx.subscription.findUnique({
+      // Use upsert to atomically handle both create and update cases.
+      // This eliminates the TOCTOU race between findUnique + conditional branch.
+      await tx.subscription.upsert({
         where: { stripeSubscriptionId: subscription.id },
-      });
-
-      if (existingSub) {
-        // Update existing subscription
-        await tx.subscription.update({
-          where: { stripeSubscriptionId: subscription.id },
-          data: {
-            status: toDbStatus(status),
-            currentPeriodStart: new Date(period.current_period_start * 1000),
-            currentPeriodEnd: new Date(period.current_period_end * 1000),
-            cancelAtPeriodEnd: period.cancel_at_period_end,
-            // Update org/plan if metadata is present (e.g., plan upgrade)
-            ...(organizationId ? { organizationId } : {}),
-            ...(planId ? { planId } : {}),
-          },
-        });
-      } else {
-        // Create new subscription — requires organizationId and planId
-        if (!organizationId || !planId) {
-          throw new Error(
+        update: {
+          status: toDbStatus(status),
+          currentPeriodStart: new Date(period.current_period_start * 1000),
+          currentPeriodEnd: new Date(period.current_period_end * 1000),
+          cancelAtPeriodEnd: period.cancel_at_period_end,
+          // Update org/plan if metadata is present (e.g., plan upgrade)
+          ...(organizationId ? { organizationId } : {}),
+          ...(planId ? { planId } : {}),
+          ...(subscription.customer ? { stripeCustomerId: subscription.customer as string } : {}),
+        },
+        create: {
+          // For the create path, we must have both organizationId and planId.
+          // If missing, throw so Stripe retries after checkout.session.completed arrives.
+          organizationId: organizationId ?? (() => { throw new Error(
             `[Stripe] subscription.updated arrived before checkout — missing org/plan metadata. ` +
             `Will retry. subscriptionId=${subscription.id}`
-          );
-        }
-        await tx.subscription.create({
-          data: {
-            organizationId,
-            planId,
-            status: toDbStatus(status),
-            stripeSubscriptionId: subscription.id,
-            stripeCustomerId: subscription.customer as string,
-            currentPeriodStart: new Date(period.current_period_start * 1000),
-            currentPeriodEnd: new Date(period.current_period_end * 1000),
-            cancelAtPeriodEnd: period.cancel_at_period_end,
-          },
+          ); })(),
+          planId: planId ?? (() => { throw new Error(
+            `[Stripe] subscription.updated missing planId. Will retry. subscriptionId=${subscription.id}`
+          ); })(),
+          status: toDbStatus(status),
+          stripeSubscriptionId: subscription.id,
+          stripeCustomerId: subscription.customer as string,
+          currentPeriodStart: new Date(period.current_period_start * 1000),
+          currentPeriodEnd: new Date(period.current_period_end * 1000),
+          cancelAtPeriodEnd: period.cancel_at_period_end,
+        },
+      });
+
+      // If organizationId and planId are present, update the org plan within the same transaction
+      if (organizationId && planId) {
+        await tx.organization.update({
+          where: { id: organizationId },
+          data: { planId },
         });
       }
     });
@@ -350,7 +375,7 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
  */
 async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
   try {
-    // FIX: Wrap the entire read-update sequence in a single transaction
+    // Wrap the entire read-update sequence in a single transaction
     await db.$transaction(async (tx) => {
       const subRecord = await tx.subscription.findUnique({
         where: { stripeSubscriptionId: subscription.id },
@@ -393,10 +418,12 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
 /**
  * Handle invoice.paid event
  *
- * FIX: Removed the dangerous findFirst() fallback that could assign payments
- * to arbitrary organizations. Now throws if organizationId cannot be resolved,
- * which causes Stripe to retry the webhook (giving time for the subscription
- * to be created by a concurrent handler).
+ * FIX: The subscription lookup + payment creation are now wrapped in a single
+ * $transaction to prevent the TOCTOU race condition where the subscription
+ * could be modified between the lookup and the payment creation.
+ *
+ * Also uses the idempotency check at the event level (processedEventIds) to
+ * prevent duplicate Payment records when Stripe redelivers the same invoice.paid event.
  */
 async function handleInvoicePaid(invoice: Stripe.Invoice) {
   try {
@@ -404,48 +431,62 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
     const customerId = typeof invoiceFields.customer === 'string' ? invoiceFields.customer : '';
     const paymentIntentId = typeof invoiceFields.payment_intent === 'string' ? invoiceFields.payment_intent : invoice.id;
 
-    // Look up organizationId from subscription — never assign to arbitrary org
-    let organizationId: string | null = null;
-    if (invoiceFields.subscription) {
-      const subscriptionId = typeof invoiceFields.subscription === 'string'
-        ? invoiceFields.subscription
-        : (invoiceFields.subscription as { id: string }).id;
-      try {
-        const subscription = await db.subscription.findUnique({
+    // FIX: Wrap the entire subscription lookup + payment creation in a transaction
+    // to prevent the TOCTOU window between the lookup and the write.
+    await db.$transaction(async (tx) => {
+      // Look up organizationId from subscription — never assign to arbitrary org
+      let organizationId: string | null = null;
+      if (invoiceFields.subscription) {
+        const subscriptionId = typeof invoiceFields.subscription === 'string'
+          ? invoiceFields.subscription
+          : (invoiceFields.subscription as { id: string }).id;
+
+        const subscription = await tx.subscription.findUnique({
           where: { stripeSubscriptionId: subscriptionId },
           select: { organizationId: true },
         });
         if (subscription) {
           organizationId = subscription.organizationId;
         }
-      } catch {
-        log.warn('[Stripe] Could not look up subscription for org ID', { subscriptionId });
       }
-    }
 
-    // FIX: If organizationId cannot be resolved, throw an error so Stripe retries.
-    // Previously this used findFirst() to grab ANY organization — a multi-tenant
-    // isolation violation that could assign payments to the wrong tenant.
-    if (!organizationId) {
-      const errMsg = '[Stripe] Cannot resolve organizationId for invoice — will retry via Stripe';
-      log.error(errMsg, {
-        invoiceId: invoice.id,
-        subscriptionId: invoiceFields.subscription,
+      // If organizationId cannot be resolved, throw so Stripe retries.
+      // Previously this used findFirst() to grab ANY organization — a multi-tenant
+      // isolation violation that could assign payments to the wrong tenant.
+      if (!organizationId) {
+        throw new Error(
+          `[Stripe] Cannot resolve organizationId for invoice — will retry via Stripe. ` +
+          `invoiceId=${invoice.id}`
+        );
+      }
+
+      // Idempotency: check if a payment for this invoice already exists.
+      // This prevents duplicate Payment records on Stripe event redelivery.
+      const existingPayment = await tx.payment.findFirst({
+        where: { referenceNumber: paymentIntentId },
+        select: { id: true },
       });
-      throw new Error(errMsg);
-    }
+      if (existingPayment) {
+        log.info(`[Stripe] Payment already recorded for invoice — skipping duplicate`, {
+          invoiceId: invoice.id,
+          paymentIntentId,
+          existingPaymentId: existingPayment.id,
+        });
+        return;
+      }
 
-    await db.payment.create({
-      data: {
-        voucherNumber: `INV-${invoice.number || invoice.id}`,
-        amount: invoice.amount_paid / 100,
-        payMethod: 'ONLINE',
-        beneficiary: invoice.customer_name || `Stripe Customer ${customerId}`,
-        referenceNumber: paymentIntentId,
-        status: 'COMPLETED',
-        description: `Stripe Invoice ${invoice.number || invoice.id} - ${invoice.currency?.toUpperCase() || 'USD'} ${(invoice.amount_paid / 100).toFixed(2)}`,
-        organizationId,
-      },
+      await tx.payment.create({
+        data: {
+          voucherNumber: `INV-${invoice.number || invoice.id}`,
+          amount: invoice.amount_paid / 100,
+          payMethod: 'ONLINE',
+          beneficiary: invoice.customer_name || `Stripe Customer ${customerId}`,
+          referenceNumber: paymentIntentId,
+          status: 'COMPLETED',
+          description: `Stripe Invoice ${invoice.number || invoice.id} - ${invoice.currency?.toUpperCase() || 'USD'} ${(invoice.amount_paid / 100).toFixed(2)}`,
+          organizationId,
+        },
+      });
     });
 
     log.info(`Invoice paid: ${invoice.id}, amount: ${invoice.amount_paid}`);
@@ -462,8 +503,9 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
 /**
  * Handle invoice.payment_failed event
  *
- * FIX: Uses upsert instead of updateMany so that if the subscription
- * hasn't been created yet, we still capture the status change.
+ * FIX: Replaced updateMany with update on the unique stripeSubscriptionId field.
+ * updateMany on a unique field is semantically wrong — use update instead.
+ * If the subscription doesn't exist yet, throw so Stripe retries.
  */
 async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
   try {
@@ -473,18 +515,22 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
         ? failedInvoiceFields.subscription
         : failedInvoiceFields.subscription.id;
 
-      // FIX: Use update with where clause on unique field, and log if not found
-      const result = await db.subscription.updateMany({
-        where: { stripeSubscriptionId: subscriptionId },
-        data: { status: 'PAST_DUE' },
-      });
-
-      if (result.count === 0) {
+      // FIX: Use update on the unique field instead of updateMany.
+      // updateMany is semantically wrong for a unique field and doesn't
+      // throw on not-found (it just returns count: 0).
+      try {
+        await db.subscription.update({
+          where: { stripeSubscriptionId: subscriptionId },
+          data: { status: 'PAST_DUE' },
+        });
+      } catch (updateError) {
+        // If the subscription doesn't exist yet (race condition), throw
+        // so Stripe retries the webhook after the subscription is created.
         log.warn('[Stripe] No subscription found for payment_failed — subscription may not be created yet', {
           subscriptionId,
           invoiceId: invoice.id,
+          error: updateError instanceof Error ? updateError.message : updateError,
         });
-        // Throw so Stripe retries — the subscription may be created by a concurrent handler
         throw new Error(`Subscription not found for payment_failed: ${subscriptionId}`);
       }
     }

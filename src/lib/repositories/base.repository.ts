@@ -35,6 +35,20 @@ export interface IRepository<T> {
 }
 
 /**
+ * Minimal interface for Prisma model delegate operations.
+ * Constrains the `any` escape hatch to the known CRUD methods
+ * that BaseRepository actually calls, while preserving generic return types via T.
+ */
+interface PrismaModelDelegate<T> {
+  findFirst(args?: Record<string, unknown>): Promise<T | null>;
+  findMany(args?: Record<string, unknown>): Promise<T[]>;
+  create(args: Record<string, unknown>): Promise<T>;
+  update(args: Record<string, unknown>): Promise<T>;
+  delete(args: Record<string, unknown>): Promise<void>;
+  count(args?: Record<string, unknown>): Promise<number>;
+}
+
+/**
  * Base Repository Implementation
  * Provides common CRUD operations for all entities
  */
@@ -51,14 +65,11 @@ export abstract class BaseRepository<T> implements IRepository<T> {
    * Get the Prisma delegate for this model.
    * Uses a single cast point rather than scattering `as unknown as Record` throughout.
    *
-   * The delegate must be `any` because Prisma model delegates are dynamically typed
-   * per model and cannot be statically inferred from `keyof PrismaClient` alone.
-   * The generic `<T>` parameter on the class provides type safety at the call sites.
-   * This is the single controlled escape hatch — all methods return `T` or `T[]`.
+   * The delegate is cast to PrismaModelDelegate<T> instead of raw `any`,
+   * constraining it to the known CRUD methods while keeping return types generic via T.
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Prisma delegate types are dynamic per model; T provides call-site safety
-  protected get delegate(): any {
-    return (this.prisma as unknown as Record<string, unknown>)[this.model as string];
+  protected get delegate(): PrismaModelDelegate<T> {
+    return (this.prisma as unknown as Record<string, unknown>)[this.model as string] as PrismaModelDelegate<T>;
   }
 
   /**
