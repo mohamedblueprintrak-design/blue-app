@@ -282,10 +282,13 @@ export default function LoginPage({ language }: LoginPageProps) {
     const cred = creds.find((c) => c.email === value);
     if (cred && cred.password) {
       setPassword(cred.password);
+      setShowPassword(true); // Auto-show password in demo mode for clarity
     } else if (FALLBACK_DEMO_PASSWORDS[value]) {
       setPassword(FALLBACK_DEMO_PASSWORDS[value]);
+      setShowPassword(true); // Auto-show password in demo mode for clarity
     } else {
       setPassword("");
+      setShowPassword(false);
     }
   };
 

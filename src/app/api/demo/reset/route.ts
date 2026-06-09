@@ -36,19 +36,39 @@ export async function POST(request: NextRequest) {
     // execFile() executes the binary directly without a shell interpreter.
     const cwd = process.cwd();
     const isBun = process.env.npm_execpath?.includes('bun') || process.versions?.bun;
-    // Use bunx tsx or npx tsx to run the seed script directly.
-    // Avoid `bun run db:seed` because it resolves to `npx tsx prisma/seed.ts`
-    // through package.json, which can fail in some environments.
-    const cmd = isBun ? 'bunx' : 'npx';
-    const args = ['tsx', 'prisma/seed.ts'];
-    log.info('Demo reset: executing seed script', { cmd, args, cwd });
-    const { stdout, stderr } = await execFileAsync(cmd, args, { cwd, timeout: 120_000 });
-    if (stderr && !stderr.includes('warning')) {
-      log.warn('Demo reset seed script produced stderr:', { stderr });
-    }
-    log.info('Demo reset: seed script completed', { stdout: stdout?.slice(0, 200) });
 
-    return NextResponse.json({ success: true, message: 'Demo data reset successfully' });
+    // Try multiple command paths for resilience:
+    // 1. bunx tsx (if running under bun)
+    // 2. npx tsx (if running under node)
+    // 3. Direct tsx execution via node_modules
+    const attempts: Array<{ cmd: string; args: string[] }> = isBun
+      ? [
+          { cmd: 'bunx', args: ['tsx', 'prisma/seed.ts'] },
+          { cmd: 'bun', args: ['run', 'db:seed'] },
+        ]
+      : [
+          { cmd: 'npx', args: ['tsx', 'prisma/seed.ts'] },
+          { cmd: 'node', args: ['--import', 'tsx', 'prisma/seed.ts'] },
+        ];
+
+    let lastError: Error | null = null;
+    for (const { cmd, args } of attempts) {
+      try {
+        log.info('Demo reset: attempting seed script', { cmd, args, cwd });
+        const { stdout, stderr } = await execFileAsync(cmd, args, { cwd, timeout: 120_000 });
+        if (stderr && !stderr.includes('warning')) {
+          log.warn('Demo reset seed script produced stderr:', { stderr });
+        }
+        log.info('Demo reset: seed script completed', { stdout: stdout?.slice(0, 200) });
+        return NextResponse.json({ success: true, message: 'Demo data reset successfully' });
+      } catch (attemptErr) {
+        lastError = attemptErr instanceof Error ? attemptErr : new Error(String(attemptErr));
+        log.warn('Demo reset: command failed, trying next', { cmd, args, error: lastError.message });
+      }
+    }
+
+    // All attempts failed
+    throw lastError || new Error('All seed attempts failed');
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
     log.error('Failed to reset demo data:', message);

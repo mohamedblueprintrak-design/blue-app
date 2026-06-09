@@ -21,7 +21,7 @@ interface CommunicationsSectionProps {
 }
 
 export default function CommunicationsSection({
-  language: _language,
+  language,
   interactions,
   filteredInteractions,
   commFilter,
@@ -32,8 +32,8 @@ export default function CommunicationsSection({
     <div className="space-y-4">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white">سجل التواصل مع العملاء</h2>
-          <p className="text-sm text-slate-500">جميع التفاعلات والاجتماعات والمكالمات</p>
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white">{language === 'ar' ? 'سجل التواصل مع العملاء' : 'Client Communications Log'}</h2>
+          <p className="text-sm text-slate-500">{language === 'ar' ? 'جميع التفاعلات والاجتماعات والمكالمات' : 'All interactions, meetings and calls'}</p>
         </div>
         <div className="flex gap-2">
           <Select value={commFilter.type} onValueChange={v => setCommFilter(p => ({ ...p, type: v }))}>
@@ -41,14 +41,14 @@ export default function CommunicationsSection({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">الكل</SelectItem>
-              <SelectItem value="MEETING">اجتماعات</SelectItem>
-              <SelectItem value="CALL">مكالمات</SelectItem>
-              <SelectItem value="email">بريد إلكتروني</SelectItem>
+              <SelectItem value="all">{language === 'ar' ? 'الكل' : 'All'}</SelectItem>
+              <SelectItem value="MEETING">{language === 'ar' ? 'اجتماعات' : 'Meetings'}</SelectItem>
+              <SelectItem value="CALL">{language === 'ar' ? 'مكالمات' : 'Calls'}</SelectItem>
+              <SelectItem value="email">{language === 'ar' ? 'بريد إلكتروني' : 'Email'}</SelectItem>
             </SelectContent>
           </Select>
           <Button onClick={onAddInteraction} className="bg-teal-600 hover:bg-teal-700 text-white">
-            <Plus className="h-4 w-4 me-2" /> تسجيل تواصل
+            <Plus className="h-4 w-4 me-2" /> {language === 'ar' ? 'تسجيل تواصل' : 'Log Communication'}
           </Button>
         </div>
       </div>
@@ -67,7 +67,7 @@ export default function CommunicationsSection({
                 {getInteractionIcon(type)}
               </div>
               <div>
-                <p className="text-xs text-slate-500">{getInteractionTypeLabel(type)}</p>
+                <p className="text-xs text-slate-500">{getInteractionTypeLabel(type, language)}</p>
                 <p className="text-xl font-bold text-slate-900 dark:text-white">{interactions.filter(i => i.type === type).length}</p>
               </div>
             </CardContent>
@@ -111,7 +111,7 @@ export default function CommunicationsSection({
                           </div>
                           <div className="flex items-center gap-2 flex-shrink-0">
                             <Badge variant="outline" className="text-[10px]">
-                              {getInteractionTypeLabel(interaction.type)}
+                              {getInteractionTypeLabel(interaction.type, language)}
                             </Badge>
                             <span className="text-[10px] text-slate-400">{interaction.date}</span>
                           </div>

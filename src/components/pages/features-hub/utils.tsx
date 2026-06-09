@@ -1,8 +1,11 @@
 import { Users, PhoneCall, Mail } from 'lucide-react'
 
+type Lang = 'ar' | 'en'
+
 // ===== Utility Functions =====
-export function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('ar-AE', { style: 'currency', currency: 'AED', minimumFractionDigits: 0 }).format(amount)
+export function formatCurrency(amount: number, language: Lang = 'ar'): string {
+  const locale = language === 'en' ? 'en-AE' : 'ar-AE'
+  return new Intl.NumberFormat(locale, { style: 'currency', currency: 'AED', minimumFractionDigits: 0 }).format(amount)
 }
 
 export function _formatDateAr(dateStr: string): string {
@@ -19,7 +22,16 @@ export function getStatusColor(status: string): string {
   }
 }
 
-export function getStatusLabel(status: string): string {
+export function getStatusLabel(status: string, language: Lang = 'ar'): string {
+  if (language === 'en') {
+    switch (status) {
+      case 'ACTIVE': return 'Active'
+      case 'DELAYED': return 'Delayed'
+      case 'COMPLETED': return 'Completed'
+      case 'ON_HOLD': return 'On Hold'
+      default: return status
+    }
+  }
   switch (status) {
     case 'ACTIVE': return 'نشط'
     case 'DELAYED': return 'متأخر'
@@ -39,10 +51,18 @@ export function getStatusBg(status: string): string {
   }
 }
 
-export function getVisitStatusLabel(status: string): string {
+export function getVisitStatusLabel(status: string, language: Lang = 'ar'): string {
+  if (language === 'en') {
+    switch (status) {
+      case 'PLANNED': return 'Planned'
+      case 'IN_PROGRESS': return 'In Progress'
+      case 'COMPLETED': return 'Completed'
+      default: return status
+    }
+  }
   switch (status) {
-    case 'planned': return 'مخطط'
-    case 'in-progress': return 'جاري الزيارة'
+    case 'PLANNED': return 'مخطط'
+    case 'IN_PROGRESS': return 'جاري الزيارة'
     case 'COMPLETED': return 'مكتمل'
     default: return status
   }
@@ -50,8 +70,8 @@ export function getVisitStatusLabel(status: string): string {
 
 export function getVisitStatusColor(status: string): string {
   switch (status) {
-    case 'planned': return 'bg-slate-100 text-slate-700'
-    case 'in-progress': return 'bg-amber-100 text-amber-700'
+    case 'PLANNED': return 'bg-slate-100 text-slate-700'
+    case 'IN_PROGRESS': return 'bg-amber-100 text-amber-700'
     case 'COMPLETED': return 'bg-emerald-100 text-emerald-700'
     default: return 'bg-slate-100 text-slate-700'
   }
@@ -66,7 +86,15 @@ export function getInteractionIcon(type: string) {
   }
 }
 
-export function getInteractionTypeLabel(type: string): string {
+export function getInteractionTypeLabel(type: string, language: Lang = 'ar'): string {
+  if (language === 'en') {
+    switch (type) {
+      case 'meeting': return 'Meeting'
+      case 'call': return 'Call'
+      case 'email': return 'Email'
+      default: return 'Communication'
+    }
+  }
   switch (type) {
     case 'meeting': return 'اجتماع'
     case 'call': return 'مكالمة'
@@ -75,7 +103,17 @@ export function getInteractionTypeLabel(type: string): string {
   }
 }
 
-export function getCategoryLabel(cat: string): string {
+export function getCategoryLabel(cat: string, language: Lang = 'ar'): string {
+  if (language === 'en') {
+    switch (cat) {
+      case 'civil': return 'Civil'
+      case 'structural': return 'Structural'
+      case 'mep': return 'MEP'
+      case 'finishing': return 'Finishing'
+      case 'landscape': return 'Landscape'
+      default: return cat
+    }
+  }
   switch (cat) {
     case 'civil': return 'مدني'
     case 'structural': return 'إنشائي'
