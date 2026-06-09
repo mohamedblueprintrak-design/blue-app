@@ -55,6 +55,24 @@ const ROLES = [
   { value: "viewer@blueprint.ae", labelAr: "مشاهد", labelEn: "Viewer" },
 ];
 
+// Fallback demo passwords — used client-side when the server API
+// doesn't return credentials (e.g. DEMO_MODE not set or fetch fails).
+// These match the DEFAULT_DEMO_PASSWORDS in @/lib/demo-credentials.ts
+const FALLBACK_DEMO_PASSWORDS: Record<string, string> = {
+  'admin@blueprint.ae': 'Admin@BP2024!',
+  'pm@blueprint.ae': 'Manager@BP2024!',
+  'eng@blueprint.ae': 'Engineer@BP2024!',
+  'struct@blueprint.ae': 'Struct@BP2024!',
+  'elec@blueprint.ae': 'Elec@BP2024!',
+  'site@blueprint.ae': 'Site@BP2024!',
+  'mep@blueprint.ae': 'Mep@BP2024!',
+  'draft@blueprint.ae': 'Draft@BP2024!',
+  'acc@blueprint.ae': 'Account@BP2024!',
+  'sec@blueprint.ae': 'Secret@BP2024!',
+  'hr@blueprint.ae': 'Hr@BP2024!',
+  'viewer@blueprint.ae': 'View@BP2024!',
+};
+
 const FEATURES = [
   {
     icon: FolderKanban,
@@ -253,16 +271,19 @@ export default function LoginPage({ language }: LoginPageProps) {
         const res = await fetch('/api/auth/demo-credentials');
         if (res.ok) {
           const data = await res.json();
-          if (Array.isArray(data.credentials)) {
+          if (Array.isArray(data.credentials) && data.credentials.length > 0) {
             creds = data.credentials;
             setDemoCredentials(creds);
           }
         }
       } catch { /* ignore */ }
     }
+    // Try server credentials first, then fall back to hardcoded passwords
     const cred = creds.find((c) => c.email === value);
     if (cred && cred.password) {
       setPassword(cred.password);
+    } else if (FALLBACK_DEMO_PASSWORDS[value]) {
+      setPassword(FALLBACK_DEMO_PASSWORDS[value]);
     } else {
       setPassword("");
     }

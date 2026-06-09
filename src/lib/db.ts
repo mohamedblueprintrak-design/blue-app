@@ -9,6 +9,7 @@ import { PrismaClient } from '@prisma/client'
  */
 declare global {
   var prisma: PrismaClient | undefined
+  var __dbShutdownRegistered: boolean | undefined
 }
 
 export const db =
@@ -41,18 +42,12 @@ if (process.env.DATABASE_URL?.startsWith('file:')) {
  * Graceful shutdown handler — ensures PrismaClient disconnects properly
  * when the Node.js process exits, preventing dangling connections.
  *
- * FIX: Register in BOTH development and production.
- * Previously only registered in production, which meant dangling SQLite
- * connections and WAL lock issues during development restarts.
+ * Uses globalThis flag to prevent duplicate handler registration during
+ * Next.js hot-reloading, which would cause MaxListenersExceededWarning.
  */
-let shutdownHandlersRegistered = false;
-
 function setupGracefulShutdown() {
-  if (shutdownHandlersRegistered) return;
-  shutdownHandlersRegistered = true;
-
-  // Increase max listeners to prevent warning when multiple modules register shutdown handlers
-  process.setMaxListeners(process.getMaxListeners() + 2);
+  if (globalThis.__dbShutdownRegistered) return;
+  globalThis.__dbShutdownRegistered = true;
 
   const shutdown = async (signal: string) => {
     console.info(`[db] Received ${signal}, disconnecting Prisma...`)
@@ -65,9 +60,9 @@ function setupGracefulShutdown() {
     process.exit(0)
   }
 
-  // Register in ALL environments (dev + production)
-  process.on('SIGINT', () => shutdown('SIGINT'))
-  process.on('SIGTERM', () => shutdown('SIGTERM'))
+  // Use once() to auto-cleanup after first invocation, preventing accumulation
+  process.once('SIGINT', () => shutdown('SIGINT'))
+  process.once('SIGTERM', () => shutdown('SIGTERM'))
 }
 
 setupGracefulShutdown()

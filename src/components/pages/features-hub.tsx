@@ -53,17 +53,23 @@ export default function FeaturesHub({ language }: FeaturesHubProps) {
   const [timerSeconds, setTimerSeconds] = useState(0)
 
   // ===== Fetch Real Projects from API =====
-  const { data: projectsApiResponse, isLoading: _isLoadingProjects } = useQuery({
+  const { data: projectsApiResponse = [], isLoading: _isLoadingProjects } = useQuery({
     queryKey: ['projects-map'],
     queryFn: async () => {
-      const res = await fetch('/api/projects?limit=200')
-      if (!res.ok) throw new Error('Failed to fetch projects')
-      const json = await res.json()
-      // API returns { success: true, data: [...] } or { projects: [...] }
-      return (json.data || json.projects || []) as RealProject[]
+      try {
+        const res = await fetch('/api/projects?limit=200')
+        if (!res.ok) return [] // Auth failed or server error — use demo data
+        const json = await res.json()
+        // API returns { success: true, data: [...] } or { projects: [...] }
+        const items = json.data ?? json.projects ?? []
+        return Array.isArray(items) ? items : []
+      } catch {
+        return [] // Network error — use demo data fallback
+      }
     },
     staleTime: 30000, // 30s cache
     retry: 1,
+    placeholderData: [], // Prevent data from being undefined during refetch
   })
 
   // Merge real projects with coordinates into map data
@@ -333,7 +339,7 @@ export default function FeaturesHub({ language }: FeaturesHubProps) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900" dir={language === "ar" ? "rtl" : "ltr"}>
       {/* Mobile Header */}
-      <MobileHeader mobileSidebarOpen={mobileSidebarOpen} setMobileSidebarOpen={setMobileSidebarOpen} />
+      <MobileHeader mobileSidebarOpen={mobileSidebarOpen} setMobileSidebarOpen={setMobileSidebarOpen} language={language} />
 
       <div className="flex">
         {/* Sidebar */}
@@ -342,6 +348,7 @@ export default function FeaturesHub({ language }: FeaturesHubProps) {
           setActiveTab={setActiveTab}
           mobileSidebarOpen={mobileSidebarOpen}
           setMobileSidebarOpen={setMobileSidebarOpen}
+          language={language}
         />
 
         {/* Mobile Overlay */}

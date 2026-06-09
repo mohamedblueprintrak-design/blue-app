@@ -35,11 +35,18 @@ export async function POST(request: NextRequest) {
     // SECURITY: Use execFile() instead of exec() to prevent shell injection.
     // execFile() executes the binary directly without a shell interpreter.
     const cwd = process.cwd();
-    const isBun = process.env.npm_execpath?.includes('bun');
-    // Use the package manager that's available to run tsx with the seed script
-    const cmd = isBun ? 'bun' : 'npx';
-    const args = isBun ? ['run', 'db:seed'] : ['tsx', 'prisma/seed.ts'];
-    await execFileAsync(cmd, args, { cwd, timeout: 60_000 });
+    const isBun = process.env.npm_execpath?.includes('bun') || process.versions?.bun;
+    // Use bunx tsx or npx tsx to run the seed script directly.
+    // Avoid `bun run db:seed` because it resolves to `npx tsx prisma/seed.ts`
+    // through package.json, which can fail in some environments.
+    const cmd = isBun ? 'bunx' : 'npx';
+    const args = ['tsx', 'prisma/seed.ts'];
+    log.info('Demo reset: executing seed script', { cmd, args, cwd });
+    const { stdout, stderr } = await execFileAsync(cmd, args, { cwd, timeout: 120_000 });
+    if (stderr && !stderr.includes('warning')) {
+      log.warn('Demo reset seed script produced stderr:', { stderr });
+    }
+    log.info('Demo reset: seed script completed', { stdout: stdout?.slice(0, 200) });
 
     return NextResponse.json({ success: true, message: 'Demo data reset successfully' });
   } catch (error: unknown) {

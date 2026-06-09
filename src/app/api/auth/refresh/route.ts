@@ -54,9 +54,29 @@ export async function POST(request: NextRequest) {
     // Find the refresh token record WITHOUT including user (to avoid Prisma crash
     // on orphaned tokens where userId points to a deleted user in SQLite).
     // SQLite does not enforce FKs, so orphaned tokens can exist.
-    const storedToken = await db.refreshToken.findUnique({
-      where: { tokenHash },
-    });
+    // Using findFirst + select to avoid Prisma's "Field user is required" error
+    // that can still occur with findUnique on orphaned records.
+    let storedToken: { id: string; userId: string; tokenHash: string; expiresAt: Date; revokedAt: Date | null; createdAt: Date } | null = null;
+    try {
+      storedToken = await db.refreshToken.findFirst({
+        where: { tokenHash },
+        select: {
+          id: true,
+          userId: true,
+          tokenHash: true,
+          expiresAt: true,
+          revokedAt: true,
+          createdAt: true,
+        },
+      });
+    } catch (dbErr) {
+      // If Prisma throws "Field user is required" due to orphaned relation, catch it
+      log.error('Refresh token lookup failed (possible orphaned record):', dbErr);
+      return clearAuthCookies(NextResponse.json(
+        { error: 'Invalid refresh token' },
+        { status: 401 }
+      ));
+    }
 
     if (!storedToken) {
       return clearAuthCookies(NextResponse.json(
@@ -67,23 +87,31 @@ export async function POST(request: NextRequest) {
 
     // Orphaned token — user was deleted but token still exists (SQLite FK not enforced)
     // Fetch user separately to avoid Prisma "Field user is required" crash
-    const user = await db.user.findUnique({
-      where: { id: storedToken.userId },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        role: true,
-        isActive: true,
-        twoFactorEnabled: true,
-        organizationId: true,
-        passwordChangedAt: true,
-      },
-    });
+    let user: { id: string; email: string; name: string | null; role: string; isActive: boolean; twoFactorEnabled: boolean; organizationId: string | null; passwordChangedAt: Date | null } | null = null;
+    try {
+      user = await db.user.findUnique({
+        where: { id: storedToken.userId },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          role: true,
+          isActive: true,
+          twoFactorEnabled: true,
+          organizationId: true,
+          passwordChangedAt: true,
+        },
+      });
+    } catch (dbErr) {
+      log.error('User lookup for refresh token failed:', dbErr);
+    }
 
     if (!user) {
       // Clean up the orphaned token and reject the request
-      await db.refreshToken.delete({ where: { id: storedToken.id } }).catch(() => {});
+      // Use deleteMany (more resilient than delete for orphaned records)
+      try {
+        await db.refreshToken.deleteMany({ where: { id: storedToken.id } });
+      } catch { /* ignore cleanup failure */ }
       return clearAuthCookies(NextResponse.json(
         { error: 'User no longer exists' },
         { status: 401 }
