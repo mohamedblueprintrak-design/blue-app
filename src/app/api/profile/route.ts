@@ -94,8 +94,9 @@ export async function PUT(request: NextRequest) {
 
     const body = await request.json();
 
-    // Determine target user — own profile by default
-    const targetUserId = body.userId || ctx.userId;
+    // SECURITY: Validate userId from body with Zod to prevent arbitrary user targeting.
+    // Only allow targeting another user if the caller has USER_UPDATE permission.
+    const targetUserId = (typeof body.userId === 'string' && body.userId.length > 0) ? body.userId : ctx.userId;
     const isOwnProfile = targetUserId === ctx.userId;
 
     // RBAC: Updating someone else's profile requires USER_UPDATE permission

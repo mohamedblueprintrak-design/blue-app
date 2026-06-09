@@ -399,7 +399,15 @@ export function withCrudPermissions(
 
     // Step 3: Check permission
     const permission = getRequiredPermission(resource, action);
-    if (permission && !hasPermission(user.role, permission)) {
+    if (!permission) {
+      // SECURITY: Default deny — no mapping exists for this resource/action.
+      // Deny access instead of allowing, to prevent unscoped routes from being unprotected.
+      log.warn('withCrudPermissions: No permission mapping found — denying access', { resource, action });
+      return forbiddenResponse(
+        `No permission mapping for ${action} on ${resource} — access denied by default`
+      );
+    }
+    if (!hasPermission(user.role, permission)) {
       return forbiddenResponse(
         `Insufficient permissions: ${permission} required for ${action} on ${resource}`
       );

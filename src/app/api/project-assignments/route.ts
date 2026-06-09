@@ -169,6 +169,14 @@ export async function PUT(request: NextRequest) {
     }
     const { id, role } = validation.data;
 
+    // SECURITY: Verify the assignment belongs to the user's organization before updating
+    const existing = await db.projectAssignment.findFirst({
+      where: { id, deletedAt: null, ...orgFilter(_auth) },
+    });
+    if (!existing) {
+      return NextResponse.json({ error: 'Assignment not found or access denied' }, { status: 404 });
+    }
+
     const assignment = await db.projectAssignment.update({
       where: { id },
       data: { role: role },
@@ -215,6 +223,14 @@ export async function DELETE(request: NextRequest) {
         { error: "id is required" },
         { status: 400 }
       );
+    }
+
+    // SECURITY: Verify the assignment belongs to the user's organization before deleting
+    const existing = await db.projectAssignment.findFirst({
+      where: { id, deletedAt: null, ...orgFilter(_auth) },
+    });
+    if (!existing) {
+      return NextResponse.json({ error: 'Assignment not found or access denied' }, { status: 404 });
     }
 
     await db.projectAssignment.update({

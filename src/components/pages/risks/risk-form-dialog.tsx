@@ -89,7 +89,7 @@ export function RiskFormDialog({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-2">
               <Label className="text-sm">{ar ? "المشروع *" : "Project *"}</Label>
-              <Select value={formData.projectId} onValueChange={(v) => setFormData({ ...formData, projectId: v })}>
+              <Select value={formData.projectId} onValueChange={(v) => setFormData(prev => ({ ...prev, projectId: v }))}>
                 <SelectTrigger><SelectValue placeholder={ar ? "اختر مشروع" : "Select project"} /></SelectTrigger>
                 <SelectContent>
                   {projects.map((p) => (
@@ -100,7 +100,7 @@ export function RiskFormDialog({
             </div>
             <div className="space-y-2">
               <Label className="text-sm">{ar ? "التصنيف" : "Category"}</Label>
-              <Select value={formData.category} onValueChange={(v) => setFormData({ ...formData, category: v })}>
+              <Select value={formData.category} onValueChange={(v) => setFormData(prev => ({ ...prev, category: v }))}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {categories.map((c) => (
@@ -115,7 +115,7 @@ export function RiskFormDialog({
             <Label className="text-sm">{ar ? "عنوان الخطر *" : "Risk Title *"}</Label>
             <Input
               value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
               placeholder={ar ? "وصف الخطر" : "Risk description"}
             />
           </div>
@@ -129,7 +129,7 @@ export function RiskFormDialog({
               </div>
               <Slider
                 value={[formData.probability]}
-                onValueChange={([v]) => setFormData({ ...formData, probability: v })}
+                onValueChange={([v]) => setFormData(prev => ({ ...prev, probability: v }))}
                 min={1}
                 max={5}
                 step={1}
@@ -147,7 +147,7 @@ export function RiskFormDialog({
               </div>
               <Slider
                 value={[formData.impact]}
-                onValueChange={([v]) => setFormData({ ...formData, impact: v })}
+                onValueChange={([v]) => setFormData(prev => ({ ...prev, impact: v }))}
                 min={1}
                 max={5}
                 step={1}
@@ -171,7 +171,7 @@ export function RiskFormDialog({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-2">
               <Label className="text-sm">{ar ? "الاستراتيجية" : "Strategy"}</Label>
-              <Select value={formData.strategy} onValueChange={(v) => setFormData({ ...formData, strategy: v })}>
+              <Select value={formData.strategy} onValueChange={(v) => setFormData(prev => ({ ...prev, strategy: v }))}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {strategies.map((s) => (
@@ -182,7 +182,7 @@ export function RiskFormDialog({
             </div>
             <div className="space-y-2">
               <Label className="text-sm">{ar ? "المسؤول" : "Assignee"}</Label>
-              <Select value={formData.assigneeId} onValueChange={(v) => setFormData({ ...formData, assigneeId: v })}>
+              <Select value={formData.assigneeId} onValueChange={(v) => setFormData(prev => ({ ...prev, assigneeId: v }))}>
                 <SelectTrigger><SelectValue placeholder={ar ? "اختر مسؤول" : "Select assignee"} /></SelectTrigger>
                 <SelectContent>
                   {users.map((u) => (
@@ -197,7 +197,7 @@ export function RiskFormDialog({
             <Label className="text-sm">{ar ? "خطة التخفيف" : "Mitigation Plan"}</Label>
             <Textarea
               value={formData.mitigationPlan}
-              onChange={(e) => setFormData({ ...formData, mitigationPlan: e.target.value })}
+              onChange={(e) => setFormData(prev => ({ ...prev, mitigationPlan: e.target.value }))}
               placeholder={ar ? "وصف خطة تخفيف الخطر" : "Describe the risk mitigation plan"}
               rows={3}
             />

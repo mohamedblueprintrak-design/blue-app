@@ -30,7 +30,8 @@ export default function LandingPageClient() {
   });
 
   useEffect(() => {
-    fetch('/api/public/stats')
+    const controller = new AbortController();
+    fetch('/api/public/stats', { signal: controller.signal })
       .then(res => res.ok ? res.json() : null)
       .then(data => {
         if (data) {
@@ -45,7 +46,8 @@ export default function LandingPageClient() {
           }
         }
       })
-      .catch(() => {});
+      .catch(err => { if (err.name !== 'AbortError') { /* ignore non-abort errors */ } });
+    return () => controller.abort();
   }, []);
 
   const t = (ar: string, en: string) => (language === "ar" ? ar : en);

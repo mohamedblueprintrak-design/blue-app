@@ -24,13 +24,15 @@ export function TwoFactorSetup({ isAr }: TwoFactorSetupProps) {
   const toast = useToastFeedback({ ar: isAr });
 
   useEffect(() => {
-    fetch("/api/auth/2fa")
+    const controller = new AbortController();
+    fetch("/api/auth/2fa", { signal: controller.signal })
       .then((res) => res.json())
       .then((data) => {
         setIsEnabled(data.data?.enabled || false);
         setIsLoading(false);
       })
-      .catch(() => setIsLoading(false));
+      .catch((err) => { if (err.name !== 'AbortError') setIsLoading(false); });
+    return () => controller.abort();
   }, []);
 
   const handleSetup = async () => {

@@ -118,16 +118,20 @@ export default function LoginPage({ language }: LoginPageProps) {
 
   // Fetch demo credentials from server (only returned in demo mode)
   useEffect(() => {
-    fetch('/api/auth/demo-credentials')
+    const controller = new AbortController();
+    fetch('/api/auth/demo-credentials', { signal: controller.signal })
       .then((res) => (res.ok ? res.json() : { credentials: [] }))
       .then((data) => {
         if (Array.isArray(data.credentials)) {
           setDemoCredentials(data.credentials);
         }
       })
-      .catch(() => {
-        // Not in demo mode or fetch failed — no credentials available
+      .catch((err) => {
+        if (err.name !== 'AbortError') {
+          // Not in demo mode or fetch failed — no credentials available
+        }
       });
+    return () => controller.abort();
   }, []);
 
   // Rotate feature highlights every 4 seconds

@@ -205,7 +205,7 @@ export function getTokenFromRequest(request: NextRequest): string | null {
  * Uses 15m expiry — consistent with auth-service.ts and token-utils.ts
  */
 export async function generateToken(userId: string): Promise<string> {
-  return new jose.SignJWT({ userId })
+  return new jose.SignJWT({ userId, type: 'access' })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuer('blueprint-saas')
     .setAudience('blueprint-users')

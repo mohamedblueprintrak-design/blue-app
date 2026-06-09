@@ -241,7 +241,8 @@ export default function PortalPage() {
   });
 
   useEffect(() => {
-    fetch('/api/public/stats')
+    const controller = new AbortController();
+    fetch('/api/public/stats', { signal: controller.signal })
       .then(res => res.ok ? res.json() : null)
       .then(data => {
         if (data && data.company) {
@@ -253,7 +254,8 @@ export default function PortalPage() {
           });
         }
       })
-      .catch(() => {});
+      .catch(err => { if (err.name !== 'AbortError') { /* ignore non-abort errors */ } });
+    return () => controller.abort();
   }, []);
 
   const activeProject = portalData?.project ?? null;

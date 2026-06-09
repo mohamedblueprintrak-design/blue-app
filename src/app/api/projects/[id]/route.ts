@@ -164,14 +164,21 @@ export async function PUT(
     const orgError = orgCheck(user, existing);
     if (orgError) return orgError;
 
+    // SECURITY: Explicit field mapping instead of Object.entries() spread.
+    // Prevents mass assignment — only known safe fields can be updated.
+    // Never allow overwriting organizationId, createdById, deletedAt, or id.
     const data: Record<string, unknown> = {};
-    for (const [key, value] of Object.entries(body)) {
-      if (value !== undefined) {
+    const allowedFields = [
+      'name', 'nameEn', 'clientId', 'contractorId', 'location', 'plotNumber',
+      'type', 'budget', 'startDate', 'endDate', 'description', 'status', 'progress',
+    ] as const;
+    for (const key of allowedFields) {
+      if (body[key] !== undefined) {
         // Convert date strings to Date objects
-        if ((key === 'startDate' || key === 'endDate') && value) {
-          data[key] = new Date(value as string);
+        if ((key === 'startDate' || key === 'endDate') && body[key]) {
+          data[key] = new Date(body[key] as string);
         } else {
-          data[key] = value;
+          data[key] = body[key];
         }
       }
     }

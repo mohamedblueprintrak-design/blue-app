@@ -17,7 +17,8 @@ export default function DocsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/docs')
+    const controller = new AbortController();
+    fetch('/api/docs', { signal: controller.signal })
       .then((res) => {
         if (!res.ok) throw new Error('Failed to load API spec');
         return res.json();
@@ -27,9 +28,12 @@ export default function DocsPage() {
         setLoading(false);
       })
       .catch((err) => {
-        setError(err.message);
-        setLoading(false);
+        if (err.name !== 'AbortError') {
+          setError(err.message);
+          setLoading(false);
+        }
       });
+    return () => controller.abort();
   }, []);
 
   return (
