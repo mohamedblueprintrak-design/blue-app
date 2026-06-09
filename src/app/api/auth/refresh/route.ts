@@ -51,25 +51,11 @@ export async function POST(request: NextRequest) {
     // Hash the provided token to look it up in the database
     const tokenHash = await hashToken(refreshToken);
 
-    // Find the refresh token record
-    // NOTE: SQLite does not enforce foreign keys, so orphaned tokens (userId
-    // pointing to a deleted user) can exist. We handle this gracefully.
+    // Find the refresh token record WITHOUT including user (to avoid Prisma crash
+    // on orphaned tokens where userId points to a deleted user in SQLite).
+    // SQLite does not enforce FKs, so orphaned tokens can exist.
     const storedToken = await db.refreshToken.findUnique({
       where: { tokenHash },
-      include: {
-        user: {
-          select: {
-            id: true,
-            email: true,
-            name: true,
-            role: true,
-            isActive: true,
-            twoFactorEnabled: true,
-            organizationId: true,
-            passwordChangedAt: true,
-          },
-        },
-      },
     });
 
     if (!storedToken) {
@@ -80,7 +66,22 @@ export async function POST(request: NextRequest) {
     }
 
     // Orphaned token — user was deleted but token still exists (SQLite FK not enforced)
-    if (!storedToken.user) {
+    // Fetch user separately to avoid Prisma "Field user is required" crash
+    const user = await db.user.findUnique({
+      where: { id: storedToken.userId },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        isActive: true,
+        twoFactorEnabled: true,
+        organizationId: true,
+        passwordChangedAt: true,
+      },
+    });
+
+    if (!user) {
       // Clean up the orphaned token and reject the request
       await db.refreshToken.delete({ where: { id: storedToken.id } }).catch(() => {});
       return clearAuthCookies(NextResponse.json(
@@ -129,7 +130,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user is still active
-    if (!storedToken.user.isActive) {
+    if (!user.isActive) {
       return clearAuthCookies(NextResponse.json(
         { error: 'Account is deactivated' },
         { status: 403 }
@@ -144,17 +145,17 @@ export async function POST(request: NextRequest) {
 
     // Generate new access token using centralized utility
     const accessToken = await generateAuthToken({
-      userId: storedToken.user.id,
-      email: storedToken.user.email,
-      name: storedToken.user.name ?? "",
-      role: storedToken.user.role,
-      twoFactorEnabled: storedToken.user.twoFactorEnabled,
-      organizationId: storedToken.user.organizationId,
-      passwordChangedAt: storedToken.user.passwordChangedAt ? Math.floor(new Date(storedToken.user.passwordChangedAt).getTime() / 1000) : 0,
+      userId: user.id,
+      email: user.email,
+      name: user.name ?? "",
+      role: user.role,
+      twoFactorEnabled: user.twoFactorEnabled,
+      organizationId: user.organizationId,
+      passwordChangedAt: user.passwordChangedAt ? Math.floor(new Date(user.passwordChangedAt).getTime() / 1000) : 0,
     });
 
     // Generate new refresh token (rotation) using centralized utility
-    const newRawRefreshToken = await generateDbRefreshToken(storedToken.user.id);
+    const newRawRefreshToken = await generateDbRefreshToken(user.id);
 
     // Build response
     const response = NextResponse.json({
@@ -168,7 +169,7 @@ export async function POST(request: NextRequest) {
     // Set new refresh token cookie
     response.cookies.set(REFRESH_COOKIE_NAME, newRawRefreshToken, getAuthCookieOptions(REFRESH_TOKEN_MAX_AGE));
 
-    log.info('Refresh token rotated', { userId: storedToken.user.id });
+    log.info('Refresh token rotated', { userId: user.id });
 
     return response;
   } catch (error) {

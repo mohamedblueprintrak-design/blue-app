@@ -36,14 +36,17 @@ export async function POST(request: NextRequest) {
     // execFile() executes the binary directly without a shell interpreter.
     const cwd = process.cwd();
     const isBun = process.env.npm_execpath?.includes('bun');
-    const cmd = isBun ? 'bunx' : 'npx';
-    await execFileAsync(cmd, ['tsx', 'prisma/seed.ts'], { cwd });
+    // Use the package manager that's available to run tsx with the seed script
+    const cmd = isBun ? 'bun' : 'npx';
+    const args = isBun ? ['run', 'db:seed'] : ['tsx', 'prisma/seed.ts'];
+    await execFileAsync(cmd, args, { cwd, timeout: 60_000 });
 
     return NextResponse.json({ success: true, message: 'Demo data reset successfully' });
   } catch (error: unknown) {
-    log.error('Failed to reset demo data:', error);
+    const message = error instanceof Error ? error.message : String(error);
+    log.error('Failed to reset demo data:', message);
     return NextResponse.json(
-      { error: 'Failed to reset demo data' },
+      { error: 'Failed to reset demo data', detail: message },
       { status: 500 }
     );
   }

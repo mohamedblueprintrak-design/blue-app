@@ -82,7 +82,9 @@ export default function FinanceExpensesPage({ }: Props) {
       const res = await fetch("/api/payments");
       if (!res.ok) throw new Error("Failed");
       const json = await res.json();
-      return json.payments || json;
+      // API returns { data: [...], pagination: {...} } or { payments: [...] } or [...]
+      const items = json.data || json.payments || (Array.isArray(json) ? json : []);
+      return Array.isArray(items) ? items : [];
     },
   });
 

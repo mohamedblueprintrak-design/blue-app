@@ -242,11 +242,25 @@ export default function LoginPage({ language }: LoginPageProps) {
     }
   };
 
-  const handleRoleSelect = (value: string) => {
+  const handleRoleSelect = async (value: string) => {
     setSelectedRole(value);
     setEmail(value);
     // Auto-fill demo password if available (dev/demo mode only)
-    const cred = demoCredentials.find((c) => c.email === value);
+    let creds = demoCredentials;
+    // If credentials haven't loaded yet, fetch them now
+    if (creds.length === 0) {
+      try {
+        const res = await fetch('/api/auth/demo-credentials');
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data.credentials)) {
+            creds = data.credentials;
+            setDemoCredentials(creds);
+          }
+        }
+      } catch { /* ignore */ }
+    }
+    const cred = creds.find((c) => c.email === value);
     if (cred && cred.password) {
       setPassword(cred.password);
     } else {

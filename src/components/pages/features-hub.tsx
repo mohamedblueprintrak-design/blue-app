@@ -58,8 +58,9 @@ export default function FeaturesHub({ language }: FeaturesHubProps) {
     queryFn: async () => {
       const res = await fetch('/api/projects?limit=200')
       if (!res.ok) throw new Error('Failed to fetch projects')
-      const data = await res.json()
-      return data.projects as RealProject[]
+      const json = await res.json()
+      // API returns { success: true, data: [...] } or { projects: [...] }
+      return (json.data || json.projects || []) as RealProject[]
     },
     staleTime: 30000, // 30s cache
     retry: 1,

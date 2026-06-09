@@ -51,6 +51,9 @@ function setupGracefulShutdown() {
   if (shutdownHandlersRegistered) return;
   shutdownHandlersRegistered = true;
 
+  // Increase max listeners to prevent warning when multiple modules register shutdown handlers
+  process.setMaxListeners(process.getMaxListeners() + 2);
+
   const shutdown = async (signal: string) => {
     console.info(`[db] Received ${signal}, disconnecting Prisma...`)
     try {
