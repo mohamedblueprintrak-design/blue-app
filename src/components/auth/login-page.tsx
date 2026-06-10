@@ -298,8 +298,9 @@ export default function LoginPage({ language }: LoginPageProps) {
   };
 
   const toggleLanguage = () => {
-    const newLang = language === "ar" ? "en" : "ar";
+    const newLang = isAr ? "en" : "ar";
     localStorage.setItem("blueprint-lang", newLang);
+    document.cookie = `blueprint-lang=${newLang}; path=/; max-age=31536000`;
     document.documentElement.dir = newLang === "ar" ? "rtl" : "ltr";
     document.documentElement.lang = newLang;
     window.dispatchEvent(new Event("blueprint-lang-change"));

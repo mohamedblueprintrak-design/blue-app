@@ -1,35 +1,20 @@
-import { useSyncExternalStore } from "react";
+import { useLocale } from "next-intl";
 import { dictionaries, type DictionaryPath } from "@/lib/i18n/dictionaries";
 
 // ===== Shared Language Hook =====
 // Centralized language detection to avoid duplication across 10+ page components.
-
-function getLangSnapshot(): "ar" | "en" {
-  if (typeof window === "undefined") return "ar";
-  const match = document.cookie.match(new RegExp('(^| )blueprint-lang=([^;]+)'));
-  if (match) return match[2] as "ar" | "en";
-  return (localStorage.getItem("blueprint-lang") as "ar" | "en") || "ar"; // Fallback for migration
-}
-
-function getServerSnapshot(): "ar" | "en" {
-  return "ar";
-}
-
-function subscribe(cb: () => void): () => void {
-  window.addEventListener("storage", cb);
-  window.addEventListener("blueprint-lang-change", cb);
-  return () => {
-    window.removeEventListener("storage", cb);
-    window.removeEventListener("blueprint-lang-change", cb);
-  };
-}
+// Uses next-intl's useLocale() as the source of truth — it reads the
+// blueprint-lang cookie on the server side, preventing hydration mismatch
+// (the old useSyncExternalStore approach always returned "ar" on the server,
+// causing a flash of Arabic content when the user's language is English).
 
 /**
- * Returns the current language from localStorage.
+ * Returns the current language, synced with next-intl's locale system.
  * Usage: `const lang = useLang(); const ar = lang === "ar";`
  */
 export function useLang(): "ar" | "en" {
-  return useSyncExternalStore(subscribe, getLangSnapshot, getServerSnapshot);
+  const locale = useLocale();
+  return (locale === "en" ? "en" : "ar") as "ar" | "en";
 }
 
 /**

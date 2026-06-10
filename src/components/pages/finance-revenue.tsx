@@ -104,15 +104,24 @@ export default function FinanceRevenuePage({ }: Props) {
   const tickColor = isDark ? "#94a3b8" : "#64748b";
   const legendColor = isDark ? "#cbd5e1" : "#334155";
 
-  // Fetch invoices for revenue data
+  // Fetch invoices for revenue data — robustly handles all API response shapes:
+  // { data: [...], invoices: [...] } | { invoices: [...] } | [...] | unexpected shapes
   const { data: invoicesData, isLoading } = useQuery<InvoiceRecord[]>({
     queryKey: ["invoices-revenue"],
     queryFn: async () => {
-      const res = await fetch("/api/invoices");
-      if (!res.ok) throw new Error("Failed");
-      const json = await res.json();
-      return json.invoices || json;
+      try {
+        const res = await fetch("/api/invoices");
+        if (!res.ok) throw new Error("Failed");
+        const json = await res.json();
+        // Try all known response shapes, then ensure we always return an array
+        const items = json.data ?? json.invoices ?? (Array.isArray(json) ? json : []);
+        return Array.isArray(items) ? items : [];
+      } catch {
+        return []; // Never let queryFn throw — return empty array on any error
+      }
     },
+    // Ensure data is always an array even if React Query returns stale/unexpected data
+    select: (data) => Array.isArray(data) ? data : [],
   });
   const invoices = useMemo(() => Array.isArray(invoicesData) ? invoicesData : [], [invoicesData]);
 
@@ -153,8 +162,8 @@ export default function FinanceRevenuePage({ }: Props) {
     return invoices.filter((inv) => {
       const matchSearch =
         inv.number.toLowerCase().includes(search.toLowerCase()) ||
-        inv.client?.name.toLowerCase().includes(search.toLowerCase()) ||
-        (ar ? inv.project?.name : inv.project?.nameEn || inv.project?.name).toLowerCase().includes(search.toLowerCase());
+        inv.client?.name?.toLowerCase().includes(search.toLowerCase()) ||
+        (ar ? inv.project?.name : inv.project?.nameEn || inv.project?.name)?.toLowerCase().includes(search.toLowerCase());
       const matchProject = filterProject === "all" || inv.projectId === filterProject;
       const matchClient = filterClient === "all" || inv.clientId === filterClient;
       const matchStatus = filterStatus === "all" || inv.status === filterStatus;
@@ -211,6 +220,7 @@ export default function FinanceRevenuePage({ }: Props) {
   const revenueByProject = useMemo(() => {
     const map: Record<string, { name: string; revenue: number; collected: number }> = {};
     filtered.forEach((inv) => {
+      if (!inv.project) return; // Skip invoices without project data
       const name = ar ? inv.project.name : inv.project.nameEn || inv.project.name;
       if (!map[inv.projectId]) map[inv.projectId] = { name, revenue: 0, collected: 0 };
       map[inv.projectId].revenue += inv.total;
