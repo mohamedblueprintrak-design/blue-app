@@ -203,7 +203,7 @@ export async function GET(request: NextRequest) {
             email: microsoftEmail,
             microsoftId,
             name: microsoftName,
-            role: 'ENGINEER',
+            role: 'VIEWER',
             isActive: true,
             emailVerified: new Date(), // Microsoft already verified the email
             password: '!oauth_' + crypto.randomUUID() + '_' + Date.now(), // Unusable random password — social login only

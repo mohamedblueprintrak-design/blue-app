@@ -12,6 +12,11 @@ if [ -z "$JWT_SECRET" ]; then
   exit 1
 fi
 
+if [ -z "$ENCRYPTION_KEY" ]; then
+  echo "ERROR: ENCRYPTION_KEY environment variable is not set."
+  exit 1
+fi
+
 # Run Prisma migrations
 echo "Running database migrations..."
 npx prisma migrate deploy

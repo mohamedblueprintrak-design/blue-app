@@ -90,7 +90,7 @@ services:
     environment:
       POSTGRES_USER: blueprint
       # SECURITY: Password from environment variable
-      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:?DATABASE_PASSWORD must be set}
       POSTGRES_DB: blueprint
     # SECURITY: NO exposed ports - only accessible from app container
     # Remove the ports section entirely for production

@@ -21,7 +21,23 @@ export async function GET(
     const id = idResult.id;
     const user = await db.user.findFirst({
       where: { id, ...orgFilter(ctx) },
-      include: {
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        phone: true,
+        department: true,
+        position: true,
+        avatar: true,
+        isActive: true,
+        emailVerified: true,
+        organizationId: true,
+        createdAt: true,
+        updatedAt: true,
+        deletedAt: true,
+        lastLogin: true,
+        twoFactorEnabled: true,
         employee: true,
         projects: {
           include: { project: { select: { id: true, name: true, number: true } } },
@@ -92,6 +108,23 @@ export async function PUT(
     const user = await db.user.update({
       where: { id },
       data: updateData,
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        phone: true,
+        department: true,
+        position: true,
+        avatar: true,
+        isActive: true,
+        emailVerified: true,
+        organizationId: true,
+        createdAt: true,
+        updatedAt: true,
+        lastLogin: true,
+        twoFactorEnabled: true,
+      },
     });
 
     return NextResponse.json(user);

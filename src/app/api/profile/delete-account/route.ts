@@ -91,26 +91,23 @@ export async function POST(request: NextRequest) {
     }
 
     // ── Step 3: Rate limiting (1 attempt per hour per user) ──
+    // For destructive operations, fail-closed: if Redis is unavailable, block the request
     const rateLimitResult = await rateLimit(`delete-account:${ctx.userId}`, 1, 3600);
     if (!rateLimitResult.allowed) {
-      // Fallback: also check in-memory rate limit
-      const memResult = inMemoryRateLimit(ctx.userId);
-      if (!memResult.allowed) {
-        return NextResponse.json(
-          {
-            error: {
-              code: 'RATE_LIMITED',
-              message: `تم تجاوز عدد المحاولات المسموحة. يرجى المحاولة مرة أخرى بعد ${memResult.retryAfterSeconds} ثانية`,
-            },
+      return NextResponse.json(
+        {
+          error: {
+            code: 'RATE_LIMITED',
+            message: 'تم تجاوز عدد المحاولات المسموحة. يرجى المحاولة مرة أخرى بعد ساعة',
           },
-          {
-            status: 429,
-            headers: {
-              'Retry-After': String(memResult.retryAfterSeconds),
-            },
-          }
-        );
-      }
+        },
+        {
+          status: 429,
+          headers: {
+            'Retry-After': '3600',
+          },
+        }
+      );
     }
 
     // ── Step 4: Verify password ──
