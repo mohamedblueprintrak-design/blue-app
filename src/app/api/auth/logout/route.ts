@@ -6,7 +6,7 @@ import {
   hashToken,
   getAuthCookieOptions,
 } from '@/lib/auth/token-utils';
-import { getAuthContext } from '@/app/api/utils/auth';
+import { requireVerifiedAuth } from '@/app/api/utils/auth';
 import { authService } from '@/lib/auth/auth-service';
 import { db } from '@/lib/db';
 
@@ -37,9 +37,9 @@ export async function POST(request: NextRequest) {
     }
 
     if (!targetUserId) {
-      const ctx = getAuthContext(request);
-      if (ctx?.userId) {
-        targetUserId = ctx.userId;
+      const authResult = await requireVerifiedAuth(request);
+      if ('user' in authResult) {
+        targetUserId = authResult.user.userId;
       }
     }
 

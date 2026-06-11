@@ -19,7 +19,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { requireAuthContext, AuthContext, orgFilter, orgCreate } from './auth';
+import { requireVerifiedAuth, AuthContext, orgFilter, orgCreate } from './auth';
 import { Permission } from '@/lib/auth/types';
 import { hasPermission } from '@/lib/auth/modules/authorization';
 import { forbiddenResponse } from './response';
@@ -379,8 +379,8 @@ export function withCrudPermissions(
   handler: (request: NextRequest, ctx: CrudAuthContext) => Promise<NextResponse>
 ): (request: NextRequest) => Promise<NextResponse> {
   return async (request: NextRequest): Promise<NextResponse> => {
-    // Step 1: Authenticate
-    const authResult = requireAuthContext(request);
+    // Step 1: Authenticate with JWT re-verification
+    const authResult = await requireVerifiedAuth(request);
     if ('error' in authResult) return authResult.error;
 
     const user = authResult.user;
@@ -436,12 +436,12 @@ export function withCrudPermissions(
  *     // ... proceed with create logic
  *   }
  */
-export function requireCrudPermission(
+export async function requireCrudPermission(
   request: NextRequest,
   resource: string,
   action: CrudAction
-): { user: AuthContext; permission: Permission | null } | { error: NextResponse } {
-  const authResult = requireAuthContext(request);
+): Promise<{ user: AuthContext; permission: Permission | null } | { error: NextResponse }> {
+  const authResult = await requireVerifiedAuth(request);
   if ('error' in authResult) return authResult;
 
   const permission = getRequiredPermission(resource, action);
@@ -465,12 +465,12 @@ export function requireCrudPermission(
  *     // ... proceed with logic
  *   }
  */
-export function requireMethodPermission(
+export async function requireMethodPermission(
   request: NextRequest,
   resource: string
-): { user: AuthContext; action: CrudAction; permission: Permission | null } | { error: NextResponse } {
+): Promise<{ user: AuthContext; action: CrudAction; permission: Permission | null } | { error: NextResponse }> {
   const action = METHOD_ACTION_MAP[request.method.toUpperCase()] || 'read';
-  const result = requireCrudPermission(request, resource, action);
+  const result = await requireCrudPermission(request, resource, action);
   if ('error' in result) return result;
   return { user: result.user, action, permission: result.permission };
 }

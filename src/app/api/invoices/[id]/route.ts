@@ -100,7 +100,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
           { status: 400 }
         );
       }
-      lineItems = itemsValidation.data.map(item => sanitizeObject(item as unknown as Record<string, unknown>)) as unknown as typeof itemsValidation.data;
+      lineItems = itemsValidation.data.map(item => sanitizeObject(item as Record<string, unknown>)) as typeof itemsValidation.data;
       subtotal = lineItems.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
       tax = subtotal * TAX_RATE;
       total = subtotal + tax;

@@ -139,6 +139,57 @@ export async function GET(request: NextRequest) {
 
     log.info('Google OAuth: user authenticated', { googleEmail, googleId });
 
+    // ── OAuth Account Linking ──────────────────────────────────────
+    // If the user initiated linking from account settings, link this
+    // Google account to their existing account instead of logging in.
+    const linkIntent = request.cookies.get('oauth_link_intent')?.value;
+    if (linkIntent === 'google') {
+      // The user is already authenticated — link the Google account
+      // We need to verify the JWT from the auth cookie
+      const authToken = request.cookies.get('blue_token')?.value;
+      if (!authToken) {
+        return NextResponse.redirect(
+          `${baseUrl}/login?error=${encodeURIComponent('يجب تسجيل الدخول أولاً لربط حساب جوجل')}`
+        );
+      }
+
+      try {
+        const { payload } = await import('jose').then(j => j.jwtVerify(authToken, (await import('@/lib/auth/jwt-secret')).getJwtSecretBytes(), {
+          issuer: 'blueprint-saas',
+          audience: 'blueprint-users',
+        }));
+
+        const userId = payload.userId as string;
+        // Check this Google ID isn't already linked to another account
+        const existingGoogleUser = await db.user.findFirst({
+          where: { googleId, NOT: { id: userId } },
+        });
+        if (existingGoogleUser) {
+          return NextResponse.redirect(
+            `${baseUrl}/dashboard?error=${encodeURIComponent('حساب جوجل هذا مرتبط بحساب آخر بالفعل')}`
+          );
+        }
+
+        // Link the Google account
+        await db.user.update({
+          where: { id: userId },
+          data: { googleId, avatar: googlePicture || undefined, emailVerified: new Date() },
+        });
+
+        log.info('Google OAuth: account linked', { userId, googleId });
+
+        const response = NextResponse.redirect(`${baseUrl}/dashboard?linked=google`);
+        response.cookies.set('oauth_link_intent', '', { path: '/', maxAge: 0 });
+        response.cookies.set('google_oauth_state', '', { path: '/', maxAge: 0 });
+        response.cookies.set('google_oauth_verifier', '', { path: '/', maxAge: 0 });
+        return response;
+      } catch {
+        return NextResponse.redirect(
+          `${baseUrl}/login?error=${encodeURIComponent('انتهت صلاحية الجلسة. سجل دخولك وحاول مرة أخرى.')}`
+        );
+      }
+    }
+
     // ── Find or create user ────────────────────────────────────────
     let user;
     let isNewUser = false;

@@ -321,7 +321,7 @@ export async function POST(request: NextRequest) {
     }
     
     // Sanitize the validated items
-    const lineItems = itemsValidation.data.map(item => sanitizeObject(item as unknown as Record<string, unknown>)) as unknown as typeof itemsValidation.data;
+    const lineItems = itemsValidation.data.map(item => sanitizeObject(item as Record<string, unknown>)) as typeof itemsValidation.data;
 
     const subtotal = lineItems.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
     // tax is calculated inside createInvoice dynamically from DB settings

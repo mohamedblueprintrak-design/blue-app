@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
     // 3. Process Excel
     if (isExcel) {
       const workbook = new ExcelJS.Workbook();
-      await workbook.xlsx.load(Buffer.from(buffer) as unknown as ArrayBuffer);
+      await workbook.xlsx.load(new Uint8Array(Buffer.from(buffer)).buffer as ArrayBuffer);
       const worksheet = workbook.worksheets[0];
       if (!worksheet) {
         return errorResponse("The excel sheet is empty", "VALIDATION_ERROR", 400);
