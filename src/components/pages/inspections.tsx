@@ -219,7 +219,7 @@ export default function Inspections({ language, projectId: _projectId }: Inspect
       if (filterType !== "all") params.set("inspectionType", filterType);
       const res = await fetch(`/api/inspections?${params}`);
       if (!res.ok) throw new Error("Failed to fetch inspections");
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -232,7 +232,7 @@ export default function Inspections({ language, projectId: _projectId }: Inspect
     queryFn: async () => {
       const res = await fetch("/api/projects-simple");
       if (!res.ok) return [];
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 

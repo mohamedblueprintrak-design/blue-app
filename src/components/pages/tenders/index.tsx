@@ -36,7 +36,7 @@ export default function TendersPage({ language: _language }: TendersPageProps) {
       if (search) params.set("search", search);
       const res = await fetch(`/api/tenders?${params.toString()}`);
       if (!res.ok) throw new Error("Failed to fetch tenders");
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -49,7 +49,7 @@ export default function TendersPage({ language: _language }: TendersPageProps) {
     queryFn: async () => {
       const res = await fetch(`/api/tenders/${selectedTender!.id}`);
       if (!res.ok) throw new Error("Failed to fetch tender detail");
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
     enabled: !!selectedTender,
   });

@@ -106,7 +106,7 @@ export default function Submittals({ language, projectId }: SubmittalsProps) {
       if (filterStatus !== "all") params.set("status", filterStatus);
       const res = await fetch(`/api/submittals?${params}`);
       if (!res.ok) throw new Error("Failed to fetch submittals");
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -115,7 +115,7 @@ export default function Submittals({ language, projectId }: SubmittalsProps) {
     queryFn: async () => {
       const res = await fetch("/api/projects-simple");
       if (!res.ok) return [];
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 

@@ -138,7 +138,7 @@ export default function RFI({ language, projectId }: RFIProps) {
       if (filterProject !== "all") params.set("projectId", filterProject);
       const res = await fetch(`/api/rfi?${params}`);
       if (!res.ok) throw new Error("Failed to fetch RFIs");
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -147,7 +147,7 @@ export default function RFI({ language, projectId }: RFIProps) {
     queryFn: async () => {
       const res = await fetch("/api/projects-simple");
       if (!res.ok) return [];
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -156,7 +156,7 @@ export default function RFI({ language, projectId }: RFIProps) {
     queryFn: async () => {
       const res = await fetch("/api/users-simple");
       if (!res.ok) return [];
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 

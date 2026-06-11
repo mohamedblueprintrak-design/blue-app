@@ -50,7 +50,7 @@ export default function ContractorsPage({ language, projectId, initialTab }: Con
       if (categoryFilter && categoryFilter !== "all") params.set("category", categoryFilter);
       const res = await fetch(`/api/contractors?${params.toString()}`);
       if (!res.ok) return [];
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
   const contractors = useMemo(() => Array.isArray(contractorsData) ? contractorsData : [], [contractorsData]);
@@ -61,7 +61,7 @@ export default function ContractorsPage({ language, projectId, initialTab }: Con
     queryFn: async () => {
       const res = await fetch(`/api/contractors/${selectedContractor}`);
       if (!res.ok) throw new Error("Failed");
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
     enabled: !!selectedContractor,
   });

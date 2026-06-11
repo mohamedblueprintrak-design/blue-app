@@ -172,7 +172,7 @@ export default function Meetings({ language, projectId }: MeetingsProps) {
       if (filterProject !== "all") params.set("projectId", filterProject);
       const res = await fetch(`/api/meetings?${params}`);
       if (!res.ok) throw new Error("Failed to fetch meetings");
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -182,7 +182,7 @@ export default function Meetings({ language, projectId }: MeetingsProps) {
     queryFn: async () => {
       const res = await fetch("/api/projects-simple");
       if (!res.ok) return [];
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -192,7 +192,7 @@ export default function Meetings({ language, projectId }: MeetingsProps) {
     queryFn: async () => {
       const res = await fetch("/api/users-simple");
       if (!res.ok) return [];
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 

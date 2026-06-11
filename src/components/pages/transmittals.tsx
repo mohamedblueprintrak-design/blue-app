@@ -187,7 +187,7 @@ export default function Transmittals({ language, projectId }: TransmittalsProps)
       if (filterStatus !== "all") params.set("status", filterStatus);
       const res = await fetch(`/api/transmittals?${params}`);
       if (!res.ok) throw new Error("Failed to fetch transmittals");
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -197,7 +197,7 @@ export default function Transmittals({ language, projectId }: TransmittalsProps)
     queryFn: async () => {
       const res = await fetch("/api/projects-simple");
       if (!res.ok) return [];
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -207,7 +207,7 @@ export default function Transmittals({ language, projectId }: TransmittalsProps)
     queryFn: async () => {
       const res = await fetch("/api/users-simple");
       if (!res.ok) return [];
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 

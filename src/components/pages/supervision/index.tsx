@@ -53,7 +53,7 @@ export default function Supervision({ language, projectId }: SupervisionProps) {
       if (selectedStage !== "all") params.set("stage", selectedStage);
       const res = await fetch(`/api/supervision-checklists?${params}`);
       if (!res.ok) throw new Error("Failed to fetch checklists");
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -66,7 +66,7 @@ export default function Supervision({ language, projectId }: SupervisionProps) {
       if (violationFilterSeverity !== "all") params.set("severity", violationFilterSeverity);
       const res = await fetch(`/api/violations?${params}`);
       if (!res.ok) throw new Error("Failed to fetch violations");
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -75,7 +75,7 @@ export default function Supervision({ language, projectId }: SupervisionProps) {
     queryFn: async () => {
       const res = await fetch("/api/projects-simple");
       if (!res.ok) return [];
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 

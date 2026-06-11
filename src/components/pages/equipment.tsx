@@ -114,7 +114,7 @@ export default function EquipmentPage({ language }: EquipmentPageProps) {
       const params = statusFilter !== "all" ? `?status=${statusFilter}` : "";
       const res = await fetch(`/api/equipment${params}`);
       if (!res.ok) throw new Error("Failed to fetch equipment");
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 

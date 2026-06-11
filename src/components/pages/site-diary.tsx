@@ -124,7 +124,7 @@ export default function SiteDiary({ language, projectId }: SiteDiaryProps) {
       if (filterProject !== "all") params.set("projectId", filterProject);
       const res = await fetch(`/api/site-diary?${params}`);
       if (!res.ok) throw new Error("Failed to fetch site diaries");
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -133,7 +133,7 @@ export default function SiteDiary({ language, projectId }: SiteDiaryProps) {
     queryFn: async () => {
       const res = await fetch("/api/projects-simple");
       if (!res.ok) return [];
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 

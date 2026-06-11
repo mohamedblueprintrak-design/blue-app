@@ -140,7 +140,7 @@ export default function KnowledgePage({ language, projectId }: KnowledgePageProp
       if (projectId) params.set("projectId", projectId);
       const res = await fetch(`/api/knowledge?${params.toString()}`);
       if (!res.ok) throw new Error("Failed to fetch");
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -150,7 +150,7 @@ export default function KnowledgePage({ language, projectId }: KnowledgePageProp
     queryFn: async () => {
       const res = await fetch(`/api/knowledge/${selectedArticle!.id}`);
       if (!res.ok) throw new Error("Failed to fetch");
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
     enabled: !!selectedArticle,
   });
@@ -232,7 +232,7 @@ export default function KnowledgePage({ language, projectId }: KnowledgePageProp
       if (projectId) params.set("projectId", projectId);
       const res = await fetch(`/api/knowledge?${params.toString()}`);
       if (!res.ok) return [];
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
   allArticlesQuery.data?.forEach((a) => {

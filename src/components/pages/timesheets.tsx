@@ -67,7 +67,7 @@ export function TimesheetsPage({ language, projectId: _projectId }: TimesheetsPr
       if (filterEmployee !== "all") params.set("employeeId", filterEmployee);
       const res = await fetch(`/api/timesheets?${params}`);
       if (!res.ok) throw new Error("Failed to fetch timesheets");
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -92,7 +92,7 @@ export function TimesheetsPage({ language, projectId: _projectId }: TimesheetsPr
     queryFn: async () => {
       const res = await fetch("/api/projects-simple");
       if (!res.ok) return [];
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 

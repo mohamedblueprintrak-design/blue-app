@@ -174,7 +174,7 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
     queryFn: async () => {
       const res = await fetch("/api/documents");
       if (!res.ok) throw new Error("Failed to fetch");
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -184,7 +184,7 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
     queryFn: async () => {
       const res = await fetch("/api/projects-simple");
       if (!res.ok) return [];
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 

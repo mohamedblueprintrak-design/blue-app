@@ -55,7 +55,7 @@ export default function TasksKanban({ language, projectId }: TasksKanbanProps) {
       const res = await fetch(`/api/tasks?${params}`);
       if (!res.ok) throw new Error("Failed to fetch tasks");
       const json = await res.json();
-      return json.tasks || json;
+      return json.data || json.tasks || json;
     },
   });
   const tasks = useMemo(() => Array.isArray(tasksData) ? tasksData : [], [tasksData]);

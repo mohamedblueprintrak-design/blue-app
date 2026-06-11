@@ -170,7 +170,7 @@ export default function RecurringInvoicesPage({ language }: RecurringInvoicesPag
       const res = await fetch("/api/recurring-invoices");
       if (!res.ok) throw new Error("Failed to fetch");
       const json = await res.json();
-      return json.recurringInvoices || json;
+      return json.data || json.recurringInvoices || json;
     },
   });
 

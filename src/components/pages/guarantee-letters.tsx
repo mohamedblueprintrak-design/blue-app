@@ -149,7 +149,7 @@ export default function GuaranteeLettersPage({ language, projectId }: GuaranteeL
       if (filterStatus && filterStatus !== "all") params.set("status", filterStatus);
       const res = await fetch(`/api/guarantee-letters?${params.toString()}`);
       if (!res.ok) throw new Error("Failed");
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -158,7 +158,7 @@ export default function GuaranteeLettersPage({ language, projectId }: GuaranteeL
     queryFn: async () => {
       const res = await fetch("/api/projects-simple");
       if (!res.ok) return [];
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 

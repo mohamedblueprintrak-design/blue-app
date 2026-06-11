@@ -146,7 +146,7 @@ export default function PurchaseOrdersPage({ language }: PurchaseOrdersPageProps
       const params = statusFilter !== "all" ? `?status=${statusFilter}` : "";
       const res = await fetch(`/api/purchase-orders${params}`);
       if (!res.ok) throw new Error("Failed to fetch purchase orders");
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -156,7 +156,7 @@ export default function PurchaseOrdersPage({ language }: PurchaseOrdersPageProps
     queryFn: async () => {
       const res = await fetch("/api/suppliers");
       if (!res.ok) return [];
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -166,7 +166,7 @@ export default function PurchaseOrdersPage({ language }: PurchaseOrdersPageProps
     queryFn: async () => {
       const res = await fetch("/api/projects-simple");
       if (!res.ok) return [];
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 

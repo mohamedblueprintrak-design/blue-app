@@ -149,7 +149,7 @@ export default function ProgressClaimsPage({ language, projectId }: ProgressClai
       if (filterStatus && filterStatus !== "all") params.set("status", filterStatus);
       const res = await fetch(`/api/progress-claims?${params.toString()}`);
       if (!res.ok) throw new Error("Failed");
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -158,7 +158,7 @@ export default function ProgressClaimsPage({ language, projectId }: ProgressClai
     queryFn: async () => {
       const res = await fetch("/api/projects-simple");
       if (!res.ok) return [];
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 

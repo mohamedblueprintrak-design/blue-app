@@ -164,7 +164,7 @@ export default function PaymentsPage({ language, projectId }: PaymentsPageProps)
       const res = await fetch(`/api/payments${projectId ? `?projectId=${projectId}` : ''}`);
       if (!res.ok) throw new Error("Failed to fetch");
       const json = await res.json();
-      return json.payments || json;
+      return json.data || json.payments || json;
     },
   });
 

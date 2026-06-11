@@ -67,7 +67,7 @@ export default function EmployeesPage({ language }: EmployeesPageProps) {
       const res = await fetch(`/api/employees?${params}`);
       if (!res.ok) throw new Error("Failed to fetch employees");
       const json = await res.json();
-      return json.employees || json;
+      return json.data || json.employees || json;
     },
   });
 

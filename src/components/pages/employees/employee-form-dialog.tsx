@@ -35,6 +35,15 @@ interface EmployeeFormDialogProps {
   isSaving: boolean;
 }
 
+const EMPTY_FORM: EmployeeFormData = {
+  userId: "",
+  department: "",
+  position: "",
+  salary: "0",
+  employmentStatus: "ACTIVE",
+  hireDate: "",
+};
+
 export function EmployeeFormDialog({
   open,
   onOpenChange,
@@ -44,19 +53,9 @@ export function EmployeeFormDialog({
   onSave,
   isSaving,
 }: EmployeeFormDialogProps) {
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- emptyForm is a stable default values object
-  const emptyForm = {
-    userId: "",
-    department: "",
-    position: "",
-    salary: "0",
-    employmentStatus: "ACTIVE" as const,
-    hireDate: "",
-  };
-
   const form = useForm<EmployeeFormData>({
     resolver: zodResolver(employeeSchema) as unknown as Resolver<EmployeeFormData>,
-    defaultValues: emptyForm,
+    defaultValues: EMPTY_FORM,
   });
 
   const { register, handleSubmit, formState: { errors }, reset, setValue, watch } = form;
@@ -72,9 +71,9 @@ export function EmployeeFormDialog({
         hireDate: employee.hireDate ? employee.hireDate.split("T")[0] : "",
       });
     } else {
-      reset(emptyForm);
+      reset(EMPTY_FORM);
     }
-  }, [employee, reset, emptyForm]);
+  }, [employee, reset]);
 
   return (
     <Dialog

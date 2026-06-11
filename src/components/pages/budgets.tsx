@@ -146,7 +146,7 @@ export default function BudgetsPage({ language, projectId }: BudgetsPageProps) {
   // Fetch projects
   const { data: projects = [] } = useQuery<ProjectOption[]>({
     queryKey: ["projects-list"],
-    queryFn: async () => { const res = await fetch("/api/projects-simple"); if (!res.ok) return []; return res.json(); },
+    queryFn: async () => { const res = await fetch("/api/projects-simple"); if (!res.ok) return []; const json = await res.json(); return json.data || json; },
   });
 
   // Fetch budgets for selected project
@@ -155,7 +155,7 @@ export default function BudgetsPage({ language, projectId }: BudgetsPageProps) {
     queryFn: async () => {
       const res = await fetch(`/api/budgets?projectId=${selectedProject}`);
       if (!res.ok) return [];
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
     enabled: !!selectedProject,
   });

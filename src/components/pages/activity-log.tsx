@@ -366,7 +366,7 @@ export default function ActivityLog({ language: lang, projectId }: Props) {
 
       const res = await fetch(`/api/activity-log?${params.toString()}`);
       if (!res.ok) return [];
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
     refetchInterval: 60000, // Auto-refresh every 60 seconds
   });
