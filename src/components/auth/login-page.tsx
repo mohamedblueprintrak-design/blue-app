@@ -112,7 +112,7 @@ interface DemoCredential {
   labelEn: string;
 }
 
-export default function LoginPage({ language }: LoginPageProps) {
+export default function LoginPage({ language: _language }: LoginPageProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);

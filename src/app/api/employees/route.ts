@@ -4,7 +4,7 @@ import { validateBody, employeeCreateSchema } from '@/lib/api-validation';
 import { requireVerifiedPermission, orgFilter, orgCreate, isAdmin, isHR } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
-import { sanitizeObject } from '@/lib/security/sanitize';
+
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 import { parsePaginationParams, buildPaginationMeta, calculateSkip } from '../utils/pagination';
 import { insensitiveContains } from '../utils/db';

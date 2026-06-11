@@ -13,7 +13,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Checkbox } from "@/components/ui/checkbox";
 import { TableVirtuoso } from "react-virtuoso";
-import { forwardRef, type ComponentPropsWithoutRef, type ReactNode } from "react";
+import { forwardRef, type ComponentPropsWithoutRef } from "react";
 import { Building2, MapPin, HardHat, Eye, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { ProjectRow } from "./types";

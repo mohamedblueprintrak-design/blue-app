@@ -14,23 +14,23 @@ import dynamic from 'next/dynamic';
 
 // Recharts components use ForwardRef + defaultProps which are incompatible with
 // next/dynamic's generic type constraints. Using `dynamic<any>` is the standard
-// workaround. @ts-ignore suppresses the type mismatch that some TypeScript
+// workaround. @ts-expect-error suppresses the type mismatch that some TypeScript
 // versions flag on the dynamic import return type.
-// @ts-ignore — Recharts ForwardRef incompatibility with next/dynamic (known issue)
+// @ts-expect-error — Recharts ForwardRef incompatibility with next/dynamic (known issue)
 const BarChart = dynamic<any>(() => import('recharts').then((mod) => mod.BarChart), { ssr: false });
-// @ts-ignore — Recharts ForwardRef incompatibility with next/dynamic (known issue)
+// @ts-expect-error — Recharts ForwardRef incompatibility with next/dynamic (known issue)
 const Bar = dynamic<any>(() => import('recharts').then((mod) => mod.Bar), { ssr: false });
-// @ts-ignore — Recharts ForwardRef incompatibility with next/dynamic (known issue)
+// @ts-expect-error — Recharts ForwardRef incompatibility with next/dynamic (known issue)
 const XAxis = dynamic<any>(() => import('recharts').then((mod) => mod.XAxis), { ssr: false });
-// @ts-ignore — Recharts ForwardRef incompatibility with next/dynamic (known issue)
+// @ts-expect-error — Recharts ForwardRef incompatibility with next/dynamic (known issue)
 const YAxis = dynamic<any>(() => import('recharts').then((mod) => mod.YAxis), { ssr: false });
-// @ts-ignore — Recharts ForwardRef incompatibility with next/dynamic (known issue)
+// @ts-expect-error — Recharts ForwardRef incompatibility with next/dynamic (known issue)
 const CartesianGrid = dynamic<any>(() => import('recharts').then((mod) => mod.CartesianGrid), { ssr: false });
-// @ts-ignore — Recharts ForwardRef incompatibility with next/dynamic (known issue)
+// @ts-expect-error — Recharts ForwardRef incompatibility with next/dynamic (known issue)
 const Tooltip = dynamic<any>(() => import('recharts').then((mod) => mod.Tooltip), { ssr: false });
-// @ts-ignore — Recharts ForwardRef incompatibility with next/dynamic (known issue)
+// @ts-expect-error — Recharts ForwardRef incompatibility with next/dynamic (known issue)
 const ResponsiveContainer = dynamic<any>(() => import('recharts').then((mod) => mod.ResponsiveContainer), { ssr: false });
-// @ts-ignore — Recharts ForwardRef incompatibility with next/dynamic (known issue)
+// @ts-expect-error — Recharts ForwardRef incompatibility with next/dynamic (known issue)
 const Legend = dynamic<any>(() => import('recharts').then((mod) => mod.Legend), { ssr: false });
 
 import { DollarSign, TrendingUp, TrendingDown, Wallet, ArrowUpRight, ArrowDownRight, Briefcase, FileText, FileSpreadsheet, Loader2, Target, BarChart3, Activity } from 'lucide-react'

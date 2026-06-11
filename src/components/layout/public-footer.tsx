@@ -27,11 +27,7 @@ export default function PublicFooter() {
   const { lang: language } = useLanguage();
   const t = (ar: string, en: string) => (language === "ar" ? ar : en);
   
-  const [year, setYear] = useState(2025);
-
-  useEffect(() => {
-    setYear(new Date().getFullYear());
-  }, []);
+  const [year] = useState(() => new Date().getFullYear());
 
   const [company, setCompany] = useState({
     phone: "+971 50 161 1234",
