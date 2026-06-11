@@ -88,7 +88,7 @@ export class OpenAICompatibleProvider implements AIProvider {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 120_000);
     try {
-    const response = await fetch(`${this.baseUrl}/chat/completions`, {
+      const response = await fetch(`${this.baseUrl}/chat/completions`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -143,6 +143,9 @@ export class OpenAICompatibleProvider implements AIProvider {
       }
     } finally {
       reader.releaseLock();
+    }
+    } finally {
+      clearTimeout(timeout);
     }
   }
 

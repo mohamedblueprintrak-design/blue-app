@@ -101,7 +101,7 @@ export async function POST(request: NextRequest) {
 
     // Validate employmentStatus enum value
     const validStatuses = ['ACTIVE', 'ON_LEAVE', 'TERMINATED', 'PROBATION'];
-    const resolvedStatus = validStatuses.includes(employmentStatus) ? employmentStatus : 'ACTIVE';
+    const resolvedStatus = employmentStatus && validStatuses.includes(employmentStatus) ? employmentStatus : 'ACTIVE';
 
     // Check if employee already exists for this user
     const existing = await db.employee.findUnique({

@@ -84,7 +84,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   }, [setCurrentPage]);
 
   // Filter commands based on bilingual search
-  const filteredCommands = allCommands().filter(
+  const filteredCommands = allCommands.filter(
     (cmd) =>
       cmd.label.includes(search) ||
       cmd.labelEn.toLowerCase().includes(search.toLowerCase()) ||

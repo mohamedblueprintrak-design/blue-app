@@ -212,7 +212,6 @@ async function exportFinancial(lang: 'ar' | 'en', org: Record<string, unknown> =
     { key: 'paid', width: 18 },
     { key: 'pending', width: 18 },
   ];
-  monthlySheet.addRow([labels.date, labels.invoiced, labels.paid, labels.pending]);
   styleHeaderRow(monthlySheet, 4);
 
   // TODO: Refactor to a single groupBy query instead of sequential aggregate queries per month (N+1)
@@ -233,7 +232,7 @@ async function exportFinancial(lang: 'ar' | 'en', org: Record<string, unknown> =
       lang === 'ar' ? arMonths[monthStart.getMonth()] : enMonths[monthStart.getMonth()],
       invoiced._sum.total || 0,
       paid._sum.paidAmount || 0,
-      (invoiced._sum.total || 0) - (paid._sum.paidAmount || 0),
+      Number(invoiced._sum.total || 0) - Number(paid._sum.paidAmount || 0),
     ]);
   }
 

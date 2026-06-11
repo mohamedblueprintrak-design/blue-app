@@ -190,7 +190,7 @@ export default function SuppliersPage({ language }: SuppliersPageProps) {
 
   // Create mutation
   const createMutation = useMutation({
-    mutationFn: async (data: Record<string, string>) => {
+    mutationFn: async (data: Record<string, string | null>) => {
       const res = await fetch("/api/suppliers", {
         method: "POST",
         headers: getMutationHeaders(),
@@ -212,7 +212,7 @@ export default function SuppliersPage({ language }: SuppliersPageProps) {
 
   // Update mutation
   const updateMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: Record<string, string> }) => {
+    mutationFn: async ({ id, data }: { id: string; data: Record<string, string | null> }) => {
       const res = await fetch(`/api/suppliers/${id}`, {
         method: "PUT",
         headers: getMutationHeaders(),

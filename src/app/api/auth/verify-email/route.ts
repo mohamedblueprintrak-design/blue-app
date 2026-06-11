@@ -17,8 +17,8 @@ import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
  */
 export async function GET(request: NextRequest) {
   // Rate limit to prevent brute-force guessing of email verification tokens
-  const { allowed: _allowed, result } = await withRateLimit(request, 'emailVerification');
-  const blocked = rateLimitResponse(result);
+  const rlResult = await withRateLimit(request, 'emailVerification');
+  const blocked = rateLimitResponse(rlResult.result);
   if (blocked) return blocked;
 
   const { searchParams } = new URL(request.url);
@@ -28,19 +28,19 @@ export async function GET(request: NextRequest) {
     return errorResponse('رمز التحقق مطلوب', 'TOKEN_REQUIRED', 400);
   }
 
-  const result = await authService.verifyEmail(token);
+  const verifyResult = await authService.verifyEmail(token);
 
-  if (!result.success) {
+  if (!verifyResult.success) {
     return errorResponse(
-      result.error || 'فشل التحقق من البريد الإلكتروني',
-      result.code || 'VERIFICATION_FAILED',
+      verifyResult.error || 'فشل التحقق من البريد الإلكتروني',
+      verifyResult.code || 'VERIFICATION_FAILED',
       400
     );
   }
 
   return successResponse({
     message: 'تم التحقق من بريدك الإلكتروني بنجاح',
-    user: result.user,
+    user: verifyResult.user,
   });
 }
 
@@ -48,8 +48,8 @@ export async function GET(request: NextRequest) {
  * POST - Resend verification email
  */
 export async function POST(request: NextRequest) {
-  const { allowed: _allowed, result } = await withRateLimit(request, 'emailVerification');
-  const blocked = rateLimitResponse(result);
+  const rlResult = await withRateLimit(request, 'emailVerification');
+  const blocked = rateLimitResponse(rlResult.result);
   if (blocked) return blocked;
 
   try {

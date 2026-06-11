@@ -127,6 +127,9 @@ export const bidCreateSchema = z.object({
   totalScore: z.coerce.number().min(0).max(100).optional().default(0),
   status: z.string().max(50).default('SUBMITTED'),
   deadline: z.string().optional().default(''),
+  contractorContact: z.string().max(200).optional().default(''),
+  notes: z.string().max(2000).optional().default(''),
+  evaluationNotes: z.string().max(2000).optional().default(''),
 });
 
 export type BidCreateData = z.infer<typeof bidCreateSchema>;
