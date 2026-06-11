@@ -213,6 +213,9 @@ export class CacheManager {
   private sets = 0;
   private deletes = 0;
 
+  /** Public getter for key prefix — needed by namespace factory and external consumers */
+  get prefix(): string { return this.keyPrefix; }
+
   constructor(config: CacheManagerConfig = {}) {
     this.keyPrefix = config.keyPrefix ?? 'blueprint';
     this.defaultTtl = config.defaultTtl ?? 300; // 5 minutes
@@ -593,7 +596,7 @@ export function createCacheNamespace<T = unknown>(
   prefix: string,
   cacheManager: CacheManager
 ): CacheNamespace<T> {
-  const keyPrefix = `${cacheManager['keyPrefix']}:${prefix}`;
+  const keyPrefix = `${cacheManager.prefix}:${prefix}`;
 
   return {
     prefix,

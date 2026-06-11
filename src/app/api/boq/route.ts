@@ -7,10 +7,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { log } from '@/lib/logger';
 import { Permission } from '@/lib/auth/types';
-import { requireVerifiedPermission, orgFilter, orgCreate } from '../utils/auth';
+import { requireVerifiedPermission, orgFilter, orgCreate, orgCheck } from '../utils/auth';
 import { z } from 'zod';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 import { cachedQuery, invalidateCache, CACHE_TTL, buildCacheKey } from '@/lib/cache/query-cache';
+import { parsePaginationParams, buildPaginationMeta, calculateSkip } from '../utils/pagination';
 
 // Zod schemas for BOQ operations
 const boqItemCreateSchema = z.object({
@@ -47,29 +48,35 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const projectId = searchParams.get("projectId");
     const category = searchParams.get("category");
+    const { page, limit } = parsePaginationParams(searchParams);
 
     const where: Record<string, unknown> = { deletedAt: null };
     if (projectId) where.projectId = projectId;
     if (category) where.category = category;
 
-    const cacheKey = buildCacheKey('boq', 'list', auth.organizationId || 'global', projectId || '', category || '');
+    const cacheKey = buildCacheKey('boq', 'list', auth.organizationId || 'global', projectId || '', category || '', `p${page}`, `l${limit}`);
 
     const result = await cachedQuery(cacheKey, async () => {
-      const items = await db.bOQItem.findMany({
-        where: { ...where, ...orgFilter(auth) },
-        orderBy: [{ category: "asc" }, { code: "asc" }],
-        select: {
-          id: true,
-          projectId: true,
-          code: true,
-          description: true,
-          unit: true,
-          quantity: true,
-          unitPrice: true,
-          total: true,
-          category: true,
-        },
-      });
+      const [items, total] = await Promise.all([
+        db.bOQItem.findMany({
+          where: { ...where, ...orgFilter(auth) },
+          orderBy: [{ category: "asc" }, { code: "asc" }],
+          skip: calculateSkip(page, limit),
+          take: limit,
+          select: {
+            id: true,
+            projectId: true,
+            code: true,
+            description: true,
+            unit: true,
+            quantity: true,
+            unitPrice: true,
+            total: true,
+            category: true,
+          },
+        }),
+        db.bOQItem.count({ where: { ...where, ...orgFilter(auth) } }),
+      ]);
 
       // Calculate summary
       const summary = {
@@ -86,7 +93,7 @@ export async function GET(request: NextRequest) {
         summary.byCategory[item.category].total += Number(item.total);
       }
 
-      return { success: true, data: items, summary };
+      return { success: true, data: items, summary, pagination: buildPaginationMeta(page, limit, total) };
     }, CACHE_TTL.BOQ);
 
     return NextResponse.json(result);
@@ -133,7 +140,7 @@ export async function POST(request: NextRequest) {
         quantity,
         unitPrice,
         total,
-        category: (category || "CIVIL"),
+        category: (category || "civil"),
         ...orgCreate(auth),
       },
     });
@@ -155,7 +162,7 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   const rbac = await requireVerifiedPermission(request, Permission.PROJECT_UPDATE);
   if ('error' in rbac) return rbac.error;
-  const _auth = rbac.user;
+  const auth = rbac.user;
 
   try {
     const rawBody = await request.json();
@@ -169,6 +176,17 @@ export async function PUT(request: NextRequest) {
       );
     }
     const { id, ...data } = validation.data;
+
+    // Verify BOQ item belongs to user's organization before updating
+    const existingItem = await db.bOQItem.findUnique({ where: { id } });
+    if (!existingItem) {
+      return NextResponse.json(
+        { success: false, error: { message: "BOQ item not found" } },
+        { status: 404 }
+      );
+    }
+    const orgError = orgCheck(auth, existingItem);
+    if (orgError) return orgError;
 
     const updateData: Record<string, unknown> = {};
     if (data.code !== undefined) updateData.code = data.code;
@@ -204,10 +222,11 @@ export async function PUT(request: NextRequest) {
 }
 
 // DELETE - Delete BOQ item
+// TODO: Refactor to use path parameter [id] instead of query parameter for REST compliance
 export async function DELETE(request: NextRequest) {
   const rbac = await requireVerifiedPermission(request, Permission.PROJECT_UPDATE);
   if ('error' in rbac) return rbac.error;
-  const _auth = rbac.user;
+  const auth = rbac.user;
 
   try {
     const { searchParams } = new URL(request.url);
@@ -219,6 +238,17 @@ export async function DELETE(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    // Verify BOQ item belongs to user's organization before deleting
+    const existingItem = await db.bOQItem.findUnique({ where: { id } });
+    if (!existingItem) {
+      return NextResponse.json(
+        { success: false, error: { message: "BOQ item not found" } },
+        { status: 404 }
+      );
+    }
+    const orgError = orgCheck(auth, existingItem);
+    if (orgError) return orgError;
 
     await db.bOQItem.update({ where: { id }, data: { deletedAt: new Date() } });
 

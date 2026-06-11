@@ -82,7 +82,7 @@ export function createCrudHooks<TEntity>(config: CrudHooksConfig<TEntity>) {
       const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
       return useQuery({
-        queryKey: [queryKey, filters],
+        queryKey: [queryKey, JSON.stringify(filters)],
         queryFn: () => apiGet<TEntity[]>(basePath, filters),
         enabled: isAuthenticated,
       });

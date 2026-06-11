@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
-import { requireVerifiedPermission, orgFilter } from '@/app/api/utils/auth';
+import { requireVerifiedPermission, orgFilter, isAdmin, isHR } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { validateRequest, employeeUpdateSchema, validateIdParam } from '@/lib/api-validation';
 import { log } from '@/lib/logger';
@@ -46,7 +46,7 @@ export async function GET(
     }
 
     // Remove salary from response for non-HR/Admin users
-    const canSeeSalary = ctx.role === 'ADMIN' || ctx.role === 'HR';
+    const canSeeSalary = isAdmin(ctx.role) || isHR(ctx.role);
     const sanitizedEmployee = canSeeSalary
       ? employee
       : (() => { const { salary: _salary, ...rest } = employee; return rest; })();
@@ -151,7 +151,7 @@ export async function DELETE(
   if (blocked) return blocked;
 
   try {
-    const authResult = await requireVerifiedPermission(request, Permission.USER_DELETE);
+    const authResult = await requireVerifiedPermission(request, Permission.EMPLOYEE_DELETE);
     if ('error' in authResult) return authResult.error;
     const ctx = authResult.user;
 

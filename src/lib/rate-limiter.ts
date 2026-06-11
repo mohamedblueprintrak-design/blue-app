@@ -1,4 +1,9 @@
 /**
+ * DUPLICATION NOTE: This rate limiter and src/lib/middleware/rate-limit.ts implement
+ * similar functionality. This file uses Redis with in-memory fallback for API routes,
+ * while the middleware version is Edge Runtime compatible (no Redis).
+ * Consider consolidating in the future.
+ *
  * Redis-based Rate Limiter — محدد معدل الطلبات باستخدام Redis
  * 
  * This is a production-ready rate limiter that:

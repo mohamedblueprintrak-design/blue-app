@@ -306,8 +306,8 @@ export async function POST(request: NextRequest) {
       return errorResponse(validation.error.issues[0].message, "VALIDATION_ERROR", 400);
     }
     
-    // 2. Sanitize the validated data
-    const validatedData = sanitizeObject(validation.data);
+    // 2. Use validated data for DB operations (sanitizeObject can corrupt numeric/enum fields)
+    const validatedData = validation.data;
     const { number: _number, clientId, projectId, issueDate, dueDate, status } = validatedData;
 
     // Validate invoice line items with Zod

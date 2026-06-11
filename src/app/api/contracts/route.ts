@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     const projectId = searchParams.get("projectId");
     const { page, limit, search } = parsePaginationParams(searchParams);
 
-    const where: Record<string, unknown> = { ...orgFilter(ctx) };
+    const where: Record<string, unknown> = { deletedAt: null, ...orgFilter(ctx) };
     if (projectId) where.projectId = projectId;
     if (search) {
       where.OR = [
@@ -113,8 +113,8 @@ export async function POST(request: NextRequest) {
         clientId,
         projectId,
         value: value ? parseFloat(value) : 0,
-        type: (type || "ENGINEERING_SERVICES"),
-        status: (status || "DRAFT"),
+        type: type || "ENGINEERING_SERVICES",
+        status: status || "DRAFT",
         startDate: startDate ? new Date(startDate) : null,
         endDate: endDate ? new Date(endDate) : null,
         ...orgCreate(ctx),

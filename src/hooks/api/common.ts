@@ -202,7 +202,7 @@ export interface AdminUser {
 
 export interface CreateUserData {
   name: string;
-  EMAIL: string;
+  email: string;
   password: string;
   role?: string;
   department?: string;

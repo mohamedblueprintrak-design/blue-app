@@ -237,12 +237,13 @@ export default function LoginPage({ language }: LoginPageProps) {
         setError(extractErrorMessage(data.error, t("errors.invalidCode")));
         return;
       }
+      const userData = data.data?.user || data;
       login({
-        id: data.id,
-        email: data.email,
-        name: data.name,
-        role: data.role,
-        avatar: data.avatar,
+        id: userData.id,
+        email: userData.email,
+        name: userData.name,
+        role: userData.role,
+        avatar: userData.avatar,
       });
     } catch {
       setError(t("errors.connection"));
@@ -547,7 +548,7 @@ export default function LoginPage({ language }: LoginPageProps) {
                           value={twoFactorCode}
                           onChange={(e) => setTwoFactorCode(e.target.value.replace(/\D/g, ''))}
                           required
-                          maxLength={6}
+                          maxLength={8}
                           className="h-12 text-center text-xl tracking-[0.5em] font-mono bg-slate-50/80 dark:bg-slate-800/60"
                           dir="ltr"
                         />

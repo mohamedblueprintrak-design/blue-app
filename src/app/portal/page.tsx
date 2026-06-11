@@ -74,8 +74,9 @@ interface PortalData {
 const STAGES = [
   { key: "design", ar: "التصميم", en: "Design", color: "bg-blue-500" },
   { key: "municipality", ar: "البلدية", en: "Municipality", color: "bg-amber-500" },
-  { key: "CONSTRUCTION", ar: "التنفيذ", en: "Construction", color: "bg-teal-500" },
+  { key: "construction", ar: "التنفيذ", en: "Construction", color: "bg-teal-500" },
   { key: "handover", ar: "التسليم", en: "Handover", color: "bg-emerald-500" },
+  { key: "on_hold", ar: "معلق", en: "On Hold", color: "bg-slate-500" },
 ];
 
 const MILESTONES = [
@@ -104,12 +105,12 @@ function formatDate(dateStr: string | null | undefined) {
 function getStageFromStatus(status: string): string {
   switch (status) {
     case "ACTIVE":
-      return "CONSTRUCTION";
+      return "construction";
     case "COMPLETED":
       return "handover";
     case "ON_HOLD":
     case "DELAYED":
-      return "municipality";
+      return "on_hold";
     default:
       return "design";
   }
@@ -121,11 +122,11 @@ function getStageIndex(stageKey: string) {
 
 function getCommIcon(type: string) {
   switch (type.toLowerCase()) {
-    case "MEETING":
+    case "meeting":
       return User;
-    case "CALL":
+    case "call":
       return Phone;
-    case "EMAIL":
+    case "email":
       return Mail;
     default:
       return MessageCircle;
@@ -849,9 +850,9 @@ export default function PortalPage() {
                 {portalData?.communications.map((comm) => {
                   const CommIcon = getCommIcon(comm.type);
                   const commTypeColor =
-                    comm.type.toLowerCase() === "MEETING"
+                    comm.type.toLowerCase() === "meeting"
                       ? "bg-blue-100 text-blue-600"
-                      : comm.type.toLowerCase() === "CALL"
+                      : comm.type.toLowerCase() === "call"
                       ? "bg-green-100 text-green-600"
                       : "bg-purple-100 text-purple-600";
                   return (

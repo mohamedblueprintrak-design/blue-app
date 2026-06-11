@@ -32,7 +32,10 @@ if (process.env.NODE_ENV !== 'production') globalThis.prisma = db
  * Enabling this PRAGMA ensures cascading deletes work and prevents data inconsistency.
  */
 if (process.env.DATABASE_URL?.startsWith('file:')) {
-  db.$executeRawUnsafe('PRAGMA foreign_keys = ON').catch((err) => {
+  // Await PRAGMA to ensure foreign key enforcement is active before any queries
+  db.$executeRawUnsafe('PRAGMA foreign_keys = ON').then(() => {
+    console.info('[db] SQLite foreign key enforcement enabled');
+  }).catch((err) => {
     // Log but don't crash — FK enforcement is a safety net, not a hard requirement
     console.warn('[db] Failed to enable SQLite foreign key enforcement:', err);
   });

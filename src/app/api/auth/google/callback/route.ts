@@ -4,6 +4,7 @@ import { log } from '@/lib/logger';
 import { logAudit } from '@/lib/services/audit.service';
 import { SignJWT } from 'jose';
 import { getJwtSecretBytes } from '@/lib/auth/jwt-secret';
+import { timingSafeCompare } from '@/lib/middleware/security';
 import {
   generateAuthToken,
   generateDbRefreshToken,
@@ -51,7 +52,7 @@ export async function GET(request: NextRequest) {
 
     // ── CSRF Protection: Validate state parameter ──────────────────
     const storedState = request.cookies.get('google_oauth_state')?.value;
-    if (!storedState || storedState !== state) {
+    if (!storedState || !(await timingSafeCompare(storedState, state))) {
       log.security('Google OAuth callback: state mismatch (CSRF)', { state, storedState });
       return NextResponse.redirect(
         `${baseUrl}/login?error=${encodeURIComponent('رمز الأمان غير صالح')}`
@@ -180,7 +181,7 @@ export async function GET(request: NextRequest) {
             role: 'ENGINEER',
             isActive: true,
             emailVerified: new Date(), // Google already verified the email
-            password: '', // No password — social login only
+            password: '!oauth_' + crypto.randomUUID() + '_' + Date.now(), // Unusable random password — social login only
             lastLogin: new Date(),
             organizationId: (await db.organization.findFirst())?.id || "",
           },

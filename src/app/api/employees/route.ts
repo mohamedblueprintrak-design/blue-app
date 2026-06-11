@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 import { validateBody, employeeCreateSchema } from '@/lib/api-validation';
-import { requireVerifiedPermission, orgFilter, orgCreate } from '@/app/api/utils/auth';
+import { requireVerifiedPermission, orgFilter, orgCreate, isAdmin, isHR } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
 import { sanitizeObject } from '@/lib/security/sanitize';
@@ -71,7 +71,7 @@ export async function GET(request: NextRequest) {
     }, CACHE_TTL.USERS);
 
     // Remove salary from response for non-HR/Admin users
-    const canSeeSalary = ctx.role === 'ADMIN' || ctx.role === 'HR';
+    const canSeeSalary = isAdmin(ctx.role) || isHR(ctx.role);
     const sanitizedEmployees = canSeeSalary
       ? rawEmployees
       : rawEmployees.map(({ salary: _salary, ...rest }) => rest);
@@ -97,8 +97,11 @@ export async function POST(request: NextRequest) {
 
     const body = await validateBody(request, employeeCreateSchema);
     if (body instanceof NextResponse) return body;
-    const sanitizedBody = sanitizeObject(body);
-    const { userId, department, position, salary, employmentStatus, hireDate } = sanitizedBody;
+    const { userId, department, position, salary, employmentStatus, hireDate } = body;
+
+    // Validate employmentStatus enum value
+    const validStatuses = ['ACTIVE', 'ON_LEAVE', 'TERMINATED', 'PROBATION'];
+    const resolvedStatus = employmentStatus && validStatuses.includes(employmentStatus) ? employmentStatus : 'ACTIVE';
 
     // Check if employee already exists for this user
     const existing = await db.employee.findUnique({
@@ -115,7 +118,7 @@ export async function POST(request: NextRequest) {
         department: department || "",
         position: position || "",
         salary: salary || 0,
-        employmentStatus: (employmentStatus || "ACTIVE"),
+        employmentStatus: resolvedStatus,
         hireDate: hireDate ? new Date(hireDate) : null,
         ...orgCreate(ctx),
       },

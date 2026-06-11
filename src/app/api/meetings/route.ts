@@ -141,7 +141,7 @@ export async function POST(request: NextRequest) {
           })),
         },
         agenda: {
-          create: (agendaItems || []).map((item: { topic: string; duration: number }) => ({
+          create: (agendaItems || []).map((item: { topic?: string; duration?: number }) => ({
             topic: item.topic || "",
             duration: Number(item.duration) || 15,
           })),

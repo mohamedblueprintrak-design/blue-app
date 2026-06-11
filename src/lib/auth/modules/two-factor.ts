@@ -396,7 +396,11 @@ export async function enable2FA(userId: string, token: string) {
 }
 
 /** Alias for facade compatibility — disable2FA(userId, currentPassword?, code?) */
-export async function disable2FA(userId: string, currentPassword?: string, _code?: string) {
+export async function disable2FA(userId: string, currentPassword?: string, code?: string) {
+  if (code) {
+    const codeValid = await verifyTwoFactorCode(userId, code);
+    if (!codeValid) return { success: false, error: 'Invalid 2FA code', code: 'INVALID_CODE' };
+  }
   return disableTwoFactor(userId, currentPassword || '');
 }
 

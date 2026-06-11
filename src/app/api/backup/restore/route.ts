@@ -8,12 +8,18 @@ import { backupService } from '@/lib/backup-service';
 import { requireVerifiedAdmin } from '@/app/api/utils/auth';
 import { log } from '@/lib/logger';
 import { sanitizeObject } from '@/lib/security/sanitize';
+import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 
 /**
  * POST - Restore from backup
  */
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting — strict limiter for destructive endpoint
+    const { result: rlResult } = await withRateLimit(request, 'strict');
+    const rlBlocked = rateLimitResponse(rlResult);
+    if (rlBlocked) return rlBlocked;
+
     // RBAC CHECK - Admin only (JWT-verified for backup restore)
     const rbac = await requireVerifiedAdmin(request);
     if ('error' in rbac) return rbac.error;
@@ -31,7 +37,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Security: Validate filename to prevent path traversal (including backslash and null byte)
-    if (!filename.startsWith('blueprint_backup_') || !filename.endsWith('.db') || filename.includes('..') || filename.includes('/') || filename.includes('\\') || filename.includes('\0')) {
+    if (!filename.startsWith('blueprint_backup_') || (!filename.endsWith('.db') && !filename.endsWith('.sql.gz')) || filename.includes('..') || filename.includes('/') || filename.includes('\\') || filename.includes('\0')) {
       return NextResponse.json(
         { success: false, error: 'اسم ملف غير صالح' },
         { status: 400 }

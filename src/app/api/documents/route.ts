@@ -5,6 +5,18 @@ import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
 import { sanitizeObject } from '@/lib/security/sanitize';
 import { getStorageProvider, generateStorageKey } from '@/lib/storage';
+import { z } from 'zod';
+
+// Zod schema for JSON metadata-only document creation
+const documentCreateSchema = z.object({
+  name: z.string().min(1),
+  type: z.string().optional(),
+  category: z.string().optional(),
+  projectId: z.string().optional(),
+  description: z.string().optional(),
+  fileSize: z.number().optional(),
+  mimeType: z.string().optional(),
+});
 
 // ============================================
 // File Upload Configuration
@@ -260,31 +272,34 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(document, { status: 201 });
     } else {
       // ===== JSON Metadata-Only Creation (backward compatible) =====
-      const body = await request.json();
-      const sanitizedBody = sanitizeObject(body);
+      const rawBody = await request.json();
+
+      // Validate with Zod schema
+      const validation = documentCreateSchema.safeParse(rawBody);
+      if (!validation.success) {
+        return NextResponse.json(
+          { error: validation.error.issues[0].message },
+          { status: 400 }
+        );
+      }
+      const sanitizedBody = sanitizeObject(validation.data);
       const {
         projectId,
-        contractId,
-        name,
-        fileType,
-        fileSize,
         category,
-        version,
+        name,
+        type: fileType,
+        fileSize,
       } = sanitizedBody;
-
-      if (!name) {
-        return NextResponse.json({ error: "Document name is required" }, { status: 400 });
-      }
 
       const document = await db.document.create({
         data: {
           projectId: projectId || null,
-          contractId: contractId || null,
+          contractId: (rawBody as Record<string, unknown>).contractId as string || null,
           name: name || "",
           fileType: fileType || "",
           fileSize: fileSize || 0,
           category: category || "general",
-          version: version || 1,
+          version: ((rawBody as Record<string, unknown>).version as number) || 1,
           uploadedById: ctx.userId,
           ...orgCreate(ctx),
           filePath: "",

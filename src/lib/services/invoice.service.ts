@@ -239,7 +239,9 @@ class InvoiceService {
     userId: string
   ): Promise<Invoice> {
     // SECURITY: Explicit field whitelist to prevent Mass Assignment
-    const allowedFields = ['clientId', 'projectId', 'issueDate', 'dueDate', 'subtotal', 'taxRate', 'tax', 'total', 'paidAmount', 'remaining', 'status'] as const;
+    // SECURITY: 'total', 'paidAmount', and 'remaining' are computed fields — they must NOT be set directly.
+    // They are recalculated from subtotal/taxRate or via recordPayment().
+    const allowedFields = ['clientId', 'projectId', 'issueDate', 'dueDate', 'subtotal', 'taxRate', 'tax', 'status'] as const;
     const updateData: Record<string, unknown> = {};
     for (const field of allowedFields) {
       if ((data as Record<string, unknown>)[field] !== undefined) {
@@ -376,6 +378,15 @@ class InvoiceService {
 
       const newPaidAmount = Number(updated.paidAmount);
       const total = Number(updated.total);
+      // Overpayment protection: payments cannot exceed the total invoice amount
+      if (newPaidAmount > total) {
+        // Rollback the overpayment by setting paidAmount to total
+        await tx.invoice.updateMany({
+          where: { id, organizationId },
+          data: { paidAmount: total }
+        });
+        throw new Error(`Payment amount exceeds remaining balance. Remaining: ${Number(invoice.remaining)}`);
+      }
       const status = newPaidAmount >= total ? 'PAID' : 'PARTIALLY_PAID';
       const remaining = Math.max(0, total - newPaidAmount);
 

@@ -74,6 +74,7 @@ class EmailQueue {
   private queue: Map<string, QueuedEmail> = new Map();
   private processing = false;
   private timer: ReturnType<typeof setTimeout> | null = null;
+  private needsReprocess = false;
 
   /**
    * Add an email to the queue
@@ -93,6 +94,7 @@ class EmailQueue {
     });
 
     log.info('[EmailQueue] Email enqueued', { id, to: options.to, subject: options.subject });
+    if (this.processing) { this.needsReprocess = true; }
     this.scheduleProcessing();
     return id;
   }
@@ -168,10 +170,12 @@ class EmailQueue {
           email.status = 'simulated';
           email.updatedAt = new Date();
           log.info('[EmailQueue] Email simulated (no transport configured)', { id: email.id, to: email.options.to });
+          setTimeout(() => this.queue.delete(email.id), 5 * 60 * 1000);
         } else if (result.sent) {
           email.status = 'sent';
           email.updatedAt = new Date();
           log.info('[EmailQueue] Email sent successfully', { id: email.id, to: email.options.to, messageId: result.messageId, provider: result.provider });
+          setTimeout(() => this.queue.delete(email.id), 5 * 60 * 1000);
         } else {
           // Failed — retry with exponential backoff
           email.retryCount++;
@@ -186,6 +190,7 @@ class EmailQueue {
               retries: email.retryCount,
               error: result.error,
             });
+            setTimeout(() => this.queue.delete(email.id), 5 * 60 * 1000);
           } else {
             // Exponential backoff: 1s, 2s, 4s
             const backoffMs = BASE_DELAY_MS * Math.pow(2, email.retryCount - 1);
@@ -203,7 +208,12 @@ class EmailQueue {
       }
     } finally {
       this.processing = false;
-      this.scheduleProcessing();
+      if (this.needsReprocess) {
+        this.needsReprocess = false;
+        this.processQueue();
+      } else {
+        this.scheduleProcessing();
+      }
     }
   }
 }

@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
       notes,
       evaluationNotes,
       status,
-    } = body;
+    } = validation.data;
 
     // If contractorId is provided, auto-fill contractor info
     let resolvedContractorName = contractorName || "";

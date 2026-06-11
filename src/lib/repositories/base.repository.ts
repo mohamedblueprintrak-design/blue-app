@@ -60,10 +60,12 @@ interface PrismaModelDelegate<T> {
 export abstract class BaseRepository<T> implements IRepository<T> {
   protected prisma: PrismaClient;
   protected model: keyof PrismaClient;
+  protected hasSoftDelete: boolean;
 
-  constructor(prisma: PrismaClient, model: keyof PrismaClient) {
+  constructor(prisma: PrismaClient, model: keyof PrismaClient, hasSoftDelete: boolean = true) {
     this.prisma = prisma;
     this.model = model;
+    this.hasSoftDelete = hasSoftDelete;
   }
 
   /**
@@ -81,28 +83,28 @@ export abstract class BaseRepository<T> implements IRepository<T> {
    * Find entity by ID
    */
   async findById(id: string): Promise<T | null> {
-    return this.delegate.findFirst({
-      where: { id, deletedAt: null },
-    });
+    const where: Record<string, unknown> = { id };
+    if (this.hasSoftDelete) where.deletedAt = null;
+    return this.delegate.findFirst({ where });
   }
 
   /**
    * Find single entity by conditions
    */
   async findOne(where: Record<string, unknown>): Promise<T | null> {
-    return this.delegate.findFirst({
-      where: { ...where, deletedAt: null },
-    });
+    const filter = this.hasSoftDelete ? { ...where, deletedAt: null } : { ...where };
+    return this.delegate.findFirst({ where: filter });
   }
 
   /**
    * Find multiple entities with pagination and filtering
    */
   async findMany(options?: FindManyOptions): Promise<T[]> {
+    const where = this.hasSoftDelete ? { ...options?.where, deletedAt: null } : { ...options?.where };
     return this.delegate.findMany({
       skip: options?.skip,
       take: options?.take,
-      where: { ...options?.where, deletedAt: null },
+      where,
       orderBy: options?.orderBy,
       include: options?.include,
     });
@@ -153,18 +155,17 @@ export abstract class BaseRepository<T> implements IRepository<T> {
    * Count entities matching conditions
    */
   async count(where?: Record<string, unknown>): Promise<number> {
-    return this.delegate.count({
-      where: { ...where, deletedAt: null },
-    });
+    const filter = this.hasSoftDelete ? { ...where, deletedAt: null } : { ...where };
+    return this.delegate.count({ where: filter });
   }
 
   /**
    * Check if entity exists
    */
   async exists(id: string): Promise<boolean> {
-    const count = await this.delegate.count({
-      where: { id, deletedAt: null },
-    });
+    const where: Record<string, unknown> = { id };
+    if (this.hasSoftDelete) where.deletedAt = null;
+    const count = await this.delegate.count({ where });
     return count > 0;
   }
 

@@ -50,6 +50,11 @@ export async function GET(
       return notFoundResponse("Task not found");
     }
 
+    // Soft-delete check: return 404 if task has been soft-deleted
+    if (task.deletedAt) {
+      return notFoundResponse("Task not found");
+    }
+
     // Multi-tenancy: check org access
     const orgError = orgCheck(user, task);
     if (orgError) return orgError;

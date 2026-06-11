@@ -37,7 +37,8 @@ export async function GET(request: NextRequest) {
     }));
 
     // Attendance org filter — Attendance is scoped through employee → user
-    const attendanceOrgWhere = { user: { user: { ...orgFilter(ctx) } } };
+    // Attendance has its own organizationId field — use orgFilter directly instead of nested relation
+    const attendanceOrgWhere = { ...orgFilter(ctx) };
 
     // Today's attendance stats
     const today = new Date();

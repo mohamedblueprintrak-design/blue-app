@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import { useAuthStore } from "@/store/auth-store";
 import { useNavStore } from "@/store/nav-store";
