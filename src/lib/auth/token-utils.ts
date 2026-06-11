@@ -170,6 +170,7 @@ export interface AuthTokenPayload {
   twoFactorEnabled?: boolean;
   organizationId?: string | null;
   passwordChangedAt?: number; // Unix timestamp — used to invalidate JWTs after password change
+  emailVerified?: boolean; // Whether the user's email has been verified — unverified users have restricted access
 }
 
 /**
@@ -191,6 +192,7 @@ export async function generateAuthToken(user: AuthTokenPayload): Promise<string>
     twoFactorEnabled: user.twoFactorEnabled || false,
     organizationId: user.organizationId || undefined,
     passwordChangedAt: user.passwordChangedAt || 0,
+    emailVerified: user.emailVerified ?? true, // Default to true for existing/OAuth users; explicit false for unverified registrations
   })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuer('blueprint-saas')
