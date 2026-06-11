@@ -113,7 +113,7 @@ export default function Defects({ language, projectId }: DefectsProps) {
       if (filterSeverity !== "all") params.set("severity", filterSeverity);
       const res = await fetch(`/api/defects?${params}`);
       if (!res.ok) throw new Error("Failed to fetch defects");
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -122,7 +122,7 @@ export default function Defects({ language, projectId }: DefectsProps) {
     queryFn: async () => {
       const res = await fetch("/api/projects-simple");
       if (!res.ok) return [];
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -131,7 +131,7 @@ export default function Defects({ language, projectId }: DefectsProps) {
     queryFn: async () => {
       const res = await fetch("/api/users-simple");
       if (!res.ok) return [];
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 

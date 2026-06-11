@@ -35,7 +35,7 @@ export function MyTasksWidget({ language }: { language: "ar" | "en" }) {
       const res = await fetch(`/api/tasks?${params.toString()}`);
       if (!res.ok) throw new Error("Failed");
       const json = await res.json();
-      return (json.tasks || []).map((task: Record<string, unknown>) => ({
+      return (json.data || json.tasks || []).map((task: Record<string, unknown>) => ({
         id: task.id,
         title: task.title || "",
         titleEn: task.titleEn || task.title || "",

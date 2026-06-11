@@ -42,7 +42,7 @@ export default function DesignManagement({ language }: DesignManagementProps) {
       if (filterProject !== "all") params.set("projectId", filterProject);
       const res = await fetch(`/api/design-phases?${params}`);
       if (!res.ok) throw new Error("Failed to fetch design phases");
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -51,7 +51,7 @@ export default function DesignManagement({ language }: DesignManagementProps) {
     queryFn: async () => {
       const res = await fetch("/api/projects-simple");
       if (!res.ok) return [];
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -61,7 +61,7 @@ export default function DesignManagement({ language }: DesignManagementProps) {
       if (!selectedPhaseId) return [];
       const res = await fetch(`/api/design-drawings?designPhaseId=${selectedPhaseId}`);
       if (!res.ok) throw new Error("Failed to fetch drawings");
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
     enabled: !!selectedPhaseId,
   });

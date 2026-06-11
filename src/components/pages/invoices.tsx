@@ -83,7 +83,7 @@ export default function InvoicesPage({ language, projectId }: InvoicesPageProps)
       const res = await fetch(`/api/invoices${projectId ? `?projectId=${projectId}` : ''}`);
       if (!res.ok) throw new Error("Failed to fetch");
       const json = await res.json();
-      return json.invoices || json;
+      return json.data || json.invoices || json;
     },
   });
   const invoices = Array.isArray(invoicesData) ? invoicesData : [];

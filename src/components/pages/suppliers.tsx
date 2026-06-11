@@ -153,7 +153,7 @@ export default function SuppliersPage({ language }: SuppliersPageProps) {
       const params = categoryFilter !== "all" ? `?category=${categoryFilter}` : "";
       const res = await fetch(`/api/suppliers${params}`);
       if (!res.ok) throw new Error("Failed to fetch suppliers");
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 

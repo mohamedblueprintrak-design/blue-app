@@ -48,7 +48,7 @@ export default function ContractsPage({ language, projectId }: ContractsPageProp
       const res = await fetch(`/api/contracts${projectId ? `?projectId=${projectId}` : ''}`);
       if (!res.ok) throw new Error("Failed to fetch contracts");
       const json = await res.json();
-      return json.contracts || json;
+      return json.data || json.contracts || json;
     },
   });
 

@@ -113,7 +113,7 @@ export default function ChangeOrders({ language, projectId }: ChangeOrdersProps)
       if (filterStatus !== "all") params.set("status", filterStatus);
       const res = await fetch(`/api/change-orders?${params}`);
       if (!res.ok) throw new Error("Failed to fetch change orders");
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -122,7 +122,7 @@ export default function ChangeOrders({ language, projectId }: ChangeOrdersProps)
     queryFn: async () => {
       const res = await fetch("/api/projects-simple");
       if (!res.ok) return [];
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 

@@ -154,7 +154,7 @@ export default function SiteVisits({ language, projectId }: SiteVisitsProps) {
       if (filterStatus !== "all") params.set("status", filterStatus);
       const res = await fetch(`/api/site-visits?${params}`);
       if (!res.ok) throw new Error("Failed to fetch site visits");
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -164,7 +164,7 @@ export default function SiteVisits({ language, projectId }: SiteVisitsProps) {
     queryFn: async () => {
       const res = await fetch("/api/projects-simple");
       if (!res.ok) return [];
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 

@@ -136,7 +136,7 @@ export default function ApprovalsPage({ language, projectId }: ApprovalsPageProp
     queryFn: async () => {
       const res = await fetch("/api/approvals/pending");
       if (!res.ok) return { count: 0 };
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
     refetchInterval: 30000,
   });
@@ -150,7 +150,7 @@ export default function ApprovalsPage({ language, projectId }: ApprovalsPageProp
       if (projectId) params.set("projectId", projectId);
       const res = await fetch(`/api/approvals${params.toString() ? `?${params.toString()}` : ""}`);
       if (!res.ok) return [];
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -161,7 +161,7 @@ export default function ApprovalsPage({ language, projectId }: ApprovalsPageProp
       if (!selectedApprovalId) return null;
       const res = await fetch(`/api/approvals/${selectedApprovalId}`);
       if (!res.ok) return null;
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
     enabled: !!selectedApprovalId,
   });
@@ -180,7 +180,7 @@ export default function ApprovalsPage({ language, projectId }: ApprovalsPageProp
       try {
         const res = await fetch(url);
         if (!res.ok) return null;
-        return res.json();
+        const json = await res.json(); return json.data || json;
       } catch { return null; }
     },
     enabled: !!selectedApproval?.entityId && !!selectedApproval?.entityType,

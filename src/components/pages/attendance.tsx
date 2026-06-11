@@ -182,7 +182,7 @@ export default function AttendancePage({ language }: AttendancePageProps) {
       const res = await fetch("/api/employees");
       if (!res.ok) return [];
       const json = await res.json();
-      const emps = json.employees || json;
+      const emps = json.data || json.employees || json;
       if (!Array.isArray(emps)) return [];
       return emps.map((e: { id: string; user: { name: string; email: string } }) => ({
         id: e.id,

@@ -40,7 +40,7 @@ export default function CommissionsPage({ language }: CommissionsPageProps) {
     queryFn: async () => {
       const res = await fetch("/api/projects-simple");
       if (!res.ok) return [];
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -102,7 +102,7 @@ function CommissionsTab({ language, users, projects }: { language: "ar" | "en"; 
     queryFn: async () => {
       const res = await fetch("/api/commissions");
       if (!res.ok) throw new Error("Failed");
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -137,7 +137,7 @@ function ReferralsTab({ language, users, projects }: { language: "ar" | "en"; us
     queryFn: async () => {
       const res = await fetch("/api/referrals");
       if (!res.ok) throw new Error("Failed");
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -172,7 +172,7 @@ function CampaignsTab({ language }: { language: "ar" | "en" }) {
     queryFn: async () => {
       const res = await fetch("/api/marketing-campaigns");
       if (!res.ok) throw new Error("Failed");
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
