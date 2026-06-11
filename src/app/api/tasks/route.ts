@@ -148,6 +148,7 @@ export async function GET(request: NextRequest) {
 
     const where: Record<string, unknown> = {
       parentId: null, // Only top-level tasks
+      deletedAt: null, // Exclude soft-deleted tasks
       ...orgFilter(user),
     };
 

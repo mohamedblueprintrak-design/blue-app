@@ -8,7 +8,7 @@ import { formatCurrency as formatCurrencyMulti } from './currency';
  */
 export function formatCurrency(amount: number | undefined | null, ar: boolean): string {
   const num = amount ?? 0;
-  return `${num.toLocaleString(ar ? "ar-AE" : "en-US")} ${ar ? "د.إ" : "AED"}`;
+  return `${num.toLocaleString(ar ? "ar-AE" : "en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${ar ? "د.إ" : "AED"}`;
 }
 
 /**

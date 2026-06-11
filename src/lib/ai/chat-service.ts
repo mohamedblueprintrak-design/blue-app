@@ -213,7 +213,7 @@ export async function fetchContextData(topics: string[], userRole: string, userI
   const projectWhere: Record<string, unknown> = projectId ? { projectId } : {};
 
   // Multi-tenancy: build org filter for all queries
-  const orgWhere: Record<string, unknown> = organizationId ? { organizationId } : (process.env.MULTI_TENANT === 'true' ? { organizationId: '__DENIED__' } : {});
+  const orgWhere: Record<string, unknown> = organizationId ? { organizationId } : (process.env.MULTI_TENANT === 'true' ? { organizationId: undefined } // Deny by omitting organizationId — queries will return no results in multi-tenant mode : {});
 
   // Merge org filter into projectWhere for project-scoped queries
   const projectAndOrgWhere = { ...projectWhere, ...orgWhere };

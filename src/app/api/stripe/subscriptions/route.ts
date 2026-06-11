@@ -247,8 +247,21 @@ export async function DELETE(request: NextRequest) {
   const ctx = rbac.user;
 
   try {
-    const body = await request.json();
-    const { subscriptionId, immediately = false, _reason } = body;
+    // NOTE: DELETE requests with body may be stripped by proxies (e.g., Cloudflare, nginx).
+    // Accept subscriptionId and immediately from query parameters as fallback.
+    const { searchParams } = new URL(request.url);
+    let subscriptionId: string | undefined;
+    let immediately = false;
+
+    try {
+      const body = await request.json();
+      subscriptionId = body.subscriptionId;
+      immediately = body.immediately ?? false;
+    } catch {
+      // Body read failed (empty body or stripped by proxy) — fall back to query params
+      subscriptionId = searchParams.get('subscriptionId') || undefined;
+      immediately = searchParams.get('immediately') === 'true';
+    }
 
     if (!subscriptionId) {
       return errorResponse('معرف الاشتراك مطلوب', 'MISSING_SUBSCRIPTION_ID', 400);

@@ -5,5 +5,5 @@
 
 export { proxy as middleware } from './auth-proxy';
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|sw.js).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|sw.js|api/health|api/cron).*)'],
 };

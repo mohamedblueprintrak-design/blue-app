@@ -1,3 +1,7 @@
+// DUPLICATION NOTE: This rate limiter and src/lib/rate-limiter.ts implement similar functionality.
+// This file is Edge Runtime compatible (no Redis), while the other uses Redis with fallback.
+// Consider consolidating in the future.
+
 export type RateLimitTier = 'strict' | 'auth' | 'api' | 'loose' | 'ai' | 'export' | 'webhook';
 
 export interface RateLimitConfig {

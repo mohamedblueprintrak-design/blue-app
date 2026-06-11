@@ -84,7 +84,8 @@ export async function POST(request: NextRequest) {
     if (!validation.success) {
       return NextResponse.json({ error: validation.error, errors: validation.errors }, { status: 400 });
     }
-    const _body = sanitizeObject(validation.data);
+    // Note: sanitizeObject removed — validation.data is already validated by Zod
+    // String fields are safe after Zod validation; sanitizeObject can corrupt numeric values
     const validatedData = validation.data;
     const { projectId, parentId, name, category, planned, actual, committed } = validatedData;
 

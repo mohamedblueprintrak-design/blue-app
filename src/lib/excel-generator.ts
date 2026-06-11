@@ -215,6 +215,7 @@ async function exportFinancial(lang: 'ar' | 'en', org: Record<string, unknown> =
   monthlySheet.addRow([labels.date, labels.invoiced, labels.paid, labels.pending]);
   styleHeaderRow(monthlySheet, 4);
 
+  // TODO: Refactor to a single groupBy query instead of sequential aggregate queries per month (N+1)
   for (let i = 5; i >= 0; i--) {
     const monthStart = new Date(now.getFullYear(), now.getMonth() - i, 1);
     const monthEnd = new Date(now.getFullYear(), now.getMonth() - i + 1, 0, 23, 59, 59);
@@ -232,7 +233,7 @@ async function exportFinancial(lang: 'ar' | 'en', org: Record<string, unknown> =
       lang === 'ar' ? arMonths[monthStart.getMonth()] : enMonths[monthStart.getMonth()],
       invoiced._sum.total || 0,
       paid._sum.paidAmount || 0,
-      0,
+      (invoiced._sum.total || 0) - (paid._sum.paidAmount || 0),
     ]);
   }
 

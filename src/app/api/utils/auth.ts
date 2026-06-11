@@ -3,6 +3,7 @@ import * as jose from 'jose';
 import { getJwtSecretBytes as _getJwtSecretBytes } from '@/lib/auth/jwt-secret';
 import { unauthorizedResponse, forbiddenResponse } from './response';
 import { log } from '@/lib/logger';
+import { db } from '@/lib/db';
 
 // Re-export response helpers for convenience in route handlers
 export { unauthorizedResponse, forbiddenResponse };
@@ -179,6 +180,18 @@ export function orgCheck(ctx: AuthContext, record: { organizationId?: string | n
     return forbiddenResponse('Resource does not belong to your organization');
   }
   return null; // OK — same org or no org on record (legacy)
+}
+
+/**
+ * Validate CSRF token using Double Submit Cookie pattern.
+ * Reads X-CSRF-Token header and compares with csrf_token cookie.
+ * Returns true if both exist and match, false otherwise.
+ */
+export function validateCsrf(request: NextRequest): boolean {
+  const csrfHeader = request.headers.get('x-csrf-token');
+  const csrfCookie = request.cookies.get('csrf_token')?.value;
+  if (!csrfHeader || !csrfCookie) return false;
+  return csrfHeader === csrfCookie;
 }
 
 /**
@@ -431,10 +444,17 @@ export async function requireVerifiedAuth(
     // Step 4: Check password-changed-after-token-issued
     // If the user changed their password after this token was issued,
     // the token should be considered invalid
+    // SECURITY: Fetch passwordChangedAt from the DATABASE, not the JWT payload.
+    // The JWT carries the OLD passwordChangedAt value which won't reflect recent changes.
     const iat = payload.iat as number | undefined;
-    const passwordChangedAt = payload.passwordChangedAt as number | undefined;
-    if (iat && passwordChangedAt && passwordChangedAt > iat) {
-      return { error: unauthorizedResponse() };
+    if (iat) {
+      const userForPwCheck = await db.user.findUnique({
+        where: { id: jwtUserId },
+        select: { passwordChangedAt: true },
+      });
+      if (userForPwCheck?.passwordChangedAt && Math.floor(userForPwCheck.passwordChangedAt.getTime() / 1000) > iat) {
+        return { error: unauthorizedResponse() };
+      }
     }
 
     // Step 5: Reject 2FA-pending tokens

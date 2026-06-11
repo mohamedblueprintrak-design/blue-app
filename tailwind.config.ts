@@ -1,5 +1,5 @@
 import type { Config } from "tailwindcss";
-import tailwindcssAnimate from "tailwindcss-animate";
+// tailwindcss-animate removed — tw-animate-css is imported in globals.css
 
 const config: Config = {
     darkMode: "class",
@@ -18,20 +18,7 @@ const config: Config = {
                         arabic: ['var(--font-ibm-plex-arabic)', 'var(--font-arabic)', 'Noto Sans Arabic', 'Arial', 'sans-serif'],
                 },
                 colors: {
-                        // BluePrint Brand: Override teal with #133371 navy blue
-                        teal: {
-                                50:  '#eef2ff',
-                                100: '#e0e7ff',
-                                200: '#c7d2fe',
-                                300: '#a5b4fc',
-                                400: '#818cf8',
-                                500: '#4f5dba',
-                                600: '#133371',
-                                700: '#0f2a5c',
-                                800: '#0b2047',
-                                900: '#081633',
-                                950: '#040e22',
-                        },
+                        // Teal colors are defined in globals.css @theme block
                         background: 'hsl(var(--background))',
                         foreground: 'hsl(var(--foreground))',
                         card: {
@@ -166,6 +153,6 @@ const config: Config = {
                 },
         }
   },
-  plugins: [tailwindcssAnimate],
+  plugins: [],
 };
 export default config;

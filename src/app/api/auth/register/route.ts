@@ -249,10 +249,10 @@ async function handleRegister(
       organizationId = defaultOrg?.id || "";
     }
 
-    // Determine role - SECURITY FIX: Only admin-created orgs get admin role
+    // Determine role - SECURITY FIX: Organization creators get MANAGER role (not ADMIN)
     // Regular registration always gets VIEWER role (no privilege escalation)
     const role = data.organizationName
-      ? UserRoleValues.ADMIN
+      ? UserRoleValues.MANAGER
       : UserRoleValues.VIEWER;
 
     // Create user

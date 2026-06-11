@@ -175,6 +175,9 @@ export async function upsertFlag(data: {
 }): Promise<FeatureFlagRecord> {
   let orgId = data.organizationId;
   if (!orgId) {
+    if (process.env.MULTI_TENANT === 'true') {
+      throw new Error('organizationId is required in multi-tenant mode');
+    }
     const org = await db.organization.findFirst();
     orgId = org?.id || "";
   }

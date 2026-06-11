@@ -54,9 +54,9 @@ export function DemoBanner() {
           className="h-7 text-xs bg-white text-blue-600 hover:bg-blue-50"
         >
           {isResetting ? (
-            <RefreshCw className="h-3 w-3 mr-2 animate-spin" />
+            <RefreshCw className="h-3 w-3 me-2 animate-spin" />
           ) : (
-            <RefreshCw className="h-3 w-3 mr-2" />
+            <RefreshCw className="h-3 w-3 me-2" />
           )}
           إعادة تعيين البيانات
         </Button>

@@ -1,8 +1,8 @@
 import { z } from "zod";
 
 // ===== Common helpers =====
-const optionalString = z.string().optional().default("");
-const positiveNumberStr = z.string().optional().default("0");
+const optionalString = z.string().optional().nullable();
+const positiveNumberStr = z.string().optional().default("0"); // min(1) removed since default("0") always satisfies it
 
 // ===== Enum types matching Prisma schema =====
 // These replace the previous z.string() for status/priority fields,

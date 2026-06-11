@@ -11,6 +11,9 @@ import {
   REFRESH_TOKEN_MAX_AGE,
   getAuthCookieOptions,
 } from '@/lib/auth/token-utils';
+import { SignJWT } from 'jose';
+import { getJwtSecretBytes } from '@/lib/auth/jwt-secret';
+import { timingSafeCompare } from '@/lib/middleware/security';
 
 /** Shape of the Microsoft Graph /me response */
 interface MicrosoftGraphUser {
@@ -68,7 +71,7 @@ export async function GET(request: NextRequest) {
 
     // ── CSRF Protection: Validate state parameter ──────────────────
     const storedState = request.cookies.get('microsoft_oauth_state')?.value;
-    if (!storedState || storedState !== state) {
+    if (!storedState || !(await timingSafeCompare(storedState, state))) {
       log.security('Microsoft OAuth callback: state mismatch (CSRF)', { state, storedState });
       return NextResponse.redirect(
         `${baseUrl}/login?error=${encodeURIComponent('رمز الأمان غير صالح')}`
@@ -203,7 +206,7 @@ export async function GET(request: NextRequest) {
             role: 'ENGINEER',
             isActive: true,
             emailVerified: new Date(), // Microsoft already verified the email
-            password: '', // No password — social login only
+            password: '!oauth_' + crypto.randomUUID() + '_' + Date.now(), // Unusable random password — social login only
             lastLogin: new Date(),
             organizationId: (await db.organization.findFirst())?.id || "",
           },
@@ -218,6 +221,31 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(
         `${baseUrl}/login?error=${encodeURIComponent('الحساب غير نشط. تواصل مع الإدارة.')}`
       );
+    }
+
+    // ── 2FA Check: If user has 2FA enabled, redirect to 2FA verification instead of issuing tokens ──
+    if (user.twoFactorEnabled) {
+      const tempToken = await new SignJWT({ userId: user.id, type: '2fa-pending' })
+        .setProtectedHeader({ alg: 'HS256' })
+        .setIssuer('blueprint-saas')
+        .setAudience('blueprint-2fa')
+        .setExpirationTime('5m')
+        .setIssuedAt()
+        .sign(getJwtSecretBytes());
+
+      log.info('Microsoft OAuth: 2FA required, redirecting to verification', { userId: user.id });
+
+      const response = NextResponse.redirect(`${baseUrl}/dashboard?requires2FA=true`);
+      response.cookies.set('blue_2fa_temp', tempToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/',
+        maxAge: 300,
+      });
+      response.cookies.set('microsoft_oauth_state', '', { path: '/', maxAge: 0 });
+      response.cookies.set('microsoft_oauth_verifier', '', { path: '/', maxAge: 0 });
+      return response;
     }
 
     // ── Create JWT and set cookies (same pattern as regular login) ──

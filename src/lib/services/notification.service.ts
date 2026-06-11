@@ -74,6 +74,9 @@ class NotificationService {
 
       let orgId = input.organizationId;
       if (!orgId) {
+        if (process.env.MULTI_TENANT === 'true') {
+          throw new Error('organizationId is required in multi-tenant mode');
+        }
         const org = await db.organization.findFirst();
         orgId = org?.id || "";
       }

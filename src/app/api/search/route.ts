@@ -1,6 +1,7 @@
 import { db } from '@/lib/db';
 import { NextRequest, NextResponse } from 'next/server';
 import { requireVerifiedAuth, orgFilter } from '@/app/api/utils/auth';
+import { insensitiveContains } from '@/app/api/utils/db';
 import { log } from '@/lib/logger';
 import { handleApiErrorWithLogging as handleApiError } from '@/lib/api-error';
 import { sanitizeString, escapeSqlLike } from '@/lib/security/sanitize';
@@ -80,10 +81,10 @@ export async function GET(request: NextRequest) {
     // ===== Search Projects (by name, nameEn, number, location) =====
     const projectWhere: Record<string, unknown> = {
       OR: [
-        { name: { contains: query } },
-        { nameEn: { contains: query } },
-        { number: { contains: query } },
-        { location: { contains: query } },
+        { name: insensitiveContains(query) },
+        { nameEn: insensitiveContains(query) },
+        { number: insensitiveContains(query) },
+        { location: insensitiveContains(query) },
       ],
       deletedAt: null,
       ...orgWhere,
@@ -96,16 +97,16 @@ export async function GET(request: NextRequest) {
         ? db.project.findMany({ where: projectWhere, take: 10, select: { id: true, name: true, nameEn: true, number: true, status: true, location: true, clientId: true } })
         : [],
       canSearchTasks
-        ? db.task.findMany({ where: { ...projectFilter, ...projectOrgWhere, deletedAt: null, OR: [{ title: { contains: query } }, { description: { contains: query } }] }, take: 10, select: { id: true, title: true, status: true, priority: true, projectId: true } })
+        ? db.task.findMany({ where: { ...projectFilter, ...projectOrgWhere, deletedAt: null, OR: [{ title: insensitiveContains(query) }, { description: insensitiveContains(query) }] }, take: 10, select: { id: true, title: true, status: true, priority: true, projectId: true } })
         : [],
       canSearchClients
-        ? db.client.findMany({ where: { ...orgWhere, deletedAt: null, OR: [{ name: { contains: query } }, { company: { contains: query } }, { email: { contains: query } }, { phone: { contains: query } }] }, take: 10, select: { id: true, name: true, company: true, email: true, phone: true } })
+        ? db.client.findMany({ where: { ...orgWhere, deletedAt: null, OR: [{ name: insensitiveContains(query) }, { company: insensitiveContains(query) }, { email: insensitiveContains(query) }, { phone: insensitiveContains(query) }] }, take: 10, select: { id: true, name: true, company: true, email: true, phone: true } })
         : [],
       canSearchInvoices
-        ? db.invoice.findMany({ where: { ...projectFilter, ...projectOrgWhere, deletedAt: null, OR: [{ number: { contains: query } }] }, take: 10, select: { id: true, number: true, total: true, status: true, clientId: true } })
+        ? db.invoice.findMany({ where: { ...projectFilter, ...projectOrgWhere, deletedAt: null, OR: [{ number: insensitiveContains(query) }] }, take: 10, select: { id: true, number: true, total: true, status: true, clientId: true } })
         : [],
       canSearchDocuments
-        ? db.document.findMany({ where: { ...projectFilter, ...projectOrgWhere, deletedAt: null, OR: [{ name: { contains: query } }, { category: { contains: query } }] }, take: 10, select: { id: true, name: true, fileType: true, category: true, projectId: true } })
+        ? db.document.findMany({ where: { ...projectFilter, ...projectOrgWhere, deletedAt: null, OR: [{ name: insensitiveContains(query) }, { category: insensitiveContains(query) }] }, take: 10, select: { id: true, name: true, fileType: true, category: true, projectId: true } })
         : [],
     ]);
 

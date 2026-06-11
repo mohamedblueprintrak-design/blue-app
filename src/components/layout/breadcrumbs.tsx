@@ -24,7 +24,7 @@ const pageLabels: Record<string, { ar: string; en: string }> = {
   contracts: { ar: "العقود", en: "Contracts" },
   documents: { ar: "المستندات", en: "Documents" },
   site: { ar: "إدارة الموقع", en: "Site Management" },
-  FINANCIAL: { ar: "المالية", en: "Financial" },
+  "finance-revenue": { ar: "المالية", en: "Financial" },
   procurement: { ar: "المشتريات", en: "Procurement" },
   hr: { ar: "الموارد البشرية", en: "Human Resources" },
   transmittals: { ar: "الإحالات", en: "Transmittals" },
@@ -62,7 +62,7 @@ const pageLabels: Record<string, { ar: string; en: string }> = {
 // Map sub-pages to their parent for breadcrumb hierarchy
 function getParentPage(page: string): string | null {
   if (page.startsWith("site-")) return "site";
-  if (page.startsWith("financial-")) return "FINANCIAL";
+  if (page.startsWith("financial-")) return "finance-revenue";
   if (page.startsWith("hr-")) return "hr";
   if (page.startsWith("procurement-")) return "procurement";
   return null;

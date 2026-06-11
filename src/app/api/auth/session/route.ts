@@ -56,6 +56,7 @@ export async function GET(request: NextRequest) {
         deletedAt: true,
         lastLogin: true,
         createdAt: true,
+        passwordChangedAt: true,
       },
     });
 
@@ -63,6 +64,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(
         { success: false, user: null, isAuthenticated: false },
         { status: 200 }
+      );
+    }
+
+    // SECURITY: Check if password was changed after this token was issued
+    if (user.passwordChangedAt && payload.iat && Math.floor(user.passwordChangedAt.getTime() / 1000) > payload.iat) {
+      return NextResponse.json(
+        { success: false, user: null, isAuthenticated: false, error: 'Token expired due to password change' },
+        { status: 401 }
       );
     }
 

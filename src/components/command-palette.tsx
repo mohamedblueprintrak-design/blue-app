@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -68,7 +68,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   const setCurrentPage = useNavStore((s) => s.setCurrentPage);
 
   // All commands (navigation + quick actions)
-  const allCommands = useCallback((): CommandItem[] => {
+  const allCommands = useMemo((): CommandItem[] => {
     const actionCommands: CommandItem[] = [
       {
         id: 'action-ask-ai',

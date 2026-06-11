@@ -501,8 +501,8 @@ class TaskService {
       throw new TaskAccessError('Project not found or access denied');
     }
 
-    return db.task.findMany({
-      where: { projectId, deletedAt: null },
+    const results = await db.task.findMany({
+      where: { projectId, deletedAt: null, organizationId },
       orderBy: [{ order: 'asc' }, { startDate: 'asc' }],
       select: {
         id: true,
@@ -519,9 +519,12 @@ class TaskService {
         order: true,
         assigneeId: true,
       },
-    // NOTE: Double cast needed because Prisma select returns { assigneeId }
-    // but GanttTaskDTO expects { assignedTo } — field names don't overlap
-    }) as unknown as GanttTaskDTO[];
+    });
+
+    return results.map(r => ({
+      ...r,
+      assignedTo: r.assigneeId,
+    })) as GanttTaskDTO[];
   }
 
   /**

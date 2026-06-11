@@ -198,14 +198,14 @@ export default function NotificationDropdown() {
     }
     if (notif.relatedEntityType && notif.relatedEntityId) {
       const navMap: Record<string, { page: string; id?: string }> = {
-        project: { page: "project-detail", id: notif.relatedEntityId },
+        project: { page: "projects", id: notif.relatedEntityId },
         task: { page: "tasks" },
-        invoice: { page: "invoices" },
-        APPROVAL: { page: "approvals" },
+        invoice: { page: "financial-invoices" },
+        APPROVAL: { page: "tasks" },
         MEETING: { page: "meetings" },
         document: { page: "documents" },
-        rfi: { page: "rfi" },
-        submittal: { page: "submittals" },
+        rfi: { page: "site-rfi" },
+        submittal: { page: "site-submittals" },
       };
       const nav = navMap[notif.relatedEntityType];
       if (nav) {

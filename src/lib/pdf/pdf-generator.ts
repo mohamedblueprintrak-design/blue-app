@@ -633,8 +633,8 @@ export async function generateInvoiceReportPDF(data: InvoiceReportData): Promise
 
 
 // ===== Helper: Fetch company settings =====
-export async function getCompanySettings() {
-  const settings = await db.companySettings.findFirst();
+export async function getCompanySettings(organizationId?: string) {
+  const settings = await db.companySettings.findFirst(organizationId ? { where: { organizationId } } : undefined);
   return {
     name: settings?.name || 'BluePrint Engineering',
     nameEn: settings?.nameEn || 'BluePrint Engineering',

@@ -70,17 +70,16 @@ interface SafeWebSocketProviderProps {
  * Wraps the app in a WebSocketProvider with an error boundary.
  * If WebSocket connection fails or the provider throws, children
  * still render — just without real-time features.
+ *
+ * Always mounts the WebSocketProvider — it will fetch its own token
+ * via /api/auth/ws-token if none is provided as a prop.
  */
 export function SafeWebSocketProvider({
   children,
   token,
   userId,
 }: SafeWebSocketProviderProps) {
-  // Only attempt WebSocket connection if user is authenticated
-  if (!token) {
-    return <>{children}</>;
-  }
-
+  // Always mount so WebSocketProvider can fetch its own token
   return (
     <SafeWebSocketBoundary>
       <WebSocketProvider token={token} userId={userId}>

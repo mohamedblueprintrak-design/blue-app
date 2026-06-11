@@ -149,9 +149,7 @@ export async function initWorkflow(projectId: string, templateId?: string) {
  * transaction (prevents transaction breakout from executeStepAction).
  */
 export async function advanceWorkflow(workflowId: string, tx?: Parameters<Parameters<typeof db.$transaction>[0]>[0]) {
-  return await db.$transaction(async (innerTx) => {
-    // Use the provided transaction client, or the inner transaction if no parent
-    const txx = tx || innerTx;
+  const execute = async (txx: Parameters<Parameters<typeof db.$transaction>[0]>[0]) => {
 
     const workflow = await txx.projectWorkflow.findUnique({
       where: { id: workflowId },
@@ -247,11 +245,12 @@ export async function advanceWorkflow(workflowId: string, tx?: Parameters<Parame
         stages: { orderBy: { order: 'asc' }, include: { steps: { orderBy: { order: 'asc' } } } },
       },
     });
-  }, {
-    maxWait: 5000,
-    timeout: 10000,
-    isolationLevel: 'Serializable', // Prevent phantom reads during concurrent advances
-  });
+  };
+
+  if (tx) {
+    return execute(tx);
+  }
+  return db.$transaction(execute, { maxWait: 5000, timeout: 10000, isolationLevel: 'Serializable' });
 }
 
 /**
@@ -291,6 +290,10 @@ export async function executeStepAction(
 
 
     if (action === 'start') {
+      // State guard: only allow starting from UNLOCKED status
+      if (step.status !== 'UNLOCKED') {
+        throw new Error(`Cannot start step in status '${step.status}'. Step must be UNLOCKED first.`);
+      }
       await tx.workflowStep.update({
         where: { id: stepId },
         data: { status: 'IN_PROGRESS', startDate: new Date(), assigneeId: userId },
@@ -346,7 +349,7 @@ export async function executeStepAction(
       await tx.workflowStep.update({
         where: { id: stepId },
         data: {
-          status: 'UNLOCKED',
+          status: action === 'reject' ? 'REJECTED' : 'CHANGES_REQUESTED',
           action,
           notes: data?.notes || '',
           returnReason: data?.returnReason || '',
@@ -476,6 +479,10 @@ async function updateProjectProgress(workflowId: string) {
  */
 async function sendNotification(userId: string, projectId: string, type: NotificationType, title: string, message: string, relatedEntityId?: string) {
   try {
+    // Fetch organizationId from the project relation dynamically
+    const project = await db.project.findUnique({ where: { id: projectId }, select: { organizationId: true } });
+    if (!project) return; // Project not found, skip notification
+
     await db.notification.create({
       data: {
         userId,
@@ -485,7 +492,7 @@ async function sendNotification(userId: string, projectId: string, type: Notific
         message,
         relatedEntityType: 'workflow',
         relatedEntityId: relatedEntityId || projectId, // Default to projectId if not specified
-        organizationId: 'org-blueprint-rak', // We might need to look this up, but keeping it simple for now or fetch from project
+        organizationId: project.organizationId,
       },
     });
   } catch {

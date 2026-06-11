@@ -131,7 +131,17 @@ export async function generateToken(
 ): Promise<string> {
   const secret = getJwtSecret();
   
-  const token = new SignJWT(payload)
+  // SECURITY: Include type in the payload body (not as subject/sub claim).
+  // verifyToken() checks payload.type to reject non-access tokens.
+  // Setting type via setSubject() puts it in the 'sub' claim, which
+  // verifyToken() never checks — allowing e.g. 'password-reset' tokens
+  // to pass as access tokens.
+  const tokenPayload = { ...payload };
+  if (options?.type) {
+    tokenPayload.type = options.type;
+  }
+  
+  const token = new SignJWT(tokenPayload)
     .setProtectedHeader({ alg: JWT_ALG })
     .setIssuedAt()
     .setIssuer(JWT_ISSUER)
@@ -142,10 +152,6 @@ export async function generateToken(
   } else {
     // SECURITY FIX: Never allow tokens to live forever. Use a reasonable default.
     token.setExpirationTime('1h');
-  }
-  
-  if (options?.type) {
-    token.setSubject(options.type);
   }
   
   return token.sign(secret);

@@ -59,14 +59,11 @@ export default async function RootLayout({
   return (
     <html lang="ar" dir="rtl" suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
-        <link
-          rel="stylesheet"
-          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-          crossOrigin=""
-        />
+        {/* Leaflet CSS imported locally via 'leaflet/dist/leaflet.css' in globals.css or component */}
         {/* Security headers are set centrally by src/proxy.ts — no duplicate meta tags needed */}
-        {/* SECURITY: This inline script is safe — it contains only static code that reads from
+        {/* SECURITY CONCERN: This inline script uses dangerouslySetInnerHTML without a nonce.
+            In production, this should use a CSP nonce for compliance.
+            This inline script is safe — it contains only static code that reads from
             localStorage and sets document direction. No user input is interpolated.
             This is the standard Next.js pattern for preventing FOUC (flash of unstyled content). */}
         <script
@@ -90,10 +87,10 @@ export default async function RootLayout({
                     {process.env.DEMO_MODE === "true" && <DemoBanner />}
                     {children}
                     <CookieConsent />
+                    <Toaster />
                   </NextIntlClientProvider>
                 </ErrorBoundary>
               </SafeWebSocketProvider>
-              <Toaster />
             </CsrfProvider>
           </ReactQueryProvider>
         </ThemeProvider>

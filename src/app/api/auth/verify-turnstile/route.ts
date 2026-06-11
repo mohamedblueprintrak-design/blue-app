@@ -16,12 +16,12 @@ export async function POST(request: NextRequest) {
 
     // Fail-closed in production if secret key is not configured
     if (!TURNSTILE_SECRET_KEY) {
-      if (process.env.NODE_ENV === 'development') {
-        console.warn('Turnstile bypassed in development due to missing TURNSTILE_SECRET_KEY');
+      if (process.env.NODE_ENV === 'development' && process.env.BYPASS_CAPTCHA === 'true') {
+        console.warn('Turnstile bypassed in development due to BYPASS_CAPTCHA=true');
         return NextResponse.json({ success: true });
       }
       return NextResponse.json(
-        { success: false, error: "Turnstile is not configured correctly." },
+        { success: false, error: "Captcha not configured" },
         { status: 500 }
       );
     }

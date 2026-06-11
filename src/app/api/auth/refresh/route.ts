@@ -16,6 +16,9 @@ import {
 /** Grace period for concurrent refresh detection (30 seconds) */
 const CONCURRENT_REFRESH_GRACE_MS = 30_000;
 
+/** Track tokens currently being rotated within the grace period to prevent concurrent rotations */
+const tokensInGraceRotation = new Set<string>();
+
 /**
  * Helper to clear auth cookies on a response
  */
@@ -127,6 +130,26 @@ export async function POST(request: NextRequest) {
         // rotated. Don't nuke all sessions; instead issue new tokens.
         // This prevents the common issue where two tabs refreshing simultaneously
         // causes reuse detection that logs the user out of all devices.
+        
+        // SECURITY: Track which tokens are already being rotated within the grace
+        // period to prevent multiple concurrent rotations from the same token,
+        // which could allow token amplification.
+        if (tokensInGraceRotation.has(storedToken.id)) {
+          log.security('Duplicate concurrent refresh from same token blocked', {
+            userId: storedToken.userId,
+            tokenId: storedToken.id,
+            revokeAgeMs: revokeAge,
+          });
+          return clearAuthCookies(NextResponse.json(
+            { error: 'Token already being rotated' },
+            { status: 401 }
+          ));
+        }
+        
+        tokensInGraceRotation.add(storedToken.id);
+        // Auto-cleanup after grace period expires
+        setTimeout(() => tokensInGraceRotation.delete(storedToken.id), CONCURRENT_REFRESH_GRACE_MS);
+        
         log.warn('Concurrent refresh detected within grace period', {
           userId: storedToken.userId,
           revokeAgeMs: revokeAge,

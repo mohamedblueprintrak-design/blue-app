@@ -13,8 +13,14 @@ import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 
 /**
  * GET - Verify email with token
+ * Rate limited to prevent brute-force token guessing
  */
 export async function GET(request: NextRequest) {
+  // Rate limit to prevent brute-force guessing of email verification tokens
+  const { allowed: _allowed, result } = await withRateLimit(request, 'emailVerification');
+  const blocked = rateLimitResponse(result);
+  if (blocked) return blocked;
+
   const { searchParams } = new URL(request.url);
   const token = searchParams.get('token');
 
