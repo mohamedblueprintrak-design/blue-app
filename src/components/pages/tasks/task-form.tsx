@@ -59,7 +59,7 @@ export function TaskForm({
 
   // Form
   const form = useForm<TaskFormData>({
-    resolver: zodResolver(taskSchema) as unknown as Resolver<TaskFormData>,
+    resolver: zodResolver(taskSchema) as Resolver<TaskFormData>,
     defaultValues: {
       title: "",
       description: "",

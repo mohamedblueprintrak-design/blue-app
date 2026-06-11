@@ -54,7 +54,7 @@ export function EmployeeFormDialog({
   isSaving,
 }: EmployeeFormDialogProps) {
   const form = useForm<EmployeeFormData>({
-    resolver: zodResolver(employeeSchema) as unknown as Resolver<EmployeeFormData>,
+    resolver: zodResolver(employeeSchema) as Resolver<EmployeeFormData>,
     defaultValues: EMPTY_FORM,
   });
 

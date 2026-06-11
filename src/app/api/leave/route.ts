@@ -106,6 +106,14 @@ export async function POST(request: NextRequest) {
     const { employeeId, type, startDate, endDate, reason } = sanitizedBody;
     const days = Math.ceil((new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 3600 * 24)) || 1;
 
+    // Verify employee belongs to same organization
+    const targetEmployee = await db.employee.findFirst({
+      where: { id: employeeId, ...orgFilter(ctx) },
+    });
+    if (!targetEmployee) {
+      return NextResponse.json({ error: 'Employee not found in your organization' }, { status: 403 });
+    }
+
     const leave = await db.leave.create({
       data: {
         ...orgCreate(ctx),

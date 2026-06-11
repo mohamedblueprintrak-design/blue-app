@@ -103,6 +103,14 @@ export async function POST(request: NextRequest) {
     const validStatuses = ['ACTIVE', 'ON_LEAVE', 'TERMINATED', 'PROBATION'];
     const resolvedStatus = employmentStatus && validStatuses.includes(employmentStatus) ? employmentStatus : 'ACTIVE';
 
+    // Verify user belongs to same organization
+    const targetUser = await db.user.findFirst({
+      where: { id: userId, ...orgFilter(ctx) },
+    });
+    if (!targetUser) {
+      return NextResponse.json({ error: 'User not found in your organization' }, { status: 403 });
+    }
+
     // Check if employee already exists for this user
     const existing = await db.employee.findUnique({
       where: { userId },

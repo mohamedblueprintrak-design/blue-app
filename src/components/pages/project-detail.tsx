@@ -69,13 +69,11 @@ export default function ProjectDetail({ language }: ProjectDetailProps) {
 
   // Sync with store
   React.useEffect(() => {
-    if (currentProjectTab && currentProjectTab !== activeTab) {
+    if (currentProjectTab) {
       setActiveTab(currentProjectTab);
     }
-    if (currentProjectSubTab !== activeSubTab) {
-      setActiveSubTab(currentProjectSubTab || "");
-    }
-  }, [currentProjectTab, currentProjectSubTab, activeTab, activeSubTab]);
+    setActiveSubTab(currentProjectSubTab || "");
+  }, [currentProjectTab, currentProjectSubTab]);
 
   const { data: project, isLoading } = useQuery({
     queryKey: ["project", currentProjectId],

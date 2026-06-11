@@ -156,7 +156,7 @@ export default function Submittals({ language, projectId }: SubmittalsProps) {
   const defaultSubForm = { projectId: projectId || "", number: "", title: "", type: "", contractor: "", revisionNumber: "1", status: "UNDER_REVIEW" as const };
   const [_formData, setFormData] = useState(defaultSubForm);
 
-  const form = useForm<SubmittalFormData>({ resolver: zodResolver(submittalSchema) as unknown as Resolver<SubmittalFormData>, defaultValues: defaultSubForm });
+  const form = useForm<SubmittalFormData>({ resolver: zodResolver(submittalSchema) as Resolver<SubmittalFormData>, defaultValues: defaultSubForm });
   const { register, handleSubmit: rhfHandleSubmit, formState: { errors }, reset, setValue, watch } = form;
 
   // Auto-set project filter from props

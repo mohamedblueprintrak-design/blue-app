@@ -217,8 +217,16 @@ async function handleRegister(
     // Hash password
     const hashedPassword = await hash(data.password, 12);
 
-    // Create organization if name provided
+    // Determine role - SECURITY FIX: Organization creators get MANAGER role (not ADMIN)
+    // Regular registration always gets VIEWER role (no privilege escalation)
+    const role = data.organizationName
+      ? UserRoleValues.MANAGER
+      : UserRoleValues.VIEWER;
+
+    // Create organization and user atomically in a transaction
     let organizationId: string | null = null;
+    let user;
+
     if (data.organizationName) {
       // Generate a unique slug with collision handling
       const baseSlug = data.organizationName
@@ -234,43 +242,69 @@ async function handleRegister(
         suffix++;
       }
 
-      const org = await db.organization.create({
-        data: {
-          name: data.organizationName,
-          slug,
-          currency: 'AED',
-        },
-      });
-      organizationId = org.id;
-    }
-
-    if (!organizationId) {
+      // Wrap org + user creation in a transaction for atomicity,
+      // with retry mechanism for slug race condition (unique constraint violation)
+      const maxSlugAttempts = 5;
+      let slugAttempts = 0;
+      while (slugAttempts < maxSlugAttempts) {
+        try {
+          const result = await db.$transaction(async (tx) => {
+            const org = await tx.organization.create({
+              data: {
+                name: data.organizationName!,
+                slug,
+                currency: 'AED',
+              },
+            });
+            const createdUser = await tx.user.create({
+              data: {
+                email: data.email.toLowerCase(),
+                password: hashedPassword,
+                name: userName,
+                role: role as UserRole,
+                department: data.department || '',
+                organizationId: org.id,
+              },
+              include: {
+                organization: {
+                  select: { id: true, name: true },
+                },
+              },
+            });
+            return { org, user: createdUser };
+          });
+          organizationId = result.org.id;
+          user = result.user;
+          break;
+        } catch (error: unknown) {
+          slugAttempts++;
+          if (slugAttempts >= maxSlugAttempts) throw error;
+          // Unique constraint violation - try next slug
+          suffix++;
+          slug = `${baseSlug}-${suffix}`;
+        }
+      }
+    } else {
+      // No org to create — just create user
       const defaultOrg = await db.organization.findFirst();
       organizationId = defaultOrg?.id || "";
-    }
 
-    // Determine role - SECURITY FIX: Organization creators get MANAGER role (not ADMIN)
-    // Regular registration always gets VIEWER role (no privilege escalation)
-    const role = data.organizationName
-      ? UserRoleValues.MANAGER
-      : UserRoleValues.VIEWER;
-
-    // Create user
-    const user = await db.user.create({
-      data: {
-        email: data.email.toLowerCase(),
-        password: hashedPassword,
-        name: userName,
-        role: role as UserRole,
-        department: data.department || '',
-        organizationId,
-      },
-      include: {
-        organization: {
-          select: { id: true, name: true },
+      user = await db.user.create({
+        data: {
+          email: data.email.toLowerCase(),
+          password: hashedPassword,
+          name: userName,
+          role: role as UserRole,
+          department: data.department || '',
+          organizationId,
         },
-      },
-    });
+        include: {
+          organization: {
+            select: { id: true, name: true },
+          },
+        },
+      });
+    }
 
     // Generate auth cookie token using centralized utility
     // SECURITY: emailVerified is false — user must verify email before full access

@@ -31,10 +31,14 @@ export default function AIAssistant({ language: lang, projectId }: Props) {
     if (typeof window === 'undefined') return 'conv-ssr';
     return `conv-${Date.now()}`;
   });
-  const [selectedModelId, setSelectedModelId] = useState<string>(() => {
-    if (typeof window === 'undefined') return 'zai-default';
-    return localStorage.getItem('bp_selected_model') || 'zai-default';
-  });
+  const [selectedModelId, setSelectedModelId] = useState<string>('zai-default');
+
+  // Read localStorage after hydration to avoid SSR mismatch
+  useEffect(() => {
+    const stored = localStorage.getItem('bp_selected_model');
+    if (stored) setSelectedModelId(stored);
+  }, []);
+
   const [_availableModels, setAvailableModels] = useState<Array<{
     id: string;
     name: string;

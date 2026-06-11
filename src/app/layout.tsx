@@ -82,7 +82,7 @@ export default async function RootLayout({
           <ReactQueryProvider>
             <CsrfProvider>
               <SafeWebSocketProvider>
-                <ErrorBoundary locale="ar">
+                <ErrorBoundary>
                   <NextIntlClientProvider messages={messages}>
                     {process.env.DEMO_MODE === "true" && <DemoBanner />}
                     {children}

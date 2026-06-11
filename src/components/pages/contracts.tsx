@@ -36,7 +36,7 @@ export default function ContractsPage({ language, projectId }: ContractsPageProp
   const [_formData, setFormData] = useState(emptyForm);
 
   const form = useForm<ContractFormData>({
-    resolver: zodResolver(contractSchema) as unknown as Resolver<ContractFormData>,
+    resolver: zodResolver(contractSchema) as Resolver<ContractFormData>,
     defaultValues: emptyForm,
   });
   const { reset } = form;

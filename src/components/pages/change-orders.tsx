@@ -153,7 +153,7 @@ export default function ChangeOrders({ language, projectId }: ChangeOrdersProps)
   const defaultCOForm = { projectId: projectId || "", number: "", type: "MODIFICATION" as const, costImpact: "0", timeImpact: "", description: "", status: "PENDING" as const };
   const [_formData, setFormData] = useState(defaultCOForm);
 
-  const form = useForm<ChangeOrderFormData>({ resolver: zodResolver(changeOrderSchema) as unknown as Resolver<ChangeOrderFormData>, defaultValues: defaultCOForm });
+  const form = useForm<ChangeOrderFormData>({ resolver: zodResolver(changeOrderSchema) as Resolver<ChangeOrderFormData>, defaultValues: defaultCOForm });
   const { register, handleSubmit: rhfHandleSubmit, formState: { errors }, reset, setValue } = form;
   const watchProjectId = useWatch({ control: form.control, name: "projectId" });
   const watchType = useWatch({ control: form.control, name: "type" });

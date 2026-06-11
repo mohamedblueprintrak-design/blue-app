@@ -57,7 +57,7 @@ export default function ProjectsList({ language }: ProjectsListProps) {
     };
   }, []);
   const form = useForm<ProjectFormData>({
-    resolver: zodResolver(projectSchema) as unknown as Resolver<ProjectFormData>,
+    resolver: zodResolver(projectSchema) as Resolver<ProjectFormData>,
     defaultValues: {
       number: "",
       name: "",

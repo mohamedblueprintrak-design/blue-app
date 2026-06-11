@@ -355,7 +355,7 @@ export async function POST(request: NextRequest) {
         dueDate: dueDate ? new Date(dueDate) : null,
         taskType: resolvedTaskType,
         slaDays: slaDays ? parseInt(slaDays) : null,
-        progress: typeof progress === 'number' ? progress : (parseInt(String(progress)) || 0),
+        progress: Math.min(100, Math.max(0, typeof progress === 'number' ? Math.floor(progress) : (parseInt(String(progress)) || 0))),
         ...orgCreate(user),
         createdById: user.userId,
       },
