@@ -44,8 +44,8 @@ services:
       - SMTP_HOST=${SMTP_HOST}
       - SMTP_PORT=${SMTP_PORT:-587}
       - SMTP_USER=${SMTP_USER}
-      - SMTP_PASSWORD=${SMTP_PASSWORD:-}
-      - SMTP_PASS=${SMTP_PASSWORD:-}  # Backward compatibility alias
+      - SMTP_PASSWORD=${SMTP_PASSWORD:?SMTP_PASSWORD must be set}
+      - SMTP_PASS=${SMTP_PASSWORD:?SMTP_PASSWORD must be set}
       # Encryption key for sensitive data (64 hex chars = 256 bits)
       # Generate with: openssl rand -hex 32
       - ENCRYPTION_KEY=${ENCRYPTION_KEY}
@@ -127,12 +127,12 @@ services:
     networks:
       - blueprint-network
     environment:
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
-    # SECURITY: Use password authentication
+      - REDIS_PASSWORD=${REDIS_PASSWORD:?REDIS_PASSWORD must be set}
+    # SECURITY: Use password authentication with fail-fast
     command: >
       redis-server 
       --appendonly yes 
-      --requirepass ${REDIS_PASSWORD}
+      --requirepass ${REDIS_PASSWORD:?REDIS_PASSWORD must be set}
       --maxmemory 256mb
       --maxmemory-policy allkeys-lru
     # SECURITY: Use REDISCLI_AUTH env var instead of -a flag to avoid

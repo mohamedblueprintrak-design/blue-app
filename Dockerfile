@@ -50,21 +50,22 @@ RUN npm run build
 # ============================================
 # Stage 3: Install production dependencies only
 FROM node:20-alpine AS prod-deps
-# python3, make, g++ needed for native modules (sharp)
-RUN apk add --no-cache libc6-compat openssl python3 make g++
+RUN apk add --no-cache libc6-compat openssl
 
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-COPY prisma ./prisma/
 
 # Install ONLY production dependencies
 # --ignore-scripts skips prepare:husky (not installed in prod) and postinstall
-# We run prisma generate manually below
 RUN npm ci --only=production --ignore-scripts
 
-# Generate Prisma Client (production)
-RUN npx prisma generate
+# Copy the already-generated Prisma Client from the deps stage.
+# Prisma CLI is in devDependencies, so it won't be installed in prod-deps.
+# Regenerating with `npx prisma generate` would either fail (no prisma binary)
+# or download an unversioned binary from npm (wrong version, network-dependent).
+COPY --from=deps /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=deps /app/node_modules/@prisma ./node_modules/@prisma
 
 # ============================================
 # Stage 4: Runner (Production)
@@ -90,6 +91,11 @@ COPY --from=prod-deps /app/node_modules ./node_modules
 
 # Copy Prisma schema for migrations at runtime
 COPY --from=builder /app/prisma ./prisma
+
+# Copy Prisma CLI binary from deps stage for runtime migrations.
+# Prisma CLI is in devDependencies, so it's not in prod node_modules.
+# We need it at runtime for `prisma migrate deploy` in the entrypoint.
+COPY --from=deps /app/node_modules/prisma ./node_modules/prisma
 
 # Create uploads directory
 RUN mkdir -p /app/uploads && chown -R nextjs:nodejs /app/uploads

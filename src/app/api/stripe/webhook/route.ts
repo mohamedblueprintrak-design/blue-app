@@ -28,27 +28,10 @@ import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 // Webhook secret from environment
 const _WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || '';
 
-// NOTE: In-memory event tracking doesn't work across multiple instances.
-// For production multi-instance deployments, use Redis or a WebhookEvent DB table.
-// TODO: Replace with Redis-based idempotency tracking for multi-instance deployments.
-// In-memory set of recently processed event IDs for idempotency.
-// Prevents duplicate payment records when Stripe redelivers the same event.
-// Entries expire after 5 minutes to bound memory usage.
-const processedEventIds = new Map<string, number>();
-const EVENT_ID_TTL_MS = 5 * 60 * 1000; // 5 minutes
-
-function isEventProcessed(eventId: string): boolean {
-  const now = Date.now();
-  // Clean up expired entries
-  for (const [id, ts] of processedEventIds) {
-    if (now - ts > EVENT_ID_TTL_MS) processedEventIds.delete(id);
-  }
-  return processedEventIds.has(eventId);
-}
-
-function markEventProcessed(eventId: string): void {
-  processedEventIds.set(eventId, Date.now());
-}
+// Idempotency is handled via DB-based dedup (activityLog with unique constraint).
+// This works correctly across multiple instances unlike in-memory Maps.
+// The DB check below (findFirst on activityLog) prevents duplicate processing
+// even when Stripe redelivers events or multiple instances receive the same event.
 
 export async function POST(request: NextRequest) {
   // Rate limiting — public limiter (200 req/min) for webhooks
@@ -91,11 +74,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ received: true });
   }
 
-  // Idempotency check — skip already-processed events (Stripe redelivers on 500)
-  if (isEventProcessed(event.id)) {
-    log.info(`Duplicate Stripe event skipped: ${event.id} (${event.type})`);
-    return NextResponse.json({ received: true });
-  }
+  // Idempotency is already handled by the DB check above (activityLog findFirst).
 
   // Log the event for payment audit trail
   log.info(`Stripe webhook received: ${event.type}`);
@@ -130,9 +109,6 @@ export async function POST(request: NextRequest) {
       default:
         log.info(`Unhandled webhook event type: ${event.type}`);
     }
-
-    // Mark event as processed only after successful handling
-    markEventProcessed(event.id);
 
     // Log to DB for cross-instance idempotency tracking
     await db.activityLog.create({
