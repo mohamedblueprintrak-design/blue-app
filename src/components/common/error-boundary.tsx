@@ -239,7 +239,7 @@ export class ErrorBoundary extends React.Component<
   private async logErrorToService(error: Error, errorInfo: React.ErrorInfo): Promise<void> {
     try {
       // Send to Sentry if available (loaded via @sentry/nextjs client config)
-      const windowAny = window as unknown as Record<string, unknown>;
+      const windowAny = window as unknown as Record<string, unknown>  // eslint-disable-line @typescript-eslint/no-explicit-any -- necessary for dynamic global access;
       const Sentry = windowAny.Sentry as {
         captureException?: (err: Error, ctx?: Record<string, unknown>) => string;
       } | undefined;

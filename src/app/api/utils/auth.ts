@@ -87,11 +87,15 @@ export function getAuthContext(request: NextRequest): AuthContext | null {
 }
 
 /**
+ * @deprecated Use requireVerifiedAuth() instead. This function wraps
+ * getAuthContext() without JWT re-verification and is vulnerable to
+ * header forgery attacks. All new code MUST use requireVerifiedAuth().
+ *
  * Require authentication in a route handler.
  * Returns the auth context or an error response.
- * 
- * USAGE:
- *   const auth = requireAuthContext(request);
+ *
+ * USAGE (deprecated — prefer requireVerifiedAuth):
+ *   const auth = await requireVerifiedAuth(request);
  *   if ('error' in auth) return auth.error;
  *   // auth.user is now typed as AuthContext
  */
@@ -292,11 +296,15 @@ import { hasPermission, canAccessFinancials, canAccessHR, isAdmin as isAdminChec
 import { Permission } from '@/lib/auth/types';
 
 /**
+ * @deprecated Use requireVerifiedPermission() instead. This function wraps
+ * getAuthContext() without JWT re-verification and is vulnerable to
+ * header forgery attacks. All new code MUST use requireVerifiedPermission().
+ *
  * Require a specific permission for an API route.
  * Returns the auth context if permission granted, or a forbidden response.
  *
- * USAGE:
- *   const result = requirePermission(request, Permission.INVOICE_CREATE);
+ * USAGE (deprecated — prefer requireVerifiedPermission):
+ *   const result = await requireVerifiedPermission(request, Permission.INVOICE_CREATE);
  *   if ('error' in result) return result.error;
  *   // result.user is now typed as AuthContext
  */
@@ -315,6 +323,10 @@ export function requirePermission(
 }
 
 /**
+ * @deprecated Use requireVerifiedAdmin() instead. This function wraps
+ * getAuthContext() without JWT re-verification and is vulnerable to
+ * header forgery attacks.
+ *
  * Require admin role for an API route.
  */
 export function requireAdmin(
@@ -331,6 +343,10 @@ export function requireAdmin(
 }
 
 /**
+ * @deprecated Use requireVerifiedFinancialAccess() instead. This function wraps
+ * getAuthContext() without JWT re-verification and is vulnerable to
+ * header forgery attacks.
+ *
  * Require financial access for an API route.
  */
 export function requireFinancialAccess(
@@ -347,6 +363,10 @@ export function requireFinancialAccess(
 }
 
 /**
+ * @deprecated Use requireVerifiedAuth() + role check instead. This function wraps
+ * getAuthContext() without JWT re-verification and is vulnerable to
+ * header forgery attacks.
+ *
  * Require HR access for an API route.
  */
 export function requireHRAccess(

@@ -157,6 +157,55 @@ export async function GET(request: NextRequest) {
 
     log.info('Microsoft OAuth: user authenticated', { microsoftEmail, microsoftId });
 
+    // ── OAuth Account Linking ──────────────────────────────────────
+    // If the user initiated linking from account settings, link this
+    // Microsoft account to their existing account instead of logging in.
+    const linkIntent = request.cookies.get('oauth_link_intent')?.value;
+    if (linkIntent === 'microsoft') {
+      const authToken = request.cookies.get('blue_token')?.value;
+      if (!authToken) {
+        return NextResponse.redirect(
+          `${baseUrl}/login?error=${encodeURIComponent('يجب تسجيل الدخول أولاً لربط حساب Microsoft')}`
+        );
+      }
+
+      try {
+        const { jwtVerify } = await import('jose');
+        const { getJwtSecretBytes: _getJwtSecretBytes } = await import('@/lib/auth/jwt-secret');
+        const { payload } = await jwtVerify(authToken, _getJwtSecretBytes(), {
+          issuer: 'blueprint-saas',
+          audience: 'blueprint-users',
+        });
+
+        const userId = payload.userId as string;
+        const existingMsUser = await db.user.findFirst({
+          where: { microsoftId, NOT: { id: userId } },
+        });
+        if (existingMsUser) {
+          return NextResponse.redirect(
+            `${baseUrl}/dashboard?error=${encodeURIComponent('حساب Microsoft هذا مرتبط بحساب آخر بالفعل')}`
+          );
+        }
+
+        await db.user.update({
+          where: { id: userId },
+          data: { microsoftId, emailVerified: new Date() },
+        });
+
+        log.info('Microsoft OAuth: account linked', { userId, microsoftId });
+
+        const response = NextResponse.redirect(`${baseUrl}/dashboard?linked=microsoft`);
+        response.cookies.set('oauth_link_intent', '', { path: '/', maxAge: 0 });
+        response.cookies.set('microsoft_oauth_state', '', { path: '/', maxAge: 0 });
+        response.cookies.set('microsoft_oauth_verifier', '', { path: '/', maxAge: 0 });
+        return response;
+      } catch {
+        return NextResponse.redirect(
+          `${baseUrl}/login?error=${encodeURIComponent('انتهت صلاحية الجلسة. سجل دخولك وحاول مرة أخرى.')}`
+        );
+      }
+    }
+
     // ── Find or create user ────────────────────────────────────────
     let user;
     let isNewUser = false;

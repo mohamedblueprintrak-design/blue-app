@@ -84,7 +84,7 @@ async function parseResponse<T>(response: Response): Promise<ApiResponse<T>> {
     return JSON.parse(text);
   } catch {
     // Malformed JSON response — return as text data
-    return { success: true, data: text as unknown as T };
+    return { success: true, data: text as T };
   }
 }
 

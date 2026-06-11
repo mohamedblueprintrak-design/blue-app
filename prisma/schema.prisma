@@ -1292,23 +1292,26 @@ model Risk {
 }
 
 model RiskAction {
-  id          String    @id @default(cuid())
-  riskId      String
-  description String    @default("")
-  assigneeId  String?
-  dueDate     DateTime?
-  completed   Boolean   @default(false)
-  deletedAt   DateTime? // Soft delete
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id             String    @id @default(cuid())
+  riskId         String
+  description    String    @default("")
+  assigneeId     String?
+  dueDate        DateTime?
+  completed      Boolean   @default(false)
+  organizationId String
+  deletedAt      DateTime? // Soft delete
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
-  risk     Risk  @relation(fields: [riskId], references: [id], onDelete: Cascade)
-  assignee User? @relation(fields: [assigneeId], references: [id], onDelete: SetNull)
+  risk         Risk         @relation(fields: [riskId], references: [id], onDelete: Cascade)
+  assignee     User?        @relation(fields: [assigneeId], references: [id], onDelete: SetNull)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@index([riskId])
   @@index([assigneeId])
   @@index([deletedAt])
   @@index([dueDate])
+  @@index([organizationId])
 }
 
 // ==================== MEETINGS ====================
@@ -2175,22 +2178,25 @@ model WorkflowTemplate {
 }
 
 model WorkflowTemplateStage {
-  id           String   @id @default(cuid())
-  templateId   String
-  name         String   @default("")
-  nameEn       String   @default("")
-  order        Int      @default(0)
-  durationDays Int      @default(0)
-  isParallel   Boolean  @default(false)
-  isOptional   Boolean  @default(false)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id             String   @id @default(cuid())
+  templateId     String
+  name           String   @default("")
+  nameEn         String   @default("")
+  order          Int      @default(0)
+  durationDays   Int      @default(0)
+  isParallel     Boolean  @default(false)
+  isOptional     Boolean  @default(false)
+  organizationId String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
-  template WorkflowTemplate       @relation(fields: [templateId], references: [id], onDelete: Cascade)
-  steps    WorkflowTemplateStep[]
+  template      WorkflowTemplate       @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  steps         WorkflowTemplateStep[]
   workflowStages WorkflowStage[]
+  organization  Organization           @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@index([templateId, order])
+  @@index([organizationId])
 }
 
 model WorkflowTemplateStep {
@@ -2205,13 +2211,16 @@ model WorkflowTemplateStep {
   autoComplete     Boolean  @default(false)
   onCompleteAction String   @default("next_step")
   daysToComplete   Int      @default(0)
+  organizationId   String
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  stage WorkflowTemplateStage @relation(fields: [stageId], references: [id], onDelete: Cascade)
+  stage        WorkflowTemplateStage @relation(fields: [stageId], references: [id], onDelete: Cascade)
   workflowSteps WorkflowStep[]
+  organization Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@index([stageId, order])
+  @@index([organizationId])
 }
 
 model ProjectWorkflow {
@@ -2254,18 +2263,21 @@ model WorkflowStage {
   completedDate   DateTime?
   assigneeId      String?
   notes           String    @default("")
+  organizationId  String
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
-  assignee User?           @relation("WorkflowStageAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
-  workflow ProjectWorkflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
-  templateStage WorkflowTemplateStage? @relation(fields: [templateStageId], references: [id], onDelete: SetNull)
-  steps    WorkflowStep[]
+  assignee       User?                @relation("WorkflowStageAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  workflow       ProjectWorkflow      @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  templateStage  WorkflowTemplateStage? @relation(fields: [templateStageId], references: [id], onDelete: SetNull)
+  steps          WorkflowStep[]
+  organization   Organization         @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@index([workflowId, order])
   @@index([status])
   @@index([dueDate])
   @@index([assigneeId])
+  @@index([organizationId])
 }
 
 model WorkflowStep {
@@ -2285,17 +2297,20 @@ model WorkflowStep {
   notes          String    @default("")
   returnReason   String    @default("")
   severity       String    @default("normal")
+  organizationId String
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
-  assignee User?         @relation("WorkflowStepAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
-  stage    WorkflowStage @relation(fields: [stageId], references: [id], onDelete: Cascade)
-  templateStep WorkflowTemplateStep? @relation(fields: [templateStepId], references: [id], onDelete: SetNull)
+  assignee      User?                 @relation("WorkflowStepAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  stage         WorkflowStage         @relation(fields: [stageId], references: [id], onDelete: Cascade)
+  templateStep  WorkflowTemplateStep? @relation(fields: [templateStepId], references: [id], onDelete: SetNull)
+  organization  Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@index([stageId, order])
   @@index([status])
   @@index([dueDate])
   @@index([assigneeId])
+  @@index([organizationId])
 }
 
 // ==================== SAAS MULTI-TENANT MODELS ====================
@@ -2387,6 +2402,12 @@ model Organization {
   featureFlags               FeatureFlag[]
   aiChatMessages             AIChatMessage[]
   projectWorkflows           ProjectWorkflow[]
+  workflowStages             WorkflowStage[]
+  workflowSteps              WorkflowStep[]
+  riskActions                RiskAction[]
+  workflowTemplateStages     WorkflowTemplateStage[]
+  workflowTemplateSteps      WorkflowTemplateStep[]
+  subscriptionPayments       SubscriptionPayment[]
   retainages                 Retainage[]
   guaranteeLetters           GuaranteeLetter[]
   progressClaims             ProgressClaim[]
@@ -2458,13 +2479,16 @@ model SubscriptionPayment {
   receiptUrl            String?
   description           String?
   metadata              String? // JSON string
+  organizationId        String
   createdAt             DateTime      @default(now())
   updatedAt             DateTime      @updatedAt
 
   subscription Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@index([subscriptionId])
   @@index([status])
+  @@index([organizationId])
 }
 
 // Email Verification Token
