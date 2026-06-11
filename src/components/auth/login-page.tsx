@@ -108,10 +108,14 @@ export default function LoginPage({ language: _language }: LoginPageProps) {
   const [demoCredentials, setDemoCredentials] = useState<DemoCredential[]>([]);
   const [featureIndex, setFeatureIndex] = useState(0);
   const [requires2FA, setRequires2FA] = useState(false);
-  const [showGoogleButton] = useState(() => typeof window !== 'undefined' && !!process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID);
+  const [showGoogleButton, setShowGoogleButton] = useState(false);
+
+  // Read env var after hydration to avoid SSR mismatch
+  useEffect(() => {
+    setShowGoogleButton(!!process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID);
+  }, []);
   const [twoFactorCode, setTwoFactorCode] = useState("");
   const [captchaToken, setCaptchaToken] = useState("");
-  const dbReady = true; // DB is always ready — seeding is done via `bun run db:seed`
   const { login } = useAuthStore();
   const { toast: _toast } = useToast();
 
@@ -656,21 +660,15 @@ export default function LoginPage({ language: _language }: LoginPageProps) {
                   {/* Submit Button */}
                   <Button
                     type="submit"
-                    disabled={isLoading || !dbReady}
+                    disabled={isLoading}
                     className={cn(
                       "w-full h-11 bg-gradient-to-r from-teal-500 to-cyan-500",
                       "hover:from-teal-600 hover:to-cyan-600 text-white font-medium",
                       "shadow-lg shadow-teal-500/20 hover:shadow-teal-500/40",
                       "transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] cursor-pointer mt-2",
-                      !dbReady && "opacity-60 cursor-not-allowed"
                     )}
                   >
-                    {!dbReady ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin me-2" />
-                        {t("initializing")}
-                      </>
-                    ) : isLoading ? (
+                    {isLoading ? (
                       <>
                         <Loader2 className="h-4 w-4 animate-spin me-2" />
                         {t("signingIn")}

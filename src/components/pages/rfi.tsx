@@ -203,7 +203,7 @@ export default function RFI({ language, projectId }: RFIProps) {
   const defaultRfiForm = { projectId: projectId || "", number: "", subject: "", description: "", fromId: "", toId: "", priority: "NORMAL" as const, dueDate: "" };
   const [_formData, setFormData] = useState(defaultRfiForm);
 
-  const form = useForm<RfiFormData>({ resolver: zodResolver(rfiSchema) as unknown as Resolver<RfiFormData>, defaultValues: defaultRfiForm });
+  const form = useForm<RfiFormData>({ resolver: zodResolver(rfiSchema) as Resolver<RfiFormData>, defaultValues: defaultRfiForm });
   const { register, handleSubmit: rhfHandleSubmit, formState: { errors }, reset, setValue, watch } = form;
 
   // Auto-set project filter from props

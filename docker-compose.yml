@@ -32,7 +32,7 @@ services:
       - DATABASE_URL=postgresql://blueprint:${DATABASE_PASSWORD:?DATABASE_PASSWORD must be set}@postgres:5432/blueprint?schema=public
       - JWT_SECRET=${JWT_SECRET}
       - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-dev_redis_password}@redis:6379
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
       # SMTP Configuration
       - SMTP_HOST=${SMTP_HOST:-}
       - SMTP_PORT=${SMTP_PORT:-587}
@@ -195,7 +195,7 @@ services:
     restart: unless-stopped
     env_file: .env
     environment:
-      - PGPASSWORD=${DATABASE_PASSWORD:-dev_password}
+      - PGPASSWORD=${DATABASE_PASSWORD}
     volumes:
       - backup_data:/backups
     command: >

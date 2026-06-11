@@ -141,7 +141,7 @@ export default function SuppliersPage({ language }: SuppliersPageProps) {
   const [_formData, setFormData] = useState(emptyForm);
 
   const form = useForm<SupplierFormData>({
-    resolver: zodResolver(supplierSchema) as unknown as Resolver<SupplierFormData>,
+    resolver: zodResolver(supplierSchema) as Resolver<SupplierFormData>,
     defaultValues: emptyForm,
   });
   const { register, handleSubmit: rhfHandleSubmit, formState: { errors }, reset, setValue, watch } = form;

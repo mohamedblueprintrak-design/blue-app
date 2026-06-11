@@ -108,9 +108,9 @@ export async function PUT(request: NextRequest) {
       // ── Admin resetting another user's password ──
       // No current password required — admin override
       const newPassword = body.newPassword;
-      if (!newPassword || typeof newPassword !== 'string') {
+      if (!newPassword || typeof newPassword !== 'string' || newPassword.length > 200) {
         return NextResponse.json(
-          { error: "كلمة المرور الجديدة مطلوبة" },
+          { error: 'Invalid password' },
           { status: 400 }
         );
       }

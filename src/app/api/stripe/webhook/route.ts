@@ -28,6 +28,9 @@ import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 // Webhook secret from environment
 const _WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || '';
 
+// NOTE: In-memory event tracking doesn't work across multiple instances.
+// For production multi-instance deployments, use Redis or a WebhookEvent DB table.
+// TODO: Replace with Redis-based idempotency tracking for multi-instance deployments.
 // In-memory set of recently processed event IDs for idempotency.
 // Prevents duplicate payment records when Stripe redelivers the same event.
 // Entries expire after 5 minutes to bound memory usage.
@@ -76,6 +79,18 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // DB-based deduplication check (works across instances)
+  const existingLog = await db.activityLog.findFirst({
+    where: {
+      action: 'stripe_webhook',
+      entityId: event.id,
+    },
+  });
+  if (existingLog) {
+    log.info('Stripe webhook event already processed (DB check)', { eventId: event.id });
+    return NextResponse.json({ received: true });
+  }
+
   // Idempotency check — skip already-processed events (Stripe redelivers on 500)
   if (isEventProcessed(event.id)) {
     log.info(`Duplicate Stripe event skipped: ${event.id} (${event.type})`);
@@ -118,6 +133,19 @@ export async function POST(request: NextRequest) {
 
     // Mark event as processed only after successful handling
     markEventProcessed(event.id);
+
+    // Log to DB for cross-instance idempotency tracking
+    await db.activityLog.create({
+      data: {
+        action: 'stripe_webhook',
+        entityType: 'StripeEvent',
+        entityId: event.id,
+        details: `Processed ${event.type}`,
+        organizationId: (event.data.object as Record<string, unknown>)?.metadata 
+          ? ((event.data.object as Record<string, unknown>).metadata as Record<string, unknown>)?.organizationId as string || 'system'
+          : 'system',
+      },
+    });
 
     return NextResponse.json({ received: true });
   } catch (error) {

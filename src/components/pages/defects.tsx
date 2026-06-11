@@ -173,7 +173,7 @@ export default function Defects({ language, projectId }: DefectsProps) {
   const [_formData, setFormData] = useState(defaultDefectForm);
 
   const form = useForm<DefectFormData>({
-    resolver: zodResolver(defectSchema) as unknown as Resolver<DefectFormData>,
+    resolver: zodResolver(defectSchema) as Resolver<DefectFormData>,
     defaultValues: defaultDefectForm,
   });
   const { register, handleSubmit: rhfHandleSubmit, formState: { errors }, reset, setValue, watch } = form;

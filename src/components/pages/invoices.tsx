@@ -63,7 +63,7 @@ export default function InvoicesPage({ language, projectId }: InvoicesPageProps)
   };
 
   const form = useForm<InvoiceFormData>({
-    resolver: zodResolver(invoiceSchema) as unknown as Resolver<InvoiceFormData>,
+    resolver: zodResolver(invoiceSchema) as Resolver<InvoiceFormData>,
     defaultValues: {
       number: "",
       clientId: "",

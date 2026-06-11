@@ -225,7 +225,7 @@ export default function Meetings({ language, projectId }: MeetingsProps) {
   });
 
   const form = useForm<MeetingFormData>({
-    resolver: zodResolver(meetingSchema) as unknown as Resolver<MeetingFormData>,
+    resolver: zodResolver(meetingSchema) as Resolver<MeetingFormData>,
     defaultValues: {
       projectId: projectId || "",
       title: "",
