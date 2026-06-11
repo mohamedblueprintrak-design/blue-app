@@ -55,23 +55,8 @@ const ROLES = [
   { value: "viewer@blueprint.ae", labelAr: "مشاهد", labelEn: "Viewer" },
 ];
 
-// Fallback demo passwords — used client-side when the server API
-// doesn't return credentials (e.g. DEMO_MODE not set or fetch fails).
-// These match the DEFAULT_DEMO_PASSWORDS in @/lib/demo-credentials.ts
-const FALLBACK_DEMO_PASSWORDS: Record<string, string> = {
-  'admin@blueprint.ae': 'Admin@BP2024!',
-  'pm@blueprint.ae': 'Manager@BP2024!',
-  'eng@blueprint.ae': 'Engineer@BP2024!',
-  'struct@blueprint.ae': 'Struct@BP2024!',
-  'elec@blueprint.ae': 'Elec@BP2024!',
-  'site@blueprint.ae': 'Site@BP2024!',
-  'mep@blueprint.ae': 'Mep@BP2024!',
-  'draft@blueprint.ae': 'Draft@BP2024!',
-  'acc@blueprint.ae': 'Account@BP2024!',
-  'sec@blueprint.ae': 'Secret@BP2024!',
-  'hr@blueprint.ae': 'Hr@BP2024!',
-  'viewer@blueprint.ae': 'View@BP2024!',
-};
+// SECURITY: Demo passwords are NEVER included in the client bundle.
+// Demo credentials are fetched from the server API only when DEMO_MODE=true.
 
 const FEATURES = [
   {
@@ -279,13 +264,10 @@ export default function LoginPage({ language: _language }: LoginPageProps) {
         }
       } catch { /* ignore */ }
     }
-    // Try server credentials first, then fall back to hardcoded passwords
+    // Use server-provided credentials only
     const cred = creds.find((c) => c.email === value);
     if (cred && cred.password) {
       setPassword(cred.password);
-      setShowPassword(true); // Auto-show password in demo mode for clarity
-    } else if (FALLBACK_DEMO_PASSWORDS[value]) {
-      setPassword(FALLBACK_DEMO_PASSWORDS[value]);
       setShowPassword(true); // Auto-show password in demo mode for clarity
     } else {
       setPassword("");

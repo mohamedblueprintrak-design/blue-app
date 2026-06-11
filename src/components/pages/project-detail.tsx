@@ -315,11 +315,11 @@ export default function ProjectDetail({ language }: ProjectDetailProps) {
           const { setCurrentPage } = useNavStore.getState();
           setCurrentPage("ai-assistant");
         }}
-        className="fixed bottom-6 left-6 z-50 w-12 h-12 rounded-full bg-gradient-to-br from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white shadow-xl shadow-teal-500/30 flex items-center justify-center transition-all hover:scale-110 group"
+        className="fixed bottom-6 start-6 z-50 w-12 h-12 rounded-full bg-gradient-to-br from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white shadow-xl shadow-teal-500/30 flex items-center justify-center transition-all hover:scale-110 group"
         title={t("المساعد الذكي", "AI Assistant")}
       >
         <Sparkles className="h-5 w-5 group-hover:animate-pulse" />
-        <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-emerald-400 border-2 border-white animate-pulse" />
+        <span className="absolute -top-1 -end-1 w-3 h-3 rounded-full bg-emerald-400 border-2 border-white animate-pulse" />
       </button>
     </div>
   );

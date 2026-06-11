@@ -16,7 +16,7 @@
  * - لا تستخدم أبداً في الإنتاج
  */
 
-// Production demo mode hard-block removed per USER request to allow explanation/demo mode in production
+// Production demo mode is hard-blocked for security — demo credentials must never be accessible in production.
 
 
 // Import UserRole enum from Prisma generated client
@@ -226,9 +226,12 @@ export function isDemoMode(): boolean {
  * Call this at app startup to prevent accidental production use.
  */
 export function validateDemoMode(): void {
-  // Production demo mode hard-block removed per USER request to allow explanation/demo mode in production
   if (process.env.NODE_ENV === "production" && process.env.DEMO_MODE === "true") {
-    console.warn("WARNING: DEMO_MODE is enabled in production. Demo credentials can be accessed.");
+    throw new Error(
+      "SECURITY: DEMO_MODE cannot be enabled in production. " +
+      "Demo credentials would expose admin access. " +
+      "Set DEMO_MODE=false or remove it from your environment."
+    );
   }
 }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -65,16 +65,14 @@ export default function SettingsPage({ language: lang }: Props) {
   });
 
   // Initialize preferences when loaded
-  const [prevPreferences, setPrevPreferences] = useState(preferences);
-  if (preferences !== prevPreferences) {
-    setPrevPreferences(preferences);
+  useEffect(() => {
     if (preferences) {
       setAccentColorLocal(preferences.accentColor || "teal");
       if (preferences.notifications) {
         setNotifSettingsLocal((prev) => ({ ...prev, ...preferences.notifications }));
       }
     }
-  }
+  }, [preferences]);
 
   // Fetch current session info
   const { data: sessionData } = useQuery({
@@ -135,10 +133,8 @@ export default function SettingsPage({ language: lang }: Props) {
     });
   }, [saveNotifSettings]);
 
-  // Initialize form data when settings load (during render, not in effect)
-  const [prevSettings, setPrevSettings] = useState(settings);
-  if (settings !== prevSettings) {
-    setPrevSettings(settings);
+  // Initialize form data when settings load
+  useEffect(() => {
     if (settings) {
       setFormData({
         name: settings.name || "",
@@ -153,7 +149,7 @@ export default function SettingsPage({ language: lang }: Props) {
       });
       setWorkingDays((settings.workingDays || "").split(",").filter(Boolean));
     }
-  }
+  }, [settings]);
 
   const updateMutation = useMutation({
     mutationFn: (data: Record<string, unknown>) =>

@@ -178,7 +178,7 @@ export async function GET(request: NextRequest) {
             googleId,
             name: googleName,
             avatar: googlePicture,
-            role: 'ENGINEER',
+            role: 'VIEWER',
             isActive: true,
             emailVerified: new Date(), // Google already verified the email
             password: '!oauth_' + crypto.randomUUID() + '_' + Date.now(), // Unusable random password — social login only

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAuthContext } from '@/app/api/utils/auth';
+import { requireVerifiedAuth } from '@/app/api/utils/auth';
 import { successResponse } from '@/app/api/utils/response';
 import { log } from '@/lib/logger';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
@@ -23,10 +23,14 @@ export async function POST(request: NextRequest) {
       path: '/',
     });
 
-    // Optionally save to database if user is logged in
-    const authCtx = getAuthContext(request);
-    if (authCtx && authCtx.userId) {
-      log.info(`User ${authCtx.userId} set GDPR consent to ${consentGiven}`);
+    // Optionally save to database if user is logged in (JWT-verified)
+    try {
+      const authResult = await requireVerifiedAuth(request);
+      if (!('error' in authResult) && authResult.user?.userId) {
+        log.info(`User ${authResult.user.userId} set GDPR consent to ${consentGiven}`);
+      }
+    } catch {
+      // Not authenticated — consent cookie still set, just no user logging
     }
 
     return response;

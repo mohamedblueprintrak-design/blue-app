@@ -92,7 +92,7 @@ export default function Dashboard({ language }: { language: "ar" | "en" }) {
     { name: isAr ? "نشط" : "Active", value: stats.activeProjects, color: "#0d9488" },
     { name: isAr ? "مكتمل" : "Completed", value: stats.completedProjects, color: "#10b981" },
     { name: isAr ? "متأخر" : "Delayed", value: stats.delayedProjects, color: "#ef4444" },
-    { name: isAr ? "معلق" : "On Hold", value: stats.totalProjects - stats.activeProjects - stats.completedProjects - stats.delayedProjects, color: "#f59e0b" },
+    { name: isAr ? "معلق" : "On Hold", value: Math.max(0, stats.totalProjects - stats.activeProjects - stats.completedProjects - stats.delayedProjects), color: "#f59e0b" },
   ];
 
   // Task trend data from API
