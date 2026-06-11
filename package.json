@@ -67,7 +67,6 @@
     "@tanstack/react-query": "^5.82.0",
     "arabic-persian-reshaper": "^1.0.1",
     "bcryptjs": "^3.0.3",
-    "better-sqlite3": "^12.10.0",
     "bullmq": "^5.76.10",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -144,7 +143,8 @@
     "ts-jest": "^29.4.9",
     "tsx": "^4.21.0",
     "tw-animate-css": "^1.3.5",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "better-sqlite3": "^12.10.0"
   },
   "lint-staged": {
     "*.{ts,tsx}": [

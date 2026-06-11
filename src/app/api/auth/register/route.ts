@@ -273,6 +273,7 @@ async function handleRegister(
     });
 
     // Generate auth cookie token using centralized utility
+    // SECURITY: emailVerified is false — user must verify email before full access
     const accessToken = await generateAuthToken({
       userId: user.id,
       email: user.email,
@@ -281,6 +282,7 @@ async function handleRegister(
       twoFactorEnabled: false,
       organizationId: user.organizationId || "",
       passwordChangedAt: 0, // New user — no password change yet
+      emailVerified: false, // User has not verified their email yet
     });
 
     // Generate refresh token using centralized utility

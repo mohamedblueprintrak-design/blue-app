@@ -16,7 +16,7 @@ try {
 }
 
 const nextConfig: NextConfig = {
-  output: 'standalone',
+  ...(process.env.VERCEL ? {} : { output: 'standalone' }),
   poweredByHeader: false,
   typescript: {
     ignoreBuildErrors: false,

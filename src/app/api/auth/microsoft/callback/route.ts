@@ -178,23 +178,33 @@ export async function GET(request: NextRequest) {
       });
       log.info('Microsoft OAuth: existing user logged in', { userId: user.id });
     } else {
-      // 2. Try to find user by email (link existing account)
-      user = await db.user.findFirst({
-        where: { email: microsoftEmail },
+      // 2. Check if user exists with this email but WITHOUT Microsoft link
+      // SECURITY: Do NOT auto-link accounts — this prevents account takeover via
+      // email-claiming. Users must explicitly link OAuth from account settings.
+      const existingUserByEmail = await db.user.findFirst({
+        where: { email: microsoftEmail, microsoftId: null },
       });
 
-      if (user) {
-        // Link the Microsoft ID to the existing account
-        await db.user.update({
-          where: { id: user.id },
-          data: {
-            microsoftId,
-            name: microsoftName || user.name,
-            lastLogin: new Date(),
-            emailVerified: user.emailVerified || new Date(),
-          },
-        });
-        log.info('Microsoft OAuth: linked Microsoft account to existing user', { userId: user.id });
+      if (existingUserByEmail) {
+        // Don't auto-link — require explicit linking from account settings
+        log.security('Microsoft OAuth: email already registered without Microsoft link', { email: microsoftEmail });
+        return NextResponse.redirect(
+          `${baseUrl}/login?error=${encodeURIComponent('هذا البريد مسجل بالفعل. سجل دخولك بكلمة المرور ثم اربط حساب Microsoft من الإعدادات.')}`
+        );
+      }
+
+      // 3. Check if user exists with this email AND already has a Microsoft link (different Microsoft account)
+      // This shouldn't normally happen, but handle it defensively
+      const existingUserWithMicrosoft = await db.user.findFirst({
+        where: { email: microsoftEmail, microsoftId: { not: null } },
+      });
+
+      if (existingUserWithMicrosoft) {
+        // Another Microsoft account is already linked to this email
+        log.security('Microsoft OAuth: email already linked to a different Microsoft account', { email: microsoftEmail });
+        return NextResponse.redirect(
+          `${baseUrl}/login?error=${encodeURIComponent('هذا البريد مرتبط بحساب Microsoft آخر.')}`
+        );
       } else {
         // 3. Create a new user account
         isNewUser = true;

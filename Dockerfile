@@ -2,33 +2,31 @@
 # BluePrint SaaS - Production Dockerfile
 # ============================================
 # Multi-stage build for optimized production image
-# Uses Bun for dependency installation, Node.js for runtime
+# Uses Node.js for dependency installation and runtime
 
-# Stage 1: Dependencies (using Bun for fast, reliable installs)
-FROM oven/bun:1-alpine AS deps
-# python3, make, g++ needed for native modules (better-sqlite3, sharp)
+# Stage 1: Dependencies
+FROM node:20-alpine AS deps
+# python3, make, g++ needed for native modules (sharp)
 RUN apk add --no-cache libc6-compat openssl python3 make g++
 
 WORKDIR /app
 
 # Copy package files
-COPY package.json bun.lock ./
+COPY package.json package-lock.json ./
 COPY prisma ./prisma/
 
 # Install ALL dependencies (including devDependencies for build)
 # --ignore-scripts skips prepare:husky (dev-only) and postinstall:prisma-generate
 # We run prisma generate manually below
-RUN bun install --frozen-lockfile --ignore-scripts
+RUN npm ci --ignore-scripts
 
 # Generate Prisma Client
-RUN bunx prisma generate
+RUN npx prisma generate
 
 # ============================================
 # Stage 2: Builder
 FROM node:20-alpine AS builder
 
-# Install Bun in builder stage for consistency with deps stage
-RUN npm install -g bun
 
 WORKDIR /app
 
@@ -47,26 +45,26 @@ ENV NODE_ENV=production
 # Prisma generate is handled in the deps stage; no DATABASE_URL needed here.
 
 # Build the application
-RUN bun run build
+RUN npm run build
 
 # ============================================
 # Stage 3: Install production dependencies only
-FROM oven/bun:1-alpine AS prod-deps
-# python3, make, g++ needed for native modules (better-sqlite3)
+FROM node:20-alpine AS prod-deps
+# python3, make, g++ needed for native modules (sharp)
 RUN apk add --no-cache libc6-compat openssl python3 make g++
 
 WORKDIR /app
 
-COPY package.json bun.lock ./
+COPY package.json package-lock.json ./
 COPY prisma ./prisma/
 
 # Install ONLY production dependencies
 # --ignore-scripts skips prepare:husky (not installed in prod) and postinstall
 # We run prisma generate manually below
-RUN bun install --frozen-lockfile --production --ignore-scripts
+RUN npm ci --only=production --ignore-scripts
 
 # Generate Prisma Client (production)
-RUN bunx prisma generate
+RUN npx prisma generate
 
 # ============================================
 # Stage 4: Runner (Production)
@@ -96,9 +94,8 @@ COPY --from=builder /app/prisma ./prisma
 # Create uploads directory
 RUN mkdir -p /app/uploads && chown -R nextjs:nodejs /app/uploads
 
-# Install postgresql-client for migrations and Prisma CLI
-RUN apk add --no-cache postgresql-client && \
-    npm install -g prisma
+# Install postgresql-client for migrations
+RUN apk add --no-cache postgresql-client
 
 # Copy entrypoint script
 COPY --from=builder /app/docker-entrypoint.sh ./

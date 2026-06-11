@@ -59,6 +59,15 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // ── PKCE: Validate code_verifier is present ──────────────────────
+    const codeVerifier = request.cookies.get('google_oauth_verifier')?.value;
+    if (!codeVerifier) {
+      log.security('Google OAuth callback: missing code_verifier (PKCE)');
+      return NextResponse.redirect(
+        `${baseUrl}/login?error=${encodeURIComponent('رمز التحقق غير صالح')}`
+      );
+    }
+
     // ── Exchange authorization code for tokens ─────────────────────
     const clientId = process.env.GOOGLE_CLIENT_ID;
     const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
@@ -81,6 +90,7 @@ export async function GET(request: NextRequest) {
         client_secret: clientSecret,
         redirect_uri: redirectUri,
         grant_type: 'authorization_code',
+        code_verifier: codeVerifier,
       }),
     });
 
@@ -151,24 +161,33 @@ export async function GET(request: NextRequest) {
       });
       log.info('Google OAuth: existing user logged in', { userId: user.id });
     } else {
-      // 2. Try to find user by email (link existing account)
-      user = await db.user.findFirst({
-        where: { email: googleEmail },
+      // 2. Check if user exists with this email but WITHOUT Google link
+      // SECURITY: Do NOT auto-link accounts — this prevents account takeover via
+      // email-claiming. Users must explicitly link OAuth from account settings.
+      const existingUserByEmail = await db.user.findFirst({
+        where: { email: googleEmail, googleId: null },
       });
 
-      if (user) {
-        // Link the Google ID to the existing account
-        await db.user.update({
-          where: { id: user.id },
-          data: {
-            googleId,
-            name: googleName || user.name,
-            avatar: googlePicture || user.avatar,
-            lastLogin: new Date(),
-            emailVerified: user.emailVerified || new Date(),
-          },
-        });
-        log.info('Google OAuth: linked Google account to existing user', { userId: user.id });
+      if (existingUserByEmail) {
+        // Don't auto-link — require explicit linking from account settings
+        log.security('Google OAuth: email already registered without Google link', { email: googleEmail });
+        return NextResponse.redirect(
+          `${baseUrl}/login?error=${encodeURIComponent('هذا البريد مسجل بالفعل. سجل دخولك بكلمة المرور ثم اربط حساب Google من الإعدادات.')}`
+        );
+      }
+
+      // 3. Check if user exists with this email AND already has a Google link (different Google account)
+      // This shouldn't normally happen, but handle it defensively
+      const existingUserWithGoogle = await db.user.findFirst({
+        where: { email: googleEmail, googleId: { not: null } },
+      });
+
+      if (existingUserWithGoogle) {
+        // Another Google account is already linked to this email
+        log.security('Google OAuth: email already linked to a different Google account', { email: googleEmail });
+        return NextResponse.redirect(
+          `${baseUrl}/login?error=${encodeURIComponent('هذا البريد مرتبط بحساب Google آخر.')}`
+        );
       } else {
         // 3. Create a new user account
         isNewUser = true;
@@ -219,8 +238,9 @@ export async function GET(request: NextRequest) {
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
       });
-      // Clear the OAuth state cookie
+      // Clear the OAuth state and PKCE cookies
       response.cookies.set('google_oauth_state', '', { path: '/', maxAge: 0 });
+      response.cookies.set('google_oauth_verifier', '', { path: '/', maxAge: 0 });
       return response;
     }
 
@@ -256,8 +276,12 @@ export async function GET(request: NextRequest) {
     // ── Redirect to dashboard with cookies set ─────────────────────
     const response = NextResponse.redirect(`${baseUrl}/dashboard`);
 
-    // Clear the OAuth state cookie
+    // Clear the OAuth state and PKCE cookies
     response.cookies.set('google_oauth_state', '', {
+      path: '/',
+      maxAge: 0,
+    });
+    response.cookies.set('google_oauth_verifier', '', {
       path: '/',
       maxAge: 0,
     });

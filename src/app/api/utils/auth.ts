@@ -42,14 +42,31 @@ export interface AuthContext {
 }
 
 /**
+ * @deprecated Use requireVerifiedAuth() instead. This function trusts headers
+ * without JWT verification and is vulnerable to header forgery.
+ * Only use for non-security-critical logging/audit purposes.
+ *
  * Extract auth context from middleware-set headers.
  * Returns null if headers are missing (middleware didn't process the request).
- * 
- * USAGE: Call this at the start of every API route handler:
+ *
+ * SECURITY WARNING: This function reads user identity from headers
+ * without verifying the JWT. It should NOT be used for authorization decisions.
+ * Use requireVerifiedAuth() or requireVerifiedPermission() instead.
+ *
+ * USAGE (deprecated — prefer requireVerifiedAuth):
  *   const ctx = getAuthContext(request);
  *   if (!ctx) return unauthorizedResponse();
  */
 export function getAuthContext(request: NextRequest): AuthContext | null {
+  // SECURITY WARNING: This function reads user identity from headers
+  // without verifying the JWT. It should NOT be used for authorization decisions.
+  // Use requireVerifiedAuth() or requireVerifiedPermission() instead.
+  if (process.env.NODE_ENV !== 'test') {
+    log.warn('getAuthContext() called — this function is deprecated and vulnerable to header forgery. Use requireVerifiedAuth() instead.', {
+      path: request.nextUrl?.pathname,
+    });
+  }
+
   const userId = request.headers.get('x-user-id');
   const email = request.headers.get('x-user-email');
   const role = request.headers.get('x-user-role');

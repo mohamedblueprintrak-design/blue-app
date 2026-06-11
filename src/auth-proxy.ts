@@ -195,6 +195,7 @@ export async function proxy(request: NextRequest) {
         if (payload.organizationId) {
           requestHeaders.set('x-organization-id', payload.organizationId as string);
         }
+        requestHeaders.set('x-user-email-verified', String(payload.emailVerified ?? true));
         const response = NextResponse.next({ request: { headers: requestHeaders } });
         return addSecurityHeaders(response, nonce, rlInfo);
       } catch {
@@ -281,6 +282,41 @@ export async function proxy(request: NextRequest) {
     requestHeaders.set('x-user-name', encodeURIComponent(name || ''));
     if (organizationId) {
       requestHeaders.set('x-organization-id', organizationId);
+    }
+    requestHeaders.set('x-user-email-verified', String(payload.emailVerified ?? true));
+
+    // SECURITY: Restrict unverified users to email verification flows only
+    // If emailVerified is explicitly false, only allow access to verification-related routes
+    const emailVerified = payload.emailVerified as boolean | undefined;
+    if (emailVerified === false) {
+      const allowedPathsForUnverified = [
+        '/verify-email',
+        '/api/auth/verify-email',
+        '/api/auth/resend-verification',
+        '/api/auth/logout',
+        '/api/auth/me',
+        '/api/auth/refresh',
+      ];
+      const isAllowed = allowedPathsForUnverified.some(
+        (p) => pathname === p || pathname.startsWith(p + '/')
+      );
+      // Also allow static assets and public pages needed for the UI
+      const isStaticOrAsset = pathname.startsWith('/_next') ||
+        pathname.startsWith('/images') || pathname.startsWith('/fonts') ||
+        /\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|map|json|webmanifest)$/i.test(pathname);
+
+      if (!isAllowed && !isStaticOrAsset) {
+        if (pathname.startsWith('/api/')) {
+          const resp = NextResponse.json(
+            { error: 'يرجى تأكيد بريدك الإلكتروني أولاً' },
+            { status: 403 }
+          );
+          return addSecurityHeaders(resp, nonce, rlInfo);
+        }
+        // Redirect page requests to verify-email
+        const verifyUrl = new URL('/verify-email', request.url);
+        return NextResponse.redirect(verifyUrl);
+      }
     }
 
     const response = NextResponse.next({
