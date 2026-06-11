@@ -116,7 +116,7 @@ services:
     restart: unless-stopped
     env_file: .env
     environment:
-      - REDIS_PASSWORD=${REDIS_PASSWORD:-dev_redis_password}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-dev_redis_password}  # WARNING: Change in production! Use .env with a strong password.
     # SECURITY: In development, keep ports for debugging
     # In production, remove this section entirely
     ports:
@@ -138,7 +138,7 @@ services:
     command: >
       redis-server 
       --appendonly yes 
-      --requirepass ${REDIS_PASSWORD:-dev_redis_password}
+      --requirepass ${REDIS_PASSWORD:-dev_redis_password}  # WARNING: Use strong password in production
       --maxmemory 256mb
       --maxmemory-policy allkeys-lru
     healthcheck:

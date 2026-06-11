@@ -99,6 +99,7 @@
                 X-DNS-Prefetch-Control: "on"
                 Cross-Origin-Opener-Policy: "same-origin"
                 Cross-Origin-Resource-Policy: "same-origin"
+                Cross-Origin-Embedder-Policy: "credentialless"
         }
 
         # Compression

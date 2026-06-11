@@ -3,6 +3,15 @@ import { requireVerifiedAuth } from '@/app/api/utils/auth';
 import { successResponse } from '@/app/api/utils/response';
 import { log } from '@/lib/logger';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
+import { z } from 'zod';
+
+// Zod schema for consent request
+const consentSchema = z.object({
+  consent: z.boolean({
+    required_error: 'حقل الموافقة مطلوب',
+    invalid_type_error: 'حقل الموافقة يجب أن يكون true أو false',
+  }),
+}).strict(); // Reject unknown fields
 
 export async function POST(request: NextRequest) {
   try {
@@ -10,8 +19,26 @@ export async function POST(request: NextRequest) {
     const blocked = rateLimitResponse(rlResult);
     if (blocked) return blocked;
 
-    const body = await request.json();
-    const consentGiven = body.consent === true;
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json(
+        { error: 'جسم الطلب غير صالح' },
+        { status: 400 }
+      );
+    }
+
+    const validation = consentSchema.safeParse(body);
+    if (!validation.success) {
+      const firstError = validation.error.issues[0];
+      return NextResponse.json(
+        { error: firstError?.message || 'بيانات غير صالحة' },
+        { status: 400 }
+      );
+    }
+
+    const consentGiven = validation.data.consent;
 
     // Set cookie
     const response = successResponse({ consent: consentGiven });
