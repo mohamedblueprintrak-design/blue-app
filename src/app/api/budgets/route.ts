@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireVerifiedPermission, orgFilter, orgCreate } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
-import { sanitizeObject } from '@/lib/security/sanitize';
+
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 import { validateRequest, budgetCreateSchema } from '@/lib/api-validation';
 import { cachedQuery, invalidateCache, CACHE_TTL, buildCacheKey } from '@/lib/cache/query-cache';

@@ -5,7 +5,7 @@ interface ToastFeedbackOptions {
   ar: boolean;
 }
 
-export function useToastFeedback({ ar }: ToastFeedbackOptions) {
+export function useToastFeedback({ ar: _ar }: ToastFeedbackOptions) {
   const { toast } = useToast();
   const t = useTranslations("toast");
 
