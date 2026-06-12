@@ -154,10 +154,12 @@ export async function GET(request: NextRequest) {
       }
 
       try {
-        const { payload } = await import('jose').then(j => j.jwtVerify(authToken, (await import('@/lib/auth/jwt-secret')).getJwtSecretBytes(), {
+        const jose = await import('jose');
+        const { getJwtSecretBytes } = await import('@/lib/auth/jwt-secret');
+        const { payload } = await jose.jwtVerify(authToken, getJwtSecretBytes(), {
           issuer: 'blueprint-saas',
           audience: 'blueprint-users',
-        }));
+        });
 
         const userId = payload.userId as string;
         // Check this Google ID isn't already linked to another account

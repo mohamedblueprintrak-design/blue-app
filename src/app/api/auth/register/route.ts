@@ -306,6 +306,11 @@ async function handleRegister(
       });
     }
 
+    // Safety check — user must exist at this point
+    if (!user) {
+      return errorResponse('فشل في إنشاء الحساب', 'REGISTRATION_FAILED', 500);
+    }
+
     // Generate auth cookie token using centralized utility
     // SECURITY: emailVerified is false — user must verify email before full access
     const accessToken = await generateAuthToken({

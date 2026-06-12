@@ -143,6 +143,7 @@ export async function POST(request: NextRequest) {
         assigneeId: action.assigneeId || null,
         dueDate: action.dueDate ? new Date(action.dueDate) : null,
         completed: false,
+        organizationId: ctx.organizationId || '',
       })
     );
 
@@ -153,6 +154,7 @@ export async function POST(request: NextRequest) {
         assigneeId,
         dueDate: null,
         completed: false,
+        organizationId: ctx.organizationId || '',
       });
     }
 

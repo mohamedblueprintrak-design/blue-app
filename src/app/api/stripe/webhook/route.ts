@@ -117,8 +117,8 @@ export async function POST(request: NextRequest) {
         entityType: 'StripeEvent',
         entityId: event.id,
         details: `Processed ${event.type}`,
-        organizationId: (event.data.object as Record<string, unknown>)?.metadata 
-          ? ((event.data.object as Record<string, unknown>).metadata as Record<string, unknown>)?.organizationId as string || 'system'
+        organizationId: (event.data.object as unknown as Record<string, unknown>)?.metadata 
+          ? ((event.data.object as unknown as Record<string, unknown>).metadata as Record<string, unknown>)?.organizationId as string || 'system'
           : 'system',
       },
     });
