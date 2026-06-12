@@ -7,10 +7,7 @@ import { z } from 'zod';
 
 // Zod schema for consent request
 const consentSchema = z.object({
-  consent: z.boolean({
-    required_error: 'حقل الموافقة مطلوب',
-    invalid_type_error: 'حقل الموافقة يجب أن يكون true أو false',
-  }),
+  consent: z.boolean(),
 }).strict(); // Reject unknown fields
 
 export async function POST(request: NextRequest) {
