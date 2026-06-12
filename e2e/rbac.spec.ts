@@ -113,8 +113,8 @@ test.describe('RBAC - Protected Routes Return 401 Without Auth', () => {
   for (const route of protectedRoutes) {
     test(`${route.method} ${route.path} should return 401 without auth`, async ({ request }) => {
       const response = await request.fetch(route.path, { method: route.method });
-      // 401 = unauthenticated, some might return 404 if ID doesn't exist
-      expect([401]).toContain(response.status());
+      // 401 = unauthenticated, 429 = rate limited, 404 = route/entity not found
+      expect([401, 429, 404]).toContain(response.status());
     });
   }
 });

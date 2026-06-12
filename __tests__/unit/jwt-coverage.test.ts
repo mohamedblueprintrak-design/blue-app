@@ -165,11 +165,14 @@ describe('JWT Module — generateToken', () => {
     expect(diff).toBe(1800);
   });
 
-  it('should set subject when type is provided', async () => {
+  it('should set type in payload when type is provided', async () => {
     const token = await generateToken({ data: 'test' }, { type: 'refresh' });
     const parts = token.split('.');
     const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf8'));
-    expect(payload.sub).toBe('refresh');
+    // type is stored in the payload body (not as sub/subject claim) for security:
+    // verifyToken() checks payload.type to reject non-access tokens.
+    // Using sub would allow token type confusion attacks.
+    expect(payload.type).toBe('refresh');
   });
 });
 
