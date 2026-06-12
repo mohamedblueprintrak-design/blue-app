@@ -2,23 +2,25 @@
 # BluePrint SaaS - Production Dockerfile
 # ============================================
 # Multi-stage build for optimized production image
-# Uses Node.js for dependency installation and runtime
+# Uses Bun for dependency installation, Node.js for runtime
 
 # Stage 1: Dependencies
 FROM node:20-alpine AS deps
 # python3, make, g++ needed for native modules (sharp)
 RUN apk add --no-cache libc6-compat openssl python3 make g++
+# Install Bun for dependency installation (project uses bun.lock)
+RUN npm install -g bun@latest
 
 WORKDIR /app
 
 # Copy package files
-COPY package.json package-lock.json ./
+COPY package.json bun.lock ./
 COPY prisma ./prisma/
 
 # Install ALL dependencies (including devDependencies for build)
 # --ignore-scripts skips prepare:husky (dev-only) and postinstall:prisma-generate
 # We run prisma generate manually below
-RUN npm ci --ignore-scripts
+RUN bun install --ignore-scripts
 
 # Generate Prisma Client
 RUN npx prisma generate
@@ -51,14 +53,16 @@ RUN npm run build
 # Stage 3: Install production dependencies only
 FROM node:20-alpine AS prod-deps
 RUN apk add --no-cache libc6-compat openssl
+# Install Bun for dependency installation (project uses bun.lock)
+RUN npm install -g bun@latest
 
 WORKDIR /app
 
-COPY package.json package-lock.json ./
+COPY package.json bun.lock ./
 
 # Install ONLY production dependencies
 # --ignore-scripts skips prepare:husky (not installed in prod) and postinstall
-RUN npm ci --only=production --ignore-scripts
+RUN bun install --production --ignore-scripts
 
 # Copy the already-generated Prisma Client from the deps stage.
 # Prisma CLI is in devDependencies, so it won't be installed in prod-deps.
