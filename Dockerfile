@@ -4,7 +4,7 @@
 # Multi-stage build for optimized production image
 # Uses Bun for dependency installation, Node.js for runtime
 
-# Stage 1: Dependencies
+# Stage 1: Dependencies (ALL — including devDependencies for the build stage)
 FROM node:20-alpine AS deps
 # python3, make, g++ needed for native modules (sharp)
 RUN apk add --no-cache libc6-compat openssl python3 make g++
@@ -50,7 +50,11 @@ ENV NODE_ENV=production
 RUN npm run build
 
 # ============================================
-# Stage 3: Install production dependencies only
+# Stage 3: Production dependencies only
+# We install ALL deps then prune devDependencies to avoid the
+# "lockfile had changes, but lockfile is frozen" error that occurs
+# when running `bun install --production` in Docker (Bun's --production
+# flag modifies the lockfile, which conflicts with frozen-lockfile mode).
 FROM node:20-alpine AS prod-deps
 RUN apk add --no-cache libc6-compat openssl
 # Install Bun for dependency installation (project uses bun.lock)
@@ -58,11 +62,15 @@ RUN npm install -g bun@latest
 
 WORKDIR /app
 
+# Copy package files and install ALL deps first
 COPY package.json bun.lock ./
+COPY prisma ./prisma/
+RUN bun install --ignore-scripts
 
-# Install ONLY production dependencies
-# --ignore-scripts skips prepare:husky (not installed in prod) and postinstall
-RUN bun install --production --ignore-scripts
+# Remove devDependencies by re-installing with NODE_ENV=production
+# This avoids lockfile changes because the full lockfile is already present
+ENV NODE_ENV=production
+RUN rm -rf node_modules && bun install --ignore-scripts
 
 # Copy the already-generated Prisma Client from the deps stage.
 # Prisma CLI is in devDependencies, so it won't be installed in prod-deps.

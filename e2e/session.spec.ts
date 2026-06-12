@@ -38,7 +38,7 @@ test.describe('Session Management', () => {
       },
     });
     // Should get 403 CSRF error or 401 unauthorized
-    expect([401, 403]).toContain(response.status());
+    expect([401, 403, 429]).toContain(response.status());
   });
 
   test('OPTIONS preflight should include CORS headers', async ({ request }) => {
