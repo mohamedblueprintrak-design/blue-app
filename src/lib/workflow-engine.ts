@@ -102,6 +102,7 @@ export async function initWorkflow(projectId: string, templateId?: string) {
           dueDate: stageIdx === 0
             ? new Date(Date.now() + (stage.durationDays as number) * 24 * 60 * 60 * 1000)
             : null,
+          organizationId: project.organizationId,
           steps: {
             create: (stage.steps as Array<{ id: string; name: string; nameEn: string; order: number; assignedRole: string; daysToComplete: number; description?: string; descriptionEn?: string }>).map((step, stepIdx) => ({
               templateStepId: step.id,
@@ -113,6 +114,7 @@ export async function initWorkflow(projectId: string, templateId?: string) {
               dueDate: stageIdx === 0 && stepIdx === 0 && step.daysToComplete > 0
                 ? new Date(Date.now() + step.daysToComplete * 24 * 60 * 60 * 1000)
                 : null,
+              organizationId: project.organizationId,
             })),
           },
         })),
@@ -541,6 +543,7 @@ export async function createWorkflowTemplate(data: {
           order: stage.order,
           durationDays: stage.durationDays || 0,
           isParallel: stage.isParallel || false,
+          organizationId: data.organizationId,
           steps: {
             create: (stage.steps || []).map((step) => ({
               name: step.name,
@@ -551,6 +554,7 @@ export async function createWorkflowTemplate(data: {
               requiresApproval: step.requiresApproval || false,
               autoComplete: step.autoComplete || false,
               daysToComplete: step.daysToComplete || 0,
+              organizationId: data.organizationId,
             })),
           },
         })),

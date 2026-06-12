@@ -59,7 +59,36 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const template = await createWorkflowTemplate(validation.data);
+    if (!_ctx.organizationId) {
+      return NextResponse.json(
+        { error: 'معرف المؤسسة مطلوب' },
+        { status: 400 }
+      );
+    }
+
+    const template = await createWorkflowTemplate({
+      name: validation.data.name,
+      nameEn: validation.data.nameEn,
+      description: validation.data.description,
+      organizationId: _ctx.organizationId,
+      stages: (validation.data.stages || []).map((stage) => ({
+        name: stage.name,
+        nameEn: stage.nameEn,
+        order: stage.order,
+        durationDays: stage.durationDays,
+        isParallel: stage.isParallel,
+        steps: (stage.steps || []).map((step) => ({
+          name: step.name,
+          nameEn: step.nameEn,
+          order: step.order,
+          assignedRole: step.assignedRole,
+          isRequired: step.isRequired,
+          requiresApproval: step.requiresApproval,
+          autoComplete: step.autoComplete,
+          daysToComplete: step.daysToComplete,
+        })),
+      })),
+    });
     return NextResponse.json(template, { status: 201 });
   } catch (error: unknown) {
     return handleApiError(error, 'WorkflowTemplates POST');

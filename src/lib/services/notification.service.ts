@@ -176,7 +176,7 @@ class NotificationService {
     try {
       // Dynamic import to avoid circular dependencies
       const { sendNotificationToUser } = await import('@/lib/websocket/websocket-service');
-      await sendNotificationToUser(userId, payload as NotificationPayload);
+      await sendNotificationToUser(userId, payload as unknown as NotificationPayload);
     } catch {
       // WebSocket not available — notification is still persisted in DB
       // User will see it on next page load

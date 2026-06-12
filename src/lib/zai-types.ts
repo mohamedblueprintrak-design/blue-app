@@ -27,5 +27,5 @@ export interface ZAIChatCompletions {
 export function asZAIChatCompletions(
   completions: Record<string, unknown>,
 ): ZAIChatCompletions {
-  return completions as ZAIChatCompletions;
+  return completions as unknown as ZAIChatCompletions;
 }
