@@ -9,20 +9,19 @@
 import { describe, it, expect, beforeAll, beforeEach, afterEach, jest } from '@jest/globals';
 
 // Use unstable_mockModule for ESM-compatible mocking
-jest.unstable_mockModule('@/lib/db', () => ({
+jest.mock('@/lib/db', () => ({
   db: {
     refreshToken: {
-      // @ts-expect-error — Jest mock for Prisma model
-      create: jest.fn().mockResolvedValue({ id: 'rt-1' }),
+      create: jest.fn<any>().mockResolvedValue({ id: 'rt-1' }),
     },
   },
 }));
 
-jest.unstable_mockModule('@/lib/logger', () => ({
+jest.mock('@/lib/logger', () => ({
   log: { warn: jest.fn(), error: jest.fn(), info: jest.fn(), debug: jest.fn() },
 }));
 
-jest.unstable_mockModule('@/lib/auth/jwt-secret', () => ({
+jest.mock('@/lib/auth/jwt-secret', () => ({
   getJwtSecretBytes: () => new TextEncoder().encode('blue-test-secret-key-must-be-at-least-32-chars!'),
 }));
 

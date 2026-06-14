@@ -3,25 +3,18 @@
 /**
  * Tests for verified auth functions — requireVerified*, extractAuthContext
  * These tests ensure the security-critical auth path works correctly.
+ *
+ * NOTE: This file does NOT mock `jose` to avoid cross-file module cache
+ * pollution in Bun's test runner. None of these tests need jose mocking.
  */
 
 import { describe, it, expect, jest } from '@jest/globals';
 
-// Mock dependencies before imports
-const mockJwtVerify = jest.fn();
-const mockDbUserFindUnique = jest.fn();
+// Set JWT_SECRET env var before any auth module imports
+process.env.JWT_SECRET = 'test-secret-at-least-32-characters-long!';
 
-jest.mock('jose', () => ({
-  jwtVerify: mockJwtVerify,
-  SignJWT: jest.fn().mockImplementation(() => ({
-    setProtectedHeader: jest.fn().mockReturnThis(),
-    setIssuer: jest.fn().mockReturnThis(),
-    setAudience: jest.fn().mockReturnThis(),
-    setExpirationTime: jest.fn().mockReturnThis(),
-    setIssuedAt: jest.fn().mockReturnThis(),
-    sign: (jest.fn() as any).mockResolvedValue('mock-token'),
-  })),
-}));
+// Mock dependencies (only db and logger — no jose mock needed)
+const mockDbUserFindUnique = jest.fn<any>();
 
 jest.mock('@/lib/db', () => ({
   db: {
@@ -40,9 +33,9 @@ jest.mock('@/lib/logger', () => ({
   },
 }));
 
-jest.mock('@/lib/auth/jwt-secret', () => ({
-  getJwtSecretBytes: jest.fn().mockReturnValue(new TextEncoder().encode('test-secret-at-least-32-characters-long!')),
-}));
+// Set JWT_SECRET env var for the real jwt-secret module (no mock needed)
+// This avoids polluting the module cache for other test files
+process.env.JWT_SECRET = 'test-secret-at-least-32-characters-long!';
 
 jest.mock('@/lib/auth/modules/authorization', () => ({
   hasPermission: jest.fn().mockReturnValue(true),

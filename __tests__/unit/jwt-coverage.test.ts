@@ -7,7 +7,7 @@
  * getTokenExpiration, isTokenExpired, decodeToken
  */
 
-import { describe, it, expect, beforeAll } from '@jest/globals';
+import { describe, it, expect, beforeAll, afterEach } from '@jest/globals';
 
 // Set JWT_SECRET before any module loads — getJwtSecretBytes() now requires it
 process.env.JWT_SECRET = 'test-jwt-secret-for-coverage-tests-min-32-chars!';

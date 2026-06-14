@@ -19,7 +19,7 @@ describe('CSRF Fetch Wrapper', () => {
   beforeEach(() => {
     // Reset state
     restoreOriginalFetch();
-    mockFetch = jest.fn().mockResolvedValue(new Response('OK'));
+    mockFetch = jest.fn<any>().mockResolvedValue(new Response('OK'));
   });
 
   afterEach(() => {

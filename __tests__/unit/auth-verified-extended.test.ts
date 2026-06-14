@@ -1,25 +1,20 @@
 /**
  * Tests for requireVerifiedAuth and related verified auth functions
  * Comprehensive coverage of JWT re-verification flow
+ *
+ * NOTE: This file does NOT mock `jose` to avoid cross-file module cache
+ * pollution in Bun's test runner. Instead, it generates real JWT tokens
+ * using SignJWT and verifies them through the real jwtVerify.
  */
 
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
+import { SignJWT } from 'jose';
 
-// Mock dependencies before imports
-const mockJwtVerify = jest.fn();
-const mockDbUserFindUnique = jest.fn();
+// Set JWT_SECRET before any module that reads it is imported
+process.env.JWT_SECRET = 'test-secret-at-least-32-characters-long!';
 
-jest.mock('jose', () => ({
-  jwtVerify: mockJwtVerify,
-  SignJWT: jest.fn().mockImplementation(() => ({
-    setProtectedHeader: jest.fn().mockReturnThis(),
-    setIssuer: jest.fn().mockReturnThis(),
-    setAudience: jest.fn().mockReturnThis(),
-    setExpirationTime: jest.fn().mockReturnThis(),
-    setIssuedAt: jest.fn().mockReturnThis(),
-    sign: jest.fn().mockResolvedValue('mock-token'),
-  })),
-}));
+// Mock dependencies (except jose and @/lib/auth/jwt-secret)
+const mockDbUserFindUnique = jest.fn<any>();
 
 jest.mock('@/lib/db', () => ({
   db: {
@@ -36,10 +31,6 @@ jest.mock('@/lib/logger', () => ({
     error: jest.fn(),
     info: jest.fn(),
   },
-}));
-
-jest.mock('@/lib/auth/jwt-secret', () => ({
-  getJwtSecretBytes: jest.fn().mockReturnValue(new TextEncoder().encode('test-secret-at-least-32-characters-long!')),
 }));
 
 jest.mock('@/lib/auth/modules/authorization', () => ({
@@ -60,11 +51,42 @@ import {
   requireVerifiedAdmin,
   requireVerifiedFinancialAccess,
   getTokenFromRequest,
-  getAuthContext,
   generateToken,
 } from '@/app/api/utils/auth';
 import { NextRequest } from 'next/server';
 import type { Permission } from '@/lib/auth/types';
+import { hasPermission as _hasPermission, isAdmin as _isAdmin, canAccessFinancials as _canAccessFinancials } from '@/lib/auth/modules/authorization';
+import { getJwtSecretBytes } from '@/lib/auth/jwt-secret';
+
+// Cast the mocked authorization functions for test manipulation
+const mockHasPermission = _hasPermission as unknown as jest.Mock;
+const mockIsAdmin = _isAdmin as unknown as jest.Mock;
+const mockCanAccessFinancials = _canAccessFinancials as unknown as jest.Mock;
+
+/**
+ * Generate a real JWT token for testing.
+ * Uses the same signing configuration as the production auth module
+ * (HS256, issuer 'blueprint-saas', audience 'blueprint-users') so that
+ * the real jwtVerify inside requireVerifiedAuth will accept it.
+ *
+ * @param payload - JWT claims (userId, email, role, type, organizationId, etc.)
+ * @param iat - Optional issued-at timestamp (seconds since epoch). Defaults to now.
+ */
+async function generateTestToken(payload: Record<string, unknown>, iat?: number): Promise<string> {
+  const builder = new SignJWT(payload)
+    .setProtectedHeader({ alg: 'HS256' })
+    .setIssuer('blueprint-saas')
+    .setAudience('blueprint-users')
+    .setExpirationTime('15m');
+
+  if (iat !== undefined) {
+    builder.setIssuedAt(iat);
+  } else {
+    builder.setIssuedAt();
+  }
+
+  return builder.sign(getJwtSecretBytes());
+}
 
 function createMockRequest(options: {
   headers?: Record<string, string>;
@@ -109,7 +131,7 @@ describe('requireVerifiedAuth', () => {
         'x-user-role': 'ADMIN',
       },
     });
-    // No JWT cookie or Authorization header
+    // No JWT cookie or Authorization header — headers are present but likely forged
     const result = await requireVerifiedAuth(req);
     expect('error' in result).toBe(true);
   });
@@ -120,126 +142,122 @@ describe('requireVerifiedAuth', () => {
         'x-user-id': 'user-1',
         'x-user-email': 'test@test.com',
         'x-user-role': 'ADMIN',
-        'authorization': 'Bearer valid-looking-token',
+        'authorization': 'Bearer invalid-token',
       },
     });
-    mockJwtVerify.mockRejectedValue(new Error('Invalid token'));
-    mockDbUserFindUnique.mockResolvedValue(null);
+    // 'invalid-token' is not a valid JWT — the real jwtVerify will throw
 
     const result = await requireVerifiedAuth(req);
     expect('error' in result).toBe(true);
   });
 
   it('should return 401 when JWT claims dont match headers (forgery)', async () => {
+    // Generate a real JWT with a different userId than the headers claim
+    const token = await generateTestToken({
+      userId: 'different-user',
+      email: 'test@test.com',
+      role: 'ADMIN',
+      type: 'access',
+      organizationId: null,
+    });
+
     const req = createMockRequest({
       headers: {
-        'x-user-id': 'user-1',
+        'x-user-id': 'user-1', // Doesn't match JWT's userId
         'x-user-email': 'test@test.com',
         'x-user-role': 'ADMIN',
-        'authorization': 'Bearer some-token',
+        'authorization': `Bearer ${token}`,
       },
     });
-    mockJwtVerify.mockResolvedValue({
-      payload: {
-        userId: 'different-user',  // Doesn't match x-user-id
-        email: 'test@test.com',
-        role: 'ADMIN',
-        type: 'access',
-      },
-    });
-    mockDbUserFindUnique.mockResolvedValue(null);
 
     const result = await requireVerifiedAuth(req);
     expect('error' in result).toBe(true);
   });
 
   it('should return 401 when email in JWT doesnt match header', async () => {
+    const token = await generateTestToken({
+      userId: 'user-1',
+      email: 'different@test.com',
+      role: 'ADMIN',
+      type: 'access',
+      organizationId: null,
+    });
+
     const req = createMockRequest({
       headers: {
         'x-user-id': 'user-1',
-        'x-user-email': 'test@test.com',
+        'x-user-email': 'test@test.com', // Doesn't match JWT's email
         'x-user-role': 'ADMIN',
-        'authorization': 'Bearer some-token',
+        'authorization': `Bearer ${token}`,
       },
     });
-    mockJwtVerify.mockResolvedValue({
-      payload: {
-        userId: 'user-1',
-        email: 'different@test.com',  // Doesn't match x-user-email
-        role: 'ADMIN',
-        type: 'access',
-      },
-    });
-    mockDbUserFindUnique.mockResolvedValue(null);
 
     const result = await requireVerifiedAuth(req);
     expect('error' in result).toBe(true);
   });
 
   it('should return 401 when role in JWT doesnt match header', async () => {
+    const token = await generateTestToken({
+      userId: 'user-1',
+      email: 'test@test.com',
+      role: 'VIEWER',
+      type: 'access',
+      organizationId: null,
+    });
+
     const req = createMockRequest({
       headers: {
         'x-user-id': 'user-1',
         'x-user-email': 'test@test.com',
-        'x-user-role': 'ADMIN',
-        'authorization': 'Bearer some-token',
+        'x-user-role': 'ADMIN', // Doesn't match JWT's role
+        'authorization': `Bearer ${token}`,
       },
     });
-    mockJwtVerify.mockResolvedValue({
-      payload: {
-        userId: 'user-1',
-        email: 'test@test.com',
-        role: 'VIEWER',  // Doesn't match x-user-role
-        type: 'access',
-      },
-    });
-    mockDbUserFindUnique.mockResolvedValue(null);
 
     const result = await requireVerifiedAuth(req);
     expect('error' in result).toBe(true);
   });
 
   it('should return 401 when 2FA-pending token is used', async () => {
+    // JWT claims match headers, but token type is '2fa-pending' instead of 'access'
+    const token = await generateTestToken({
+      userId: 'user-1',
+      email: 'test@test.com',
+      role: 'ADMIN',
+      type: '2fa-pending',
+      organizationId: null,
+    });
+
     const req = createMockRequest({
       headers: {
         'x-user-id': 'user-1',
         'x-user-email': 'test@test.com',
         'x-user-role': 'ADMIN',
-        'authorization': 'Bearer some-token',
+        'authorization': `Bearer ${token}`,
       },
     });
-    mockJwtVerify.mockResolvedValue({
-      payload: {
-        userId: 'user-1',
-        email: 'test@test.com',
-        role: 'ADMIN',
-        type: '2fa-pending',  // Not 'access'
-      },
-    });
-    mockDbUserFindUnique.mockResolvedValue(null);
+    mockDbUserFindUnique.mockResolvedValue(null); // No password change — let it pass to 2FA check
 
     const result = await requireVerifiedAuth(req);
     expect('error' in result).toBe(true);
   });
 
   it('should return 401 when password was changed after token was issued', async () => {
+    const oneHourAgo = Math.floor(Date.now() / 1000) - 3600;
+    const token = await generateTestToken({
+      userId: 'user-1',
+      email: 'test@test.com',
+      role: 'ADMIN',
+      type: 'access',
+      organizationId: null,
+    }, oneHourAgo);
+
     const req = createMockRequest({
       headers: {
         'x-user-id': 'user-1',
         'x-user-email': 'test@test.com',
         'x-user-role': 'ADMIN',
-        'authorization': 'Bearer some-token',
-      },
-    });
-    const oneHourAgo = Math.floor(Date.now() / 1000) - 3600;
-    mockJwtVerify.mockResolvedValue({
-      payload: {
-        userId: 'user-1',
-        email: 'test@test.com',
-        role: 'ADMIN',
-        type: 'access',
-        iat: oneHourAgo,
-        organizationId: null,
+        'authorization': `Bearer ${token}`,
       },
     });
     // Password changed after token was issued
@@ -252,34 +270,29 @@ describe('requireVerifiedAuth', () => {
   });
 
   it('should return user when JWT claims match headers', async () => {
+    const token = await generateTestToken({
+      userId: 'user-1',
+      email: 'test@test.com',
+      role: 'ADMIN',
+      type: 'access',
+      organizationId: 'org-1',
+    });
+
     const req = createMockRequest({
       headers: {
         'x-user-id': 'user-1',
         'x-user-email': 'test@test.com',
         'x-user-role': 'ADMIN',
+        'x-user-name': 'Test User',
         'x-organization-id': 'org-1',
-        'authorization': 'Bearer valid-token',
-      },
-    });
-    mockJwtVerify.mockResolvedValue({
-      payload: {
-        userId: 'user-1',
-        email: 'test@test.com',
-        role: 'ADMIN',
-        type: 'access',
-        organizationId: 'org-1',
-        iat: undefined,
+        'authorization': `Bearer ${token}`,
       },
     });
     mockDbUserFindUnique.mockResolvedValue(null); // No password change
 
     const result = await requireVerifiedAuth(req);
-    // If error, log it for debugging
-    if ('error' in result) {
-      // The test may fail if jose mock isn't properly applied
-      // Check the response status
-      expect(result.error.status).toBe(401);
-    } else {
+    expect('user' in result).toBe(true);
+    if ('user' in result) {
       expect(result.user.userId).toBe('user-1');
       expect(result.user.email).toBe('test@test.com');
       expect(result.user.role).toBe('ADMIN');
@@ -304,24 +317,23 @@ describe('requireVerifiedPermission', () => {
   });
 
   it('should return 403 when user lacks permission', async () => {
-    const { hasPermission } = jest.requireMock('@/lib/auth/modules/authorization');
-    hasPermission.mockReturnValue(false);
+    mockHasPermission.mockReturnValue(false);
+
+    // Generate a valid JWT with claims matching the headers
+    const token = await generateTestToken({
+      userId: 'user-1',
+      email: 'test@test.com',
+      role: 'VIEWER',
+      type: 'access',
+      organizationId: null,
+    });
 
     const req = createMockRequest({
       headers: {
         'x-user-id': 'user-1',
         'x-user-email': 'test@test.com',
         'x-user-role': 'VIEWER',
-        'authorization': 'Bearer token',
-      },
-    });
-    mockJwtVerify.mockResolvedValue({
-      payload: {
-        userId: 'user-1',
-        email: 'test@test.com',
-        role: 'VIEWER',
-        type: 'access',
-        organizationId: null,
+        'authorization': `Bearer ${token}`,
       },
     });
     mockDbUserFindUnique.mockResolvedValue(null);
@@ -341,24 +353,23 @@ describe('requireVerifiedAdmin', () => {
   });
 
   it('should return 403 for non-admin user', async () => {
-    const { isAdmin } = jest.requireMock('@/lib/auth/modules/authorization');
-    isAdmin.mockReturnValue(false);
+    mockIsAdmin.mockReturnValue(false);
+
+    // Generate a valid JWT with claims matching the headers
+    const token = await generateTestToken({
+      userId: 'user-1',
+      email: 'test@test.com',
+      role: 'ENGINEER',
+      type: 'access',
+      organizationId: null,
+    });
 
     const req = createMockRequest({
       headers: {
         'x-user-id': 'user-1',
         'x-user-email': 'test@test.com',
         'x-user-role': 'ENGINEER',
-        'authorization': 'Bearer token',
-      },
-    });
-    mockJwtVerify.mockResolvedValue({
-      payload: {
-        userId: 'user-1',
-        email: 'test@test.com',
-        role: 'ENGINEER',
-        type: 'access',
-        organizationId: null,
+        'authorization': `Bearer ${token}`,
       },
     });
     mockDbUserFindUnique.mockResolvedValue(null);
@@ -378,24 +389,23 @@ describe('requireVerifiedFinancialAccess', () => {
   });
 
   it('should return 403 for user without financial access', async () => {
-    const { canAccessFinancials } = jest.requireMock('@/lib/auth/modules/authorization');
-    canAccessFinancials.mockReturnValue(false);
+    mockCanAccessFinancials.mockReturnValue(false);
+
+    // Generate a valid JWT with claims matching the headers
+    const token = await generateTestToken({
+      userId: 'user-1',
+      email: 'test@test.com',
+      role: 'ENGINEER',
+      type: 'access',
+      organizationId: null,
+    });
 
     const req = createMockRequest({
       headers: {
         'x-user-id': 'user-1',
         'x-user-email': 'test@test.com',
         'x-user-role': 'ENGINEER',
-        'authorization': 'Bearer token',
-      },
-    });
-    mockJwtVerify.mockResolvedValue({
-      payload: {
-        userId: 'user-1',
-        email: 'test@test.com',
-        role: 'ENGINEER',
-        type: 'access',
-        organizationId: null,
+        'authorization': `Bearer ${token}`,
       },
     });
     mockDbUserFindUnique.mockResolvedValue(null);
@@ -457,14 +467,9 @@ describe('getTokenFromRequest', () => {
 
 describe('generateToken', () => {
   it('should generate a JWT token without throwing', async () => {
-    // generateToken uses the real jose.SignJWT which is mocked
-    // Just verify it doesn't throw
-    try {
-      const token = await generateToken('user-1');
-      expect(typeof token).toBe('string');
-    } catch {
-      // If mock doesn't work, at least verify the function exists
-      expect(typeof generateToken).toBe('function');
-    }
+    // Uses the real jose.SignJWT with the real JWT secret
+    const token = await generateToken('user-1');
+    expect(typeof token).toBe('string');
+    expect(token.length).toBeGreaterThan(0);
   });
 });

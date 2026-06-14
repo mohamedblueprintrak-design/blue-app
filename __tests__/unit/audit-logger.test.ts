@@ -252,7 +252,7 @@ describe('AuditLogger — Prisma Client', () => {
   it('should accept a Prisma client', () => {
     const mockPrisma = {
       activity: {
-        createMany: jest.fn().mockResolvedValue({ count: 1 }),
+        createMany: jest.fn<any>().mockResolvedValue({ count: 1 }),
       },
     };
     expect(() => logger.setPrismaClient(mockPrisma)).not.toThrow();
@@ -278,13 +278,13 @@ describe('AuditLogger — Query', () => {
 describe('AuditLogger — Shutdown', () => {
   it('should shutdown gracefully', async () => {
     const logger = new AuditLogger({ console: false, persist: false });
-    await expect(logger.shutdown()).resolves.not.toThrow();
+    await expect(logger.shutdown()).resolves.toBeUndefined();
   });
 
   it('should be safe to call shutdown multiple times', async () => {
     const logger = new AuditLogger({ console: false, persist: false });
     await logger.shutdown();
-    await expect(logger.shutdown()).resolves.not.toThrow();
+    await expect(logger.shutdown()).resolves.toBeUndefined();
   });
 });
 
@@ -316,23 +316,23 @@ describe('Global Audit Logger', () => {
 
 describe('auditLog Convenience Function', () => {
   it('should auto-detect CRITICAL level for breach actions', async () => {
-    await expect(auditLog('data.breach_attempt', { query: 'DROP TABLE' })).resolves.not.toThrow();
+    await expect(auditLog('data.breach_attempt', { query: 'DROP TABLE' })).resolves.toBeUndefined();
   });
 
   it('should auto-detect WARNING level for failed actions', async () => {
-    await expect(auditLog('auth.failed_login', { reason: 'bad password' })).resolves.not.toThrow();
+    await expect(auditLog('auth.failed_login', { reason: 'bad password' })).resolves.toBeUndefined();
   });
 
   it('should auto-detect WARNING level for denied actions', async () => {
-    await expect(auditLog('permission.denied', { resource: 'admin' })).resolves.not.toThrow();
+    await expect(auditLog('permission.denied', { resource: 'admin' })).resolves.toBeUndefined();
   });
 
   it('should auto-detect WARNING level for error actions', async () => {
-    await expect(auditLog('system.error', { message: 'test' })).resolves.not.toThrow();
+    await expect(auditLog('system.error', { message: 'test' })).resolves.toBeUndefined();
   });
 
   it('should default to INFO level for normal actions', async () => {
-    await expect(auditLog('user.login', { email: 'test@test.com' }, 'user-1')).resolves.not.toThrow();
+    await expect(auditLog('user.login', { email: 'test@test.com' }, 'user-1')).resolves.toBeUndefined();
   });
 
   it('should accept metadata', async () => {
@@ -343,18 +343,18 @@ describe('auditLog Convenience Function', () => {
         path: '/api/auth/login',
         method: 'POST',
       })
-    ).resolves.not.toThrow();
+    ).resolves.toBeUndefined();
   });
 
   it('should auto-detect CRITICAL level for exploit actions', async () => {
-    await expect(auditLog('security.exploit_detected', { type: 'SQLi' })).resolves.not.toThrow();
+    await expect(auditLog('security.exploit_detected', { type: 'SQLi' })).resolves.toBeUndefined();
   });
 
   it('should auto-detect WARNING level for unauthorized actions', async () => {
-    await expect(auditLog('auth.unauthorized_access', { path: '/admin' })).resolves.not.toThrow();
+    await expect(auditLog('auth.unauthorized_access', { path: '/admin' })).resolves.toBeUndefined();
   });
 
   it('should auto-detect WARNING level for invalid actions', async () => {
-    await expect(auditLog('input.invalid_data', { field: 'email' })).resolves.not.toThrow();
+    await expect(auditLog('input.invalid_data', { field: 'email' })).resolves.toBeUndefined();
   });
 });

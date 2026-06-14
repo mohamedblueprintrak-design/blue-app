@@ -7,20 +7,20 @@ import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 
 // Create a mock PrismaClient
 const mockDelegate = {
-  findFirst: jest.fn(),
-  findUnique: jest.fn(),
-  findMany: jest.fn(),
-  create: jest.fn(),
-  update: jest.fn(),
-  delete: jest.fn(),
-  count: jest.fn(),
-  aggregate: jest.fn().mockResolvedValue({ _count: 0 }),
-  groupBy: jest.fn().mockResolvedValue([]),
+  findFirst: jest.fn<any>(),
+  findUnique: jest.fn<any>(),
+  findMany: jest.fn<any>(),
+  create: jest.fn<any>(),
+  update: jest.fn<any>(),
+  delete: jest.fn<any>(),
+  count: jest.fn<any>(),
+  aggregate: jest.fn<any>().mockResolvedValue({ _count: 0 }),
+  groupBy: jest.fn<any>().mockResolvedValue([]),
 };
 
 const mockPrisma = {
   user: mockDelegate,
-  $transaction: jest.fn().mockImplementation(fn => fn({})),
+  $transaction: jest.fn<any>().mockImplementation((fn: (arg: unknown) => unknown) => fn({})),
 } as unknown as import('@prisma/client').PrismaClient;
 
 import { BaseRepository, IRepository, FindManyOptions } from '@/lib/repositories/base.repository';
@@ -76,7 +76,7 @@ describe('BaseRepository — findOne', () => {
     mockDelegate.findFirst.mockResolvedValue({ id: '1', email: 'test@example.com', deletedAt: null });
     const result = await repo.findOne({ email: 'test@example.com' });
     expect(result).not.toBeNull();
-    const call = mockDelegate.findFirst.mock.calls[0][0];
+    const call = mockDelegate.findFirst.mock.calls[0][0] as any;
     expect(call.where.deletedAt).toBeNull();
   });
 
@@ -103,14 +103,14 @@ describe('BaseRepository — findMany', () => {
     mockDelegate.findMany.mockResolvedValue([{ id: '1' }, { id: '2' }]);
     const result = await repo.findMany();
     expect(result).toHaveLength(2);
-    const call = mockDelegate.findMany.mock.calls[0][0];
+    const call = mockDelegate.findMany.mock.calls[0][0] as any;
     expect(call.where.deletedAt).toBeNull();
   });
 
   it('should apply pagination options', async () => {
     mockDelegate.findMany.mockResolvedValue([]);
     await repo.findMany({ skip: 10, take: 5 });
-    const call = mockDelegate.findMany.mock.calls[0][0];
+    const call = mockDelegate.findMany.mock.calls[0][0] as any;
     expect(call.skip).toBe(10);
     expect(call.take).toBe(5);
   });
@@ -118,7 +118,7 @@ describe('BaseRepository — findMany', () => {
   it('should apply where conditions', async () => {
     mockDelegate.findMany.mockResolvedValue([]);
     await repo.findMany({ where: { role: 'ADMIN' } });
-    const call = mockDelegate.findMany.mock.calls[0][0];
+    const call = mockDelegate.findMany.mock.calls[0][0] as any;
     expect(call.where.role).toBe('ADMIN');
     expect(call.where.deletedAt).toBeNull();
   });
@@ -126,7 +126,7 @@ describe('BaseRepository — findMany', () => {
   it('should apply ordering', async () => {
     mockDelegate.findMany.mockResolvedValue([]);
     await repo.findMany({ orderBy: { name: 'asc' } });
-    const call = mockDelegate.findMany.mock.calls[0][0];
+    const call = mockDelegate.findMany.mock.calls[0][0] as any;
     expect(call.orderBy).toEqual({ name: 'asc' });
   });
 });
@@ -146,7 +146,7 @@ describe('BaseRepository — findManyIncludingDeleted', () => {
   it('should not filter by deletedAt', async () => {
     mockDelegate.findMany.mockResolvedValue([{ id: '1' }]);
     await repo.findManyIncludingDeleted();
-    const call = mockDelegate.findMany.mock.calls[0][0];
+    const call = mockDelegate.findMany.mock.calls[0][0] as any;
     expect(call.where).toBeUndefined();
   });
 });
@@ -229,7 +229,7 @@ describe('BaseRepository — count', () => {
     mockDelegate.count.mockResolvedValue(5);
     const result = await repo.count();
     expect(result).toBe(5);
-    const call = mockDelegate.count.mock.calls[0][0];
+    const call = mockDelegate.count.mock.calls[0][0] as any;
     expect(call.where.deletedAt).toBeNull();
   });
 
@@ -237,7 +237,7 @@ describe('BaseRepository — count', () => {
     mockDelegate.count.mockResolvedValue(2);
     const result = await repo.count({ role: 'ADMIN' });
     expect(result).toBe(2);
-    const call = mockDelegate.count.mock.calls[0][0];
+    const call = mockDelegate.count.mock.calls[0][0] as any;
     expect(call.where.role).toBe('ADMIN');
     expect(call.where.deletedAt).toBeNull();
   });
@@ -311,21 +311,21 @@ describe('BaseRepository — without soft delete', () => {
   it('should not add deletedAt filter in findById', async () => {
     mockDelegate.findFirst.mockResolvedValue({ id: '1' });
     await repo.findById('1');
-    const call = mockDelegate.findFirst.mock.calls[0][0];
+    const call = mockDelegate.findFirst.mock.calls[0][0] as any;
     expect(call.where.deletedAt).toBeUndefined();
   });
 
   it('should not add deletedAt filter in findMany', async () => {
     mockDelegate.findMany.mockResolvedValue([]);
     await repo.findMany();
-    const call = mockDelegate.findMany.mock.calls[0][0];
+    const call = mockDelegate.findMany.mock.calls[0][0] as any;
     expect(call.where.deletedAt).toBeUndefined();
   });
 
   it('should not add deletedAt filter in count', async () => {
     mockDelegate.count.mockResolvedValue(10);
     await repo.count();
-    const call = mockDelegate.count.mock.calls[0][0];
+    const call = mockDelegate.count.mock.calls[0][0] as any;
     expect(call.where.deletedAt).toBeUndefined();
   });
 });

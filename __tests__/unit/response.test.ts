@@ -14,7 +14,7 @@ import { describe, it, expect, beforeAll, jest, beforeEach, afterEach } from '@j
 const mockLogError = jest.fn();
 const mockLogWarn = jest.fn();
 
-jest.unstable_mockModule('@/lib/logger', () => ({
+jest.mock('@/lib/logger', () => ({
   log: {
     warn: mockLogWarn,
     error: mockLogError,
@@ -23,9 +23,7 @@ jest.unstable_mockModule('@/lib/logger', () => ({
   },
 }));
 
-// Mock next/server: provide both NextResponse constructor and .json static
-jest.unstable_mockModule('next/server', () => {
-  // Create a class that extends Response and also has a static .json method
+jest.mock('next/server', () => {
   class NextResponseMock extends Response {
     static json(body: unknown, init?: ResponseInit) {
       return new Response(JSON.stringify(body), {
