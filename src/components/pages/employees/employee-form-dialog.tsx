@@ -62,6 +62,7 @@ export function EmployeeFormDialog({
 
   // useWatch is the React Compiler–compatible way to observe form values
   const watchedUserId = useWatch({ control, name: "userId" });
+  const watchedEmploymentStatus = useWatch({ control, name: "employmentStatus" });
 
   useEffect(() => {
     if (employee) {
@@ -148,7 +149,7 @@ export function EmployeeFormDialog({
             <div className="space-y-2">
               <Label className="text-sm">{ar ? "حالة التوظيف" : "Employment Status"}</Label>
               <Select
-                value={watch("employmentStatus")}
+                value={watchedEmploymentStatus}
                 onValueChange={(v) => setValue("employmentStatus", v as EmployeeFormData["employmentStatus"])}
               >
                 <SelectTrigger>

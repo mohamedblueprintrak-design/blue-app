@@ -302,6 +302,21 @@ class BackupService {
           error: 'Backup filename does not match expected pattern',
         };
       }
+      // SECURITY: Additional sanitization — reject any path component containing
+      // characters that could break out of the SQL string literal.
+      // After all validations above, only alphanumerics, underscores, hyphens,
+      // dots, and path separators should remain. Reject if anything else is found.
+      if (/[^\w./\\-]/.test(resolvedDest.replace(expectedPrefix, ''))) {
+        return {
+          success: false,
+          backupId,
+          timestamp,
+          size: 0,
+          duration: Date.now() - startTime,
+          filename,
+          error: 'Backup path contains invalid characters',
+        };
+      }
       // Use $executeRaw with Prisma.sql instead of $executeRawUnsafe to prevent SQL injection.
       // SQLite's VACUUM INTO does not support parameterized (?) for the target path,
       // so we must embed the validated path as a raw SQL string literal.

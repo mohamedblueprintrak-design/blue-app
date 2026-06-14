@@ -6,6 +6,7 @@ import { log } from '@/lib/logger';
 import { sanitizeObject } from '@/lib/security/sanitize';
 import { getStorageProvider, generateStorageKey } from '@/lib/storage';
 import { z } from 'zod';
+import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 
 // Zod schema for JSON metadata-only document creation
 const documentCreateSchema = z.object({
@@ -30,7 +31,8 @@ const ALLOWED_FILE_TYPES: Record<string, string[]> = {
   'image/png': ['.png'],
   'image/gif': ['.gif'],
   'image/webp': ['.webp'],
-  'image/svg+xml': ['.svg'],
+  // SVG removed — can contain embedded <script> tags (stored XSS vector).
+  // If SVG support is needed, sanitize with DOMPurify on the server before storing.
   'application/msword': ['.doc'],
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
   'application/vnd.ms-excel': ['.xls'],
@@ -145,6 +147,11 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting — file uploads are resource-intensive
+    const { result } = await withRateLimit(request, 'strict');
+    const blocked = rateLimitResponse(result);
+    if (blocked) return blocked;
+
     // RBAC CHECK
     const rbac = await requireVerifiedPermission(request, Permission.DOCUMENT_CREATE);
     if ('error' in rbac) return rbac.error;

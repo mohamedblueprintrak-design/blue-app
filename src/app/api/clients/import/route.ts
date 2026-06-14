@@ -8,9 +8,17 @@ import { cacheDeletePattern } from "@/lib/cache/redis";
 import { log } from "@/lib/logger";
 import { sanitizeObject, sanitizeEmail } from "@/lib/security/sanitize";
 import ExcelJS from "exceljs";
+import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
+
+const MAX_IMPORT_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting — file uploads are resource-intensive
+    const { result } = await withRateLimit(request, 'strict');
+    const blocked = rateLimitResponse(result);
+    if (blocked) return blocked;
+
     // 1. Authentication & Permission check
     const rbac = await requireVerifiedPermission(request, Permission.CLIENT_CREATE);
     if ("error" in rbac) return rbac.error;
@@ -29,6 +37,11 @@ export async function POST(request: NextRequest) {
 
     if (!isCsv && !isExcel) {
       return errorResponse("Invalid file type. Only CSV and Excel (.xlsx, .xls) are supported.", "VALIDATION_ERROR", 400);
+    }
+
+    // SECURITY: Validate file size to prevent memory exhaustion attacks
+    if (file.size > MAX_IMPORT_FILE_SIZE) {
+      return errorResponse(`File size exceeds maximum allowed size of ${MAX_IMPORT_FILE_SIZE / 1024 / 1024}MB`, "VALIDATION_ERROR", 400);
     }
 
     const buffer = await file.arrayBuffer();

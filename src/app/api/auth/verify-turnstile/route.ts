@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 
 const TURNSTILE_SECRET_KEY = process.env.TURNSTILE_SECRET_KEY;
 
@@ -11,6 +12,11 @@ interface TurnstileVerifyResponse {
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting — prevents abuse of outbound Cloudflare API calls
+    const { result } = await withRateLimit(request, 'auth');
+    const blocked = rateLimitResponse(result);
+    if (blocked) return blocked;
+
     const body = await request.json();
     const { token } = body as { token?: string };
 
@@ -63,9 +69,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const result = (await verifyResponse.json()) as TurnstileVerifyResponse;
+    const turnstileResult = (await verifyResponse.json()) as TurnstileVerifyResponse;
 
-    return NextResponse.json({ success: result.success });
+    return NextResponse.json({ success: turnstileResult.success });
   } catch {
     return NextResponse.json(
       { success: false, error: "Captcha verification failed" },

@@ -7,6 +7,7 @@ import { writeFile, unlink, mkdir } from "fs/promises";
 import { existsSync } from "fs";
 import path from "path";
 import { log } from '@/lib/logger';
+import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 
 const AVATAR_DIR = path.join(process.cwd(), "public", "upload", "avatars");
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -22,6 +23,11 @@ const ALLOWED_EXTENSIONS = ["jpg", "jpeg", "png", "gif", "webp"];
  */
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting — file uploads are resource-intensive
+    const { result } = await withRateLimit(request, 'strict');
+    const blocked = rateLimitResponse(result);
+    if (blocked) return blocked;
+
     // SECURITY FIX: Use requireVerifiedAuth() to prevent header forgery —
     // a forged x-user-id would allow uploading avatars for any user.
     const authResult = await requireVerifiedAuth(request);

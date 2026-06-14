@@ -64,9 +64,12 @@ export default async function RootLayout({
         {/* Language detection script — prevents FOUC (flash of unstyled content).
             SECURITY: This inline script contains only static code that reads from
             localStorage/cookies and sets document direction. No user input is interpolated.
-            The CSP nonce is added dynamically by the proxy middleware via the nonce variable.
-            If CSP enforcement blocks this, the user will see a brief FOUC but functionality
-            is not affected — the React app will re-apply the correct direction on mount. */}
+            The CSP nonce is injected by the proxy middleware (auth-proxy.ts) at runtime.
+            If CSP enforcement blocks this script, the user will see a brief FOUC but
+            functionality is not affected — the React app will re-apply the correct
+            direction on mount.
+            NOTE: The nonce attribute is set dynamically by the proxy; this script tag
+            is safe because it uses zero user-supplied values. */}
         <script
           id="lang-script"
           suppressHydrationWarning

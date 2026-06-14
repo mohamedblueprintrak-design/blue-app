@@ -1,5 +1,6 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getSwaggerSpec } from '@/lib/swagger';
+import { requireVerifiedAdmin } from '@/app/api/utils/auth';
 
 /**
  * @openapi
@@ -7,8 +8,7 @@ import { getSwaggerSpec } from '@/lib/swagger';
  *   get:
  *     tags: [Documentation]
  *     summary: OpenAPI specification
- *     description: Returns the OpenAPI 3.0 specification for the BluePrint ERP API
- *     security: []
+ *     description: Returns the OpenAPI 3.0 specification for the BluePrint ERP API. Admin-only to prevent reconnaissance.
  *     responses:
  *       200:
  *         description: OpenAPI specification JSON
@@ -17,8 +17,12 @@ import { getSwaggerSpec } from '@/lib/swagger';
  *             schema:
  *               type: object
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    // SECURITY: Restrict API documentation to admins only to prevent reconnaissance
+    const authResult = await requireVerifiedAdmin(request);
+    if ('error' in authResult) return authResult.error;
+
     const specs = getSwaggerSpec();
     return NextResponse.json(specs);
   } catch (_error) {

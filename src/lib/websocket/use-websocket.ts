@@ -72,6 +72,8 @@ export function useWebSocket(options: UseWebSocketOptions): UseWebSocketReturn {
     onDisconnect,
   } = options;
 
+  const isDev = process.env.NODE_ENV === 'development';
+
   const socketRef = useRef<Socket | null>(null);
   const callbacksRef = useRef({
     onNotification,
@@ -126,25 +128,25 @@ export function useWebSocket(options: UseWebSocketOptions): UseWebSocketReturn {
 
     // Connection events
     socket.on('connect', () => {
-      console.info('[WebSocket] Connected');
+      if (isDev) console.info('[WebSocket] Connected');
       setIsConnected(true);
       callbacksRef.current.onConnect?.();
     });
 
     socket.on('disconnect', (reason: string) => {
-      console.info('[WebSocket] Disconnected:', reason);
+      if (isDev) console.info('[WebSocket] Disconnected:', reason);
       setIsConnected(false);
       callbacksRef.current.onDisconnect?.();
     });
 
     socket.on('connect_error', (error: Error) => {
-      console.error('[WebSocket] Connection error:', error);
+      if (isDev) console.error('[WebSocket] Connection error:', error);
       callbacksRef.current.onError?.({ message: error.message, code: 'CONNECTION_ERROR' });
     });
 
     // Notification events
     socket.on('notification', (data: NotificationPayload) => {
-      console.info('[WebSocket] Notification received:', data);
+      if (isDev) console.info('[WebSocket] Notification received:', data);
       setNotificationCount((prev) => prev + 1);
       callbacksRef.current.onNotification?.(data);
     });
@@ -156,13 +158,13 @@ export function useWebSocket(options: UseWebSocketOptions): UseWebSocketReturn {
 
     // Project events
     socket.on('project_update', (data: ProjectPayload) => {
-      console.info('[WebSocket] Project update:', data);
+      if (isDev) console.info('[WebSocket] Project update:', data);
       callbacksRef.current.onProjectUpdate?.(data);
     });
 
     // Task events
     socket.on('task_update', (data: TaskPayload) => {
-      console.info('[WebSocket] Task update:', data);
+      if (isDev) console.info('[WebSocket] Task update:', data);
       callbacksRef.current.onTaskUpdate?.(data);
     });
 
@@ -182,13 +184,13 @@ export function useWebSocket(options: UseWebSocketOptions): UseWebSocketReturn {
 
     // System events
     socket.on('system_alert', (data: SystemAlertPayload) => {
-      console.info('[WebSocket] System alert:', data);
+      if (isDev) console.info('[WebSocket] System alert:', data);
       callbacksRef.current.onSystemAlert?.(data);
     });
 
     // Error events
     socket.on('error', (data: { message: string; code?: string }) => {
-      console.error('[WebSocket] Error:', data);
+      if (isDev) console.error('[WebSocket] Error:', data);
       callbacksRef.current.onError?.(data);
     });
 
@@ -197,6 +199,8 @@ export function useWebSocket(options: UseWebSocketOptions): UseWebSocketReturn {
       socket.disconnect();
       socketRef.current = null;
     };
+    // isDev is derived from NODE_ENV which never changes at runtime — safe to omit
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, url]);
 
   // ============================================
