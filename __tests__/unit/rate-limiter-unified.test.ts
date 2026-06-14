@@ -3,7 +3,7 @@
  * Tests the RateLimiter class, getClientIP, and createRateLimitResponse
  */
 
-import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
+import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 
 // Mock Redis before imports
 jest.mock('redis', () => ({

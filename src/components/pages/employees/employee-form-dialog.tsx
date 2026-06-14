@@ -1,6 +1,6 @@
 "use client";
 
-import { useForm, type Resolver } from "react-hook-form";
+import { useForm, useWatch, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { employeeSchema, getErrorMessage, type EmployeeFormData } from "@/lib/validations";
 import { cn } from "@/lib/utils";
@@ -58,7 +58,10 @@ export function EmployeeFormDialog({
     defaultValues: EMPTY_FORM,
   });
 
-  const { register, handleSubmit, formState: { errors }, reset, setValue, watch } = form;
+  const { register, handleSubmit, formState: { errors }, reset, setValue, control } = form;
+
+  // useWatch is the React Compiler–compatible way to observe form values
+  const watchedUserId = useWatch({ control, name: "userId" });
 
   useEffect(() => {
     if (employee) {
@@ -97,7 +100,7 @@ export function EmployeeFormDialog({
             <div className="space-y-2">
               <Label className="text-sm">{ar ? "المستخدم" : "User"} *</Label>
               <Select
-                value={watch("userId")}
+                value={watchedUserId}
                 onValueChange={(v) => setValue("userId", v)}
               >
                 <SelectTrigger>

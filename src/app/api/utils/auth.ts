@@ -270,7 +270,7 @@ export function canApproveExpense(role: string): boolean {
 // RBAC Permission Check for API Routes
 // ============================================
 
-import { hasPermission, canAccessFinancials, canAccessHR, isAdmin as isAdminCheck } from '@/lib/auth/modules/authorization';
+import { hasPermission, canAccessFinancials, isAdmin as isAdminCheck } from '@/lib/auth/modules/authorization';
 import { Permission } from '@/lib/auth/types';
 
 /**

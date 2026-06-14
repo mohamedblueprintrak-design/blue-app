@@ -3,7 +3,7 @@
  * These tests ensure the security-critical auth path works correctly.
  */
 
-import { describe, it, expect, jest, beforeEach } from '@jest/globals';
+import { describe, it, expect, jest } from '@jest/globals';
 
 // Mock dependencies before imports
 const mockJwtVerify = jest.fn();
@@ -72,6 +72,7 @@ import {
   validateCsrf,
 } from '@/app/api/utils/auth';
 import { NextRequest } from 'next/server';
+import type { Permission } from '@/lib/auth/types';
 
 // Helper to create a mock NextRequest with specific headers and cookies
 function createMockRequest(options: {
@@ -101,7 +102,7 @@ function createMockRequest(options: {
 describe('Deprecated Auth Functions (throw on use)', () => {
   it('requirePermission should throw error directing to requireVerifiedPermission', () => {
     const req = createMockRequest({});
-    expect(() => requirePermission(req, 'INVOICE_CREATE' as any)).toThrow(
+    expect(() => requirePermission(req, 'INVOICE_CREATE' as unknown as Permission)).toThrow(
       'requirePermission() has been removed for security reasons'
     );
   });

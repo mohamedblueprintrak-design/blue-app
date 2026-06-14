@@ -110,8 +110,9 @@ const PAGE_ROUTE_MAP: Record<string, string> = {
 /**
  * Check if file-based routing should be used.
  * Controlled by environment variable for gradual rollout.
+ * NOTE: Not a React hook — reads a static env var, no state or effects.
  */
-function useFileBasedRouting(): boolean {
+function isFileBasedRoutingEnabled(): boolean {
   if (typeof window === "undefined") return false;
   return process.env.NEXT_PUBLIC_FILE_ROUTING === "true";
 }
@@ -120,7 +121,7 @@ function getPageFromUrl(): string {
   if (typeof window === "undefined") return "dashboard";
   
   // If using file-based routing, derive page from pathname
-  if (useFileBasedRouting()) {
+  if (isFileBasedRoutingEnabled()) {
     const pathname = window.location.pathname;
     const dashboardPath = pathname.replace("/dashboard", "").replace(/^\/|\/$/g, "");
     if (!dashboardPath) return "dashboard";
@@ -137,7 +138,7 @@ function getProjectIdFromUrl(): string | null {
   if (typeof window === "undefined") return null;
   
   // If using file-based routing, get from pathname
-  if (useFileBasedRouting()) {
+  if (isFileBasedRoutingEnabled()) {
     const pathname = window.location.pathname;
     const match = pathname.match(/\/dashboard\/projects\/([^/]+)/);
     return match ? match[1] : null;
@@ -160,7 +161,7 @@ export const useNavStore = create<NavStore>()((set, get) => ({
     
     if (typeof window !== "undefined") {
       // If file-based routing is enabled, navigate via Next.js router
-      if (useFileBasedRouting()) {
+      if (isFileBasedRoutingEnabled()) {
         const route = PAGE_ROUTE_MAP[page];
         if (route) {
           // Use Next.js router for navigation
@@ -196,7 +197,7 @@ export const useNavStore = create<NavStore>()((set, get) => ({
     set({ currentProjectId: id, currentProjectTab: "overview", currentProjectSubTab: "" });
     
     if (typeof window !== "undefined") {
-      if (useFileBasedRouting()) {
+      if (isFileBasedRoutingEnabled()) {
         const { currentPage } = get();
         const baseRoute = PAGE_ROUTE_MAP[currentPage] || "/dashboard/projects";
         const targetPath = id ? `${baseRoute}/${id}` : baseRoute;
