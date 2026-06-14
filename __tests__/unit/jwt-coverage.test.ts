@@ -9,8 +9,10 @@
 
 import { describe, it, expect, beforeAll } from '@jest/globals';
 
+// Set JWT_SECRET before any module loads — getJwtSecretBytes() now requires it
+process.env.JWT_SECRET = 'test-jwt-secret-for-coverage-tests-min-32-chars!';
+
 // Use dynamic imports throughout to ensure modules load with the test environment.
-// JWT_SECRET falls back to a dev secret in non-production environments.
 
 describe('JWT Module — generateAccessToken', () => {
   let generateAccessToken: typeof import('@/lib/auth/modules/jwt').generateAccessToken;
