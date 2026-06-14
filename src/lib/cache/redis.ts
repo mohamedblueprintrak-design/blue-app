@@ -237,9 +237,18 @@ export async function cacheGetOrSet<T>(
 }
 
 // ============================================
-// Rate Limiting
+// Rate Limiting — DELEGATED
 // ============================================
 
+// NOTE: Rate limiting has been consolidated into src/lib/rate-limiter.ts
+// (the unified rate limiter). The functions below are DEPRECATED and will
+// be removed in a future version. They are kept temporarily to avoid
+// breaking any imports that may exist elsewhere.
+
+// Import from the unified module for new code:
+// import { RateLimiter, rateLimiters } from '@/lib/rate-limiter';
+
+/** @deprecated Use RateLimiter from '@/lib/rate-limiter' instead */
 interface RateLimitResult {
   allowed: boolean;
   limit: number;
@@ -311,6 +320,9 @@ function inMemoryRateLimit(
 }
 
 /**
+ * @deprecated Use RateLimiter from '@/lib/rate-limiter' instead.
+ * This function is kept for backward compatibility but will be removed.
+ *
  * Rate limit check using Redis
  */
 export async function rateLimit(
@@ -351,6 +363,9 @@ export async function rateLimit(
 }
 
 /**
+ * @deprecated Use RateLimiter from '@/lib/rate-limiter' instead.
+ * This function is kept for backward compatibility but will be removed.
+ *
  * Sliding window rate limit
  */
 export async function slidingWindowRateLimit(

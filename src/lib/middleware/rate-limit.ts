@@ -1,6 +1,14 @@
-// DUPLICATION NOTE: This rate limiter and src/lib/rate-limiter.ts implement similar functionality.
-// This file is Edge Runtime compatible (no Redis), while the other uses Redis with fallback.
-// Consider consolidating in the future.
+/**
+ * Edge Runtime Rate Limiter — محدد معدل الطلبات لبيئة Edge
+ * 
+ * This file provides rate limiting for Next.js Edge Runtime (middleware).
+ * Redis is NOT available in Edge Runtime, so this uses in-memory only.
+ * 
+ * For API routes (Node.js runtime), use the unified rate limiter in
+ * src/lib/rate-limiter.ts which supports Redis with in-memory fallback.
+ * 
+ * The tier configs are intentionally kept in sync with rate-limiter.ts.
+ */
 
 export type RateLimitTier = 'strict' | 'auth' | 'api' | 'loose' | 'ai' | 'export' | 'webhook';
 

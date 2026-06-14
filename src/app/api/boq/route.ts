@@ -222,7 +222,8 @@ export async function PUT(request: NextRequest) {
 }
 
 // DELETE - Delete BOQ item
-// TODO: Refactor to use path parameter [id] instead of query parameter for REST compliance
+// NOTE: Currently uses query parameter ?id= for item identification.
+// A future refactor should move this to a dedicated [id] route file for REST compliance.
 export async function DELETE(request: NextRequest) {
   const rbac = await requireVerifiedPermission(request, Permission.PROJECT_UPDATE);
   if ('error' in rbac) return rbac.error;

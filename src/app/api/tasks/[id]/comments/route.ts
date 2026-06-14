@@ -60,7 +60,7 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // AUTH CHECK — use proper getAuthContext instead of raw headers
+    // AUTH CHECK — verified JWT re-check for security
     const auth = await requireVerifiedPermission(request, Permission.TASK_CREATE);
     if ('error' in auth) return auth.error;
     const user = auth.user;

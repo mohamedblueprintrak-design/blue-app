@@ -42,31 +42,16 @@ export interface AuthContext {
 }
 
 /**
- * @deprecated Use requireVerifiedAuth() instead. This function trusts headers
- * without JWT verification and is vulnerable to header forgery.
- * Only use for non-security-critical logging/audit purposes.
- *
- * Extract auth context from middleware-set headers.
- * Returns null if headers are missing (middleware didn't process the request).
- *
- * SECURITY WARNING: This function reads user identity from headers
- * without verifying the JWT. It should NOT be used for authorization decisions.
+ * INTERNAL: Extract auth context from middleware-set headers.
+ * 
+ * ⚠️ DO NOT use this function directly in API route handlers — it only reads
+ * headers and does NOT verify the JWT, making it vulnerable to header forgery.
  * Use requireVerifiedAuth() or requireVerifiedPermission() instead.
  *
- * USAGE (deprecated — prefer requireVerifiedAuth):
- *   const ctx = getAuthContext(request);
- *   if (!ctx) return unauthorizedResponse();
+ * This function is intentionally NOT exported. It is only used internally by
+ * requireVerifiedAuth() as the first step of defense-in-depth verification.
  */
-export function getAuthContext(request: NextRequest): AuthContext | null {
-  // SECURITY WARNING: This function reads user identity from headers
-  // without verifying the JWT. It should NOT be used for authorization decisions.
-  // Use requireVerifiedAuth() or requireVerifiedPermission() instead.
-  if (process.env.NODE_ENV !== 'test') {
-    log.warn('getAuthContext() called — this function is deprecated and vulnerable to header forgery. Use requireVerifiedAuth() instead.', {
-      path: request.nextUrl?.pathname,
-    });
-  }
-
+function extractAuthContext(request: NextRequest): AuthContext | null {
   const userId = request.headers.get('x-user-id');
   const email = request.headers.get('x-user-email');
   const role = request.headers.get('x-user-role');
@@ -87,26 +72,19 @@ export function getAuthContext(request: NextRequest): AuthContext | null {
 }
 
 /**
- * @deprecated Use requireVerifiedAuth() instead. This function wraps
- * getAuthContext() without JWT re-verification and is vulnerable to
- * header forgery attacks. All new code MUST use requireVerifiedAuth().
- *
- * Require authentication in a route handler.
- * Returns the auth context or an error response.
- *
- * USAGE (deprecated — prefer requireVerifiedAuth):
- *   const auth = await requireVerifiedAuth(request);
- *   if ('error' in auth) return auth.error;
- *   // auth.user is now typed as AuthContext
+ * @deprecated Use requireVerifiedAuth() instead. This function trusts headers
+ * without JWT verification and is vulnerable to header forgery.
+ * 
+ * Kept temporarily for backward compatibility during migration.
+ * Will be removed in a future version.
  */
-export function requireAuthContext(request: NextRequest): 
-  | { user: AuthContext } 
-  | { error: NextResponse } {
-  const ctx = getAuthContext(request);
-  if (!ctx) {
-    return { error: unauthorizedResponse() };
+export function getAuthContext(request: NextRequest): AuthContext | null {
+  if (process.env.NODE_ENV !== 'test') {
+    log.warn('SECURITY: getAuthContext() is deprecated and vulnerable to header forgery. Use requireVerifiedAuth() instead.', {
+      path: request.nextUrl?.pathname,
+    });
   }
-  return { user: ctx };
+  return extractAuthContext(request);
 }
 
 /**
@@ -296,90 +274,78 @@ import { hasPermission, canAccessFinancials, canAccessHR, isAdmin as isAdminChec
 import { Permission } from '@/lib/auth/types';
 
 /**
- * @deprecated Use requireVerifiedPermission() instead. This function wraps
- * getAuthContext() without JWT re-verification and is vulnerable to
- * header forgery attacks. All new code MUST use requireVerifiedPermission().
+ * @deprecated REMOVED — Use requireVerifiedPermission() instead.
+ * This function previously wrapped getAuthContext() without JWT re-verification
+ * and was vulnerable to header forgery attacks.
  *
- * Require a specific permission for an API route.
- * Returns the auth context if permission granted, or a forbidden response.
- *
- * USAGE (deprecated — prefer requireVerifiedPermission):
- *   const result = await requireVerifiedPermission(request, Permission.INVOICE_CREATE);
- *   if ('error' in result) return result.error;
- *   // result.user is now typed as AuthContext
+ * Migration: Replace requirePermission(request, permission) with
+ * await requireVerifiedPermission(request, permission)
  */
 export function requirePermission(
-  request: NextRequest,
-  permission: Permission
+  _request: NextRequest,
+  _permission: Permission
 ): { user: AuthContext } | { error: NextResponse } {
-  const ctx = getAuthContext(request);
-  if (!ctx) {
-    return { error: unauthorizedResponse() };
-  }
-  if (!hasPermission(ctx.role, permission)) {
-    return { error: forbiddenResponse() };
-  }
-  return { user: ctx };
+  throw new Error(
+    'requirePermission() has been removed for security reasons. ' +
+    'Use requireVerifiedPermission() instead. ' +
+    'Note: requireVerifiedPermission() is async, so add "await".'
+  );
 }
 
 /**
- * @deprecated Use requireVerifiedAdmin() instead. This function wraps
- * getAuthContext() without JWT re-verification and is vulnerable to
- * header forgery attacks.
+ * @deprecated REMOVED — Use requireVerifiedAdmin() instead.
+ * This function previously wrapped getAuthContext() without JWT re-verification
+ * and was vulnerable to header forgery attacks.
  *
- * Require admin role for an API route.
+ * Migration: Replace requireAdmin(request) with
+ * await requireVerifiedAdmin(request)
  */
 export function requireAdmin(
-  request: NextRequest
+  _request: NextRequest
 ): { user: AuthContext } | { error: NextResponse } {
-  const ctx = getAuthContext(request);
-  if (!ctx) {
-    return { error: unauthorizedResponse() };
-  }
-  if (!isAdminCheck(ctx.role)) {
-    return { error: forbiddenResponse() };
-  }
-  return { user: ctx };
+  throw new Error(
+    'requireAdmin() has been removed for security reasons. ' +
+    'Use requireVerifiedAdmin() instead. ' +
+    'Note: requireVerifiedAdmin() is async, so add "await".'
+  );
 }
 
 /**
- * @deprecated Use requireVerifiedFinancialAccess() instead. This function wraps
- * getAuthContext() without JWT re-verification and is vulnerable to
- * header forgery attacks.
+ * @deprecated REMOVED — Use requireVerifiedFinancialAccess() instead.
+ * This function previously wrapped getAuthContext() without JWT re-verification
+ * and was vulnerable to header forgery attacks.
  *
- * Require financial access for an API route.
+ * Migration: Replace requireFinancialAccess(request) with
+ * await requireVerifiedFinancialAccess(request)
  */
 export function requireFinancialAccess(
-  request: NextRequest
+  _request: NextRequest
 ): { user: AuthContext } | { error: NextResponse } {
-  const ctx = getAuthContext(request);
-  if (!ctx) {
-    return { error: unauthorizedResponse() };
-  }
-  if (!canAccessFinancials(ctx.role)) {
-    return { error: forbiddenResponse() };
-  }
-  return { user: ctx };
+  throw new Error(
+    'requireFinancialAccess() has been removed for security reasons. ' +
+    'Use requireVerifiedFinancialAccess() instead. ' +
+    'Note: requireVerifiedFinancialAccess() is async, so add "await".'
+  );
 }
 
 /**
- * @deprecated Use requireVerifiedAuth() + role check instead. This function wraps
- * getAuthContext() without JWT re-verification and is vulnerable to
- * header forgery attacks.
+ * @deprecated REMOVED — Use requireVerifiedAuth() + role check instead.
+ * This function previously wrapped getAuthContext() without JWT re-verification
+ * and was vulnerable to header forgery attacks.
  *
- * Require HR access for an API route.
+ * Migration: Replace requireHRAccess(request) with
+ * const result = await requireVerifiedAuth(request);
+ * if ('error' in result) return result.error;
+ * if (!canAccessHR(result.user.role)) return forbiddenResponse();
  */
 export function requireHRAccess(
-  request: NextRequest
+  _request: NextRequest
 ): { user: AuthContext } | { error: NextResponse } {
-  const ctx = getAuthContext(request);
-  if (!ctx) {
-    return { error: unauthorizedResponse() };
-  }
-  if (!canAccessHR(ctx.role)) {
-    return { error: forbiddenResponse() };
-  }
-  return { user: ctx };
+  throw new Error(
+    'requireHRAccess() has been removed for security reasons. ' +
+    'Use requireVerifiedAuth() + canAccessHR() role check instead. ' +
+    'Note: requireVerifiedAuth() is async, so add "await".'
+  );
 }
 
 // ============================================
@@ -403,18 +369,15 @@ export function requireHRAccess(
  * rejected with 401. This makes header forgery ineffective even if the
  * proxy is bypassed.
  *
- * Use this for critical operations: user management, backups, payments,
- * settings, password changes, and any route where identity forgery would
- * cause significant damage.
- *
- * For non-critical read-only routes, `getAuthContext()` / `requirePermission()`
- * remain appropriate for performance reasons.
+ * Use this for ALL authenticated routes. The deprecated getAuthContext() and
+ * requirePermission() functions have been removed — always use requireVerified*
+ * variants.
  */
 export async function requireVerifiedAuth(
   request: NextRequest
 ): Promise<{ user: AuthContext } | { error: NextResponse }> {
-  // Step 1: Read header-based auth context
-  const ctx = getAuthContext(request);
+  // Step 1: Read header-based auth context (internal, not exported)
+  const ctx = extractAuthContext(request);
   if (!ctx) {
     return { error: unauthorizedResponse() };
   }

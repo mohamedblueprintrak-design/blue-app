@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { requireVerifiedAuth } from '@/app/api/utils/auth';
 import { compare } from 'bcryptjs';
-import { rateLimit } from '@/lib/cache/redis';
+import { RateLimiter } from '@/lib/rate-limiter';
 import { log } from '@/lib/logger';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -14,41 +14,12 @@ interface DeleteAccountBody {
   confirmText: string;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// In-memory rate limit fallback (for when Redis is unavailable)
-// ─────────────────────────────────────────────────────────────────────────────
-
-const deleteRateLimits = new Map<string, { count: number; resetAt: number }>();
-
-// Clean up expired entries every 5 minutes
-setInterval(() => {
-  const now = Date.now();
-  for (const [key, value] of deleteRateLimits.entries()) {
-    if (value.resetAt <= now) {
-      deleteRateLimits.delete(key);
-    }
-  }
-}, 300_000);
-
-function inMemoryRateLimit(userId: string): { allowed: boolean; retryAfterSeconds: number } {
-  const key = `delete-account:${userId}`;
-  const now = Date.now();
-  const windowMs = 60 * 60 * 1000; // 1 hour
-  const existing = deleteRateLimits.get(key);
-
-  if (!existing || existing.resetAt <= now) {
-    deleteRateLimits.set(key, { count: 1, resetAt: now + windowMs });
-    return { allowed: true, retryAfterSeconds: 0 };
-  }
-
-  if (existing.count >= 1) {
-    const retryAfterSeconds = Math.ceil((existing.resetAt - now) / 1000);
-    return { allowed: false, retryAfterSeconds };
-  }
-
-  existing.count++;
-  return { allowed: true, retryAfterSeconds: 0 };
-}
+// Unified rate limiter for delete-account (1 attempt per hour per user)
+const deleteAccountLimiter = new RateLimiter({
+  maxRequests: 1,
+  windowMs: 3600000, // 1 hour
+  keyPrefix: 'delete-account',
+});
 
 // ─────────────────────────────────────────────────────────────────────────────
 // POST /api/profile/delete-account
@@ -91,8 +62,7 @@ export async function POST(request: NextRequest) {
     }
 
     // ── Step 3: Rate limiting (1 attempt per hour per user) ──
-    // For destructive operations, fail-closed: if Redis is unavailable, block the request
-    const rateLimitResult = await rateLimit(`delete-account:${ctx.userId}`, 1, 3600);
+    const rateLimitResult = await deleteAccountLimiter.check(ctx.userId);
     if (!rateLimitResult.allowed) {
       return NextResponse.json(
         {

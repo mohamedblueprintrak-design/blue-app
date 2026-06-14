@@ -32,10 +32,23 @@ const jestConfig = {
   ],
   coverageThreshold: {
     global: {
-      branches: 35,
-      functions: 35,
-      lines: 40,
-      statements: 40,
+      branches: 60,
+      functions: 65,
+      lines: 70,
+      statements: 70,
+    },
+    // Stricter thresholds for security-critical modules
+    './src/lib/auth/': {
+      branches: 70,
+      functions: 75,
+      lines: 80,
+      statements: 80,
+    },
+    './src/app/api/utils/': {
+      branches: 65,
+      functions: 70,
+      lines: 75,
+      statements: 75,
     },
   },
 };

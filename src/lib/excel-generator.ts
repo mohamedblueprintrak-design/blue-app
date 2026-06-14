@@ -214,7 +214,9 @@ async function exportFinancial(lang: 'ar' | 'en', org: Record<string, unknown> =
   ];
   styleHeaderRow(monthlySheet, 4);
 
-  // TODO: Refactor to a single groupBy query instead of sequential aggregate queries per month (N+1)
+  // PERF: Sequential aggregate queries per month (N+1 pattern).
+  // A future optimization could use a single groupBy query with date truncation
+  // to compute all months in one database round-trip.
   for (let i = 5; i >= 0; i--) {
     const monthStart = new Date(now.getFullYear(), now.getMonth() - i, 1);
     const monthEnd = new Date(now.getFullYear(), now.getMonth() - i + 1, 0, 23, 59, 59);

@@ -85,12 +85,13 @@ import { useTranslations, useLocale } from "next-intl";
 
 // ===== MAIN APP LAYOUT =====
 
-// ===== MAIN APP LAYOUT =====
 interface AppLayoutProps {
   language: "ar" | "en";
+  useFileRouting?: boolean;
+  children?: React.ReactNode;
 }
 
-export default function AppLayout({ language }: AppLayoutProps) {
+export default function AppLayout({ language, useFileRouting, children }: AppLayoutProps) {
   const { currentPage, currentProjectId } = useNavStore();
   const locale = useLocale();
   const t = useTranslations("layout");
@@ -210,6 +211,11 @@ export default function AppLayout({ language }: AppLayoutProps) {
               exit={{ opacity: 0, y: -6, scale: 0.995 }}
               transition={{ duration: 0.22, ease: [0.25, 0.46, 0.45, 0.94] }}
             >
+              {/* File-based routing: render children from Next.js page routes */}
+              {useFileRouting && children}
+
+              {/* Legacy hash-based routing: conditional page rendering */}
+              {!useFileRouting && (<>
               {/* Dashboard */}
               {currentPage === "dashboard" && <Dashboard language={language} />}
 
@@ -333,6 +339,7 @@ export default function AppLayout({ language }: AppLayoutProps) {
                   </p>
                 </div>
               )}
+              </>)}
             </motion.div>
           </AnimatePresence>
           </Suspense>
