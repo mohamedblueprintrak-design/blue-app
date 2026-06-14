@@ -4,25 +4,37 @@
  *
  * Tests normalizeRoleForClient, hashToken, encrypt, decrypt,
  * generateAuthToken, getAuthCookieOptions, generateDbRefreshToken
+ *
+ * NOTE: Uses jest.unstable_mockModule() for ESM-compatible mocking.
+ * All imports from mocked modules MUST be dynamic (await import()).
  */
 
 import { describe, it, expect, beforeAll, beforeEach, afterEach, jest } from '@jest/globals';
 
+// Set JWT_SECRET before any module that reads it is imported
+process.env.JWT_SECRET = 'blue-test-secret-key-must-be-at-least-32-chars!';
+process.env.ENCRYPTION_KEY = 'a'.repeat(64);
+
+// Create mock references at top level so they're accessible in tests
+const mockRefreshTokenCreate = jest.fn<any>().mockResolvedValue({ id: 'rt-1' });
+
 // Use unstable_mockModule for ESM-compatible mocking
-jest.mock('@/lib/db', () => ({
+jest.unstable_mockModule('@/lib/db', () => ({
   db: {
     refreshToken: {
-      create: jest.fn<any>().mockResolvedValue({ id: 'rt-1' }),
+      create: mockRefreshTokenCreate,
     },
   },
 }));
 
-jest.mock('@/lib/logger', () => ({
+jest.unstable_mockModule('@/lib/logger', () => ({
   log: { warn: jest.fn(), error: jest.fn(), info: jest.fn(), debug: jest.fn() },
 }));
 
-jest.mock('@/lib/auth/jwt-secret', () => ({
+// Mock jwt-secret to avoid real env var dependency during ESM module loading
+jest.unstable_mockModule('@/lib/auth/jwt-secret', () => ({
   getJwtSecretBytes: () => new TextEncoder().encode('blue-test-secret-key-must-be-at-least-32-chars!'),
+  getJwtSecretString: () => 'blue-test-secret-key-must-be-at-least-32-chars!',
 }));
 
 describe('Token Utils — normalizeRoleForClient', () => {
@@ -303,6 +315,11 @@ describe('Token Utils — generateDbRefreshToken', () => {
     generateDbRefreshToken = mod.generateDbRefreshToken;
   });
 
+  beforeEach(() => {
+    mockRefreshTokenCreate.mockClear();
+    mockRefreshTokenCreate.mockResolvedValue({ id: 'rt-1' });
+  });
+
   it('should generate a raw token string', async () => {
     const token = await generateDbRefreshToken('user-1');
     expect(typeof token).toBe('string');
@@ -310,9 +327,8 @@ describe('Token Utils — generateDbRefreshToken', () => {
   });
 
   it('should call db.refreshToken.create with correct params', async () => {
-    const { db } = await import('@/lib/db');
     await generateDbRefreshToken('user-1');
-    expect(db.refreshToken.create).toHaveBeenCalledWith(
+    expect(mockRefreshTokenCreate).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
           userId: 'user-1',

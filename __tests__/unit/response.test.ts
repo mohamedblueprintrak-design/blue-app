@@ -6,6 +6,8 @@
  * errorResponse, unauthorizedResponse, forbiddenResponse, notFoundResponse,
  * serverErrorResponse, validationErrorResponse, conflictResponse, badRequestResponse,
  * handleCorsPreflight, generateRequestId, logApiError, handleApiError
+ *
+ * Uses jest.unstable_mockModule() for ESM-compatible mocking.
  */
 
 import { describe, it, expect, beforeAll, jest, beforeEach, afterEach } from '@jest/globals';
@@ -14,7 +16,8 @@ import { describe, it, expect, beforeAll, jest, beforeEach, afterEach } from '@j
 const mockLogError = jest.fn();
 const mockLogWarn = jest.fn();
 
-jest.mock('@/lib/logger', () => ({
+// Use unstable_mockModule for ESM-compatible mocking
+jest.unstable_mockModule('@/lib/logger', () => ({
   log: {
     warn: mockLogWarn,
     error: mockLogError,
@@ -23,7 +26,7 @@ jest.mock('@/lib/logger', () => ({
   },
 }));
 
-jest.mock('next/server', () => {
+jest.unstable_mockModule('next/server', () => {
   class NextResponseMock extends Response {
     static json(body: unknown, init?: ResponseInit) {
       return new Response(JSON.stringify(body), {

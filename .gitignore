@@ -118,3 +118,4 @@ db/custom.db-wal
 scratch/
 patch_*.js
 fix-*.js
+prisma/test.db

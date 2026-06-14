@@ -5,6 +5,9 @@
  * NOTE: This file does NOT mock `jose` to avoid cross-file module cache
  * pollution in Bun's test runner. Instead, it generates real JWT tokens
  * using SignJWT and verifies them through the real jwtVerify.
+ *
+ * Uses jest.unstable_mockModule() for ESM-compatible mocking.
+ * All imports from mocked modules MUST be dynamic (await import()).
  */
 
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
@@ -13,10 +16,11 @@ import { SignJWT } from 'jose';
 // Set JWT_SECRET before any module that reads it is imported
 process.env.JWT_SECRET = 'test-secret-at-least-32-characters-long!';
 
-// Mock dependencies (except jose and @/lib/auth/jwt-secret)
+// Create mock references at top level so they're accessible in tests
 const mockDbUserFindUnique = jest.fn<any>();
 
-jest.mock('@/lib/db', () => ({
+// Use unstable_mockModule for ESM-compatible mocking
+jest.unstable_mockModule('@/lib/db', () => ({
   db: {
     user: {
       findUnique: mockDbUserFindUnique,
@@ -24,7 +28,7 @@ jest.mock('@/lib/db', () => ({
   },
 }));
 
-jest.mock('@/lib/logger', () => ({
+jest.unstable_mockModule('@/lib/logger', () => ({
   log: {
     warn: jest.fn(),
     security: jest.fn(),
@@ -33,35 +37,38 @@ jest.mock('@/lib/logger', () => ({
   },
 }));
 
-jest.mock('@/lib/auth/modules/authorization', () => ({
-  hasPermission: jest.fn().mockReturnValue(true),
-  canAccessFinancials: jest.fn().mockReturnValue(false),
-  canAccessHR: jest.fn().mockReturnValue(false),
-  isAdmin: jest.fn().mockReturnValue(false),
+jest.unstable_mockModule('@/lib/auth/modules/authorization', () => ({
+  hasPermission: jest.fn<any>().mockReturnValue(true),
+  canAccessFinancials: jest.fn<any>().mockReturnValue(false),
+  canAccessHR: jest.fn<any>().mockReturnValue(false),
+  isAdmin: jest.fn<any>().mockReturnValue(false),
 }));
 
-jest.mock('@/app/api/utils/response', () => ({
-  unauthorizedResponse: jest.fn().mockReturnValue(new Response('Unauthorized', { status: 401 })),
-  forbiddenResponse: jest.fn().mockReturnValue(new Response('Forbidden', { status: 403 })),
+jest.unstable_mockModule('@/app/api/utils/response', () => ({
+  unauthorizedResponse: jest.fn<any>().mockReturnValue(new Response('Unauthorized', { status: 401 })),
+  forbiddenResponse: jest.fn<any>().mockReturnValue(new Response('Forbidden', { status: 403 })),
 }));
 
-import {
-  requireVerifiedAuth,
-  requireVerifiedPermission,
-  requireVerifiedAdmin,
-  requireVerifiedFinancialAccess,
-  getTokenFromRequest,
-  generateToken,
-} from '@/app/api/utils/auth';
+jest.unstable_mockModule('@/lib/auth/jwt-secret', () => ({
+  getJwtSecretBytes: () => new TextEncoder().encode('test-secret-at-least-32-characters-long!'),
+  getJwtSecretString: () => 'test-secret-at-least-32-characters-long!',
+}));
+
+// Dynamically import modules AFTER mocks are set up
+let requireVerifiedAuth: typeof import('@/app/api/utils/auth').requireVerifiedAuth;
+let requireVerifiedPermission: typeof import('@/app/api/utils/auth').requireVerifiedPermission;
+let requireVerifiedAdmin: typeof import('@/app/api/utils/auth').requireVerifiedAdmin;
+let requireVerifiedFinancialAccess: typeof import('@/app/api/utils/auth').requireVerifiedFinancialAccess;
+let getTokenFromRequest: typeof import('@/app/api/utils/auth').getTokenFromRequest;
+let generateToken: typeof import('@/app/api/utils/auth').generateToken;
+let getJwtSecretBytes: typeof import('@/lib/auth/jwt-secret').getJwtSecretBytes;
+let mockHasPermission: jest.Mock;
+let mockIsAdmin: jest.Mock;
+let mockCanAccessFinancials: jest.Mock;
+
+// Import NextRequest separately (not mocked)
 import { NextRequest } from 'next/server';
 import type { Permission } from '@/lib/auth/types';
-import { hasPermission as _hasPermission, isAdmin as _isAdmin, canAccessFinancials as _canAccessFinancials } from '@/lib/auth/modules/authorization';
-import { getJwtSecretBytes } from '@/lib/auth/jwt-secret';
-
-// Cast the mocked authorization functions for test manipulation
-const mockHasPermission = _hasPermission as unknown as jest.Mock;
-const mockIsAdmin = _isAdmin as unknown as jest.Mock;
-const mockCanAccessFinancials = _canAccessFinancials as unknown as jest.Mock;
 
 /**
  * Generate a real JWT token for testing.
@@ -107,6 +114,28 @@ function createMockRequest(options: {
   }
   return request;
 }
+
+// ═══════════════════════════════════════════════════════════════════════
+// Dynamic module loading — runs after all unstable_mockModule calls
+// ═══════════════════════════════════════════════════════════════════════
+
+beforeAll(async () => {
+  const authMod = await import('@/app/api/utils/auth');
+  requireVerifiedAuth = authMod.requireVerifiedAuth;
+  requireVerifiedPermission = authMod.requireVerifiedPermission;
+  requireVerifiedAdmin = authMod.requireVerifiedAdmin;
+  requireVerifiedFinancialAccess = authMod.requireVerifiedFinancialAccess;
+  getTokenFromRequest = authMod.getTokenFromRequest;
+  generateToken = authMod.generateToken;
+
+  const jwtSecretMod = await import('@/lib/auth/jwt-secret');
+  getJwtSecretBytes = jwtSecretMod.getJwtSecretBytes;
+
+  const authZMod = await import('@/lib/auth/modules/authorization');
+  mockHasPermission = authZMod.hasPermission as unknown as jest.Mock;
+  mockIsAdmin = authZMod.isAdmin as unknown as jest.Mock;
+  mockCanAccessFinancials = authZMod.canAccessFinancials as unknown as jest.Mock;
+});
 
 // ═══════════════════════════════════════════════════════════════════════
 // 1. requireVerifiedAuth

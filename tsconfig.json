@@ -39,6 +39,9 @@
     "node_modules",
     "skills",
     "mini-services",
-    "blue-app-fix"
+    "blue-app-fix",
+    "jest.setup.ts",
+    "jest.config.ts",
+    "__tests__"
   ]
 }
