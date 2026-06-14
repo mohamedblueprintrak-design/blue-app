@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { useLang } from "@/hooks/use-lang";
 
 const ProjectsList = dynamic(() => import("@/components/pages/projects"), {
   loading: () => <div className="p-6 animate-pulse">Loading...</div>,
@@ -8,5 +9,5 @@ const ProjectsList = dynamic(() => import("@/components/pages/projects"), {
 });
 
 export default function ProjectsRoute() {
-  return <ProjectsList />;
+  return <ProjectsList language={useLang()} />;
 }

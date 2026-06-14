@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 /**
  * Tests for verified auth functions — requireVerified*, extractAuthContext
  * These tests ensure the security-critical auth path works correctly.
@@ -17,7 +19,7 @@ jest.mock('jose', () => ({
     setAudience: jest.fn().mockReturnThis(),
     setExpirationTime: jest.fn().mockReturnThis(),
     setIssuedAt: jest.fn().mockReturnThis(),
-    sign: jest.fn().mockResolvedValue('mock-token'),
+    sign: (jest.fn() as any).mockResolvedValue('mock-token'),
   })),
 }));
 

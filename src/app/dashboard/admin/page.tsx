@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { useLang } from "@/hooks/use-lang";
 
 const AdminPage = dynamic(() => import("@/components/pages/admin"), {
   loading: () => <div className="p-6 animate-pulse">Loading...</div>,
@@ -11,5 +12,5 @@ const AdminPage = dynamic(() => import("@/components/pages/admin"), {
  * /dashboard/admin
  */
 export default function AdminPageRoute() {
-  return <AdminPage />;
+  return <AdminPage language={useLang()} />;
 }

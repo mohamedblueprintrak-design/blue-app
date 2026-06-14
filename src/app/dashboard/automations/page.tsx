@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { useLang } from "@/hooks/use-lang";
 
 const AutomationsPage = dynamic(() => import("@/components/pages/automations"), {
   loading: () => <div className="p-6 animate-pulse">Loading...</div>,
@@ -11,5 +12,5 @@ const AutomationsPage = dynamic(() => import("@/components/pages/automations"), 
  * /dashboard/automations
  */
 export default function AutomationsPageRoute() {
-  return <AutomationsPage />;
+  return <AutomationsPage language={useLang()} />;
 }

@@ -5,13 +5,16 @@
 
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 
-// Mock Redis before imports
+// Mock Redis before imports — eslint-disable @typescript-eslint/no-explicit-any
+// Type assertions needed because jest.mock factory returns `any` which TypeScript
+// infers as `never` for mockResolvedValue/mockReturnValue generics.
+/* eslint-disable @typescript-eslint/no-explicit-any */
 jest.mock('redis', () => ({
-  createClient: jest.fn().mockReturnValue({
-    on: jest.fn().mockReturnThis(),
-    connect: jest.fn().mockResolvedValue(undefined),
-    eval: jest.fn().mockResolvedValue([1, 1, Date.now() + 60000]),
-    del: jest.fn().mockResolvedValue(1),
+  createClient: (jest.fn() as any).mockReturnValue({
+    on: (jest.fn() as any).mockReturnThis(),
+    connect: (jest.fn() as any).mockResolvedValue(undefined),
+    eval: (jest.fn() as any).mockResolvedValue([1, 1, Date.now() + 60000]),
+    del: (jest.fn() as any).mockResolvedValue(1),
     isOpen: true,
   }),
 }));

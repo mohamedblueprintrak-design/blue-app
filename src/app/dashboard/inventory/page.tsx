@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { useLang } from "@/hooks/use-lang";
 
 const InventoryPage = dynamic(() => import("@/components/pages/inventory"), {
   loading: () => <div className="p-6 animate-pulse">Loading...</div>,
@@ -11,5 +12,5 @@ const InventoryPage = dynamic(() => import("@/components/pages/inventory"), {
  * /dashboard/inventory
  */
 export default function InventoryPageRoute() {
-  return <InventoryPage />;
+  return <InventoryPage language={useLang()} />;
 }

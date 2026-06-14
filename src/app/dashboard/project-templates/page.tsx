@@ -1,15 +1,12 @@
 "use client";
 
-import dynamic from "next/dynamic";
-
-const ProjectTemplatesPage = dynamic(() => import("@/components/pages/project-templates"), {
-  loading: () => <div className="p-6 animate-pulse">Loading...</div>,
-  ssr: false,
-});
+import { useLang } from "@/hooks/use-lang";
+import { ProjectTemplatesPage } from "@/components/pages/project-templates";
 
 /**
  * /dashboard/project-templates
  */
 export default function ProjectTemplatesPageRoute() {
-  return <ProjectTemplatesPage />;
+  const lang = useLang();
+  return <ProjectTemplatesPage isAr={lang === "ar"} />;
 }

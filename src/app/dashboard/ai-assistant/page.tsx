@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { useLang } from "@/hooks/use-lang";
 
 const AiAssistantPage = dynamic(() => import("@/components/pages/ai-assistant"), {
   loading: () => <div className="p-6 animate-pulse">Loading...</div>,
@@ -11,5 +12,5 @@ const AiAssistantPage = dynamic(() => import("@/components/pages/ai-assistant"),
  * /dashboard/ai-assistant
  */
 export default function AiAssistantPageRoute() {
-  return <AiAssistantPage />;
+  return <AiAssistantPage language={useLang()} />;
 }

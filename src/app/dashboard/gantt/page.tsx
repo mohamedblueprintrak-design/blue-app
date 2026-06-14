@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { useLang } from "@/hooks/use-lang";
 
 const GanttPage = dynamic(() => import("@/components/pages/gantt"), {
   loading: () => <div className="p-6 animate-pulse">Loading...</div>,
@@ -11,5 +12,5 @@ const GanttPage = dynamic(() => import("@/components/pages/gantt"), {
  * /dashboard/gantt
  */
 export default function GanttPageRoute() {
-  return <GanttPage />;
+  return <GanttPage language={useLang()} />;
 }

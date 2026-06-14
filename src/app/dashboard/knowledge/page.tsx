@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { useLang } from "@/hooks/use-lang";
 
 const KnowledgePage = dynamic(() => import("@/components/pages/knowledge"), {
   loading: () => <div className="p-6 animate-pulse">Loading...</div>,
@@ -11,5 +12,5 @@ const KnowledgePage = dynamic(() => import("@/components/pages/knowledge"), {
  * /dashboard/knowledge
  */
 export default function KnowledgePageRoute() {
-  return <KnowledgePage />;
+  return <KnowledgePage language={useLang()} />;
 }

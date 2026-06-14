@@ -44,12 +44,10 @@ function createMockRequest(options: {
 
 describe('Auth Flow — Auth Context from Request', () => {
   let getAuthContext: typeof import('@/app/api/utils/auth').getAuthContext;
-  let requireAuthContext: typeof import('@/app/api/utils/auth').requireAuthContext;
 
   beforeAll(async () => {
     const mod = await import('@/app/api/utils/auth');
     getAuthContext = mod.getAuthContext;
-    requireAuthContext = mod.requireAuthContext;
   });
 
   it('should extract auth context from middleware-set headers', () => {
@@ -111,16 +109,13 @@ describe('Auth Flow — Auth Context from Request', () => {
     expect(ctx).toBeNull();
   });
 
-  it('requireAuthContext should return error for unauthenticated request', () => {
+  it('getAuthContext should return null for unauthenticated request', () => {
     const request = createMockRequest({});
-    const result = requireAuthContext(request as never);
-    expect('error' in result).toBe(true);
-    if ('error' in result) {
-      expect(result.error.status).toBe(401);
-    }
+    const result = getAuthContext(request as never);
+    expect(result).toBeNull();
   });
 
-  it('requireAuthContext should return user context for authenticated request', () => {
+  it('getAuthContext should return user context for authenticated request', () => {
     const request = createMockRequest({
       headers: {
         'x-user-id': 'user-123',
@@ -128,10 +123,10 @@ describe('Auth Flow — Auth Context from Request', () => {
         'x-user-role': 'ADMIN',
       },
     });
-    const result = requireAuthContext(request as never);
-    expect('user' in result).toBe(true);
-    if ('user' in result) {
-      expect(result.user.userId).toBe('user-123');
+    const result = getAuthContext(request as never);
+    expect(result).not.toBeNull();
+    if (result) {
+      expect(result.userId).toBe('user-123');
     }
   });
 

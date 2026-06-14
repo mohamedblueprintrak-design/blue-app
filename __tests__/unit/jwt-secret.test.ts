@@ -13,7 +13,9 @@ describe('JWT Secret Management', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    process.env = { ...originalEnv };
+    // Create a fresh copy of process.env that we can mutate
+    // (TypeScript marks NODE_ENV as readonly, so we cast through unknown)
+    process.env = { ...originalEnv } as NodeJS.ProcessEnv;
   });
 
   afterEach(() => {
@@ -22,7 +24,7 @@ describe('JWT Secret Management', () => {
 
   describe('getJwtSecretBytes', () => {
     it('should throw in production when JWT_SECRET is not set', async () => {
-      process.env.NODE_ENV = 'production';
+      (process.env as Record<string, string>).NODE_ENV = 'production';
       delete process.env.JWT_SECRET;
 
       const { getJwtSecretBytes } = await import('@/lib/auth/jwt-secret');
@@ -30,7 +32,7 @@ describe('JWT Secret Management', () => {
     });
 
     it('should throw in production when JWT_SECRET is too short', async () => {
-      process.env.NODE_ENV = 'production';
+      (process.env as Record<string, string>).NODE_ENV = 'production';
       process.env.JWT_SECRET = 'short';
 
       const { getJwtSecretBytes } = await import('@/lib/auth/jwt-secret');
@@ -38,7 +40,7 @@ describe('JWT Secret Management', () => {
     });
 
     it('should throw in production when JWT_SECRET contains known placeholder', async () => {
-      process.env.NODE_ENV = 'production';
+      (process.env as Record<string, string>).NODE_ENV = 'production';
       process.env.JWT_SECRET = 'change-me-please-this-is-a-placeholder-value!';
 
       const { getJwtSecretBytes } = await import('@/lib/auth/jwt-secret');
@@ -46,7 +48,7 @@ describe('JWT Secret Management', () => {
     });
 
     it('should throw in production when JWT_SECRET is the old dev secret', async () => {
-      process.env.NODE_ENV = 'production';
+      (process.env as Record<string, string>).NODE_ENV = 'production';
       process.env.JWT_SECRET = 'blueprint-dev-secret-do-not-use-in-production-min32chars!';
 
       const { getJwtSecretBytes } = await import('@/lib/auth/jwt-secret');
@@ -54,7 +56,7 @@ describe('JWT Secret Management', () => {
     });
 
     it('should throw in production when JWT_SECRET matches old committed dev secret', async () => {
-      process.env.NODE_ENV = 'production';
+      (process.env as Record<string, string>).NODE_ENV = 'production';
       process.env.JWT_SECRET = 'bp-dev-jwt-secret-key-2024-blueprint-rak';
 
       const { getJwtSecretBytes } = await import('@/lib/auth/jwt-secret');
@@ -62,7 +64,7 @@ describe('JWT Secret Management', () => {
     });
 
     it('should accept a valid JWT_SECRET in production', async () => {
-      process.env.NODE_ENV = 'production';
+      (process.env as Record<string, string>).NODE_ENV = 'production';
       process.env.JWT_SECRET = 'a-very-secure-production-secret-that-is-long-enough-32chars!';
 
       const { getJwtSecretBytes } = await import('@/lib/auth/jwt-secret');
@@ -72,7 +74,7 @@ describe('JWT Secret Management', () => {
     });
 
     it('should throw in development when JWT_SECRET is not set (no hardcoded fallback)', async () => {
-      process.env.NODE_ENV = 'development';
+      (process.env as Record<string, string>).NODE_ENV = 'development';
       delete process.env.JWT_SECRET;
 
       const { getJwtSecretBytes } = await import('@/lib/auth/jwt-secret');
@@ -80,7 +82,7 @@ describe('JWT Secret Management', () => {
     });
 
     it('should accept a valid JWT_SECRET in development', async () => {
-      process.env.NODE_ENV = 'development';
+      (process.env as Record<string, string>).NODE_ENV = 'development';
       process.env.JWT_SECRET = 'dev-secret-at-least-32-characters-long-change-me';
 
       const { getJwtSecretBytes } = await import('@/lib/auth/jwt-secret');
@@ -91,7 +93,7 @@ describe('JWT Secret Management', () => {
 
   describe('getJwtSecretString', () => {
     it('should return the secret as a string', async () => {
-      process.env.NODE_ENV = 'development';
+      (process.env as Record<string, string>).NODE_ENV = 'development';
       process.env.JWT_SECRET = 'dev-secret-at-least-32-characters-long-change-me';
 
       const { getJwtSecretString } = await import('@/lib/auth/jwt-secret');
@@ -103,7 +105,7 @@ describe('JWT Secret Management', () => {
 
   describe('Security: No hardcoded secrets in source', () => {
     it('should NOT contain the old hardcoded dev secret in the module', async () => {
-      process.env.NODE_ENV = 'development';
+      (process.env as Record<string, string>).NODE_ENV = 'development';
       process.env.JWT_SECRET = 'dev-secret-at-least-32-characters-long-change-me';
 
       const { getJwtSecretString } = await import('@/lib/auth/jwt-secret');

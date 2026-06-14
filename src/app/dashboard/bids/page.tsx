@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { useLang } from "@/hooks/use-lang";
 
 const BidsPage = dynamic(() => import("@/components/pages/bids"), {
   loading: () => <div className="p-6 animate-pulse">Loading...</div>,
@@ -11,5 +12,5 @@ const BidsPage = dynamic(() => import("@/components/pages/bids"), {
  * /dashboard/bids
  */
 export default function BidsPageRoute() {
-  return <BidsPage />;
+  return <BidsPage language={useLang()} />;
 }

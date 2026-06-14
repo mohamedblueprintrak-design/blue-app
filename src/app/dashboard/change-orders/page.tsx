@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { useLang } from "@/hooks/use-lang";
 
 const ChangeOrdersPage = dynamic(() => import("@/components/pages/change-orders"), {
   loading: () => <div className="p-6 animate-pulse">Loading...</div>,
@@ -11,5 +12,5 @@ const ChangeOrdersPage = dynamic(() => import("@/components/pages/change-orders"
  * /dashboard/change-orders
  */
 export default function ChangeOrdersPageRoute() {
-  return <ChangeOrdersPage />;
+  return <ChangeOrdersPage language={useLang()} />;
 }
