@@ -3,7 +3,7 @@
  * Cross-provider compatibility for SQLite and PostgreSQL
  */
 
-import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
+import { describe, it, expect, afterEach } from '@jest/globals';
 
 import { isPostgreSQL, insensitiveContains } from '@/app/api/utils/db';
 

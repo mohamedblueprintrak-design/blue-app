@@ -16,7 +16,7 @@ process.env.JWT_SECRET = 'blue-test-secret-key-must-be-at-least-32-chars!';
 process.env.ENCRYPTION_KEY = 'a'.repeat(64);
 
 // Create mock references at top level so they're accessible in tests
-const mockRefreshTokenCreate = jest.fn<any>().mockResolvedValue({ id: 'rt-1' });
+const mockRefreshTokenCreate = jest.fn<Promise<{ id: string }>>().mockResolvedValue({ id: 'rt-1' });
 
 // Use unstable_mockModule for ESM-compatible mocking
 jest.unstable_mockModule('@/lib/db', () => ({

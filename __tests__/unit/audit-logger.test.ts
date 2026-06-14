@@ -252,7 +252,7 @@ describe('AuditLogger — Prisma Client', () => {
   it('should accept a Prisma client', () => {
     const mockPrisma = {
       activity: {
-        createMany: jest.fn<any>().mockResolvedValue({ count: 1 }),
+        createMany: jest.fn<Promise<{ count: number }>>().mockResolvedValue({ count: 1 }),
       },
     };
     expect(() => logger.setPrismaClient(mockPrisma)).not.toThrow();

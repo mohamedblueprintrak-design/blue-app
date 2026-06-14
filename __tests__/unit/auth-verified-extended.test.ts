@@ -17,7 +17,7 @@ import { SignJWT } from 'jose';
 process.env.JWT_SECRET = 'test-secret-at-least-32-characters-long!';
 
 // Create mock references at top level so they're accessible in tests
-const mockDbUserFindUnique = jest.fn<any>();
+const mockDbUserFindUnique = jest.fn<Promise<Record<string, unknown> | null>>();
 
 // Use unstable_mockModule for ESM-compatible mocking
 jest.unstable_mockModule('@/lib/db', () => ({
@@ -38,15 +38,15 @@ jest.unstable_mockModule('@/lib/logger', () => ({
 }));
 
 jest.unstable_mockModule('@/lib/auth/modules/authorization', () => ({
-  hasPermission: jest.fn<any>().mockReturnValue(true),
-  canAccessFinancials: jest.fn<any>().mockReturnValue(false),
-  canAccessHR: jest.fn<any>().mockReturnValue(false),
-  isAdmin: jest.fn<any>().mockReturnValue(false),
+  hasPermission: jest.fn<boolean, [string]>().mockReturnValue(true),
+  canAccessFinancials: jest.fn<boolean, [string]>().mockReturnValue(false),
+  canAccessHR: jest.fn<boolean, [string]>().mockReturnValue(false),
+  isAdmin: jest.fn<boolean, [string]>().mockReturnValue(false),
 }));
 
 jest.unstable_mockModule('@/app/api/utils/response', () => ({
-  unauthorizedResponse: jest.fn<any>().mockReturnValue(new Response('Unauthorized', { status: 401 })),
-  forbiddenResponse: jest.fn<any>().mockReturnValue(new Response('Forbidden', { status: 403 })),
+  unauthorizedResponse: jest.fn<Response, []>().mockReturnValue(new Response('Unauthorized', { status: 401 })),
+  forbiddenResponse: jest.fn<Response, []>().mockReturnValue(new Response('Forbidden', { status: 403 })),
 }));
 
 jest.unstable_mockModule('@/lib/auth/jwt-secret', () => ({

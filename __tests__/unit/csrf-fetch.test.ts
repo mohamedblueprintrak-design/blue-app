@@ -14,12 +14,12 @@ import { initCsrfFetch, restoreOriginalFetch } from '@/lib/api/csrf-fetch';
 import { getCsrfToken } from '@/lib/csrf-client';
 
 describe('CSRF Fetch Wrapper', () => {
-  let mockFetch: jest.Mock;
+  let _mockFetch: jest.Mock;
 
   beforeEach(() => {
     // Reset state
     restoreOriginalFetch();
-    mockFetch = jest.fn<any>().mockResolvedValue(new Response('OK'));
+    _mockFetch = jest.fn<Promise<Response>>().mockResolvedValue(new Response('OK'));
   });
 
   afterEach(() => {
