@@ -6,6 +6,10 @@
  * Avoids mocking shared modules (authorization, jwt-secret) to prevent
  * cross-test pollution in bun's shared module cache.
  * Uses real roles with naturally lacking permissions for 403 tests.
+ *
+ * NOTE: jest.mock('@/lib/db') does NOT intercept ESM imports in ts-jest ESM mode.
+ * We use jest.spyOn on the real db object instead, which correctly replaces
+ * methods on the shared PrismaClient singleton.
  */
 
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
@@ -13,17 +17,6 @@ import { SignJWT } from 'jose';
 
 // Set JWT_SECRET before any module that reads it is imported
 process.env.JWT_SECRET = 'test-secret-at-least-32-characters-long!';
-
-// Only mock the DB module (not shared with other test files' authorization logic)
-const mockDbUserFindUnique = jest.fn<Promise<Record<string, unknown> | null>>();
-
-jest.mock('@/lib/db', () => ({
-  db: {
-    user: {
-      findUnique: mockDbUserFindUnique,
-    },
-  },
-}));
 
 // DO NOT mock @/lib/auth/modules/authorization — use real implementation
 // DO NOT mock @/lib/auth/jwt-secret — use real implementation with env var
@@ -38,9 +31,14 @@ import {
   generateToken,
 } from '@/app/api/utils/auth';
 import { getJwtSecretBytes } from '@/lib/auth/jwt-secret';
+import { db } from '@/lib/db';
 
 import { NextRequest } from 'next/server';
 import type { Permission } from '@/lib/auth/types';
+
+// Spy on the real db.user.findUnique — this works because the db singleton
+// is shared across all modules that import it.
+const spyDbUserFindUnique = jest.spyOn(db.user, 'findUnique');
 
 /**
  * Generate a real JWT token for testing.
@@ -204,7 +202,7 @@ describe('requireVerifiedAuth', () => {
         'authorization': `Bearer ${token}`,
       },
     });
-    mockDbUserFindUnique.mockResolvedValue(null);
+    spyDbUserFindUnique.mockResolvedValue(null as any);
 
     const result = await requireVerifiedAuth(req);
     expect('error' in result).toBe(true);
@@ -228,9 +226,9 @@ describe('requireVerifiedAuth', () => {
         'authorization': `Bearer ${token}`,
       },
     });
-    mockDbUserFindUnique.mockResolvedValue({
+    spyDbUserFindUnique.mockResolvedValue({
       passwordChangedAt: new Date(),
-    });
+    } as any);
 
     const result = await requireVerifiedAuth(req);
     expect('error' in result).toBe(true);
@@ -255,7 +253,7 @@ describe('requireVerifiedAuth', () => {
         'authorization': `Bearer ${token}`,
       },
     });
-    mockDbUserFindUnique.mockResolvedValue(null);
+    spyDbUserFindUnique.mockResolvedValue(null as any);
 
     const result = await requireVerifiedAuth(req);
     expect('user' in result).toBe(true);
@@ -300,7 +298,7 @@ describe('requireVerifiedPermission', () => {
         'authorization': `Bearer ${token}`,
       },
     });
-    mockDbUserFindUnique.mockResolvedValue(null);
+    spyDbUserFindUnique.mockResolvedValue(null as any);
 
     const result = await requireVerifiedPermission(req, 'INVOICE_CREATE' as Permission);
     expect('error' in result).toBe(true);
@@ -325,7 +323,7 @@ describe('requireVerifiedPermission', () => {
         'authorization': `Bearer ${token}`,
       },
     });
-    mockDbUserFindUnique.mockResolvedValue(null);
+    spyDbUserFindUnique.mockResolvedValue(null as any);
 
     const result = await requireVerifiedPermission(req, 'INVOICE_CREATE' as Permission);
     // If auth verification passes and MANAGER has INVOICE_CREATE, result should have 'user'
@@ -361,7 +359,7 @@ describe('requireVerifiedAdmin', () => {
         'authorization': `Bearer ${token}`,
       },
     });
-    mockDbUserFindUnique.mockResolvedValue(null);
+    spyDbUserFindUnique.mockResolvedValue(null as any);
 
     const result = await requireVerifiedAdmin(req);
     expect('error' in result).toBe(true);
@@ -384,7 +382,7 @@ describe('requireVerifiedAdmin', () => {
         'authorization': `Bearer ${token}`,
       },
     });
-    mockDbUserFindUnique.mockResolvedValue(null);
+    spyDbUserFindUnique.mockResolvedValue(null as any);
 
     const result = await requireVerifiedAdmin(req);
     expect('user' in result).toBe(true);
@@ -417,7 +415,7 @@ describe('requireVerifiedFinancialAccess', () => {
         'authorization': `Bearer ${token}`,
       },
     });
-    mockDbUserFindUnique.mockResolvedValue(null);
+    spyDbUserFindUnique.mockResolvedValue(null as any);
 
     const result = await requireVerifiedFinancialAccess(req);
     expect('error' in result).toBe(true);
@@ -440,7 +438,7 @@ describe('requireVerifiedFinancialAccess', () => {
         'authorization': `Bearer ${token}`,
       },
     });
-    mockDbUserFindUnique.mockResolvedValue(null);
+    spyDbUserFindUnique.mockResolvedValue(null as any);
 
     const result = await requireVerifiedFinancialAccess(req);
     expect('user' in result).toBe(true);

@@ -10,7 +10,7 @@
  * Rewritten to use jest.mock() instead of unstable_mockModule (bun compatibility)
  */
 
-import { describe, it, expect, beforeAll, jest, beforeEach, afterEach } from '@jest/globals';
+import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
 
 // We import the real logger but track calls via spy approach
 // Avoid jest.mock('@/lib/logger') to prevent cross-test pollution

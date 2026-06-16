@@ -116,7 +116,7 @@ describe('API Validation — validateRequest', () => {
 });
 
 describe('API Validation — validateBody', () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   let validateBody: any;
 
   beforeAll(async () => {
@@ -165,7 +165,7 @@ describe('API Validation — validateBody', () => {
 });
 
 describe('API Validation — validateSearchParams', () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   let validateSearchParams: any;
 
   beforeAll(async () => {

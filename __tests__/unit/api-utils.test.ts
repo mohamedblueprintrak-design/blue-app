@@ -3,7 +3,7 @@
  * Tests auth.ts, rate-limit.ts, and db.ts utility functions
  */
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 
 // Set JWT_SECRET before importing auth modules
 process.env.JWT_SECRET = 'test-jwt-secret-for-api-utils-tests-min-32-chars!';

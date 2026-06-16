@@ -58,9 +58,9 @@ describe('CSRF — Token Generation & Validation', () => {
   });
 
   it('should reject non-string tokens', () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     expect(validateCSRFToken(null as any, 'token')).toBe(false);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     expect(validateCSRFToken(undefined as any, 'token')).toBe(false);
   });
 });

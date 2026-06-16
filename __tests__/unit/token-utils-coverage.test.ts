@@ -5,27 +5,16 @@
  * Tests normalizeRoleForClient, hashToken, encrypt, decrypt,
  * generateAuthToken, getAuthCookieOptions, generateDbRefreshToken
  *
- * NOTE: Avoids jest.mock for shared modules (jwt-secret, authorization)
- * to prevent cross-test pollution in bun's shared module cache.
- * Instead, sets env vars before import and uses real implementations.
+ * NOTE: jest.mock('@/lib/db') does NOT intercept ESM imports in ts-jest ESM mode.
+ * We use jest.spyOn on the real db object instead, which correctly replaces
+ * methods on the shared PrismaClient singleton.
  */
 
-import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
+import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 
 // Set JWT_SECRET and ENCRYPTION_KEY BEFORE importing any modules
 process.env.JWT_SECRET = 'blue-test-secret-key-must-be-at-least-32-chars!';
 process.env.ENCRYPTION_KEY = 'a'.repeat(64);
-
-// Only mock the DB module (not shared with other test files' logic)
-const mockRefreshTokenCreate = jest.fn<Promise<{ id: string }>>().mockResolvedValue({ id: 'rt-1' });
-
-jest.mock('@/lib/db', () => ({
-  db: {
-    refreshToken: {
-      create: mockRefreshTokenCreate,
-    },
-  },
-}));
 
 import {
   normalizeRoleForClient,
@@ -40,6 +29,10 @@ import {
   ACCESS_TOKEN_EXPIRY,
   TOKEN_EXPIRY,
 } from '@/lib/auth/token-utils';
+import { db } from '@/lib/db';
+
+// Spy on the real db.refreshToken.create
+const spyRefreshTokenCreate = jest.spyOn(db.refreshToken, 'create');
 
 describe('Token Utils — normalizeRoleForClient', () => {
   it('should convert ADMIN to admin', () => {
@@ -229,8 +222,8 @@ describe('Token Utils — getAuthCookieOptions', () => {
 
 describe('Token Utils — generateDbRefreshToken', () => {
   beforeEach(() => {
-    mockRefreshTokenCreate.mockClear();
-    mockRefreshTokenCreate.mockResolvedValue({ id: 'rt-1' });
+    spyRefreshTokenCreate.mockClear();
+    spyRefreshTokenCreate.mockResolvedValue({ id: 'rt-1' } as any);
   });
 
   it('should generate a raw token string', async () => {
@@ -241,7 +234,7 @@ describe('Token Utils — generateDbRefreshToken', () => {
 
   it('should call db.refreshToken.create with correct params', async () => {
     await generateDbRefreshToken('user-1');
-    expect(mockRefreshTokenCreate).toHaveBeenCalledWith(
+    expect(spyRefreshTokenCreate).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
           userId: 'user-1',

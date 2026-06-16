@@ -4,7 +4,9 @@
  * verifyTotpCode, enableTwoFactor, disableTwoFactor, verifyTwoFactorCode,
  * hasTwoFactorEnabled, regenerateBackupCodes, plus facade aliases.
  *
- * Uses jest.mock for DB and email dependencies only (not shared authorization modules).
+ * NOTE: jest.mock('@/lib/db') does NOT intercept ESM imports in ts-jest ESM mode.
+ * We use jest.spyOn on the real db object instead, which correctly replaces
+ * methods on the shared PrismaClient singleton.
  */
 
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
@@ -12,26 +14,8 @@ import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 process.env.JWT_SECRET = 'test-secret-key-that-is-at-least-32-characters-long!';
 process.env.ENCRYPTION_KEY = 'a'.repeat(64);
 
-// Mock DB with full twoFactorSecret + user operations
-const mockTwoFactorSecretFindUnique = jest.fn();
-const mockTwoFactorSecretCreate = jest.fn();
-const mockTwoFactorSecretUpdate = jest.fn();
-const mockTwoFactorSecretDeleteMany = jest.fn();
-const mockUserFindUnique = jest.fn();
-
-jest.mock('@/lib/db', () => ({
-  db: {
-    twoFactorSecret: {
-      findUnique: mockTwoFactorSecretFindUnique,
-      create: mockTwoFactorSecretCreate,
-      update: mockTwoFactorSecretUpdate,
-      deleteMany: mockTwoFactorSecretDeleteMany,
-    },
-    user: {
-      findUnique: mockUserFindUnique,
-    },
-  },
-}));
+// Import the real db module and spy on its methods
+import { db } from '@/lib/db';
 
 // Mock email sending — use spy instead of jest.mock to avoid cross-test pollution
 import { log } from '@/lib/logger';
@@ -56,13 +40,20 @@ import {
   enableTwoFactor,
   disableTwoFactor,
   regenerateBackupCodes,
-  generate2FASecret,
+  _generate2FASecret,
   enable2FA,
   disable2FA,
   verify2FA,
   check2FAStatus,
 } from '@/lib/auth/modules/two-factor';
 import { encrypt, hashToken } from '@/lib/auth/token-utils';
+
+// Spy on all db methods used by two-factor.ts
+const spyTwoFactorSecretFindUnique = jest.spyOn(db.twoFactorSecret, 'findUnique');
+const spyTwoFactorSecretCreate = jest.spyOn(db.twoFactorSecret, 'create');
+const spyTwoFactorSecretUpdate = jest.spyOn(db.twoFactorSecret, 'update');
+const spyTwoFactorSecretDeleteMany = jest.spyOn(db.twoFactorSecret, 'deleteMany');
+const spyUserFindUnique = jest.spyOn(db.user, 'findUnique');
 
 // ═══════════════════════════════════════════════════════════════════════
 // 1. generateBackupCodes (pure function)
@@ -136,25 +127,25 @@ describe('Two-Factor — hasTwoFactorEnabled', () => {
   });
 
   it('should return true when 2FA is enabled', async () => {
-    mockTwoFactorSecretFindUnique.mockResolvedValue({ isEnabled: true });
+    spyTwoFactorSecretFindUnique.mockResolvedValue({ isEnabled: true } as any);
     const result = await hasTwoFactorEnabled('user-1');
     expect(result).toBe(true);
   });
 
   it('should return false when 2FA is not enabled', async () => {
-    mockTwoFactorSecretFindUnique.mockResolvedValue({ isEnabled: false });
+    spyTwoFactorSecretFindUnique.mockResolvedValue({ isEnabled: false } as any);
     const result = await hasTwoFactorEnabled('user-1');
     expect(result).toBe(false);
   });
 
   it('should return false when no 2FA record exists', async () => {
-    mockTwoFactorSecretFindUnique.mockResolvedValue(null);
+    spyTwoFactorSecretFindUnique.mockResolvedValue(null);
     const result = await hasTwoFactorEnabled('user-1');
     expect(result).toBe(false);
   });
 
   it('should return false on DB error', async () => {
-    mockTwoFactorSecretFindUnique.mockRejectedValue(new Error('DB error'));
+    spyTwoFactorSecretFindUnique.mockRejectedValue(new Error('DB error'));
     const result = await hasTwoFactorEnabled('user-1');
     expect(result).toBe(false);
   });
@@ -170,17 +161,17 @@ describe('Two-Factor — verifyTwoFactorCode', () => {
   });
 
   it('should return false when no 2FA record exists', async () => {
-    mockTwoFactorSecretFindUnique.mockResolvedValue(null);
+    spyTwoFactorSecretFindUnique.mockResolvedValue(null);
     const result = await verifyTwoFactorCode('user-1', '123456');
     expect(result).toBe(false);
   });
 
   it('should return false when 2FA is not enabled', async () => {
-    mockTwoFactorSecretFindUnique.mockResolvedValue({
+    spyTwoFactorSecretFindUnique.mockResolvedValue({
       isEnabled: false,
       secret: encrypt('test-secret'),
       backupCodes: '[]',
-    });
+    } as any);
     const result = await verifyTwoFactorCode('user-1', '123456');
     expect(result).toBe(false);
   });
@@ -190,17 +181,17 @@ describe('Two-Factor — verifyTwoFactorCode', () => {
     const backupCode = '12345678';
     const hashedCode = await hashToken(backupCode);
 
-    mockTwoFactorSecretFindUnique.mockResolvedValue({
+    spyTwoFactorSecretFindUnique.mockResolvedValue({
       isEnabled: true,
       secret: encrypt('test-secret'),
       backupCodes: JSON.stringify([hashedCode]),
-    });
-    mockTwoFactorSecretUpdate.mockResolvedValue({});
+    } as any);
+    spyTwoFactorSecretUpdate.mockResolvedValue({} as any);
 
     const result = await verifyTwoFactorCode('user-1', backupCode);
     expect(result).toBe(true);
     // Should remove the used backup code
-    expect(mockTwoFactorSecretUpdate).toHaveBeenCalledWith(
+    expect(spyTwoFactorSecretUpdate).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
           backupCodes: expect.any(String),
@@ -210,11 +201,11 @@ describe('Two-Factor — verifyTwoFactorCode', () => {
   });
 
   it('should return false for invalid TOTP code', async () => {
-    mockTwoFactorSecretFindUnique.mockResolvedValue({
+    spyTwoFactorSecretFindUnique.mockResolvedValue({
       isEnabled: true,
       secret: encrypt('JBSWY3DPEHPK3PXP'),
       backupCodes: '[]',
-    });
+    } as any);
 
     const result = await verifyTwoFactorCode('user-1', '999999');
     // Might be false or true depending on timing, but most likely false
@@ -222,11 +213,11 @@ describe('Two-Factor — verifyTwoFactorCode', () => {
   });
 
   it('should return false when decrypt fails', async () => {
-    mockTwoFactorSecretFindUnique.mockResolvedValue({
+    spyTwoFactorSecretFindUnique.mockResolvedValue({
       isEnabled: true,
       secret: 'invalid-encrypted-data',
       backupCodes: '[]',
-    });
+    } as any);
 
     const result = await verifyTwoFactorCode('user-1', '123456');
     expect(result).toBe(false);
@@ -236,12 +227,12 @@ describe('Two-Factor — verifyTwoFactorCode', () => {
     const backupCode = '87654321';
     const hashedCode = await hashToken(backupCode);
 
-    mockTwoFactorSecretFindUnique.mockResolvedValue({
+    spyTwoFactorSecretFindUnique.mockResolvedValue({
       isEnabled: true,
       secret: encrypt('test-secret'),
       backupCodes: [hashedCode], // stored as array, not JSON string
-    });
-    mockTwoFactorSecretUpdate.mockResolvedValue({});
+    } as any);
+    spyTwoFactorSecretUpdate.mockResolvedValue({} as any);
 
     const result = await verifyTwoFactorCode('user-1', backupCode);
     expect(result).toBe(true);
@@ -258,27 +249,27 @@ describe('Two-Factor — enableTwoFactor', () => {
   });
 
   it('should return error when no 2FA secret exists', async () => {
-    mockTwoFactorSecretFindUnique.mockResolvedValue(null);
+    spyTwoFactorSecretFindUnique.mockResolvedValue(null);
     const result = await enableTwoFactor('user-1', '123456');
     expect(result.success).toBe(false);
     expect(result.code).toBe('INVALID_STATE');
   });
 
   it('should return error when 2FA already enabled', async () => {
-    mockTwoFactorSecretFindUnique.mockResolvedValue({
+    spyTwoFactorSecretFindUnique.mockResolvedValue({
       isEnabled: true,
       secret: encrypt('test'),
-    });
+    } as any);
     const result = await enableTwoFactor('user-1', '123456');
     expect(result.success).toBe(false);
     expect(result.code).toBe('INVALID_STATE');
   });
 
   it('should return error when decrypt fails', async () => {
-    mockTwoFactorSecretFindUnique.mockResolvedValue({
+    spyTwoFactorSecretFindUnique.mockResolvedValue({
       isEnabled: false,
       secret: 'corrupt-data',
-    });
+    } as any);
     const result = await enableTwoFactor('user-1', '123456');
     expect(result.success).toBe(false);
     expect(result.code).toBe('DECRYPT_FAILED');
@@ -286,10 +277,10 @@ describe('Two-Factor — enableTwoFactor', () => {
 
   it('should return error for invalid verification code', async () => {
     const testSecret = 'JBSWY3DPEHPK3PXP';
-    mockTwoFactorSecretFindUnique.mockResolvedValue({
+    spyTwoFactorSecretFindUnique.mockResolvedValue({
       isEnabled: false,
       secret: encrypt(testSecret),
-    });
+    } as any);
 
     const result = await enableTwoFactor('user-1', '000000');
     // Most likely invalid
@@ -309,25 +300,25 @@ describe('Two-Factor — disableTwoFactor', () => {
   });
 
   it('should return error when user not found', async () => {
-    mockUserFindUnique.mockResolvedValue(null);
+    spyUserFindUnique.mockResolvedValue(null);
     const result = await disableTwoFactor('user-1', 'password');
     expect(result.success).toBe(false);
     expect(result.code).toBe('USER_NOT_FOUND');
   });
 
   it('should return error when user has no password', async () => {
-    mockUserFindUnique.mockResolvedValue({ id: 'user-1', password: null });
+    spyUserFindUnique.mockResolvedValue({ id: 'user-1', password: null } as any);
     const result = await disableTwoFactor('user-1', 'password');
     expect(result.success).toBe(false);
     expect(result.code).toBe('USER_NOT_FOUND');
   });
 
   it('should return error for wrong password', async () => {
-    mockUserFindUnique.mockResolvedValue({
+    spyUserFindUnique.mockResolvedValue({
       id: 'user-1',
       password: '$2a$12$hashedpassword',
       organizationId: null,
-    });
+    } as any);
     // Since password module uses dynamic import, verifyPassword with a bcrypt hash
     // will return false for a plain wrong password
     const result = await disableTwoFactor('user-1', 'wrong-password');
@@ -345,14 +336,14 @@ describe('Two-Factor — regenerateBackupCodes', () => {
   });
 
   it('should return error when user not found', async () => {
-    mockUserFindUnique.mockResolvedValue(null);
+    spyUserFindUnique.mockResolvedValue(null);
     const result = await regenerateBackupCodes('user-1', 'password');
     expect(result.success).toBe(false);
     expect(result.code).toBe('USER_NOT_FOUND');
   });
 
   it('should return error when user has no password', async () => {
-    mockUserFindUnique.mockResolvedValue({ id: 'user-1', password: null });
+    spyUserFindUnique.mockResolvedValue({ id: 'user-1', password: null } as any);
     const result = await regenerateBackupCodes('user-1', 'password');
     expect(result.success).toBe(false);
     expect(result.code).toBe('USER_NOT_FOUND');
@@ -369,25 +360,25 @@ describe('Two-Factor — Facade Aliases', () => {
   });
 
   it('check2FAStatus should delegate to hasTwoFactorEnabled', async () => {
-    mockTwoFactorSecretFindUnique.mockResolvedValue({ isEnabled: true });
+    spyTwoFactorSecretFindUnique.mockResolvedValue({ isEnabled: true } as any);
     const result = await check2FAStatus('user-1');
     expect(result).toBe(true);
   });
 
   it('verify2FA should delegate to verifyTwoFactorCode', async () => {
-    mockTwoFactorSecretFindUnique.mockResolvedValue(null);
+    spyTwoFactorSecretFindUnique.mockResolvedValue(null);
     const result = await verify2FA('user-1', '123456');
     expect(result).toBe(false);
   });
 
   it('disable2FA with invalid code should return error', async () => {
-    mockTwoFactorSecretFindUnique.mockResolvedValue(null);
+    spyTwoFactorSecretFindUnique.mockResolvedValue(null);
     const result = await disable2FA('user-1', 'password', '123456');
     expect(result.success).toBe(false);
   });
 
   it('enable2FA should delegate to enableTwoFactor', async () => {
-    mockTwoFactorSecretFindUnique.mockResolvedValue(null);
+    spyTwoFactorSecretFindUnique.mockResolvedValue(null);
     const result = await enable2FA('user-1', '123456');
     expect(result.success).toBe(false);
   });

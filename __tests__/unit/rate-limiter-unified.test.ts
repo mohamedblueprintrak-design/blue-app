@@ -14,7 +14,7 @@ const mockLogInfo = jest.spyOn(log, 'info').mockImplementation(() => {});
 // Mock Redis before imports — eslint-disable @typescript-eslint/no-explicit-any
 // Type assertions needed because jest.mock factory returns `any` which TypeScript
 // infers as `never` for mockResolvedValue/mockReturnValue generics.
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 jest.mock('redis', () => ({
   createClient: (jest.fn() as any).mockReturnValue({
     on: (jest.fn() as any).mockReturnThis(),
