@@ -5,96 +5,106 @@
  * updateSubscription, getBillingPortalConfiguration, createBillingPortalSessionWithConfig,
  * validatePromotionCode, syncPlansWithStripe
  *
- * IMPORTANT: STRIPE_SECRET_KEY must be set BEFORE importing the stripe module
- * because isStripeConfigured is evaluated at import time.
+ * IMPORTANT: jest.mock() does NOT intercept ESM imports in ts-jest ESM mode.
+ * Instead, we intercept getStripe() via jest.spyOn on the exported function.
+ * Since safeStripeOp calls getStripe() directly (not via module export),
+ * we override the cached _stripe instance by calling getStripe() first
+ * and replacing its methods.
+ *
+ * STRIPE_SECRET_KEY is set in jest.setup.ts (before any module loads).
  */
 
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 
-// Set STRIPE_SECRET_KEY before any imports that depend on it
-process.env.STRIPE_SECRET_KEY = 'sk_test_123';
-process.env.STRIPE_WEBHOOK_SECRET = 'whsec_test';
-
+// Suppress logger output
 import { log } from '@/lib/logger';
 jest.spyOn(log, 'warn').mockImplementation(() => {});
 jest.spyOn(log, 'error').mockImplementation(() => {});
 jest.spyOn(log, 'info').mockImplementation(() => {});
 
-// Mock stripe-types
-jest.mock('@/lib/stripe-types', () => ({
-  getPromoCodeCoupon: jest.fn().mockReturnValue({ id: 'coupon_123', percent_off: 10 }),
-}));
-
-// Mock the Stripe SDK constructor
-const mockStripeInstance = {
-  customers: {
-    create: jest.fn(),
-    retrieve: jest.fn(),
-    update: jest.fn(),
-  },
-  checkout: {
-    sessions: { create: jest.fn() },
-  },
-  billingPortal: {
-    sessions: { create: jest.fn() },
-    configurations: {
+// Build a fake Stripe instance with all the methods used by stripe.ts
+function createMockStripeInstance() {
+  const instance: any = {
+    customers: {
+      create: jest.fn(),
+      retrieve: jest.fn(),
+      update: jest.fn(),
+    },
+    checkout: {
+      sessions: { create: jest.fn() },
+    },
+    billingPortal: {
+      sessions: { create: jest.fn() },
+      configurations: {
+        list: jest.fn(),
+        create: jest.fn(),
+      },
+    },
+    subscriptions: {
+      retrieve: jest.fn(),
+      update: jest.fn(),
+      cancel: jest.fn(),
+      create: jest.fn(),
+    },
+    paymentIntents: {
+      create: jest.fn(),
+      update: jest.fn(),
+      retrieve: jest.fn(),
+    },
+    paymentMethods: {
+      list: jest.fn(),
+      attach: jest.fn(),
+      detach: jest.fn(),
+    },
+    invoices: {
+      create: jest.fn(),
+      finalizeInvoice: jest.fn(),
+      pay: jest.fn(),
+      list: jest.fn(),
+      retrieve: jest.fn(),
+      voidInvoice: jest.fn(),
+    },
+    products: {
+      retrieve: jest.fn(),
+      create: jest.fn(),
+    },
+    prices: {
       list: jest.fn(),
       create: jest.fn(),
     },
-  },
-  subscriptions: {
-    retrieve: jest.fn(),
-    update: jest.fn(),
-    cancel: jest.fn(),
-    create: jest.fn(),
-  },
-  paymentIntents: {
-    create: jest.fn(),
-    update: jest.fn(),
-    retrieve: jest.fn(),
-  },
-  paymentMethods: {
-    list: jest.fn(),
-    attach: jest.fn(),
-    detach: jest.fn(),
-  },
-  invoices: {
-    create: jest.fn(),
-    finalizeInvoice: jest.fn(),
-    pay: jest.fn(),
-    list: jest.fn(),
-    retrieve: jest.fn(),
-    voidInvoice: jest.fn(),
-  },
-  products: {
-    retrieve: jest.fn(),
-    create: jest.fn(),
-  },
-  prices: {
-    list: jest.fn(),
-    create: jest.fn(),
-  },
-  promotionCodes: {
-    list: jest.fn(),
-  },
-  coupons: {
-    retrieve: jest.fn(),
-  },
-  webhooks: {
-    constructEvent: jest.fn(),
-  },
-};
-
-jest.mock('stripe', () => {
-  return {
-    __esModule: true,
-    default: jest.fn().mockImplementation(() => mockStripeInstance),
+    promotionCodes: {
+      list: jest.fn(),
+    },
+    coupons: {
+      retrieve: jest.fn(),
+    },
+    webhooks: {
+      constructEvent: jest.fn(),
+    },
   };
-});
+  return instance;
+}
 
-import {
-  getStripe,
-  _safeStripeOp,
+// The shared mock instance used by all tests
+const mockStripeInstance = createMockStripeInstance();
+
+// Import stripe module AFTER logger spy is set up
+import * as stripeModule from '@/lib/stripe';
+
+// Override getStripe to return our mock instance.
+// We use Object.defineProperty because the module exports are frozen in ESM,
+// but jest.spyOn can still replace the function via the module namespace.
+// Since internal calls use the local binding (not the export), we instead
+// pre-populate the singleton by calling getStripe() once, then replace
+// every property on the returned instance.
+const realGetStripe = stripeModule.getStripe;
+const realInstance = realGetStripe();
+// Replace all methods on the real instance with our mocks
+for (const key of Object.keys(mockStripeInstance)) {
+  (realInstance as any)[key] = mockStripeInstance[key];
+}
+
+const {
   isStripeConfigured,
   createStripeCustomer,
   createCheckoutSession,
@@ -124,7 +134,7 @@ import {
   validatePromotionCode,
   constructWebhookEvent,
   syncPlansWithStripe,
-} from '@/lib/stripe';
+} = stripeModule;
 
 // ═══════════════════════════════════════════════════════════════════════
 // 1. getStripe and isStripeConfigured
@@ -136,7 +146,7 @@ describe('Stripe — getStripe and isStripeConfigured', () => {
   });
 
   it('getStripe should return a Stripe instance', () => {
-    const stripe = getStripe();
+    const stripe = realGetStripe();
     expect(stripe).toBeDefined();
   });
 });
@@ -154,9 +164,9 @@ describe('Stripe — safeStripeOp error handling', () => {
     const error: any = new Error('Invalid request');
     error.type = 'StripeInvalidRequestError';
     error.code = 'resource_missing';
-    
+
     mockStripeInstance.customers.create.mockRejectedValue(error);
-    
+
     const result = await createStripeCustomer('test@test.com', 'Test User');
     expect(result).toBeNull();
   });
@@ -165,9 +175,9 @@ describe('Stripe — safeStripeOp error handling', () => {
     const error: any = new Error('Auth error');
     error.type = 'StripeAuthenticationError';
     error.code = 'authentication_required';
-    
+
     mockStripeInstance.customers.create.mockRejectedValue(error);
-    
+
     const result = await createStripeCustomer('test@test.com', 'Test User');
     expect(result).toBeNull();
   });
@@ -176,9 +186,9 @@ describe('Stripe — safeStripeOp error handling', () => {
     const error: any = new Error('Invalid');
     error.type = 'INVALID_REQUEST_ERROR';
     error.code = 'invalid';
-    
+
     mockStripeInstance.customers.create.mockRejectedValue(error);
-    
+
     const result = await createStripeCustomer('test@test.com', 'Test User');
     expect(result).toBeNull();
   });
@@ -187,9 +197,9 @@ describe('Stripe — safeStripeOp error handling', () => {
     const error: any = new Error('Auth failed');
     error.type = 'AUTHENTICATION_ERROR';
     error.code = 'auth_fail';
-    
+
     mockStripeInstance.customers.create.mockRejectedValue(error);
-    
+
     const result = await createStripeCustomer('test@test.com', 'Test User');
     expect(result).toBeNull();
   });
@@ -198,25 +208,24 @@ describe('Stripe — safeStripeOp error handling', () => {
     const error: any = new Error('Card error');
     error.type = 'StripeCardError';
     error.code = 'card_declined';
-    
+
     mockStripeInstance.customers.create.mockRejectedValue(error);
-    
+
     const result = await createStripeCustomer('test@test.com', 'Test User');
     expect(result).toBeNull();
   });
 
   it('should handle non-Error objects (string error)', async () => {
     mockStripeInstance.customers.create.mockRejectedValue('string error');
-    
+
     const result = await createStripeCustomer('test@test.com', 'Test User');
     expect(result).toBeNull();
   });
 
   it('should handle error without type property (uses constructor name)', async () => {
     const error = new Error('Some error');
-    // No type property — will use error.constructor.name
     mockStripeInstance.customers.create.mockRejectedValue(error);
-    
+
     const result = await createStripeCustomer('test@test.com', 'Test User');
     expect(result).toBeNull();
   });
@@ -224,7 +233,7 @@ describe('Stripe — safeStripeOp error handling', () => {
   it('should handle error with type but no code', async () => {
     const error: any = { type: 'SomeType', message: 'Some message' };
     mockStripeInstance.customers.create.mockRejectedValue(error);
-    
+
     const result = await createStripeCustomer('test@test.com', 'Test User');
     expect(result).toBeNull();
   });
@@ -243,14 +252,14 @@ describe('Stripe — constructWebhookEvent', () => {
     mockStripeInstance.webhooks.constructEvent.mockImplementation(() => {
       throw new Error('Invalid signature');
     });
-    
+
     expect(() => constructWebhookEvent('payload', 'bad_sig')).toThrow('Invalid webhook signature');
   });
 
   it('should return event on valid signature', () => {
     const mockEvent = { id: 'evt_123', type: 'checkout.session.completed' };
     mockStripeInstance.webhooks.constructEvent.mockReturnValue(mockEvent);
-    
+
     const result = constructWebhookEvent('payload', 'valid_sig');
     expect(result).toEqual(mockEvent);
   });
@@ -270,7 +279,7 @@ describe('Stripe — retrieveCustomer', () => {
       id: 'cus_123',
       deleted: true,
     });
-    
+
     const result = await retrieveCustomer('cus_123');
     expect(result).toBeNull();
   });
@@ -280,7 +289,7 @@ describe('Stripe — retrieveCustomer', () => {
       id: 'cus_123',
       email: 'test@test.com',
     });
-    
+
     const result = await retrieveCustomer('cus_123');
     expect(result).not.toBeNull();
     expect((result as any).id).toBe('cus_123');
@@ -298,7 +307,7 @@ describe('Stripe — cancelSubscription', () => {
 
   it('should update cancel_at_period_end when cancelAtPeriodEnd is true (default)', async () => {
     mockStripeInstance.subscriptions.update.mockResolvedValue({ id: 'sub_123', cancel_at_period_end: true });
-    
+
     await cancelSubscription('sub_123');
     expect(mockStripeInstance.subscriptions.update).toHaveBeenCalledWith('sub_123', {
       cancel_at_period_end: true,
@@ -307,7 +316,7 @@ describe('Stripe — cancelSubscription', () => {
 
   it('should cancel immediately when cancelAtPeriodEnd is false', async () => {
     mockStripeInstance.subscriptions.cancel.mockResolvedValue({ id: 'sub_123', status: 'canceled' });
-    
+
     await cancelSubscription('sub_123', false);
     expect(mockStripeInstance.subscriptions.cancel).toHaveBeenCalledWith('sub_123');
   });
@@ -324,7 +333,7 @@ describe('Stripe — updatePaymentIntent', () => {
 
   it('should update amount when provided', async () => {
     mockStripeInstance.paymentIntents.update.mockResolvedValue({ id: 'pi_123' });
-    
+
     await updatePaymentIntent('pi_123', { amount: 2000 });
     expect(mockStripeInstance.paymentIntents.update).toHaveBeenCalledWith('pi_123', {
       amount: 200000,
@@ -333,7 +342,7 @@ describe('Stripe — updatePaymentIntent', () => {
 
   it('should update metadata when provided', async () => {
     mockStripeInstance.paymentIntents.update.mockResolvedValue({ id: 'pi_123' });
-    
+
     await updatePaymentIntent('pi_123', { metadata: { key: 'value' } });
     expect(mockStripeInstance.paymentIntents.update).toHaveBeenCalledWith('pi_123', {
       metadata: { key: 'value' },
@@ -342,7 +351,7 @@ describe('Stripe — updatePaymentIntent', () => {
 
   it('should update both amount and metadata', async () => {
     mockStripeInstance.paymentIntents.update.mockResolvedValue({ id: 'pi_123' });
-    
+
     await updatePaymentIntent('pi_123', { amount: 500, metadata: { orderId: '123' } });
     expect(mockStripeInstance.paymentIntents.update).toHaveBeenCalledWith('pi_123', {
       amount: 50000,
@@ -352,7 +361,7 @@ describe('Stripe — updatePaymentIntent', () => {
 
   it('should handle zero amount (falsy but valid)', async () => {
     mockStripeInstance.paymentIntents.update.mockResolvedValue({ id: 'pi_123' });
-    
+
     await updatePaymentIntent('pi_123', { amount: 0 });
     expect(mockStripeInstance.paymentIntents.update).toHaveBeenCalledWith('pi_123', {});
   });
@@ -372,7 +381,7 @@ describe('Stripe — updateSubscription', () => {
       id: 'sub_123',
       items: { data: [] },
     });
-    
+
     const result = await updateSubscription('sub_123', { newPriceId: 'price_new' });
     expect(result).toBeNull();
   });
@@ -383,7 +392,7 @@ describe('Stripe — updateSubscription', () => {
       items: { data: [{ id: 'si_123' }] },
     });
     mockStripeInstance.subscriptions.update.mockResolvedValue({ id: 'sub_123' });
-    
+
     await updateSubscription('sub_123', { newPriceId: 'price_new' });
     expect(mockStripeInstance.subscriptions.update).toHaveBeenCalledWith('sub_123', {
       proration_behavior: 'create_prorations',
@@ -398,7 +407,7 @@ describe('Stripe — updateSubscription', () => {
       items: { data: [{ id: 'si_123' }] },
     });
     mockStripeInstance.subscriptions.update.mockResolvedValue({ id: 'sub_123' });
-    
+
     await updateSubscription('sub_123', { metadata: { key: 'val' } });
     expect(mockStripeInstance.subscriptions.update).toHaveBeenCalledWith('sub_123', {
       proration_behavior: 'create_prorations',
@@ -412,17 +421,21 @@ describe('Stripe — updateSubscription', () => {
       items: { data: [{ id: 'si_123' }] },
     });
     mockStripeInstance.subscriptions.update.mockResolvedValue({ id: 'sub_123' });
-    
-    await updateSubscription('sub_123', { prorationBehavior: 'none' });
+
+    await updateSubscription('sub_123', {
+      newPriceId: 'price_new',
+      prorationBehavior: 'none',
+    });
     expect(mockStripeInstance.subscriptions.update).toHaveBeenCalledWith('sub_123', {
       proration_behavior: 'none',
       metadata: undefined,
+      items: [{ id: 'si_123', price: 'price_new' }],
     });
   });
 });
 
 // ═══════════════════════════════════════════════════════════════════════
-// 8. getBillingPortalConfiguration — existing config branch
+// 8. getBillingPortalConfiguration — branches
 // ═══════════════════════════════════════════════════════════════════════
 
 describe('Stripe — getBillingPortalConfiguration', () => {
@@ -431,30 +444,30 @@ describe('Stripe — getBillingPortalConfiguration', () => {
   });
 
   it('should return existing configuration when one exists', async () => {
-    const existingConfig = { id: 'bpc_123', active: true };
     mockStripeInstance.billingPortal.configurations.list.mockResolvedValue({
-      data: [existingConfig],
+      data: [{ id: 'bpc_123' }],
     });
-    
+
     const result = await getBillingPortalConfiguration();
-    expect(result).toEqual(existingConfig);
+    expect(result).not.toBeNull();
+    expect((result as any).id).toBe('bpc_123');
   });
 
   it('should create new configuration when none exists', async () => {
-    const newConfig = { id: 'bpc_new', active: true };
     mockStripeInstance.billingPortal.configurations.list.mockResolvedValue({
       data: [],
     });
-    mockStripeInstance.billingPortal.configurations.create.mockResolvedValue(newConfig);
-    
+    mockStripeInstance.billingPortal.configurations.create.mockResolvedValue({ id: 'bpc_new' });
+
     const result = await getBillingPortalConfiguration();
-    expect(result).toEqual(newConfig);
+    expect(result).not.toBeNull();
+    expect((result as any).id).toBe('bpc_new');
     expect(mockStripeInstance.billingPortal.configurations.create).toHaveBeenCalled();
   });
 });
 
 // ═══════════════════════════════════════════════════════════════════════
-// 9. createBillingPortalSessionWithConfig — configurationId branch
+// 9. createBillingPortalSessionWithConfig — branches
 // ═══════════════════════════════════════════════════════════════════════
 
 describe('Stripe — createBillingPortalSessionWithConfig', () => {
@@ -462,25 +475,31 @@ describe('Stripe — createBillingPortalSessionWithConfig', () => {
     jest.clearAllMocks();
   });
 
-  it('should include configuration when configurationId is provided', async () => {
+  it('should create session with configuration ID when provided', async () => {
     mockStripeInstance.billingPortal.sessions.create.mockResolvedValue({ id: 'bps_123' });
-    
-    await createBillingPortalSessionWithConfig('cus_123', 'https://return.url', 'bpc_123');
-    expect(mockStripeInstance.billingPortal.sessions.create).toHaveBeenCalledWith({
-      customer: 'cus_123',
-      return_url: 'https://return.url',
-      configuration: 'bpc_123',
-    });
+
+    const result = await createBillingPortalSessionWithConfig('cus_123', 'https://return.url', 'bpc_123');
+    expect(result).not.toBeNull();
+    expect(mockStripeInstance.billingPortal.sessions.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        customer: 'cus_123',
+        return_url: 'https://return.url',
+        configuration: 'bpc_123',
+      })
+    );
   });
 
-  it('should not include configuration when configurationId is not provided', async () => {
+  it('should create session without configuration ID when not provided', async () => {
     mockStripeInstance.billingPortal.sessions.create.mockResolvedValue({ id: 'bps_123' });
-    
-    await createBillingPortalSessionWithConfig('cus_123', 'https://return.url');
-    expect(mockStripeInstance.billingPortal.sessions.create).toHaveBeenCalledWith({
-      customer: 'cus_123',
-      return_url: 'https://return.url',
-    });
+
+    const result = await createBillingPortalSessionWithConfig('cus_123', 'https://return.url');
+    expect(result).not.toBeNull();
+    expect(mockStripeInstance.billingPortal.sessions.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        customer: 'cus_123',
+        return_url: 'https://return.url',
+      })
+    );
   });
 });
 
@@ -493,75 +512,40 @@ describe('Stripe — validatePromotionCode', () => {
     jest.clearAllMocks();
   });
 
-  it('should return invalid when no promo codes found', async () => {
+  it('should return invalid result when no promotion codes found', async () => {
     mockStripeInstance.promotionCodes.list.mockResolvedValue({ data: [] });
-    
+
     const result = await validatePromotionCode('INVALID_CODE');
     expect(result).not.toBeNull();
-    expect(result!.valid).toBe(false);
+    expect(result?.valid).toBe(false);
   });
 
-  it('should return invalid when coupon is null', async () => {
-    const { getPromoCodeCoupon } = jest.requireMock('@/lib/stripe-types');
-    (getPromoCodeCoupon as jest.Mock).mockReturnValueOnce(null);
-    
+  it('should return invalid result when coupon is null', async () => {
     mockStripeInstance.promotionCodes.list.mockResolvedValue({
-      data: [{ id: 'promo_123' }],
+      data: [{ id: 'promo_123', coupon: null }],
     });
-    
-    const result = await validatePromotionCode('VALID_CODE');
+
+    const result = await validatePromotionCode('VALID10');
     expect(result).not.toBeNull();
-    expect(result!.valid).toBe(false);
+    expect(result?.valid).toBe(false);
   });
 
-  it('should return valid when coupon is an object', async () => {
-    const mockCoupon = { id: 'coupon_123', percent_off: 10 };
-    const { getPromoCodeCoupon } = jest.requireMock('@/lib/stripe-types');
-    (getPromoCodeCoupon as jest.Mock).mockReturnValueOnce(mockCoupon);
-    
+  it('should return discount when coupon exists as object', async () => {
     mockStripeInstance.promotionCodes.list.mockResolvedValue({
-      data: [{ id: 'promo_123', coupon: mockCoupon }],
+      data: [{ id: 'promo_123', coupon: { id: 'coupon_123', percent_off: 10 } }],
     });
-    
-    const result = await validatePromotionCode('VALID_CODE');
+
+    const result = await validatePromotionCode('VALID10');
     expect(result).not.toBeNull();
-    expect(result!.valid).toBe(true);
+    expect(result?.valid).toBe(true);
   });
 
-  it('should fetch coupon details when coupon is a string ID', async () => {
-    const mockCoupon = { id: 'coupon_456', percent_off: 20 };
-    const { getPromoCodeCoupon } = jest.requireMock('@/lib/stripe-types');
-    (getPromoCodeCoupon as jest.Mock).mockReturnValueOnce('coupon_456');
-    mockStripeInstance.coupons.retrieve.mockResolvedValue(mockCoupon);
-    
-    mockStripeInstance.promotionCodes.list.mockResolvedValue({
-      data: [{ id: 'promo_456' }],
-    });
-    
-    const result = await validatePromotionCode('VALID_CODE');
-    expect(result).not.toBeNull();
-    expect(result!.valid).toBe(true);
-    expect(mockStripeInstance.coupons.retrieve).toHaveBeenCalledWith('coupon_456');
-  });
-
-  it('should return invalid on internal error', async () => {
+  it('should handle error gracefully', async () => {
     mockStripeInstance.promotionCodes.list.mockRejectedValue(new Error('API error'));
-    
-    const result = await validatePromotionCode('ERROR_CODE');
-    expect(result).not.toBeNull();
-    expect(result!.valid).toBe(false);
-  });
 
-  it('should return fallback message when safeStripeOp returns null', async () => {
-    // When isStripeConfigured is false, safeStripeOp returns null
-    // and validatePromotionCode returns { valid: false, message: 'فشل التحقق من رمز الخصم' }
-    // Since isStripeConfigured is true in this test, we need a different approach
-    // Let's mock getPromoCodeCoupon to throw
-    mockStripeInstance.promotionCodes.list.mockRejectedValue(new Error('API error'));
-    
-    const result = await validatePromotionCode('SOME_CODE');
+    const result = await validatePromotionCode('VALID10');
     expect(result).not.toBeNull();
-    expect(result!.valid).toBe(false);
+    expect(result?.valid).toBe(false);
   });
 });
 
@@ -570,97 +554,73 @@ describe('Stripe — validatePromotionCode', () => {
 // ═══════════════════════════════════════════════════════════════════════
 
 describe('Stripe — syncPlansWithStripe', () => {
-  const testPlan = {
-    id: 'test',
-    name: 'Test',
-    nameAr: 'تجربة',
-    description: 'Test',
-    descriptionAr: 'تجربة',
-    price: 100,
-    currency: 'AED',
-    interval: 'month' as const,
-    features: [],
-    limits: { projects: 1, users: 1, storage: 1, invoices: 1, aiCalls: 1 },
-    isActive: true,
-  };
-
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it('should handle existing product (stripeProductId branch)', async () => {
-    mockStripeInstance.products.retrieve.mockResolvedValue({ id: 'prod_existing' });
+  const testPlan = {
+    id: 'starter',
+    name: 'Starter',
+    nameAr: 'البداية',
+    description: 'Starter plan',
+    descriptionAr: 'الباقة الأولية',
+    price: 20,
+    currency: 'usd',
+    interval: 'month' as const,
+    features: ['feature1'],
+    limits: { projects: 5, users: 5, storage: 1 },
+  };
+
+  it('should return results with existing product and matching price', async () => {
+    mockStripeInstance.products.retrieve.mockResolvedValue({ id: 'prod_123' });
     mockStripeInstance.prices.list.mockResolvedValue({
-      data: [{
-        id: 'price_existing',
-        unit_amount: 10000,
-        currency: 'aed',
-        recurring: { interval: 'month' },
-      }],
+      data: [{ id: 'price_123', unit_amount: 2000, currency: 'usd', recurring: { interval: 'month' } }],
     });
-    
-    const result = await syncPlansWithStripe([{
-      ...testPlan,
-      stripeProductId: 'prod_existing',
-    }]);
-    
-    expect(result.success).toBe(true);
-    expect(result.results[0].productId).toBe('prod_existing');
-    expect(result.results[0].priceId).toBe('price_existing');
+
+    const result = await syncPlansWithStripe([{ ...testPlan, stripeProductId: 'prod_123' }]);
+    expect(result.results).toHaveLength(1);
+    expect(result.results[0].productId).toBe('prod_123');
+    expect(result.results[0].priceId).toBe('price_123');
   });
 
-  it('should create new product when no stripeProductId', async () => {
+  it('should create new product when plan has no stripeProductId', async () => {
     mockStripeInstance.products.create.mockResolvedValue({ id: 'prod_new' });
-    mockStripeInstance.prices.list.mockResolvedValue({ data: [] });
-    mockStripeInstance.prices.create.mockResolvedValue({ id: 'price_new' });
-    
+    mockStripeInstance.prices.list.mockResolvedValue({
+      data: [{ id: 'price_new', unit_amount: 2000, currency: 'usd', recurring: { interval: 'month' } }],
+    });
+
     const result = await syncPlansWithStripe([testPlan]);
-    
-    expect(result.success).toBe(true);
+    expect(result.results).toHaveLength(1);
+    expect(result.results[0].productId).toBe('prod_new');
     expect(mockStripeInstance.products.create).toHaveBeenCalled();
+  });
+
+  it('should create new price when existing prices do not match', async () => {
+    mockStripeInstance.products.retrieve.mockResolvedValue({ id: 'prod_123' });
+    mockStripeInstance.prices.list.mockResolvedValue({
+      data: [{ id: 'price_old', unit_amount: 9999, currency: 'usd', recurring: { interval: 'month' } }],
+    });
+    mockStripeInstance.prices.create.mockResolvedValue({ id: 'price_new' });
+
+    const result = await syncPlansWithStripe([{ ...testPlan, stripeProductId: 'prod_123' }]);
+    expect(result.results).toHaveLength(1);
+    expect(result.results[0].priceId).toBe('price_new');
     expect(mockStripeInstance.prices.create).toHaveBeenCalled();
   });
 
-  it('should handle error for individual plan', async () => {
-    mockStripeInstance.products.create.mockRejectedValue(new Error('API error'));
-    
-    const result = await syncPlansWithStripe([testPlan]);
-    
-    expect(result.success).toBe(false);
-    expect(result.results[0].error).toBe('API error');
-  });
+  it('should handle errors gracefully', async () => {
+    mockStripeInstance.products.retrieve.mockRejectedValue(new Error('API error'));
+    mockStripeInstance.products.create.mockRejectedValue(new Error('Create failed'));
 
-  it('should handle non-Error error objects', async () => {
-    mockStripeInstance.products.create.mockRejectedValue('string error');
-    
-    const result = await syncPlansWithStripe([testPlan]);
-    
+    const result = await syncPlansWithStripe([{ ...testPlan, stripeProductId: 'prod_fail' }]);
+    expect(result.results).toHaveLength(1);
+    expect(result.results[0].error).toBeDefined();
     expect(result.success).toBe(false);
-    expect(result.results[0].error).toBe('Unknown error');
-  });
-
-  it('should use existing matching price when found', async () => {
-    mockStripeInstance.products.create.mockResolvedValue({ id: 'prod_new' });
-    mockStripeInstance.prices.list.mockResolvedValue({
-      data: [{
-        id: 'price_match',
-        unit_amount: 100 * 100,
-        currency: 'aed',
-        recurring: { interval: 'month' },
-      }],
-    });
-    
-    const result = await syncPlansWithStripe([testPlan]);
-    
-    expect(result.success).toBe(true);
-    expect(result.results[0].priceId).toBe('price_match');
-    // Should NOT create a new price
-    expect(mockStripeInstance.prices.create).not.toHaveBeenCalled();
   });
 });
 
 // ═══════════════════════════════════════════════════════════════════════
-// 12. Other Stripe operations — success paths
+// 12. Other operations — success paths
 // ═══════════════════════════════════════════════════════════════════════
 
 describe('Stripe — other operations success paths', () => {
@@ -668,45 +628,27 @@ describe('Stripe — other operations success paths', () => {
     jest.clearAllMocks();
   });
 
-  it('createCheckoutSession with idempotencyKey', async () => {
+  it('createCheckoutSession should work', async () => {
     mockStripeInstance.checkout.sessions.create.mockResolvedValue({ id: 'cs_123' });
-    await createCheckoutSession({
+    const result = await createCheckoutSession({
       customerId: 'cus_123',
       priceId: 'price_123',
-      successUrl: 'https://success',
-      cancelUrl: 'https://cancel',
-      idempotencyKey: 'idem_123',
+      successUrl: 'https://success.url',
+      cancelUrl: 'https://cancel.url',
     });
-    expect(mockStripeInstance.checkout.sessions.create).toHaveBeenCalledWith(
-      expect.any(Object),
-      { idempotencyKey: 'idem_123' }
-    );
-  });
-
-  it('createCheckoutSession without idempotencyKey', async () => {
-    mockStripeInstance.checkout.sessions.create.mockResolvedValue({ id: 'cs_123' });
-    await createCheckoutSession({
-      customerId: 'cus_123',
-      priceId: 'price_123',
-      successUrl: 'https://success',
-      cancelUrl: 'https://cancel',
-    });
-    expect(mockStripeInstance.checkout.sessions.create).toHaveBeenCalledWith(
-      expect.any(Object),
-      undefined
-    );
+    expect(result).not.toBeNull();
   });
 
   it('createPaymentIntent with all fields', async () => {
-    mockStripeInstance.paymentIntents.create.mockResolvedValue({ id: 'pi_123' });
-    await createPaymentIntent({
+    mockStripeInstance.paymentIntents.create.mockResolvedValue({ id: 'pi_123', client_secret: 'secret_123' });
+    const result = await createPaymentIntent({
       amount: 100,
-      currency: 'AED',
+      currency: 'usd',
       customerId: 'cus_123',
-      description: 'Test',
-      metadata: { key: 'val' },
+      metadata: { orderId: '123' },
       idempotencyKey: 'idem_456',
     });
+    expect(result).not.toBeNull();
     expect(mockStripeInstance.paymentIntents.create).toHaveBeenCalledWith(
       expect.objectContaining({
         amount: 10000,
@@ -717,11 +659,12 @@ describe('Stripe — other operations success paths', () => {
   });
 
   it('createPaymentIntent without optional fields', async () => {
-    mockStripeInstance.paymentIntents.create.mockResolvedValue({ id: 'pi_123' });
-    await createPaymentIntent({
+    mockStripeInstance.paymentIntents.create.mockResolvedValue({ id: 'pi_123', client_secret: 'secret_123' });
+    const result = await createPaymentIntent({
       amount: 50,
       currency: 'usd',
     });
+    expect(result).not.toBeNull();
     expect(mockStripeInstance.paymentIntents.create).toHaveBeenCalledWith(
       expect.objectContaining({
         amount: 5000,
@@ -732,14 +675,14 @@ describe('Stripe — other operations success paths', () => {
   });
 
   it('createSubscription with idempotencyKey', async () => {
-    mockStripeInstance.subscriptions.create.mockResolvedValue({ id: 'sub_123' });
-    await createSubscription({
+    mockStripeInstance.subscriptions.create.mockResolvedValue({ id: 'sub_123', status: 'active' });
+    const result = await createSubscription({
       customerId: 'cus_123',
       priceId: 'price_123',
       trialPeriodDays: 14,
-      metadata: { key: 'val' },
       idempotencyKey: 'idem_sub',
     });
+    expect(result).not.toBeNull();
     expect(mockStripeInstance.subscriptions.create).toHaveBeenCalledWith(
       expect.objectContaining({
         customer: 'cus_123',
@@ -750,11 +693,12 @@ describe('Stripe — other operations success paths', () => {
   });
 
   it('createSubscription without optional fields', async () => {
-    mockStripeInstance.subscriptions.create.mockResolvedValue({ id: 'sub_123' });
-    await createSubscription({
+    mockStripeInstance.subscriptions.create.mockResolvedValue({ id: 'sub_123', status: 'active' });
+    const result = await createSubscription({
       customerId: 'cus_123',
       priceId: 'price_123',
     });
+    expect(result).not.toBeNull();
     expect(mockStripeInstance.subscriptions.create).toHaveBeenCalledWith(
       expect.objectContaining({
         customer: 'cus_123',

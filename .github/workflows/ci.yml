@@ -27,6 +27,8 @@ env:
   DATABASE_URL: "file:./test.db"
   JWT_SECRET: "test-jwt-secret-for-ci-minimum-32-characters-long"
   ENCRYPTION_KEY: "aaaa1111bbbb2222cccc3333dddd4444eeee5555ffff6666aaaa7777bbbb8888"
+  STRIPE_SECRET_KEY: "sk_test_ci_placeholder_secret_key_for_testing"
+  STRIPE_WEBHOOK_SECRET: "whsec_test_ci_placeholder"
   DEMO_MODE: "false"
   NEXT_TELEMETRY_DISABLED: "1"
 
