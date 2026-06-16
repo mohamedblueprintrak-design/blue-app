@@ -6,13 +6,10 @@
 
 import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
 
-jest.mock('@/lib/logger', () => ({
-  log: {
-    warn: jest.fn(),
-    error: jest.fn(),
-    info: jest.fn(),
-  },
-}));
+import { log } from '@/lib/logger';
+const mockLogWarn = jest.spyOn(log, 'warn').mockImplementation(() => {});
+const mockLogError = jest.spyOn(log, 'error').mockImplementation(() => {});
+const mockLogInfo = jest.spyOn(log, 'info').mockImplementation(() => {});
 
 import {
   AuditLogger,

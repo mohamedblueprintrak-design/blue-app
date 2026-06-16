@@ -5,9 +5,9 @@
 
 import { describe, it, expect, jest } from '@jest/globals';
 
-jest.mock('@/lib/logger', () => ({
-  log: { warn: jest.fn(), error: jest.fn(), info: jest.fn() },
-}));
+// Use spy instead of jest.mock to avoid cross-test pollution in bun
+import { log } from '@/lib/logger';
+jest.spyOn(log, 'warn').mockImplementation(() => {});
 
 import {
   getRequiredPermission,

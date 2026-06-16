@@ -5,6 +5,12 @@
 
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 
+import { log } from '@/lib/logger';
+const mockLogWarn = jest.spyOn(log, 'warn').mockImplementation(() => {});
+const mockLogSecurity = jest.spyOn(log, 'security').mockImplementation(() => {});
+const mockLogError = jest.spyOn(log, 'error').mockImplementation(() => {});
+const mockLogInfo = jest.spyOn(log, 'info').mockImplementation(() => {});
+
 // Mock Redis before imports — eslint-disable @typescript-eslint/no-explicit-any
 // Type assertions needed because jest.mock factory returns `any` which TypeScript
 // infers as `never` for mockResolvedValue/mockReturnValue generics.
@@ -17,15 +23,6 @@ jest.mock('redis', () => ({
     del: (jest.fn() as any).mockResolvedValue(1),
     isOpen: true,
   }),
-}));
-
-jest.mock('@/lib/logger', () => ({
-  log: {
-    warn: jest.fn(),
-    security: jest.fn(),
-    error: jest.fn(),
-    info: jest.fn(),
-  },
 }));
 
 // Set REDIS_URL to empty so rate limiter uses in-memory fallback

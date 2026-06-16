@@ -24,30 +24,10 @@ jest.mock('@/lib/db', () => ({
   },
 }));
 
-jest.mock('@/lib/logger', () => ({
-  log: {
-    warn: jest.fn(),
-    security: jest.fn(),
-    error: jest.fn(),
-    info: jest.fn(),
-  },
-}));
-
-// Set JWT_SECRET env var for the real jwt-secret module (no mock needed)
-// This avoids polluting the module cache for other test files
-process.env.JWT_SECRET = 'test-secret-at-least-32-characters-long!';
-
-jest.mock('@/lib/auth/modules/authorization', () => ({
-  hasPermission: jest.fn().mockReturnValue(true),
-  canAccessFinancials: jest.fn().mockReturnValue(false),
-  canAccessHR: jest.fn().mockReturnValue(false),
-  isAdmin: jest.fn().mockReturnValue(false),
-}));
-
-jest.mock('@/app/api/utils/response', () => ({
-  unauthorizedResponse: jest.fn().mockReturnValue(new Response('Unauthorized', { status: 401 })),
-  forbiddenResponse: jest.fn().mockReturnValue(new Response('Forbidden', { status: 403 })),
-}));
+// NOTE: Do NOT mock @/lib/auth/modules/authorization or @/lib/auth/jwt-secret
+// to avoid cross-test pollution in bun's shared module cache.
+// The deprecated function tests throw before calling authorization.
+// The role helpers use the real authorization implementation.
 
 import {
   getAuthContext,

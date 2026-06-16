@@ -7,45 +7,37 @@
  * serverErrorResponse, validationErrorResponse, conflictResponse, badRequestResponse,
  * handleCorsPreflight, generateRequestId, logApiError, handleApiError
  *
- * Uses jest.unstable_mockModule() for ESM-compatible mocking.
+ * Rewritten to use jest.mock() instead of unstable_mockModule (bun compatibility)
  */
 
 import { describe, it, expect, beforeAll, jest, beforeEach, afterEach } from '@jest/globals';
 
-// Mock the logger — track calls for verification
-const mockLogError = jest.fn();
-const mockLogWarn = jest.fn();
+// We import the real logger but track calls via spy approach
+// Avoid jest.mock('@/lib/logger') to prevent cross-test pollution
+import { log } from '@/lib/logger';
 
-// Use unstable_mockModule for ESM-compatible mocking
-jest.unstable_mockModule('@/lib/logger', () => ({
-  log: {
-    warn: mockLogWarn,
-    error: mockLogError,
-    info: jest.fn(),
-    debug: jest.fn(),
-  },
-}));
+const mockLogError = jest.spyOn(log, 'error').mockImplementation(() => {});
+const mockLogWarn = jest.spyOn(log, 'warn').mockImplementation(() => {});
 
-jest.unstable_mockModule('next/server', () => {
-  class NextResponseMock extends Response {
-    static json(body: unknown, init?: ResponseInit) {
-      return new Response(JSON.stringify(body), {
-        ...init,
-        headers: { 'Content-Type': 'application/json', ...(init?.headers as Record<string, string> || {}) },
-      });
-    }
-  }
-  return { NextResponse: NextResponseMock };
-});
+import {
+  successResponse,
+  createdResponse,
+  noContentResponse,
+  errorResponse,
+  unauthorizedResponse,
+  forbiddenResponse,
+  notFoundResponse,
+  serverErrorResponse,
+  validationErrorResponse,
+  conflictResponse,
+  badRequestResponse,
+  handleCorsPreflight,
+  generateRequestId,
+  logApiError,
+  handleApiError,
+} from '@/app/api/utils/response';
 
 describe('Response — successResponse', () => {
-  let successResponse: <T>(data: T, meta?: Record<string, unknown>, requestId?: string) => Response;
-
-  beforeAll(async () => {
-    const mod = await import('@/app/api/utils/response');
-    successResponse = mod.successResponse;
-  });
-
   it('should return a response with success=true and data', async () => {
     const response = successResponse({ name: 'test' });
     const body = await response.json();
@@ -106,13 +98,6 @@ describe('Response — successResponse', () => {
 });
 
 describe('Response — createdResponse', () => {
-  let createdResponse: <T>(data: T, requestId?: string) => Response;
-
-  beforeAll(async () => {
-    const mod = await import('@/app/api/utils/response');
-    createdResponse = mod.createdResponse;
-  });
-
   it('should return a 201 status response', () => {
     const response = createdResponse({ id: '1', name: 'test' });
     expect(response.status).toBe(201);
@@ -139,13 +124,6 @@ describe('Response — createdResponse', () => {
 });
 
 describe('Response — noContentResponse', () => {
-  let noContentResponse: () => Response;
-
-  beforeAll(async () => {
-    const mod = await import('@/app/api/utils/response');
-    noContentResponse = mod.noContentResponse;
-  });
-
   it('should return a 204 status response', () => {
     const response = noContentResponse();
     expect(response.status).toBe(204);
@@ -153,13 +131,6 @@ describe('Response — noContentResponse', () => {
 });
 
 describe('Response — errorResponse', () => {
-  let errorResponse: (message: string, code?: string, status?: number, requestId?: string) => Response;
-
-  beforeAll(async () => {
-    const mod = await import('@/app/api/utils/response');
-    errorResponse = mod.errorResponse;
-  });
-
   it('should return a 400 status by default', () => {
     const response = errorResponse('Something went wrong');
     expect(response.status).toBe(400);
@@ -192,13 +163,6 @@ describe('Response — errorResponse', () => {
 });
 
 describe('Response — unauthorizedResponse', () => {
-  let unauthorizedResponse: (message?: string, requestId?: string) => Response;
-
-  beforeAll(async () => {
-    const mod = await import('@/app/api/utils/response');
-    unauthorizedResponse = mod.unauthorizedResponse;
-  });
-
   it('should return a 401 status', () => {
     const response = unauthorizedResponse();
     expect(response.status).toBe(401);
@@ -225,13 +189,6 @@ describe('Response — unauthorizedResponse', () => {
 });
 
 describe('Response — forbiddenResponse', () => {
-  let forbiddenResponse: (message?: string, requestId?: string) => Response;
-
-  beforeAll(async () => {
-    const mod = await import('@/app/api/utils/response');
-    forbiddenResponse = mod.forbiddenResponse;
-  });
-
   it('should return a 403 status', () => {
     const response = forbiddenResponse();
     expect(response.status).toBe(403);
@@ -252,13 +209,6 @@ describe('Response — forbiddenResponse', () => {
 });
 
 describe('Response — notFoundResponse', () => {
-  let notFoundResponse: (message?: string, requestId?: string) => Response;
-
-  beforeAll(async () => {
-    const mod = await import('@/app/api/utils/response');
-    notFoundResponse = mod.notFoundResponse;
-  });
-
   it('should return a 404 status', () => {
     const response = notFoundResponse();
     expect(response.status).toBe(404);
@@ -273,13 +223,6 @@ describe('Response — notFoundResponse', () => {
 });
 
 describe('Response — serverErrorResponse', () => {
-  let serverErrorResponse: (message?: string, requestId?: string) => Response;
-
-  beforeAll(async () => {
-    const mod = await import('@/app/api/utils/response');
-    serverErrorResponse = mod.serverErrorResponse;
-  });
-
   it('should return a 500 status', () => {
     const response = serverErrorResponse();
     expect(response.status).toBe(500);
@@ -294,13 +237,6 @@ describe('Response — serverErrorResponse', () => {
 });
 
 describe('Response — validationErrorResponse', () => {
-  let validationErrorResponse: (message: string, field?: string, requestId?: string) => Response;
-
-  beforeAll(async () => {
-    const mod = await import('@/app/api/utils/response');
-    validationErrorResponse = mod.validationErrorResponse;
-  });
-
   it('should return a 400 status', () => {
     const response = validationErrorResponse('Invalid input');
     expect(response.status).toBe(400);
@@ -333,13 +269,6 @@ describe('Response — validationErrorResponse', () => {
 });
 
 describe('Response — conflictResponse', () => {
-  let conflictResponse: (message: string, requestId?: string) => Response;
-
-  beforeAll(async () => {
-    const mod = await import('@/app/api/utils/response');
-    conflictResponse = mod.conflictResponse;
-  });
-
   it('should return a 409 status', () => {
     const response = conflictResponse('Duplicate');
     expect(response.status).toBe(409);
@@ -353,13 +282,6 @@ describe('Response — conflictResponse', () => {
 });
 
 describe('Response — badRequestResponse', () => {
-  let badRequestResponse: (message: string, requestId?: string) => Response;
-
-  beforeAll(async () => {
-    const mod = await import('@/app/api/utils/response');
-    badRequestResponse = mod.badRequestResponse;
-  });
-
   it('should return a 400 status', () => {
     const response = badRequestResponse('Bad request');
     expect(response.status).toBe(400);
@@ -373,13 +295,6 @@ describe('Response — badRequestResponse', () => {
 });
 
 describe('Response — handleCorsPreflight', () => {
-  let handleCorsPreflight: () => Response;
-
-  beforeAll(async () => {
-    const mod = await import('@/app/api/utils/response');
-    handleCorsPreflight = mod.handleCorsPreflight;
-  });
-
   it('should return a 204 No Content response', () => {
     const response = handleCorsPreflight();
     expect(response.status).toBe(204);
@@ -393,13 +308,6 @@ describe('Response — handleCorsPreflight', () => {
 });
 
 describe('Response — generateRequestId', () => {
-  let generateRequestId: () => string;
-
-  beforeAll(async () => {
-    const mod = await import('@/app/api/utils/response');
-    generateRequestId = mod.generateRequestId;
-  });
-
   it('should return a string starting with req_', () => {
     const id = generateRequestId();
     expect(id).toMatch(/^req_/);
@@ -413,13 +321,6 @@ describe('Response — generateRequestId', () => {
 });
 
 describe('Response — logApiError', () => {
-  let logApiError: (context: string, error: unknown) => void;
-
-  beforeAll(async () => {
-    const mod = await import('@/app/api/utils/response');
-    logApiError = mod.logApiError;
-  });
-
   beforeEach(() => {
     mockLogError.mockClear();
   });
@@ -443,13 +344,6 @@ describe('Response — logApiError', () => {
 });
 
 describe('Response — handleApiError', () => {
-  let handleApiError: (message: string, error: unknown, code?: string, status?: number, requestId?: string) => Response;
-
-  beforeAll(async () => {
-    const mod = await import('@/app/api/utils/response');
-    handleApiError = mod.handleApiError;
-  });
-
   beforeEach(() => {
     mockLogError.mockClear();
   });
@@ -500,8 +394,6 @@ describe('Response — handleApiError', () => {
 });
 
 describe('Response — CORS headers', () => {
-  let successResponse: <T>(data: T) => Response;
-
   const originalEnv = process.env;
 
   beforeEach(() => {
@@ -512,11 +404,6 @@ describe('Response — CORS headers', () => {
 
   afterEach(() => {
     process.env = originalEnv;
-  });
-
-  beforeAll(async () => {
-    const mod = await import('@/app/api/utils/response');
-    successResponse = mod.successResponse;
   });
 
   it('should include Access-Control-Allow-Methods header', () => {

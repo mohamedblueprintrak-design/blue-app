@@ -6,10 +6,10 @@
 
 import { describe, it, expect, jest } from '@jest/globals';
 
-// Mock logger
-jest.mock('@/lib/logger', () => ({
-  log: { warn: jest.fn(), error: jest.fn(), info: jest.fn() },
-}));
+import { log } from '@/lib/logger';
+const mockLogWarn = jest.spyOn(log, 'warn').mockImplementation(() => {});
+const mockLogError = jest.spyOn(log, 'error').mockImplementation(() => {});
+const mockLogInfo = jest.spyOn(log, 'info').mockImplementation(() => {});
 
 // Mock stripe-types
 jest.mock('@/lib/stripe-types', () => ({
