@@ -1,42 +1,102 @@
 /**
  * Extended Tests for CRUD Permissions — Branch Coverage
  * Covers: withCrudPermissions, requireCrudPermission, requireMethodPermission
+ *
+ * Uses REAL JWT tokens with real jose verification (same pattern as
+ * auth-verified-extended.test.ts) because jest.mock() does not intercept
+ * ESM imports in ts-jest ESM mode.
+ *
+ * Uses real roles that naturally have/lack permissions:
+ * - ADMIN has all permissions
+ * - VIEWER lacks TASK_CREATE
  */
 
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
+import { SignJWT } from 'jose';
+
+// JWT_SECRET is already set in jest.setup.ts
+
+// Mock DB with spyOn (works with ESM, unlike jest.mock)
+import { db } from '@/lib/db';
+const spyDbUserFindUnique = jest.spyOn(db.user, 'findUnique');
 
 import { log } from '@/lib/logger';
 jest.spyOn(log, 'warn').mockImplementation(() => {});
-
-// Mock auth module
-const mockRequireVerifiedAuth = jest.fn();
-jest.mock('@/app/api/utils/auth', () => ({
-  requireVerifiedAuth: (...args: unknown[]) => mockRequireVerifiedAuth(...args),
-  orgFilter: jest.fn().mockReturnValue({ organizationId: 'org-1' }),
-  orgCreate: jest.fn().mockReturnValue({ organizationId: 'org-1' }),
-}));
-
-// Mock authorization module
-const mockHasPermission = jest.fn();
-jest.mock('@/lib/auth/modules/authorization', () => ({
-  hasPermission: (...args: unknown[]) => mockHasPermission(...args),
-}));
-
-// Mock response module
-jest.mock('@/app/api/utils/response', () => ({
-  forbiddenResponse: (msg: string) => new Response(JSON.stringify({ error: msg }), { status: 403 }),
-  unauthorizedResponse: (msg: string) => new Response(JSON.stringify({ error: msg }), { status: 401 }),
-}));
+jest.spyOn(log, 'error').mockImplementation(() => {});
+jest.spyOn(log, 'info').mockImplementation(() => {});
 
 import {
   withCrudPermissions,
   requireCrudPermission,
   requireMethodPermission,
   getRequiredPermission,
-  _checkCrudPermission,
 } from '@/app/api/utils/crud-permissions';
 import { Permission } from '@/lib/auth/types';
+import { getJwtSecretBytes } from '@/lib/auth/jwt-secret';
 import { NextRequest } from 'next/server';
+
+/**
+ * Generate a real JWT token for testing.
+ */
+async function generateTestToken(payload: Record<string, unknown>): Promise<string> {
+  return new SignJWT(payload)
+    .setProtectedHeader({ alg: 'HS256' })
+    .setIssuer('blueprint-saas')
+    .setAudience('blueprint-users')
+    .setExpirationTime('15m')
+    .setIssuedAt()
+    .sign(getJwtSecretBytes());
+}
+
+function createMockRequest(options: {
+  headers?: Record<string, string>;
+  method?: string;
+  url?: string;
+}): NextRequest {
+  const headers = new Headers(options.headers || {});
+  const url = options.url || 'http://localhost:3000/api/test';
+  return new NextRequest(url, {
+    method: options.method || 'GET',
+    headers,
+  });
+}
+
+/**
+ * Create an authenticated request with real JWT + matching x-user-* headers.
+ */
+async function createAuthRequest(options: {
+  userId?: string;
+  email?: string;
+  role?: string;
+  organizationId?: string | null;
+  method?: string;
+  url?: string;
+}): Promise<NextRequest> {
+  const userId = options.userId || 'user-1';
+  const email = options.email || 'test@test.com';
+  const role = options.role || 'ADMIN';
+  const organizationId = options.organizationId ?? null;
+
+  const token = await generateTestToken({
+    userId,
+    email,
+    role,
+    type: 'access',
+    organizationId,
+  });
+
+  return createMockRequest({
+    method: options.method || 'GET',
+    url: options.url,
+    headers: {
+      'x-user-id': userId,
+      'x-user-email': email,
+      'x-user-role': role,
+      'x-organization-id': organizationId || '',
+      'authorization': `Bearer ${token}`,
+    },
+  });
+}
 
 // ═══════════════════════════════════════════════════════════════════════
 // 1. withCrudPermissions — branch coverage
@@ -45,82 +105,81 @@ import { NextRequest } from 'next/server';
 describe('CRUD — withCrudPermissions', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // Default: no passwordChangedAt → password check passes
+    spyDbUserFindUnique.mockResolvedValue(null as any);
   });
 
-  it('should return 401 when auth fails', async () => {
-    const mockError = new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
-    mockRequireVerifiedAuth.mockResolvedValue({ error: mockError });
-    
+  it('should return 401 when auth fails (no auth headers)', async () => {
     const handler = jest.fn();
     const wrapped = withCrudPermissions('task', handler);
-    
-    const request = new NextRequest('http://localhost/api/tasks', { method: 'GET' });
+
+    const request = createMockRequest({ method: 'GET' });
     const response = await wrapped(request);
-    
+
     expect(response.status).toBe(401);
     expect(handler).not.toHaveBeenCalled();
   });
 
   it('should return 403 when no permission mapping found', async () => {
-    mockRequireVerifiedAuth.mockResolvedValue({
-      user: { id: 'user-1', role: 'ADMIN', organizationId: 'org-1' },
+    const request = await createAuthRequest({
+      role: 'ADMIN',
+      method: 'POST',
+      url: 'http://localhost:3000/api/unknown',
     });
-    mockHasPermission.mockReturnValue(true);
-    
+
     const handler = jest.fn();
     const wrapped = withCrudPermissions('unknown_resource', handler);
-    
-    const request = new NextRequest('http://localhost/api/unknown', { method: 'POST' });
+
     const response = await wrapped(request);
-    
+
     expect(response.status).toBe(403);
     expect(handler).not.toHaveBeenCalled();
   });
 
-  it('should return 403 when user lacks permission', async () => {
-    mockRequireVerifiedAuth.mockResolvedValue({
-      user: { id: 'user-1', role: 'VIEWER', organizationId: 'org-1' },
+  it('should return 403 when user lacks permission (VIEWER cannot create tasks)', async () => {
+    const request = await createAuthRequest({
+      role: 'VIEWER',
+      method: 'POST',
+      url: 'http://localhost:3000/api/tasks',
     });
-    mockHasPermission.mockReturnValue(false);
-    
+
     const handler = jest.fn();
     const wrapped = withCrudPermissions('task', handler);
-    
-    const request = new NextRequest('http://localhost/api/tasks', { method: 'POST' });
+
     const response = await wrapped(request);
-    
+
     expect(response.status).toBe(403);
     expect(handler).not.toHaveBeenCalled();
   });
 
-  it('should call handler when user has permission', async () => {
-    mockRequireVerifiedAuth.mockResolvedValue({
-      user: { id: 'user-1', role: 'ADMIN', organizationId: 'org-1' },
+  it('should call handler when user has permission (ADMIN can read tasks)', async () => {
+    const request = await createAuthRequest({
+      role: 'ADMIN',
+      method: 'GET',
+      url: 'http://localhost:3000/api/tasks',
     });
-    mockHasPermission.mockReturnValue(true);
-    
+
     const handler = jest.fn().mockResolvedValue(new Response('OK'));
     const wrapped = withCrudPermissions('task', handler);
-    
-    const request = new NextRequest('http://localhost/api/tasks', { method: 'GET' });
+
     const response = await wrapped(request);
-    
+
     expect(handler).toHaveBeenCalled();
     expect(response).toBeDefined();
   });
 
   it('should handle unknown HTTP method (allow pass-through)', async () => {
-    mockRequireVerifiedAuth.mockResolvedValue({
-      user: { id: 'user-1', role: 'ADMIN', organizationId: 'org-1' },
+    const request = await createAuthRequest({
+      role: 'ADMIN',
+      method: 'OPTIONS',
+      url: 'http://localhost:3000/api/tasks',
     });
-    
+
     const handler = jest.fn().mockResolvedValue(new Response('OK'));
     const wrapped = withCrudPermissions('task', handler);
-    
-    // OPTIONS method is not in METHOD_ACTION_MAP
-    const request = new NextRequest('http://localhost/api/tasks', { method: 'OPTIONS' });
-    const _response = await wrapped(request);
-    
+
+    await wrapped(request);
+
     expect(handler).toHaveBeenCalled();
   });
 });
@@ -132,39 +191,35 @@ describe('CRUD — withCrudPermissions', () => {
 describe('CRUD — requireCrudPermission', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    spyDbUserFindUnique.mockResolvedValue(null as any);
   });
 
   it('should return error when auth fails', async () => {
-    const mockError = new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
-    mockRequireVerifiedAuth.mockResolvedValue({ error: mockError });
-    
-    const request = new NextRequest('http://localhost/api/tasks', { method: 'POST' });
+    const request = createMockRequest({ method: 'POST' });
     const result = await requireCrudPermission(request, 'task', 'create');
-    
+
     expect('error' in result).toBe(true);
   });
 
-  it('should return error when user lacks permission', async () => {
-    mockRequireVerifiedAuth.mockResolvedValue({
-      user: { id: 'user-1', role: 'VIEWER', organizationId: 'org-1' },
+  it('should return error when user lacks permission (VIEWER cannot create tasks)', async () => {
+    const request = await createAuthRequest({
+      role: 'VIEWER',
+      method: 'POST',
     });
-    mockHasPermission.mockReturnValue(false);
-    
-    const request = new NextRequest('http://localhost/api/tasks', { method: 'POST' });
+
     const result = await requireCrudPermission(request, 'task', 'create');
-    
+
     expect('error' in result).toBe(true);
   });
 
-  it('should return user context when permission exists and user has it', async () => {
-    mockRequireVerifiedAuth.mockResolvedValue({
-      user: { id: 'user-1', role: 'ADMIN', organizationId: 'org-1' },
+  it('should return user context when permission exists and user has it (ADMIN)', async () => {
+    const request = await createAuthRequest({
+      role: 'ADMIN',
+      method: 'POST',
     });
-    mockHasPermission.mockReturnValue(true);
-    
-    const request = new NextRequest('http://localhost/api/tasks', { method: 'POST' });
+
     const result = await requireCrudPermission(request, 'task', 'create');
-    
+
     expect('user' in result).toBe(true);
     if ('user' in result) {
       expect(result.permission).toBe(Permission.TASK_CREATE);
@@ -172,15 +227,16 @@ describe('CRUD — requireCrudPermission', () => {
   });
 
   it('should allow access when no permission mapping exists (null permission)', async () => {
-    mockRequireVerifiedAuth.mockResolvedValue({
-      user: { id: 'user-1', role: 'VIEWER', organizationId: 'org-1' },
+    // For unknown_resource, getRequiredPermission returns null
+    // The condition `permission && !hasPermission(...)` is false when permission is null
+    // So it returns the user context
+    const request = await createAuthRequest({
+      role: 'VIEWER',
+      method: 'POST',
     });
-    
-    const request = new NextRequest('http://localhost/api/unknown', { method: 'POST' });
+
     const result = await requireCrudPermission(request, 'unknown_resource', 'create');
-    
-    // When permission is null, the condition `permission && !hasPermission(...)` is false
-    // so it returns the user context
+
     expect('user' in result).toBe(true);
     if ('user' in result) {
       expect(result.permission).toBeNull();
@@ -195,17 +251,17 @@ describe('CRUD — requireCrudPermission', () => {
 describe('CRUD — requireMethodPermission', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    spyDbUserFindUnique.mockResolvedValue(null as any);
   });
 
   it('should map POST to create action', async () => {
-    mockRequireVerifiedAuth.mockResolvedValue({
-      user: { id: 'user-1', role: 'ADMIN', organizationId: 'org-1' },
+    const request = await createAuthRequest({
+      role: 'ADMIN',
+      method: 'POST',
     });
-    mockHasPermission.mockReturnValue(true);
-    
-    const request = new NextRequest('http://localhost/api/tasks', { method: 'POST' });
+
     const result = await requireMethodPermission(request, 'task');
-    
+
     expect('user' in result).toBe(true);
     if ('user' in result) {
       expect(result.action).toBe('create');
@@ -213,14 +269,13 @@ describe('CRUD — requireMethodPermission', () => {
   });
 
   it('should map GET to read action', async () => {
-    mockRequireVerifiedAuth.mockResolvedValue({
-      user: { id: 'user-1', role: 'ADMIN', organizationId: 'org-1' },
+    const request = await createAuthRequest({
+      role: 'ADMIN',
+      method: 'GET',
     });
-    mockHasPermission.mockReturnValue(true);
-    
-    const request = new NextRequest('http://localhost/api/tasks', { method: 'GET' });
+
     const result = await requireMethodPermission(request, 'task');
-    
+
     expect('user' in result).toBe(true);
     if ('user' in result) {
       expect(result.action).toBe('read');
@@ -228,14 +283,13 @@ describe('CRUD — requireMethodPermission', () => {
   });
 
   it('should default to read for unknown method', async () => {
-    mockRequireVerifiedAuth.mockResolvedValue({
-      user: { id: 'user-1', role: 'ADMIN', organizationId: 'org-1' },
+    const request = await createAuthRequest({
+      role: 'ADMIN',
+      method: 'OPTIONS',
     });
-    mockHasPermission.mockReturnValue(true);
-    
-    const request = new NextRequest('http://localhost/api/tasks', { method: 'OPTIONS' });
+
     const result = await requireMethodPermission(request, 'task');
-    
+
     expect('user' in result).toBe(true);
     if ('user' in result) {
       expect(result.action).toBe('read');
@@ -243,12 +297,9 @@ describe('CRUD — requireMethodPermission', () => {
   });
 
   it('should return error when auth fails', async () => {
-    const mockError = new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
-    mockRequireVerifiedAuth.mockResolvedValue({ error: mockError });
-    
-    const request = new NextRequest('http://localhost/api/tasks', { method: 'GET' });
+    const request = createMockRequest({ method: 'GET' });
     const result = await requireMethodPermission(request, 'task');
-    
+
     expect('error' in result).toBe(true);
   });
 });
