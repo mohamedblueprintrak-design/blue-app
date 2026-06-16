@@ -34,9 +34,22 @@ export {
 } from './client.repository';
 
 import { db } from '@/lib/db';
+import { PrismaClient } from '@prisma/client';
 import { UserRepository } from './user.repository';
 import { ProjectRepository } from './project.repository';
 import { ClientRepository } from './client.repository';
+
+/**
+ * Cast the extended Prisma client (returned by `$extends`) to `PrismaClient`.
+ *
+ * The extended client is structurally compatible with `PrismaClient` for every
+ * method used by the repository layer ($transaction, model delegates like
+ * `db.user`, `db.project`). It only omits `$on` and `$use`, which repositories
+ * never call. The cast is therefore safe at runtime; it exists solely to
+ * satisfy TypeScript because Prisma's extended-client type is not assignable
+ * to `PrismaClient` directly.
+ */
+const prismaClient = db as unknown as PrismaClient;
 
 // Singleton instances for performance
 let userRepo: UserRepository | null = null;
@@ -48,7 +61,7 @@ let clientRepo: ClientRepository | null = null;
  */
 export function getUserRepository(): UserRepository {
   if (!userRepo) {
-    userRepo = new UserRepository(db);
+    userRepo = new UserRepository(prismaClient);
   }
   return userRepo;
 }
@@ -58,7 +71,7 @@ export function getUserRepository(): UserRepository {
  */
 export function getProjectRepository(): ProjectRepository {
   if (!projectRepo) {
-    projectRepo = new ProjectRepository(db);
+    projectRepo = new ProjectRepository(prismaClient);
   }
   return projectRepo;
 }
@@ -68,7 +81,7 @@ export function getProjectRepository(): ProjectRepository {
  */
 export function getClientRepository(): ClientRepository {
   if (!clientRepo) {
-    clientRepo = new ClientRepository(db);
+    clientRepo = new ClientRepository(prismaClient);
   }
   return clientRepo;
 }

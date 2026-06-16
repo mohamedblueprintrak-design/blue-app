@@ -228,31 +228,49 @@ async function handleRegister(
     let user;
 
     if (data.organizationName) {
-      // Generate a unique slug with collision handling
+      // Generate base slug — collision handling is performed INSIDE the
+      // transaction below to eliminate the TOCTOU race condition.
+      // (Previous implementation pre-checked slug availability outside the
+      // transaction, which left a window for a concurrent request to grab
+      // the same slug between the check and the create.)
       const baseSlug = data.organizationName
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/^-+|-+$/g, '');
-      let slug = baseSlug;
-      let suffix = 1;
 
-      // Check for slug collisions and append suffix counter if needed
-      while (await db.organization.findUnique({ where: { slug } })) {
-        slug = `${baseSlug}-${suffix}`;
-        suffix++;
-      }
-
-      // Wrap org + user creation in a transaction for atomicity,
-      // with retry mechanism for slug race condition (unique constraint violation)
+      // Wrap slug check + org + user creation in a single transaction.
+      // The check + create are now atomic — no TOCTOU window.
+      // Retry on unique-constraint violation (P2002) or internal SLUG_COLLISION
+      // signal by appending an incrementing suffix to the slug.
       const maxSlugAttempts = 5;
       let slugAttempts = 0;
+      let currentSlug = baseSlug;
+      let suffix = 1;
+
       while (slugAttempts < maxSlugAttempts) {
         try {
           const result = await db.$transaction(async (tx) => {
+            // INSIDE TRANSACTION: check slug availability atomically.
+            // If a concurrent transaction has already taken this slug, this
+            // findUnique will return the existing org — we throw a typed
+            // error to retry with a new slug (rather than relying on the
+            // unique-constraint error which would also work but is less explicit).
+            const existing = await tx.organization.findUnique({
+              where: { slug: currentSlug },
+              select: { id: true },
+            });
+            if (existing) {
+              const collisionErr = new Error('SLUG_COLLISION') as Error & {
+                code?: string;
+              };
+              collisionErr.code = 'SLUG_COLLISION';
+              throw collisionErr;
+            }
+
             const org = await tx.organization.create({
               data: {
                 name: data.organizationName!,
-                slug,
+                slug: currentSlug,
                 currency: 'AED',
               },
             });
@@ -277,11 +295,21 @@ async function handleRegister(
           user = result.user;
           break;
         } catch (error: unknown) {
-          slugAttempts++;
-          if (slugAttempts >= maxSlugAttempts) throw error;
-          // Unique constraint violation - try next slug
-          suffix++;
-          slug = `${baseSlug}-${suffix}`;
+          const err = error as Error & { code?: string };
+          // Retry on our explicit SLUG_COLLISION signal OR Prisma's
+          // unique-constraint violation (P2002) — both indicate the slug
+          // was taken between the check and the create.
+          if (err?.code === 'SLUG_COLLISION' || err?.code === 'P2002') {
+            slugAttempts++;
+            if (slugAttempts >= maxSlugAttempts) {
+              throw error;
+            }
+            currentSlug = `${baseSlug}-${suffix}`;
+            suffix++;
+            continue;
+          }
+          // Any other error (DB connection, validation, etc.) — rethrow
+          throw error;
         }
       }
     } else {

@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Sans_Arabic, Plus_Jakarta_Sans } from "next/font/google";
 import { ThemeProvider } from "next-themes";
+import { headers } from "next/headers";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { CsrfProvider } from "@/components/providers/csrf-provider";
@@ -56,6 +57,15 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const messages = await getMessages();
+  // SECURITY: Read the per-request CSP nonce forwarded by the proxy middleware.
+  // The nonce is generated in src/auth-proxy.ts and attached to the request
+  // headers so server components can embed it in <script nonce="..."> tags.
+  // Without this, the inline language-detection script below would be blocked
+  // by the browser's CSP enforcement (script-src 'self' 'nonce-<random>').
+  // Falls back to an empty nonce for static/SSG-rendered pages where middleware
+  // has not run — in that case the script tag is omitted to avoid a CSP violation.
+  const headersList = await headers();
+  const nonce = headersList.get("x-nonce") ?? "";
   return (
     <html lang="ar" dir="rtl" suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
@@ -64,19 +74,21 @@ export default async function RootLayout({
         {/* Language detection script — prevents FOUC (flash of unstyled content).
             SECURITY: This inline script contains only static code that reads from
             localStorage/cookies and sets document direction. No user input is interpolated.
-            The CSP nonce is injected by the proxy middleware (auth-proxy.ts) at runtime.
-            If CSP enforcement blocks this script, the user will see a brief FOUC but
-            functionality is not affected — the React app will re-apply the correct
-            direction on mount.
-            NOTE: The nonce attribute is set dynamically by the proxy; this script tag
-            is safe because it uses zero user-supplied values. */}
-        <script
-          id="lang-script"
-          suppressHydrationWarning
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{var m=document.cookie.match(/(^| )blueprint-lang=([^;]+)/);var l=m?m[2]:(localStorage.getItem("blueprint-lang")||"ar");document.documentElement.lang=l;document.documentElement.dir=l==="ar"?"rtl":"ltr"}catch(e){}})()`,
-          }}
-        />
+            The nonce attribute is required by the CSP `script-src 'nonce-<random>'` directive
+            enforced by the proxy middleware. The nonce is generated per-request and is NOT
+            exposed in any response header — only embedded server-side in this tag — so XSS
+            payloads cannot read it. If the nonce is missing (e.g., during SSG), the script
+            is omitted to avoid a CSP violation; the React app will re-apply direction on mount. */}
+        {nonce ? (
+          <script
+            id="lang-script"
+            nonce={nonce}
+            suppressHydrationWarning
+            dangerouslySetInnerHTML={{
+              __html: `(function(){try{var m=document.cookie.match(/(^| )blueprint-lang=([^;]+)/);var l=m?m[2]:(localStorage.getItem("blueprint-lang")||"ar");document.documentElement.lang=l;document.documentElement.dir=l==="ar"?"rtl":"ltr"}catch(e){}})()`,
+            }}
+          />
+        ) : null}
       </head>
       <body
         className={`${ibmPlexArabic.variable} ${plusJakarta.variable} antialiased bg-background text-foreground font-[family-name:var(--font-ibm-plex-arabic)]`}

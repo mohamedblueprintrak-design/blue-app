@@ -169,7 +169,11 @@ export async function PUT(request: NextRequest) {
 
     const updatedRecord = await db.municipalityCorrespondence.update({
       where: { id },
-      data: updateData,
+      // Cast required: Prisma's strict `Exact<>` type for `data` rejects
+      // `Record<string, unknown>` even though the fields are validated above.
+      // The fields are individually validated and only known columns are set,
+      // so the cast is safe at runtime.
+      data: updateData as Parameters<typeof db.municipalityCorrespondence.update>[0]['data'],
     });
 
     return NextResponse.json({ success: true, data: updatedRecord });

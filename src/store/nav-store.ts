@@ -109,12 +109,13 @@ const PAGE_ROUTE_MAP: Record<string, string> = {
 
 /**
  * Check if file-based routing should be used.
- * Controlled by environment variable for gradual rollout.
+ * Controlled by environment variable. File-based routing is now the DEFAULT
+ * (set NEXT_PUBLIC_FILE_ROUTING=false to opt back into legacy hash-based routing).
  * NOTE: Not a React hook — reads a static env var, no state or effects.
  */
 function isFileBasedRoutingEnabled(): boolean {
   if (typeof window === "undefined") return false;
-  return process.env.NEXT_PUBLIC_FILE_ROUTING === "true";
+  return process.env.NEXT_PUBLIC_FILE_ROUTING !== "false";
 }
 
 function getPageFromUrl(): string {

@@ -198,6 +198,11 @@ export async function proxy(request: NextRequest) {
           requestHeaders.set('x-organization-id', payload.organizationId as string);
         }
         requestHeaders.set('x-user-email-verified', String(payload.emailVerified ?? true));
+        // SECURITY: Forward the per-request CSP nonce so server components can
+        // embed it in <script nonce="..."> tags. The nonce is also used to build
+        // the CSP header in addSecurityHeaders(); without this, inline scripts
+        // in server components would be blocked by the browser's CSP enforcement.
+        requestHeaders.set('x-nonce', nonce);
         const response = NextResponse.next({ request: { headers: requestHeaders } });
         return addSecurityHeaders(response, nonce, rlInfo);
       } catch {
@@ -286,6 +291,11 @@ export async function proxy(request: NextRequest) {
       requestHeaders.set('x-organization-id', organizationId);
     }
     requestHeaders.set('x-user-email-verified', String(payload.emailVerified ?? true));
+    // SECURITY: Forward the per-request CSP nonce so server components can
+    // embed it in <script nonce="..."> tags. The nonce is also used to build
+    // the CSP header in addSecurityHeaders(); without this, inline scripts
+    // in server components would be blocked by the browser's CSP enforcement.
+    requestHeaders.set('x-nonce', nonce);
 
     // SECURITY: Restrict unverified users to email verification flows only
     // If emailVerified is explicitly false, only allow access to verification-related routes
@@ -331,7 +341,15 @@ export async function proxy(request: NextRequest) {
         path: '/',
         httpOnly: false,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
+        // SECURITY: SameSite=Strict prevents the CSRF cookie from being sent on
+        // cross-site requests (including top-level navigations from external sites).
+        // This is safe for the CSRF token because:
+        //   1. It is only read by same-origin JS to embed in X-CSRF-Token header
+        //   2. State-changing requests (POST/PUT/PATCH/DELETE) only come from the app itself
+        //   3. External top-level navigations are GETs, which are CSRF-exempt
+        // The auth cookies (blue_token / blue_refresh_token) remain SameSite=Lax
+        // to support OAuth callback flows (Google / Microsoft login).
+        sameSite: 'strict',
         maxAge: 60 * 60 * 24,
       });
     }
