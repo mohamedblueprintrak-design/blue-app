@@ -7,7 +7,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { LayoutDashboard, UserPlus, FolderKanban, HardHat, TrendingUp, TrendingDown, BarChart3, UsersRound, Sparkles, BookMarked, Calendar, Search, Shield, ChevronLeft, ChevronRight, Zap } from 'lucide-react'
+import { LayoutDashboard, UserPlus, FolderKanban, HardHat, TrendingUp, TrendingDown, BarChart3, UsersRound, Sparkles, BookMarked, Calendar, Search, Shield, ChevronLeft, ChevronRight, Zap, FileText, Receipt, CreditCard, FileSignature, Gavel, Wallet, FileCheck, MapPin, BookOpen, HelpCircle, AlertTriangle, Send, Repeat, FileBarChart, Building2, ClipboardList, Package, ShoppingCart, Wrench, Table, Eye, GitBranch, Bell, Settings as SettingsIcon, User, Clock, CalendarOff, Timer, Scale, Cog, RefreshCw, ShieldCheck, Users, Layers } from 'lucide-react'
 
 import { useNavStore } from '@/store/nav-store';
 import { useLanguage } from '@/hooks/use-lang';
@@ -23,33 +23,91 @@ interface CommandItem {
   action?: () => void;
 }
 
-// Navigation commands built from Blue's actual pages (permissions.ts)
+// Navigation commands built from Blue's actual pages (permissions.ts + nav-store PAGE_ROUTE_MAP).
+// P0-10 FIX: Expanded from 14 to 60+ commands so users can reach any page via Ctrl+K.
+// Previously only 13% of pages were reachable via the command palette.
 const navCommands: CommandItem[] = [
   // ───── Main ─────
   { id: 'dashboard', label: 'لوحة التحكم', labelEn: 'Dashboard', icon: LayoutDashboard, category: 'الرئيسية', categoryEn: 'Main' },
+  { id: 'notifications', label: 'الإشعارات', labelEn: 'Notifications', icon: Bell, category: 'الرئيسية', categoryEn: 'Main' },
+  { id: 'search', label: 'البحث', labelEn: 'Search', icon: Search, category: 'الرئيسية', categoryEn: 'Main' },
+  { id: 'calendar', label: 'التقويم', labelEn: 'Calendar', icon: Calendar, category: 'الرئيسية', categoryEn: 'Main' },
+  { id: 'activity-log', label: 'سجل النشاط', labelEn: 'Activity Log', icon: ClipboardList, category: 'الرئيسية', categoryEn: 'Main' },
 
   // ───── Clients & Projects ─────
   { id: 'clients', label: 'العملاء', labelEn: 'Clients', icon: UserPlus, category: 'العملاء والمشاريع', categoryEn: 'Clients & Projects' },
   { id: 'projects', label: 'المشاريع', labelEn: 'Projects', icon: FolderKanban, category: 'العملاء والمشاريع', categoryEn: 'Clients & Projects' },
   { id: 'contractors', label: 'المقاولون', labelEn: 'Contractors', icon: HardHat, category: 'العملاء والمشاريع', categoryEn: 'Clients & Projects' },
+  { id: 'project-templates', label: 'قوالب المشاريع', labelEn: 'Project Templates', icon: Layers, category: 'العملاء والمشاريع', categoryEn: 'Clients & Projects' },
+  { id: 'gantt', label: 'مخطط جانت', labelEn: 'Gantt Chart', icon: BarChart3, category: 'العملاء والمشاريع', categoryEn: 'Clients & Projects' },
+  { id: 'proposals', label: 'العروض', labelEn: 'Proposals', icon: FileText, category: 'العملاء والمشاريع', categoryEn: 'Clients & Projects' },
+  { id: 'bids', label: 'العطاءات', labelEn: 'Bids', icon: Gavel, category: 'العملاء والمشاريع', categoryEn: 'Clients & Projects' },
+  { id: 'tenders', label: 'المناقصات', labelEn: 'Tenders', icon: FileSignature, category: 'العملاء والمشاريع', categoryEn: 'Clients & Projects' },
 
   // ───── Finance ─────
+  { id: 'invoices', label: 'الفواتير', labelEn: 'Invoices', icon: Receipt, category: 'المالية', categoryEn: 'Finance' },
+  { id: 'recurring-invoices', label: 'الفواتير المتكررة', labelEn: 'Recurring Invoices', icon: Repeat, category: 'المالية', categoryEn: 'Finance' },
+  { id: 'payments', label: 'المدفوعات', labelEn: 'Payments', icon: CreditCard, category: 'المالية', categoryEn: 'Finance' },
+  { id: 'billing', label: 'الفوترة', labelEn: 'Billing', icon: Wallet, category: 'المالية', categoryEn: 'Finance' },
+  { id: 'budgets', label: 'الميزانيات', labelEn: 'Budgets', icon: Wallet, category: 'المالية', categoryEn: 'Finance' },
+  { id: 'contracts', label: 'العقود', labelEn: 'Contracts', icon: FileSignature, category: 'المالية', categoryEn: 'Finance' },
+  { id: 'commissions', label: 'العمولات', labelEn: 'Commissions', icon: Scale, category: 'المالية', categoryEn: 'Finance' },
   { id: 'finance-revenue', label: 'الإيرادات', labelEn: 'Revenue', icon: TrendingUp, category: 'المالية', categoryEn: 'Finance' },
   { id: 'finance-expenses', label: 'المصروفات', labelEn: 'Expenses', icon: TrendingDown, category: 'المالية', categoryEn: 'Finance' },
   { id: 'finance-reports', label: 'التقارير المالية', labelEn: 'Financial Reports', icon: BarChart3, category: 'المالية', categoryEn: 'Finance' },
+  { id: 'finance-retainage', label: 'الاحتجاز', labelEn: 'Retainage', icon: ShieldCheck, category: 'المالية', categoryEn: 'Finance' },
+  { id: 'finance-guarantees', label: 'خطابات الضمان', labelEn: 'Guarantees', icon: FileCheck, category: 'المالية', categoryEn: 'Finance' },
+  { id: 'finance-progress-claims', label: 'مطالبات التقدم', labelEn: 'Progress Claims', icon: TrendingUp, category: 'المالية', categoryEn: 'Finance' },
+  { id: 'progress-claims', label: 'المطالبات', labelEn: 'Progress Claims', icon: TrendingUp, category: 'المالية', categoryEn: 'Finance' },
+  { id: 'guarantee-letters', label: 'خطابات الضمان', labelEn: 'Guarantee Letters', icon: FileCheck, category: 'المالية', categoryEn: 'Finance' },
 
-  // ───── Employees ─────
+  // ───── HR ─────
   { id: 'employees', label: 'الموظفين', labelEn: 'Employees', icon: UsersRound, category: 'الموارد البشرية', categoryEn: 'Human Resources' },
+  { id: 'attendance', label: 'الحضور والانصراف', labelEn: 'Attendance', icon: Clock, category: 'الموارد البشرية', categoryEn: 'Human Resources' },
+  { id: 'leave', label: 'الإجازات', labelEn: 'Leave', icon: CalendarOff, category: 'الموارد البشرية', categoryEn: 'Human Resources' },
+  { id: 'timesheets', label: 'ساعات العمل', labelEn: 'Timesheets', icon: Timer, category: 'الموارد البشرية', categoryEn: 'Human Resources' },
+  { id: 'workload', label: 'حجم العمل', labelEn: 'Workload', icon: Scale, category: 'الموارد البشرية', categoryEn: 'Human Resources' },
+  { id: 'team-members', label: 'أعضاء الفريق', labelEn: 'Team Members', icon: Users, category: 'الموارد البشرية', categoryEn: 'Human Resources' },
+  { id: 'approvals', label: 'الاعتمادات', labelEn: 'Approvals', icon: FileCheck, category: 'الموارد البشرية', categoryEn: 'Human Resources' },
+
+  // ───── Procurement ─────
+  { id: 'suppliers', label: 'الموردون', labelEn: 'Suppliers', icon: Building2, category: 'المشتريات', categoryEn: 'Procurement' },
+  { id: 'inventory', label: 'المخزون', labelEn: 'Inventory', icon: Package, category: 'المشتريات', categoryEn: 'Procurement' },
+  { id: 'purchase-orders', label: 'أوامر الشراء', labelEn: 'Purchase Orders', icon: ShoppingCart, category: 'المشتريات', categoryEn: 'Procurement' },
+  { id: 'equipment', label: 'المعدات', labelEn: 'Equipment', icon: Wrench, category: 'المشتريات', categoryEn: 'Procurement' },
+
+  // ───── Site & Construction ─────
+  { id: 'tasks', label: 'المهام', labelEn: 'Tasks', icon: ClipboardList, category: 'الموقع والإنشاء', categoryEn: 'Site & Construction' },
+  { id: 'site-visits', label: 'زيارات الموقع', labelEn: 'Site Visits', icon: MapPin, category: 'الموقع والإنشاء', categoryEn: 'Site & Construction' },
+  { id: 'site-diary', label: 'يوميات الموقع', labelEn: 'Site Diary', icon: BookOpen, category: 'الموقع والإنشاء', categoryEn: 'Site & Construction' },
+  { id: 'inspections', label: 'التفتيش', labelEn: 'Inspections', icon: Eye, category: 'الموقع والإنشاء', categoryEn: 'Site & Construction' },
+  { id: 'defects', label: 'العيوب', labelEn: 'Defects', icon: AlertTriangle, category: 'الموقع والإنشاء', categoryEn: 'Site & Construction' },
+  { id: 'rfi', label: 'طلبات المعلومات', labelEn: 'RFI', icon: HelpCircle, category: 'الموقع والإنشاء', categoryEn: 'Site & Construction' },
+  { id: 'submittals', label: 'المُرتجعات', labelEn: 'Submittals', icon: Send, category: 'الموقع والإنشاء', categoryEn: 'Site & Construction' },
+  { id: 'transmittals', label: 'كشوف الإرسال', labelEn: 'Transmittals', icon: FileText, category: 'الموقع والإنشاء', categoryEn: 'Site & Construction' },
+  { id: 'change-orders', label: 'أوامر التغيير', labelEn: 'Change Orders', icon: GitBranch, category: 'الموقع والإنشاء', categoryEn: 'Site & Construction' },
+  { id: 'meetings', label: 'الاجتماعات', labelEn: 'Meetings', icon: Users, category: 'الموقع والإنشاء', categoryEn: 'Site & Construction' },
+  { id: 'risks', label: 'المخاطر', labelEn: 'Risks', icon: AlertTriangle, category: 'الموقع والإنشاء', categoryEn: 'Site & Construction' },
+  { id: 'supervision', label: 'الإشراف', labelEn: 'Supervision', icon: Eye, category: 'الموقع والإنشاء', categoryEn: 'Site & Construction' },
+  { id: 'municipality-correspondence', label: 'المراسلات البلدية', labelEn: 'Municipality', icon: Building2, category: 'الموقع والإنشاء', categoryEn: 'Site & Construction' },
+  { id: 'design-management', label: 'إدارة التصميم', labelEn: 'Design Management', icon: Layers, category: 'الموقع والإنشاء', categoryEn: 'Site & Construction' },
+
+  // ───── Reports ─────
+  { id: 'reports', label: 'التقارير', labelEn: 'Reports', icon: BarChart3, category: 'التقارير', categoryEn: 'Reports' },
+  { id: 'report-builder', label: 'منشئ التقارير', labelEn: 'Report Builder', icon: FileBarChart, category: 'التقارير', categoryEn: 'Reports' },
+  { id: 'boq', label: 'جدول الكميات', labelEn: 'BOQ', icon: Table, category: 'التقارير', categoryEn: 'Reports' },
 
   // ───── Help & AI ─────
   { id: 'ai-assistant', label: 'المساعد الذكي', labelEn: 'AI Assistant', icon: Sparkles, category: 'المساعدة', categoryEn: 'Help & AI' },
   { id: 'knowledge', label: 'قاعدة المعرفة', labelEn: 'Knowledge Base', icon: BookMarked, category: 'المساعدة', categoryEn: 'Help & AI' },
-  { id: 'calendar', label: 'التقويم', labelEn: 'Calendar', icon: Calendar, category: 'المساعدة', categoryEn: 'Help & AI' },
-  { id: 'search', label: 'البحث', labelEn: 'Search', icon: Search, category: 'المساعدة', categoryEn: 'Help & AI' },
+  { id: 'help', label: 'المساعدة', labelEn: 'Help', icon: HelpCircle, category: 'المساعدة', categoryEn: 'Help & AI' },
 
   // ───── System ─────
   { id: 'features-hub', label: 'المميزات المتقدمة', labelEn: 'Advanced Features', icon: Zap, category: 'النظام', categoryEn: 'System' },
   { id: 'admin', label: 'إدارة النظام', labelEn: 'System Admin', icon: Shield, category: 'النظام', categoryEn: 'System' },
+  { id: 'settings', label: 'الإعدادات', labelEn: 'Settings', icon: SettingsIcon, category: 'النظام', categoryEn: 'System' },
+  { id: 'profile', label: 'الملف الشخصي', labelEn: 'Profile', icon: User, category: 'النظام', categoryEn: 'System' },
+  { id: 'automations', label: 'الأتمتة', labelEn: 'Automations', icon: Cog, category: 'النظام', categoryEn: 'System' },
 ];
 
 interface CommandPaletteProps {

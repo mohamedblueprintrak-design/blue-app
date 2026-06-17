@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
 import { ApiSuccessResponse, ApiErrorResponse } from '../types';
 import { log } from '@/lib/logger';
+// P0-8 FIX: Wire up the Sentry monitoring helper that was previously dead code.
+// `captureApiError` is null-safe (returns early if @sentry/nextjs is not installed
+// or no DSN is configured), so this import has zero overhead in dev/no-Sentry envs.
+import { captureApiError } from '@/lib/monitoring/sentry';
 
 /**
  * CORS headers applied to every API response.
@@ -302,7 +306,16 @@ export function logApiError(context: string, error: unknown): void {
  *     return handleApiError('Error doing X', error);
  *   }
  */
-export function handleApiError(message: string, error: unknown, code = 'SERVER_ERROR', status = 500, requestId?: string): NextResponse<ApiErrorResponse> {
+export function handleApiError(message: string, error: unknown, code = 'SERVER_ERROR', status = 500, requestId?: string, request?: Request): NextResponse<ApiErrorResponse> {
+  const errObj = error instanceof Error ? error : new Error(String(error));
   log.error(message, { error: error instanceof Error ? { message: error.message, stack: error.stack } : { error } });
+  // P0-8 FIX: Forward the error to Sentry so the `beforeSend` filter (which redacts
+  // passwords, tokens, API keys, etc.) actually runs. Previously the entire monitoring
+  // layer was dead code — errors were only logged to Winston files and never reached Sentry.
+  captureApiError(errObj, {
+    method: request?.method ?? 'UNKNOWN',
+    path: request?.url ? new URL(request.url).pathname : 'UNKNOWN',
+    params: { code, status, requestId, message },
+  });
   return errorResponse(message, code, status, requestId);
 }
