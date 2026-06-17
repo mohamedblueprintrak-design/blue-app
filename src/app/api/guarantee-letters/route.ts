@@ -7,6 +7,7 @@ import { log } from '@/lib/logger';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 import { z } from 'zod';
 import { getCompanyCurrency } from '@/lib/currency-server';
+import { parsePaginationParams, buildPaginationMeta, calculateSkip } from '@/app/api/utils/pagination';
 
 // Zod schema for guarantee letter creation
 const guaranteeLetterCreateSchema = z.object({
@@ -45,17 +46,30 @@ export async function GET(request: NextRequest) {
     if (type) where.type = type;
     if (status) where.status = status;
 
-    const guaranteeLetters = await db.guaranteeLetter.findMany({
-      where: Object.keys(where).length > 0 ? where : undefined,
-      include: {
-        project: {
-          select: { id: true, name: true, nameEn: true, number: true },
-        },
-      },
-      orderBy: { createdAt: "desc" },
-    });
+    const { page, limit } = parsePaginationParams(searchParams);
+    const skip = calculateSkip(page, limit);
 
-    return NextResponse.json(guaranteeLetters);
+    const [guaranteeLetters, total] = await Promise.all([
+      db.guaranteeLetter.findMany({
+        where: Object.keys(where).length > 0 ? where : undefined,
+        include: {
+          project: {
+            select: { id: true, name: true, nameEn: true, number: true },
+          },
+        },
+        orderBy: { createdAt: "desc" },
+        take: limit,
+        skip,
+      }),
+      db.guaranteeLetter.count({
+        where: Object.keys(where).length > 0 ? where : undefined,
+      }),
+    ]);
+
+    return NextResponse.json({
+      data: guaranteeLetters,
+      pagination: buildPaginationMeta(page, limit, total),
+    });
   } catch (error) {
     log.error("Error fetching guarantee letters:", error);
     return NextResponse.json(

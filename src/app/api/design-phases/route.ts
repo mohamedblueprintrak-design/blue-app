@@ -5,6 +5,7 @@ import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
 import { validateRequest, designPhaseCreateSchema } from '@/lib/api-validation';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
+import { parsePaginationParams, buildPaginationMeta, calculateSkip } from '@/app/api/utils/pagination';
 
 export async function GET(request: NextRequest) {
   const { allowed: _allowed, result: rlResult } = await withRateLimit(request, 'api');
@@ -24,20 +25,31 @@ export async function GET(request: NextRequest) {
     const where: Record<string, unknown> = { ...orgWhere };
     if (projectId) where.projectId = projectId;
 
-    const phases = await db.designPhase.findMany({
-      where,
-      include: {
-        project: {
-          select: { id: true, name: true, nameEn: true, number: true },
-        },
-        drawings: {
-          select: { id: true, status: true, clashDetected: true },
-        },
-      },
-      orderBy: { createdAt: "asc" },
-    });
+    const { page, limit } = parsePaginationParams(searchParams);
+    const skip = calculateSkip(page, limit);
 
-    return NextResponse.json(phases);
+    const [phases, total] = await Promise.all([
+      db.designPhase.findMany({
+        where,
+        include: {
+          project: {
+            select: { id: true, name: true, nameEn: true, number: true },
+          },
+          drawings: {
+            select: { id: true, status: true, clashDetected: true },
+          },
+        },
+        orderBy: { createdAt: "asc" },
+        take: limit,
+        skip,
+      }),
+      db.designPhase.count({ where }),
+    ]);
+
+    return NextResponse.json({
+      data: phases,
+      pagination: buildPaginationMeta(page, limit, total),
+    });
   } catch (error) {
     log.error("Error fetching design phases:", error);
     return NextResponse.json({ error: "Failed to fetch design phases" }, { status: 500 });

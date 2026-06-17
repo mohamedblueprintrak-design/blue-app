@@ -7,6 +7,7 @@ import { sanitizeObject } from '@/lib/security/sanitize';
 import { getStorageProvider, generateStorageKey } from '@/lib/storage';
 import { z } from 'zod';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
+import { parsePaginationParams, buildPaginationMeta, calculateSkip } from '@/app/api/utils/pagination';
 
 /**
  * @openapi
@@ -137,57 +138,33 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const projectId = searchParams.get("projectId");
     const category = searchParams.get("category");
-    const pageParam = searchParams.get("page");
-    const limitParam = searchParams.get("limit");
+
+    const { page, limit } = parsePaginationParams(searchParams);
+    const skip = calculateSkip(page, limit);
 
     const where: Record<string, unknown> = { deletedAt: null, ...orgFilter(ctx) };
     if (projectId) where.projectId = projectId;
     if (category && category !== "all") where.category = category;
 
-    // Pagination logic
-    if (pageParam || limitParam) {
-      const page = parseInt(pageParam || "1", 10) || 1;
-      const limit = parseInt(limitParam || "50", 10) || 50;
-      const skip = (page - 1) * limit;
+    const [documents, total] = await Promise.all([
+      db.document.findMany({
+        where,
+        take: limit,
+        skip,
+        include: {
+          project: { select: { id: true, name: true, nameEn: true, number: true } },
+          contract: { select: { id: true, number: true, title: true } },
+          uploader: { select: { id: true, name: true, avatar: true } },
+        },
+        orderBy: { createdAt: "desc" },
+      }),
+      db.document.count({ where }),
+    ]);
 
-      const [total, documents] = await Promise.all([
-        db.document.count({ where }),
-        db.document.findMany({
-          where,
-          take: limit,
-          skip,
-          include: {
-            project: { select: { id: true, name: true, nameEn: true, number: true } },
-            contract: { select: { id: true, number: true, title: true } },
-            uploader: { select: { id: true, name: true, avatar: true } },
-          },
-          orderBy: { createdAt: "desc" },
-        })
-      ]);
-
-      return NextResponse.json({
-        data: documents,
-        meta: {
-          total,
-          page,
-          limit,
-          totalPages: Math.ceil(total / limit)
-        }
-      });
-    }
-
-    // Default backward compatible response (unpaginated)
-    const documents = await db.document.findMany({
-      where,
-      include: {
-        project: { select: { id: true, name: true, nameEn: true, number: true } },
-        contract: { select: { id: true, number: true, title: true } },
-        uploader: { select: { id: true, name: true, avatar: true } },
-      },
-      orderBy: { createdAt: "desc" },
+    return NextResponse.json({
+      data: documents,
+      pagination: buildPaginationMeta(page, limit, total),
     });
-
-    return NextResponse.json(documents);
   } catch (error) {
     log.error("Error fetching documents:", error);
     return NextResponse.json({ error: "Failed to fetch documents" }, { status: 500 });

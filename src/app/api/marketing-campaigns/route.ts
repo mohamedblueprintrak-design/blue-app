@@ -4,6 +4,7 @@ import { requireVerifiedPermission, orgFilter } from '@/app/api/utils/auth';
 import { log } from '@/lib/logger';
 import { Permission } from '@/lib/auth/types';
 import { validateRequest, marketingCampaignCreateSchema } from '@/lib/api-validation';
+import { parsePaginationParams, buildPaginationMeta, calculateSkip } from '@/app/api/utils/pagination';
 
 export async function GET(request: NextRequest) {
   try {
@@ -17,12 +18,25 @@ export async function GET(request: NextRequest) {
     const where: Record<string, unknown> = { ...orgFilter(ctx) };
     if (status) where.status = status;
 
-    const campaigns = await db.marketingCampaign.findMany({
-      where: Object.keys(where).length > 0 ? where : undefined,
-      orderBy: { createdAt: "desc" },
-    });
+    const { page, limit } = parsePaginationParams(searchParams);
+    const skip = calculateSkip(page, limit);
 
-    return NextResponse.json(campaigns);
+    const [campaigns, total] = await Promise.all([
+      db.marketingCampaign.findMany({
+        where: Object.keys(where).length > 0 ? where : undefined,
+        orderBy: { createdAt: "desc" },
+        take: limit,
+        skip,
+      }),
+      db.marketingCampaign.count({
+        where: Object.keys(where).length > 0 ? where : undefined,
+      }),
+    ]);
+
+    return NextResponse.json({
+      data: campaigns,
+      pagination: buildPaginationMeta(page, limit, total),
+    });
   } catch (error) {
     log.error("Error fetching marketing campaigns:", error);
     return NextResponse.json({ error: "Failed to fetch marketing campaigns" }, { status: 500 });

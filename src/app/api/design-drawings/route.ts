@@ -5,6 +5,7 @@ import { requireVerifiedPermission, orgFilter, orgCreate } from '@/app/api/utils
 import { Permission } from '@/lib/auth/types';
 import { z } from 'zod';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
+import { parsePaginationParams, buildPaginationMeta, calculateSkip } from '@/app/api/utils/pagination';
 
 // Zod schema for design drawing creation
 const designDrawingCreateSchema = z.object({
@@ -33,23 +34,34 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const designPhaseId = searchParams.get("designPhaseId");
 
+    const { page, limit } = parsePaginationParams(searchParams);
+    const skip = calculateSkip(page, limit);
+
     const where: Record<string, unknown> = { ...orgFilter(user) };
     if (designPhaseId) where.designPhaseId = designPhaseId;
 
-    const drawings = await db.designDrawing.findMany({
-      where,
-      include: {
-        designPhase: {
-          select: { id: true, phase: true, phaseNameAr: true, phaseNameEn: true },
+    const [drawings, total] = await Promise.all([
+      db.designDrawing.findMany({
+        where,
+        take: limit,
+        skip,
+        include: {
+          designPhase: {
+            select: { id: true, phase: true, phaseNameAr: true, phaseNameEn: true },
+          },
+          revisions: {
+            orderBy: { createdAt: "desc" },
+          },
         },
-        revisions: {
-          orderBy: { createdAt: "desc" },
-        },
-      },
-      orderBy: { createdAt: "desc" },
-    });
+        orderBy: { createdAt: "desc" },
+      }),
+      db.designDrawing.count({ where }),
+    ]);
 
-    return NextResponse.json(drawings);
+    return NextResponse.json({
+      data: drawings,
+      pagination: buildPaginationMeta(page, limit, total),
+    });
   } catch (error) {
     log.error("Error fetching design drawings:", error);
     return NextResponse.json({ error: "Failed to fetch design drawings" }, { status: 500 });
