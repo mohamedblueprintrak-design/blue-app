@@ -217,62 +217,135 @@ async function handleRegister(
     // Hash password
     const hashedPassword = await hash(data.password, 12);
 
-    // Create organization if name provided
+    // Determine role - SECURITY FIX: Organization creators get MANAGER role (not ADMIN)
+    // Regular registration always gets VIEWER role (no privilege escalation)
+    const role = data.organizationName
+      ? UserRoleValues.MANAGER
+      : UserRoleValues.VIEWER;
+
+    // Create organization and user atomically in a transaction
     let organizationId: string | null = null;
+    let user;
+
     if (data.organizationName) {
-      // Generate a unique slug with collision handling
+      // Generate base slug — collision handling is performed INSIDE the
+      // transaction below to eliminate the TOCTOU race condition.
+      // (Previous implementation pre-checked slug availability outside the
+      // transaction, which left a window for a concurrent request to grab
+      // the same slug between the check and the create.)
       const baseSlug = data.organizationName
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/^-+|-+$/g, '');
-      let slug = baseSlug;
+
+      // Wrap slug check + org + user creation in a single transaction.
+      // The check + create are now atomic — no TOCTOU window.
+      // Retry on unique-constraint violation (P2002) or internal SLUG_COLLISION
+      // signal by appending an incrementing suffix to the slug.
+      const maxSlugAttempts = 5;
+      let slugAttempts = 0;
+      let currentSlug = baseSlug;
       let suffix = 1;
 
-      // Check for slug collisions and append suffix counter if needed
-      while (await db.organization.findUnique({ where: { slug } })) {
-        slug = `${baseSlug}-${suffix}`;
-        suffix++;
-      }
+      while (slugAttempts < maxSlugAttempts) {
+        try {
+          const result = await db.$transaction(async (tx) => {
+            // INSIDE TRANSACTION: check slug availability atomically.
+            // If a concurrent transaction has already taken this slug, this
+            // findUnique will return the existing org — we throw a typed
+            // error to retry with a new slug (rather than relying on the
+            // unique-constraint error which would also work but is less explicit).
+            const existing = await tx.organization.findUnique({
+              where: { slug: currentSlug },
+              select: { id: true },
+            });
+            if (existing) {
+              const collisionErr = new Error('SLUG_COLLISION') as Error & {
+                code?: string;
+              };
+              collisionErr.code = 'SLUG_COLLISION';
+              throw collisionErr;
+            }
 
-      const org = await db.organization.create({
+            const org = await tx.organization.create({
+              data: {
+                name: data.organizationName!,
+                slug: currentSlug,
+                currency: 'AED',
+              },
+            });
+            const createdUser = await tx.user.create({
+              data: {
+                email: data.email.toLowerCase(),
+                password: hashedPassword,
+                name: userName,
+                role: role as UserRole,
+                department: data.department || '',
+                organizationId: org.id,
+              },
+              include: {
+                organization: {
+                  select: { id: true, name: true },
+                },
+              },
+            });
+            return { org, user: createdUser };
+          });
+          organizationId = result.org.id;
+          user = result.user;
+          break;
+        } catch (error: unknown) {
+          const err = error as Error & { code?: string };
+          // Retry on our explicit SLUG_COLLISION signal OR Prisma's
+          // unique-constraint violation (P2002) — both indicate the slug
+          // was taken between the check and the create.
+          if (err?.code === 'SLUG_COLLISION' || err?.code === 'P2002') {
+            slugAttempts++;
+            if (slugAttempts >= maxSlugAttempts) {
+              throw error;
+            }
+            currentSlug = `${baseSlug}-${suffix}`;
+            suffix++;
+            continue;
+          }
+          // Any other error (DB connection, validation, etc.) — rethrow
+          throw error;
+        }
+      }
+    } else {
+      // SECURITY FIX: Do NOT auto-assign user to the first organization in the DB.
+      // Previously: `db.organization.findFirst()` (no WHERE clause) would pick an
+      // arbitrary org from the entire tenant table and assign the new user to it —
+      // leaking one tenant's org to a completely unrelated registrant.
+      //
+      // Correct behavior: create the user without an organization.
+      // They must receive an invitation to join an org (sent by an existing admin).
+      // Their role defaults to VIEWER and orgId is null until they accept an invite.
+      user = await db.user.create({
         data: {
-          name: data.organizationName,
-          slug,
-          currency: 'AED',
+          email: data.email.toLowerCase(),
+          password: hashedPassword,
+          name: userName,
+          role: UserRoleValues.VIEWER as UserRole,
+          department: data.department || '',
+          organizationId: undefined, // Will be stored as NULL in DB — user has no org until invited
+        },
+        include: {
+          organization: {
+            select: { id: true, name: true },
+          },
         },
       });
-      organizationId = org.id;
+      organizationId = null;
     }
 
-    if (!organizationId) {
-      const defaultOrg = await db.organization.findFirst();
-      organizationId = defaultOrg?.id || "";
+    // Safety check — user must exist at this point
+    if (!user) {
+      return errorResponse('فشل في إنشاء الحساب', 'REGISTRATION_FAILED', 500);
     }
-
-    // Determine role - SECURITY FIX: Only admin-created orgs get admin role
-    // Regular registration always gets VIEWER role (no privilege escalation)
-    const role = data.organizationName
-      ? UserRoleValues.ADMIN
-      : UserRoleValues.VIEWER;
-
-    // Create user
-    const user = await db.user.create({
-      data: {
-        email: data.email.toLowerCase(),
-        password: hashedPassword,
-        name: userName,
-        role: role as UserRole,
-        department: data.department || '',
-        organizationId,
-      },
-      include: {
-        organization: {
-          select: { id: true, name: true },
-        },
-      },
-    });
 
     // Generate auth cookie token using centralized utility
+    // SECURITY: emailVerified is false — user must verify email before full access
     const accessToken = await generateAuthToken({
       userId: user.id,
       email: user.email,
@@ -281,6 +354,7 @@ async function handleRegister(
       twoFactorEnabled: false,
       organizationId: user.organizationId || "",
       passwordChangedAt: 0, // New user — no password change yet
+      emailVerified: false, // User has not verified their email yet
     });
 
     // Generate refresh token using centralized utility

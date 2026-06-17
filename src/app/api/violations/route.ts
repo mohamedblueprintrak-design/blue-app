@@ -5,6 +5,7 @@ import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
 import { z } from 'zod';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
+import { parsePaginationParams, buildPaginationMeta, calculateSkip } from '@/app/api/utils/pagination';
 
 // Zod schema for violation creation
 const violationCreateSchema = z.object({
@@ -43,15 +44,26 @@ export async function GET(request: NextRequest) {
     if (severity) where.severity = severity;
     if (type) where.type = type;
 
-    const violations = await db.violation.findMany({
-      where,
-      include: {
-        project: { select: { id: true, name: true, nameEn: true, number: true } },
-      },
-      orderBy: { createdAt: "desc" },
-    });
+    const { page, limit } = parsePaginationParams(searchParams);
+    const skip = calculateSkip(page, limit);
 
-    return NextResponse.json(violations);
+    const [violations, total] = await Promise.all([
+      db.violation.findMany({
+        where,
+        include: {
+          project: { select: { id: true, name: true, nameEn: true, number: true } },
+        },
+        orderBy: { createdAt: "desc" },
+        take: limit,
+        skip,
+      }),
+      db.violation.count({ where }),
+    ]);
+
+    return NextResponse.json({
+      data: violations,
+      pagination: buildPaginationMeta(page, limit, total),
+    });
   } catch (error) {
     log.error("Error fetching violations:", error);
     return NextResponse.json({ error: "Failed to fetch violations" }, { status: 500 });

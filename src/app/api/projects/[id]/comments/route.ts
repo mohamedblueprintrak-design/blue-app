@@ -1,11 +1,12 @@
 import { db } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 import { log } from '@/lib/logger';
-import { requireVerifiedPermission, orgCreate as _orgCreate, orgFilter} from '@/app/api/utils/auth';
+import { requireVerifiedPermission, orgCreate as _orgCreate } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { forbiddenResponse } from '@/app/api/utils/response';
 import { validateIdParam, validateRequest, commentCreateSchema } from '@/lib/api-validation';
 import { sanitizeObject } from '@/lib/security/sanitize';
+import { parsePaginationParams, buildPaginationMeta, calculateSkip } from '@/app/api/utils/pagination';
 
 export async function GET(
   request: NextRequest,
@@ -32,17 +33,29 @@ export async function GET(
       return forbiddenResponse();
     }
 
-    const comments = await db.projectComment.findMany({
-      where: { projectId: id, deletedAt: null },
-      orderBy: { createdAt: "desc" },
-      include: {
-        user: {
-          select: { id: true, name: true, role: true, avatar: true },
-        },
-      },
-    });
+    const { searchParams } = new URL(request.url);
+    const { page, limit } = parsePaginationParams(searchParams);
+    const skip = calculateSkip(page, limit);
 
-    return NextResponse.json({ comments });
+    const [comments, total] = await Promise.all([
+      db.projectComment.findMany({
+        where: { projectId: id, deletedAt: null },
+        orderBy: { createdAt: "desc" },
+        include: {
+          user: {
+            select: { id: true, name: true, role: true, avatar: true },
+          },
+        },
+        take: limit,
+        skip,
+      }),
+      db.projectComment.count({ where: { projectId: id, deletedAt: null } }),
+    ]);
+
+    return NextResponse.json({
+      comments,
+      pagination: buildPaginationMeta(page, limit, total),
+    });
   } catch (error) {
     log.error("Error fetching comments:", error);
     return NextResponse.json(
@@ -85,7 +98,7 @@ export async function POST(
     if (!validation.success) {
       return NextResponse.json({ error: validation.error, errors: validation.errors }, { status: 400 });
     }
-    const sanitizedBody = sanitizeObject(validation.data);
+    const _sanitizedBody = sanitizeObject(validation.data);
 
     const { content } = validation.data;
 

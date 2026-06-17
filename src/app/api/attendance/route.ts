@@ -6,6 +6,7 @@ import { log } from '@/lib/logger';
 import { sanitizeObject } from '@/lib/security/sanitize';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 import { z } from 'zod';
+import { parsePaginationParams, buildPaginationMeta, calculateSkip } from '@/app/api/utils/pagination';
 
 // Zod schema for attendance creation
 const attendanceCreateSchema = z.object({
@@ -49,26 +50,34 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const attendance = await db.attendance.findMany({
-      where,
-      include: {
-        employee: {
-          include: {
-            user: {
-              select: {
-                id: true,
-                name: true,
-                email: true,
-                avatar: true,
-                department: true,
-                position: true,
+    const { page, limit } = parsePaginationParams(searchParams);
+    const skip = calculateSkip(page, limit);
+
+    const [attendance, total] = await Promise.all([
+      db.attendance.findMany({
+        where,
+        include: {
+          employee: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true,
+                  avatar: true,
+                  department: true,
+                  position: true,
+                },
               },
             },
           },
         },
-      },
-      orderBy: [{ date: "desc" }, { checkIn: "desc" }],
-    });
+        orderBy: [{ date: "desc" }, { checkIn: "desc" }],
+        take: limit,
+        skip,
+      }),
+      db.attendance.count({ where }),
+    ]);
 
     // Summary stats
     const today = new Date();
@@ -91,7 +100,11 @@ export async function GET(request: NextRequest) {
       totalEmployees: await db.employee.count({ where: { user: { ...orgFilter(ctx) } } }),
     };
 
-    return NextResponse.json({ records: attendance, summary });
+    return NextResponse.json({
+      records: attendance,
+      summary,
+      pagination: buildPaginationMeta(page, limit, total),
+    });
   } catch (error) {
     log.error("GET /api/attendance error:", error);
     return NextResponse.json({ error: "Failed to fetch attendance" }, { status: 500 });

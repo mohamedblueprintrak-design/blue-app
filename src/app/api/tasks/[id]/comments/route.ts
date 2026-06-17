@@ -5,6 +5,7 @@ import { requireVerifiedPermission, orgCreate } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { forbiddenResponse } from '@/app/api/utils/response';
 import { validateIdParam, validateRequest, commentCreateSchema } from '@/lib/api-validation';
+import { parsePaginationParams, buildPaginationMeta, calculateSkip } from '@/app/api/utils/pagination';
 
 export async function GET(
   request: NextRequest,
@@ -35,17 +36,29 @@ export async function GET(
       return forbiddenResponse();
     }
 
-    const comments = await db.taskComment.findMany({
-      where: { taskId: id },
-      orderBy: { createdAt: "asc" },
-      include: {
-        user: {
-          select: { id: true, name: true, role: true, avatar: true },
-        },
-      },
-    });
+    const { searchParams } = new URL(request.url);
+    const { page, limit } = parsePaginationParams(searchParams);
+    const skip = calculateSkip(page, limit);
 
-    return NextResponse.json({ comments });
+    const [comments, total] = await Promise.all([
+      db.taskComment.findMany({
+        where: { taskId: id },
+        orderBy: { createdAt: "asc" },
+        include: {
+          user: {
+            select: { id: true, name: true, role: true, avatar: true },
+          },
+        },
+        take: limit,
+        skip,
+      }),
+      db.taskComment.count({ where: { taskId: id } }),
+    ]);
+
+    return NextResponse.json({
+      comments,
+      pagination: buildPaginationMeta(page, limit, total),
+    });
   } catch (error) {
     log.error("Error fetching task comments:", error);
     return NextResponse.json(
@@ -60,7 +73,7 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // AUTH CHECK — use proper getAuthContext instead of raw headers
+    // AUTH CHECK — verified JWT re-check for security
     const auth = await requireVerifiedPermission(request, Permission.TASK_CREATE);
     if ('error' in auth) return auth.error;
     const user = auth.user;
@@ -117,10 +130,15 @@ export async function POST(
       mentionedNames.push(match[1].toLowerCase());
     }
 
-    // Find users by name (case-insensitive)
+    // SECURITY FIX: Scope @mention user lookup to the org — previously fetched
+    // ALL active users across every tenant (cross-org user enumeration leak).
     if (mentionedNames.length > 0) {
+      const mentionWhere: Record<string, unknown> = { isActive: true };
+      if (user.organizationId) {
+        mentionWhere.organizationId = user.organizationId;
+      }
       const allUsers = await db.user.findMany({
-        where: { isActive: true },
+        where: mentionWhere,
         select: { id: true, name: true },
       });
 

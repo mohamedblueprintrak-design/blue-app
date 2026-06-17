@@ -154,8 +154,11 @@ export const CACHE_TTL = {
   SITE_VISITS: 180,      // 3 minutes
 } as const;
 
-// Cache key prefix to avoid collisions
-const CACHE_PREFIX = 'bp:query:';
+// Cache key prefix — MUST start with the CacheManager's keyPrefix ('blueprint')
+// so that CacheManager.set() does NOT double-wrap the key.
+// Before (bug): 'bp:query:projects:...' → stored as 'blueprint:cache:bp:query:projects:...'
+// After (fix):  'blueprint:query:projects:...' → stored as-is (key already starts with prefix)
+const CACHE_PREFIX = 'blueprint:query:';
 
 // ============================================
 // Core Functions
@@ -222,7 +225,10 @@ export async function cachedQuery<T>(
 export async function invalidateCache(...entities: string[]): Promise<void> {
   const cacheManager = getCacheManager();
   
-  const promises = entities.map(entity => 
+  // Pattern now matches actual stored keys:
+  // stored as: 'blueprint:query:projects:list:org123:...'
+  // pattern:   'blueprint:query:projects:*'
+  const promises = entities.map(entity =>
     cacheManager.invalidate(`${CACHE_PREFIX}${entity}:*`)
   );
   

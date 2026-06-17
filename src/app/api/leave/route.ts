@@ -6,6 +6,7 @@ import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
 import { sanitizeObject } from '@/lib/security/sanitize';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
+import { parsePaginationParams, buildPaginationMeta, calculateSkip } from '@/app/api/utils/pagination';
 
 // GET /api/leave
 export async function GET(request: NextRequest) {
@@ -31,20 +32,28 @@ export async function GET(request: NextRequest) {
       where.status = status;
     }
 
-    const leaves = await db.leave.findMany({
-      where,
-      include: {
-        employee: { select: { id: true, name: true, email: true, avatar: true } },
-        approver: {
-          select: {
-            id: true,
-            name: true,
-            avatar: true,
+    const { page, limit } = parsePaginationParams(searchParams);
+    const skip = calculateSkip(page, limit);
+
+    const [leaves, total] = await Promise.all([
+      db.leave.findMany({
+        where,
+        include: {
+          employee: { select: { id: true, name: true, email: true, avatar: true } },
+          approver: {
+            select: {
+              id: true,
+              name: true,
+              avatar: true,
+            },
           },
         },
-      },
-      orderBy: { createdAt: "desc" },
-    });
+        orderBy: { createdAt: "desc" },
+        take: limit,
+        skip,
+      }),
+      db.leave.count({ where }),
+    ]);
 
     // Summary stats
     const now = new Date();
@@ -77,7 +86,11 @@ export async function GET(request: NextRequest) {
       onLeaveToday,
     };
 
-    return NextResponse.json({ records: leaves, summary });
+    return NextResponse.json({
+      records: leaves,
+      summary,
+      pagination: buildPaginationMeta(page, limit, total),
+    });
   } catch (error) {
     log.error("GET /api/leave error:", error);
     return NextResponse.json({ error: "Failed to fetch leave records" }, { status: 500 });
@@ -105,6 +118,14 @@ export async function POST(request: NextRequest) {
 
     const { employeeId, type, startDate, endDate, reason } = sanitizedBody;
     const days = Math.ceil((new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 3600 * 24)) || 1;
+
+    // Verify employee belongs to same organization
+    const targetEmployee = await db.employee.findFirst({
+      where: { id: employeeId, ...orgFilter(ctx) },
+    });
+    if (!targetEmployee) {
+      return NextResponse.json({ error: 'Employee not found in your organization' }, { status: 403 });
+    }
 
     const leave = await db.leave.create({
       data: {
