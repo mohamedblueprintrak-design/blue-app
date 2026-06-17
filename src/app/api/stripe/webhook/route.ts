@@ -111,15 +111,16 @@ export async function POST(request: NextRequest) {
     }
 
     // Log to DB for cross-instance idempotency tracking
+    const metadata = (event.data.object as unknown as { metadata?: Record<string, string> })?.metadata;
+    const eventOrgId = metadata?.organizationId || 'system';
     await db.activityLog.create({
       data: {
+        userId: null, // system event — no user initiating this
         action: 'stripe_webhook',
         entityType: 'StripeEvent',
         entityId: event.id,
         details: `Processed ${event.type}`,
-        organizationId: (event.data.object as unknown as Record<string, unknown>)?.metadata 
-          ? ((event.data.object as unknown as Record<string, unknown>).metadata as Record<string, unknown>)?.organizationId as string || 'system'
-          : 'system',
+        organizationId: eventOrgId,
       },
     });
 
