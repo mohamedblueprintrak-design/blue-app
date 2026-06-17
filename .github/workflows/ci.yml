@@ -275,13 +275,16 @@ jobs:
           retention-days: 7
 
   # ============================================
-  # Stage 6: Docker Build & Push (only on push to main)
+  # Stage 6: Docker Build (verify on PR, build+push on main)
   # ============================================
   docker:
-    name: Docker Build & Push
+    name: Docker Build
     runs-on: ubuntu-latest
     needs: [unit-tests, build, security, e2e-tests]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    # Run on both push-to-main AND pull_request so the Dockerfile is verified
+    # before merge. Previously this job only ran on push to main, which meant
+    # a broken Dockerfile would only be discovered AFTER merging.
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'pull_request'
     permissions:
       contents: read
       packages: write
@@ -293,6 +296,8 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Log in to GitHub Container Registry
+        # Only login on main (we only push on main). On PRs we build without pushing.
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -301,6 +306,7 @@ jobs:
 
       - name: Extract metadata
         id: meta
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: docker/metadata-action@v5
         with:
           images: ghcr.io/${{ github.repository }}
@@ -309,7 +315,8 @@ jobs:
             type=raw,value=latest,enable={{is_default_branch}}
             type=ref,event=branch
 
-      - name: Build and push Docker image
+      - name: Build and push Docker image (main)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -317,6 +324,18 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            NODE_ENV=production
+
+      - name: Build Docker image (PR — verify only, no push)
+        if: github.event_name == 'pull_request'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
