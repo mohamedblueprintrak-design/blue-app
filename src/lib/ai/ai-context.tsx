@@ -7,7 +7,7 @@
  * يوفر وظائف AI لجميع مكونات التطبيق
  */
 
-import { createContext, useContext, useState, useCallback, useRef, useEffect, useSyncExternalStore, ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect, useSyncExternalStore, ReactNode } from 'react';
 import { aiRouter, AIRequest, AIResponse } from './ai-router';
 import { AITaskType, getModelInfo, ModelConfig, AVAILABLE_MODELS } from './model-config';
 
@@ -92,9 +92,6 @@ export function AIProvider({ children }: { children: ReactNode }) {
     getPreferredModelSnapshot,
     getPreferredModelServerSnapshot,
   );
-
-  // Refs للتعامل مع الحالة بدون إعادة render
-  const tokenRef = useRef<string | null>(null);
 
   // SECURITY FIX (P0-3): Removed JWT-from-localStorage anti-pattern.
   // The previous implementation read `localStorage.getItem('bp_token')` and passed

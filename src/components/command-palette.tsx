@@ -7,7 +7,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { LayoutDashboard, UserPlus, FolderKanban, HardHat, TrendingUp, TrendingDown, BarChart3, UsersRound, Sparkles, BookMarked, Calendar, Search, Shield, ChevronLeft, ChevronRight, Zap, FileText, Receipt, CreditCard, FileSignature, Gavel, Wallet, FileCheck, MapPin, BookOpen, HelpCircle, AlertTriangle, Send, Repeat, FileBarChart, Building2, ClipboardList, Package, ShoppingCart, Wrench, Table, Eye, GitBranch, Bell, Settings as SettingsIcon, User, Clock, CalendarOff, Timer, Scale, Cog, RefreshCw, ShieldCheck, Users, Layers } from 'lucide-react'
+import { LayoutDashboard, UserPlus, FolderKanban, HardHat, TrendingUp, TrendingDown, BarChart3, UsersRound, Sparkles, BookMarked, Calendar, Search, Shield, ChevronLeft, ChevronRight, Zap, FileText, Receipt, CreditCard, FileSignature, Gavel, Wallet, FileCheck, MapPin, BookOpen, HelpCircle, AlertTriangle, Send, Repeat, FileBarChart, Building2, ClipboardList, Package, ShoppingCart, Wrench, Table, Eye, GitBranch, Bell, Settings as SettingsIcon, User, Clock, CalendarOff, Timer, Scale, Cog, ShieldCheck, Users, Layers } from 'lucide-react'
 
 import { useNavStore } from '@/store/nav-store';
 import { useLanguage } from '@/hooks/use-lang';
