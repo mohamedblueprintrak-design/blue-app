@@ -6,28 +6,34 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Performance', () => {
-  test('landing page should load within 30 seconds', async ({ page }) => {
+  test('landing page should load within 5 seconds', async ({ page }) => {
     const start = Date.now();
-    await page.goto('/', { timeout: 60000 });
+    await page.goto('/', { timeout: 30000 });
     await page.waitForLoadState('domcontentloaded');
     const loadTime = Date.now() - start;
-    expect(loadTime).toBeLessThan(30000);
+    // P2-30 FIX: was 30s — way too lenient. A landing page should load in <5s.
+    // 5s accounts for slow CI runners + cold Next.js dev server startup.
+    expect(loadTime).toBeLessThan(5000);
   });
 
-  test('login page should load within 30 seconds', async ({ page }) => {
+  test('login page should load within 5 seconds', async ({ page }) => {
     const start = Date.now();
-    await page.goto('/dashboard', { timeout: 60000 });
+    await page.goto('/dashboard', { timeout: 30000 });
     await page.waitForLoadState('domcontentloaded');
     const loadTime = Date.now() - start;
-    expect(loadTime).toBeLessThan(30000);
+    // P2-30 FIX: was 30s — too lenient.
+    expect(loadTime).toBeLessThan(5000);
   });
 
-  test('API health check should respond within 10 seconds', async ({ request }) => {
+  test('API health check should respond within 2 seconds', async ({ request }) => {
     const start = Date.now();
     const response = await request.get('/api/health');
     const responseTime = Date.now() - start;
-    expect([200, 401, 404, 405, 500]).toContain(response.status());
-    expect(responseTime).toBeLessThan(10000);
+    // P2-30 FIX: was accepting [200, 401, 404, 405, 500] — that accepts server errors!
+    // /api/health should return 200. A 500 means the server is broken.
+    expect(response.status()).toBe(200);
+    // P2-30 FIX: was 10s — health check should be instant.
+    expect(responseTime).toBeLessThan(2000);
   });
 
   test('static assets should be cacheable', async ({ page }) => {
@@ -65,14 +71,14 @@ test.describe('Accessibility (a11y)', () => {
       if (msg.type() === 'error') errors.push(msg.text());
     });
 
-    await page.goto('/', { timeout: 60000 });
+    await page.goto('/', { timeout: 30000 });
     await page.waitForLoadState('domcontentloaded');
 
-    // Allow some errors but not too many
-    // Landing page may trigger console errors from unauthenticated API calls,
-    // missing resources, or framework warnings — these are expected in a dev/test
-    // environment. The threshold catches regressions where errors balloon.
-    expect(errors.length).toBeLessThan(50);
+    // P2-30 FIX: was <50 errors — that's not a quality gate, that's accepting broken.
+    // A clean landing page should have <5 console errors (allowing for minor
+    // network hiccups in CI). Common acceptable: favicon 404, analytics blocked.
+    // Real errors (React hydration, undefined refs, API failures) should be 0.
+    expect(errors.length).toBeLessThan(5);
   });
 
   test('images should have alt text', async ({ page }) => {
@@ -116,12 +122,14 @@ test.describe('Accessibility (a11y)', () => {
   });
 
   test('page should have proper heading hierarchy', async ({ page }) => {
-    await page.goto('/', { timeout: 60000 });
+    await page.goto('/', { timeout: 30000 });
     await page.waitForLoadState('domcontentloaded');
 
     const h1 = await page.$$('h1');
-    // Landing page should have at least one h1
-    expect(h1.length).toBeGreaterThanOrEqual(0);
+    // P2-30 FIX: was `>= 0` — always true, useless assertion.
+    // Landing page MUST have exactly one h1 for SEO and a11y.
+    expect(h1.length).toBeGreaterThanOrEqual(1);
+    expect(h1.length).toBeLessThanOrEqual(1);
   });
 
   test('focus should be manageable via keyboard', async ({ page }) => {

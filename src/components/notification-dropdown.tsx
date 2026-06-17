@@ -11,6 +11,7 @@ import { useNavStore } from "@/store/nav-store";
 import { cn } from "@/lib/utils";
 import { getMutationHeaders } from "@/lib/csrf-client";
 import { motion, AnimatePresence } from "framer-motion";
+import { LiveRegion } from "@/components/common/accessible-components";
 import {
   Bell,
   CheckCircle,
@@ -230,7 +231,7 @@ export default function NotificationDropdown() {
           variant="ghost"
           size="icon"
           className="relative h-9 w-9 text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800/60 transition-all duration-200"
-          aria-label="Notifications"
+          aria-label={isAr ? "الإشعارات" : "Notifications"}
         >
           <Bell className="h-4 w-4" />
           {liveUnreadCount > 0 && (
@@ -240,6 +241,15 @@ export default function NotificationDropdown() {
           )}
         </Button>
       </PopoverTrigger>
+
+      {/* Screen reader announcement of unread count changes */}
+      {liveUnreadCount > 0 && (
+        <LiveRegion politeness="polite">
+          {isAr
+            ? `لديك ${liveUnreadCount} ${liveUnreadCount === 1 ? "إشعار غير مقروء" : "إشعارات غير مقروءة"}`
+            : `You have ${liveUnreadCount} unread ${liveUnreadCount === 1 ? "notification" : "notifications"}`}
+        </LiveRegion>
+      )}
 
       <PopoverContent
         align={isAr ? "start" : "end"}

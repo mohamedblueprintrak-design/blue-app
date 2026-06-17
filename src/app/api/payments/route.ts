@@ -11,6 +11,34 @@ import { cachedQuery, invalidateCache, CACHE_TTL, buildCacheKey } from '@/lib/ca
 import { cacheGet, cacheSet } from '@/lib/cache/redis';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 
+/**
+ * @openapi
+ * /api/payments:
+ *   get:
+ *     tags: [Payments]
+ *     summary: List payments
+ *     description: Retrieve a paginated list of payments scoped to the user's organization. Requires PAYMENT_READ permission.
+ *     parameters:
+ *       - name: page
+ *         in: query
+ *         schema: { type: integer, minimum: 1, default: 1 }
+ *       - name: limit
+ *         in: query
+ *         schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+ *       - name: search
+ *         in: query
+ *         schema: { type: string }
+ *       - name: status
+ *         in: query
+ *         schema: { type: string, enum: [PENDING, SUCCEEDED, FAILED, REFUNDED] }
+ *       - name: invoiceId
+ *         in: query
+ *         schema: { type: string }
+ *     responses:
+ *       200: { description: Paginated list of payments }
+ *       401: { description: Unauthorized }
+ *       403: { description: Forbidden — PAYMENT_READ required }
+ */
 export async function GET(request: NextRequest) {
   try {
     const { allowed: _allowed, result: rlResult } = await withRateLimit(request, 'api');

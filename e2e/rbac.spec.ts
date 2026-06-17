@@ -12,32 +12,38 @@ import { test, expect } from '@playwright/test';
 test.describe('RBAC - Unauthenticated Access', () => {
   test('should reject unauthenticated access to financial reports', async ({ request }) => {
     const response = await request.get('/api/reports/financial');
-    expect([401, 429]).toContain(response.status());
+    // P2-30 FIX: was [401, 429] — 429 (rate limited) is NOT a valid RBAC rejection.
+    // An unauthenticated request to a protected route MUST return 401.
+    // 429 would mean rate limiting kicked in before auth, which is a config bug.
+    expect(response.status()).toBe(401);
   });
 
   test('should reject unauthenticated access to HR reports', async ({ request }) => {
     const response = await request.get('/api/reports/hr');
-    expect([401, 429]).toContain(response.status());
+    expect(response.status()).toBe(401);
   });
 
   test('should reject unauthenticated access to users', async ({ request }) => {
     const response = await request.get('/api/users');
-    expect([401, 429]).toContain(response.status());
+    expect(response.status()).toBe(401);
   });
 
   test('should reject unauthenticated access to payments', async ({ request }) => {
     const response = await request.get('/api/payments/test-id');
-    expect([401, 403, 404, 429]).toContain(response.status());
+    // P2-30 FIX: was [401, 403, 404, 429] — accepting 404 means a missing route
+    // would pass as "correctly rejected". Unauthenticated should be 401.
+    expect(response.status()).toBe(401);
   });
 
   test('should reject unauthenticated access to invoices', async ({ request }) => {
     const response = await request.get('/api/invoices');
-    expect([401, 429]).toContain(response.status());
+    expect(response.status()).toBe(401);
   });
 
   test('should reject unauthenticated access to PDF reports', async ({ request }) => {
     const response = await request.get('/api/reports/report-pdf/financial');
-    expect([401, 403, 404, 429]).toContain(response.status());
+    // P2-30 FIX: was [401, 403, 404, 429] — only 401 is a correct unauth rejection.
+    expect(response.status()).toBe(401);
   });
 
   test('should reject unauthenticated access to contract PDFs', async ({ request }) => {

@@ -3,7 +3,7 @@ import { IBM_Plex_Sans_Arabic, Plus_Jakarta_Sans } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { headers } from "next/headers";
 import "./globals.css";
-import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from "@/components/ui/sonner";
 import { CsrfProvider } from "@/components/providers/csrf-provider";
 import { ReactQueryProvider } from "@/components/providers/react-query-provider";
 import { ErrorBoundary } from "@/components/common/error-boundary";
@@ -103,7 +103,7 @@ export default async function RootLayout({
                     {process.env.DEMO_MODE === "true" && <DemoBanner />}
                     {children}
                     <CookieConsent />
-                    <Toaster />
+                    <Toaster position="top-right" richColors closeButton />
                   </NextIntlClientProvider>
                 </ErrorBoundary>
               </SafeWebSocketProvider>

@@ -10,6 +10,32 @@ import { parsePaginationParams, buildPaginationMeta, calculateSkip } from '../ut
 import { insensitiveContains } from '../utils/db';
 import { cachedQuery, invalidateCache, CACHE_TTL, buildCacheKey } from '@/lib/cache/query-cache';
 
+/**
+ * @openapi
+ * /api/employees:
+ *   get:
+ *     tags: [Employees]
+ *     summary: List employees
+ *     description: Retrieve a paginated list of employees scoped to the user's organization. Requires EMPLOYEE_READ permission. Non-HR/Admin users have salary fields masked.
+ *     parameters:
+ *       - name: page
+ *         in: query
+ *         schema: { type: integer, minimum: 1, default: 1 }
+ *       - name: limit
+ *         in: query
+ *         schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+ *       - name: search
+ *         in: query
+ *         schema: { type: string }
+ *         description: Search by position, department, or user name
+ *       - name: department
+ *         in: query
+ *         schema: { type: string }
+ *     responses:
+ *       200: { description: Paginated list of employees }
+ *       401: { description: Unauthorized }
+ *       403: { description: Forbidden — EMPLOYEE_READ required }
+ */
 // GET /api/employees
 export async function GET(request: NextRequest) {
   const { allowed: _allowed, result } = await withRateLimit(request, 'api');

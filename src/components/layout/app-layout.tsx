@@ -65,6 +65,7 @@ import SearchPage from "@/components/pages/search";
 
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { usePushNotifications } from "@/hooks/use-push-notifications";
+import { useA11yCheck, useReducedMotion } from "@/hooks/use-accessibility";
 import Breadcrumbs from "@/components/layout/breadcrumbs";
 import QuickActions from "@/components/layout/quick-actions";
 import WelcomeModal from "@/components/layout/welcome-modal";
@@ -99,6 +100,13 @@ export default function AppLayout({ language, useFileRouting, children }: AppLay
 
   useKeyboardShortcuts();
   usePushNotifications();
+
+  // Accessibility checks — dev only. The hook also checks NODE_ENV internally
+  // before logging, but we pass `enabled` to skip the DOM scans entirely in prod.
+  useA11yCheck({ enabled: process.env.NODE_ENV === 'development' });
+
+  // Respect the user's "Reduce motion" OS preference for the page transition.
+  const prefersReducedMotion = useReducedMotion();
 
   const [showShortcuts, setShowShortcuts] = useState(false);
 
@@ -206,10 +214,10 @@ export default function AppLayout({ language, useFileRouting, children }: AppLay
           <AnimatePresence mode="wait">
             <motion.div
               key={currentPage}
-              initial={{ opacity: 0, y: 10, scale: 0.995 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -6, scale: 0.995 }}
-              transition={{ duration: 0.22, ease: [0.25, 0.46, 0.45, 0.94] }}
+              initial={prefersReducedMotion ? false : { opacity: 0, y: 10, scale: 0.995 }}
+              animate={prefersReducedMotion ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }}
+              exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: -6, scale: 0.995 }}
+              transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.22, ease: [0.25, 0.46, 0.45, 0.94] }}
             >
               {/* File-based routing: render children from Next.js page routes */}
               {useFileRouting && children}

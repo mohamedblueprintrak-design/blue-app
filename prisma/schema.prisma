@@ -660,6 +660,7 @@ model Task {
   @@index([deletedAt])
   @@index([organizationId, deletedAt])
   @@index([organizationId, status, deletedAt])
+  @@index([createdById])
 }
 
 // ==================== TASK COMMENTS ====================
@@ -716,6 +717,7 @@ model Contract {
   @@index([clientId])
   @@index([deletedAt])
   @@index([status])
+  @@index([createdById])
 }
 
 model ContractAmendment {
@@ -776,6 +778,7 @@ model Invoice {
   @@index([dueDate])
   @@index([organizationId, deletedAt])
   @@index([organizationId, status, deletedAt])
+  @@index([createdById])
 }
 
 model InvoiceItem {
@@ -811,6 +814,7 @@ model InvoicePayment {
 
   @@index([invoiceId])
   @@index([paymentId])
+  @@index([createdById])
 }
 
 // ==================== PAYMENTS ====================
@@ -846,6 +850,7 @@ model Payment {
   @@index([status])
   @@index([invoiceId])
   @@index([approvedById])
+  @@index([createdById])
 }
 
 // ==================== PROPOSALS ====================
@@ -879,6 +884,7 @@ model Proposal {
   @@index([clientId])
   @@index([status])
   @@index([deletedAt])
+  @@index([createdById])
 }
 
 model ProposalItem {
@@ -1010,6 +1016,7 @@ model Bid {
   @@index([organizationId])
   @@index([status])
   @@index([deletedAt])
+  @@index([createdById])
 }
 
 // ==================== BUDGETS ====================
@@ -1043,6 +1050,7 @@ model Budget {
   @@index([projectId])
   @@index([parentId])
   @@index([deletedAt])
+  @@index([createdById])
 }
 
 // ==================== SITE MANAGEMENT ====================
@@ -1072,6 +1080,7 @@ model SiteVisit {
   @@index([projectId])
   @@index([status])
   @@index([deletedAt])
+  @@index([createdById])
 }
 
 model Defect {
@@ -1099,6 +1108,7 @@ model Defect {
   @@index([assigneeId])
   @@index([status])
   @@index([deletedAt])
+  @@index([createdById])
 }
 
 model SiteDiary {
@@ -1289,6 +1299,7 @@ model Risk {
   @@index([projectId])
   @@index([status])
   @@index([deletedAt])
+  @@index([createdById])
 }
 
 model RiskAction {
@@ -1341,6 +1352,7 @@ model Meeting {
   @@index([projectId])
   @@index([date])
   @@index([deletedAt])
+  @@index([createdById])
 }
 
 model MeetingAttendee {
@@ -1570,6 +1582,7 @@ model PurchaseOrder {
   @@index([projectId])
   @@index([status])
   @@index([deletedAt])
+  @@index([createdById])
 }
 
 model PurchaseOrderItem {
@@ -1787,6 +1800,7 @@ model BuildingInspection {
   @@index([status])
   @@index([clientId])
   @@index([deletedAt])
+  @@index([createdById])
 }
 
 model InspectionFinding {
@@ -1970,6 +1984,7 @@ model Tender {
   @@index([status])
   @@index([assignedTo])
   @@index([deletedAt])
+  @@index([createdById])
 }
 
 model TenderDocument {

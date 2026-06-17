@@ -10,6 +10,37 @@ import { parsePaginationParams, buildPaginationMeta, calculateSkip } from '../ut
 import { insensitiveContains } from '../utils/db';
 import { cachedQuery, invalidateCache, CACHE_TTL, buildCacheKey } from '@/lib/cache/query-cache';
 
+/**
+ * @openapi
+ * /api/contracts:
+ *   get:
+ *     tags: [Contracts]
+ *     summary: List contracts
+ *     description: Retrieve a paginated list of contracts scoped to the user's organization. Requires CONTRACT_READ permission.
+ *     parameters:
+ *       - name: page
+ *         in: query
+ *         schema: { type: integer, minimum: 1, default: 1 }
+ *       - name: limit
+ *         in: query
+ *         schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+ *       - name: search
+ *         in: query
+ *         schema: { type: string }
+ *       - name: status
+ *         in: query
+ *         schema: { type: string }
+ *       - name: clientId
+ *         in: query
+ *         schema: { type: string }
+ *       - name: projectId
+ *         in: query
+ *         schema: { type: string }
+ *     responses:
+ *       200: { description: Paginated list of contracts }
+ *       401: { description: Unauthorized }
+ *       403: { description: Forbidden — CONTRACT_READ required }
+ */
 export async function GET(request: NextRequest) {
   try {
     // Rate limiting — API limiter (100 req/min per IP)
