@@ -198,6 +198,7 @@ model User {
   rfisTo                  RFI[]                    @relation("RFITo")
   riskActions             RiskAction[]
   meetingAttendee         MeetingAttendee[]
+  createdDashboardPresets DashboardPreset[] @relation("CreatedByDashboardPreset")
   notifications           Notification[]
   sentTransmittals        Transmittal[]            @relation("TransmittalFrom")
   knowledgeArticles       KnowledgeArticle[]
@@ -2428,6 +2429,8 @@ model Organization {
   progressClaims             ProgressClaim[]
   timesheets                 Timesheet[]
   contractAmendments         ContractAmendment[]
+  sequences                  Sequence[]
+  dashboardPresets           DashboardPreset[]
 
   @@index([deletedAt])
 }
@@ -2901,4 +2904,42 @@ model PushSubscription {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+}
+
+// Sequence generator for document numbers (invoices, contracts, etc.)
+// Each (name, organizationId) pair holds an auto-incrementing counter.
+model Sequence {
+  id             String   @id @default(cuid())
+  name           String   // e.g. "INVOICE", "CONTRACT", "PROJECT"
+  value          Int      @default(0)
+  organizationId String   @default("") // Empty string for global sequences
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([name, organizationId])
+  @@index([organizationId])
+}
+
+// Dashboard Presets — role-specific widget layouts saved per organization/user.
+model DashboardPreset {
+  id             String   @id @default(cuid())
+  name           String
+  nameEn         String   @default("")
+  role           String   @default("")
+  isDefault      Boolean  @default(false)
+  layout         String   @default("") // JSON layout config
+  widgets        String   @default("[]") // JSON array of widget defs
+  organizationId String   @default("")
+  createdById    String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdBy    User?        @relation("CreatedByDashboardPreset", fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([organizationId])
+  @@index([role])
+  @@index([createdById])
 }
