@@ -636,10 +636,14 @@ describe('Auth Flow — Organization Context', () => {
     expect(filter).toEqual({ organizationId: 'org-123' });
   });
 
-  it('should return empty filter for single-tenant users', () => {
+  it('should return DENIED sentinel for users without org (multi-tenant is now the default — P0-1 security fix)', () => {
     const ctx = { userId: '1', email: 't@t.com', role: 'ADMIN', name: 'Test', organizationId: null };
     const filter = orgFilter(ctx);
-    expect(filter).toEqual({});
+    // P0-1 SECURITY FIX: MULTI_TENANT now defaults to 'true'. Users without an org
+    // get the __DENIED__ sentinel (matches no records) instead of an empty filter
+    // (which would have matched ALL records across all tenants).
+    // To get the old single-tenant behavior, set MULTI_TENANT=false explicitly.
+    expect(filter).toEqual({ organizationId: '__DENIED__' });
   });
 
   it('should return organizationId for create operations', () => {
@@ -648,9 +652,13 @@ describe('Auth Flow — Organization Context', () => {
     expect(create).toEqual({ organizationId: 'org-456' });
   });
 
-  it('should return empty object for create when no organization', () => {
+  it('should return DENIED sentinel for create when no organization (multi-tenant default — P0-1 security fix)', () => {
     const ctx = { userId: '1', email: 't@t.com', role: 'ADMIN', name: 'Test', organizationId: null };
     const create = orgCreate(ctx);
-    expect(create).toEqual({ organizationId: 'default' });
+    // P0-1 SECURITY FIX: in multi-tenant mode (now the default), records MUST have
+    // an organizationId. The __DENIED__ sentinel will cause a DB constraint error,
+    // preventing unscoped records from being created and leaking across tenants.
+    // The 'default' org id is only returned when MULTI_TENANT=false is set explicitly.
+    expect(create).toEqual({ organizationId: '__DENIED__' });
   });
 });

@@ -97,20 +97,31 @@ export function getAuthContext(request: NextRequest): AuthContext | null {
  *   const data = await db.project.findMany({ where });
  */
 export function orgFilter(ctx: AuthContext): Record<string, unknown> {
+  // SECURITY FIX: Multi-tenancy is now the default (was env-gated, which left SaaS
+  // deployments silently single-tenant). The old behavior allowed any authenticated
+  // user to read data across all organizations when MULTI_TENANT env var was unset.
+  // Reference: critical security audit finding P0-1.
+  //
+  // Behavior:
+  //   - If the user has an organizationId → filter by it (normal case).
+  //   - If the user has NO organizationId → return a sentinel that matches no records.
+  //     This prevents unscoped users from seeing any org-scoped data.
+  //   - Explicit single-tenant mode (MULTI_TENANT='false') is still supported for
+  //     self-hosted single-org deployments, but must be opted INTO deliberately.
+  const isExplicitSingleTenant = process.env.MULTI_TENANT === 'false';
+
   if (ctx.organizationId) {
     return { organizationId: ctx.organizationId };
   }
-  // In multi-tenant mode, users without an organizationId must NOT see cross-tenant data.
-  // Using a sentinel value that matches no records prevents data leakage.
-  if (process.env.MULTI_TENANT === 'true') {
-    return { organizationId: '__DENIED__' };
+
+  if (isExplicitSingleTenant) {
+    // Single-tenant mode: explicitly opted in. No org filtering applied.
+    return {};
   }
-  // Single-tenant mode: no org filtering applied.
-  // INTENTIONAL: In single-tenant deployments, all users belong to one organization
-  // and the database contains data for only that org. Returning an empty filter
-  // allows all authenticated users to see all data, which is the expected behavior
-  // for single-tenant. Multi-tenant isolation is enforced by the branch above.
-  return {};
+
+  // Default (multi-tenant): users without an organizationId must NOT see cross-tenant data.
+  // Using a sentinel value that matches no records prevents data leakage.
+  return { organizationId: '__DENIED__' };
 }
 
 /**
@@ -125,16 +136,22 @@ export function orgFilter(ctx: AuthContext): Record<string, unknown> {
  *   });
  */
 export function orgCreate(ctx: AuthContext): { organizationId: string } {
+  // SECURITY FIX: mirrors orgFilter() — multi-tenant is now the default.
+  const isExplicitSingleTenant = process.env.MULTI_TENANT === 'false';
+
   if (ctx.organizationId) {
     return { organizationId: ctx.organizationId };
   }
-  // SECURITY: In multi-tenant mode, records MUST have an organizationId.
-  // Without this, created records are invisible to orgFilter() and leak across tenants.
-  if (process.env.MULTI_TENANT === 'true') {
-    return { organizationId: '__DENIED__' };
+
+  if (isExplicitSingleTenant) {
+    // Single-tenant mode: explicitly opted in. Use 'default' org id.
+    return { organizationId: 'default' };
   }
-  // Return a default org id for single-tenant mode where it is mandatory in schema but we just use 'default'
-  return { organizationId: 'default' };
+
+  // Default (multi-tenant): records MUST have an organizationId.
+  // Without this, created records are invisible to orgFilter() and leak across tenants.
+  // The __DENIED__ sentinel will cause a DB constraint error, preventing unscoped records.
+  return { organizationId: '__DENIED__' };
 }
 
 /**
@@ -146,13 +163,19 @@ export function orgCreate(ctx: AuthContext): { organizationId: string } {
  *   const data = await db.taskComment.findMany({ where });
  */
 export function orgFilterNested(ctx: AuthContext, parentRelation: string): Record<string, unknown> {
+  // SECURITY FIX: mirrors orgFilter() — multi-tenant is now the default.
+  const isExplicitSingleTenant = process.env.MULTI_TENANT === 'false';
+
   if (ctx.organizationId) {
     return { [parentRelation]: { organizationId: ctx.organizationId } };
   }
-  if (process.env.MULTI_TENANT === 'true') {
-    return { [parentRelation]: { organizationId: '__DENIED__' } };
+
+  if (isExplicitSingleTenant) {
+    return {};
   }
-  return {};
+
+  // Default (multi-tenant): deny cross-tenant access.
+  return { [parentRelation]: { organizationId: '__DENIED__' } };
 }
 
 /**
@@ -166,19 +189,38 @@ export function orgFilterNested(ctx: AuthContext, parentRelation: string): Recor
  *   if (orgError) return orgError;
  */
 export function orgCheck(ctx: AuthContext, record: { organizationId?: string | null } | null): NextResponse | null {
+  // SECURITY FIX: Multi-tenant is now the default. The old implementation returned early
+  // (no check) whenever MULTI_TENANT !== 'true', leaving SaaS deployments unprotected.
+  // It also allowed access to legacy records with organizationId=null from ANY user,
+  // creating a backdoor for cross-tenant data leakage.
   if (!record) return null; // Record not found — let the caller handle 404
-  if (process.env.MULTI_TENANT !== 'true') return null; // Single-tenant: no org check needed
-  
-  // If user has no org, they can only access records that also have no org
+
+  const isExplicitSingleTenant = process.env.MULTI_TENANT === 'false';
+  if (isExplicitSingleTenant) return null; // Single-tenant: explicitly opted in, no org check
+
+  // Default (multi-tenant): enforce strict org isolation.
+
+  // If user has no org, they cannot access any org-scoped record.
   if (!ctx.organizationId) {
-    if (!record.organizationId) return null;
+    if (!record.organizationId) {
+      // SECURITY FIX: legacy records (organizationId=null) are no longer accessible
+      // to unscoped users. This was a backdoor. They must be migrated to an org first.
+      return forbiddenResponse('Resource is not associated with any organization (legacy data). Please contact an administrator.');
+    }
     return forbiddenResponse('No organization assigned');
   }
-  
-  if (record.organizationId && record.organizationId !== ctx.organizationId) {
+
+  // User has an org — record must match it.
+  // SECURITY FIX: records with organizationId=null are NOT accessible to scoped users either.
+  // This forces legacy data to be migrated before it becomes accessible.
+  if (!record.organizationId) {
+    return forbiddenResponse('Resource is not associated with any organization (legacy data). Please contact an administrator.');
+  }
+
+  if (record.organizationId !== ctx.organizationId) {
     return forbiddenResponse('Resource does not belong to your organization');
   }
-  return null; // OK — same org or no org on record (legacy)
+  return null; // OK — same org
 }
 
 /**

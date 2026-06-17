@@ -184,6 +184,8 @@ export async function GET(request: NextRequest) {
         response.cookies.set('oauth_link_intent', '', { path: '/', maxAge: 0 });
         response.cookies.set('google_oauth_state', '', { path: '/', maxAge: 0 });
         response.cookies.set('google_oauth_verifier', '', { path: '/', maxAge: 0 });
+        // SECURITY FIX (P0-3): clear the userId cookie we set in link-oauth/route.ts.
+        response.cookies.set('oauth_link_user_id', '', { path: '/', maxAge: 0 });
         return response;
       } catch {
         return NextResponse.redirect(

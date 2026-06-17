@@ -54,12 +54,18 @@ export async function POST(request: NextRequest) {
       }),
     ]);
 
-    // Send email
-    const protocol = request.headers.get("x-forwarded-proto") || "https";
-    const host = request.headers.get("host");
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || (host ? `${protocol}://${host}` : '');
+    // SECURITY FIX (P0-2): Host Header Injection (CWE-601).
+    // The previous implementation derived baseUrl from `request.headers.get("host")`
+    // and `x-forwarded-proto`, which an attacker could spoof via the Host header in
+    // certain reverse-proxy configurations. The reset link would then point to the
+    // attacker's domain, leaking the password-reset token.
+    //
+    // Fix: NEXT_PUBLIC_APP_URL is now REQUIRED for password-reset emails. If unset,
+    // we log a critical error and return success (without revealing whether the user
+    // exists) but do NOT send an email containing a poisoned link.
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL;
     if (!baseUrl) {
-      log.error('Cannot construct reset URL: NEXT_PUBLIC_APP_URL not set and host header missing');
+      log.error('CRITICAL: NEXT_PUBLIC_APP_URL is not set — password reset email cannot be sent safely (Host Header Injection protection). User email: %s', email);
       return NextResponse.json({ success: true }); // Still don't reveal if user exists
     }
     const resetUrl = `${baseUrl}/reset-password?token=${resetToken}`;

@@ -7,7 +7,7 @@
  * يوفر وظائف AI لجميع مكونات التطبيق
  */
 
-import { createContext, useContext, useState, useCallback, useRef, useEffect, useSyncExternalStore, ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect, useSyncExternalStore, ReactNode } from 'react';
 import { aiRouter, AIRequest, AIResponse } from './ai-router';
 import { AITaskType, getModelInfo, ModelConfig, AVAILABLE_MODELS } from './model-config';
 
@@ -93,18 +93,22 @@ export function AIProvider({ children }: { children: ReactNode }) {
     getPreferredModelServerSnapshot,
   );
 
-  // Refs للتعامل مع الحالة بدون إعادة render
-  const tokenRef = useRef<string | null>(null);
-
-  // تعيين التوكن
+  // SECURITY FIX (P0-3): Removed JWT-from-localStorage anti-pattern.
+  // The previous implementation read `localStorage.getItem('bp_token')` and passed
+  // the JWT to `aiRouter.setToken()`. This exposed the access token to any XSS
+  // payload running in the browser. The auth system stores JWT exclusively in
+  // httpOnly cookies (named `blue_token`) that JavaScript cannot read — this is
+  // the correct pattern. The `bp_token` localStorage key was dead code (no path
+  // in the app ever writes to it), but leaving it in creates a security-smell and
+  // risks being re-introduced.
+  //
+  // AI requests now rely on the browser automatically sending the httpOnly cookie
+  // with each fetch() call (credentials: 'include' is configured in the fetch client).
+  // The `aiRouter.setToken()` call has been removed entirely.
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('bp_token');
-      tokenRef.current = token;
-      if (token) {
-        aiRouter.setToken(token);
-      }
-    }
+    // No-op: tokens are managed via httpOnly cookies by the auth layer.
+    // Left as an empty effect for backward-compat with any downstream code that
+    // expects AIProvider to perform initialization on mount.
   }, []);
 
   // تنفيذ طلب AI

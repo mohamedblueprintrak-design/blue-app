@@ -107,20 +107,39 @@ export interface WorkerStatus {
 /**
  * Create and start a worker for a given queue.
  *
+ * If a worker is already registered for this queue, it is closed (awaited)
+ * before the new one is started. Awaiting the close prevents a race condition
+ * where the old worker could still be processing a job while the new one
+ * starts consuming from the same queue (which would cause duplicate
+ * processing of in-flight jobs).
+ *
+ * NOTE: Callers that only want to ensure a worker is running should prefer
+ * `startAllWorkers()` — it is idempotent and will NOT restart an already
+ * running worker.
+ *
  * @param queueName - The queue to consume from
  * @param processor - The job processing function
  * @param concurrency - Number of concurrent jobs (default: 1)
  * @returns The Worker instance
  */
-export function startWorker(
+export async function startWorker(
   queueName: QueueName,
   processor: (job: Job) => Promise<void>,
   concurrency: number = 1
-): Worker {
-  // If a worker already exists for this queue, close it first
+): Promise<Worker> {
+  // If a worker already exists for this queue, close it FIRST and await the
+  // close to guarantee the old worker has fully stopped (no in-flight jobs,
+  // no Redis subscriptions) before we start a new one. Previously this was
+  // fire-and-forget which caused duplicate processing during the overlap
+  // window.
   if (activeWorkers[queueName]) {
-    log.warn(`[Queue] Worker for "${queueName}" already exists — closing old worker`);
-    activeWorkers[queueName].close();
+    log.warn(`[Queue] Worker for "${queueName}" already exists — closing old worker (awaited)`);
+    try {
+      await activeWorkers[queueName].close();
+    } catch (error) {
+      log.error(`[Queue] Error closing old worker for "${queueName}":`, error);
+    }
+    delete activeWorkers[queueName];
   }
 
   const connection = getSharedRedisConnection();
@@ -207,6 +226,13 @@ export async function closeAllWorkers(): Promise<void> {
 
 /**
  * Start all workers with their respective processors.
+ *
+ * IDEMPOTENT: Vercel cron invokes the /api/cron/workers endpoint every
+ * five minutes (see the schedule entry in vercel.json). Previously this
+ * restarted every worker on each call, interrupting in-flight jobs every
+ * five minutes. Now we skip any worker that is already registered AND
+ * running — only workers that are missing or not running are (re)started.
+ *
  * This is called by the /api/cron/workers endpoint.
  */
 export async function startAllWorkers(): Promise<void> {
@@ -214,12 +240,49 @@ export async function startAllWorkers(): Promise<void> {
   const { emailProcessor } = await import('./processors/email');
   const { notificationProcessor } = await import('./processors/notification');
   const { automationProcessor } = await import('./processors/automation');
+  const { reportProcessor } = await import('./processors/report');
+  const { cleanupProcessor } = await import('./processors/cleanup');
 
-  startWorker(QUEUES.EMAIL, emailProcessor, 5);
-  startWorker(QUEUES.NOTIFICATION, notificationProcessor, 10);
-  startWorker(QUEUES.AUTOMATION, automationProcessor, 3);
+  // [queueName, processor, concurrency]
+  const workerConfigs: Array<[QueueName, (job: Job) => Promise<void>, number]> = [
+    [QUEUES.EMAIL, emailProcessor, 5],
+    [QUEUES.NOTIFICATION, notificationProcessor, 10],
+    [QUEUES.AUTOMATION, automationProcessor, 3],
+    [QUEUES.REPORT, reportProcessor, 2],
+    [QUEUES.CLEANUP, cleanupProcessor, 2],
+  ];
 
-  log.info('[Queue] All workers started');
+  let startedCount = 0;
+  let skippedCount = 0;
+
+  for (const [queueName, processor, concurrency] of workerConfigs) {
+    const existing = activeWorkers[queueName];
+
+    if (existing && typeof existing.isRunning === 'function' && existing.isRunning()) {
+      // Worker already running — do NOT restart (idempotent). Restarting
+      // would close the existing worker and interrupt any in-flight jobs.
+      log.info(`[Queue] Worker for "${queueName}" already running — skipping (idempotent start)`);
+      skippedCount++;
+      continue;
+    }
+
+    if (existing) {
+      // Worker registered but NOT running (crashed, closed, or paused) —
+      // clean up the stale reference before starting a fresh one.
+      log.warn(`[Queue] Worker for "${queueName}" registered but not running — restarting`);
+      try {
+        await existing.close();
+      } catch (error) {
+        log.error(`[Queue] Error closing stale worker for "${queueName}":`, error);
+      }
+      delete activeWorkers[queueName];
+    }
+
+    await startWorker(queueName, processor, concurrency);
+    startedCount++;
+  }
+
+  log.info(`[Queue] startAllWorkers complete — ${startedCount} started, ${skippedCount} already running`);
 }
 
 // ============================================

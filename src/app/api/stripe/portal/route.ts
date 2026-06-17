@@ -44,13 +44,10 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Create billing portal session
-    const host = request.headers.get('host');
-    const protocol = request.headers.get('x-forwarded-proto') || 'https';
-    const origin =
-      request.headers.get('origin') ||
-      process.env.NEXT_PUBLIC_APP_URL ||
-      (host ? `${protocol}://${host}` : '');
+    // SECURITY FIX (P0-2): Host Header Injection protection.
+    // Previously derived from `request.headers.get('host')` + `x-forwarded-proto`
+    // which an attacker could spoof. Now NEXT_PUBLIC_APP_URL is REQUIRED.
+    const origin = process.env.NEXT_PUBLIC_APP_URL;
     if (!origin) {
       return NextResponse.json(
         {

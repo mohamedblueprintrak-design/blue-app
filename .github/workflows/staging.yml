@@ -125,12 +125,17 @@ jobs:
     name: Deploy to Staging
     runs-on: ubuntu-latest
     needs: build
-    if: success() && secrets.STAGING_HOST != ''
+    # NOTE: `secrets.*` cannot be referenced directly in job-level `if:` conditionals
+    # (they always evaluate to empty string / false). Instead we expose STAGING_HOST
+    # via the job env and guard each deploy step with `if: env.STAGING_HOST != ''`.
+    env:
+      STAGING_HOST: ${{ secrets.STAGING_HOST }}
     environment:
       name: staging
       url: ${{ vars.STAGING_APP_URL || 'https://staging.blueprint.example.com' }}
     steps:
       - name: Deploy via SSH
+        if: env.STAGING_HOST != ''
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.STAGING_HOST }}
@@ -146,6 +151,7 @@ jobs:
             echo "Staging deployment completed!"
 
       - name: Verify staging health
+        if: env.STAGING_HOST != ''
         run: |
           sleep 10
           APP_URL="${{ vars.STAGING_APP_URL || 'https://staging.blueprint.example.com' }}"
@@ -155,3 +161,10 @@ jobs:
           else
             echo "Warning: Staging health check returned ${HTTP_STATUS}"
           fi
+
+      - name: Skip staging deployment (no STAGING_HOST secret)
+        if: env.STAGING_HOST == ''
+        run: |
+          echo "STAGING_HOST secret is not configured. Skipping staging deployment."
+          echo "To enable staging deploys, set the STAGING_HOST repository/secret."
+          exit 0

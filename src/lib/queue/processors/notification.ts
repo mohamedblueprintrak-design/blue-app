@@ -66,10 +66,27 @@ export async function notificationProcessor(job: Job<NotificationJobData>): Prom
   });
 
   // 1. Resolve organizationId
-  let orgId = _organizationId;
+  //
+  // MULTI-TENANT SAFETY: A notification MUST be scoped to exactly one
+  // organization. Previously this code fell back to `db.organization.findFirst()`
+  // when `organizationId` was missing from the job data — in a multi-tenant
+  // deployment that silently attached the notification to whatever org
+  // happens to be first in the DB (data leak across tenants). The fallback
+  // is removed; a missing organizationId is a programming error on the
+  // caller side and the job is failed (and retried, then DLQ'd) rather
+  // than silently cross-assigning the notification.
+  const orgId = _organizationId;
   if (!orgId) {
-    const org = await db.organization.findFirst();
-    orgId = org?.id || "";
+    log.error(
+      '[Processor/Notification] Job missing organizationId — refusing to fall back to first org (multi-tenant safety)',
+      {
+        jobId: job.id,
+        jobName: job.name,
+        userId,
+        type,
+      }
+    );
+    throw new Error('Job missing organizationId — cannot process without tenant context');
   }
 
   // 2. Create notification record in database
