@@ -174,7 +174,7 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
     queryFn: async () => {
       const res = await fetch("/api/documents");
       if (!res.ok) throw new Error("Failed to fetch");
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -184,7 +184,7 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
     queryFn: async () => {
       const res = await fetch("/api/projects-simple");
       if (!res.ok) return [];
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -454,10 +454,10 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
           </div>
           {/* View Toggle */}
           <div className="flex rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <Button variant={viewMode === "grid" ? "secondary" : "ghost"} size="icon" className="h-8 w-8 rounded-none" onClick={() => setViewMode("grid")} aria-label="Grid view">
+            <Button variant={viewMode === "grid" ? "secondary" : "ghost"} size="icon" className="h-8 w-8 rounded-none" onClick={() => setViewMode("grid")} aria-label={ar ? "عرض شبكي" : "Grid view"}>
               <LayoutGrid className="h-3.5 w-3.5" />
             </Button>
-            <Button variant={viewMode === "list" ? "secondary" : "ghost"} size="icon" className="h-8 w-8 rounded-none" onClick={() => setViewMode("list")} aria-label="List view">
+            <Button variant={viewMode === "list" ? "secondary" : "ghost"} size="icon" className="h-8 w-8 rounded-none" onClick={() => setViewMode("list")} aria-label={ar ? "عرض قائمة" : "List view"}>
               <List className="h-3.5 w-3.5" />
             </Button>
           </div>
@@ -831,6 +831,7 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
                   <Label className="text-xs text-slate-400 dark:text-slate-500 mb-2 block">{ar ? "معاينة المستند" : "Document Preview"}</Label>
                   {["jpg", "jpeg", "png", "gif", "webp"].includes((viewDoc.fileType || "").toLowerCase()) ? (
                     <div className="rounded-md overflow-hidden border border-slate-200 dark:border-slate-700">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={viewDoc.filePath} alt={viewDoc.name} className="w-full h-auto max-h-[300px] object-contain bg-slate-50 dark:bg-slate-900" />
                     </div>
                   ) : ["pdf"].includes((viewDoc.fileType || "").toLowerCase()) ? (

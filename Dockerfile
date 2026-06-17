@@ -4,9 +4,12 @@
 # Multi-stage build for optimized production image
 # Uses Bun for dependency installation, Node.js for runtime
 
-# Stage 1: Dependencies (using Bun for fast, reliable installs)
-FROM oven/bun:1-alpine AS deps
-RUN apk add --no-cache libc6-compat openssl
+# Stage 1: Dependencies (ALL — including devDependencies for the build stage)
+FROM node:20-alpine AS deps
+# python3, make, g++ needed for native modules (sharp)
+RUN apk add --no-cache libc6-compat openssl python3 make g++
+# Install Bun for dependency installation (project uses bun.lock)
+RUN npm install -g bun@latest
 
 WORKDIR /app
 
@@ -15,17 +18,17 @@ COPY package.json bun.lock ./
 COPY prisma ./prisma/
 
 # Install ALL dependencies (including devDependencies for build)
-RUN bun install --frozen-lockfile
+# --ignore-scripts skips prepare:husky (dev-only) and postinstall:prisma-generate
+# We run prisma generate manually below
+RUN bun install --ignore-scripts
 
 # Generate Prisma Client
-RUN bunx prisma generate
+RUN npx prisma generate
 
 # ============================================
 # Stage 2: Builder
 FROM node:20-alpine AS builder
 
-# Install Bun in builder stage for consistency with deps stage
-RUN npm install -g bun
 
 WORKDIR /app
 
@@ -44,23 +47,37 @@ ENV NODE_ENV=production
 # Prisma generate is handled in the deps stage; no DATABASE_URL needed here.
 
 # Build the application
-RUN bun run build
+RUN npm run build
 
 # ============================================
-# Stage 3: Install production dependencies only
-FROM oven/bun:1-alpine AS prod-deps
+# Stage 3: Production dependencies only
+# We install ALL deps then prune devDependencies to avoid the
+# "lockfile had changes, but lockfile is frozen" error that occurs
+# when running `bun install --production` in Docker (Bun's --production
+# flag modifies the lockfile, which conflicts with frozen-lockfile mode).
+FROM node:20-alpine AS prod-deps
 RUN apk add --no-cache libc6-compat openssl
+# Install Bun for dependency installation (project uses bun.lock)
+RUN npm install -g bun@latest
 
 WORKDIR /app
 
+# Copy package files and install ALL deps first
 COPY package.json bun.lock ./
 COPY prisma ./prisma/
+RUN bun install --ignore-scripts
 
-# Install ONLY production dependencies
-RUN bun install --frozen-lockfile --production
+# Remove devDependencies by re-installing with NODE_ENV=production
+# This avoids lockfile changes because the full lockfile is already present
+ENV NODE_ENV=production
+RUN rm -rf node_modules && bun install --ignore-scripts
 
-# Generate Prisma Client (production)
-RUN bunx prisma generate
+# Copy the already-generated Prisma Client from the deps stage.
+# Prisma CLI is in devDependencies, so it won't be installed in prod-deps.
+# Regenerating with `npx prisma generate` would either fail (no prisma binary)
+# or download an unversioned binary from npm (wrong version, network-dependent).
+COPY --from=deps /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=deps /app/node_modules/@prisma ./node_modules/@prisma
 
 # ============================================
 # Stage 4: Runner (Production)
@@ -87,12 +104,16 @@ COPY --from=prod-deps /app/node_modules ./node_modules
 # Copy Prisma schema for migrations at runtime
 COPY --from=builder /app/prisma ./prisma
 
+# Copy Prisma CLI binary from deps stage for runtime migrations.
+# Prisma CLI is in devDependencies, so it's not in prod node_modules.
+# We need it at runtime for `prisma migrate deploy` in the entrypoint.
+COPY --from=deps /app/node_modules/prisma ./node_modules/prisma
+
 # Create uploads directory
 RUN mkdir -p /app/uploads && chown -R nextjs:nodejs /app/uploads
 
-# Install postgresql-client for migrations and Prisma CLI
-RUN apk add --no-cache postgresql-client && \
-    npm install -g prisma
+# Install postgresql-client for migrations
+RUN apk add --no-cache postgresql-client
 
 # Copy entrypoint script
 COPY --from=builder /app/docker-entrypoint.sh ./

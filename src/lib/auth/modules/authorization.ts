@@ -75,9 +75,9 @@ export function hasAllPermissions(userRole: Role, permissions: Permission[]): bo
  */
 export function isRoleAtLeast(userRole: Role, requiredRole: Role): boolean {
   const userLevel = ROLE_HIERARCHY[normalizeRole(userRole)] || ROLE_HIERARCHY[userRole] || 0;
-  if (userLevel === 0) return false;
+  if (userLevel === 0) return false; // Unknown user role → deny
   const requiredLevel = ROLE_HIERARCHY[normalizeRole(requiredRole)] || ROLE_HIERARCHY[requiredRole] || 0;
-  if (requiredLevel === 0) return false;
+  if (requiredLevel === 0) return false; // Unknown required role → fail-closed (deny by default)
   return userLevel >= requiredLevel;
 }
 

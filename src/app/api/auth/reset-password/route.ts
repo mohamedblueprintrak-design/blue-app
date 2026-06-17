@@ -73,7 +73,8 @@ export async function POST(request: NextRequest) {
     // Hash new password
     const hashedPassword = await hash(password, 12);
 
-    // Update user password and mark token as used in a transaction
+    // Update user password, mark token as used, and invalidate all refresh tokens
+    // atomically in a single transaction to prevent security gaps
     await db.$transaction([
       db.user.update({
         where: { id: user.id },
@@ -86,12 +87,10 @@ export async function POST(request: NextRequest) {
         where: { token: hashedToken },
         data: { usedAt: new Date() },
       }),
+      db.refreshToken.deleteMany({
+        where: { userId: user.id },
+      }),
     ]);
-
-    // Invalidate all existing refresh tokens for security
-    await db.refreshToken.deleteMany({
-      where: { userId: user.id },
-    });
 
     return NextResponse.json({ success: true, message: "تم تغيير كلمة المرور بنجاح" });
   } catch (error) {

@@ -16,7 +16,7 @@ try {
 }
 
 const nextConfig: NextConfig = {
-  output: 'standalone',
+  ...(process.env.VERCEL ? {} : { output: 'standalone' }),
   poweredByHeader: false,
   typescript: {
     ignoreBuildErrors: false,
@@ -106,22 +106,6 @@ const nextConfig: NextConfig = {
     },
   },
 
-  // ─────────────────────────────────────────────────────────
-  // SECURITY HEADERS
-  // ─────────────────────────────────────────────────────────
-  // Page security headers → <meta http-equiv> in layout.tsx
-  // API CORS headers → src/app/api/utils/response.ts
-  // Production headers → Caddy/Nginx reverse proxy config
-  // CSP with nonces → src/proxy.ts (the authoritative source)
-  // Next.js-level headers → Applied here as defense-in-depth
-  // ─────────────────────────────────────────────────────────
-  // NOTE: Content-Security-Policy is NOT set here because
-  // src/proxy.ts generates per-request nonces for script-src,
-  // which is strictly more secure than static 'unsafe-inline'
-  // or 'unsafe-eval' directives. Having both would create
-  // conflicting CSP headers — the proxy CSP always wins but
-  // the weaker fallback CSP here was a risk if proxy is bypassed.
-  // ─────────────────────────────────────────────────────────
   webpack: (config, { webpack, isServer }) => {
     // Fix UnhandledSchemeError: Reading from "node:crypto" is not handled by plugins
     config.plugins.push(
@@ -145,42 +129,7 @@ const nextConfig: NextConfig = {
     }
 
     return config;
-  },
-
-  async headers() {
-    return [
-      {
-        source: '/(.*)',
-        headers: [
-          {
-            key: 'X-Frame-Options',
-            value: 'DENY',
-          },
-          {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
-          },
-          {
-            key: 'Referrer-Policy',
-            value: 'strict-origin-when-cross-origin',
-          },
-          {
-            key: 'X-DNS-Prefetch-Control',
-            value: 'on',
-          },
-          {
-            key: 'Permissions-Policy',
-            value: 'camera=(), microphone=(), geolocation=()',
-          },
-          {
-            key: 'Strict-Transport-Security',
-            value: 'max-age=63072000; includeSubDomains; preload',
-          },
-          // CSP is set by src/proxy.ts with per-request nonces — do NOT add a static CSP here
-        ],
-      },
-    ];
-  },
+  }
 };
 
 // Wrap with Sentry if available, otherwise export as-is

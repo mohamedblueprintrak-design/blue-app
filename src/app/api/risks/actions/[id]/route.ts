@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
-import { requireVerifiedPermission, orgFilterNested } from '@/app/api/utils/auth';
+import { requireVerifiedPermission } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
 import { validateIdParam } from '@/lib/api-validation';

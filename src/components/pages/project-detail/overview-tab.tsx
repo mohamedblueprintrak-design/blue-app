@@ -19,7 +19,6 @@ import {
   Plus,
   Star,
   Phone,
-  MessageCircle,
   ArrowUpRight,
   Download,
   CheckCircle2,

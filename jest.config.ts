@@ -1,8 +1,9 @@
 /** @type {import('ts-jest').JestConfigWithTsJest} */
-export default {
+const jestConfig = {
   preset: 'ts-jest',
   testEnvironment: 'node',
   roots: ['<rootDir>/__tests__'],
+  setupFiles: ['<rootDir>/jest.setup.ts'],
   extensionsToTreatAsEsm: ['.ts'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
@@ -26,16 +27,33 @@ export default {
   testMatch: ['**/__tests__/**/*.test.{ts,tsx}'],
   collectCoverageFrom: [
     'src/lib/**/*.ts',
-    'src/app/api/**/*.ts',
+    'src/app/api/utils/**/*.ts',
     '!src/**/*.d.ts',
     '!src/**/types.ts',
   ],
+  forceExit: true,
+  detectOpenHandles: false,
   coverageThreshold: {
     global: {
-      branches: 50,
-      functions: 50,
-      lines: 50,
-      statements: 50,
+      branches: 60,
+      functions: 70,
+      lines: 70,
+      statements: 70,
+    },
+    // Stricter thresholds for security-critical modules
+    './src/lib/auth/': {
+      branches: 70,
+      functions: 80,
+      lines: 80,
+      statements: 80,
+    },
+    './src/app/api/utils/': {
+      branches: 70,
+      functions: 75,
+      lines: 80,
+      statements: 80,
     },
   },
 };
+
+export default jestConfig;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -9,7 +9,6 @@ import {
   Bell,
   Shield,
   CreditCard,
-  Plug,
 } from "lucide-react";
 import { getMutationHeaders } from "@/lib/csrf-client";
 import { CompanyTab } from "./settings/company-tab";
@@ -55,9 +54,9 @@ export default function SettingsPage({ language: lang }: Props) {
   const [dangerConfirm, setDangerConfirm] = useState<DangerConfirmType>("");
   const [dangerError, setDangerError] = useState("");
   const [dangerSuccess, setDangerSuccess] = useState("");
-  const [logoUploading, setLogoUploading] = useState(false);
-  const [logoPreview, setLogoPreview] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [_logoUploading, _setLogoUploading] = useState(false);
+  const [_logoPreview, _setLogoPreview] = useState<string | null>(null);
+  const _fileInputRef = useRef<HTMLInputElement>(null);
 
   // Fetch user preferences (accent color, notification settings)
   const { data: preferences } = useQuery({
@@ -66,16 +65,14 @@ export default function SettingsPage({ language: lang }: Props) {
   });
 
   // Initialize preferences when loaded
-  const [prevPreferences, setPrevPreferences] = useState(preferences);
-  if (preferences !== prevPreferences) {
-    setPrevPreferences(preferences);
+  useEffect(() => {
     if (preferences) {
       setAccentColorLocal(preferences.accentColor || "teal");
       if (preferences.notifications) {
         setNotifSettingsLocal((prev) => ({ ...prev, ...preferences.notifications }));
       }
     }
-  }
+  }, [preferences]);
 
   // Fetch current session info
   const { data: sessionData } = useQuery({
@@ -93,7 +90,7 @@ export default function SettingsPage({ language: lang }: Props) {
         body: JSON.stringify({ accentColor: color }),
       });
       if (!res.ok) {
-        const data = await res.json();
+        const _data = await res.json();
       }
     } catch {
       // Error already shown via UI
@@ -112,7 +109,7 @@ export default function SettingsPage({ language: lang }: Props) {
         body: JSON.stringify({ notifications: settings }),
       });
       if (!res.ok) {
-        const data = await res.json();
+        const _data = await res.json();
       }
     } catch {
       // Error already shown via UI
@@ -136,10 +133,8 @@ export default function SettingsPage({ language: lang }: Props) {
     });
   }, [saveNotifSettings]);
 
-  // Initialize form data when settings load (during render, not in effect)
-  const [prevSettings, setPrevSettings] = useState(settings);
-  if (settings !== prevSettings) {
-    setPrevSettings(settings);
+  // Initialize form data when settings load
+  useEffect(() => {
     if (settings) {
       setFormData({
         name: settings.name || "",
@@ -154,7 +149,7 @@ export default function SettingsPage({ language: lang }: Props) {
       });
       setWorkingDays((settings.workingDays || "").split(",").filter(Boolean));
     }
-  }
+  }, [settings]);
 
   const updateMutation = useMutation({
     mutationFn: (data: Record<string, unknown>) =>
@@ -231,8 +226,8 @@ export default function SettingsPage({ language: lang }: Props) {
             workingDays={workingDays}
             saving={saving}
             saved={saved}
-            logoUploading={logoUploading}
-            logoPreview={logoPreview}
+            logoUploading={_logoUploading}
+            logoPreview={_logoPreview}
             updateField={updateField}
             toggleWorkingDay={toggleWorkingDay}
             handleSave={handleSave}

@@ -73,6 +73,15 @@ async function attemptTokenRefresh(): Promise<boolean> {
         return true;
       }
 
+      // If refresh returns 401 (invalid/expired token) or 500 (server error),
+      // the session is unrecoverable — clear stale cookies and reject.
+      // This prevents infinite retry loops when the refresh token is orphaned
+      // or the database has inconsistent data.
+      if (response.status === 401 || response.status === 500) {
+        // Best-effort: call logout to clear cookies server-side
+        try { await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' }); } catch { /* ignore */ }
+      }
+
       return false;
     } catch {
       return false;

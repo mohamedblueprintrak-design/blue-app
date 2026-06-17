@@ -87,7 +87,7 @@ export default function ClientsPage({ language, projectId, initialTab }: Clients
         } else {
           toast.showError(ar ? `فشل الاستيراد: ${json.error || "خطأ غير معروف"}` : `Import failed: ${json.error || "Unknown error"}`);
         }
-      } catch (err) {
+      } catch (_err) {
         toast.showError(ar ? "حدث خطأ أثناء الاستيراد" : "An error occurred during import");
       } finally {
         setImporting(false);

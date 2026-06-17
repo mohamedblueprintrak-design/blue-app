@@ -122,7 +122,7 @@ export default function RetainagePage({ language, projectId }: RetainagePageProp
       if (filterStatus && filterStatus !== "all") params.set("status", filterStatus);
       const res = await fetch(`/api/retainage?${params.toString()}`);
       if (!res.ok) throw new Error("Failed");
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -132,7 +132,7 @@ export default function RetainagePage({ language, projectId }: RetainagePageProp
     queryFn: async () => {
       const res = await fetch("/api/projects-simple");
       if (!res.ok) return [];
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 

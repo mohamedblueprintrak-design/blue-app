@@ -1,8 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Sans_Arabic, Plus_Jakarta_Sans } from "next/font/google";
 import { ThemeProvider } from "next-themes";
+import { headers } from "next/headers";
 import "./globals.css";
-import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from "@/components/ui/sonner";
 import { CsrfProvider } from "@/components/providers/csrf-provider";
 import { ReactQueryProvider } from "@/components/providers/react-query-provider";
 import { ErrorBoundary } from "@/components/common/error-boundary";
@@ -56,26 +57,38 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const messages = await getMessages();
+  // SECURITY: Read the per-request CSP nonce forwarded by the proxy middleware.
+  // The nonce is generated in src/auth-proxy.ts and attached to the request
+  // headers so server components can embed it in <script nonce="..."> tags.
+  // Without this, the inline language-detection script below would be blocked
+  // by the browser's CSP enforcement (script-src 'self' 'nonce-<random>').
+  // Falls back to an empty nonce for static/SSG-rendered pages where middleware
+  // has not run — in that case the script tag is omitted to avoid a CSP violation.
+  const headersList = await headers();
+  const nonce = headersList.get("x-nonce") ?? "";
   return (
     <html lang="ar" dir="rtl" suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
-        <link
-          rel="stylesheet"
-          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-          crossOrigin=""
-        />
+        {/* Leaflet CSS imported locally via 'leaflet/dist/leaflet.css' in globals.css or component */}
         {/* Security headers are set centrally by src/proxy.ts — no duplicate meta tags needed */}
-        {/* SECURITY: This inline script is safe — it contains only static code that reads from
-            localStorage and sets document direction. No user input is interpolated.
-            This is the standard Next.js pattern for preventing FOUC (flash of unstyled content). */}
-        <script
-          id="lang-script"
-          suppressHydrationWarning
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{var m=document.cookie.match(/(^| )blueprint-lang=([^;]+)/);var l=m?m[2]:(localStorage.getItem("blueprint-lang")||"ar");document.documentElement.lang=l;document.documentElement.dir=l==="ar"?"rtl":"ltr"}catch(e){}})()`,
-          }}
-        />
+        {/* Language detection script — prevents FOUC (flash of unstyled content).
+            SECURITY: This inline script contains only static code that reads from
+            localStorage/cookies and sets document direction. No user input is interpolated.
+            The nonce attribute is required by the CSP `script-src 'nonce-<random>'` directive
+            enforced by the proxy middleware. The nonce is generated per-request and is NOT
+            exposed in any response header — only embedded server-side in this tag — so XSS
+            payloads cannot read it. If the nonce is missing (e.g., during SSG), the script
+            is omitted to avoid a CSP violation; the React app will re-apply direction on mount. */}
+        {nonce ? (
+          <script
+            id="lang-script"
+            nonce={nonce}
+            suppressHydrationWarning
+            dangerouslySetInnerHTML={{
+              __html: `(function(){try{var m=document.cookie.match(/(^| )blueprint-lang=([^;]+)/);var l=m?m[2]:(localStorage.getItem("blueprint-lang")||"ar");document.documentElement.lang=l;document.documentElement.dir=l==="ar"?"rtl":"ltr"}catch(e){}})()`,
+            }}
+          />
+        ) : null}
       </head>
       <body
         className={`${ibmPlexArabic.variable} ${plusJakarta.variable} antialiased bg-background text-foreground font-[family-name:var(--font-ibm-plex-arabic)]`}
@@ -85,15 +98,15 @@ export default async function RootLayout({
           <ReactQueryProvider>
             <CsrfProvider>
               <SafeWebSocketProvider>
-                <ErrorBoundary locale="ar">
+                <ErrorBoundary>
                   <NextIntlClientProvider messages={messages}>
                     {process.env.DEMO_MODE === "true" && <DemoBanner />}
                     {children}
                     <CookieConsent />
+                    <Toaster position="top-right" richColors closeButton />
                   </NextIntlClientProvider>
                 </ErrorBoundary>
               </SafeWebSocketProvider>
-              <Toaster />
             </CsrfProvider>
           </ReactQueryProvider>
         </ThemeProvider>

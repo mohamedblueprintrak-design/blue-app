@@ -6,7 +6,7 @@ import {
   hashToken,
   getAuthCookieOptions,
 } from '@/lib/auth/token-utils';
-import { getAuthContext } from '@/app/api/utils/auth';
+import { requireVerifiedAuth } from '@/app/api/utils/auth';
 import { authService } from '@/lib/auth/auth-service';
 import { db } from '@/lib/db';
 
@@ -22,20 +22,24 @@ export async function POST(request: NextRequest) {
 
     if (refreshToken) {
       // Hash the token and revoke it in the database
-      const tokenHash = await hashToken(refreshToken);
-      const storedToken = await db.refreshToken.findUnique({
-        where: { tokenHash },
-      });
+      try {
+        const tokenHash = await hashToken(refreshToken);
+        const storedToken = await db.refreshToken.findUnique({
+          where: { tokenHash },
+        });
 
-      if (storedToken) {
-        targetUserId = storedToken.userId;
+        if (storedToken) {
+          targetUserId = storedToken.userId;
+        }
+      } catch {
+        // Orphaned token or DB error — continue with logout anyway
       }
     }
 
     if (!targetUserId) {
-      const ctx = getAuthContext(request);
-      if (ctx?.userId) {
-        targetUserId = ctx.userId;
+      const authResult = await requireVerifiedAuth(request);
+      if ('user' in authResult) {
+        targetUserId = authResult.user.userId;
       }
     }
 
@@ -49,7 +53,7 @@ export async function POST(request: NextRequest) {
     log.error('Error revoking refresh token on logout:', error);
   }
 
-  // Always clear both cookies regardless of revocation outcome
+  // Always clear all auth cookies regardless of revocation outcome
   const response = NextResponse.json({
     success: true,
     message: 'Logged out successfully',
@@ -61,6 +65,24 @@ export async function POST(request: NextRequest) {
 
   response.cookies.set(REFRESH_COOKIE_NAME, '', {
     ...getAuthCookieOptions(0),
+  });
+
+  // Clear 2FA temp token (if present from an abandoned 2FA flow)
+  response.cookies.set('blue_2fa_temp', '', {
+    path: '/',
+    maxAge: 0,
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+  });
+
+  // Clear CSRF token
+  response.cookies.set('csrf_token', '', {
+    path: '/',
+    maxAge: 0,
+    httpOnly: false,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
   });
 
   return response;

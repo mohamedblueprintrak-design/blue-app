@@ -197,8 +197,10 @@ class InMemoryCache {
  */
 export class CacheManager {
   private memoryCache: InMemoryCache;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Redis client type varies by loaded modules (JSON, search, etc.)
-  private redisClient: any = null;
+  // Redis client type varies by loaded modules (JSON, search, etc.) and the
+  // `redis` package's exported types are unstable across versions, so we use
+  // a narrow assertion here instead of `any`.
+  private redisClient: ReturnType<typeof import('redis')['createClient']> | null = null;
   private redisAvailable = false;
   private redisConnecting = false;
   private keyPrefix: string;
@@ -210,6 +212,9 @@ export class CacheManager {
   private misses = 0;
   private sets = 0;
   private deletes = 0;
+
+  /** Public getter for key prefix — needed by namespace factory and external consumers */
+  get prefix(): string { return this.keyPrefix; }
 
   constructor(config: CacheManagerConfig = {}) {
     this.keyPrefix = config.keyPrefix ?? 'blueprint';
@@ -396,13 +401,13 @@ export class CacheManager {
         const regexPattern = new RegExp(
           '^' + pattern.replace(/\+/g, '\\+').replace(/\*/g, '.*').replace(/\?/g, '.') + '$'
         );
-        let cursor = 0;
+        let cursor = '0';
         do {
           const result = await this.redisClient.scan(cursor, {
             MATCH: pattern,
             COUNT: 100,
           });
-          cursor = result.cursor;
+          cursor = result.cursor as string;
           const keys = result.keys;
           if (keys.length > 0) {
             // Verify keys match the pattern (SCAN can return false positives)
@@ -412,7 +417,7 @@ export class CacheManager {
               count += matchingKeys.length;
             }
           }
-        } while (cursor !== 0);
+        } while (cursor !== '0');
       } catch (error) {
         log.warn('[CacheManager] Redis invalidate error:', { error: String(error) });
       }
@@ -591,7 +596,7 @@ export function createCacheNamespace<T = unknown>(
   prefix: string,
   cacheManager: CacheManager
 ): CacheNamespace<T> {
-  const keyPrefix = `${cacheManager['keyPrefix']}:${prefix}`;
+  const keyPrefix = `${cacheManager.prefix}:${prefix}`;
 
   return {
     prefix,

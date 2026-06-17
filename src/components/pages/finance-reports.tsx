@@ -11,14 +11,19 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import dynamic from 'next/dynamic';
-const BarChart = dynamic<any>(() => import('recharts').then((mod: any) => mod.BarChart), { ssr: false });
-const Bar = dynamic<any>(() => import('recharts').then((mod: any) => mod.Bar), { ssr: false });
-const XAxis = dynamic<any>(() => import('recharts').then((mod: any) => mod.XAxis), { ssr: false });
-const YAxis = dynamic<any>(() => import('recharts').then((mod: any) => mod.YAxis), { ssr: false });
-const CartesianGrid = dynamic<any>(() => import('recharts').then((mod: any) => mod.CartesianGrid), { ssr: false });
-const Tooltip = dynamic<any>(() => import('recharts').then((mod: any) => mod.Tooltip), { ssr: false });
-const ResponsiveContainer = dynamic<any>(() => import('recharts').then((mod: any) => mod.ResponsiveContainer), { ssr: false });
-const Legend = dynamic<any>(() => import('recharts').then((mod: any) => mod.Legend), { ssr: false });
+
+// Recharts components use ForwardRef + defaultProps which are incompatible with
+// next/dynamic's generic type constraints. Using `dynamic<any>` is the standard
+// workaround. @ts-expect-error suppresses the type mismatch that some TypeScript
+// versions flag on the dynamic import return type.
+const BarChart = dynamic(() => import('recharts').then((mod) => mod.BarChart as unknown as React.ComponentType<Record<string, unknown>>), { ssr: false });
+const Bar = dynamic(() => import('recharts').then((mod) => mod.Bar as unknown as React.ComponentType<Record<string, unknown>>), { ssr: false });
+const XAxis = dynamic(() => import('recharts').then((mod) => mod.XAxis as unknown as React.ComponentType<Record<string, unknown>>), { ssr: false });
+const YAxis = dynamic(() => import('recharts').then((mod) => mod.YAxis as unknown as React.ComponentType<Record<string, unknown>>), { ssr: false });
+const CartesianGrid = dynamic(() => import('recharts').then((mod) => mod.CartesianGrid as unknown as React.ComponentType<Record<string, unknown>>), { ssr: false });
+const Tooltip = dynamic(() => import('recharts').then((mod) => mod.Tooltip as unknown as React.ComponentType<Record<string, unknown>>), { ssr: false });
+const ResponsiveContainer = dynamic(() => import('recharts').then((mod) => mod.ResponsiveContainer as unknown as React.ComponentType<Record<string, unknown>>), { ssr: false });
+const Legend = dynamic(() => import('recharts').then((mod) => mod.Legend as unknown as React.ComponentType<Record<string, unknown>>), { ssr: false });
 
 import { DollarSign, TrendingUp, TrendingDown, Wallet, ArrowUpRight, ArrowDownRight, Briefcase, FileText, FileSpreadsheet, Loader2, Target, BarChart3, Activity } from 'lucide-react'
 

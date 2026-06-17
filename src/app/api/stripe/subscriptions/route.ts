@@ -17,7 +17,7 @@ import {
   reactivateSubscription,
   isStripeConfigured,
 } from '@/lib/stripe';
-import { getSubscriptionPeriod } from '@/lib/stripe-types';
+import { getSubscriptionPeriod, getInvoiceFields } from '@/lib/stripe-types';
 import { successResponse, errorResponse, forbiddenResponse } from '../../utils/response';
 import { requireVerifiedPermission } from '../../utils/auth';
 import { Permission } from '@/lib/auth/types';
@@ -139,9 +139,12 @@ export async function POST(request: NextRequest) {
     return successResponse({
       subscriptionId: subscription.id,
       status: subscription.status,
-      clientSecret: subscription.latest_invoice && typeof subscription.latest_invoice === 'object'
-        ? ((subscription.latest_invoice as unknown as Record<string, unknown>).payment_intent as Record<string, unknown> | undefined)?.client_secret as string | null | undefined
-        : null,
+      clientSecret: (() => {
+          if (!subscription.latest_invoice || typeof subscription.latest_invoice !== 'object') return null;
+          const invoiceFields = getInvoiceFields(subscription.latest_invoice);
+          const pi = invoiceFields.payment_intent;
+          return typeof pi === 'object' && pi !== null ? (pi as Record<string, unknown>).client_secret as string | null | undefined : null;
+        })(),
       message: trialPeriodDays
         ? `تم إنشاء الاشتراك مع فترة تجريبية ${trialPeriodDays} يوم`
         : 'تم إنشاء الاشتراك بنجاح',
@@ -247,8 +250,21 @@ export async function DELETE(request: NextRequest) {
   const ctx = rbac.user;
 
   try {
-    const body = await request.json();
-    const { subscriptionId, immediately = false, _reason } = body;
+    // NOTE: DELETE requests with body may be stripped by proxies (e.g., Cloudflare, nginx).
+    // Accept subscriptionId and immediately from query parameters as fallback.
+    const { searchParams } = new URL(request.url);
+    let subscriptionId: string | undefined;
+    let immediately = false;
+
+    try {
+      const body = await request.json();
+      subscriptionId = body.subscriptionId;
+      immediately = body.immediately ?? false;
+    } catch {
+      // Body read failed (empty body or stripped by proxy) — fall back to query params
+      subscriptionId = searchParams.get('subscriptionId') || undefined;
+      immediately = searchParams.get('immediately') === 'true';
+    }
 
     if (!subscriptionId) {
       return errorResponse('معرف الاشتراك مطلوب', 'MISSING_SUBSCRIPTION_ID', 400);

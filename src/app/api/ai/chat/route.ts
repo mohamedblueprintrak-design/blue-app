@@ -1,20 +1,18 @@
-import { requireVerifiedPermission, orgCheck, orgCreate, type AuthContext } from '@/app/api/utils/auth';
+import { requireVerifiedPermission, orgCreate } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
-import { hasPermission } from '@/lib/auth/modules/authorization';
+
 import { NextRequest, NextResponse } from 'next/server';
 import { db, isDatabaseAvailable } from '@/lib/db';
 import { validateBody, aiChatSchema } from '@/lib/api-validation';
 import { providerRegistry } from '@/lib/ai/providers/registry';
 import type { ChatMessage } from '@/lib/ai/providers/types';
 import { log } from '@/lib/logger';
-import { getEngineeringContext, CONSTRUCTION_COSTS_RAK } from '@/lib/ai/engineering-knowledge';
+import { getEngineeringContext } from '@/lib/ai/engineering-knowledge';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 import { getCompanyCurrency } from '@/lib/currency-server';
 
 import {
   getZAI,
-  readZaiConfigFile,
-  getCachedZaiFileConfig,
   callZaiDirect,
   detectTopics,
   fetchContextData,
@@ -104,7 +102,14 @@ export async function POST(request: NextRequest) {
       });
     } catch (dbError) {
       log.error('[AI Chat] Database error during conversation lookup/create:', dbError);
-      conversation = null;
+      // SECURITY: Don't silently set conversation=null and attempt to continue.
+      // If the DB is down, creating a new conversation will also fail, and we
+      // risk creating duplicate conversations or losing existing history.
+      // Instead, return a clear error so the client can retry.
+      return NextResponse.json(
+        { error: 'Database temporarily unavailable. Please try again.' },
+        { status: 503 }
+      );
     }
 
     // Build history from database messages (or empty if db is unavailable)

@@ -11,7 +11,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ToastAction } from "@/components/ui/toast";
 import { BulkActionBar } from "@/components/common/bulk-action-bar";
-import { cn } from "@/lib/utils";
 import { generateInvoicePDF } from "@/lib/pdf-utils";
 import { getMutationHeaders } from "@/lib/csrf-client";
 import { extractErrorMessage } from "@/lib/api/fetch-client";
@@ -48,8 +47,9 @@ export default function InvoicesPage({ language, projectId }: InvoicesPageProps)
   const PAGE_SIZE = 10;
 
   useEffect(() => {
+    const currentTimeouts = deleteTimeouts.current;
     return () => {
-      deleteTimeouts.current.forEach(clearTimeout);
+      currentTimeouts.forEach(clearTimeout);
     };
   }, []);
 
@@ -63,7 +63,7 @@ export default function InvoicesPage({ language, projectId }: InvoicesPageProps)
   };
 
   const form = useForm<InvoiceFormData>({
-    resolver: zodResolver(invoiceSchema) as unknown as Resolver<InvoiceFormData>,
+    resolver: zodResolver(invoiceSchema) as Resolver<InvoiceFormData>,
     defaultValues: {
       number: "",
       clientId: "",
@@ -83,7 +83,7 @@ export default function InvoicesPage({ language, projectId }: InvoicesPageProps)
       const res = await fetch(`/api/invoices${projectId ? `?projectId=${projectId}` : ''}`);
       if (!res.ok) throw new Error("Failed to fetch");
       const json = await res.json();
-      return json.invoices || json;
+      return json.data || json.invoices || json;
     },
   });
   const invoices = Array.isArray(invoicesData) ? invoicesData : [];
@@ -223,7 +223,7 @@ export default function InvoicesPage({ language, projectId }: InvoicesPageProps)
         status: inv.status,
       }, language);
       toast.showSuccess(ar ? "تم تصدير الفاتورة PDF" : "Invoice PDF exported");
-    } catch (e) {
+    } catch (_e) {
       toast.showError(ar ? "فشل تصدير الفاتورة" : "Failed to export PDF");
     }
   };
@@ -252,7 +252,7 @@ export default function InvoicesPage({ language, projectId }: InvoicesPageProps)
       projectId: inv.projectId,
       issueDate: inv.issueDate.split("T")[0],
       dueDate: inv.dueDate.split("T")[0],
-      status: inv.status,
+      status: inv.status as InvoiceFormData["status"],
     });
     setFormData({
       number: inv.number,
@@ -407,10 +407,10 @@ export default function InvoicesPage({ language, projectId }: InvoicesPageProps)
                 const parsed = JSON.parse(draft);
                 setFormData(parsed);
                 Object.keys(parsed).forEach(k => {
-                  setValue(k as any, parsed[k]);
+                  setValue(k as keyof InvoiceFormData, parsed[k as keyof InvoiceFormData]);
                 });
                 toast.showSuccess(ar ? "تم استعادة المسودة بنجاح" : "Draft restored successfully");
-              } catch (e) {
+              } catch (_e) {
                 setFormData(emptyForm);
               }
             } else {

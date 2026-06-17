@@ -7,7 +7,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { requireVerifiedPermission, orgFilter } from '@/app/api/utils/auth';
+import { requireVerifiedPermission } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';

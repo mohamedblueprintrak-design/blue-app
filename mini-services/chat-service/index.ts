@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck — This is a standalone Bun runtime service, not part of the Next.js build
 /**
  * BluePrint WebSocket Chat Service

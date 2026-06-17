@@ -65,7 +65,7 @@ interface AssignmentWithUser {
 
 interface TeamMembersProps {
   language: "ar" | "en";
-  projectId: string;
+  projectId?: string;
 }
 
 // ===== Helpers =====

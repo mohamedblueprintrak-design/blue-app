@@ -2,11 +2,19 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { requireVerifiedPermission, orgCheck } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
-import { handleApiError } from '@/lib/api-error';
+import { handleApiErrorWithLogging as handleApiError } from '@/lib/api-error';
 import { validateIdParam } from '@/lib/api-validation';
+import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 
 const ALLOWED_MIME_TYPES = ['application/pdf'];
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
+/** PDF magic number: first 5 bytes should be "%PDF-" (hex 255044462D) */
+const PDF_MAGIC_HEX = '255044462D';
+
+function isPdfByMagicNumber(buffer: Buffer): boolean {
+  return buffer.subarray(0, 5).toString('hex').toUpperCase().startsWith(PDF_MAGIC_HEX);
+}
 
 // POST /api/projects/[id]/contractor-rfq/[bidId]/upload-quote
 export async function POST(
@@ -14,6 +22,11 @@ export async function POST(
   { params }: { params: Promise<{ id: string; bidId: string }> }
 ) {
   try {
+    // Rate limiting — file uploads are resource-intensive
+    const { result } = await withRateLimit(request, 'strict');
+    const blocked = rateLimitResponse(result);
+    if (blocked) return blocked;
+
     // AUTH CHECK
     const authResult = await requireVerifiedPermission(request, Permission.BID_UPDATE);
     if ('error' in authResult) return authResult.error;
@@ -40,6 +53,13 @@ export async function POST(
       return NextResponse.json({ error: 'File size exceeds 10MB limit' }, { status: 400 });
     }
 
+    // SECURITY: Validate PDF magic number (client MIME type is easily spoofed)
+    const quoteBytes = await quoteFile.arrayBuffer();
+    const quoteBuffer = Buffer.from(quoteBytes);
+    if (!isPdfByMagicNumber(quoteBuffer)) {
+      return NextResponse.json({ error: 'Invalid PDF file — content does not match PDF format' }, { status: 400 });
+    }
+
     // Verify bid belongs to user's organization
     const existingBid = await db.bid.findUnique({
       where: { id: bidId },
@@ -51,9 +71,8 @@ export async function POST(
     const orgError = orgCheck(ctx, { organizationId: existingBid.project.organizationId });
     if (orgError) return orgError;
 
-    // Save file to public/uploads (in a real app, use cloud storage)
-    const bytes = await quoteFile.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+    // Save file to public/uploads (re-use buffer already loaded for magic-number check)
+    const buffer = quoteBuffer;
     const fileName = `quotes/${bidId}_${Date.now()}.pdf`;
     const fs = await import('fs/promises');
     const path = await import('path');

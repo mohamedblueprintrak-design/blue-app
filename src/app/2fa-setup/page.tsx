@@ -1,6 +1,4 @@
 "use client";
-/* eslint-disable */
-
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -97,10 +95,10 @@ export default function TwoFASetupPage() {
     setError("");
 
     try {
-      const res = await fetch("/api/auth/2fa/verify", {
+      const res = await fetch("/api/auth/2fa", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code }),
+        body: JSON.stringify({ action: "enable", code }),
       });
 
       const data = await res.json();
@@ -120,8 +118,8 @@ export default function TwoFASetupPage() {
   };
 
   const disable2FA = async () => {
-    if (!code || code.length !== 6) {
-      setError("أدخل الرمز المكون من 6 أرقام للتعطيل");
+    if (!code || code.length < 1) {
+      setError("أدخل كلمة المرور للتعطيل");
       return;
     }
 
@@ -132,7 +130,7 @@ export default function TwoFASetupPage() {
       const res = await fetch("/api/auth/2fa", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code }),
+        body: JSON.stringify({ password: code }),
       });
 
       const data = await res.json();
@@ -341,7 +339,7 @@ export default function TwoFASetupPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="disableCode">لإلغاء التفعيل، أدخل رمز التحقق</Label>
+                <Label htmlFor="disableCode">لإلغاء التفعيل، أدخل كلمة المرور</Label>
                 <Input
                   id="disableCode"
                   value={code}
@@ -359,7 +357,7 @@ export default function TwoFASetupPage() {
 
               <Button
                 onClick={disable2FA}
-                disabled={code.length !== 6 || submitting}
+                disabled={code.length < 1 || submitting}
                 variant="destructive"
                 className="w-full"
               >

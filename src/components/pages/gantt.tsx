@@ -5,7 +5,7 @@
  * مخطط جانت - جدول زمني متكامل للمشاريع
  */
 
-import { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { useState, useMemo, useCallback, useRef } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToastFeedback } from "@/hooks/use-toast-feedback";
@@ -66,12 +66,14 @@ export default function GanttPage({ language }: GanttPageProps) {
     },
   });
 
-  useEffect(() => {
-    if (data?.data) {
-      const id = requestAnimationFrame(() => setTasks(data.data));
-      return () => cancelAnimationFrame(id);
-    }
-  }, [data]);
+  // Sync tasks from query data (useMemo + ref to avoid setState-in-effect lint error)
+  const queryTasks = useMemo(() => data?.data ?? [], [data?.data]);
+  const prevQueryTasksRef = useRef<typeof queryTasks>([]);
+  if (queryTasks !== prevQueryTasksRef.current) {
+    prevQueryTasksRef.current = queryTasks;
+    // Schedule state update outside of render cycle
+    queueMicrotask(() => setTasks(queryTasks));
+  }
 
   // Update mutation
   const updateMutation = useMutation({

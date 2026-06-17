@@ -34,7 +34,6 @@ export async function register() {
 
       // Ignore common server/edge errors that aren't actionable
       ignoreErrors: [
-        'PrismaClientInitializationError',
         'connect ECONNREFUSED',
         'ResizeObserver loop limit exceeded',
         'ResizeObserver loop completed with undelivered notifications',

@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { log } from '@/lib/logger';
 import { logAudit } from '@/lib/services/audit.service';
+import { SignJWT } from 'jose';
+import { getJwtSecretBytes } from '@/lib/auth/jwt-secret';
+import { timingSafeCompare } from '@/lib/middleware/security';
 import {
   generateAuthToken,
   generateDbRefreshToken,
@@ -49,10 +52,19 @@ export async function GET(request: NextRequest) {
 
     // ── CSRF Protection: Validate state parameter ──────────────────
     const storedState = request.cookies.get('google_oauth_state')?.value;
-    if (!storedState || storedState !== state) {
+    if (!storedState || !(await timingSafeCompare(storedState, state))) {
       log.security('Google OAuth callback: state mismatch (CSRF)', { state, storedState });
       return NextResponse.redirect(
         `${baseUrl}/login?error=${encodeURIComponent('رمز الأمان غير صالح')}`
+      );
+    }
+
+    // ── PKCE: Validate code_verifier is present ──────────────────────
+    const codeVerifier = request.cookies.get('google_oauth_verifier')?.value;
+    if (!codeVerifier) {
+      log.security('Google OAuth callback: missing code_verifier (PKCE)');
+      return NextResponse.redirect(
+        `${baseUrl}/login?error=${encodeURIComponent('رمز التحقق غير صالح')}`
       );
     }
 
@@ -78,6 +90,7 @@ export async function GET(request: NextRequest) {
         client_secret: clientSecret,
         redirect_uri: redirectUri,
         grant_type: 'authorization_code',
+        code_verifier: codeVerifier,
       }),
     });
 
@@ -126,6 +139,61 @@ export async function GET(request: NextRequest) {
 
     log.info('Google OAuth: user authenticated', { googleEmail, googleId });
 
+    // ── OAuth Account Linking ──────────────────────────────────────
+    // If the user initiated linking from account settings, link this
+    // Google account to their existing account instead of logging in.
+    const linkIntent = request.cookies.get('oauth_link_intent')?.value;
+    if (linkIntent === 'google') {
+      // The user is already authenticated — link the Google account
+      // We need to verify the JWT from the auth cookie
+      const authToken = request.cookies.get('blue_token')?.value;
+      if (!authToken) {
+        return NextResponse.redirect(
+          `${baseUrl}/login?error=${encodeURIComponent('يجب تسجيل الدخول أولاً لربط حساب جوجل')}`
+        );
+      }
+
+      try {
+        const jose = await import('jose');
+        const { getJwtSecretBytes } = await import('@/lib/auth/jwt-secret');
+        const { payload } = await jose.jwtVerify(authToken, getJwtSecretBytes(), {
+          issuer: 'blueprint-saas',
+          audience: 'blueprint-users',
+        });
+
+        const userId = payload.userId as string;
+        // Check this Google ID isn't already linked to another account
+        const existingGoogleUser = await db.user.findFirst({
+          where: { googleId, NOT: { id: userId } },
+        });
+        if (existingGoogleUser) {
+          return NextResponse.redirect(
+            `${baseUrl}/dashboard?error=${encodeURIComponent('حساب جوجل هذا مرتبط بحساب آخر بالفعل')}`
+          );
+        }
+
+        // Link the Google account
+        await db.user.update({
+          where: { id: userId },
+          data: { googleId, avatar: googlePicture || undefined, emailVerified: new Date() },
+        });
+
+        log.info('Google OAuth: account linked', { userId, googleId });
+
+        const response = NextResponse.redirect(`${baseUrl}/dashboard?linked=google`);
+        response.cookies.set('oauth_link_intent', '', { path: '/', maxAge: 0 });
+        response.cookies.set('google_oauth_state', '', { path: '/', maxAge: 0 });
+        response.cookies.set('google_oauth_verifier', '', { path: '/', maxAge: 0 });
+        // SECURITY FIX (P0-3): clear the userId cookie we set in link-oauth/route.ts.
+        response.cookies.set('oauth_link_user_id', '', { path: '/', maxAge: 0 });
+        return response;
+      } catch {
+        return NextResponse.redirect(
+          `${baseUrl}/login?error=${encodeURIComponent('انتهت صلاحية الجلسة. سجل دخولك وحاول مرة أخرى.')}`
+        );
+      }
+    }
+
     // ── Find or create user ────────────────────────────────────────
     let user;
     let isNewUser = false;
@@ -148,24 +216,33 @@ export async function GET(request: NextRequest) {
       });
       log.info('Google OAuth: existing user logged in', { userId: user.id });
     } else {
-      // 2. Try to find user by email (link existing account)
-      user = await db.user.findFirst({
-        where: { email: googleEmail },
+      // 2. Check if user exists with this email but WITHOUT Google link
+      // SECURITY: Do NOT auto-link accounts — this prevents account takeover via
+      // email-claiming. Users must explicitly link OAuth from account settings.
+      const existingUserByEmail = await db.user.findFirst({
+        where: { email: googleEmail, googleId: null },
       });
 
-      if (user) {
-        // Link the Google ID to the existing account
-        await db.user.update({
-          where: { id: user.id },
-          data: {
-            googleId,
-            name: googleName || user.name,
-            avatar: googlePicture || user.avatar,
-            lastLogin: new Date(),
-            emailVerified: user.emailVerified || new Date(),
-          },
-        });
-        log.info('Google OAuth: linked Google account to existing user', { userId: user.id });
+      if (existingUserByEmail) {
+        // Don't auto-link — require explicit linking from account settings
+        log.security('Google OAuth: email already registered without Google link', { email: googleEmail });
+        return NextResponse.redirect(
+          `${baseUrl}/login?error=${encodeURIComponent('هذا البريد مسجل بالفعل. سجل دخولك بكلمة المرور ثم اربط حساب Google من الإعدادات.')}`
+        );
+      }
+
+      // 3. Check if user exists with this email AND already has a Google link (different Google account)
+      // This shouldn't normally happen, but handle it defensively
+      const existingUserWithGoogle = await db.user.findFirst({
+        where: { email: googleEmail, googleId: { not: null } },
+      });
+
+      if (existingUserWithGoogle) {
+        // Another Google account is already linked to this email
+        log.security('Google OAuth: email already linked to a different Google account', { email: googleEmail });
+        return NextResponse.redirect(
+          `${baseUrl}/login?error=${encodeURIComponent('هذا البريد مرتبط بحساب Google آخر.')}`
+        );
       } else {
         // 3. Create a new user account
         isNewUser = true;
@@ -175,10 +252,10 @@ export async function GET(request: NextRequest) {
             googleId,
             name: googleName,
             avatar: googlePicture,
-            role: 'ENGINEER',
+            role: 'VIEWER',
             isActive: true,
             emailVerified: new Date(), // Google already verified the email
-            password: '', // No password — social login only
+            password: '!oauth_' + crypto.randomUUID() + '_' + Date.now(), // Unusable random password — social login only
             lastLogin: new Date(),
             organizationId: (await db.organization.findFirst())?.id || "",
           },
@@ -193,6 +270,33 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(
         `${baseUrl}/login?error=${encodeURIComponent('الحساب غير نشط. تواصل مع الإدارة.')}`
       );
+    }
+
+    // ── 2FA Check: If user has 2FA enabled, redirect to 2FA verification instead of issuing tokens ──
+    if (user.twoFactorEnabled) {
+      // Generate a temporary 2FA token (same as the login route)
+      const tempToken = await new SignJWT({ userId: user.id, type: '2fa-pending' })
+        .setProtectedHeader({ alg: 'HS256' })
+        .setIssuer('blueprint-saas')
+        .setAudience('blueprint-2fa')
+        .setExpirationTime('5m')
+        .setIssuedAt()
+        .sign(getJwtSecretBytes());
+
+      log.info('Google OAuth: 2FA required, redirecting to verification', { userId: user.id });
+
+      const response = NextResponse.redirect(`${baseUrl}/dashboard?requires2FA=true`);
+      response.cookies.set('blue_2fa_temp', tempToken, {
+        path: '/',
+        maxAge: 5 * 60,
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+      });
+      // Clear the OAuth state and PKCE cookies
+      response.cookies.set('google_oauth_state', '', { path: '/', maxAge: 0 });
+      response.cookies.set('google_oauth_verifier', '', { path: '/', maxAge: 0 });
+      return response;
     }
 
     // ── Create JWT and set cookies (same pattern as regular login) ──
@@ -227,8 +331,12 @@ export async function GET(request: NextRequest) {
     // ── Redirect to dashboard with cookies set ─────────────────────
     const response = NextResponse.redirect(`${baseUrl}/dashboard`);
 
-    // Clear the OAuth state cookie
+    // Clear the OAuth state and PKCE cookies
     response.cookies.set('google_oauth_state', '', {
+      path: '/',
+      maxAge: 0,
+    });
+    response.cookies.set('google_oauth_verifier', '', {
       path: '/',
       maxAge: 0,
     });

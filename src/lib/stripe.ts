@@ -220,8 +220,13 @@ export function formatPrice(amount: number, currency: string = 'AED'): string {
   return formatter.format(amount);
 }
 
-export function mapStripeStatus(stripeStatus: Stripe.Subscription.Status): string {
-  const statusMap: Record<string, string> = {
+export type AppSubscriptionStatus = 'ACTIVE' | 'PAST_DUE' | 'CANCELED' | 'UNPAID' | 'TRIALING' | 'INCOMPLETE' | 'EXPIRED' | 'PAUSED' | 'UNKNOWN';
+
+/** The subset of AppSubscriptionStatus that matches the Prisma SubscriptionStatus enum */
+export type DbSubscriptionStatus = 'ACTIVE' | 'PAST_DUE' | 'CANCELED' | 'TRIALING';
+
+export function mapStripeStatus(stripeStatus: Stripe.Subscription.Status): AppSubscriptionStatus {
+  const statusMap: Record<string, AppSubscriptionStatus> = {
     active: 'ACTIVE',
     past_due: 'PAST_DUE',
     canceled: 'CANCELED',
@@ -231,7 +236,13 @@ export function mapStripeStatus(stripeStatus: Stripe.Subscription.Status): strin
     incomplete_expired: 'EXPIRED',
     paused: 'PAUSED',
   };
-  return statusMap[stripeStatus] || 'unknown';
+  return statusMap[stripeStatus] || 'UNKNOWN';
+}
+
+/** Map any AppSubscriptionStatus to a valid DB SubscriptionStatus value */
+export function toDbStatus(status: AppSubscriptionStatus): DbSubscriptionStatus {
+  const validStatuses: DbSubscriptionStatus[] = ['ACTIVE', 'PAST_DUE', 'CANCELED', 'TRIALING'];
+  return validStatuses.includes(status as DbSubscriptionStatus) ? (status as DbSubscriptionStatus) : 'CANCELED';
 }
 
 
@@ -355,7 +366,7 @@ export async function createPaymentIntent(params: {
 }): Promise<Stripe.PaymentIntent | null> {
   return safeStripeOp(async (s) => {
     return s.paymentIntents.create({
-      amount: Math.round(params.amount * 100), // Convert to cents
+      amount: Math.round(Number((params.amount * 100).toFixed(2))), // Convert to cents with float precision fix
       currency: params.currency.toLowerCase(),
       customer: params.customerId,
       description: params.description,
@@ -380,7 +391,7 @@ export async function updatePaymentIntent(
   return safeStripeOp(async (s) => {
     const updateData: Stripe.PaymentIntentUpdateParams = {};
     if (params.amount) {
-      updateData.amount = Math.round(params.amount * 100);
+      updateData.amount = Math.round(Number((params.amount * 100).toFixed(2)));
     }
     if (params.metadata) {
       updateData.metadata = params.metadata;
@@ -409,7 +420,9 @@ export async function retrievePaymentIntent(
  */
 export async function retrieveCustomer(customerId: string): Promise<Stripe.Customer | null> {
   return safeStripeOp(async (s) => {
-    return await s.customers.retrieve(customerId) as Stripe.Customer;
+    const customer = await s.customers.retrieve(customerId);
+    if ('deleted' in customer && customer.deleted) return null;
+    return customer as Stripe.Customer;
   });
 }
 

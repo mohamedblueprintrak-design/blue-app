@@ -16,7 +16,6 @@ import {
   Loader2,
   Eye,
   EyeOff,
-  User,
   Languages,
   FolderKanban,
   ListChecks,
@@ -55,6 +54,9 @@ const ROLES = [
   { value: "hr@blueprint.ae", labelAr: "موارد بشرية", labelEn: "HR" },
   { value: "viewer@blueprint.ae", labelAr: "مشاهد", labelEn: "Viewer" },
 ];
+
+// SECURITY: Demo passwords are NEVER included in the client bundle.
+// Demo credentials are fetched from the server API only when DEMO_MODE=true.
 
 const FEATURES = [
   {
@@ -95,7 +97,7 @@ interface DemoCredential {
   labelEn: string;
 }
 
-export default function LoginPage({ language }: LoginPageProps) {
+export default function LoginPage({ language: _language }: LoginPageProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -106,10 +108,14 @@ export default function LoginPage({ language }: LoginPageProps) {
   const [demoCredentials, setDemoCredentials] = useState<DemoCredential[]>([]);
   const [featureIndex, setFeatureIndex] = useState(0);
   const [requires2FA, setRequires2FA] = useState(false);
-  const [showGoogleButton] = useState(() => typeof window !== 'undefined' && !!process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID);
+  const [showGoogleButton, setShowGoogleButton] = useState(false);
+
+  // Read env var after hydration to avoid SSR mismatch
+  useEffect(() => {
+    setShowGoogleButton(!!process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID);
+  }, []);
   const [twoFactorCode, setTwoFactorCode] = useState("");
   const [captchaToken, setCaptchaToken] = useState("");
-  const dbReady = true; // DB is always ready — seeding is done via `bun run db:seed`
   const { login } = useAuthStore();
   const { toast: _toast } = useToast();
 
@@ -119,16 +125,20 @@ export default function LoginPage({ language }: LoginPageProps) {
 
   // Fetch demo credentials from server (only returned in demo mode)
   useEffect(() => {
-    fetch('/api/auth/demo-credentials')
+    const controller = new AbortController();
+    fetch('/api/auth/demo-credentials', { signal: controller.signal })
       .then((res) => (res.ok ? res.json() : { credentials: [] }))
       .then((data) => {
         if (Array.isArray(data.credentials)) {
           setDemoCredentials(data.credentials);
         }
       })
-      .catch(() => {
-        // Not in demo mode or fetch failed — no credentials available
+      .catch((err) => {
+        if (err.name !== 'AbortError') {
+          // Not in demo mode or fetch failed — no credentials available
+        }
       });
+    return () => controller.abort();
   }, []);
 
   // Rotate feature highlights every 4 seconds
@@ -216,12 +226,13 @@ export default function LoginPage({ language }: LoginPageProps) {
         setError(extractErrorMessage(data.error, t("errors.invalidCode")));
         return;
       }
+      const userData = data.data?.user || data;
       login({
-        id: data.id,
-        email: data.email,
-        name: data.name,
-        role: data.role,
-        avatar: data.avatar,
+        id: userData.id,
+        email: userData.email,
+        name: userData.name,
+        role: userData.role,
+        avatar: userData.avatar,
       });
     } catch {
       setError(t("errors.connection"));
@@ -239,15 +250,32 @@ export default function LoginPage({ language }: LoginPageProps) {
     }
   };
 
-  const handleRoleSelect = (value: string) => {
+  const handleRoleSelect = async (value: string) => {
     setSelectedRole(value);
     setEmail(value);
     // Auto-fill demo password if available (dev/demo mode only)
-    const cred = demoCredentials.find((c) => c.email === value);
+    let creds = demoCredentials;
+    // If credentials haven't loaded yet, fetch them now
+    if (creds.length === 0) {
+      try {
+        const res = await fetch('/api/auth/demo-credentials');
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data.credentials) && data.credentials.length > 0) {
+            creds = data.credentials;
+            setDemoCredentials(creds);
+          }
+        }
+      } catch { /* ignore */ }
+    }
+    // Use server-provided credentials only
+    const cred = creds.find((c) => c.email === value);
     if (cred && cred.password) {
       setPassword(cred.password);
+      setShowPassword(true); // Auto-show password in demo mode for clarity
     } else {
       setPassword("");
+      setShowPassword(false);
     }
   };
 
@@ -257,8 +285,9 @@ export default function LoginPage({ language }: LoginPageProps) {
   };
 
   const toggleLanguage = () => {
-    const newLang = language === "ar" ? "en" : "ar";
+    const newLang = isAr ? "en" : "ar";
     localStorage.setItem("blueprint-lang", newLang);
+    document.cookie = `blueprint-lang=${newLang}; path=/; max-age=31536000`;
     document.documentElement.dir = newLang === "ar" ? "rtl" : "ltr";
     document.documentElement.lang = newLang;
     window.dispatchEvent(new Event("blueprint-lang-change"));
@@ -505,7 +534,7 @@ export default function LoginPage({ language }: LoginPageProps) {
                           value={twoFactorCode}
                           onChange={(e) => setTwoFactorCode(e.target.value.replace(/\D/g, ''))}
                           required
-                          maxLength={6}
+                          maxLength={8}
                           className="h-12 text-center text-xl tracking-[0.5em] font-mono bg-slate-50/80 dark:bg-slate-800/60"
                           dir="ltr"
                         />
@@ -631,21 +660,15 @@ export default function LoginPage({ language }: LoginPageProps) {
                   {/* Submit Button */}
                   <Button
                     type="submit"
-                    disabled={isLoading || !dbReady}
+                    disabled={isLoading}
                     className={cn(
                       "w-full h-11 bg-gradient-to-r from-teal-500 to-cyan-500",
                       "hover:from-teal-600 hover:to-cyan-600 text-white font-medium",
                       "shadow-lg shadow-teal-500/20 hover:shadow-teal-500/40",
                       "transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] cursor-pointer mt-2",
-                      !dbReady && "opacity-60 cursor-not-allowed"
                     )}
                   >
-                    {!dbReady ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin me-2" />
-                        {t("initializing")}
-                      </>
-                    ) : isLoading ? (
+                    {isLoading ? (
                       <>
                         <Loader2 className="h-4 w-4 animate-spin me-2" />
                         {t("signingIn")}

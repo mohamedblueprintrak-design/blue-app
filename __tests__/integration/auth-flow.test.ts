@@ -44,12 +44,10 @@ function createMockRequest(options: {
 
 describe('Auth Flow — Auth Context from Request', () => {
   let getAuthContext: typeof import('@/app/api/utils/auth').getAuthContext;
-  let requireAuthContext: typeof import('@/app/api/utils/auth').requireAuthContext;
 
   beforeAll(async () => {
     const mod = await import('@/app/api/utils/auth');
     getAuthContext = mod.getAuthContext;
-    requireAuthContext = mod.requireAuthContext;
   });
 
   it('should extract auth context from middleware-set headers', () => {
@@ -111,16 +109,13 @@ describe('Auth Flow — Auth Context from Request', () => {
     expect(ctx).toBeNull();
   });
 
-  it('requireAuthContext should return error for unauthenticated request', () => {
+  it('getAuthContext should return null for unauthenticated request', () => {
     const request = createMockRequest({});
-    const result = requireAuthContext(request as never);
-    expect('error' in result).toBe(true);
-    if ('error' in result) {
-      expect(result.error.status).toBe(401);
-    }
+    const result = getAuthContext(request as never);
+    expect(result).toBeNull();
   });
 
-  it('requireAuthContext should return user context for authenticated request', () => {
+  it('getAuthContext should return user context for authenticated request', () => {
     const request = createMockRequest({
       headers: {
         'x-user-id': 'user-123',
@@ -128,10 +123,10 @@ describe('Auth Flow — Auth Context from Request', () => {
         'x-user-role': 'ADMIN',
       },
     });
-    const result = requireAuthContext(request as never);
-    expect('user' in result).toBe(true);
-    if ('user' in result) {
-      expect(result.user.userId).toBe('user-123');
+    const result = getAuthContext(request as never);
+    expect(result).not.toBeNull();
+    if (result) {
+      expect(result.userId).toBe('user-123');
     }
   });
 
@@ -327,10 +322,14 @@ describe('Auth Flow — Token Utilities', () => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════
-// 5. RBAC Permission Checks in Auth Context
+// 5. RBAC Permission Checks — Deprecated Function Guards
 // ═══════════════════════════════════════════════════════════════════════
+// The old requirePermission/requireAdmin/requireHRAccess/requireFinancialAccess
+// functions now throw deprecation errors directing to the verified variants.
+// The RBAC logic itself is tested via the authorization module (see rbac.test.ts)
+// and the verified auth functions (see auth-verified.test.ts).
 
-describe('Auth Flow — RBAC in Auth Context', () => {
+describe('Auth Flow — Deprecated RBAC Functions Throw', () => {
   let requirePermission: typeof import('@/app/api/utils/auth').requirePermission;
   let requireAdmin: typeof import('@/app/api/utils/auth').requireAdmin;
   let requireFinancialAccess: typeof import('@/app/api/utils/auth').requireFinancialAccess;
@@ -344,106 +343,68 @@ describe('Auth Flow — RBAC in Auth Context', () => {
     requireHRAccess = mod.requireHRAccess;
   });
 
-  it('should deny unauthenticated user for permission check', () => {
+  it('requirePermission should throw deprecation error', () => {
     const request = createMockRequest({});
-    const result = requirePermission(request as never, 'INVOICE_CREATE' as never);
-    expect('error' in result).toBe(true);
-    if ('error' in result) {
-      expect(result.error.status).toBe(401);
-    }
+    expect(() => requirePermission(request as never, 'INVOICE_CREATE' as never)).toThrow(
+      'requirePermission() has been removed for security reasons'
+    );
   });
 
-  it('should deny unauthenticated user for admin check', () => {
+  it('requireAdmin should throw deprecation error', () => {
     const request = createMockRequest({});
-    const result = requireAdmin(request as never);
-    expect('error' in result).toBe(true);
-    if ('error' in result) {
-      expect(result.error.status).toBe(401);
+    expect(() => requireAdmin(request as never)).toThrow(
+      'requireAdmin() has been removed for security reasons'
+    );
+  });
+
+  it('requireHRAccess should throw deprecation error', () => {
+    const request = createMockRequest({});
+    expect(() => requireHRAccess(request as never)).toThrow(
+      'requireHRAccess() has been removed for security reasons'
+    );
+  });
+
+  it('requireFinancialAccess should throw deprecation error', () => {
+    const request = createMockRequest({});
+    expect(() => requireFinancialAccess(request as never)).toThrow(
+      'requireFinancialAccess() has been removed for security reasons'
+    );
+  });
+
+  it('requirePermission error message should mention requireVerifiedPermission', () => {
+    const request = createMockRequest({});
+    try {
+      requirePermission(request as never, 'INVOICE_CREATE' as never);
+    } catch (e) {
+      expect((e as Error).message).toContain('requireVerifiedPermission');
     }
   });
 
-  it('should deny non-admin user for admin check', () => {
-    const request = createMockRequest({
-      headers: {
-        'x-user-id': 'user-123',
-        'x-user-email': 'eng@test.com',
-        'x-user-role': 'ENGINEER',
-      },
-    });
-    const result = requireAdmin(request as never);
-    expect('error' in result).toBe(true);
-    if ('error' in result) {
-      expect(result.error.status).toBe(403);
+  it('requireAdmin error message should mention requireVerifiedAdmin', () => {
+    const request = createMockRequest({});
+    try {
+      requireAdmin(request as never);
+    } catch (e) {
+      expect((e as Error).message).toContain('requireVerifiedAdmin');
     }
   });
 
-  it('should allow admin user for admin check', () => {
-    const request = createMockRequest({
-      headers: {
-        'x-user-id': 'admin-1',
-        'x-user-email': 'admin@blueprint.ae',
-        'x-user-role': 'ADMIN',
-      },
-    });
-    const result = requireAdmin(request as never);
-    expect('user' in result).toBe(true);
-    if ('user' in result) {
-      expect(result.user.role).toBe('ADMIN');
+  it('requireHRAccess error message should mention canAccessHR', () => {
+    const request = createMockRequest({});
+    try {
+      requireHRAccess(request as never);
+    } catch (e) {
+      expect((e as Error).message).toContain('canAccessHR');
     }
   });
 
-  it('should deny non-admin/non-HR user for HR check', () => {
-    const request = createMockRequest({
-      headers: {
-        'x-user-id': 'user-123',
-        'x-user-email': 'eng@test.com',
-        'x-user-role': 'ENGINEER',
-      },
-    });
-    const result = requireHRAccess(request as never);
-    expect('error' in result).toBe(true);
-    if ('error' in result) {
-      expect(result.error.status).toBe(403);
+  it('requireFinancialAccess error message should mention requireVerifiedFinancialAccess', () => {
+    const request = createMockRequest({});
+    try {
+      requireFinancialAccess(request as never);
+    } catch (e) {
+      expect((e as Error).message).toContain('requireVerifiedFinancialAccess');
     }
-  });
-
-  it('should deny non-admin/non-accountant user for financial check', () => {
-    const request = createMockRequest({
-      headers: {
-        'x-user-id': 'user-123',
-        'x-user-email': 'eng@test.com',
-        'x-user-role': 'ENGINEER',
-      },
-    });
-    const result = requireFinancialAccess(request as never);
-    expect('error' in result).toBe(true);
-    if ('error' in result) {
-      expect(result.error.status).toBe(403);
-    }
-  });
-
-  it('should allow HR user for HR check', () => {
-    const request = createMockRequest({
-      headers: {
-        'x-user-id': 'hr-1',
-        'x-user-email': 'hr@test.com',
-        'x-user-role': 'HR',
-      },
-    });
-    const result = requireHRAccess(request as never);
-    expect('user' in result).toBe(true);
-  });
-
-  it('should allow ACCOUNTANT user for financial check', () => {
-    const request = createMockRequest({
-      headers: {
-        'x-user-id': 'acc-1',
-        'x-user-email': 'acc@test.com',
-        'x-user-role': 'ACCOUNTANT',
-      },
-    });
-    const result = requireFinancialAccess(request as never);
-    expect('user' in result).toBe(true);
   });
 });
 
@@ -627,14 +588,31 @@ describe('Auth Flow — JWT Secret Validation', () => {
     process.env.JWT_SECRET = originalSecret;
   });
 
-  it('should fall back to dev secret in development', () => {
+  it('should require JWT_SECRET even in development (no hardcoded fallback)', () => {
     const originalEnv = process.env.NODE_ENV;
+    const originalSecret = process.env.JWT_SECRET;
     (process.env as Record<string, string>).NODE_ENV = 'development';
+    // Clear JWT_SECRET to test that dev mode no longer falls back to a hardcoded secret
+    delete (process.env as Record<string, string>).JWT_SECRET;
+
+    expect(() => getJwtSecretBytes()).toThrow('JWT_SECRET');
+
+    (process.env as Record<string, string>).NODE_ENV = originalEnv;
+    process.env.JWT_SECRET = originalSecret;
+  });
+
+  it('should accept a valid JWT_SECRET in development', () => {
+    const originalEnv = process.env.NODE_ENV;
+    const originalSecret = process.env.JWT_SECRET;
+    (process.env as Record<string, string>).NODE_ENV = 'development';
+    process.env.JWT_SECRET = 'dev-secret-at-least-32-characters-long!';
 
     const secret = getJwtSecretBytes();
     expect(secret).toBeInstanceOf(Uint8Array);
+    expect(secret.length).toBeGreaterThan(0);
 
     (process.env as Record<string, string>).NODE_ENV = originalEnv;
+    process.env.JWT_SECRET = originalSecret;
   });
 });
 
@@ -658,10 +636,14 @@ describe('Auth Flow — Organization Context', () => {
     expect(filter).toEqual({ organizationId: 'org-123' });
   });
 
-  it('should return empty filter for single-tenant users', () => {
+  it('should return DENIED sentinel for users without org (multi-tenant is now the default — P0-1 security fix)', () => {
     const ctx = { userId: '1', email: 't@t.com', role: 'ADMIN', name: 'Test', organizationId: null };
     const filter = orgFilter(ctx);
-    expect(filter).toEqual({});
+    // P0-1 SECURITY FIX: MULTI_TENANT now defaults to 'true'. Users without an org
+    // get the __DENIED__ sentinel (matches no records) instead of an empty filter
+    // (which would have matched ALL records across all tenants).
+    // To get the old single-tenant behavior, set MULTI_TENANT=false explicitly.
+    expect(filter).toEqual({ organizationId: '__DENIED__' });
   });
 
   it('should return organizationId for create operations', () => {
@@ -670,9 +652,13 @@ describe('Auth Flow — Organization Context', () => {
     expect(create).toEqual({ organizationId: 'org-456' });
   });
 
-  it('should return empty object for create when no organization', () => {
+  it('should return DENIED sentinel for create when no organization (multi-tenant default — P0-1 security fix)', () => {
     const ctx = { userId: '1', email: 't@t.com', role: 'ADMIN', name: 'Test', organizationId: null };
     const create = orgCreate(ctx);
-    expect(create).toEqual({ organizationId: 'default' });
+    // P0-1 SECURITY FIX: in multi-tenant mode (now the default), records MUST have
+    // an organizationId. The __DENIED__ sentinel will cause a DB constraint error,
+    // preventing unscoped records from being created and leaking across tenants.
+    // The 'default' org id is only returned when MULTI_TENANT=false is set explicitly.
+    expect(create).toEqual({ organizationId: '__DENIED__' });
   });
 });

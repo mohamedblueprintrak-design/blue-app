@@ -1,10 +1,9 @@
 "use client";
 
 import { TableVirtuoso } from "react-virtuoso";
-import { forwardRef } from "react";
-import { Receipt, Pencil, Trash2, Printer, FileText, CheckCircle2, ChevronLeft, ChevronRight, MessageCircle } from "lucide-react";
+import { forwardRef, type ComponentPropsWithoutRef } from "react";
+import { Receipt, Pencil, Trash2, Printer, FileText, CheckCircle2, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Table,
   TableBody,
@@ -46,11 +45,11 @@ interface InvoiceTableProps {
 }
 
 const VirtuosoTableComponents = {
-  Scroller: forwardRef((props: any, ref) => <div {...props} ref={ref} className={cn("overflow-auto max-h-[calc(100vh-340px)] w-full custom-scrollbar", props.className)} />),
-  Table: (props: any) => <Table {...props} className={cn("w-full caption-bottom text-sm", props.className)} />,
-  TableHead: forwardRef((props: any, ref) => <TableHeader {...props} ref={ref} className="sticky top-0 z-10 bg-white dark:bg-slate-900 shadow-[0_1px_0_0_#e2e8f0] dark:shadow-[0_1px_0_0_#1e293b]" />),
-  TableRow: (props: any) => <TableRow {...props} />,
-  TableBody: forwardRef((props: any, ref) => <TableBody {...props} ref={ref} />),
+  Scroller: forwardRef<HTMLDivElement>((props: ComponentPropsWithoutRef<'div'> & { className?: string }, ref) => <div {...props} ref={ref} className={cn("overflow-auto max-h-[calc(100vh-340px)] w-full custom-scrollbar", props.className)} />),
+  Table: (props: ComponentPropsWithoutRef<'table'> & { className?: string }) => <Table {...props} className={cn("w-full caption-bottom text-sm", props.className)} />,
+  TableHead: forwardRef<HTMLTableSectionElement>((props: ComponentPropsWithoutRef<'thead'> & { className?: string }, ref) => <TableHeader {...props} ref={ref} className="sticky top-0 z-10 bg-white dark:bg-slate-900 shadow-[0_1px_0_0_#e2e8f0] dark:shadow-[0_1px_0_0_#1e293b]" />),
+  TableRow: (props: ComponentPropsWithoutRef<'tr'>) => <TableRow {...props} />,
+  TableBody: forwardRef<HTMLTableSectionElement>((props: ComponentPropsWithoutRef<'tbody'>, ref) => <TableBody {...props} ref={ref} />),
 };
 
 export function InvoiceTable({
@@ -210,7 +209,7 @@ export function InvoiceTable({
               className="h-7 w-7"
               disabled={currentPage <= 1}
               onClick={() => setCurrentPage(currentPage - 1)}
-              aria-label="Previous page"
+              aria-label={ar ? "الصفحة السابقة" : "Previous page"}
             >
               <ChevronRight className="h-3.5 w-3.5" />
             </Button>
@@ -248,7 +247,7 @@ export function InvoiceTable({
               className="h-7 w-7"
               disabled={currentPage >= totalPages}
               onClick={() => setCurrentPage(currentPage + 1)}
-              aria-label="Next page"
+              aria-label={ar ? "الصفحة التالية" : "Next page"}
             >
               <ChevronLeft className="h-3.5 w-3.5" />
             </Button>

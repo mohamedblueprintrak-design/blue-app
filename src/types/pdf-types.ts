@@ -11,8 +11,9 @@ import type { jsPDF } from 'jspdf';
 export type JsPDFConstructor = typeof jsPDF;
 
 /** The autoTable plugin function (the default export of jspdf-autotable) */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- autoTable plugin mutates jsPDF prototype; typing requires duplicating jspdf-autotable internals
-export type AutoTablePlugin = any;
+// Uses the exact type from the jspdf-autotable package instead of `any`.
+// This gives us full type checking on autoTable() calls.
+export type AutoTablePlugin = typeof import('jspdf-autotable').default;
 
 /** Cached jsPDF modules from dynamic import */
 export interface JsPdfCache {

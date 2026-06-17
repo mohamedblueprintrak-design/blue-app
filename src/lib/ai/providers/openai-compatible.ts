@@ -85,7 +85,10 @@ export class OpenAICompatibleProvider implements AIProvider {
       stream: true,
     };
 
-    const response = await fetch(`${this.baseUrl}/chat/completions`, {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 120_000);
+    try {
+      const response = await fetch(`${this.baseUrl}/chat/completions`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -95,6 +98,7 @@ export class OpenAICompatibleProvider implements AIProvider {
           : {}),
       },
       body: JSON.stringify(body),
+      signal: controller.signal,
     });
 
     if (!response.ok) {
@@ -104,6 +108,7 @@ export class OpenAICompatibleProvider implements AIProvider {
 
     const reader = response.body?.getReader();
     if (!reader) throw new Error(`[${this.provider}] No readable stream in response`);
+    clearTimeout(timeout);
 
     const decoder = new TextDecoder();
     let buffer = "";
@@ -139,6 +144,9 @@ export class OpenAICompatibleProvider implements AIProvider {
     } finally {
       reader.releaseLock();
     }
+    } finally {
+      clearTimeout(timeout);
+    }
   }
 
   async chatWithVision(messages: VisionMessage[], options: ChatOptions): Promise<string> {
@@ -147,7 +155,10 @@ export class OpenAICompatibleProvider implements AIProvider {
       const parts = m.content.map((part) => {
         if (part.type === "text") return { type: "text", text: part.text };
         if (part.type === "image_url") return { type: "image_url", image_url: part.image_url };
-        if (part.type === "file_url") return { type: "image_url", image_url: { url: part.file_url?.url } };
+        if (part.type === "file_url") {
+          if (!part.file_url?.url) return { type: "text", text: "" };
+          return { type: "image_url", image_url: { url: part.file_url.url } };
+        }
         return { type: "text", text: "" };
       });
       return { role: m.role, content: parts };

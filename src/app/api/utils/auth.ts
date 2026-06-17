@@ -3,6 +3,7 @@ import * as jose from 'jose';
 import { getJwtSecretBytes as _getJwtSecretBytes } from '@/lib/auth/jwt-secret';
 import { unauthorizedResponse, forbiddenResponse } from './response';
 import { log } from '@/lib/logger';
+import { db } from '@/lib/db';
 
 // Re-export response helpers for convenience in route handlers
 export { unauthorizedResponse, forbiddenResponse };
@@ -41,14 +42,16 @@ export interface AuthContext {
 }
 
 /**
- * Extract auth context from middleware-set headers.
- * Returns null if headers are missing (middleware didn't process the request).
+ * INTERNAL: Extract auth context from middleware-set headers.
  * 
- * USAGE: Call this at the start of every API route handler:
- *   const ctx = getAuthContext(request);
- *   if (!ctx) return unauthorizedResponse();
+ * ⚠️ DO NOT use this function directly in API route handlers — it only reads
+ * headers and does NOT verify the JWT, making it vulnerable to header forgery.
+ * Use requireVerifiedAuth() or requireVerifiedPermission() instead.
+ *
+ * This function is intentionally NOT exported. It is only used internally by
+ * requireVerifiedAuth() as the first step of defense-in-depth verification.
  */
-export function getAuthContext(request: NextRequest): AuthContext | null {
+function extractAuthContext(request: NextRequest): AuthContext | null {
   const userId = request.headers.get('x-user-id');
   const email = request.headers.get('x-user-email');
   const role = request.headers.get('x-user-role');
@@ -69,22 +72,19 @@ export function getAuthContext(request: NextRequest): AuthContext | null {
 }
 
 /**
- * Require authentication in a route handler.
- * Returns the auth context or an error response.
+ * @deprecated Use requireVerifiedAuth() instead. This function trusts headers
+ * without JWT verification and is vulnerable to header forgery.
  * 
- * USAGE:
- *   const auth = requireAuthContext(request);
- *   if ('error' in auth) return auth.error;
- *   // auth.user is now typed as AuthContext
+ * Kept temporarily for backward compatibility during migration.
+ * Will be removed in a future version.
  */
-export function requireAuthContext(request: NextRequest): 
-  | { user: AuthContext } 
-  | { error: NextResponse } {
-  const ctx = getAuthContext(request);
-  if (!ctx) {
-    return { error: unauthorizedResponse() };
+export function getAuthContext(request: NextRequest): AuthContext | null {
+  if (process.env.NODE_ENV !== 'test') {
+    log.warn('SECURITY: getAuthContext() is deprecated and vulnerable to header forgery. Use requireVerifiedAuth() instead.', {
+      path: request.nextUrl?.pathname,
+    });
   }
-  return { user: ctx };
+  return extractAuthContext(request);
 }
 
 /**
@@ -97,20 +97,31 @@ export function requireAuthContext(request: NextRequest):
  *   const data = await db.project.findMany({ where });
  */
 export function orgFilter(ctx: AuthContext): Record<string, unknown> {
+  // SECURITY FIX: Multi-tenancy is now the default (was env-gated, which left SaaS
+  // deployments silently single-tenant). The old behavior allowed any authenticated
+  // user to read data across all organizations when MULTI_TENANT env var was unset.
+  // Reference: critical security audit finding P0-1.
+  //
+  // Behavior:
+  //   - If the user has an organizationId → filter by it (normal case).
+  //   - If the user has NO organizationId → return a sentinel that matches no records.
+  //     This prevents unscoped users from seeing any org-scoped data.
+  //   - Explicit single-tenant mode (MULTI_TENANT='false') is still supported for
+  //     self-hosted single-org deployments, but must be opted INTO deliberately.
+  const isExplicitSingleTenant = process.env.MULTI_TENANT === 'false';
+
   if (ctx.organizationId) {
     return { organizationId: ctx.organizationId };
   }
-  // In multi-tenant mode, users without an organizationId must NOT see cross-tenant data.
-  // Using a sentinel value that matches no records prevents data leakage.
-  if (process.env.MULTI_TENANT === 'true') {
-    return { organizationId: '__DENIED__' };
+
+  if (isExplicitSingleTenant) {
+    // Single-tenant mode: explicitly opted in. No org filtering applied.
+    return {};
   }
-  // Single-tenant mode: no org filtering applied.
-  // INTENTIONAL: In single-tenant deployments, all users belong to one organization
-  // and the database contains data for only that org. Returning an empty filter
-  // allows all authenticated users to see all data, which is the expected behavior
-  // for single-tenant. Multi-tenant isolation is enforced by the branch above.
-  return {};
+
+  // Default (multi-tenant): users without an organizationId must NOT see cross-tenant data.
+  // Using a sentinel value that matches no records prevents data leakage.
+  return { organizationId: '__DENIED__' };
 }
 
 /**
@@ -125,16 +136,22 @@ export function orgFilter(ctx: AuthContext): Record<string, unknown> {
  *   });
  */
 export function orgCreate(ctx: AuthContext): { organizationId: string } {
+  // SECURITY FIX: mirrors orgFilter() — multi-tenant is now the default.
+  const isExplicitSingleTenant = process.env.MULTI_TENANT === 'false';
+
   if (ctx.organizationId) {
     return { organizationId: ctx.organizationId };
   }
-  // SECURITY: In multi-tenant mode, records MUST have an organizationId.
-  // Without this, created records are invisible to orgFilter() and leak across tenants.
-  if (process.env.MULTI_TENANT === 'true') {
-    return { organizationId: '__DENIED__' };
+
+  if (isExplicitSingleTenant) {
+    // Single-tenant mode: explicitly opted in. Use 'default' org id.
+    return { organizationId: 'default' };
   }
-  // Return a default org id for single-tenant mode where it is mandatory in schema but we just use 'default'
-  return { organizationId: 'default' };
+
+  // Default (multi-tenant): records MUST have an organizationId.
+  // Without this, created records are invisible to orgFilter() and leak across tenants.
+  // The __DENIED__ sentinel will cause a DB constraint error, preventing unscoped records.
+  return { organizationId: '__DENIED__' };
 }
 
 /**
@@ -146,13 +163,19 @@ export function orgCreate(ctx: AuthContext): { organizationId: string } {
  *   const data = await db.taskComment.findMany({ where });
  */
 export function orgFilterNested(ctx: AuthContext, parentRelation: string): Record<string, unknown> {
+  // SECURITY FIX: mirrors orgFilter() — multi-tenant is now the default.
+  const isExplicitSingleTenant = process.env.MULTI_TENANT === 'false';
+
   if (ctx.organizationId) {
     return { [parentRelation]: { organizationId: ctx.organizationId } };
   }
-  if (process.env.MULTI_TENANT === 'true') {
-    return { [parentRelation]: { organizationId: '__DENIED__' } };
+
+  if (isExplicitSingleTenant) {
+    return {};
   }
-  return {};
+
+  // Default (multi-tenant): deny cross-tenant access.
+  return { [parentRelation]: { organizationId: '__DENIED__' } };
 }
 
 /**
@@ -166,19 +189,50 @@ export function orgFilterNested(ctx: AuthContext, parentRelation: string): Recor
  *   if (orgError) return orgError;
  */
 export function orgCheck(ctx: AuthContext, record: { organizationId?: string | null } | null): NextResponse | null {
+  // SECURITY FIX: Multi-tenant is now the default. The old implementation returned early
+  // (no check) whenever MULTI_TENANT !== 'true', leaving SaaS deployments unprotected.
+  // It also allowed access to legacy records with organizationId=null from ANY user,
+  // creating a backdoor for cross-tenant data leakage.
   if (!record) return null; // Record not found — let the caller handle 404
-  if (process.env.MULTI_TENANT !== 'true') return null; // Single-tenant: no org check needed
-  
-  // If user has no org, they can only access records that also have no org
+
+  const isExplicitSingleTenant = process.env.MULTI_TENANT === 'false';
+  if (isExplicitSingleTenant) return null; // Single-tenant: explicitly opted in, no org check
+
+  // Default (multi-tenant): enforce strict org isolation.
+
+  // If user has no org, they cannot access any org-scoped record.
   if (!ctx.organizationId) {
-    if (!record.organizationId) return null;
+    if (!record.organizationId) {
+      // SECURITY FIX: legacy records (organizationId=null) are no longer accessible
+      // to unscoped users. This was a backdoor. They must be migrated to an org first.
+      return forbiddenResponse('Resource is not associated with any organization (legacy data). Please contact an administrator.');
+    }
     return forbiddenResponse('No organization assigned');
   }
-  
-  if (record.organizationId && record.organizationId !== ctx.organizationId) {
+
+  // User has an org — record must match it.
+  // SECURITY FIX: records with organizationId=null are NOT accessible to scoped users either.
+  // This forces legacy data to be migrated before it becomes accessible.
+  if (!record.organizationId) {
+    return forbiddenResponse('Resource is not associated with any organization (legacy data). Please contact an administrator.');
+  }
+
+  if (record.organizationId !== ctx.organizationId) {
     return forbiddenResponse('Resource does not belong to your organization');
   }
-  return null; // OK — same org or no org on record (legacy)
+  return null; // OK — same org
+}
+
+/**
+ * Validate CSRF token using Double Submit Cookie pattern.
+ * Reads X-CSRF-Token header and compares with csrf_token cookie.
+ * Returns true if both exist and match, false otherwise.
+ */
+export function validateCsrf(request: NextRequest): boolean {
+  const csrfHeader = request.headers.get('x-csrf-token');
+  const csrfCookie = request.cookies.get('csrf_token')?.value;
+  if (!csrfHeader || !csrfCookie) return false;
+  return csrfHeader === csrfCookie;
 }
 
 /**
@@ -205,7 +259,7 @@ export function getTokenFromRequest(request: NextRequest): string | null {
  * Uses 15m expiry — consistent with auth-service.ts and token-utils.ts
  */
 export async function generateToken(userId: string): Promise<string> {
-  return new jose.SignJWT({ userId })
+  return new jose.SignJWT({ userId, type: 'access' })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuer('blueprint-saas')
     .setAudience('blueprint-users')
@@ -258,78 +312,82 @@ export function canApproveExpense(role: string): boolean {
 // RBAC Permission Check for API Routes
 // ============================================
 
-import { hasPermission, canAccessFinancials, canAccessHR, isAdmin as isAdminCheck } from '@/lib/auth/modules/authorization';
+import { hasPermission, canAccessFinancials, isAdmin as isAdminCheck } from '@/lib/auth/modules/authorization';
 import { Permission } from '@/lib/auth/types';
 
 /**
- * Require a specific permission for an API route.
- * Returns the auth context if permission granted, or a forbidden response.
+ * @deprecated REMOVED — Use requireVerifiedPermission() instead.
+ * This function previously wrapped getAuthContext() without JWT re-verification
+ * and was vulnerable to header forgery attacks.
  *
- * USAGE:
- *   const result = requirePermission(request, Permission.INVOICE_CREATE);
- *   if ('error' in result) return result.error;
- *   // result.user is now typed as AuthContext
+ * Migration: Replace requirePermission(request, permission) with
+ * await requireVerifiedPermission(request, permission)
  */
 export function requirePermission(
-  request: NextRequest,
-  permission: Permission
+  _request: NextRequest,
+  _permission: Permission
 ): { user: AuthContext } | { error: NextResponse } {
-  const ctx = getAuthContext(request);
-  if (!ctx) {
-    return { error: unauthorizedResponse() };
-  }
-  if (!hasPermission(ctx.role, permission)) {
-    return { error: forbiddenResponse() };
-  }
-  return { user: ctx };
+  throw new Error(
+    'requirePermission() has been removed for security reasons. ' +
+    'Use requireVerifiedPermission() instead. ' +
+    'Note: requireVerifiedPermission() is async, so add "await".'
+  );
 }
 
 /**
- * Require admin role for an API route.
+ * @deprecated REMOVED — Use requireVerifiedAdmin() instead.
+ * This function previously wrapped getAuthContext() without JWT re-verification
+ * and was vulnerable to header forgery attacks.
+ *
+ * Migration: Replace requireAdmin(request) with
+ * await requireVerifiedAdmin(request)
  */
 export function requireAdmin(
-  request: NextRequest
+  _request: NextRequest
 ): { user: AuthContext } | { error: NextResponse } {
-  const ctx = getAuthContext(request);
-  if (!ctx) {
-    return { error: unauthorizedResponse() };
-  }
-  if (!isAdminCheck(ctx.role)) {
-    return { error: forbiddenResponse() };
-  }
-  return { user: ctx };
+  throw new Error(
+    'requireAdmin() has been removed for security reasons. ' +
+    'Use requireVerifiedAdmin() instead. ' +
+    'Note: requireVerifiedAdmin() is async, so add "await".'
+  );
 }
 
 /**
- * Require financial access for an API route.
+ * @deprecated REMOVED — Use requireVerifiedFinancialAccess() instead.
+ * This function previously wrapped getAuthContext() without JWT re-verification
+ * and was vulnerable to header forgery attacks.
+ *
+ * Migration: Replace requireFinancialAccess(request) with
+ * await requireVerifiedFinancialAccess(request)
  */
 export function requireFinancialAccess(
-  request: NextRequest
+  _request: NextRequest
 ): { user: AuthContext } | { error: NextResponse } {
-  const ctx = getAuthContext(request);
-  if (!ctx) {
-    return { error: unauthorizedResponse() };
-  }
-  if (!canAccessFinancials(ctx.role)) {
-    return { error: forbiddenResponse() };
-  }
-  return { user: ctx };
+  throw new Error(
+    'requireFinancialAccess() has been removed for security reasons. ' +
+    'Use requireVerifiedFinancialAccess() instead. ' +
+    'Note: requireVerifiedFinancialAccess() is async, so add "await".'
+  );
 }
 
 /**
- * Require HR access for an API route.
+ * @deprecated REMOVED — Use requireVerifiedAuth() + role check instead.
+ * This function previously wrapped getAuthContext() without JWT re-verification
+ * and was vulnerable to header forgery attacks.
+ *
+ * Migration: Replace requireHRAccess(request) with
+ * const result = await requireVerifiedAuth(request);
+ * if ('error' in result) return result.error;
+ * if (!canAccessHR(result.user.role)) return forbiddenResponse();
  */
 export function requireHRAccess(
-  request: NextRequest
+  _request: NextRequest
 ): { user: AuthContext } | { error: NextResponse } {
-  const ctx = getAuthContext(request);
-  if (!ctx) {
-    return { error: unauthorizedResponse() };
-  }
-  if (!canAccessHR(ctx.role)) {
-    return { error: forbiddenResponse() };
-  }
-  return { user: ctx };
+  throw new Error(
+    'requireHRAccess() has been removed for security reasons. ' +
+    'Use requireVerifiedAuth() + canAccessHR() role check instead. ' +
+    'Note: requireVerifiedAuth() is async, so add "await".'
+  );
 }
 
 // ============================================
@@ -353,18 +411,15 @@ export function requireHRAccess(
  * rejected with 401. This makes header forgery ineffective even if the
  * proxy is bypassed.
  *
- * Use this for critical operations: user management, backups, payments,
- * settings, password changes, and any route where identity forgery would
- * cause significant damage.
- *
- * For non-critical read-only routes, `getAuthContext()` / `requirePermission()`
- * remain appropriate for performance reasons.
+ * Use this for ALL authenticated routes. The deprecated getAuthContext() and
+ * requirePermission() functions have been removed — always use requireVerified*
+ * variants.
  */
 export async function requireVerifiedAuth(
   request: NextRequest
 ): Promise<{ user: AuthContext } | { error: NextResponse }> {
-  // Step 1: Read header-based auth context
-  const ctx = getAuthContext(request);
+  // Step 1: Read header-based auth context (internal, not exported)
+  const ctx = extractAuthContext(request);
   if (!ctx) {
     return { error: unauthorizedResponse() };
   }
@@ -431,10 +486,17 @@ export async function requireVerifiedAuth(
     // Step 4: Check password-changed-after-token-issued
     // If the user changed their password after this token was issued,
     // the token should be considered invalid
+    // SECURITY: Fetch passwordChangedAt from the DATABASE, not the JWT payload.
+    // The JWT carries the OLD passwordChangedAt value which won't reflect recent changes.
     const iat = payload.iat as number | undefined;
-    const passwordChangedAt = payload.passwordChangedAt as number | undefined;
-    if (iat && passwordChangedAt && passwordChangedAt > iat) {
-      return { error: unauthorizedResponse() };
+    if (iat) {
+      const userForPwCheck = await db.user.findUnique({
+        where: { id: jwtUserId },
+        select: { passwordChangedAt: true },
+      });
+      if (userForPwCheck?.passwordChangedAt && Math.floor(userForPwCheck.passwordChangedAt.getTime() / 1000) > iat) {
+        return { error: unauthorizedResponse() };
+      }
     }
 
     // Step 5: Reject 2FA-pending tokens

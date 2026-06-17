@@ -1,11 +1,15 @@
 /**
- * Redis-based Rate Limiter — محدد معدل الطلبات باستخدام Redis
+ * Unified Rate Limiter — محدد معدل الطلبات الموحد
  * 
- * This is a production-ready rate limiter that:
- * - Uses Redis for distributed rate limiting
- * - Falls back to in-memory when Redis is not available
- * - Supports multiple rate limit windows
- * - Provides sliding window algorithm
+ * This is the SINGLE source of truth for rate limiting in API routes (Node.js runtime).
+ * It uses Redis with in-memory fallback for distributed rate limiting.
+ * 
+ * For Edge Runtime (middleware), use src/lib/middleware/rate-limit.ts which
+ * uses an in-memory store only (Redis is not available in Edge).
+ * 
+ * DO NOT create additional rate-limiting implementations. All API routes
+ * should import from this file or from rate-limit-middleware.ts (which
+ * wraps this module).
  */
 
 import { createClient } from 'redis';

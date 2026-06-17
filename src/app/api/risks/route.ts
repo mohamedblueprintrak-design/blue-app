@@ -120,7 +120,7 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    const sanitizedBody = sanitizeObject(validation.data);
+    const _sanitizedBody = sanitizeObject(validation.data);
     const {
       projectId,
       title,
@@ -142,7 +142,8 @@ export async function POST(request: NextRequest) {
         description: action.description || "",
         assigneeId: action.assigneeId || null,
         dueDate: action.dueDate ? new Date(action.dueDate) : null,
-        COMPLETED: false,
+        completed: false,
+        organizationId: ctx.organizationId || '',
       })
     );
 
@@ -152,7 +153,8 @@ export async function POST(request: NextRequest) {
         description: title || "",
         assigneeId,
         dueDate: null,
-        COMPLETED: false,
+        completed: false,
+        organizationId: ctx.organizationId || '',
       });
     }
 

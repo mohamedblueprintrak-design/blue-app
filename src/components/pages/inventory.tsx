@@ -419,14 +419,14 @@ export default function InventoryPage({ language }: InventoryPageProps) {
               <Label className="text-sm">{ar ? "اسم الصنف" : "Item Name"} *</Label>
               <Input
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                 placeholder={ar ? "مثال: أسمنت بورتلاندي" : "e.g., Portland Cement"}
               />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label className="text-sm">{ar ? "المشروع" : "Project"} ({ar ? "اختياري" : "optional"})</Label>
-                <Select value={formData.projectId} onValueChange={(v) => setFormData({ ...formData, projectId: v })}>
+                <Select value={formData.projectId} onValueChange={(v) => setFormData(prev => ({ ...prev, projectId: v }))}>
                   <SelectTrigger>
                     <SelectValue placeholder={ar ? "بدون مشروع" : "No project"} />
                   </SelectTrigger>
@@ -444,7 +444,7 @@ export default function InventoryPage({ language }: InventoryPageProps) {
                 <Label className="text-sm">{ar ? "الوحدة" : "Unit"}</Label>
                 <Input
                   value={formData.unit}
-                  onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
+                  onChange={(e) => setFormData(prev => ({ ...prev, unit: e.target.value }))}
                   placeholder={ar ? "مثال: كيس, طن, متر" : "e.g., bag, ton, m"}
                 />
               </div>
@@ -455,7 +455,7 @@ export default function InventoryPage({ language }: InventoryPageProps) {
                 <Input
                   type="number"
                   value={formData.quantity}
-                  onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
+                  onChange={(e) => setFormData(prev => ({ ...prev, quantity: e.target.value }))}
                   placeholder="0"
                 />
               </div>
@@ -464,7 +464,7 @@ export default function InventoryPage({ language }: InventoryPageProps) {
                 <Input
                   type="number"
                   value={formData.price}
-                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                  onChange={(e) => setFormData(prev => ({ ...prev, price: e.target.value }))}
                   placeholder="0"
                 />
               </div>
@@ -473,7 +473,7 @@ export default function InventoryPage({ language }: InventoryPageProps) {
                 <Input
                   type="number"
                   value={formData.minimumLevel}
-                  onChange={(e) => setFormData({ ...formData, minimumLevel: e.target.value })}
+                  onChange={(e) => setFormData(prev => ({ ...prev, minimumLevel: e.target.value }))}
                   placeholder="0"
                 />
               </div>
@@ -482,7 +482,7 @@ export default function InventoryPage({ language }: InventoryPageProps) {
               <Label className="text-sm">{ar ? "الموقع" : "Location"}</Label>
               <Input
                 value={formData.location}
-                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
                 placeholder={ar ? "مثال: المستودع A, الموقع 1" : "e.g., Warehouse A, Site 1"}
               />
             </div>

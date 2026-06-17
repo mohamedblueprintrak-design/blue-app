@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToastFeedback } from "@/hooks/use-toast-feedback";
 import { useLang } from "@/hooks/use-lang";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { getMutationHeaders } from "@/lib/csrf-client";
 import { TenderItem, TenderDetail, TendersResponse, TenderFormData, TendersPageProps, emptyForm } from "./types";
 import { TenderFilters } from "./tender-filters";
@@ -19,6 +20,7 @@ export default function TendersPage({ language: _language }: TendersPageProps) {
   const queryClient = useQueryClient();
   const toast = useToastFeedback({ ar: isAr });
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebouncedValue(search, 300);
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterAuthority, setFilterAuthority] = useState<string>("all");
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -28,15 +30,15 @@ export default function TendersPage({ language: _language }: TendersPageProps) {
 
   // Fetch tenders
   const { data, isLoading } = useQuery<TendersResponse>({
-    queryKey: ["tenders", filterStatus, filterAuthority, search],
+    queryKey: ["tenders", filterStatus, filterAuthority, debouncedSearch],
     queryFn: async () => {
       const params = new URLSearchParams();
       if (filterStatus && filterStatus !== "all") params.set("status", filterStatus);
       if (filterAuthority && filterAuthority !== "all") params.set("authority", filterAuthority);
-      if (search) params.set("search", search);
+      if (debouncedSearch) params.set("search", debouncedSearch);
       const res = await fetch(`/api/tenders?${params.toString()}`);
       if (!res.ok) throw new Error("Failed to fetch tenders");
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -49,7 +51,7 @@ export default function TendersPage({ language: _language }: TendersPageProps) {
     queryFn: async () => {
       const res = await fetch(`/api/tenders/${selectedTender!.id}`);
       if (!res.ok) throw new Error("Failed to fetch tender detail");
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
     enabled: !!selectedTender,
   });

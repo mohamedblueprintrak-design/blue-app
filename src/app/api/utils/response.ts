@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
 import { ApiSuccessResponse, ApiErrorResponse } from '../types';
 import { log } from '@/lib/logger';
+// P0-8 FIX: Wire up the Sentry monitoring helper that was previously dead code.
+// `captureApiError` is null-safe (returns early if @sentry/nextjs is not installed
+// or no DSN is configured), so this import has zero overhead in dev/no-Sentry envs.
+import { captureApiError } from '@/lib/monitoring/sentry';
 
 /**
  * CORS headers applied to every API response.
@@ -211,29 +215,41 @@ export function errorResponse(message: string, code = 'ERROR', status = 400, req
 
 /**
  * Create an unauthorized error response
+ * Default message is bilingual (Arabic / English) since the API cannot know
+ * the client's locale. Callers should pass a locale-appropriate message
+ * when the request context is available.
  */
-export function unauthorizedResponse(message = 'يرجى تسجيل الدخول', requestId?: string): NextResponse<ApiErrorResponse> {
+export function unauthorizedResponse(message = 'يرجى تسجيل الدخول / Please log in', requestId?: string): NextResponse<ApiErrorResponse> {
   return errorResponse(message, 'UNAUTHORIZED', 401, requestId);
 }
 
 /**
  * Create a forbidden error response
+ * Default message is bilingual (Arabic / English) since the API cannot know
+ * the client's locale. Callers should pass a locale-appropriate message
+ * when the request context is available.
  */
-export function forbiddenResponse(message = 'غير مصرح لك بالوصول', requestId?: string): NextResponse<ApiErrorResponse> {
+export function forbiddenResponse(message = 'غير مصرح لك بالوصول / Access denied', requestId?: string): NextResponse<ApiErrorResponse> {
   return errorResponse(message, 'FORBIDDEN', 403, requestId);
 }
 
 /**
  * Create a not found error response
+ * Default message is bilingual (Arabic / English) since the API cannot know
+ * the client's locale. Callers should pass a locale-appropriate message
+ * when the request context is available.
  */
-export function notFoundResponse(message = 'غير موجود', requestId?: string): NextResponse<ApiErrorResponse> {
+export function notFoundResponse(message = 'غير موجود / Not found', requestId?: string): NextResponse<ApiErrorResponse> {
   return errorResponse(message, 'NOT_FOUND', 404, requestId);
 }
 
 /**
  * Create a server error response
+ * Default message is bilingual (Arabic / English) since the API cannot know
+ * the client's locale. Callers should pass a locale-appropriate message
+ * when the request context is available.
  */
-export function serverErrorResponse(message = 'خطأ في الخادم', requestId?: string): NextResponse<ApiErrorResponse> {
+export function serverErrorResponse(message = 'خطأ في الخادم / Server error', requestId?: string): NextResponse<ApiErrorResponse> {
   return errorResponse(message, 'SERVER_ERROR', 500, requestId);
 }
 
@@ -290,7 +306,16 @@ export function logApiError(context: string, error: unknown): void {
  *     return handleApiError('Error doing X', error);
  *   }
  */
-export function handleApiError(message: string, error: unknown, code = 'SERVER_ERROR', status = 500, requestId?: string): NextResponse<ApiErrorResponse> {
+export function handleApiError(message: string, error: unknown, code = 'SERVER_ERROR', status = 500, requestId?: string, request?: Request): NextResponse<ApiErrorResponse> {
+  const errObj = error instanceof Error ? error : new Error(String(error));
   log.error(message, { error: error instanceof Error ? { message: error.message, stack: error.stack } : { error } });
+  // P0-8 FIX: Forward the error to Sentry so the `beforeSend` filter (which redacts
+  // passwords, tokens, API keys, etc.) actually runs. Previously the entire monitoring
+  // layer was dead code — errors were only logged to Winston files and never reached Sentry.
+  captureApiError(errObj, {
+    method: request?.method ?? 'UNKNOWN',
+    path: request?.url ? new URL(request.url).pathname : 'UNKNOWN',
+    params: { code, status, requestId, message },
+  });
   return errorResponse(message, code, status, requestId);
 }

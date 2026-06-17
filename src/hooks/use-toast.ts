@@ -1,194 +1,112 @@
-"use client"
+"use client";
 
-// Inspired by react-hot-toast library
-import * as React from "react"
+// =============================================================================
+// @deprecated — Backwards-compatibility wrapper around Sonner.
+// =============================================================================
+// The original implementation of this file (removed in task P1-15) was a
+// hand-rolled Radix-based toast store (~194 LOC) with a global reducer,
+// in-memory `listeners[]`, `toastTimeouts` Map, etc. It competed with the
+// `sonner` library that was already in `package.json` and was being used
+// directly in several components (`workflow-tab`, `contractor-rfq-tab`,
+// `websocket-context`).
+//
+// The audit (see `/home/z/my-project/worklog.md`) found ~65 call sites of
+// `useToast` / `useToastFeedback` and ~68 direct `sonner` usages — two
+// parallel systems. We unified on Sonner (the more modern, simpler library).
+//
+// To avoid touching all 65 call sites, this module keeps the same exports
+// (`useToast`, `toast`) and the same payload shape (`{ title, description,
+// variant, action, duration }`) but delegates to `sonner.toast` internally.
+// New code should import `toast` from `sonner` directly, or use
+// `useToastFeedback` from `@/hooks/use-toast-feedback` for the i18n-aware
+// helpers (`created` / `updated` / `deleted` / `error`).
+// =============================================================================
 
-import type {
-  ToastActionElement,
-  ToastProps,
-} from "@/components/ui/toast"
+import type { ReactElement } from "react";
+import { toast as sonnerToast } from "sonner";
 
-const TOAST_LIMIT = 5
-const TOAST_REMOVE_DELAY = 3000
+export type ToastVariant = "default" | "destructive" | "success";
 
-type ToasterToast = ToastProps & {
-  id: string
-  title?: React.ReactNode
-  description?: React.ReactNode
-  action?: ToastActionElement
+/**
+ * Legacy Radix `<ToastAction altText="…" onClick={…} />` element. Sonner does
+ * not render caller-provided nodes for the action button — it only accepts
+ * `{ label, onClick }` — so we extract those two props and forward them.
+ */
+type LegacyToastActionElement = ReactElement<{
+  altText?: string;
+  onClick?: () => void;
+}>;
+
+export interface ToastPayload {
+  title?: string;
+  description?: string;
+  variant?: ToastVariant;
+  action?: LegacyToastActionElement;
+  duration?: number;
 }
 
-const _actionTypes = {
-  ADD_TOAST: "ADD_TOAST",
-  UPDATE_TOAST: "UPDATE_TOAST",
-  DISMISS_TOAST: "DISMISS_TOAST",
-  REMOVE_TOAST: "REMOVE_TOAST",
-} as const
-
-let count = 0
-
-function genId() {
-  count = (count + 1) % Number.MAX_SAFE_INTEGER
-  return count.toString()
+function extractAction(
+  action?: LegacyToastActionElement,
+): { label: string; onClick: () => void } | undefined {
+  if (!action) return undefined;
+  const { altText, onClick } = action.props ?? {};
+  if (!altText) return undefined;
+  // The legacy `onClick` is optional on the `<ToastAction>` element; we fall
+  // back to a no-op so the returned object always satisfies Sonner's
+  // required-`onClick` `Action` type.
+  return { label: altText, onClick: onClick ?? (() => {}) };
 }
 
-type ActionType = typeof _actionTypes
-
-type Action =
-  | {
-    type: ActionType["ADD_TOAST"]
-    toast: ToasterToast
-  }
-  | {
-    type: ActionType["UPDATE_TOAST"]
-    toast: Partial<ToasterToast>
-  }
-  | {
-    type: ActionType["DISMISS_TOAST"]
-    toastId?: ToasterToast["id"]
-  }
-  | {
-    type: ActionType["REMOVE_TOAST"]
-    toastId?: ToasterToast["id"]
-  }
-
-interface State {
-  toasts: ToasterToast[]
-}
-
-const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>()
-
-const addToRemoveQueue = (toastId: string) => {
-  if (toastTimeouts.has(toastId)) {
-    return
-  }
-
-  const timeout = setTimeout(() => {
-    toastTimeouts.delete(toastId)
-    dispatch({
-      type: "REMOVE_TOAST",
-      toastId: toastId,
-    })
-  }, TOAST_REMOVE_DELAY)
-
-  toastTimeouts.set(toastId, timeout)
-}
-
-export const reducer = (state: State, action: Action): State => {
-  switch (action.type) {
-    case "ADD_TOAST":
-      return {
-        ...state,
-        toasts: [action.toast, ...state.toasts].slice(0, TOAST_LIMIT),
-      }
-
-    case "UPDATE_TOAST":
-      return {
-        ...state,
-        toasts: state.toasts.map((t) =>
-          t.id === action.toast.id ? { ...t, ...action.toast } : t
-        ),
-      }
-
-    case "DISMISS_TOAST": {
-      const { toastId } = action
-
-      // ! Side effects ! - This could be extracted into a dismissToast() action,
-      // but I'll keep it here for simplicity
-      if (toastId) {
-        addToRemoveQueue(toastId)
-      } else {
-        state.toasts.forEach((toast) => {
-          addToRemoveQueue(toast.id)
-        })
-      }
-
-      return {
-        ...state,
-        toasts: state.toasts.map((t) =>
-          t.id === toastId || toastId === undefined
-            ? {
-              ...t,
-              open: false,
-            }
-            : t
-        ),
-      }
-    }
-    case "REMOVE_TOAST":
-      if (action.toastId === undefined) {
-        return {
-          ...state,
-          toasts: [],
-        }
-      }
-      return {
-        ...state,
-        toasts: state.toasts.filter((t) => t.id !== action.toastId),
-      }
+/**
+ * Emit a toast using the legacy Radix-style payload shape. Picks the Sonner
+ * method based on `variant`:
+ *   - `"destructive"` → `sonner.error`
+ *   - `"success"`     → `sonner.success`
+ *   - default / unset → `sonner(message)`
+ *
+ * `action` is converted from a React element to Sonner's `{ label, onClick }`
+ * action spec so existing `<ToastAction altText="Undo" onClick={…} />` usage
+ * in `tasks/index.tsx`, `projects/index.tsx`, and `invoices.tsx` keeps working.
+ */
+export function toast(payload: ToastPayload): void {
+  const { title, description, variant, action, duration } = payload;
+  const options = {
+    description,
+    duration,
+    action: extractAction(action),
+  };
+  const message = title ?? "";
+  if (variant === "destructive") {
+    sonnerToast.error(message, options);
+  } else if (variant === "success") {
+    sonnerToast.success(message, options);
+  } else {
+    sonnerToast(message, options);
   }
 }
 
-const listeners: Array<(state: State) => void> = []
-
-let memoryState: State = { toasts: [] }
-
-function dispatch(action: Action) {
-  memoryState = reducer(memoryState, action)
-  listeners.forEach((listener) => {
-    listener(memoryState)
-  })
-}
-
-type Toast = Omit<ToasterToast, "id">
-
-function toast({ ...props }: Toast) {
-  const id = genId()
-
-  const update = (props: ToasterToast) =>
-    dispatch({
-      type: "UPDATE_TOAST",
-      toast: { ...props, id },
-    })
-  const dismiss = () => dispatch({ type: "DISMISS_TOAST", toastId: id })
-
-  dispatch({
-    type: "ADD_TOAST",
-    toast: {
-      ...props,
-      id,
-      open: true,
-      onOpenChange: (open) => {
-        if (!open) dismiss()
-      },
-    },
-  })
-
+/**
+ * @deprecated Use `toast` from `sonner` directly, or `useToastFeedback` for
+ * the i18n-aware helpers. Kept only so existing call sites that do
+ * `const { toast } = useToast()` keep compiling.
+ *
+ * Sonner manages its own internal store, so there is no `toasts` array to
+ * expose — we return an empty array (the only historical consumer was the
+ * Radix `<Toaster />` component, which has been removed). `dismiss` proxies
+ * to `sonner.dismiss`.
+ */
+export function useToast() {
   return {
-    id: id,
-    dismiss,
-    update,
-  }
-}
-
-function useToast() {
-  const [state, setState] = React.useState<State>(memoryState)
-
-  React.useEffect(() => {
-    listeners.push(setState)
-    return () => {
-      const index = listeners.indexOf(setState)
-      if (index > -1) {
-        listeners.splice(index, 1)
-      }
-    }
-  }, [])
-
-  return {
-    ...state,
+    toasts: [] as Array<Record<string, unknown>>,
     toast,
-    dismiss: (toastId?: string) => dispatch({ type: "DISMISS_TOAST", toastId }),
-  }
+    dismiss: (toastId?: string) => {
+      if (toastId) sonnerToast.dismiss(toastId);
+      else sonnerToast.dismiss();
+    },
+  };
 }
 
-export { useToast, toast }
+// Re-export Sonner's factory for callers that want the full modern API
+// without changing their import path. This is intentionally not the primary
+// export — it exists to ease incremental migration.
+export { sonnerToast as sonnerToast };

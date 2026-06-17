@@ -16,9 +16,16 @@
 #   - JWT_SECRET (min 32 characters)
 #   - ENCRYPTION_KEY (64 hex chars — generate with: openssl rand -hex 32)
 #   - REDIS_PASSWORD
-#   - NEXT_PUBLIC_APP_URL
+#   - NEXT_PUBLIC_APP_URL (REQUIRED — used for password reset links, OAuth callbacks)
 #   - SMTP_HOST, SMTP_USER, SMTP_PASSWORD
 #   - STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET
+#   - CRON_SECRET (required for /api/cron/* endpoints)
+#
+# SECURITY FIX (P0-1): MULTI_TENANT now defaults to 'true'. The system is designed
+# as a SaaS multi-tenant product; single-tenant mode must be explicitly opted into
+# by setting MULTI_TENANT=false in .env.
+# SECURITY FIX (P0-7): backup_service is now defined here (was only in docker-compose.yml
+# behind a profile that was never activated in prod).
 
 services:
   # ============================================
@@ -36,24 +43,28 @@ services:
     environment:
       - NODE_ENV=production
       # SECURITY: Use secrets from environment
-      - DATABASE_URL=postgresql://blueprint:${DATABASE_PASSWORD}@postgres:5432/blueprint
-      - JWT_SECRET=${JWT_SECRET}
+      - DATABASE_URL=postgresql://blueprint:${DATABASE_PASSWORD:?DATABASE_PASSWORD must be set}@postgres:5432/blueprint
+      - JWT_SECRET=${JWT_SECRET:?JWT_SECRET must be set}
       - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
       # SMTP Configuration
       - SMTP_HOST=${SMTP_HOST}
       - SMTP_PORT=${SMTP_PORT:-587}
       - SMTP_USER=${SMTP_USER}
-      - SMTP_PASSWORD=${SMTP_PASSWORD:-}
-      - SMTP_PASS=${SMTP_PASSWORD:-}  # Backward compatibility alias
+      - SMTP_PASSWORD=${SMTP_PASSWORD:?SMTP_PASSWORD must be set}
+      - SMTP_PASS=${SMTP_PASSWORD:?SMTP_PASSWORD must be set}
       # Encryption key for sensitive data (64 hex chars = 256 bits)
       # Generate with: openssl rand -hex 32
-      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
-      # Multi-tenant mode — set to 'true' for organization-based data isolation
-      - MULTI_TENANT=${MULTI_TENANT:-false}
+      # SECURITY FIX (P0-4): fail-fast if ENCRYPTION_KEY is missing — was silently empty
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY:?ENCRYPTION_KEY must be set (generate with: openssl rand -hex 32)}
+      # Multi-tenant mode — defaults to 'true' for SaaS data isolation.
+      # Set MULTI_TENANT=false ONLY for self-hosted single-org deployments.
+      - MULTI_TENANT=${MULTI_TENANT:-true}
       # Stripe Configuration
       - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
       - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
+      # CRON_SECRET — required for /api/cron/* endpoints (cleanup, workers)
+      - CRON_SECRET=${CRON_SECRET:?CRON_SECRET must be set}
     depends_on:
       postgres:
         condition: service_healthy
@@ -90,7 +101,7 @@ services:
     environment:
       POSTGRES_USER: blueprint
       # SECURITY: Password from environment variable
-      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:?DATABASE_PASSWORD must be set}
       POSTGRES_DB: blueprint
     # SECURITY: NO exposed ports - only accessible from app container
     # Remove the ports section entirely for production
@@ -127,12 +138,12 @@ services:
     networks:
       - blueprint-network
     environment:
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
-    # SECURITY: Use password authentication
+      - REDIS_PASSWORD=${REDIS_PASSWORD:?REDIS_PASSWORD must be set}
+    # SECURITY: Use password authentication with fail-fast
     command: >
       redis-server 
       --appendonly yes 
-      --requirepass ${REDIS_PASSWORD}
+      --requirepass ${REDIS_PASSWORD:?REDIS_PASSWORD must be set}
       --maxmemory 256mb
       --maxmemory-policy allkeys-lru
     # SECURITY: Use REDISCLI_AUTH env var instead of -a flag to avoid
@@ -198,6 +209,41 @@ services:
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --quiet; sleep 12h & wait $${!}; done;'"
     networks:
       - blueprint-network
+
+  # ============================================
+  # Backup Service — Daily PostgreSQL backups with 10-day retention
+  # SECURITY FIX (P0-7): This service was previously only defined in docker-compose.yml
+  # behind `profiles: [production]` which was never activated, so backups silently
+  # never ran in production. It is now defined here unconditionally.
+  # ============================================
+  backup_service:
+    image: postgres:16-alpine
+    container_name: blueprint-backup
+    restart: unless-stopped
+    environment:
+      - PGHOST=postgres
+      - PGPORT=5432
+      - PGUSER=blueprint
+      - PGPASSWORD=${DATABASE_PASSWORD:?DATABASE_PASSWORD must be set}
+      - PGDATABASE=blueprint
+      - RETENTION_DAYS=${BACKUP_RETENTION_DAYS:-10}
+    volumes:
+      - postgres_backup:/backups
+      - ./scripts/backup-entrypoint.sh:/backup-entrypoint.sh:ro
+    entrypoint: ["/bin/sh", "/backup-entrypoint.sh"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - blueprint-network
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 64M
 
 # ============================================
 # Networks - Internal Only

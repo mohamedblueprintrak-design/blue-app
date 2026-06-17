@@ -42,7 +42,9 @@ export function addSecurityHeaders(
   }
   
   response.headers.set('Content-Security-Policy', buildCsp(nonce));
-  response.headers.set('x-nonce', nonce);
+  // SECURITY: Do NOT expose the nonce in a response header.
+  // The nonce is only embedded server-side in <script nonce="..."> tags.
+  // Exposing it via x-nonce header would let XSS payloads read it and bypass CSP.
 
   if (rateLimitInfo) {
     response.headers.set('X-RateLimit-Limit', rateLimitInfo.limit.toString());

@@ -101,11 +101,11 @@ export const PIE_COLORS = ['#0e2a5c', '#f59e0b', '#ef4444', '#8b5cf6', '#3b82f6'
 
 // ===== NAVIGATION =====
 export const NAV_ITEMS: NavItem[] = [
-  { id: 'map', label: 'خريطة المشاريع', icon: <MapPin className="h-5 w-5" /> },
-  { id: 'visits', label: 'زيارات المهندسين', icon: <Car className="h-5 w-5" /> },
-  { id: 'boq', label: 'حاسبة التكاليف', icon: <Calculator className="h-5 w-5" /> },
-  { id: 'time', label: 'إدارة الوقت', icon: <Clock className="h-5 w-5" /> },
-  { id: 'portal', label: 'بوابة العملاء', icon: <Globe className="h-5 w-5" /> },
-  { id: 'communications', label: 'التواصل', icon: <PhoneCall className="h-5 w-5" /> },
-  { id: 'design', label: 'إدارة التصميم', icon: <PenTool className="h-5 w-5" /> },
+  { id: 'map', label: 'خريطة المشاريع', labelEn: 'Project Map', icon: <MapPin className="h-5 w-5" /> },
+  { id: 'visits', label: 'زيارات المهندسين', labelEn: 'Site Visits', icon: <Car className="h-5 w-5" /> },
+  { id: 'boq', label: 'حاسبة التكاليف', labelEn: 'Cost Calculator', icon: <Calculator className="h-5 w-5" /> },
+  { id: 'time', label: 'إدارة الوقت', labelEn: 'Time Tracking', icon: <Clock className="h-5 w-5" /> },
+  { id: 'portal', label: 'بوابة العملاء', labelEn: 'Client Portal', icon: <Globe className="h-5 w-5" /> },
+  { id: 'communications', label: 'التواصل', labelEn: 'Communications', icon: <PhoneCall className="h-5 w-5" /> },
+  { id: 'design', label: 'إدارة التصميم', labelEn: 'Design Management', icon: <PenTool className="h-5 w-5" /> },
 ]

@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { validateRequest, userUpdateSchema, validateIdParam } from '@/lib/api-validation';
 import { orgFilter, requireVerifiedPermission } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
-import { handleApiError } from '@/lib/api-error';
+import { handleApiErrorWithLogging as handleApiError } from '@/lib/api-error';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 
 export async function GET(
@@ -21,7 +21,23 @@ export async function GET(
     const id = idResult.id;
     const user = await db.user.findFirst({
       where: { id, ...orgFilter(ctx) },
-      include: {
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        phone: true,
+        department: true,
+        position: true,
+        avatar: true,
+        isActive: true,
+        emailVerified: true,
+        organizationId: true,
+        createdAt: true,
+        updatedAt: true,
+        deletedAt: true,
+        lastLogin: true,
+        twoFactorEnabled: true,
         employee: true,
         projects: {
           include: { project: { select: { id: true, name: true, number: true } } },
@@ -92,6 +108,23 @@ export async function PUT(
     const user = await db.user.update({
       where: { id },
       data: updateData,
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        phone: true,
+        department: true,
+        position: true,
+        avatar: true,
+        isActive: true,
+        emailVerified: true,
+        organizationId: true,
+        createdAt: true,
+        updatedAt: true,
+        lastLogin: true,
+        twoFactorEnabled: true,
+      },
     });
 
     return NextResponse.json(user);

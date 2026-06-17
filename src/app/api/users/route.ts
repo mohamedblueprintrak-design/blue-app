@@ -7,7 +7,7 @@ import { getRoleLevel, normalizeRole } from '@/lib/auth/modules/authorization';
 import { cacheDeletePattern } from '@/lib/cache/redis';
 import { cachedQuery, invalidateCache, CACHE_TTL, buildCacheKey } from '@/lib/cache/query-cache';
 import { log } from '@/lib/logger';
-import { handleApiError } from '@/lib/api-error';
+import { handleApiErrorWithLogging as handleApiError } from '@/lib/api-error';
 import { forbiddenResponse } from '@/app/api/utils/response';
 import { UserRole } from '@prisma/client';
 import { z } from 'zod';

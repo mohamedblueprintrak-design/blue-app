@@ -48,7 +48,19 @@ const eslintConfig = [...nextCoreWebVitals, ...nextTypescript, {
     "no-useless-escape": "warn",
   },
 }, {
-  ignores: ["node_modules/**", ".next/**", "out/**", "build/**", "next-env.d.ts", "examples/**", "skills", "*.js", "scripts/**", "scratch/**"]
+  files: ["__tests__/**/*.ts", "__tests__/**/*.tsx"],
+  rules: {
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-unused-vars": ["warn", {
+      argsIgnorePattern: "^_",
+      varsIgnorePattern: "^(mock|spy|_|jest)",
+      caughtErrorsIgnorePattern: "^_"
+    }],
+    "no-empty": "off",
+    "no-console": "off",
+  },
+}, {
+  ignores: ["node_modules/**", ".next/**", "out/**", "build/**", "next-env.d.ts", "examples/**", "skills", "*.js", "scripts/**", "scratch/**", "coverage/**"]
 }];
 
 export default eslintConfig;

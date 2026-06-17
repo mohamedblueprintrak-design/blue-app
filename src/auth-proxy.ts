@@ -27,6 +27,7 @@ const PUBLIC_API_ROUTES = [
   '/api/auth/2fa/verify', // Only the verify endpoint is public (uses blue_2fa_temp cookie)
   '/api/auth/ws-token', '/api/auth/refresh',
   '/api/auth/google', '/api/auth/google/callback', // Google OAuth social login
+  '/api/auth/microsoft', '/api/auth/microsoft/callback', // Microsoft OAuth social login
   '/api/quote-requests', '/api/health',
   '/api/stripe/webhook', '/api/public',
   '/api/stripe/plans', '/api/portal',
@@ -37,10 +38,11 @@ const CSRF_EXEMPT_PATHS = [
   '/api/stripe/webhook', '/api/health', '/api/auth/login',
   '/api/auth/register', '/api/auth/forgot-password',
   '/api/auth/reset-password', '/api/auth/verify-email', '/api/auth/resend-verification',
-  '/api/auth/2fa', '/api/auth/2fa/verify', '/api/auth/2fa/backup-codes',
+  '/api/auth/2fa/verify', '/api/auth/2fa/backup-codes',
   '/api/auth/refresh', '/api/auth/ws-token', '/api/seed',
   '/api/quote-requests', '/api/cron/cleanup', '/api/public/stats',
   '/api/auth/google', '/api/auth/google/callback', // Google OAuth social login
+  '/api/auth/microsoft', '/api/auth/microsoft/callback', // Microsoft OAuth social login
 ];
 
 const PUBLIC_PAGE_ROUTES = [
@@ -165,6 +167,16 @@ export async function proxy(request: NextRequest) {
           audience: 'blueprint-users',
         });
 
+        // SECURITY: Reject non-access token types (e.g. '2fa-pending', 'password-reset')
+        // Password-reset tokens share the same issuer/audience but should NEVER
+        // be accepted as authentication — they only contain userId and type.
+        const tokenType = payload.type as string | undefined;
+        if (tokenType && tokenType !== 'access') {
+          // Silently skip for public routes — don't set auth headers
+          const response = NextResponse.next();
+          return addSecurityHeaders(response, nonce, rlInfo);
+        }
+
         const pubIat = payload.iat as number | undefined;
         const pubPasswordChangedAt = payload.passwordChangedAt as number | undefined;
         if (pubIat && pubPasswordChangedAt && pubPasswordChangedAt > pubIat) {
@@ -185,6 +197,12 @@ export async function proxy(request: NextRequest) {
         if (payload.organizationId) {
           requestHeaders.set('x-organization-id', payload.organizationId as string);
         }
+        requestHeaders.set('x-user-email-verified', String(payload.emailVerified ?? true));
+        // SECURITY: Forward the per-request CSP nonce so server components can
+        // embed it in <script nonce="..."> tags. The nonce is also used to build
+        // the CSP header in addSecurityHeaders(); without this, inline scripts
+        // in server components would be blocked by the browser's CSP enforcement.
+        requestHeaders.set('x-nonce', nonce);
         const response = NextResponse.next({ request: { headers: requestHeaders } });
         return addSecurityHeaders(response, nonce, rlInfo);
       } catch {
@@ -218,6 +236,25 @@ export async function proxy(request: NextRequest) {
       audience: 'blueprint-users',
     });
 
+    // SECURITY: Reject non-access token types (e.g. '2fa-pending', 'password-reset')
+    // Password-reset tokens share the same issuer/audience but should NEVER
+    // be accepted as authentication. Without this check, a password-reset token
+    // would pass verification and set x-user-* headers with undefined values.
+    const tokenType = payload.type as string | undefined;
+    if (tokenType && tokenType !== 'access') {
+      if (pathname.startsWith('/api/')) {
+        const response = NextResponse.json(
+          { error: 'Invalid token type' },
+          { status: 401 }
+        );
+        response.cookies.set('blue_token', '', { path: '/', maxAge: 0, httpOnly: true, sameSite: 'lax' });
+        response.cookies.set('blue_refresh_token', '', { path: '/', maxAge: 0, httpOnly: true, sameSite: 'lax' });
+        return addSecurityHeaders(response, nonce, rlInfo);
+      }
+      const loginUrl = new URL('/login', request.url);
+      return NextResponse.redirect(loginUrl);
+    }
+
     const iat = payload.iat as number | undefined;
     const passwordChangedAt = payload.passwordChangedAt as number | undefined;
     if (iat && passwordChangedAt && passwordChangedAt > iat) {
@@ -226,6 +263,8 @@ export async function proxy(request: NextRequest) {
           { error: 'يرجى تسجيل الدخول' },
           { status: 401 }
         );
+        response.cookies.set('blue_token', '', { path: '/', maxAge: 0, httpOnly: true, sameSite: 'lax' });
+        response.cookies.set('blue_refresh_token', '', { path: '/', maxAge: 0, httpOnly: true, sameSite: 'lax' });
         return addSecurityHeaders(response, nonce, rlInfo);
       }
       const loginUrl = new URL('/login', request.url);
@@ -251,6 +290,46 @@ export async function proxy(request: NextRequest) {
     if (organizationId) {
       requestHeaders.set('x-organization-id', organizationId);
     }
+    requestHeaders.set('x-user-email-verified', String(payload.emailVerified ?? true));
+    // SECURITY: Forward the per-request CSP nonce so server components can
+    // embed it in <script nonce="..."> tags. The nonce is also used to build
+    // the CSP header in addSecurityHeaders(); without this, inline scripts
+    // in server components would be blocked by the browser's CSP enforcement.
+    requestHeaders.set('x-nonce', nonce);
+
+    // SECURITY: Restrict unverified users to email verification flows only
+    // If emailVerified is explicitly false, only allow access to verification-related routes
+    const emailVerified = payload.emailVerified as boolean | undefined;
+    if (emailVerified === false) {
+      const allowedPathsForUnverified = [
+        '/verify-email',
+        '/api/auth/verify-email',
+        '/api/auth/resend-verification',
+        '/api/auth/logout',
+        '/api/auth/me',
+        '/api/auth/refresh',
+      ];
+      const isAllowed = allowedPathsForUnverified.some(
+        (p) => pathname === p || pathname.startsWith(p + '/')
+      );
+      // Also allow static assets and public pages needed for the UI
+      const isStaticOrAsset = pathname.startsWith('/_next') ||
+        pathname.startsWith('/images') || pathname.startsWith('/fonts') ||
+        /\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|map|json|webmanifest)$/i.test(pathname);
+
+      if (!isAllowed && !isStaticOrAsset) {
+        if (pathname.startsWith('/api/')) {
+          const resp = NextResponse.json(
+            { error: 'يرجى تأكيد بريدك الإلكتروني أولاً' },
+            { status: 403 }
+          );
+          return addSecurityHeaders(resp, nonce, rlInfo);
+        }
+        // Redirect page requests to verify-email
+        const verifyUrl = new URL('/verify-email', request.url);
+        return NextResponse.redirect(verifyUrl);
+      }
+    }
 
     const response = NextResponse.next({
       request: { headers: requestHeaders },
@@ -262,7 +341,15 @@ export async function proxy(request: NextRequest) {
         path: '/',
         httpOnly: false,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
+        // SECURITY: SameSite=Strict prevents the CSRF cookie from being sent on
+        // cross-site requests (including top-level navigations from external sites).
+        // This is safe for the CSRF token because:
+        //   1. It is only read by same-origin JS to embed in X-CSRF-Token header
+        //   2. State-changing requests (POST/PUT/PATCH/DELETE) only come from the app itself
+        //   3. External top-level navigations are GETs, which are CSRF-exempt
+        // The auth cookies (blue_token / blue_refresh_token) remain SameSite=Lax
+        // to support OAuth callback flows (Google / Microsoft login).
+        sameSite: 'strict',
         maxAge: 60 * 60 * 24,
       });
     }

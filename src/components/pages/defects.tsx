@@ -113,7 +113,7 @@ export default function Defects({ language, projectId }: DefectsProps) {
       if (filterSeverity !== "all") params.set("severity", filterSeverity);
       const res = await fetch(`/api/defects?${params}`);
       if (!res.ok) throw new Error("Failed to fetch defects");
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -122,7 +122,7 @@ export default function Defects({ language, projectId }: DefectsProps) {
     queryFn: async () => {
       const res = await fetch("/api/projects-simple");
       if (!res.ok) return [];
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -131,7 +131,7 @@ export default function Defects({ language, projectId }: DefectsProps) {
     queryFn: async () => {
       const res = await fetch("/api/users-simple");
       if (!res.ok) return [];
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -169,11 +169,11 @@ export default function Defects({ language, projectId }: DefectsProps) {
     },
   });
 
-  const defaultDefectForm = { projectId: projectId || "", title: "", severity: "NORMAL", location: "", assigneeId: "", photos: "", notes: "" };
+  const defaultDefectForm = { projectId: projectId || "", title: "", severity: "NORMAL" as const, location: "", assigneeId: "", photos: "", notes: "" };
   const [_formData, setFormData] = useState(defaultDefectForm);
 
   const form = useForm<DefectFormData>({
-    resolver: zodResolver(defectSchema) as unknown as Resolver<DefectFormData>,
+    resolver: zodResolver(defectSchema) as Resolver<DefectFormData>,
     defaultValues: defaultDefectForm,
   });
   const { register, handleSubmit: rhfHandleSubmit, formState: { errors }, reset, setValue, watch } = form;
@@ -470,7 +470,7 @@ export default function Defects({ language, projectId }: DefectsProps) {
               </div>
               <div className="space-y-2">
                 <Label className="text-sm">{ar ? "الخطورة" : "Severity"}</Label>
-                <Select value={watch("severity")} onValueChange={(v) => setValue("severity", v)}>
+                <Select value={watch("severity")} onValueChange={(v) => setValue("severity", v as DefectFormData["severity"])}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="NORMAL">{ar ? "عادي" : "Normal"}</SelectItem>

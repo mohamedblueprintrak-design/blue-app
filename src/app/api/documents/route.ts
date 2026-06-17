@@ -5,6 +5,68 @@ import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
 import { sanitizeObject } from '@/lib/security/sanitize';
 import { getStorageProvider, generateStorageKey } from '@/lib/storage';
+import { z } from 'zod';
+import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
+
+/**
+ * @openapi
+ * /api/documents:
+ *   get:
+ *     tags: [Documents]
+ *     summary: List documents
+ *     description: Retrieve a paginated list of documents scoped to the user's organization. Supports filtering by projectId, category, and type. Requires DOCUMENT_READ permission.
+ *     parameters:
+ *       - name: page
+ *         in: query
+ *         schema: { type: integer, minimum: 1, default: 1 }
+ *       - name: limit
+ *         in: query
+ *         schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+ *       - name: projectId
+ *         in: query
+ *         schema: { type: string }
+ *       - name: category
+ *         in: query
+ *         schema: { type: string }
+ *       - name: type
+ *         in: query
+ *         schema: { type: string }
+ *     responses:
+ *       200: { description: Paginated list of documents }
+ *       401: { description: Unauthorized }
+ *       403: { description: Forbidden — DOCUMENT_READ required }
+ *   post:
+ *     tags: [Documents]
+ *     summary: Upload document
+ *     description: Upload a new document (file or metadata-only). Requires DOCUMENT_CREATE permission. Files are validated by MIME type allowlist and size limit (50MB).
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               file: { type: string, format: binary }
+ *               name: { type: string }
+ *               projectId: { type: string }
+ *               category: { type: string }
+ *     responses:
+ *       201: { description: Document created }
+ *       401: { description: Unauthorized }
+ *       403: { description: Forbidden — DOCUMENT_CREATE required }
+ *       413: { description: File too large }
+ */
+
+// Zod schema for JSON metadata-only document creation
+const documentCreateSchema = z.object({
+  name: z.string().min(1),
+  type: z.string().optional(),
+  category: z.string().optional(),
+  projectId: z.string().optional(),
+  description: z.string().optional(),
+  fileSize: z.number().optional(),
+  mimeType: z.string().optional(),
+});
 
 // ============================================
 // File Upload Configuration
@@ -18,7 +80,8 @@ const ALLOWED_FILE_TYPES: Record<string, string[]> = {
   'image/png': ['.png'],
   'image/gif': ['.gif'],
   'image/webp': ['.webp'],
-  'image/svg+xml': ['.svg'],
+  // SVG removed — can contain embedded <script> tags (stored XSS vector).
+  // If SVG support is needed, sanitize with DOMPurify on the server before storing.
   'application/msword': ['.doc'],
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
   'application/vnd.ms-excel': ['.xls'],
@@ -133,6 +196,11 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting — file uploads are resource-intensive
+    const { result } = await withRateLimit(request, 'strict');
+    const blocked = rateLimitResponse(result);
+    if (blocked) return blocked;
+
     // RBAC CHECK
     const rbac = await requireVerifiedPermission(request, Permission.DOCUMENT_CREATE);
     if ('error' in rbac) return rbac.error;
@@ -260,31 +328,34 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(document, { status: 201 });
     } else {
       // ===== JSON Metadata-Only Creation (backward compatible) =====
-      const body = await request.json();
-      const sanitizedBody = sanitizeObject(body);
+      const rawBody = await request.json();
+
+      // Validate with Zod schema
+      const validation = documentCreateSchema.safeParse(rawBody);
+      if (!validation.success) {
+        return NextResponse.json(
+          { error: validation.error.issues[0].message },
+          { status: 400 }
+        );
+      }
+      const sanitizedBody = sanitizeObject(validation.data);
       const {
         projectId,
-        contractId,
-        name,
-        fileType,
-        fileSize,
         category,
-        version,
+        name,
+        type: fileType,
+        fileSize,
       } = sanitizedBody;
-
-      if (!name) {
-        return NextResponse.json({ error: "Document name is required" }, { status: 400 });
-      }
 
       const document = await db.document.create({
         data: {
           projectId: projectId || null,
-          contractId: contractId || null,
+          contractId: (rawBody as Record<string, unknown>).contractId as string || null,
           name: name || "",
           fileType: fileType || "",
           fileSize: fileSize || 0,
           category: category || "general",
-          version: version || 1,
+          version: ((rawBody as Record<string, unknown>).version as number) || 1,
           uploadedById: ctx.userId,
           ...orgCreate(ctx),
           filePath: "",

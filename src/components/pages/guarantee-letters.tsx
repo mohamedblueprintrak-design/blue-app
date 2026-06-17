@@ -149,7 +149,7 @@ export default function GuaranteeLettersPage({ language, projectId }: GuaranteeL
       if (filterStatus && filterStatus !== "all") params.set("status", filterStatus);
       const res = await fetch(`/api/guarantee-letters?${params.toString()}`);
       if (!res.ok) throw new Error("Failed");
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -158,7 +158,7 @@ export default function GuaranteeLettersPage({ language, projectId }: GuaranteeL
     queryFn: async () => {
       const res = await fetch("/api/projects-simple");
       if (!res.ok) return [];
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -460,7 +460,7 @@ export default function GuaranteeLettersPage({ language, projectId }: GuaranteeL
           <div className="space-y-4">
             <div className="space-y-2">
               <Label className="text-sm">{ar ? "المشروع" : "Project"} *</Label>
-              <Select value={formData.projectId} onValueChange={(v) => setFormData({ ...formData, projectId: v })}>
+              <Select value={formData.projectId} onValueChange={(v) => setFormData(prev => ({ ...prev, projectId: v }))}>
                 <SelectTrigger className="h-8 text-sm rounded-lg"><SelectValue placeholder={ar ? "اختر مشروع" : "Select project"} /></SelectTrigger>
                 <SelectContent>
                   {projects.map((p) => (<SelectItem key={p.id} value={p.id}>{ar ? p.name : p.nameEn || p.name}</SelectItem>))}
@@ -470,7 +470,7 @@ export default function GuaranteeLettersPage({ language, projectId }: GuaranteeL
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label className="text-sm">{ar ? "النوع" : "Type"}</Label>
-                <Select value={formData.type} onValueChange={(v) => setFormData({ ...formData, type: v })}>
+                <Select value={formData.type} onValueChange={(v) => setFormData(prev => ({ ...prev, type: v }))}>
                   <SelectTrigger className="h-8 text-sm rounded-lg"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="PERFORMANCE">{ar ? "ضمان أداء" : "Performance"}</SelectItem>
@@ -482,37 +482,37 @@ export default function GuaranteeLettersPage({ language, projectId }: GuaranteeL
               </div>
               <div className="space-y-2">
                 <Label className="text-sm">{ar ? "رقم الضمان" : "Guarantee #"}</Label>
-                <Input value={formData.guaranteeNumber} onChange={(e) => setFormData({ ...formData, guaranteeNumber: e.target.value })} className="h-8 text-sm rounded-lg" />
+                <Input value={formData.guaranteeNumber} onChange={(e) => setFormData(prev => ({ ...prev, guaranteeNumber: e.target.value }))} className="h-8 text-sm rounded-lg" />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label className="text-sm">{ar ? "البنك" : "Bank"}</Label>
-                <Input value={formData.bankName} onChange={(e) => setFormData({ ...formData, bankName: e.target.value })} className="h-8 text-sm rounded-lg" />
+                <Input value={formData.bankName} onChange={(e) => setFormData(prev => ({ ...prev, bankName: e.target.value }))} className="h-8 text-sm rounded-lg" />
               </div>
               <div className="space-y-2">
                 <Label className="text-sm">{ar ? "المبلغ" : "Amount"}</Label>
-                <Input type="number" value={formData.amount} onChange={(e) => setFormData({ ...formData, amount: e.target.value })} className="h-8 text-sm font-mono rounded-lg" />
+                <Input type="number" value={formData.amount} onChange={(e) => setFormData(prev => ({ ...prev, amount: e.target.value }))} className="h-8 text-sm font-mono rounded-lg" />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label className="text-sm">{ar ? "تاريخ الإصدار" : "Issue Date"}</Label>
-                <Input type="date" value={formData.issueDate} onChange={(e) => setFormData({ ...formData, issueDate: e.target.value })} className="h-8 text-sm rounded-lg" />
+                <Input type="date" value={formData.issueDate} onChange={(e) => setFormData(prev => ({ ...prev, issueDate: e.target.value }))} className="h-8 text-sm rounded-lg" />
               </div>
               <div className="space-y-2">
                 <Label className="text-sm">{ar ? "تاريخ الانتهاء" : "Expiry Date"}</Label>
-                <Input type="date" value={formData.expiryDate} onChange={(e) => setFormData({ ...formData, expiryDate: e.target.value })} className="h-8 text-sm rounded-lg" />
+                <Input type="date" value={formData.expiryDate} onChange={(e) => setFormData(prev => ({ ...prev, expiryDate: e.target.value }))} className="h-8 text-sm rounded-lg" />
               </div>
             </div>
             <div className="space-y-2">
               <Label className="text-sm">{ar ? "اسم المستفيد" : "Beneficiary"}</Label>
-              <Input value={formData.beneficiaryName} onChange={(e) => setFormData({ ...formData, beneficiaryName: e.target.value })} className="h-8 text-sm rounded-lg" />
+              <Input value={formData.beneficiaryName} onChange={(e) => setFormData(prev => ({ ...prev, beneficiaryName: e.target.value }))} className="h-8 text-sm rounded-lg" />
             </div>
             {editItem && (
               <div className="space-y-2">
                 <Label className="text-sm">{ar ? "الحالة" : "Status"}</Label>
-                <Select value={formData.currency} onValueChange={(v) => setFormData({ ...formData, currency: v })}>
+                <Select value={formData.currency} onValueChange={(v) => setFormData(prev => ({ ...prev, currency: v }))}>
                   <SelectTrigger className="h-8 text-sm rounded-lg"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="ACTIVE">{ar ? "نشط" : "Active"}</SelectItem>

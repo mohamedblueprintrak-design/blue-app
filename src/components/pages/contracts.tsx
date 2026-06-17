@@ -31,12 +31,12 @@ export default function ContractsPage({ language, projectId }: ContractsPageProp
 
   const emptyForm = {
     number: "", title: "", clientId: "", projectId: projectId || "",
-    value: "0", type: "ENGINEERING_SERVICES", startDate: "", endDate: "",
+    value: "0", type: "ENGINEERING_SERVICES" as ContractFormData["type"], startDate: "", endDate: "",
   };
   const [_formData, setFormData] = useState(emptyForm);
 
   const form = useForm<ContractFormData>({
-    resolver: zodResolver(contractSchema) as unknown as Resolver<ContractFormData>,
+    resolver: zodResolver(contractSchema) as Resolver<ContractFormData>,
     defaultValues: emptyForm,
   });
   const { reset } = form;
@@ -48,7 +48,7 @@ export default function ContractsPage({ language, projectId }: ContractsPageProp
       const res = await fetch(`/api/contracts${projectId ? `?projectId=${projectId}` : ''}`);
       if (!res.ok) throw new Error("Failed to fetch contracts");
       const json = await res.json();
-      return json.contracts || json;
+      return json.data || json.contracts || json;
     },
   });
 
@@ -155,7 +155,7 @@ export default function ContractsPage({ language, projectId }: ContractsPageProp
       clientId: contract.clientId,
       projectId: contract.projectId,
       value: String(contract.value),
-      type: contract.type,
+      type: contract.type as ContractFormData["type"],
       startDate: contract.startDate ? contract.startDate.split("T")[0] : "",
       endDate: contract.endDate ? contract.endDate.split("T")[0] : "",
     };

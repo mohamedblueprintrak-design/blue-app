@@ -428,7 +428,7 @@ export function broadcastProjectUpdate(
   if (!io) return;
 
   const roomName = getRoomName('organization', organizationId);
-  io.to(roomName).emit('PROJECT_UPDATE', payload);
+  io.to(roomName).emit('project_update', payload);
 }
 
 /**
@@ -536,7 +536,7 @@ export function broadcastSystemAlert(
   if (!io) return;
 
   const roomName = getRoomName('organization', organizationId);
-  io.to(roomName).emit('SYSTEM_ALERT', {
+  io.to(roomName).emit('system_alert', {
     ...alert,
     alertId: `alert_${Date.now()}`,
     timestamp: new Date(),

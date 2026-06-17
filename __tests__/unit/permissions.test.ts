@@ -6,7 +6,7 @@
  * and page-level permission checks.
  */
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 
 import { describe, it, expect, beforeAll } from '@jest/globals';
 

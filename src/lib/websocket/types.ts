@@ -162,6 +162,7 @@ export interface ClientToServerEvents {
 export interface ServerToClientEvents {
   notification: (data: NotificationPayload) => void;
   PROJECT_UPDATE: (data: ProjectPayload) => void;
+  project_update: (data: ProjectPayload) => void;
   task_update: (data: TaskPayload) => void;
   document_update: (data: DocumentPayload) => void;
   comment: (data: CommentPayload) => void;
@@ -169,6 +170,7 @@ export interface ServerToClientEvents {
   user_offline: (data: UserPresencePayload) => void;
   user_typing: (data: TypingPayload) => void;
   SYSTEM_ALERT: (data: SystemAlertPayload) => void;
+  system_alert: (data: SystemAlertPayload) => void;
   notification_count: (data: { count: number }) => void;
   error: (data: { message: string; code?: string }) => void;
 }

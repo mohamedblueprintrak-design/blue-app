@@ -113,7 +113,7 @@ export default function ChangeOrders({ language, projectId }: ChangeOrdersProps)
       if (filterStatus !== "all") params.set("status", filterStatus);
       const res = await fetch(`/api/change-orders?${params}`);
       if (!res.ok) throw new Error("Failed to fetch change orders");
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -122,7 +122,7 @@ export default function ChangeOrders({ language, projectId }: ChangeOrdersProps)
     queryFn: async () => {
       const res = await fetch("/api/projects-simple");
       if (!res.ok) return [];
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -150,10 +150,10 @@ export default function ChangeOrders({ language, projectId }: ChangeOrdersProps)
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["change-orders"] }),
   });
 
-  const defaultCOForm = { projectId: projectId || "", number: "", type: "CHANGE", costImpact: "0", timeImpact: "", description: "", status: "PENDING" };
+  const defaultCOForm = { projectId: projectId || "", number: "", type: "MODIFICATION" as const, costImpact: "0", timeImpact: "", description: "", status: "PENDING" as const };
   const [_formData, setFormData] = useState(defaultCOForm);
 
-  const form = useForm<ChangeOrderFormData>({ resolver: zodResolver(changeOrderSchema) as unknown as Resolver<ChangeOrderFormData>, defaultValues: defaultCOForm });
+  const form = useForm<ChangeOrderFormData>({ resolver: zodResolver(changeOrderSchema) as Resolver<ChangeOrderFormData>, defaultValues: defaultCOForm });
   const { register, handleSubmit: rhfHandleSubmit, formState: { errors }, reset, setValue } = form;
   const watchProjectId = useWatch({ control: form.control, name: "projectId" });
   const watchType = useWatch({ control: form.control, name: "type" });
@@ -450,7 +450,7 @@ export default function ChangeOrders({ language, projectId }: ChangeOrdersProps)
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label className="text-sm">{ar ? "النوع" : "Type"}</Label>
-                <Select value={watchType} onValueChange={(v) => setValue("type", v)}>
+                <Select value={watchType} onValueChange={(v) => setValue("type", v as ChangeOrderFormData["type"])}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="ADDITION">{ar ? "إضافة" : "Addition"}</SelectItem>
@@ -461,7 +461,7 @@ export default function ChangeOrders({ language, projectId }: ChangeOrdersProps)
               </div>
               <div className="space-y-2">
                 <Label className="text-sm">{ar ? "الحالة" : "Status"}</Label>
-                <Select value={watchStatus} onValueChange={(v) => setValue("status", v)}>
+                <Select value={watchStatus} onValueChange={(v) => setValue("status", v as ChangeOrderFormData["status"])}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="PENDING">{ar ? "معلق" : "Pending"}</SelectItem>

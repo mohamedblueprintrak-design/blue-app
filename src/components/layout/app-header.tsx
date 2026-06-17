@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import { useAuthStore } from "@/store/auth-store";
 import { useNavStore } from "@/store/nav-store";
@@ -63,7 +65,7 @@ function AppHeader() {
       {/* Teal gradient accent line at top */}
       <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-teal-500 via-cyan-400 to-teal-500 dark:from-teal-400 dark:via-cyan-300 dark:to-teal-400" />
 
-      <SidebarTrigger className="-ms-1" />
+      <SidebarTrigger className="-ms-1" aria-label={isAr ? "تبديل القائمة الجانبية" : "Toggle sidebar"} />
       <Separator orientation="vertical" className="h-6" />
 
       {/* Page Title */}
@@ -121,7 +123,7 @@ function AppHeader() {
                 size="icon"
                 className="md:hidden h-9 w-9 text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800/60 transition-all duration-200"
                 onClick={() => setCurrentPage("search")}
-                aria-label="Search"
+                aria-label={isAr ? "بحث" : "Search"}
               >
                 <Search className="h-4 w-4" />
               </Button>
@@ -141,7 +143,7 @@ function AppHeader() {
                 size="icon"
                 className="h-9 w-9 text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800/60 transition-all duration-200"
                 onClick={toggleLanguage}
-                aria-label="Toggle language"
+                aria-label={isAr ? "تغيير اللغة" : "Toggle language"}
               >
                 <Globe className="h-4 w-4" />
               </Button>

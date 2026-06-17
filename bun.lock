@@ -8,7 +8,7 @@
         "@aws-sdk/client-s3": "^3.1049.0",
         "@aws-sdk/s3-request-presigner": "^3.1049.0",
         "@dnd-kit/core": "^6.3.1",
-        "@dnd-kit/sortable": "^10.0.0",
+        "@dnd-kit/sortable": "^8.0.0",
         "@dnd-kit/utilities": "^3.2.2",
         "@hookform/resolvers": "^5.1.1",
         "@prisma/client": "^6.19.3",
@@ -47,7 +47,6 @@
         "@tanstack/react-query": "^5.82.0",
         "arabic-persian-reshaper": "^1.0.1",
         "bcryptjs": "^3.0.3",
-        "better-sqlite3": "^12.10.0",
         "bullmq": "^5.76.10",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
@@ -69,7 +68,6 @@
         "next-themes": "^0.4.6",
         "nodemailer": "^8.0.5",
         "otplib": "^13.4.0",
-        "prisma": "^6.19.3",
         "qrcode.react": "^4.2.0",
         "react": "^19.0.0",
         "react-day-picker": "^9.8.0",
@@ -88,14 +86,13 @@
         "sonner": "^2.0.6",
         "stripe": "^22.0.1",
         "tailwind-merge": "^3.3.1",
-        "tailwindcss-animate": "^1.0.7",
         "uuid": "^14.0.0",
         "vaul": "^1.1.2",
         "web-push": "^3.6.7",
         "winston": "^3.19.0",
         "winston-daily-rotate-file": "^5.0.0",
         "z-ai-web-dev-sdk": "^0.0.17",
-        "zod": "^4.0.2",
+        "zod": "^3.23.8",
         "zustand": "^5.0.6",
       },
       "devDependencies": {
@@ -112,13 +109,14 @@
         "@types/swagger-ui-react": "^5.18.0",
         "@types/uuid": "^10.0.0",
         "@types/web-push": "^3.6.4",
-        "bun-types": "^1.3.4",
+        "better-sqlite3": "^12.10.0",
         "cross-env": "^10.1.0",
         "eslint": "^9",
         "eslint-config-next": "16.2.6",
         "husky": "^9.1.7",
         "jest": "^30.3.0",
         "lint-staged": "^17.0.5",
+        "prisma": "^6.19.3",
         "swagger-jsdoc": "^6.3.0",
         "swagger-ui-react": "^5.32.6",
         "tailwindcss": "^4",
@@ -291,7 +289,7 @@
 
     "@dnd-kit/core": ["@dnd-kit/core@6.3.1", "", { "dependencies": { "@dnd-kit/accessibility": "^3.1.1", "@dnd-kit/utilities": "^3.2.2", "tslib": "^2.0.0" }, "peerDependencies": { "react": ">=16.8.0", "react-dom": ">=16.8.0" } }, ""],
 
-    "@dnd-kit/sortable": ["@dnd-kit/sortable@10.0.0", "", { "dependencies": { "@dnd-kit/utilities": "^3.2.2", "tslib": "^2.0.0" }, "peerDependencies": { "@dnd-kit/core": "^6.3.0", "react": ">=16.8.0" } }, ""],
+    "@dnd-kit/sortable": ["@dnd-kit/sortable@8.0.0", "", { "dependencies": { "@dnd-kit/utilities": "^3.2.2", "tslib": "^2.0.0" }, "peerDependencies": { "@dnd-kit/core": "^6.1.0", "react": ">=16.8.0" } }, "sha512-U3jk5ebVXe1Lr7c2wU7SBZjcWdQP+j7peHJfCspnA81enlu88Mgd7CC8Q+pub9ubP7eKVETzJW+IBAhsqbSu/g=="],
 
     "@dnd-kit/utilities": ["@dnd-kit/utilities@3.2.2", "", { "dependencies": { "tslib": "^2.0.0" }, "peerDependencies": { "react": ">=16.8.0" } }, ""],
 
@@ -1448,8 +1446,6 @@
     "buffers": ["buffers@0.1.1", "", {}, ""],
 
     "bullmq": ["bullmq@5.77.2", "", { "dependencies": { "cron-parser": "4.9.0", "ioredis": "5.10.1", "msgpackr": "2.0.1", "node-abort-controller": "3.1.1", "semver": "7.8.0", "tslib": "2.8.1" }, "peerDependencies": { "redis": ">=5.0.0" }, "optionalPeers": ["redis"] }, "sha512-3I3LdL8vR8/hetgPZghwFvsxVFhRJdUfhjeA4kXTQtHehRwQRTndIVzxOBwo/Bv+bP2uBzHJo894Or7qAhbwDw=="],
-
-    "bun-types": ["bun-types@1.3.6", "", { "dependencies": { "@types/node": "*" } }, ""],
 
     "c12": ["c12@3.1.0", "", { "dependencies": { "chokidar": "^4.0.3", "confbox": "^0.2.2", "defu": "^6.1.4", "dotenv": "^16.6.1", "exsolve": "^1.0.7", "giget": "^2.0.0", "jiti": "^2.4.2", "ohash": "^2.0.11", "pathe": "^2.0.3", "perfect-debounce": "^1.0.0", "pkg-types": "^2.2.0", "rc9": "^2.1.2" }, "peerDependencies": { "magicast": "^0.3.5" }, "optionalPeers": ["magicast"] }, "sha512-uWoS8OU1MEIsOv8p/5a82c3H31LsWVR5qiyXVfBNOzfffjUWtPnhAb4BYI2uG2HfGmZmFjCtui5XNWaps+iFuw=="],
 
@@ -2905,8 +2901,6 @@
 
     "tailwindcss": ["tailwindcss@4.1.18", "", {}, ""],
 
-    "tailwindcss-animate": ["tailwindcss-animate@1.0.7", "", { "peerDependencies": { "tailwindcss": ">=3.0.0 || insiders" } }, ""],
-
     "tapable": ["tapable@2.3.0", "", {}, ""],
 
     "tar-fs": ["tar-fs@2.1.4", "", { "dependencies": { "chownr": "^1.1.1", "mkdirp-classic": "^0.5.2", "pump": "^3.0.0", "tar-stream": "^2.1.4" } }, "sha512-mDAjwmZdh7LTT6pNleZ05Yt65HC3E+NiQzl672vQG38jIrehtJk/J3mNwIg+vShQPcLF/LV7CMnDW6vjj6sfYQ=="],
@@ -3133,7 +3127,7 @@
 
     "zip-stream": ["zip-stream@4.1.1", "", { "dependencies": { "archiver-utils": "^3.0.4", "compress-commons": "^4.1.2", "readable-stream": "^3.6.0" } }, ""],
 
-    "zod": ["zod@4.3.5", "", {}, ""],
+    "zod": ["zod@3.25.76", "", {}, "sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ=="],
 
     "zod-validation-error": ["zod-validation-error@4.0.2", "", { "peerDependencies": { "zod": "^3.25.0 || ^4.0.0" } }, ""],
 
@@ -3292,6 +3286,8 @@
     "eslint-plugin-react/resolve": ["resolve@2.0.0-next.5", "", { "dependencies": { "is-core-module": "^2.13.0", "path-parse": "^1.0.7", "supports-preserve-symlinks-flag": "^1.0.0" }, "bin": "bin/resolve" }, ""],
 
     "eslint-plugin-react/semver": ["semver@6.3.1", "", { "bin": "bin/semver.js" }, ""],
+
+    "eslint-plugin-react-hooks/zod": ["zod@4.3.5", "", {}, ""],
 
     "exceljs/uuid": ["uuid@8.3.2", "", { "bin": "dist/bin/uuid" }, ""],
 

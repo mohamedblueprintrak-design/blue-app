@@ -72,6 +72,8 @@ export function useWebSocket(options: UseWebSocketOptions): UseWebSocketReturn {
     onDisconnect,
   } = options;
 
+  const isDev = process.env.NODE_ENV === 'development';
+
   const socketRef = useRef<Socket | null>(null);
   const callbacksRef = useRef({
     onNotification,
@@ -126,25 +128,25 @@ export function useWebSocket(options: UseWebSocketOptions): UseWebSocketReturn {
 
     // Connection events
     socket.on('connect', () => {
-      console.info('[WebSocket] Connected');
+      if (isDev) console.info('[WebSocket] Connected');
       setIsConnected(true);
       callbacksRef.current.onConnect?.();
     });
 
     socket.on('disconnect', (reason: string) => {
-      console.info('[WebSocket] Disconnected:', reason);
+      if (isDev) console.info('[WebSocket] Disconnected:', reason);
       setIsConnected(false);
       callbacksRef.current.onDisconnect?.();
     });
 
     socket.on('connect_error', (error: Error) => {
-      console.error('[WebSocket] Connection error:', error);
+      if (isDev) console.error('[WebSocket] Connection error:', error);
       callbacksRef.current.onError?.({ message: error.message, code: 'CONNECTION_ERROR' });
     });
 
     // Notification events
     socket.on('notification', (data: NotificationPayload) => {
-      console.info('[WebSocket] Notification received:', data);
+      if (isDev) console.info('[WebSocket] Notification received:', data);
       setNotificationCount((prev) => prev + 1);
       callbacksRef.current.onNotification?.(data);
     });
@@ -156,13 +158,13 @@ export function useWebSocket(options: UseWebSocketOptions): UseWebSocketReturn {
 
     // Project events
     socket.on('project_update', (data: ProjectPayload) => {
-      console.info('[WebSocket] Project update:', data);
+      if (isDev) console.info('[WebSocket] Project update:', data);
       callbacksRef.current.onProjectUpdate?.(data);
     });
 
     // Task events
     socket.on('task_update', (data: TaskPayload) => {
-      console.info('[WebSocket] Task update:', data);
+      if (isDev) console.info('[WebSocket] Task update:', data);
       callbacksRef.current.onTaskUpdate?.(data);
     });
 
@@ -182,13 +184,13 @@ export function useWebSocket(options: UseWebSocketOptions): UseWebSocketReturn {
 
     // System events
     socket.on('system_alert', (data: SystemAlertPayload) => {
-      console.info('[WebSocket] System alert:', data);
+      if (isDev) console.info('[WebSocket] System alert:', data);
       callbacksRef.current.onSystemAlert?.(data);
     });
 
     // Error events
     socket.on('error', (data: { message: string; code?: string }) => {
-      console.error('[WebSocket] Error:', data);
+      if (isDev) console.error('[WebSocket] Error:', data);
       callbacksRef.current.onError?.(data);
     });
 
@@ -197,6 +199,8 @@ export function useWebSocket(options: UseWebSocketOptions): UseWebSocketReturn {
       socket.disconnect();
       socketRef.current = null;
     };
+    // isDev is derived from NODE_ENV which never changes at runtime — safe to omit
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, url]);
 
   // ============================================
@@ -228,19 +232,16 @@ export function useWebSocket(options: UseWebSocketOptions): UseWebSocketReturn {
   }, []);
 
   const markNotificationRead = useCallback((notificationId: string) => {
-    // Optimistic update with rollback
-    setNotificationCount((prev) => {
-      const next = Math.max(0, prev - 1);
-      
-      socketRef.current?.emit('mark_notification_read', notificationId, (response?: { error?: string }) => {
-        if (response?.error) {
-          // Rollback on error
-          setNotificationCount(prev);
-          callbacksRef.current.onError?.({ message: response.error, code: 'MARK_READ_FAILED' });
-        }
-      });
-      
-      return next;
+    // Optimistic update
+    setNotificationCount((prev) => Math.max(0, prev - 1));
+
+    // Emit socket event outside the state updater to avoid side effects in updater
+    socketRef.current?.emit('mark_notification_read', notificationId, (response?: { error?: string }) => {
+      if (response?.error) {
+        // Rollback on error
+        setNotificationCount((prev) => prev + 1);
+        callbacksRef.current.onError?.({ message: response.error, code: 'MARK_READ_FAILED' });
+      }
     });
   }, []);
 
@@ -268,7 +269,8 @@ export function useWebSocket(options: UseWebSocketOptions): UseWebSocketReturn {
 // Singleton WebSocket Provider Hook
 // ============================================
 
-let globalSocket: Socket | null = null;
+let globalSocketRef: Socket | null = null;
+let globalSocketConsumerCount = 0;
 
 export function useGlobalWebSocket(token?: string): {
   socket: Socket | null;
@@ -280,29 +282,38 @@ export function useGlobalWebSocket(token?: string): {
   useEffect(() => {
     const url = process.env.NEXT_PUBLIC_WEBSOCKET_URL || '';
 
+    // Increment consumer count on mount
+    globalSocketConsumerCount++;
+
     // If token was cleared (logout), disconnect the global socket
     if (!token && prevTokenRef.current) {
-      if (globalSocket) {
-        globalSocket.disconnect();
-        globalSocket = null;
+      if (globalSocketRef) {
+        globalSocketRef.disconnect();
+        globalSocketRef = null;
       }
       prevTokenRef.current = token;
-      return;
+      return () => {
+        globalSocketConsumerCount--;
+      };
     }
 
-    if (!token) return;
+    if (!token) {
+      return () => {
+        globalSocketConsumerCount--;
+      };
+    }
 
     // If token changed (re-login or refresh), disconnect old and reconnect
     if (prevTokenRef.current && prevTokenRef.current !== token) {
-      if (globalSocket) {
-        globalSocket.disconnect();
-        globalSocket = null;
+      if (globalSocketRef) {
+        globalSocketRef.disconnect();
+        globalSocketRef = null;
       }
     }
 
-    if (!globalSocket) {
+    if (!globalSocketRef) {
       const socketUrl = url || '/';
-      globalSocket = io(socketUrl, {
+      globalSocketRef = io(socketUrl, {
         auth: { token },
         transports: ['websocket', 'polling'],
         reconnection: true,
@@ -314,12 +325,12 @@ export function useGlobalWebSocket(token?: string): {
     const onConnect = () => setIsConnected(true);
     const onDisconnect = () => setIsConnected(false);
 
-    globalSocket.on('connect', onConnect);
-    globalSocket.on('disconnect', onDisconnect);
+    globalSocketRef.on('connect', onConnect);
+    globalSocketRef.on('disconnect', onDisconnect);
 
     // Sync initial connection state asynchronously to avoid linting error
-    if (globalSocket) {
-      const isSocketConnected = globalSocket.connected;
+    if (globalSocketRef) {
+      const isSocketConnected = globalSocketRef.connected;
       Promise.resolve().then(() => {
         setIsConnected(isSocketConnected);
       });
@@ -328,12 +339,16 @@ export function useGlobalWebSocket(token?: string): {
     prevTokenRef.current = token;
 
     return () => {
-      if (globalSocket) {
-        globalSocket.off('connect', onConnect);
-        globalSocket.off('disconnect', onDisconnect);
-        // Clean up socket on unmount to prevent memory leaks and zombie connections
-        globalSocket.disconnect();
-        globalSocket = null;
+      globalSocketConsumerCount--;
+      if (globalSocketRef) {
+        globalSocketRef.off('connect', onConnect);
+        globalSocketRef.off('disconnect', onDisconnect);
+        // Only disconnect when no more consumers remain
+        if (globalSocketConsumerCount <= 0) {
+          globalSocketConsumerCount = 0;
+          globalSocketRef.disconnect();
+          globalSocketRef = null;
+        }
       }
     };
   }, [token]);
@@ -341,5 +356,5 @@ export function useGlobalWebSocket(token?: string): {
   // Derive connection state: without a token, never report connected
   const effectiveIsConnected = token ? isConnected : false;
 
-  return { socket: globalSocket, isConnected: effectiveIsConnected };
+  return { socket: globalSocketRef, isConnected: effectiveIsConnected };
 }

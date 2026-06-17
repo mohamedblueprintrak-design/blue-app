@@ -384,11 +384,9 @@ function ServicesMarquee({ language }: { language: "ar" | "en" }) {
 export default function ServicesPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [language, setLanguage] = useState<"ar" | "en">(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem("blueprint-lang");
-      if (saved === "ar" || saved === "en") return saved;
-    }
-    return "ar";
+    if (typeof window === "undefined") return "ar";
+    const saved = localStorage.getItem("blueprint-lang") as "ar" | "en" | null;
+    return saved === "ar" || saved === "en" ? saved : "ar";
   });
 
   // React to language changes from header toggle
@@ -412,14 +410,16 @@ export default function ServicesPage() {
   });
 
   useEffect(() => {
-    fetch('/api/public/stats')
+    const controller = new AbortController();
+    fetch('/api/public/stats', { signal: controller.signal })
       .then(res => res.ok ? res.json() : null)
       .then(data => {
         if (data && data.company) {
           setCompany({ phone: data.company.phone || "+971 50 161 1234" });
         }
       })
-      .catch(() => {});
+      .catch(err => { if (err.name !== 'AbortError') { /* ignore non-abort errors */ } });
+    return () => controller.abort();
   }, []);
 
   return (

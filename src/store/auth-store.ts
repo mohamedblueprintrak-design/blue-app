@@ -1,7 +1,8 @@
 import { create } from "zustand";
 import { getRolePermissions } from "@/lib/auth/modules/authorization";
 import { Permission } from "@/lib/auth/types";
-import { queryClient } from "@/components/providers/react-query-provider";
+import { getQueryClient } from "@/components/providers/react-query-provider";
+import { getMutationHeaders } from "@/lib/csrf-client";
 
 interface User {
   id: string;
@@ -62,12 +63,13 @@ export const useAuthStore = create<AuthStore>()(
       try {
         await fetch('/api/auth/logout', {
           method: 'POST',
+          headers: getMutationHeaders(),
           credentials: 'include',
         });
       } catch {
         // Network error — clear local state anyway
       }
-      queryClient.clear();
+      getQueryClient().clear();
       set({
         user: null,
         isAuthenticated: false,
@@ -79,7 +81,7 @@ export const useAuthStore = create<AuthStore>()(
       try {
         const response = await fetch('/api/auth/register', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: getMutationHeaders(),
           credentials: 'include',
           body: JSON.stringify(data),
         });
@@ -131,7 +133,7 @@ export const useAuthStore = create<AuthStore>()(
       const { user } = get();
       if (!user) return false;
       const roleArray = Array.isArray(roles) ? roles : [roles];
-      return roleArray.includes(user.role);
+      return roleArray.some(r => r.toUpperCase() === user.role.toUpperCase());
     },
     stopAutoRefresh: () => {
       if (refreshIntervalId) {

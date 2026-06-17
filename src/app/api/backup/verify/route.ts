@@ -19,7 +19,7 @@ const verifyBackupSchema = z.object({
   filename: z.string()
     .min(1, 'اسم الملف مطلوب')
     .max(255, 'اسم الملف طويل جداً')
-    .regex(/^blueprint_backup_[\w\-]+\.(\db|sql\.gz)$/, 'اسم ملف النسخة الاحتياطية غير صالح'),
+    .regex(/^blueprint_backup_[\w-]+\.(\db|sql\.gz)$/, 'اسم ملف النسخة الاحتياطية غير صالح'),
 });
 
 /**
@@ -73,25 +73,35 @@ export async function POST(request: NextRequest) {
 
     log.info(`[Backup Verify] Admin ${rbac.user.userId} verified backup: ${filename}, valid=${result.valid}`);
 
-    // If valid SQLite backup, also check for expected tables
+    // If valid backup, also check for expected tables
     let tables: string[] = [];
     const recordCounts: Record<string, number> = {};
+    const isRunningSQLite = process.env.DATABASE_URL?.startsWith('file:');
 
-    if (result.valid && result.isSQLite) {
+    if (result.valid) {
       try {
         const { db } = await import('@/lib/db');
-        // Query SQLite master table for list of tables
-        const tableRows = await db.$queryRaw<Array<{ name: string }>>`
-          SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_prisma_%'
-        `;
-        tables = tableRows.map((row) => row.name);
+
+        if (isRunningSQLite) {
+          // Query SQLite master table for list of tables
+          const tableRows = await db.$queryRaw<Array<{ name: string }>>`
+            SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_prisma_%'
+          `;
+          tables = tableRows.map((row) => row.name);
+        } else {
+          // Query PostgreSQL catalog for list of tables
+          const tableRows = await db.$queryRaw<Array<{ tablename: string }>>`
+            SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname = 'public' AND tablename NOT LIKE '_prisma_%'
+          `;
+          tables = tableRows.map((row) => row.tablename);
+        }
 
         // Count records in key tables
         const keyTables = ['User', 'Organization', 'Project', 'Task', 'Client', 'Invoice', 'Contract'];
         for (const table of keyTables) {
           if (tables.includes(table)) {
             try {
-              const countRows = await db.$queryRaw<Array<{ count: number }>>`SELECT COUNT(*) as count FROM ${Prisma.raw(`"${table}"`)}`;
+              const countRows = await db.$queryRaw<Array<{ count: bigint }>>`SELECT COUNT(*) as count FROM ${Prisma.raw(`"${table}"`)}`;
               recordCounts[table] = Number(countRows[0]?.count ?? 0);
             } catch {
               recordCounts[table] = -1; // Error reading count
@@ -99,7 +109,7 @@ export async function POST(request: NextRequest) {
           }
         }
       } catch (error) {
-        log.warn('[Backup Verify] Could not inspect SQLite tables:', { error: String(error) });
+        log.warn('[Backup Verify] Could not inspect database tables:', { error: String(error) });
       }
     }
 

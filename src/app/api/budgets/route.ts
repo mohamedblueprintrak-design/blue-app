@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireVerifiedPermission, orgFilter, orgCreate } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
-import { sanitizeObject } from '@/lib/security/sanitize';
+
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 import { validateRequest, budgetCreateSchema } from '@/lib/api-validation';
 import { cachedQuery, invalidateCache, CACHE_TTL, buildCacheKey } from '@/lib/cache/query-cache';
@@ -84,7 +84,8 @@ export async function POST(request: NextRequest) {
     if (!validation.success) {
       return NextResponse.json({ error: validation.error, errors: validation.errors }, { status: 400 });
     }
-    const body = sanitizeObject(validation.data);
+    // Note: sanitizeObject removed — validation.data is already validated by Zod
+    // String fields are safe after Zod validation; sanitizeObject can corrupt numeric values
     const validatedData = validation.data;
     const { projectId, parentId, name, category, planned, actual, committed } = validatedData;
 

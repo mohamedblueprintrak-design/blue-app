@@ -1,6 +1,6 @@
 "use client";
 
-import { useForm, type Resolver } from "react-hook-form";
+import { useForm, useWatch, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { employeeSchema, getErrorMessage, type EmployeeFormData } from "@/lib/validations";
 import { cn } from "@/lib/utils";
@@ -35,6 +35,15 @@ interface EmployeeFormDialogProps {
   isSaving: boolean;
 }
 
+const EMPTY_FORM: EmployeeFormData = {
+  userId: "",
+  department: "",
+  position: "",
+  salary: "0",
+  employmentStatus: "ACTIVE",
+  hireDate: "",
+};
+
 export function EmployeeFormDialog({
   open,
   onOpenChange,
@@ -44,21 +53,16 @@ export function EmployeeFormDialog({
   onSave,
   isSaving,
 }: EmployeeFormDialogProps) {
-  const emptyForm = {
-    userId: "",
-    department: "",
-    position: "",
-    salary: "0",
-    employmentStatus: "ACTIVE",
-    hireDate: "",
-  };
-
   const form = useForm<EmployeeFormData>({
-    resolver: zodResolver(employeeSchema) as unknown as Resolver<EmployeeFormData>,
-    defaultValues: emptyForm,
+    resolver: zodResolver(employeeSchema) as Resolver<EmployeeFormData>,
+    defaultValues: EMPTY_FORM,
   });
 
-  const { register, handleSubmit, formState: { errors }, reset, setValue, watch } = form;
+  const { register, handleSubmit, formState: { errors }, reset, setValue, control } = form;
+
+  // useWatch is the React Compiler–compatible way to observe form values
+  const watchedUserId = useWatch({ control, name: "userId" });
+  const watchedEmploymentStatus = useWatch({ control, name: "employmentStatus" });
 
   useEffect(() => {
     if (employee) {
@@ -67,11 +71,11 @@ export function EmployeeFormDialog({
         department: employee.department,
         position: employee.position,
         salary: String(employee.salary),
-        employmentStatus: employee.employmentStatus,
+        employmentStatus: employee.employmentStatus as EmployeeFormData["employmentStatus"],
         hireDate: employee.hireDate ? employee.hireDate.split("T")[0] : "",
       });
     } else {
-      reset(emptyForm);
+      reset(EMPTY_FORM);
     }
   }, [employee, reset]);
 
@@ -97,7 +101,7 @@ export function EmployeeFormDialog({
             <div className="space-y-2">
               <Label className="text-sm">{ar ? "المستخدم" : "User"} *</Label>
               <Select
-                value={watch("userId")}
+                value={watchedUserId}
                 onValueChange={(v) => setValue("userId", v)}
               >
                 <SelectTrigger>
@@ -145,8 +149,8 @@ export function EmployeeFormDialog({
             <div className="space-y-2">
               <Label className="text-sm">{ar ? "حالة التوظيف" : "Employment Status"}</Label>
               <Select
-                value={watch("employmentStatus")}
-                onValueChange={(v) => setValue("employmentStatus", v)}
+                value={watchedEmploymentStatus}
+                onValueChange={(v) => setValue("employmentStatus", v as EmployeeFormData["employmentStatus"])}
               >
                 <SelectTrigger>
                   <SelectValue />

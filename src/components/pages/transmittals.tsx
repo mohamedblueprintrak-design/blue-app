@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, forwardRef, type ComponentPropsWithoutRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { TableVirtuoso } from "react-virtuoso";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,7 +11,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Dialog,
   DialogContent,
@@ -63,6 +63,15 @@ import {
 import { MoreHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getMutationHeaders } from "@/lib/csrf-client";
+
+// ===== Virtuoso Table Components (for virtualized rendering) =====
+const VirtuosoTableComponents = {
+  Scroller: forwardRef<HTMLDivElement>((props: ComponentPropsWithoutRef<'div'> & { className?: string }, ref) => <div {...props} ref={ref} className={cn("overflow-auto max-h-[calc(100vh-220px)] w-full custom-scrollbar", props.className)} />),
+  Table: (props: ComponentPropsWithoutRef<'table'> & { className?: string }) => <Table {...props} className={cn("w-full caption-bottom text-sm", props.className)} />,
+  TableHead: forwardRef<HTMLTableSectionElement>((props: ComponentPropsWithoutRef<'thead'> & { className?: string }, ref) => <TableHeader {...props} ref={ref} className="sticky top-0 z-10 bg-white dark:bg-slate-900 shadow-[0_1px_0_0_#e2e8f0] dark:shadow-[0_1px_0_0_#1e293b]" />),
+  TableRow: (props: ComponentPropsWithoutRef<'tr'> & { className?: string }) => <TableRow {...props} className={cn("group even:bg-slate-50/50 dark:even:bg-slate-800/20 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors", props.className)} />,
+  TableBody: forwardRef<HTMLTableSectionElement>((props: ComponentPropsWithoutRef<'tbody'>, ref) => <TableBody {...props} ref={ref} />),
+};
 
 // ===== Types =====
 interface TransmittalItem {
@@ -187,7 +196,7 @@ export default function Transmittals({ language, projectId }: TransmittalsProps)
       if (filterStatus !== "all") params.set("status", filterStatus);
       const res = await fetch(`/api/transmittals?${params}`);
       if (!res.ok) throw new Error("Failed to fetch transmittals");
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -197,7 +206,7 @@ export default function Transmittals({ language, projectId }: TransmittalsProps)
     queryFn: async () => {
       const res = await fetch("/api/projects-simple");
       if (!res.ok) return [];
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -207,7 +216,7 @@ export default function Transmittals({ language, projectId }: TransmittalsProps)
     queryFn: async () => {
       const res = await fetch("/api/users-simple");
       if (!res.ok) return [];
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -494,113 +503,107 @@ export default function Transmittals({ language, projectId }: TransmittalsProps)
         </div>
       ) : (
         <Card className="border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900 overflow-hidden">
-          <ScrollArea className="max-h-[calc(100vh-220px)]">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-slate-50/80 dark:bg-slate-800/50">
-                  <TableHead className="text-xs font-semibold py-2.5 px-3">{ar ? "رقم" : "Number"}</TableHead>
-                  <TableHead className="text-xs font-semibold py-2.5 px-3">{ar ? "المشروع" : "Project"}</TableHead>
-                  <TableHead className="text-xs font-semibold py-2.5 px-3">{ar ? "الموضوع" : "Subject"}</TableHead>
-                  <TableHead className="text-xs font-semibold py-2.5 px-3">{ar ? "إلى" : "To"}</TableHead>
-                  <TableHead className="text-xs font-semibold py-2.5 px-3">{ar ? "طريقة التسليم" : "Delivery"}</TableHead>
-                  <TableHead className="text-xs font-semibold py-2.5 px-3 hidden md:table-cell">{ar ? "التاريخ" : "Date"}</TableHead>
-                  <TableHead className="text-xs font-semibold py-2.5 px-3 text-center">{ar ? "البنود" : "Items"}</TableHead>
-                  <TableHead className="text-xs font-semibold py-2.5 px-3">{ar ? "الحالة" : "Status"}</TableHead>
-                  <TableHead className="text-xs font-semibold py-2.5 px-3">{ar ? "الرد" : "Reply"}</TableHead>
-                  <TableHead className="text-xs font-semibold py-2.5 px-3 w-10"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {transmittals.map((t) => (
-                  <TableRow
-                    key={t.id}
-                    className="group even:bg-slate-50/50 dark:even:bg-slate-800/20 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
-                    onClick={() => handleOpenDetail(t)}
-                  >
-                    <TableCell className="py-2.5 px-3">
-                      <span className="text-xs font-mono text-slate-600 dark:text-slate-400">
-                        {t.number || t.id.slice(0, 8)}
+          <TableVirtuoso
+            data={transmittals}
+            components={VirtuosoTableComponents}
+            fixedHeaderContent={() => (
+              <TableRow className="bg-slate-50/80 dark:bg-slate-800/50">
+                <TableHead className="text-xs font-semibold py-2.5 px-3">{ar ? "رقم" : "Number"}</TableHead>
+                <TableHead className="text-xs font-semibold py-2.5 px-3">{ar ? "المشروع" : "Project"}</TableHead>
+                <TableHead className="text-xs font-semibold py-2.5 px-3">{ar ? "الموضوع" : "Subject"}</TableHead>
+                <TableHead className="text-xs font-semibold py-2.5 px-3">{ar ? "إلى" : "To"}</TableHead>
+                <TableHead className="text-xs font-semibold py-2.5 px-3">{ar ? "طريقة التسليم" : "Delivery"}</TableHead>
+                <TableHead className="text-xs font-semibold py-2.5 px-3 hidden md:table-cell">{ar ? "التاريخ" : "Date"}</TableHead>
+                <TableHead className="text-xs font-semibold py-2.5 px-3 text-center">{ar ? "البنود" : "Items"}</TableHead>
+                <TableHead className="text-xs font-semibold py-2.5 px-3">{ar ? "الحالة" : "Status"}</TableHead>
+                <TableHead className="text-xs font-semibold py-2.5 px-3">{ar ? "الرد" : "Reply"}</TableHead>
+                <TableHead className="text-xs font-semibold py-2.5 px-3 w-10"></TableHead>
+              </TableRow>
+            )}
+            itemContent={(_, t) => (
+              <>
+                <TableCell className="py-2.5 px-3" onClick={() => handleOpenDetail(t)}>
+                  <span className="text-xs font-mono text-slate-600 dark:text-slate-400">
+                    {t.number || t.id.slice(0, 8)}
+                  </span>
+                </TableCell>
+                <TableCell className="py-2.5 px-3" onClick={() => handleOpenDetail(t)}>
+                  <span className="text-xs truncate max-w-[120px] block">
+                    {t.project ? (ar ? t.project.name : t.project.nameEn || t.project.name) : "-"}
+                  </span>
+                </TableCell>
+                <TableCell className="py-2.5 px-3" onClick={() => handleOpenDetail(t)}>
+                  <span className="text-xs font-medium truncate max-w-[150px] block">{t.subject}</span>
+                </TableCell>
+                <TableCell className="py-2.5 px-3" onClick={() => handleOpenDetail(t)}>
+                  <span className="text-xs truncate max-w-[100px] block">{t.toName || t.toCompany || "-"}</span>
+                </TableCell>
+                <TableCell className="py-2.5 px-3" onClick={() => handleOpenDetail(t)}>
+                  {getDeliveryBadge(t.deliveryMethod, ar)}
+                </TableCell>
+                <TableCell className="py-2.5 px-3 hidden md:table-cell" onClick={() => handleOpenDetail(t)}>
+                  <span className="text-xs text-slate-500">
+                    {new Date(t.createdAt).toLocaleDateString(ar ? "ar-AE" : "en-US", { month: "short", day: "numeric" })}
+                  </span>
+                </TableCell>
+                <TableCell className="py-2.5 px-3 text-center" onClick={() => handleOpenDetail(t)}>
+                  <span className="inline-flex items-center gap-1 text-[10px] font-medium text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 rounded-full px-2 py-0.5">
+                    <Package className="h-3 w-3" />
+                    {t.items.length}
+                  </span>
+                </TableCell>
+                <TableCell className="py-2.5 px-3" onClick={() => handleOpenDetail(t)}>
+                  {getStatusBadge(t.status, ar)}
+                </TableCell>
+                <TableCell className="py-2.5 px-3" onClick={() => handleOpenDetail(t)}>
+                  {(() => {
+                    const hasResponse = t.items.some(i => i.approved || i.rejected || i.needsRevision);
+                    return hasResponse ? (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 rounded-full px-1.5 py-0.5">
+                        <CheckCircle2 className="h-3 w-3" />
+                        {ar ? "تم الرد" : "Responded"}
                       </span>
-                    </TableCell>
-                    <TableCell className="py-2.5 px-3">
-                      <span className="text-xs truncate max-w-[120px] block">
-                        {t.project ? (ar ? t.project.name : t.project.nameEn || t.project.name) : "-"}
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-medium text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 rounded-full px-1.5 py-0.5">
+                        <MessageSquare className="h-3 w-3" />
+                        {ar ? "بانتظار الرد" : "Awaiting"}
                       </span>
-                    </TableCell>
-                    <TableCell className="py-2.5 px-3">
-                      <span className="text-xs font-medium truncate max-w-[150px] block">{t.subject}</span>
-                    </TableCell>
-                    <TableCell className="py-2.5 px-3">
-                      <span className="text-xs truncate max-w-[100px] block">{t.toName || t.toCompany || "-"}</span>
-                    </TableCell>
-                    <TableCell className="py-2.5 px-3">
-                      {getDeliveryBadge(t.deliveryMethod, ar)}
-                    </TableCell>
-                    <TableCell className="py-2.5 px-3 hidden md:table-cell">
-                      <span className="text-xs text-slate-500">
-                        {new Date(t.createdAt).toLocaleDateString(ar ? "ar-AE" : "en-US", { month: "short", day: "numeric" })}
-                      </span>
-                    </TableCell>
-                    <TableCell className="py-2.5 px-3 text-center">
-                      <span className="inline-flex items-center gap-1 text-[10px] font-medium text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 rounded-full px-2 py-0.5">
-                        <Package className="h-3 w-3" />
-                        {t.items.length}
-                      </span>
-                    </TableCell>
-                    <TableCell className="py-2.5 px-3">
-                      {getStatusBadge(t.status, ar)}
-                    </TableCell>
-                    <TableCell className="py-2.5 px-3">
-                      {(() => {
-                        const hasResponse = t.items.some(i => i.approved || i.rejected || i.needsRevision);
-                        return hasResponse ? (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 rounded-full px-1.5 py-0.5">
-                            <CheckCircle2 className="h-3 w-3" />
-                            {ar ? "تم الرد" : "Responded"}
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-medium text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 rounded-full px-1.5 py-0.5">
-                            <MessageSquare className="h-3 w-3" />
-                            {ar ? "بانتظار الرد" : "Awaiting"}
-                          </span>
-                        );
-                      })()}
-                    </TableCell>
-                    <TableCell className="py-2.5 px-3">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <button
-                            className="p-1 text-slate-400 hover:text-slate-600"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <MoreHorizontal className="h-3.5 w-3.5" />
-                          </button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align={ar ? "start" : "end"} className="w-36">
-                          <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleOpenDetail(t); }}>
-                            <Eye className="h-3.5 w-3.5 me-2" />
-                            {ar ? "عرض" : "View"}
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            className="text-red-600 dark:text-red-400"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (confirm(ar ? "هل أنت متأكد من الحذف؟" : "Delete this transmittal?")) {
-                                deleteMutation.mutate(t.id);
-                              }
-                            }}
-                          >
-                            <Trash2 className="h-3.5 w-3.5 me-2" />
-                            {ar ? "حذف" : "Delete"}
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </ScrollArea>
+                    );
+                  })()}
+                </TableCell>
+                <TableCell className="py-2.5 px-3">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button
+                        className="p-1 text-slate-400 hover:text-slate-600"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <MoreHorizontal className="h-3.5 w-3.5" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align={ar ? "start" : "end"} className="w-36">
+                      <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleOpenDetail(t); }}>
+                        <Eye className="h-3.5 w-3.5 me-2" />
+                        {ar ? "عرض" : "View"}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="text-red-600 dark:text-red-400"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (confirm(ar ? "هل أنت متأكد من الحذف؟" : "Delete this transmittal?")) {
+                            deleteMutation.mutate(t.id);
+                          }
+                        }}
+                      >
+                        <Trash2 className="h-3.5 w-3.5 me-2" />
+                        {ar ? "حذف" : "Delete"}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </>
+            )}
+          />
         </Card>
       )}
 

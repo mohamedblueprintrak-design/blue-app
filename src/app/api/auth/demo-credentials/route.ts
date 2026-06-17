@@ -1,5 +1,6 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { DEMO_CREDENTIALS, isDemoMode, validateDemoMode } from '@/lib/demo-credentials';
+import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 
 /**
  * GET /api/auth/demo-credentials
@@ -10,17 +11,26 @@ import { DEMO_CREDENTIALS, isDemoMode, validateDemoMode } from '@/lib/demo-crede
  * Uses the centralized DEMO_CREDENTIALS from @/lib/demo-credentials.ts
  * to ensure emails and passwords match the ROLES dropdown on the login page.
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
+  // Rate limiting — prevent brute-force probing of demo credentials
+  const { result } = await withRateLimit(request, 'auth');
+  const blocked = rateLimitResponse(result);
+  if (blocked) return blocked;
+
   validateDemoMode();
   if (!isDemoMode()) {
 
     return NextResponse.json({ credentials: [] });
   }
 
-  // SECURITY: Map from server-side DemoCredential to client-side format.
-  // Passwords are NOT exposed to the client — use POST /api/auth/demo-login instead.
+  // DEMO MODE: Include passwords so the Quick Login auto-fill works.
+  // This endpoint is ONLY reachable when DEMO_MODE=true — passwords are
+  // already public in the seed data and source code, so exposing them here
+  // is safe and necessary for the "select role → auto-fill email + password"
+  // UX on the login page.
   const credentials = DEMO_CREDENTIALS.map(c => ({
     email: c.email,
+    password: c.password,
     role: c.role,
     labelAr: c.labelAr,
     labelEn: c.labelEn,

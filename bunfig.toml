@@ -5,5 +5,13 @@ exclude = [
   "e2e/**",
   "e2e/",
   "./e2e/**",
+  "./e2e/",
   "node_modules/**",
+  "mini-services/**",
+  "blue-app-fix/**",
+  "skills/**",
 ]
+
+# Run each test file in its own worker for module isolation
+# This prevents jest.mock() from polluting other test files
+isolated = true

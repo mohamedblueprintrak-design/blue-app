@@ -39,6 +39,7 @@ import { Plus, Search, BookOpen, Eye, Clock, Tag, ChevronRight, ArrowLeft, Trash
 
 import { cn } from "@/lib/utils";
 import { getMutationHeaders } from "@/lib/csrf-client";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 
 // ===== Types =====
 interface Article {
@@ -121,6 +122,7 @@ export default function KnowledgePage({ language, projectId }: KnowledgePageProp
   const queryClient = useQueryClient();
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebouncedValue(search, 300);
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
   const [showDialog, setShowDialog] = useState(false);
   const [editArticle, setEditArticle] = useState<Article | null>(null);
@@ -132,15 +134,15 @@ export default function KnowledgePage({ language, projectId }: KnowledgePageProp
 
   // Fetch articles
   const { data: articles = [], isLoading } = useQuery<Article[]>({
-    queryKey: ["knowledge", projectId, selectedCategory, search],
+    queryKey: ["knowledge", projectId, selectedCategory, debouncedSearch],
     queryFn: async () => {
       const params = new URLSearchParams();
       if (selectedCategory && selectedCategory !== "all") params.set("category", selectedCategory);
-      if (search) params.set("search", search);
+      if (debouncedSearch) params.set("search", debouncedSearch);
       if (projectId) params.set("projectId", projectId);
       const res = await fetch(`/api/knowledge?${params.toString()}`);
       if (!res.ok) throw new Error("Failed to fetch");
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -150,7 +152,7 @@ export default function KnowledgePage({ language, projectId }: KnowledgePageProp
     queryFn: async () => {
       const res = await fetch(`/api/knowledge/${selectedArticle!.id}`);
       if (!res.ok) throw new Error("Failed to fetch");
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
     enabled: !!selectedArticle,
   });
@@ -232,7 +234,7 @@ export default function KnowledgePage({ language, projectId }: KnowledgePageProp
       if (projectId) params.set("projectId", projectId);
       const res = await fetch(`/api/knowledge?${params.toString()}`);
       if (!res.ok) return [];
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
   allArticlesQuery.data?.forEach((a) => {

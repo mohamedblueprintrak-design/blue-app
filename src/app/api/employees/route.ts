@@ -1,15 +1,41 @@
 import { db } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 import { validateBody, employeeCreateSchema } from '@/lib/api-validation';
-import { requireVerifiedPermission, orgFilter, orgCreate } from '@/app/api/utils/auth';
+import { requireVerifiedPermission, orgFilter, orgCreate, isAdmin, isHR } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
-import { sanitizeObject } from '@/lib/security/sanitize';
+
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 import { parsePaginationParams, buildPaginationMeta, calculateSkip } from '../utils/pagination';
 import { insensitiveContains } from '../utils/db';
 import { cachedQuery, invalidateCache, CACHE_TTL, buildCacheKey } from '@/lib/cache/query-cache';
 
+/**
+ * @openapi
+ * /api/employees:
+ *   get:
+ *     tags: [Employees]
+ *     summary: List employees
+ *     description: Retrieve a paginated list of employees scoped to the user's organization. Requires EMPLOYEE_READ permission. Non-HR/Admin users have salary fields masked.
+ *     parameters:
+ *       - name: page
+ *         in: query
+ *         schema: { type: integer, minimum: 1, default: 1 }
+ *       - name: limit
+ *         in: query
+ *         schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+ *       - name: search
+ *         in: query
+ *         schema: { type: string }
+ *         description: Search by position, department, or user name
+ *       - name: department
+ *         in: query
+ *         schema: { type: string }
+ *     responses:
+ *       200: { description: Paginated list of employees }
+ *       401: { description: Unauthorized }
+ *       403: { description: Forbidden — EMPLOYEE_READ required }
+ */
 // GET /api/employees
 export async function GET(request: NextRequest) {
   const { allowed: _allowed, result } = await withRateLimit(request, 'api');
@@ -71,7 +97,7 @@ export async function GET(request: NextRequest) {
     }, CACHE_TTL.USERS);
 
     // Remove salary from response for non-HR/Admin users
-    const canSeeSalary = ctx.role === 'ADMIN' || ctx.role === 'HR';
+    const canSeeSalary = isAdmin(ctx.role) || isHR(ctx.role);
     const sanitizedEmployees = canSeeSalary
       ? rawEmployees
       : rawEmployees.map(({ salary: _salary, ...rest }) => rest);
@@ -97,8 +123,19 @@ export async function POST(request: NextRequest) {
 
     const body = await validateBody(request, employeeCreateSchema);
     if (body instanceof NextResponse) return body;
-    const sanitizedBody = sanitizeObject(body);
-    const { userId, department, position, salary, employmentStatus, hireDate } = sanitizedBody;
+    const { userId, department, position, salary, employmentStatus, hireDate } = body;
+
+    // Validate employmentStatus enum value
+    const validStatuses = ['ACTIVE', 'ON_LEAVE', 'TERMINATED', 'PROBATION'];
+    const resolvedStatus = employmentStatus && validStatuses.includes(employmentStatus) ? employmentStatus : 'ACTIVE';
+
+    // Verify user belongs to same organization
+    const targetUser = await db.user.findFirst({
+      where: { id: userId, ...orgFilter(ctx) },
+    });
+    if (!targetUser) {
+      return NextResponse.json({ error: 'User not found in your organization' }, { status: 403 });
+    }
 
     // Check if employee already exists for this user
     const existing = await db.employee.findUnique({
@@ -115,7 +152,7 @@ export async function POST(request: NextRequest) {
         department: department || "",
         position: position || "",
         salary: salary || 0,
-        employmentStatus: (employmentStatus || "ACTIVE"),
+        employmentStatus: resolvedStatus,
         hireDate: hireDate ? new Date(hireDate) : null,
         ...orgCreate(ctx),
       },

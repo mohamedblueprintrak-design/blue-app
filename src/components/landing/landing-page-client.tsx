@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useLanguage } from "@/hooks/use-lang";
 import { motion, AnimatePresence } from "framer-motion";
-import { Building2, Compass, Phone, Mail, MapPin, Users, Award, Clock, Zap, MessageCircle, Star, CheckCircle2, Menu, X, Target, Headphones, ArrowUpRight, FileCheck } from 'lucide-react'
+import { Building2, Compass, Phone, Users, Award, Zap, Star, Menu, X, Target, Headphones, ArrowUpRight, FileCheck } from 'lucide-react'
 
 import { Button } from '@/components/ui/button';
 import LogoImage from '@/components/ui/logo-image';
@@ -30,7 +30,8 @@ export default function LandingPageClient() {
   });
 
   useEffect(() => {
-    fetch('/api/public/stats')
+    const controller = new AbortController();
+    fetch('/api/public/stats', { signal: controller.signal })
       .then(res => res.ok ? res.json() : null)
       .then(data => {
         if (data) {
@@ -45,7 +46,8 @@ export default function LandingPageClient() {
           }
         }
       })
-      .catch(() => {});
+      .catch(err => { if (err.name !== 'AbortError') { /* ignore non-abort errors */ } });
+    return () => controller.abort();
   }, []);
 
   const t = (ar: string, en: string) => (language === "ar" ? ar : en);

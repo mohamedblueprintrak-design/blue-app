@@ -10,7 +10,6 @@
     "skipLibCheck": true,
     "strict": true,
     "noEmit": true,
-    "noImplicitAny": true,
     "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "bundler",
@@ -39,6 +38,10 @@
   "exclude": [
     "node_modules",
     "skills",
-    "mini-services"
+    "mini-services",
+    "blue-app-fix",
+    "jest.setup.ts",
+    "jest.config.ts",
+    "__tests__"
   ]
 }

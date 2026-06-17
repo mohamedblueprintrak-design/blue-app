@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { AlertCircle, FileText, MessageCircle, Upload, User, Landmark, Home, Briefcase, MapPin } from 'lucide-react';
+import { AlertCircle, FileText, Upload, User, Landmark, Home, Briefcase, MapPin } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import {
   type Client,

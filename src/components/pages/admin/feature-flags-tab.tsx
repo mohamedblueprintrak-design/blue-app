@@ -295,7 +295,7 @@ export default function FeatureFlagsTab({ isAr }: FeatureFlagsTabProps) {
                 <Input
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  placeholder="Google Login"
+                  placeholder={isAr ? "تسجيل دخول جوجل" : "Google Login"}
                 />
               </div>
               <div className="space-y-1.5">
@@ -320,7 +320,7 @@ export default function FeatureFlagsTab({ isAr }: FeatureFlagsTabProps) {
                 <Input
                   value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
-                  placeholder="Enable Google OAuth login"
+                  placeholder={isAr ? "تفعيل تسجيل الدخول عبر جوجل" : "Enable Google OAuth login"}
                 />
               </div>
               <div className="space-y-1.5">

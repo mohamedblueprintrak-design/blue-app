@@ -80,7 +80,7 @@ export function CompanyTab({
               value={(formData.nameEn as string) || settings?.nameEn || ""}
               onChange={(e) => updateField("nameEn", e.target.value)}
               dir="ltr"
-              placeholder="Engineering Consultancy Office"
+              placeholder={isAr ? "مكتب الاستشارات الهندسية" : "Engineering Consultancy Office"}
               className="h-10 rounded-lg"
             />
           </div>
@@ -213,7 +213,7 @@ export function CompanyTab({
                 });
                 if (res.ok) {
                   const reader = new FileReader();
-                  reader.onload = (ev) => {
+                  reader.onload = (_ev) => {
                     // Trigger re-render via query invalidation
                     queryClient.invalidateQueries({ queryKey: ["company-settings"] });
                   };
@@ -247,6 +247,7 @@ export function CompanyTab({
               </div>
             ) : logoPreview || settings?.logo ? (
               <div className="flex flex-col items-center gap-2">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={logoPreview || settings?.logo}
                   alt={isAr ? "شعار الشركة" : "Company Logo"}

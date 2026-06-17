@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 import { requireVerifiedPermission, orgCheck } from '../../utils/auth';
-import { errorResponse, notFoundResponse, forbiddenResponse } from '../../utils/response';
+import { errorResponse, notFoundResponse } from '../../utils/response';
 import { validateRequest, invoiceUpdateSchema, invoiceItemUpdateSchema, validateIdParam } from '@/lib/api-validation';
 import { z } from 'zod';
 import { Permission } from '@/lib/auth/types';
@@ -83,7 +83,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     const orgError = orgCheck(user, existing);
     if (orgError) return orgError;
 
-    const validatedUpdateData = validation.data;
+    const _validatedUpdateData = validation.data;
 
     // Validate invoice items if provided
     let subtotal: number = Number(existing.subtotal);
@@ -100,7 +100,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
           { status: 400 }
         );
       }
-      lineItems = itemsValidation.data.map(item => sanitizeObject(item as unknown as Record<string, unknown>)) as unknown as typeof itemsValidation.data;
+      lineItems = itemsValidation.data.map(item => sanitizeObject(item as Record<string, unknown>)) as typeof itemsValidation.data;
       subtotal = lineItems.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
       tax = subtotal * TAX_RATE;
       total = subtotal + tax;

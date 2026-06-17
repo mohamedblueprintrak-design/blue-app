@@ -75,15 +75,24 @@ export default function FinanceExpensesPage({ }: Props) {
   const tickColor = isDark ? "#94a3b8" : "#64748b";
   const legendColor = isDark ? "#cbd5e1" : "#334155";
 
-  // Fetch payments
+  // Fetch payments — robustly handles all API response shapes:
+  // { data: [...], pagination: {...} } | { payments: [...] } | [...] | unexpected shapes
   const { data: payments = [], isLoading } = useQuery<PaymentRecord[]>({
     queryKey: ["payments-expenses"],
     queryFn: async () => {
-      const res = await fetch("/api/payments");
-      if (!res.ok) throw new Error("Failed");
-      const json = await res.json();
-      return json.payments || json;
+      try {
+        const res = await fetch("/api/payments");
+        if (!res.ok) throw new Error("Failed");
+        const json = await res.json();
+        // Try all known response shapes, then ensure we always return an array
+        const items = json.data ?? json.payments ?? (Array.isArray(json) ? json : []);
+        return Array.isArray(items) ? items : [];
+      } catch {
+        return []; // Never let queryFn throw — return empty array on any error
+      }
     },
+    // Ensure data is always an array even if React Query returns stale/unexpected data
+    select: (data) => Array.isArray(data) ? data : [],
   });
 
   // Fetch projects

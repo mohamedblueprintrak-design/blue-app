@@ -1,8 +1,9 @@
 import { db } from "@/lib/db";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { sanitizeObject } from '@/lib/security/sanitize';
 import { projectSchema } from '@/lib/validations';
 import { orgFilter, orgCreate, requireVerifiedPermission } from '../utils/auth';
+import { insensitiveContains } from '../utils/db';
 import { errorResponse, successResponse, createdResponse } from '../utils/response';
 import { parsePaginationParams, buildPaginationMeta, calculateSkip } from '../utils/pagination';
 import { cacheGetOrSet, cacheDeletePattern } from '@/lib/cache/redis';
@@ -128,11 +129,11 @@ export async function GET(request: NextRequest) {
 
     if (search) {
       where.OR = [
-        { name: { contains: search } },
-        { nameEn: { contains: search } },
-        { number: { contains: search } },
-        { location: { contains: search } },
-        { client: { name: { contains: search } } },
+        { name: insensitiveContains(search) },
+        { nameEn: insensitiveContains(search) },
+        { number: insensitiveContains(search) },
+        { location: insensitiveContains(search) },
+        { client: { name: insensitiveContains(search) } },
       ];
     }
 

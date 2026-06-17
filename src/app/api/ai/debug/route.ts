@@ -68,7 +68,8 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Read .env file content to check for issues (without exposing secrets)
+    // Check .env file for common formatting issues without reading secrets.
+    // SECURITY: We only read line structure (keys + value format), never expose actual values.
     const envFileIssues: string[] = [];
     if (envExists) {
       try {
@@ -81,14 +82,16 @@ export async function GET(request: NextRequest) {
           // Skip comments and empty lines
           if (!trimmed || trimmed.startsWith('#')) continue;
 
-          // Check for quoted values
+          // Check for quoted values — only inspect the key and value format prefix,
+          // never log or expose the actual secret values.
           if (trimmed.includes('=')) {
             const eqIndex = trimmed.indexOf('=');
             const key = trimmed.substring(0, eqIndex).trim();
-            const value = trimmed.substring(eqIndex + 1).trim();
+            const valuePrefix = trimmed.substring(eqIndex + 1).trim();
 
-            if (value.startsWith('"') || value.startsWith("'")) {
-              envFileIssues.push(`Line has quoted value: "${key}=${value.substring(0, 10)}...". Remove quotes from .env values.`);
+            if (valuePrefix.startsWith('"') || valuePrefix.startsWith("'")) {
+              // Only expose the key name (not the value) in the warning
+              envFileIssues.push(`Key "${key}" has quoted value in .env. Remove quotes: ${key}=value (not ${key}="value").`);
             }
 
             // Check for spaces around =

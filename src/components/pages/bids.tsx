@@ -55,19 +55,19 @@ export default function BidsPage({ language, projectId }: BidsPageProps) {
     queryFn: async () => {
       const res = await fetch(`/api/bids${projectId ? `?projectId=${projectId}` : ''}`);
       if (!res.ok) throw new Error("Failed");
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
   const { data: projects = [] } = useQuery<ProjectOption[]>({
     queryKey: ["projects-list"],
-    queryFn: async () => { const res = await fetch("/api/projects-simple"); if (!res.ok) return []; return res.json(); },
+    queryFn: async () => { const res = await fetch("/api/projects-simple"); if (!res.ok) return []; const json = await res.json(); return json.data || json; },
   });
 
   // Fetch contractors for dropdown in bid form
   const { data: contractorsList = [] } = useQuery<ContractorFull[]>({
     queryKey: ["contractors-list"],
-    queryFn: async () => { const res = await fetch("/api/contractors"); if (!res.ok) return []; return res.json(); },
+    queryFn: async () => { const res = await fetch("/api/contractors"); if (!res.ok) return []; const json = await res.json(); return json.data || json; },
   });
 
   // Create

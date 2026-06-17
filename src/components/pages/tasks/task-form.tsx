@@ -59,14 +59,14 @@ export function TaskForm({
 
   // Form
   const form = useForm<TaskFormData>({
-    resolver: zodResolver(taskSchema) as unknown as Resolver<TaskFormData>,
+    resolver: zodResolver(taskSchema) as Resolver<TaskFormData>,
     defaultValues: {
       title: "",
       description: "",
       projectId: projectId || "",
       assigneeId: "",
-      priority: "NORMAL",
-      status: "TODO",
+      priority: "NORMAL" as const,
+      status: "TODO" as const,
       startDate: "",
       dueDate: "",
       taskType: 'STANDARD' as const,
@@ -86,7 +86,7 @@ export function TaskForm({
             setValue(k as keyof TaskFormData, parsed[k]);
           });
           toast.showSuccess(ar ? "تم استعادة المسودة بنجاح" : "Draft restored successfully");
-        } catch (e) {}
+        } catch (_e) { /* intentional */ }
       }
       
       // eslint-disable-next-line
@@ -203,7 +203,7 @@ export function TaskForm({
               <Label className="text-sm">{ar ? "الأولوية" : "Priority"}</Label>
               <Select
                 value={watch("priority")}
-                onValueChange={(v) => setValue("priority", v)}
+                onValueChange={(v) => setValue("priority", v as TaskFormData["priority"])}
               >
                 <SelectTrigger className={cn(errors.priority && "border-red-500 focus:ring-red-500/20")}>
                   <SelectValue />

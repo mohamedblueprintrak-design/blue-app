@@ -7,7 +7,7 @@ import {
   generateInvoiceReportPDF,
 } from '@/lib/pdf/pdf-generator';
 import { log } from '@/lib/logger';
-import { handleApiError } from '@/lib/api-error';
+import { handleApiErrorWithLogging as handleApiError } from '@/lib/api-error';
 import { requireVerifiedPermission, orgFilter, type AuthContext } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { db } from '@/lib/db';

@@ -61,8 +61,10 @@ export async function GET(request: NextRequest) {
         department: true,
         position: true,
         isActive: true,
+        deletedAt: true,
         lastLogin: true,
         createdAt: true,
+        passwordChangedAt: true,
       },
     });
 
@@ -73,11 +75,19 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Check if user account is still active
-    if (!user.isActive) {
+    // Check if user account is still active and not soft-deleted
+    if (!user.isActive || user.deletedAt) {
       return NextResponse.json(
         { error: "الحساب معطل" },
         { status: 403 }
+      );
+    }
+
+    // SECURITY: Check if password was changed after this token was issued
+    if (user.passwordChangedAt && payload.iat && Math.floor(user.passwordChangedAt.getTime() / 1000) > payload.iat) {
+      return NextResponse.json(
+        { success: false, error: 'Token expired due to password change' },
+        { status: 401 }
       );
     }
 

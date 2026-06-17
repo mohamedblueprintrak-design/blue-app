@@ -27,6 +27,8 @@ export default function PublicFooter() {
   const { lang: language } = useLanguage();
   const t = (ar: string, en: string) => (language === "ar" ? ar : en);
   
+  const [year] = useState(() => new Date().getFullYear());
+
   const [company, setCompany] = useState({
     phone: "+971 50 161 1234",
     email: "info.blueprintrak@gmail.com",
@@ -34,7 +36,8 @@ export default function PublicFooter() {
   });
 
   useEffect(() => {
-    fetch('/api/public/stats')
+    const controller = new AbortController();
+    fetch('/api/public/stats', { signal: controller.signal })
       .then(res => res.ok ? res.json() : null)
       .then(data => {
         if (data && data.company) {
@@ -45,7 +48,8 @@ export default function PublicFooter() {
           });
         }
       })
-      .catch(() => {});
+      .catch(err => { if (err.name !== 'AbortError') { /* ignore non-abort errors */ } });
+    return () => controller.abort();
   }, []);
 
   return (
@@ -133,7 +137,7 @@ export default function PublicFooter() {
 
         {/* Copyright */}
         <div className="pt-8 text-center text-xs text-blue-200/30">
-          &copy; {typeof window !== 'undefined' ? new Date().getFullYear() : '2025'} BluePrint Engineering Consultancy.{" "}
+          &copy; {year} BluePrint Engineering Consultancy.{" "}
           {t("جميع الحقوق محفوظة.", "All rights reserved.")}
         </div>
       </div>

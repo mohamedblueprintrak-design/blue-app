@@ -57,7 +57,7 @@ class AutomationService {
     if (!task) return;
 
     if (task.assignee?.email) {
-      sendEmailWithRetry({
+      await sendEmailWithRetry({
         to: task.assignee.email,
         subject: `Task Completed: ${task.title}`,
         html: `<p>The task <strong>${task.title}</strong> in project <strong>${task.project?.name}</strong> has been marked as completed.</p>`
@@ -73,18 +73,18 @@ class AutomationService {
 
     if (!invoice || !invoice.client?.email) return;
 
-    sendEmailWithRetry({
+    await sendEmailWithRetry({
       to: invoice.client.email,
       subject: `New Invoice from BluePrint: ${invoice.number}`,
       html: `<p>Dear ${invoice.client.name},</p><p>You have received a new invoice (${invoice.number}) for the amount of ${invoice.total}. Please login to your portal to view it.</p>`
     });
   }
 
-  private async handleProjectCreated(payload: AutomationEventPayload) {
+  private async handleProjectCreated(_payload: AutomationEventPayload) {
     // Notify managers
   }
 
-  private async handleUserInvited(payload: AutomationEventPayload) {
+  private async handleUserInvited(_payload: AutomationEventPayload) {
     // handled inside auth service usually, but can be centralized here
   }
 }

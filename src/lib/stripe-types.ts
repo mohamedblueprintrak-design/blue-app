@@ -32,7 +32,15 @@ export interface StripeSubscriptionPeriod {
 export function getSubscriptionPeriod(
   subscription: Stripe.Subscription,
 ): StripeSubscriptionPeriod {
-  return subscription as unknown as StripeSubscriptionPeriod;
+  // Stripe SDK types don't expose these as top-level properties in all versions,
+  // but they are always present at runtime per the Stripe API spec.
+  const raw = subscription as unknown as Record<string, unknown>;
+  return {
+    current_period_start: raw.current_period_start as number,
+    current_period_end: raw.current_period_end as number,
+    cancel_at_period_end: raw.cancel_at_period_end as boolean,
+    canceled_at: (raw.canceled_at as number | null) ?? null,
+  };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -54,7 +62,12 @@ export interface StripeInvoiceFields {
 export function getInvoiceFields(
   invoice: Stripe.Invoice,
 ): StripeInvoiceFields {
-  return invoice as unknown as StripeInvoiceFields;
+  const raw = invoice as unknown as Record<string, unknown>;
+  return {
+    customer: raw.customer as string | { id: string },
+    payment_intent: raw.payment_intent as string | { id: string } | null,
+    subscription: raw.subscription as string | { id: string } | null,
+  };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -73,5 +86,7 @@ export interface StripePromoCodeWithCoupon {
 export function getPromoCodeCoupon(
   promoCode: Stripe.PromotionCode,
 ): Stripe.Coupon | string | undefined {
-  return (promoCode as unknown as StripePromoCodeWithCoupon).coupon;
+  // coupon may be expanded (full object) or just a string ID depending on API version
+  const raw = promoCode as unknown as Record<string, unknown>;
+  return raw.coupon as Stripe.Coupon | string | undefined;
 }

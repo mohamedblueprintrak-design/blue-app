@@ -5,6 +5,7 @@ export type TabId = 'map' | 'visits' | 'boq' | 'time' | 'portal' | 'communicatio
 export interface NavItem {
   id: TabId
   label: string
+  labelEn: string
   icon: React.ReactNode
 }
 

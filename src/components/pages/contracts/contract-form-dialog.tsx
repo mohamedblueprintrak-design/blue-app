@@ -145,7 +145,7 @@ export function ContractFormDialog({
               <Label className="text-sm">{ar ? "النوع" : "Type"}</Label>
               <Select
                 value={watch("type")}
-                onValueChange={(v) => setValue("type", v)}
+                onValueChange={(v) => setValue("type", v as ContractFormData["type"])}
               >
                 <SelectTrigger className="h-8 text-sm rounded-lg">
                   <SelectValue />

@@ -212,9 +212,11 @@ async function exportFinancial(lang: 'ar' | 'en', org: Record<string, unknown> =
     { key: 'paid', width: 18 },
     { key: 'pending', width: 18 },
   ];
-  monthlySheet.addRow([labels.date, labels.invoiced, labels.paid, labels.pending]);
   styleHeaderRow(monthlySheet, 4);
 
+  // PERF: Sequential aggregate queries per month (N+1 pattern).
+  // A future optimization could use a single groupBy query with date truncation
+  // to compute all months in one database round-trip.
   for (let i = 5; i >= 0; i--) {
     const monthStart = new Date(now.getFullYear(), now.getMonth() - i, 1);
     const monthEnd = new Date(now.getFullYear(), now.getMonth() - i + 1, 0, 23, 59, 59);
@@ -232,7 +234,7 @@ async function exportFinancial(lang: 'ar' | 'en', org: Record<string, unknown> =
       lang === 'ar' ? arMonths[monthStart.getMonth()] : enMonths[monthStart.getMonth()],
       invoiced._sum.total || 0,
       paid._sum.paidAmount || 0,
-      0,
+      Number(invoiced._sum.total || 0) - Number(paid._sum.paidAmount || 0),
     ]);
   }
 

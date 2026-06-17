@@ -106,7 +106,7 @@ export default function Submittals({ language, projectId }: SubmittalsProps) {
       if (filterStatus !== "all") params.set("status", filterStatus);
       const res = await fetch(`/api/submittals?${params}`);
       if (!res.ok) throw new Error("Failed to fetch submittals");
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -115,7 +115,7 @@ export default function Submittals({ language, projectId }: SubmittalsProps) {
     queryFn: async () => {
       const res = await fetch("/api/projects-simple");
       if (!res.ok) return [];
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -153,10 +153,10 @@ export default function Submittals({ language, projectId }: SubmittalsProps) {
     },
   });
 
-  const defaultSubForm = { projectId: projectId || "", number: "", title: "", type: "", contractor: "", revisionNumber: "1", status: "UNDER_REVIEW" };
+  const defaultSubForm = { projectId: projectId || "", number: "", title: "", type: "", contractor: "", revisionNumber: "1", status: "UNDER_REVIEW" as const };
   const [_formData, setFormData] = useState(defaultSubForm);
 
-  const form = useForm<SubmittalFormData>({ resolver: zodResolver(submittalSchema) as unknown as Resolver<SubmittalFormData>, defaultValues: defaultSubForm });
+  const form = useForm<SubmittalFormData>({ resolver: zodResolver(submittalSchema) as Resolver<SubmittalFormData>, defaultValues: defaultSubForm });
   const { register, handleSubmit: rhfHandleSubmit, formState: { errors }, reset, setValue, watch } = form;
 
   // Auto-set project filter from props
@@ -440,7 +440,7 @@ export default function Submittals({ language, projectId }: SubmittalsProps) {
               </div>
               <div className="space-y-2">
                 <Label className="text-sm">{ar ? "الحالة" : "Status"}</Label>
-                <Select value={watch("status")} onValueChange={(v) => setValue("status", v)}>
+                <Select value={watch("status")} onValueChange={(v) => setValue("status", v as SubmittalFormData["status"])}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="UNDER_REVIEW">{ar ? "قيد المراجعة" : "Under Review"}</SelectItem>

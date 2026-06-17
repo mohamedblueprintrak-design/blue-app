@@ -545,7 +545,7 @@ export default function ProposalsPage({ language, projectId }: ProposalsPageProp
                         <TableCell className="text-end text-sm font-medium tabular-nums font-mono">{formatCurrency(item.quantity * item.unitPrice, ar)}</TableCell>
                         <TableCell>
                           {formData.items.length > 1 && (
-                            <Button variant="ghost" size="icon" className="h-7 w-7 text-red-400" onClick={() => removeLineItem(idx)} aria-label="Remove item"><X className="h-3.5 w-3.5" /></Button>
+                            <Button variant="ghost" size="icon" className="h-7 w-7 text-red-400" onClick={() => removeLineItem(idx)} aria-label={ar ? "حذف البند" : "Remove item"}><X className="h-3.5 w-3.5" /></Button>
                           )}
                         </TableCell>
                       </TableRow>

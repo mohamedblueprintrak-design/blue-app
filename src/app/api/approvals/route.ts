@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { validateBody, approvalCreateSchema } from '@/lib/api-validation';
-import { requireVerifiedPermission, orgFilter, orgCreate} from '@/app/api/utils/auth';
+import { requireVerifiedPermission, orgCreate} from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
@@ -9,6 +9,34 @@ import { parsePaginationParams, buildPaginationMeta, calculateSkip } from '../ut
 import { insensitiveContains } from '../utils/db';
 import { cachedQuery, invalidateCache, CACHE_TTL, buildCacheKey } from '@/lib/cache/query-cache';
 
+/**
+ * @openapi
+ * /api/approvals:
+ *   get:
+ *     tags: [Approvals]
+ *     summary: List approvals
+ *     description: Retrieve a paginated list of approval requests scoped to the user's organization. Supports filtering by status, type, and assignee. Requires APPROVAL_READ permission.
+ *     parameters:
+ *       - name: page
+ *         in: query
+ *         schema: { type: integer, minimum: 1, default: 1 }
+ *       - name: limit
+ *         in: query
+ *         schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+ *       - name: status
+ *         in: query
+ *         schema: { type: string, enum: [PENDING, APPROVED, REJECTED] }
+ *       - name: type
+ *         in: query
+ *         schema: { type: string }
+ *       - name: assigneeId
+ *         in: query
+ *         schema: { type: string }
+ *     responses:
+ *       200: { description: Paginated list of approvals }
+ *       401: { description: Unauthorized }
+ *       403: { description: Forbidden — APPROVAL_READ required }
+ */
 // GET: List all approvals with optional filtering
 export async function GET(request: NextRequest) {
   const { allowed: _allowed, result: rlResult } = await withRateLimit(request, 'api');
@@ -83,8 +111,8 @@ export async function POST(request: NextRequest) {
         entityId,
         title,
         description: description || '',
-        requestedBy,
-        assignedTo,
+        requestedBy: requestedBy || '',
+        assignedTo: assignedTo || '',
         step: step || 1,
         totalSteps: totalSteps || 1,
         amount: amount || 0,

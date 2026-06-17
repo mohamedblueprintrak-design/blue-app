@@ -9,9 +9,11 @@ import { PrismaClient } from '@prisma/client'
  */
 declare global {
   var prisma: PrismaClient | undefined
+  var __dbShutdownRegistered: boolean | undefined
+  var __dbInitPromise: Promise<void> | undefined
 }
 
-export const db =
+const _dbInstance =
   globalThis.prisma ??
   new PrismaClient({
     log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : [],
@@ -22,26 +24,92 @@ export const db =
     //   connection_limit: parseInt(process.env.DB_CONNECTION_LIMIT || '10'),
   })
 
-if (process.env.NODE_ENV !== 'production') globalThis.prisma = db
+if (process.env.NODE_ENV !== 'production') globalThis.prisma = _dbInstance
+
+/**
+ * SQLite foreign-key enforcement — initialization promise.
+ *
+ * SQLite does NOT enforce foreign keys by default. Without this PRAGMA,
+ * `onDelete: Cascade` in the Prisma schema is silently ignored, and orphaned
+ * records accumulate.
+ *
+ * SECURITY/DATA-INTEGRITY FIX (previously fire-and-forget):
+ * The PRAGMA is now executed as an awaited Promise at module load time.
+ * The promise is exposed via `dbReady` (and the `ensureDbReady()` helper)
+ * AND every Prisma operation is automatically gated through `$extends` to
+ * await this promise first. This guarantees FK enforcement is active before
+ * any query executes, even if a caller fires a query immediately at startup.
+ *
+ * Note: after the promise resolves once, subsequent `await dbReady` calls
+ * are essentially free (single microtask tick).
+ */
+const _dbInitPromise =
+  globalThis.__dbInitPromise ??
+  (async () => {
+    if (process.env.DATABASE_URL?.startsWith('file:')) {
+      try {
+        await _dbInstance.$executeRaw`PRAGMA foreign_keys = ON`
+        console.info('[db] SQLite foreign key enforcement enabled')
+      } catch (err) {
+        // Log but don't crash — FK enforcement is a safety net, not a hard requirement
+        console.warn('[db] Failed to enable SQLite foreign key enforcement:', err)
+      }
+    }
+  })()
+
+if (process.env.NODE_ENV !== 'production') globalThis.__dbInitPromise = _dbInitPromise
+
+/**
+ * Gated Prisma client — every operation automatically awaits `dbReady` first.
+ * This makes FK enforcement race-free without requiring callers to remember
+ * to await anything.
+ *
+ * NOTE: The extended client returned by `$extends` is structurally compatible
+ * with PrismaClient for all methods used in this codebase ($transaction,
+ * model delegates like db.user, db.project, etc.). It omits only `$on` and
+ * `$use`, which are not used anywhere. Callers that explicitly type their
+ * parameter as `PrismaClient` should cast via `as unknown as PrismaClient`.
+ */
+export const db = _dbInstance.$extends({
+  query: {
+    async $allOperations({ args, query }) {
+      await _dbInitPromise
+      return query(args)
+    },
+  },
+})
+
+/**
+ * Promise that resolves once the database is fully initialized
+ * (FK PRAGMA applied for SQLite). Useful for tests or startup hooks
+ * that need to know initialization is complete.
+ */
+export const dbReady: Promise<void> = _dbInitPromise
+
+/**
+ * Convenience helper — awaits database initialization.
+ * Call this from startup hooks or critical write paths if you need
+ * explicit ordering guarantees.
+ */
+export async function ensureDbReady(): Promise<void> {
+  await _dbInitPromise
+}
 
 /**
  * Graceful shutdown handler — ensures PrismaClient disconnects properly
  * when the Node.js process exits, preventing dangling connections.
  *
- * FIX: Register in BOTH development and production.
- * Previously only registered in production, which meant dangling SQLite
- * connections and WAL lock issues during development restarts.
+ * Uses globalThis flag to prevent duplicate handler registration during
+ * Next.js hot-reloading, which would cause MaxListenersExceededWarning.
  */
-let shutdownHandlersRegistered = false;
-
 function setupGracefulShutdown() {
-  if (shutdownHandlersRegistered) return;
-  shutdownHandlersRegistered = true;
+  if (globalThis.__dbShutdownRegistered) return
+  globalThis.__dbShutdownRegistered = true
 
   const shutdown = async (signal: string) => {
     console.info(`[db] Received ${signal}, disconnecting Prisma...`)
     try {
-      await db.$disconnect()
+      await _dbInstance.$disconnect()
       console.info('[db] Prisma disconnected successfully')
     } catch (err) {
       console.error('[db] Error disconnecting Prisma:', err)
@@ -49,9 +117,9 @@ function setupGracefulShutdown() {
     process.exit(0)
   }
 
-  // Register in ALL environments (dev + production)
-  process.on('SIGINT', () => shutdown('SIGINT'))
-  process.on('SIGTERM', () => shutdown('SIGTERM'))
+  // Use once() to auto-cleanup after first invocation, preventing accumulation
+  process.once('SIGINT', () => shutdown('SIGINT'))
+  process.once('SIGTERM', () => shutdown('SIGTERM'))
 }
 
 setupGracefulShutdown()
@@ -63,7 +131,7 @@ setupGracefulShutdown()
  */
 export async function isDatabaseAvailable(): Promise<boolean> {
   try {
-    await db.$queryRaw`SELECT 1`
+    await _dbInstance.$queryRaw`SELECT 1`
     return true
   } catch {
     return false
@@ -82,7 +150,7 @@ export function getEmptyPaginationResponse() {
       total: 0,
       totalPages: 0,
       hasNextPage: false,
-      hasPrevPage: false
-    }
+      hasPrevPage: false,
+    },
   }
 }

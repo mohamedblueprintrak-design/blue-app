@@ -59,7 +59,7 @@ export default function ProjectFormDialog({
 }: ProjectFormDialogProps) {
   const [mapLocation, setMapLocation] = useState<{ lat: number; lng: number } | null>(null);
   const form = useForm<ProjectFormData>({
-    resolver: zodResolver(projectSchema) as unknown as Resolver<ProjectFormData>,
+    resolver: zodResolver(projectSchema) as Resolver<ProjectFormData>,
     defaultValues: {
       number: "",
       name: "",

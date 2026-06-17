@@ -164,11 +164,9 @@ function ParallaxBackground() {
 
 export default function CalculatorPage() {
   const [language, setLanguage] = useState<"ar" | "en">(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem("blueprint-lang") as "ar" | "en" | null;
-      if (saved) return saved;
-    }
-    return "ar";
+    if (typeof window === "undefined") return "ar";
+    const saved = localStorage.getItem("blueprint-lang") as "ar" | "en" | null;
+    return saved === "ar" || saved === "en" ? saved : "ar";
   });
 
   // React to language changes from header toggle

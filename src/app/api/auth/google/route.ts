@@ -25,6 +25,15 @@ export async function GET(request: NextRequest) {
     // Generate CSRF state token
     const state = randomBytes(32).toString('hex');
 
+    // Generate PKCE code verifier and challenge (same pattern as Microsoft OAuth)
+    // SECURITY: PKCE prevents authorization code interception attacks
+    const code_verifier = randomBytes(32).toString('base64url');
+    const code_challenge_buffer = await crypto.subtle.digest(
+      'SHA-256',
+      new TextEncoder().encode(code_verifier)
+    );
+    const code_challenge = Buffer.from(code_challenge_buffer).toString('base64url');
+
     // Build redirect URI — must match what's registered in Google Cloud Console
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || new URL(request.url).origin;
     const redirectUri = `${baseUrl}/api/auth/google/callback`;
@@ -38,12 +47,23 @@ export async function GET(request: NextRequest) {
     googleAuthUrl.searchParams.set('state', state);
     googleAuthUrl.searchParams.set('access_type', 'offline');
     googleAuthUrl.searchParams.set('prompt', 'consent');
+    googleAuthUrl.searchParams.set('code_challenge', code_challenge);
+    googleAuthUrl.searchParams.set('code_challenge_method', 'S256');
 
     // Redirect to Google's consent screen
     const response = NextResponse.redirect(googleAuthUrl.toString());
 
     // Store state in a short-lived cookie for CSRF verification in the callback
     response.cookies.set('google_oauth_state', state, {
+      path: '/',
+      maxAge: 10 * 60, // 10 minutes
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+    });
+
+    // Store code_verifier for PKCE validation in the callback
+    response.cookies.set('google_oauth_verifier', code_verifier, {
       path: '/',
       maxAge: 10 * 60, // 10 minutes
       httpOnly: true,

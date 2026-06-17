@@ -1,7 +1,6 @@
 import { db } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 import { requireVerifiedPermission, orgCheck } from '@/app/api/utils/auth';
-import { forbiddenResponse } from '@/app/api/utils/response';
 import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
 import { validateRequest, validateIdParam, equipmentUpdateSchema } from '@/lib/api-validation';

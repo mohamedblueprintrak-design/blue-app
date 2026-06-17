@@ -14,8 +14,13 @@ import { log } from '@/lib/logger';
 /**
  * Safely handles API errors - returns generic message in production,
  * detailed message in development
+ *
+ * NOTE: This function has a different signature than `handleApiError` in
+ * `@/app/api/utils/response.ts`. That version takes (message, error, code, status, requestId).
+ * This version takes (error, context) and uses serverErrorResponse internally.
+ * To avoid confusion, this is renamed to `handleApiErrorWithLogging`.
  */
-export function handleApiError(error: unknown, context?: string): NextResponse {
+export function handleApiErrorWithLogging(error: unknown, context?: string): NextResponse {
   // Log the full error server-side using Winston
   const message = error instanceof Error ? error.message : 'Unknown error';
   log.error(`[API Error${context ? ` - ${context}` : ''}] ${message}`, { error });

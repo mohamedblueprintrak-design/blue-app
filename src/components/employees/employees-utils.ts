@@ -48,8 +48,6 @@ export function getInitials(name: string) {
     .slice(0, 2);
 }
 
-import { getAvatarColor } from '@/lib/utils';
-
 export const departmentColors: Record<string, string> = {
   "الهندسة المعمارية": "bg-violet-500",
   "الهندسة الإنشائية": "bg-blue-500",

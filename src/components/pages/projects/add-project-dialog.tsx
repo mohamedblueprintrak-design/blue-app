@@ -81,7 +81,7 @@ export function AddProjectDialog({
   const [selectedTemplateId, setSelectedTemplateId] = useState("");
   const [templatesLoaded, setTemplatesLoaded] = useState(false);
 
-  const { toast } = useToast();
+  const { toast: _toast } = useToast();
 
   // Fetch templates when template mode is enabled
   const fetchTemplates = useCallback(async () => {

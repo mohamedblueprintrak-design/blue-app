@@ -170,7 +170,7 @@ export default function RecurringInvoicesPage({ language }: RecurringInvoicesPag
       const res = await fetch("/api/recurring-invoices");
       if (!res.ok) throw new Error("Failed to fetch");
       const json = await res.json();
-      return json.recurringInvoices || json;
+      return json.data || json.recurringInvoices || json;
     },
   });
 
@@ -756,7 +756,7 @@ export default function RecurringInvoicesPage({ language }: RecurringInvoicesPag
                               size="icon"
                               className="h-7 w-7 text-red-400"
                               onClick={() => removeItem(idx)}
-                              aria-label="Remove item"
+                              aria-label={ar ? "حذف البند" : "Remove item"}
                             >
                               <X className="h-3.5 w-3.5" />
                             </Button>

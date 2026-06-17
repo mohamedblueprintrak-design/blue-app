@@ -21,8 +21,6 @@ playwright.config.ts
 jest.config.ts
 skills
 download
-bun.lock
-bunfig.toml
 .github
 .husky
 docker-compose*.yml

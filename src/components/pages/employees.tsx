@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToastFeedback } from "@/hooks/use-toast-feedback";
 import type { EmployeeFormData } from "@/lib/validations";
-import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/lib/formatters";
 import { getMutationHeaders } from "@/lib/csrf-client";
 import { Button } from "@/components/ui/button";
@@ -24,9 +23,7 @@ import {
 import {
   Plus,
   Search,
-  Eye,
   Pencil,
-  Trash2,
   Mail,
   Phone,
   Building2,
@@ -70,7 +67,7 @@ export default function EmployeesPage({ language }: EmployeesPageProps) {
       const res = await fetch(`/api/employees?${params}`);
       if (!res.ok) throw new Error("Failed to fetch employees");
       const json = await res.json();
-      return json.employees || json;
+      return json.data || json.employees || json;
     },
   });
 
@@ -220,7 +217,7 @@ export default function EmployeesPage({ language }: EmployeesPageProps) {
               size="icon"
               className={`h-8 w-8 rounded-none ${viewMode === "table" ? "bg-slate-100 dark:bg-slate-800" : ""}`}
               onClick={() => setViewMode("table")}
-              aria-label="Table view"
+              aria-label={ar ? "عرض جدول" : "Table view"}
             >
               <LayoutList className="h-3.5 w-3.5" />
             </Button>
@@ -229,7 +226,7 @@ export default function EmployeesPage({ language }: EmployeesPageProps) {
               size="icon"
               className={`h-8 w-8 rounded-none ${viewMode === "grid" ? "bg-slate-100 dark:bg-slate-800" : ""}`}
               onClick={() => setViewMode("grid")}
-              aria-label="Grid view"
+              aria-label={ar ? "عرض شبكي" : "Grid view"}
             >
               <LayoutGrid className="h-3.5 w-3.5" />
             </Button>

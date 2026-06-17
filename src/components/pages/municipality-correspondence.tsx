@@ -168,7 +168,7 @@ export default function MunicipalityCorrespondencePage({ language, projectId }: 
     queryFn: async () => {
       const res = await fetch("/api/projects-simple");
       if (!res.ok) return [];
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
   const projects = projectsData || [];
@@ -183,7 +183,7 @@ export default function MunicipalityCorrespondencePage({ language, projectId }: 
       if (typeFilter !== "all") params.set("type", typeFilter);
       const res = await fetch(`/api/municipality-correspondence?${params.toString()}`);
       if (!res.ok) throw new Error("Failed");
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
   const records = useMemo(() => response?.data || [], [response?.data]);

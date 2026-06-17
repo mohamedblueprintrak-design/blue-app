@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from 'react'
+import { useState, forwardRef, type ComponentPropsWithoutRef } from 'react'
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { TableVirtuoso } from "react-virtuoso";
 import { useToastFeedback } from "@/hooks/use-toast-feedback";
 import { cn } from "@/lib/utils";
 import { getMutationHeaders } from "@/lib/csrf-client";
@@ -156,6 +157,15 @@ function emptyFinding(): Finding {
   return { location: "", description: "", severity: "LOW", category: "STRUCTURAL", photos: "", remediation: "", estimatedCost: 0, status: "OPEN" };
 }
 
+// ===== Virtuoso Table Components (for virtualized rendering) =====
+const VirtuosoTableComponents = {
+  Scroller: forwardRef<HTMLDivElement>((props: ComponentPropsWithoutRef<'div'> & { className?: string }, ref) => <div {...props} ref={ref} className={cn("overflow-auto max-h-[calc(100vh-420px)] w-full custom-scrollbar", props.className)} />),
+  Table: (props: ComponentPropsWithoutRef<'table'> & { className?: string }) => <Table {...props} className={cn("w-full caption-bottom text-sm", props.className)} />,
+  TableHead: forwardRef<HTMLTableSectionElement>((props: ComponentPropsWithoutRef<'thead'> & { className?: string }, ref) => <TableHeader {...props} ref={ref} className="sticky top-0 z-10 bg-white dark:bg-slate-900 shadow-[0_1px_0_0_#e2e8f0] dark:shadow-[0_1px_0_0_#1e293b]" />),
+  TableRow: (props: ComponentPropsWithoutRef<'tr'> & { className?: string }) => <TableRow {...props} className={cn("group even:bg-slate-50/50 dark:even:bg-slate-800/20 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50", props.className)} />,
+  TableBody: forwardRef<HTMLTableSectionElement>((props: ComponentPropsWithoutRef<'tbody'>, ref) => <TableBody {...props} ref={ref} />),
+};
+
 // ===== Main Component =====
 interface InspectionsProps { language: "ar" | "en"; projectId?: string; }
 
@@ -219,7 +229,7 @@ export default function Inspections({ language, projectId: _projectId }: Inspect
       if (filterType !== "all") params.set("inspectionType", filterType);
       const res = await fetch(`/api/inspections?${params}`);
       if (!res.ok) throw new Error("Failed to fetch inspections");
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -232,7 +242,7 @@ export default function Inspections({ language, projectId: _projectId }: Inspect
     queryFn: async () => {
       const res = await fetch("/api/projects-simple");
       if (!res.ok) return [];
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -513,86 +523,84 @@ export default function Inspections({ language, projectId: _projectId }: Inspect
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto max-h-[calc(100vh-420px)] overflow-y-auto">
-            <Table>
-              <TableHeader>
-                <TableRow className="hover:bg-transparent bg-slate-50/80 dark:bg-slate-800/50">
-                  <TableHead className="text-xs font-semibold">{ar ? "رقم الفحص" : "No."}</TableHead>
-                  <TableHead className="text-xs font-semibold">{ar ? "المبنى" : "Building"}</TableHead>
-                  <TableHead className="text-xs font-semibold">{ar ? "نوع الفحص" : "Type"}</TableHead>
-                  <TableHead className="text-xs font-semibold">{ar ? "تاريخ الفحص" : "Date"}</TableHead>
-                  <TableHead className="text-xs font-semibold">{ar ? "مستوى الخطورة" : "Risk"}</TableHead>
-                  <TableHead className="text-xs font-semibold">{ar ? "الحالة" : "Status"}</TableHead>
-                  <TableHead className="text-xs font-semibold">{ar ? "المخلوقات" : "Findings"}</TableHead>
-                  <TableHead className="text-xs font-semibold">{ar ? "التكلفة" : "Cost"}</TableHead>
-                  <TableHead className="w-10"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {inspections.map((inspection) => {
-                  const riskCfg = getRiskConfig(inspection.riskLevel);
-                  const statusCfg = getStatusConfig(inspection.status);
-                  return (
-                    <TableRow key={inspection.id} className="group even:bg-slate-50/50 dark:even:bg-slate-800/20 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                      <TableCell className="text-xs font-mono text-slate-600 dark:text-slate-400">{inspection.inspectionNumber}</TableCell>
-                      <TableCell>
-                        <div className="max-w-[180px]">
-                          <p className="text-sm font-medium text-slate-900 dark:text-white truncate">{inspection.buildingName || "-"}</p>
-                          {inspection.buildingAddress && (
-                            <p className="text-[10px] text-slate-400 truncate">{inspection.buildingAddress}</p>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-xs text-slate-600 dark:text-slate-400">
-                        {getInspectionTypeLabel(inspection.inspectionType, ar)}
-                      </TableCell>
-                      <TableCell className="text-xs text-slate-500">
-                        {new Date(inspection.inspectionDate).toLocaleDateString(ar ? "ar-AE" : "en-US")}
-                      </TableCell>
-                      <TableCell>
-                        <span className={cn("inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border", riskCfg.color)}>
-                          <span>{riskCfg.icon}</span>
-                          {ar ? riskCfg.label : riskCfg.labelEn}
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        <span className={cn("inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium", statusCfg.color)}>
-                          {ar ? statusCfg.label : statusCfg.labelEn}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-xs text-slate-500 tabular-nums">{inspection.findings?.length || 0}</TableCell>
-                      <TableCell className="text-xs text-slate-500 tabular-nums">
-                        {inspection.repairEstimate > 0 ? `${inspection.repairEstimate.toLocaleString()} AED` : "-"}
-                      </TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <button className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300" aria-label="More options">
-                              <MoreHorizontal className="h-3.5 w-3.5" />
-                            </button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align={ar ? "start" : "end"} className="w-36">
-                            <DropdownMenuItem onClick={() => handleView(inspection)}>
-                              <Eye className="h-3.5 w-3.5 me-2" />{ar ? "عرض" : "View"}
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleEdit(inspection)}>
-                              <Edit3 className="h-3.5 w-3.5 me-2" />{ar ? "تعديل" : "Edit"}
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              className="text-red-600 dark:text-red-400 focus:text-red-600"
-                              onClick={() => { if (confirm(ar ? "هل أنت متأكد من الحذف؟" : "Delete this inspection?")) deleteMutation.mutate(inspection.id); }}
-                            >
-                              <Trash2 className="h-3.5 w-3.5 me-2" />{ar ? "حذف" : "Delete"}
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </div>
+          <TableVirtuoso
+            data={inspections}
+            components={VirtuosoTableComponents}
+            fixedHeaderContent={() => (
+              <TableRow className="hover:bg-transparent bg-slate-50/80 dark:bg-slate-800/50">
+                <TableHead className="text-xs font-semibold">{ar ? "رقم الفحص" : "No."}</TableHead>
+                <TableHead className="text-xs font-semibold">{ar ? "المبنى" : "Building"}</TableHead>
+                <TableHead className="text-xs font-semibold">{ar ? "نوع الفحص" : "Type"}</TableHead>
+                <TableHead className="text-xs font-semibold">{ar ? "تاريخ الفحص" : "Date"}</TableHead>
+                <TableHead className="text-xs font-semibold">{ar ? "مستوى الخطورة" : "Risk"}</TableHead>
+                <TableHead className="text-xs font-semibold">{ar ? "الحالة" : "Status"}</TableHead>
+                <TableHead className="text-xs font-semibold">{ar ? "المخلوقات" : "Findings"}</TableHead>
+                <TableHead className="text-xs font-semibold">{ar ? "التكلفة" : "Cost"}</TableHead>
+                <TableHead className="w-10"></TableHead>
+              </TableRow>
+            )}
+            itemContent={(_, inspection) => {
+              const riskCfg = getRiskConfig(inspection.riskLevel);
+              const statusCfg = getStatusConfig(inspection.status);
+              return (
+                <>
+                  <TableCell className="text-xs font-mono text-slate-600 dark:text-slate-400">{inspection.inspectionNumber}</TableCell>
+                  <TableCell>
+                    <div className="max-w-[180px]">
+                      <p className="text-sm font-medium text-slate-900 dark:text-white truncate">{inspection.buildingName || "-"}</p>
+                      {inspection.buildingAddress && (
+                        <p className="text-[10px] text-slate-400 truncate">{inspection.buildingAddress}</p>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-xs text-slate-600 dark:text-slate-400">
+                    {getInspectionTypeLabel(inspection.inspectionType, ar)}
+                  </TableCell>
+                  <TableCell className="text-xs text-slate-500">
+                    {new Date(inspection.inspectionDate).toLocaleDateString(ar ? "ar-AE" : "en-US")}
+                  </TableCell>
+                  <TableCell>
+                    <span className={cn("inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border", riskCfg.color)}>
+                      <span>{riskCfg.icon}</span>
+                      {ar ? riskCfg.label : riskCfg.labelEn}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <span className={cn("inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium", statusCfg.color)}>
+                      {ar ? statusCfg.label : statusCfg.labelEn}
+                    </span>
+                  </TableCell>
+                  <TableCell className="text-xs text-slate-500 tabular-nums">{inspection.findings?.length || 0}</TableCell>
+                  <TableCell className="text-xs text-slate-500 tabular-nums">
+                    {inspection.repairEstimate > 0 ? `${inspection.repairEstimate.toLocaleString()} AED` : "-"}
+                  </TableCell>
+                  <TableCell>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300" aria-label="More options">
+                          <MoreHorizontal className="h-3.5 w-3.5" />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align={ar ? "start" : "end"} className="w-36">
+                        <DropdownMenuItem onClick={() => handleView(inspection)}>
+                          <Eye className="h-3.5 w-3.5 me-2" />{ar ? "عرض" : "View"}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleEdit(inspection)}>
+                          <Edit3 className="h-3.5 w-3.5 me-2" />{ar ? "تعديل" : "Edit"}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="text-red-600 dark:text-red-400 focus:text-red-600"
+                          onClick={() => { if (confirm(ar ? "هل أنت متأكد من الحذف؟" : "Delete this inspection?")) deleteMutation.mutate(inspection.id); }}
+                        >
+                          <Trash2 className="h-3.5 w-3.5 me-2" />{ar ? "حذف" : "Delete"}
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </>
+              );
+            }}
+          />
         )}
       </div>
 

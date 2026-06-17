@@ -135,13 +135,13 @@ export default function SuppliersPage({ language }: SuppliersPageProps) {
 
   // Form state
   const emptyForm = {
-    name: "", category: "MATERIALS", email: "", phone: "",
+    name: "", category: "MATERIALS" as SupplierFormData["category"], email: "", phone: "",
     address: "", rating: "0", creditLimit: "0",
   };
   const [_formData, setFormData] = useState(emptyForm);
 
   const form = useForm<SupplierFormData>({
-    resolver: zodResolver(supplierSchema) as unknown as Resolver<SupplierFormData>,
+    resolver: zodResolver(supplierSchema) as Resolver<SupplierFormData>,
     defaultValues: emptyForm,
   });
   const { register, handleSubmit: rhfHandleSubmit, formState: { errors }, reset, setValue, watch } = form;
@@ -153,7 +153,7 @@ export default function SuppliersPage({ language }: SuppliersPageProps) {
       const params = categoryFilter !== "all" ? `?category=${categoryFilter}` : "";
       const res = await fetch(`/api/suppliers${params}`);
       if (!res.ok) throw new Error("Failed to fetch suppliers");
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -190,7 +190,7 @@ export default function SuppliersPage({ language }: SuppliersPageProps) {
 
   // Create mutation
   const createMutation = useMutation({
-    mutationFn: async (data: Record<string, string>) => {
+    mutationFn: async (data: Record<string, string | null>) => {
       const res = await fetch("/api/suppliers", {
         method: "POST",
         headers: getMutationHeaders(),
@@ -212,7 +212,7 @@ export default function SuppliersPage({ language }: SuppliersPageProps) {
 
   // Update mutation
   const updateMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: Record<string, string> }) => {
+    mutationFn: async ({ id, data }: { id: string; data: Record<string, string | null> }) => {
       const res = await fetch(`/api/suppliers/${id}`, {
         method: "PUT",
         headers: getMutationHeaders(),
@@ -254,7 +254,7 @@ export default function SuppliersPage({ language }: SuppliersPageProps) {
     setEditSupplier(supplier);
     const values = {
       name: supplier.name,
-      category: supplier.category,
+      category: supplier.category as SupplierFormData["category"],
       email: supplier.email,
       phone: supplier.phone,
       address: supplier.address,
@@ -491,7 +491,7 @@ export default function SuppliersPage({ language }: SuppliersPageProps) {
                 <Select
                   // eslint-disable-next-line react-hooks/incompatible-library
                   value={watch("category")}
-                  onValueChange={(v) => setValue("category", v)}
+                  onValueChange={(v) => setValue("category", v as SupplierFormData["category"])}
                 >
                   <SelectTrigger>
                     <SelectValue />

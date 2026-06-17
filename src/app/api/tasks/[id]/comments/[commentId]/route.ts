@@ -13,7 +13,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string; commentId: string }> }
 ) {
   try {
-    // AUTH CHECK — use proper getAuthContext instead of raw headers
+    // AUTH CHECK — verified JWT re-check for security
     const auth = await requireVerifiedPermission(request, Permission.TASK_DELETE);
     if ('error' in auth) return auth.error;
     const user = auth.user;

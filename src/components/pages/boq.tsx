@@ -142,7 +142,7 @@ export default function BOQPage({ language, projectId }: BOQPageProps) {
     queryFn: async () => {
       const res = await fetch("/api/projects-simple");
       if (!res.ok) return [];
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
   const projects = projectsData || [];
@@ -155,7 +155,7 @@ export default function BOQPage({ language, projectId }: BOQPageProps) {
       if (projectFilter !== "all") params.set("projectId", projectFilter);
       const res = await fetch(`/api/boq?${params.toString()}`);
       if (!res.ok) throw new Error("Failed");
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
   const boqItems = useMemo(() => boqResponse?.data || [], [boqResponse?.data]);

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 
 const TURNSTILE_SECRET_KEY = process.env.TURNSTILE_SECRET_KEY;
 
@@ -11,17 +12,22 @@ interface TurnstileVerifyResponse {
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting — prevents abuse of outbound Cloudflare API calls
+    const { result } = await withRateLimit(request, 'auth');
+    const blocked = rateLimitResponse(result);
+    if (blocked) return blocked;
+
     const body = await request.json();
     const { token } = body as { token?: string };
 
     // Fail-closed in production if secret key is not configured
     if (!TURNSTILE_SECRET_KEY) {
-      if (process.env.NODE_ENV === 'development') {
-        console.warn('Turnstile bypassed in development due to missing TURNSTILE_SECRET_KEY');
+      if (process.env.NODE_ENV === 'development' && process.env.BYPASS_CAPTCHA === 'true') {
+        console.warn('Turnstile bypassed in development due to BYPASS_CAPTCHA=true');
         return NextResponse.json({ success: true });
       }
       return NextResponse.json(
-        { success: false, error: "Turnstile is not configured correctly." },
+        { success: false, error: "Captcha not configured" },
         { status: 500 }
       );
     }
@@ -63,9 +69,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const result = (await verifyResponse.json()) as TurnstileVerifyResponse;
+    const turnstileResult = (await verifyResponse.json()) as TurnstileVerifyResponse;
 
-    return NextResponse.json({ success: result.success });
+    return NextResponse.json({ success: turnstileResult.success });
   } catch {
     return NextResponse.json(
       { success: false, error: "Captcha verification failed" },

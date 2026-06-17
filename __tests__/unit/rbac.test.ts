@@ -6,7 +6,7 @@
  * to ensure tests match the real implementation.
  */
 
-import { Permission, ROLE_PERMISSIONS, UserRoleValues } from '@/lib/auth/types';
+import { Permission, UserRoleValues } from '@/lib/auth/types';
 import {
   hasPermission,
   hasAnyPermission,
@@ -135,9 +135,11 @@ describe('RBAC — Role Hierarchy', () => {
     }
   });
 
-  it('unknown role has level 0', () => {
+  it('unknown role has level 0 — fail-closed security', () => {
+    // Unknown user role → deny
     expect(isRoleAtLeast('UNKNOWN', UserRoleValues.VIEWER)).toBe(false);
-    expect(isRoleAtLeast(UserRoleValues.ADMIN, 'UNKNOWN')).toBe(true);
+    // Unknown required role → also deny (fail-closed: don't grant access for unmapped roles)
+    expect(isRoleAtLeast(UserRoleValues.ADMIN, 'UNKNOWN')).toBe(false);
   });
 });
 

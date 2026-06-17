@@ -21,7 +21,7 @@ const ProjectMap = dynamic(() => import('@/components/ui/project-map'), {
         <div className="w-10 h-10 rounded-full bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center mx-auto animate-pulse">
           <MapPin className="h-5 w-5 text-teal-500" />
         </div>
-        <p className="text-sm text-slate-400">جارٍ تحميل الخريطة...</p>
+        <p className="text-sm text-slate-400">Loading map...</p>
       </div>
     </div>
   )
@@ -74,7 +74,7 @@ export default function MapSection({
           {['ACTIVE', 'DELAYED', 'COMPLETED', 'ON_HOLD'].map(status => (
             <Badge key={status} variant="outline" className="flex items-center gap-1.5 text-xs cursor-pointer hover:bg-accent">
               <span className={cn('w-2.5 h-2.5 rounded-full', getStatusColor(status))} />
-              {getStatusLabel(status)} ({mapProjects.filter(p => p.status === status).length})
+              {getStatusLabel(status, language)} ({mapProjects.filter(p => p.status === status).length})
             </Badge>
           ))}
         </div>
@@ -137,7 +137,7 @@ export default function MapSection({
               </div>
               <div>
                 <p className="text-xs text-slate-500">{language === 'ar' ? 'إجمالي الميزانية' : 'Total Budget'}</p>
-                <p className="text-lg font-bold text-slate-900 dark:text-white">{formatCurrency(totalBudget)}</p>
+                <p className="text-lg font-bold text-slate-900 dark:text-white">{formatCurrency(totalBudget, language)}</p>
               </div>
             </div>
           </CardContent>
@@ -267,7 +267,7 @@ export default function MapSection({
                         <MapPin className="h-3 w-3 text-teal-500" />
                       )}
                       <Badge variant="outline" className={cn('text-[10px]', getStatusBg(project.status))}>
-                        {getStatusLabel(project.status)}
+                        {getStatusLabel(project.status, language)}
                       </Badge>
                     </div>
                   </div>
@@ -289,7 +289,7 @@ export default function MapSection({
                   </div>
                   {(project.budget || 0) > 0 && (
                     <div className="flex items-center justify-between text-xs">
-                      <span className="text-slate-500">{formatCurrency(project.budget || 0)}</span>
+                      <span className="text-slate-500">{formatCurrency(project.budget || 0, language)}</span>
                       {!hasCoords && (
                         <span className="text-amber-500 text-[10px]">{language === 'ar' ? 'بدون موقع' : 'No location'}</span>
                       )}
@@ -315,19 +315,19 @@ export default function MapSection({
                     <h3 className="font-bold text-sm text-slate-900 dark:text-white">{project.name}</h3>
                   </div>
                   <Badge variant="outline" className={cn('text-[10px]', getStatusBg(project.status))}>
-                    {getStatusLabel(project.status)}
+                    {getStatusLabel(project.status, language)}
                   </Badge>
                 </div>
                 <p className="text-xs text-slate-500 mb-3">{project.client} • {project.type}</p>
                 <div className="mb-2">
                   <div className="flex items-center justify-between text-xs mb-1">
-                    <span className="text-slate-600 dark:text-slate-400">التقدم</span>
+                    <span className="text-slate-600 dark:text-slate-400">{language === 'ar' ? 'التقدم' : 'Progress'}</span>
                     <span className="font-medium text-slate-900 dark:text-white">{project.progress}%</span>
                   </div>
                   <Progress value={project.progress} className="h-2" />
                 </div>
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-500">{formatCurrency(project.budget)}</span>
+                  <span className="text-slate-500">{formatCurrency(project.budget, language)}</span>
                   <span className="text-slate-400">{project.startDate} - {project.endDate}</span>
                 </div>
               </CardContent>

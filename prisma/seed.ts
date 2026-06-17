@@ -53,9 +53,54 @@ async function main() {
   // ========== 0. Clean existing data (idempotent seeding) ==========
   console.info('🧹 Cleaning existing data...');
   // Disable FK checks for clean seeding (SQLite-specific)
-  await db.$executeRaw`PRAGMA foreign_keys = OFF`;
+  // Disable FK checks for clean seeding (SQLite-specific)
+  if (process.env.DATABASE_URL?.startsWith('file:')) {
+    await db.$executeRaw`PRAGMA foreign_keys = OFF`
+  };
   await db.$transaction([
     // Child tables first (foreign key dependencies)
+    // Newer models — added to ensure complete cleanup
+    db.sLABreach.deleteMany(),
+    db.aIChatConversation.deleteMany(),
+    db.aIChatMessage.deleteMany(),
+    db.refreshToken.deleteMany(),
+    db.emailVerificationToken.deleteMany(),
+    db.passwordResetToken.deleteMany(),
+    db.twoFactorSecret.deleteMany(),
+    db.twoFactorChallenge.deleteMany(),
+    db.pushSubscription.deleteMany(),
+    db.featureFlag.deleteMany(),
+    db.securityAuditLog.deleteMany(),
+    db.automation.deleteMany(),
+    db.progressClaim.deleteMany(),
+    db.timesheet.deleteMany(),
+    db.timesheetEntry.deleteMany(),
+    db.contractorEvaluation.deleteMany(),
+    db.marketingCampaign.deleteMany(),
+    db.referral.deleteMany(),
+    db.checklistItem.deleteMany(),
+    db.projectWorkflow.deleteMany(),
+    db.workflowStage.deleteMany(),
+    db.workflowStep.deleteMany(),
+    db.municipalityCorrespondence.deleteMany(),
+    db.projectComment.deleteMany(),
+    db.inspectionFinding.deleteMany(),
+    db.inspectionPhoto.deleteMany(),
+    db.buildingInspection.deleteMany(),
+    db.quoteRequest.deleteMany(),
+    db.transmittalItem.deleteMany(),
+    db.purchaseOrderItem.deleteMany(),
+    db.proposalItem.deleteMany(),
+    db.invoiceItem.deleteMany(),
+    db.invoicePayment.deleteMany(),
+    db.plan.deleteMany(),
+    db.subscription.deleteMany(),
+    db.subscriptionPayment.deleteMany(),
+    db.contractAmendment.deleteMany(),
+    db.designPhase.deleteMany(),
+    db.designDrawing.deleteMany(),
+    db.designRevision.deleteMany(),
+    db.notificationSettings.deleteMany(),
     db.taskComment.deleteMany(),
     db.approval.deleteMany(),
     db.notification.deleteMany(),
@@ -102,12 +147,14 @@ async function main() {
     db.organization.deleteMany(),
   ]);
   // Re-enable FK checks
-  await db.$executeRaw`PRAGMA foreign_keys = ON`;
+  if (process.env.DATABASE_URL?.startsWith('file:')) {
+    await db.$executeRaw`PRAGMA foreign_keys = ON`
+  };
   console.info('✅ Existing data cleaned\n');
 
   // ========== 0.5. Create Organizations (Multi-Tenant) ==========
   // Default organization — required because organizationId fields use @default("default")
-  const defaultOrg = await db.organization.create({
+  const _defaultOrg = await db.organization.create({
     data: {
       id: 'default',
       name: 'Default Organization',
@@ -966,7 +1013,7 @@ async function main() {
   // ========== 37. NEW: Suppliers (3) — created individually to capture IDs for purchase orders ==========
   const supplier1 = await db.supplier.create({ data: { name: 'شركة الإمارات للحديد', category: 'MATERIALS', email: 'sales@emsteel.ae', phone: '+971-2-555-1122', address: 'أبو ظبي', rating: 5, organizationId: org1.id } });
   const supplier2 = await db.supplier.create({ data: { name: 'مؤسسة الخرسانة الجاهزة', category: 'MATERIALS', email: 'orders@rakreadymix.ae', phone: '+971-7-266-3344', address: 'رأس الخيمة', rating: 4, organizationId: org1.id } });
-  const supplier3 = await db.supplier.create({ data: { name: 'شركة الأنارة الحديثة', category: 'EQUIPMENT', email: 'info@modernlight.ae', phone: '+971-4-333-5566', address: 'دبي', rating: 4, organizationId: org1.id } });
+  const _supplier3 = await db.supplier.create({ data: { name: 'شركة الأنارة الحديثة', category: 'EQUIPMENT', email: 'info@modernlight.ae', phone: '+971-4-333-5566', address: 'دبي', rating: 4, organizationId: org1.id } });
   console.info('✅ 3 suppliers created');
 
   // ========== 38. NEW: Purchase Orders (2) ==========

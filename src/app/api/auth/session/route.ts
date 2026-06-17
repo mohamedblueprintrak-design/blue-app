@@ -53,15 +53,25 @@ export async function GET(request: NextRequest) {
         department: true,
         position: true,
         isActive: true,
+        deletedAt: true,
         lastLogin: true,
         createdAt: true,
+        passwordChangedAt: true,
       },
     });
 
-    if (!user || !user.isActive) {
+    if (!user || !user.isActive || user.deletedAt) {
       return NextResponse.json(
         { success: false, user: null, isAuthenticated: false },
         { status: 200 }
+      );
+    }
+
+    // SECURITY: Check if password was changed after this token was issued
+    if (user.passwordChangedAt && payload.iat && Math.floor(user.passwordChangedAt.getTime() / 1000) > payload.iat) {
+      return NextResponse.json(
+        { success: false, user: null, isAuthenticated: false, error: 'Token expired due to password change' },
+        { status: 401 }
       );
     }
 

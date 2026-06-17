@@ -10,6 +10,37 @@ import { parsePaginationParams, buildPaginationMeta, calculateSkip } from '../ut
 import { insensitiveContains } from '../utils/db';
 import { cachedQuery, invalidateCache, CACHE_TTL, buildCacheKey } from '@/lib/cache/query-cache';
 
+/**
+ * @openapi
+ * /api/contracts:
+ *   get:
+ *     tags: [Contracts]
+ *     summary: List contracts
+ *     description: Retrieve a paginated list of contracts scoped to the user's organization. Requires CONTRACT_READ permission.
+ *     parameters:
+ *       - name: page
+ *         in: query
+ *         schema: { type: integer, minimum: 1, default: 1 }
+ *       - name: limit
+ *         in: query
+ *         schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+ *       - name: search
+ *         in: query
+ *         schema: { type: string }
+ *       - name: status
+ *         in: query
+ *         schema: { type: string }
+ *       - name: clientId
+ *         in: query
+ *         schema: { type: string }
+ *       - name: projectId
+ *         in: query
+ *         schema: { type: string }
+ *     responses:
+ *       200: { description: Paginated list of contracts }
+ *       401: { description: Unauthorized }
+ *       403: { description: Forbidden — CONTRACT_READ required }
+ */
 export async function GET(request: NextRequest) {
   try {
     // Rate limiting — API limiter (100 req/min per IP)
@@ -26,7 +57,7 @@ export async function GET(request: NextRequest) {
     const projectId = searchParams.get("projectId");
     const { page, limit, search } = parsePaginationParams(searchParams);
 
-    const where: Record<string, unknown> = { ...orgFilter(ctx) };
+    const where: Record<string, unknown> = { deletedAt: null, ...orgFilter(ctx) };
     if (projectId) where.projectId = projectId;
     if (search) {
       where.OR = [
@@ -92,7 +123,7 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    const body = sanitizeObject(validation.data);
+    const _body = sanitizeObject(validation.data);
     const validatedData = validation.data;
     const {
       number,
@@ -113,8 +144,8 @@ export async function POST(request: NextRequest) {
         clientId,
         projectId,
         value: value ? parseFloat(value) : 0,
-        type: (type || "ENGINEERING_SERVICES"),
-        status: (status || "DRAFT"),
+        type: type || "ENGINEERING_SERVICES",
+        status: status || "DRAFT",
         startDate: startDate ? new Date(startDate) : null,
         endDate: endDate ? new Date(endDate) : null,
         ...orgCreate(ctx),

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateExcelExport } from '@/lib/excel-generator';
 import { log } from '@/lib/logger';
-import { handleApiError } from '@/lib/api-error';
+import { handleApiErrorWithLogging as handleApiError } from '@/lib/api-error';
 import { requireVerifiedPermission, orgFilter } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';

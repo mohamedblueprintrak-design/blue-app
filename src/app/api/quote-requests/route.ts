@@ -44,9 +44,29 @@ export async function POST(request: Request) {
       }
     }
 
-    const org = await db.organization.findFirst();
-    if (!org) {
-      return NextResponse.json({ error: "لا يوجد مؤسسة" }, { status: 500 });
+    // SECURITY: In multi-tenant mode, require orgId from the request to prevent
+    // data being assigned to the wrong organization. In single-tenant mode,
+    // default to the first (only) organization.
+    const isMultiTenant = process.env.MULTI_TENANT === 'true';
+    const requestOrgId = body.orgId as string | undefined;
+    let orgId: string;
+
+    if (requestOrgId) {
+      // Validate the orgId exists
+      const requestedOrg = await db.organization.findUnique({ where: { id: requestOrgId }, select: { id: true } });
+      if (!requestedOrg) {
+        return NextResponse.json({ error: "المؤسسة غير موجودة" }, { status: 400 });
+      }
+      orgId = requestedOrg.id;
+    } else if (isMultiTenant) {
+      return NextResponse.json({ error: "orgId is required" }, { status: 400 });
+    } else {
+      // Single-tenant: use the first (only) organization
+      const org = await db.organization.findFirst();
+      if (!org) {
+        return NextResponse.json({ error: "لا يوجد مؤسسة" }, { status: 500 });
+      }
+      orgId = org.id;
     }
 
     // Sanitize string fields before storing
@@ -62,7 +82,7 @@ export async function POST(request: Request) {
         location: sanitizeString(location || ""),
         message: sanitizeString(message || ""),
         status: "NEW",
-        organizationId: org.id,
+        organizationId: orgId,
       },
     });
 

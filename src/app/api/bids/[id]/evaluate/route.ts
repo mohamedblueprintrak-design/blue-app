@@ -3,8 +3,20 @@ import { NextRequest, NextResponse } from "next/server";
 import { log } from '@/lib/logger';
 import { requireVerifiedPermission, orgCheck, orgCreate } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
-import { forbiddenResponse } from '@/app/api/utils/response';
 import { validateIdParam } from '@/lib/api-validation';
+import { z } from 'zod';
+
+// Zod schema for evaluation criteria validation
+const evaluationSchema = z.object({
+  criteria: z.array(z.object({
+    name: z.string().min(1),
+    score: z.number().min(0),
+    maxScore: z.number().min(1),
+    weight: z.number().min(0).max(100),
+    comments: z.string().optional(),
+  })),
+  overallComments: z.string().optional(),
+});
 
 // POST /api/bids/[id]/evaluate
 // Save or update evaluation criteria scores for a bid.
@@ -24,7 +36,17 @@ export async function POST(
     const bidIdResult = validateIdParam(rawBidId);
     if (!bidIdResult.success) return bidIdResult.response;
     const bidId = bidIdResult.id;
-    const body = await request.json();
+    const rawBody = await request.json();
+
+    // Validate evaluation criteria with Zod schema
+    const validation = evaluationSchema.safeParse(rawBody);
+    if (!validation.success) {
+      return NextResponse.json(
+        { error: validation.error.issues[0].message },
+        { status: 400 }
+      );
+    }
+    const body = validation.data;
 
     const bid = await db.bid.findUnique({
       where: { id: bidId },
@@ -38,24 +60,17 @@ export async function POST(
     const orgError = orgCheck(user, { organizationId: bid.project?.organizationId });
     if (orgError) return orgError;
 
-    // Accept single object or array of evaluation criteria
-    const criteriaList = Array.isArray(body) ? body : [body];
+    // Use validated criteria array from schema
+    const criteriaList = body.criteria;
 
     const savedEvaluations: Record<string, unknown>[] = [];
 
     for (const item of criteriaList) {
-      const { criteria, score, maxScore, weight, notes } = item;
+      const { name: criteria, score, maxScore, weight, comments: notes } = item;
 
-      if (!criteria) {
-        return NextResponse.json(
-          { error: "Criteria name is required" },
-          { status: 400 }
-        );
-      }
-
-      const parsedScore = score !== undefined ? parseInt(String(score), 10) : 0;
-      const parsedMaxScore = maxScore !== undefined ? parseInt(String(maxScore), 10) : 100;
-      const parsedWeight = weight !== undefined ? parseFloat(String(weight)) : 1;
+      const parsedScore = score;
+      const parsedMaxScore = maxScore;
+      const parsedWeight = weight;
 
       // Find existing evaluation for this bid + criteria combination
       const existing = await db.contractorEvaluation.findFirst({

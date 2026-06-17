@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { projectSchema, type ProjectFormData } from "@/lib/validations";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToastFeedback } from "@/hooks/use-toast-feedback";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useAuthStore } from "@/store/auth-store";
 import { useNavStore } from "@/store/nav-store";
 import { getMutationHeaders } from "@/lib/csrf-client";
@@ -37,6 +38,7 @@ export default function ProjectsList({ language }: ProjectsListProps) {
   const toast = useToastFeedback({ ar: isAr });
 
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebouncedValue(search, 300);
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
   const [viewMode, setViewMode] = useState<"table" | "grid">("table");
@@ -51,12 +53,13 @@ export default function ProjectsList({ language }: ProjectsListProps) {
   const PAGE_SIZE = 10;
 
   useEffect(() => {
+    const currentTimeouts = deleteTimeouts.current;
     return () => {
-      deleteTimeouts.current.forEach(clearTimeout);
+      currentTimeouts.forEach(clearTimeout);
     };
   }, []);
   const form = useForm<ProjectFormData>({
-    resolver: zodResolver(projectSchema) as unknown as Resolver<ProjectFormData>,
+    resolver: zodResolver(projectSchema) as Resolver<ProjectFormData>,
     defaultValues: {
       number: "",
       name: "",
@@ -75,10 +78,10 @@ export default function ProjectsList({ language }: ProjectsListProps) {
 
   // Fetch projects
   const { data, isLoading } = useQuery({
-    queryKey: ["projects", search, statusFilter, typeFilter, page],
+    queryKey: ["projects", debouncedSearch, statusFilter, typeFilter, page],
     queryFn: async () => {
       const params = new URLSearchParams();
-      if (search) params.set("search", search);
+      if (debouncedSearch) params.set("search", debouncedSearch);
       if (statusFilter && statusFilter !== "all") params.set("status", statusFilter);
       if (typeFilter && typeFilter !== "all") params.set("type", typeFilter);
       params.set("page", page.toString());
@@ -256,7 +259,7 @@ export default function ProjectsList({ language }: ProjectsListProps) {
                 form.setValue(k as keyof ProjectFormData, parsed[k]);
               });
               toast.showSuccess(isAr ? "تم استعادة المسودة بنجاح" : "Draft restored successfully");
-            } catch (e) {}
+            } catch (_e) { /* intentional */ }
           }
           setShowAddDialog(true);
         }}

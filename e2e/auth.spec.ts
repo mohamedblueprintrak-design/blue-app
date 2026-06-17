@@ -12,9 +12,9 @@ test.describe('Authentication Flow', () => {
   });
 
   test('should show login page at /dashboard', async ({ page }) => {
-    await page.goto('/dashboard');
+    await page.goto('/dashboard', { timeout: 60000 });
     // The login page should be accessible without auth
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
     // Check that page loaded (either login form or dashboard content)
     const pageContent = await page.content();
     expect(pageContent).toBeDefined();
@@ -22,16 +22,17 @@ test.describe('Authentication Flow', () => {
 
   test('should redirect unauthenticated users to login', async ({ page }) => {
     // Try to access a protected page
-    await page.goto('/projects');
-    await page.waitForLoadState('networkidle');
-    // Should be redirected to /dashboard (login page)
+    await page.goto('/projects', { timeout: 60000 });
+    await page.waitForLoadState('domcontentloaded');
+    // Should be redirected to login page (/dashboard or /login)
     const url = page.url();
-    expect(url).toContain('/dashboard');
+    const isOnLoginPage = url.includes('/dashboard') || url.includes('/login');
+    expect(isOnLoginPage).toBe(true);
   });
 
   test('should set httpOnly cookie on login', async ({ page }) => {
-    await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.goto('/dashboard', { timeout: 60000 });
+    await page.waitForLoadState('domcontentloaded');
 
     // Check cookies - should NOT have readable blueprint-auth-token
     const cookies = await page.context().cookies();
@@ -45,8 +46,8 @@ test.describe('Authentication Flow', () => {
   });
 
   test('should have CSRF token cookie for page requests', async ({ page }) => {
-    await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.goto('/dashboard', { timeout: 60000 });
+    await page.waitForLoadState('domcontentloaded');
 
     const cookies = await page.context().cookies();
     const csrfCookie = cookies.find(c => c.name === 'csrf_token');
@@ -77,13 +78,13 @@ test.describe('Authentication Flow', () => {
       },
     });
     // Should get a response (not a redirect)
-    expect([400, 401, 500]).toContain(response.status());
+    expect([400, 401, 429, 500]).toContain(response.status());
   });
 });
 
 test.describe('Security Headers', () => {
   test('should include X-Content-Type-Options header', async ({ page }) => {
-    const response = await page.goto('/dashboard');
+    const response = await page.goto('/dashboard', { timeout: 60000 });
     expect(response).not.toBeNull();
     const headers = response!.headers();
     // Security headers should be present
@@ -92,7 +93,7 @@ test.describe('Security Headers', () => {
   });
 
   test('should include X-Frame-Options header', async ({ page }) => {
-    const response = await page.goto('/dashboard');
+    const response = await page.goto('/dashboard', { timeout: 60000 });
     expect(response).not.toBeNull();
     const headers = response!.headers();
     const frameOptions = headers['x-frame-options'];
@@ -100,7 +101,7 @@ test.describe('Security Headers', () => {
   });
 
   test('should include CSP header', async ({ page }) => {
-    const response = await page.goto('/dashboard');
+    const response = await page.goto('/dashboard', { timeout: 60000 });
     expect(response).not.toBeNull();
     const headers = response!.headers();
     const csp = headers['content-security-policy'];

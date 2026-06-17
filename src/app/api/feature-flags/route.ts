@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     if ("error" in rbac) return rbac.error;
 
     const body = await request.json();
-    const { key, name, nameAr, description, descriptionAr, enabled, enabledForOrgs, enabledForRoles, percentage, organizationId } = body;
+    const { key, name, nameAr, description, descriptionAr, enabled, enabledForOrgs, enabledForRoles, percentage } = body;
 
     // Validate required fields
     if (!key || typeof key !== "string" || !key.trim()) {
@@ -65,6 +65,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // SECURITY: Derive organizationId from the authenticated user's org, NOT from the request body.
+    // This prevents a user from Org A creating feature flags scoped to Org B.
     const flag = await upsertFlag({
       key: key.trim(),
       name: name.trim(),
@@ -75,7 +77,7 @@ export async function POST(request: NextRequest) {
       enabledForOrgs: enabledForOrgs || undefined,
       enabledForRoles: enabledForRoles || undefined,
       percentage: percentage ?? 100,
-      organizationId: organizationId || undefined,
+      organizationId: rbac.user.organizationId || undefined,
     });
 
     return NextResponse.json(flag);

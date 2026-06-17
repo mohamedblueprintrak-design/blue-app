@@ -177,11 +177,11 @@ export function ProjectTemplatesPage({ isAr, userRole }: ProjectTemplatesPagePro
   }, []);
 
   useEffect(() => {
-    loadTemplates(category); // eslint-disable-line react-hooks/set-state-in-effect
+    loadTemplates(category);
   }, [category, loadTemplates]);
 
   useEffect(() => {
-    if (instantiateOpen) loadClients(); // eslint-disable-line react-hooks/set-state-in-effect
+    if (instantiateOpen) loadClients();
   }, [instantiateOpen, loadClients]);
 
   // ==================== Handlers ====================
@@ -265,7 +265,7 @@ export function ProjectTemplatesPage({ isAr, userRole }: ProjectTemplatesPagePro
         loadTemplates(category);
       } else {
         const err = await res.json();
-        toast({ title: err.error?.message || "Error", variant: "destructive" });
+        toast({ title: err.error?.message || t("خطأ", "Error"), variant: "destructive" });
       }
     } catch {
       toast({ title: t("خطأ", "Error"), variant: "destructive" });
@@ -579,7 +579,7 @@ export function ProjectTemplatesPage({ isAr, userRole }: ProjectTemplatesPagePro
                 value={projectName}
                 onChange={(e) => setProjectName(e.target.value)}
                 dir="ltr"
-                placeholder="Project name in English"
+                placeholder={t("اسم المشروع بالإنجليزي", "Project name in English")}
               />
             </div>
             <div className="space-y-2">
@@ -665,7 +665,7 @@ export function ProjectTemplatesPage({ isAr, userRole }: ProjectTemplatesPagePro
                 <Input
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="Residential Villa"
+                  placeholder={t("فيلا سكنية", "Residential Villa")}
                 />
               </div>
               <div className="space-y-2">
@@ -727,7 +727,7 @@ export function ProjectTemplatesPage({ isAr, userRole }: ProjectTemplatesPagePro
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={2}
-                placeholder="Complete design and approval workflow..."
+                placeholder={t("سير عمل التصميم والاعتماد...", "Complete design and approval workflow...")}
               />
             </div>
             <div className="space-y-2">

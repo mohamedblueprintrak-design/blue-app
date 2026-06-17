@@ -381,7 +381,7 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
                     className="absolute bottom-0 end-0 rounded-full bg-teal-500 hover:bg-teal-600 w-8 h-8 shadow-md"
                     onClick={handleAvatarClick}
                     disabled={isUploadingAvatar}
-                    aria-label="Change avatar"
+                    aria-label={isAr ? "تغيير الصورة الشخصية" : "Change avatar"}
                   >
                     {isUploadingAvatar ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
@@ -419,7 +419,7 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
                       className="border-red-500/30 text-red-400 hover:bg-red-500/10"
                       onClick={handleDeleteAvatar}
                       disabled={isUploadingAvatar}
-                      aria-label="Delete avatar"
+                      aria-label={isAr ? "حذف الصورة الشخصية" : "Delete avatar"}
                     >
                       <Trash2 className="w-4 h-4" />
                     </Button>
@@ -718,7 +718,7 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
                     size="icon"
                     className="absolute end-0 top-0 h-full text-slate-400 hover:text-slate-600"
                     onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                    aria-label="Toggle password visibility"
+                    aria-label={isAr ? "إظهار/إخفاء كلمة المرور" : "Toggle password visibility"}
                   >
                     {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </Button>
@@ -741,7 +741,7 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
                       size="icon"
                       className="absolute end-0 top-0 h-full text-slate-400 hover:text-slate-600"
                       onClick={() => setShowNewPassword(!showNewPassword)}
-                      aria-label="Toggle password visibility"
+                      aria-label={isAr ? "إظهار/إخفاء كلمة المرور" : "Toggle password visibility"}
                     >
                       {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </Button>

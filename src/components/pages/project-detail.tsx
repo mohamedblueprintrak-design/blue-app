@@ -1,5 +1,4 @@
 "use client";
-/* eslint-disable */
 
 
 import React, { useState } from "react";
@@ -70,13 +69,11 @@ export default function ProjectDetail({ language }: ProjectDetailProps) {
 
   // Sync with store
   React.useEffect(() => {
-    if (currentProjectTab && currentProjectTab !== activeTab) {
+    if (currentProjectTab) {
       setActiveTab(currentProjectTab);
     }
-    if (currentProjectSubTab !== activeSubTab) {
-      setActiveSubTab(currentProjectSubTab || "");
-    }
-  }, [currentProjectTab, currentProjectSubTab, activeTab, activeSubTab]);
+    setActiveSubTab(currentProjectSubTab || "");
+  }, [currentProjectTab, currentProjectSubTab]);
 
   const { data: project, isLoading } = useQuery({
     queryKey: ["project", currentProjectId],
@@ -157,7 +154,7 @@ export default function ProjectDetail({ language }: ProjectDetailProps) {
         <CardContent className="p-5">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             <div className="flex items-start gap-3">
-              <Button variant="ghost" size="icon" onClick={handleBack} className="h-9 w-9 shrink-0 mt-0.5" aria-label="Go back">
+              <Button variant="ghost" size="icon" onClick={handleBack} className="h-9 w-9 shrink-0 mt-0.5" aria-label={isAr ? "الرجوع" : "Go back"}>
                 {isAr ? <ChevronLeft className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5 rotate-180" />}
               </Button>
               <div>
@@ -316,11 +313,11 @@ export default function ProjectDetail({ language }: ProjectDetailProps) {
           const { setCurrentPage } = useNavStore.getState();
           setCurrentPage("ai-assistant");
         }}
-        className="fixed bottom-6 left-6 z-50 w-12 h-12 rounded-full bg-gradient-to-br from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white shadow-xl shadow-teal-500/30 flex items-center justify-center transition-all hover:scale-110 group"
+        className="fixed bottom-6 start-6 z-50 w-12 h-12 rounded-full bg-gradient-to-br from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white shadow-xl shadow-teal-500/30 flex items-center justify-center transition-all hover:scale-110 group"
         title={t("المساعد الذكي", "AI Assistant")}
       >
         <Sparkles className="h-5 w-5 group-hover:animate-pulse" />
-        <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-emerald-400 border-2 border-white animate-pulse" />
+        <span className="absolute -top-1 -end-1 w-3 h-3 rounded-full bg-emerald-400 border-2 border-white animate-pulse" />
       </button>
     </div>
   );

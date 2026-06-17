@@ -42,7 +42,7 @@ export default function Risks({ language, projectId }: RisksProps) {
       if (filterProject !== "all") params.set("projectId", filterProject);
       const res = await fetch(`/api/risks?${params}`);
       if (!res.ok) throw new Error("Failed to fetch risks");
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -52,7 +52,7 @@ export default function Risks({ language, projectId }: RisksProps) {
     queryFn: async () => {
       const res = await fetch("/api/projects-simple");
       if (!res.ok) return [];
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -62,7 +62,7 @@ export default function Risks({ language, projectId }: RisksProps) {
     queryFn: async () => {
       const res = await fetch("/api/users-simple");
       if (!res.ok) return [];
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 

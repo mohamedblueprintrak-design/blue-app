@@ -3,6 +3,7 @@ import { db } from '@/lib/db';
 import { requireVerifiedAuth, orgFilter } from '../../utils/auth';
 import { hasPermission } from '@/lib/auth/modules/authorization';
 import { Permission } from '@/lib/auth/types';
+import { log } from '@/lib/logger';
 
 /**
  * GET /api/notifications/count - Get unread notification count
@@ -32,7 +33,8 @@ export async function GET(request: NextRequest) {
 
     const count = await db.notification.count({ where: { userId: targetUserId, isRead: false, ...orgFilter(ctx) } });
     return NextResponse.json({ count });
-  } catch {
+  } catch (error) {
+    log.error('Error fetching notification count:', error);
     return NextResponse.json({ count: 0 });
   }
 }

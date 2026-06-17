@@ -3,7 +3,7 @@ import { db } from '@/lib/db';
 import { NextRequest, NextResponse } from 'next/server';
 import { validateBody, companySettingsSchema } from '@/lib/api-validation';
 import { Permission } from '@/lib/auth/types';
-import { handleApiError } from '@/lib/api-error';
+import { handleApiErrorWithLogging as handleApiError } from '@/lib/api-error';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 import type { Currency } from '@/types/db-enums';
 import { cachedQuery, invalidateCache, CACHE_TTL, buildCacheKey } from '@/lib/cache/query-cache';

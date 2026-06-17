@@ -31,10 +31,14 @@ export default function AIAssistant({ language: lang, projectId }: Props) {
     if (typeof window === 'undefined') return 'conv-ssr';
     return `conv-${Date.now()}`;
   });
-  const [selectedModelId, setSelectedModelId] = useState<string>(() => {
-    if (typeof window === 'undefined') return 'zai-default';
-    return localStorage.getItem('bp_selected_model') || 'zai-default';
-  });
+  const [selectedModelId, setSelectedModelId] = useState<string>('zai-default');
+
+  // Read localStorage after hydration to avoid SSR mismatch
+  useEffect(() => {
+    const stored = localStorage.getItem('bp_selected_model');
+    if (stored) setSelectedModelId(stored);
+  }, []);
+
   const [_availableModels, setAvailableModels] = useState<Array<{
     id: string;
     name: string;
@@ -45,9 +49,10 @@ export default function AIAssistant({ language: lang, projectId }: Props) {
 
   // Fetch available models on mount
   useEffect(() => {
+    const controller = new AbortController();
     const fetchModels = async () => {
       try {
-        const res = await fetch('/api/ai/providers');
+        const res = await fetch('/api/ai/providers', { signal: controller.signal });
         if (res.ok) {
           const data = await res.json();
           if (data.success && data.data?.models) {
@@ -62,9 +67,10 @@ export default function AIAssistant({ language: lang, projectId }: Props) {
             }
           }
         }
-      } catch { /* keep defaults */ }
+      } catch (err) { if ((err as Error).name !== 'AbortError') { /* keep defaults */ } }
     };
     fetchModels();
+    return () => controller.abort();
   }, []);
 
   const selectedModel = selectedModelId;

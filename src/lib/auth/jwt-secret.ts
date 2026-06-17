@@ -11,8 +11,6 @@
  * Do NOT duplicate secrets in individual files.
  */
 
-let _warnedOnce = false;
-
 /**
  * Get JWT secret as Uint8Array for jose library
  * SECURITY: JWT_SECRET is REQUIRED in production
@@ -54,21 +52,16 @@ export function getJwtSecretBytes(): Uint8Array {
     return new TextEncoder().encode(secret);
   }
 
-  // Development/Test: Allow dev secret with strong warning (only once)
+  // Development/Test: Require JWT_SECRET from environment (no hardcoded fallback)
+  // Previously, a hardcoded fallback secret existed here, which was a security risk.
+  // Now, JWT_SECRET MUST be set in .env even for development.
   if (!secret || secret.length < 32) {
-// No winston import needed here since this runs in Edge Runtime
-    if (!_warnedOnce) {
-      console.warn(
-        'SECURITY WARNING: JWT_SECRET is not properly configured!' +
-        '\n   Using development-only secret. DO NOT use in production!' +
-        '\n   Set JWT_SECRET in your .env file (min 32 characters)' +
-        '\n   Generate with: openssl rand -base64 48' +
-        '\n' + '='.repeat(70) + '\n'
-      );
-      _warnedOnce = true;
-    }
-    // Stable development-only fallback — NOT for production
-    return new TextEncoder().encode('blueprint-dev-secret-do-not-use-in-production-min32chars!');
+    throw new Error(
+      'FATAL: JWT_SECRET environment variable is required.' +
+      '\n   Set JWT_SECRET in your .env file (min 32 characters)' +
+      '\n   Generate with: openssl rand -base64 48' +
+      '\n   For development, add to .env: JWT_SECRET=dev-secret-at-least-32-characters-long!'
+    );
   }
 
   return new TextEncoder().encode(secret);

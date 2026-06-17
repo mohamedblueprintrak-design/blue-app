@@ -32,7 +32,7 @@ services:
       - DATABASE_URL=postgresql://blueprint:${DATABASE_PASSWORD:?DATABASE_PASSWORD must be set}@postgres:5432/blueprint?schema=public
       - JWT_SECRET=${JWT_SECRET}
       - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
-      - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD must be set}@redis:6379
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
       # SMTP Configuration
       - SMTP_HOST=${SMTP_HOST:-}
       - SMTP_PORT=${SMTP_PORT:-587}
@@ -41,8 +41,8 @@ services:
       # Encryption key for sensitive data (64 hex chars = 256 bits)
       # SECURITY: Must be set in .env for production! Dev fallback uses JWT_SECRET derivation.
       - ENCRYPTION_KEY=${ENCRYPTION_KEY:-}
-      # Multi-tenant mode — set to 'true' for organization-based data isolation
-      - MULTI_TENANT=${MULTI_TENANT:-false}
+      # Multi-tenant mode — defaults to 'true' (SaaS). Set MULTI_TENANT=false for single-org dev.
+      - MULTI_TENANT=${MULTI_TENANT:-true}
       # Stripe Configuration
       - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY:-}
       - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET:-}
@@ -116,7 +116,7 @@ services:
     restart: unless-stopped
     env_file: .env
     environment:
-      - REDIS_PASSWORD=${REDIS_PASSWORD:-dev_redis_password}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-dev_redis_password}  # WARNING: Change in production! Use .env with a strong password.
     # SECURITY: In development, keep ports for debugging
     # In production, remove this section entirely
     ports:
@@ -138,7 +138,7 @@ services:
     command: >
       redis-server 
       --appendonly yes 
-      --requirepass ${REDIS_PASSWORD:-dev_redis_password}
+      --requirepass ${REDIS_PASSWORD:-dev_redis_password}  # WARNING: Use strong password in production
       --maxmemory 256mb
       --maxmemory-policy allkeys-lru
     healthcheck:
@@ -194,6 +194,8 @@ services:
     container_name: blueprint-backup
     restart: unless-stopped
     env_file: .env
+    environment:
+      - PGPASSWORD=${DATABASE_PASSWORD}
     volumes:
       - backup_data:/backups
     command: >

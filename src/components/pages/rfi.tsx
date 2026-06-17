@@ -138,7 +138,7 @@ export default function RFI({ language, projectId }: RFIProps) {
       if (filterProject !== "all") params.set("projectId", filterProject);
       const res = await fetch(`/api/rfi?${params}`);
       if (!res.ok) throw new Error("Failed to fetch RFIs");
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -147,7 +147,7 @@ export default function RFI({ language, projectId }: RFIProps) {
     queryFn: async () => {
       const res = await fetch("/api/projects-simple");
       if (!res.ok) return [];
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -156,7 +156,7 @@ export default function RFI({ language, projectId }: RFIProps) {
     queryFn: async () => {
       const res = await fetch("/api/users-simple");
       if (!res.ok) return [];
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -200,10 +200,10 @@ export default function RFI({ language, projectId }: RFIProps) {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["rfi"] }),
   });
 
-  const defaultRfiForm = { projectId: projectId || "", number: "", subject: "", description: "", fromId: "", toId: "", priority: "NORMAL", dueDate: "" };
+  const defaultRfiForm = { projectId: projectId || "", number: "", subject: "", description: "", fromId: "", toId: "", priority: "NORMAL" as const, dueDate: "" };
   const [_formData, setFormData] = useState(defaultRfiForm);
 
-  const form = useForm<RfiFormData>({ resolver: zodResolver(rfiSchema) as unknown as Resolver<RfiFormData>, defaultValues: defaultRfiForm });
+  const form = useForm<RfiFormData>({ resolver: zodResolver(rfiSchema) as Resolver<RfiFormData>, defaultValues: defaultRfiForm });
   const { register, handleSubmit: rhfHandleSubmit, formState: { errors }, reset, setValue, watch } = form;
 
   // Auto-set project filter from props
@@ -515,7 +515,7 @@ export default function RFI({ language, projectId }: RFIProps) {
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label className="text-sm">{ar ? "الأولوية" : "Priority"}</Label>
-                <Select value={watch("priority")} onValueChange={(v) => setValue("priority", v)}>
+                <Select value={watch("priority")} onValueChange={(v) => setValue("priority", v as RfiFormData["priority"])}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="NORMAL">{ar ? "عادي" : "Normal"}</SelectItem>

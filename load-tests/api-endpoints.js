@@ -1,3 +1,4 @@
+/* eslint-disable import/no-anonymous-default-export */
 /**
  * BluePrint Detailed API Endpoint Test
  *
@@ -12,7 +13,7 @@
 import http from 'k6/http';
 import { check, group, sleep } from 'k6';
 import { Trend, Counter } from 'k6/metrics';
-import { BASE_URL, THRESHOLDS, login, thinkTime, randomPick } from './config.js';
+import { BASE_URL, thinkTime, randomPick } from './config.js';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Per-endpoint custom metrics
@@ -133,8 +134,8 @@ export function setup() {
 // Test
 // ─────────────────────────────────────────────────────────────────────────────
 
-export default function (data) {
-  let authToken = '';
+export default function (_data) {
+  let _authToken = '';
 
   // ═══════════════════════════════════════════════════════════════════════════
   // AUTH ENDPOINTS
@@ -163,7 +164,7 @@ export default function (data) {
 
     if (ok) {
       const body = JSON.parse(res.body);
-      authToken = body.id || ''; // Cookie-based auth is handled by k6 automatically
+      _authToken = body.id || ''; // Cookie-based auth is handled by k6 automatically
     }
   });
 

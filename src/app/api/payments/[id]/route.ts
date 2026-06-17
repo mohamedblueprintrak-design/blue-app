@@ -64,7 +64,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     if (!validation.success) {
       return NextResponse.json({ error: validation.error, errors: validation.errors }, { status: 400 });
     }
-    const sanitizedBody = sanitizeObject(validation.data);
+    const _sanitizedBody = sanitizeObject(validation.data);
 
     const { status, amount, payMethod, beneficiary, referenceNumber, description } = validation.data;
 

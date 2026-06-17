@@ -1,3 +1,4 @@
+/* eslint-disable import/no-anonymous-default-export */
 /**
  * BluePrint Spike Test
  *
@@ -53,16 +54,16 @@ export function setup() {
 // Test
 // ─────────────────────────────────────────────────────────────────────────────
 
-export default function (data) {
+export default function (_data) {
   // ── Health check (lightweight — primary spike indicator) ──────────────────
   group('Health Check', () => {
     const res = http.get(`${BASE_URL}/api/health`);
     healthTrend.add(res.timings.duration);
-    const ok = check(res, {
+    const _ok = check(res, {
       'health 200': (r) => r.status === 200,
       'health under 1s': (r) => r.timings.duration < 1000,
     });
-    errorRate.add(!ok);
+    errorRate.add(!_ok);
   });
 
   sleep(thinkTime(0.2, 0.5));
@@ -70,10 +71,10 @@ export default function (data) {
   // ── Public stats ──────────────────────────────────────────────────────────
   group('Public Stats', () => {
     const res = http.get(`${BASE_URL}/api/public/stats`);
-    const ok = check(res, {
+    const _ok = check(res, {
       'stats 200': (r) => r.status === 200,
     });
-    errorRate.add(!ok);
+    errorRate.add(!_ok);
   });
 
   sleep(thinkTime(0.2, 0.5));
@@ -86,7 +87,7 @@ export default function (data) {
     group('Dashboard (spike)', () => {
       const res = http.get(`${BASE_URL}/api/dashboard`);
       apiTrend.add(res.timings.duration);
-      const ok = check(res, {
+      const _ok = check(res, {
         'dashboard 200 or 429': (r) => r.status === 200 || r.status === 429,
         'dashboard under 5s': (r) => r.timings.duration < 5000,
       });
@@ -99,7 +100,7 @@ export default function (data) {
     group('Projects (spike)', () => {
       const res = http.get(`${BASE_URL}/api/projects?page=1&limit=20`);
       apiTrend.add(res.timings.duration);
-      const ok = check(res, {
+      const _ok = check(res, {
         'projects 200 or 429': (r) => r.status === 200 || r.status === 429,
       });
       errorRate.add(res.status >= 500);
@@ -124,9 +125,9 @@ export default function (data) {
 // Teardown — final health check
 // ─────────────────────────────────────────────────────────────────────────────
 
-export function teardown(data) {
+export function teardown(_data) {
   const res = http.get(`${BASE_URL}/api/health`);
-  console.log(`Post-spike health check: HTTP ${res.status}`);
+  console.info(`Post-spike health check: HTTP ${res.status}`);
   if (res.status !== 200) {
     console.error('System did NOT recover after spike!');
   }

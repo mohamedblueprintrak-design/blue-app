@@ -2,8 +2,36 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { createWorkflowTemplate } from '@/lib/workflow-engine'
 import { requireVerifiedPermission, orgFilter } from '@/app/api/utils/auth';
-import { handleApiError } from '@/lib/api-error';
+import { handleApiErrorWithLogging as handleApiError } from '@/lib/api-error';
 import { Permission } from '@/lib/auth/types';
+import { z } from 'zod';
+
+// Zod schema for workflow template creation
+const createWorkflowTemplateSchema = z.object({
+  name: z.string().min(1, 'اسم القالب مطلوب').max(200, 'اسم القالب طويل جداً'),
+  nameEn: z.string().max(200).optional(),
+  description: z.string().max(1000).optional(),
+  isActive: z.boolean().optional(),
+  stages: z.array(z.object({
+    name: z.string().min(1, 'اسم المرحلة مطلوب').max(200),
+    nameEn: z.string().max(200).optional(),
+    order: z.number().int().min(0),
+    durationDays: z.number().int().min(0).optional(),
+    isParallel: z.boolean().optional(),
+    isOptional: z.boolean().optional(),
+    steps: z.array(z.object({
+      name: z.string().min(1, 'اسم الخطوة مطلوب').max(200),
+      nameEn: z.string().max(200).optional(),
+      order: z.number().int().min(0),
+      assignedRole: z.string().max(100).optional(),
+      isRequired: z.boolean().optional(),
+      requiresApproval: z.boolean().optional(),
+      autoComplete: z.boolean().optional(),
+      onCompleteAction: z.string().max(100).optional(),
+      daysToComplete: z.number().int().min(0).optional(),
+    })).optional(),
+  })).optional(),
+}).strict(); // Reject unknown fields
 
 // POST /api/workflows/templates - Create template
 export async function POST(request: NextRequest) {
@@ -12,8 +40,55 @@ export async function POST(request: NextRequest) {
     if ('error' in rbac) return rbac.error;
     const _ctx = rbac.user;
 
-    const body = await request.json();
-    const template = await createWorkflowTemplate(body);
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json(
+        { error: 'جسم الطلب غير صالح' },
+        { status: 400 }
+      );
+    }
+
+    const validation = createWorkflowTemplateSchema.safeParse(body);
+    if (!validation.success) {
+      const firstError = validation.error.issues[0];
+      return NextResponse.json(
+        { error: firstError?.message || 'بيانات غير صالحة' },
+        { status: 400 }
+      );
+    }
+
+    if (!_ctx.organizationId) {
+      return NextResponse.json(
+        { error: 'معرف المؤسسة مطلوب' },
+        { status: 400 }
+      );
+    }
+
+    const template = await createWorkflowTemplate({
+      name: validation.data.name,
+      nameEn: validation.data.nameEn,
+      description: validation.data.description,
+      organizationId: _ctx.organizationId,
+      stages: (validation.data.stages || []).map((stage) => ({
+        name: stage.name,
+        nameEn: stage.nameEn,
+        order: stage.order,
+        durationDays: stage.durationDays,
+        isParallel: stage.isParallel,
+        steps: (stage.steps || []).map((step) => ({
+          name: step.name,
+          nameEn: step.nameEn,
+          order: step.order,
+          assignedRole: step.assignedRole,
+          isRequired: step.isRequired,
+          requiresApproval: step.requiresApproval,
+          autoComplete: step.autoComplete,
+          daysToComplete: step.daysToComplete,
+        })),
+      })),
+    });
     return NextResponse.json(template, { status: 201 });
   } catch (error: unknown) {
     return handleApiError(error, 'WorkflowTemplates POST');

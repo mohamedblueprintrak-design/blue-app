@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { requireVerifiedPermission, orgFilter } from '@/app/api/utils/auth';
-import { handleApiError } from '@/lib/api-error';
+import { handleApiErrorWithLogging as handleApiError } from '@/lib/api-error';
 import { Permission } from '@/lib/auth/types';
 import { validateRequest, validateIdParam, workflowTemplateUpdateSchema } from '@/lib/api-validation';
 

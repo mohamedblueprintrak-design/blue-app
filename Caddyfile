@@ -26,7 +26,6 @@
                 # Prevent MIME-type sniffing
                 X-Content-Type-Options: nosniff
                 # Enable browser XSS filter
-                X-XSS-Protection: "1; mode=block"
                 # Control referrer information
                 Referrer-Policy: strict-origin-when-cross-origin
                 # HSTS — 2 years, include subdomains, eligible for preload
@@ -38,11 +37,11 @@
                 # replaces 'unsafe-inline' with 'nonce-<random>' for script-src.
                 # Setting it here would conflict and leak the less-secure static policy.
                 # Prevent browsers from trying to DNS-prefetch
-                X-DNS-Prefetch-Control: "off"
+                X-DNS-Prefetch-Control: "on"
                 # Cross-origin policies
                 Cross-Origin-Opener-Policy: "same-origin"
                 Cross-Origin-Resource-Policy: "same-origin"
-                Cross-Origin-Embedder-Policy: "require-corp"
+                Cross-Origin-Embedder-Policy: "credentialless"
         }
 
         # Compression
@@ -93,14 +92,14 @@
         header {
                 X-Frame-Options: DENY
                 X-Content-Type-Options: nosniff
-                X-XSS-Protection: "1; mode=block"
                 Referrer-Policy: strict-origin-when-cross-origin
                 Permissions-Policy: "camera=(), microphone=(), geolocation=()"
                 # CSP is set dynamically by Next.js proxy.ts with per-request nonces.
                 # Do NOT set CSP here — proxy.ts builds a stricter nonce-based CSP.
-                X-DNS-Prefetch-Control: "off"
+                X-DNS-Prefetch-Control: "on"
                 Cross-Origin-Opener-Policy: "same-origin"
                 Cross-Origin-Resource-Policy: "same-origin"
+                Cross-Origin-Embedder-Policy: "credentialless"
         }
 
         # Compression

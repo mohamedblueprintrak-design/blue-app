@@ -146,7 +146,7 @@ export default function PurchaseOrdersPage({ language }: PurchaseOrdersPageProps
       const params = statusFilter !== "all" ? `?status=${statusFilter}` : "";
       const res = await fetch(`/api/purchase-orders${params}`);
       if (!res.ok) throw new Error("Failed to fetch purchase orders");
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -156,7 +156,7 @@ export default function PurchaseOrdersPage({ language }: PurchaseOrdersPageProps
     queryFn: async () => {
       const res = await fetch("/api/suppliers");
       if (!res.ok) return [];
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -166,7 +166,7 @@ export default function PurchaseOrdersPage({ language }: PurchaseOrdersPageProps
     queryFn: async () => {
       const res = await fetch("/api/projects-simple");
       if (!res.ok) return [];
-      return res.json();
+      const json = await res.json(); return json.data || json;
     },
   });
 
@@ -878,7 +878,7 @@ export default function PurchaseOrdersPage({ language }: PurchaseOrdersPageProps
                       className="h-7 w-7 text-slate-400 hover:text-red-500"
                       onClick={() => formData.items.length > 1 && removeLineItem(index)}
                       disabled={formData.items.length <= 1}
-                      aria-label="Remove item"
+                      aria-label={ar ? "حذف البند" : "Remove item"}
                     >
                       <Minus className="h-3 w-3" />
                     </Button>
