@@ -33,7 +33,8 @@ DATABASE_URL="postgresql://user:password@localhost:5432/blueprint"
 JWT_SECRET="your-very-long-secret-key-at-least-32-chars"
 
 # Encryption (Required - exactly 64 hex characters)
-ENCRYPTION_KEY="aaaa1111bbbb2222cccc3333dddd4444eeee5555ffff6666aaaa7777bbbb8888"
+# SECURITY FIX (P0-4): Generate with `openssl rand -hex 32`. Never reuse the example value.
+ENCRYPTION_KEY="generate-with: openssl rand -hex 32"
 
 # Application
 NEXT_PUBLIC_APP_URL="https://your-domain.com"
@@ -57,9 +58,10 @@ SMTP_PASS="your-app-password"
 SMTP_FROM="BluePrint <noreply@your-domain.com>"
 
 # Stripe (Required for billing)
-STRIPE_SECRET_KEY="sk_live_..."
+# SECURITY FIX (P0-4): Use sk_test_... keys for staging. Never commit live keys.
+STRIPE_SECRET_KEY="sk_test_..."
 STRIPE_WEBHOOK_SECRET="whsec_..."
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="pk_live_..."
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="pk_test_..."
 
 # OAuth (Optional)
 GOOGLE_CLIENT_ID="your-google-client-id"
@@ -86,11 +88,15 @@ docker compose exec app bunx tsx prisma/seed.ts
 
 ### 5. Create Admin User
 
-The seed script creates a default admin user:
-- Email: `admin@blue.com`
-- Password: `Admin@123`
+The seed script creates a default admin user. The credentials are printed to
+the terminal at the end of `bun run setup` (Demo Mode) — they are NOT documented
+here for security reasons.
 
-**⚠️ Change this password immediately after first login!**
+**⚠️ Change the admin password immediately after first login!**
+
+> SECURITY FIX (P0-4): Previously, default credentials (`admin@blue.com / Admin@123`)
+> were hardcoded in this document. They have been removed. Always obtain credentials
+> from the setup script output and rotate them immediately.
 
 ## Server Setup (Ubuntu/Debian)
 

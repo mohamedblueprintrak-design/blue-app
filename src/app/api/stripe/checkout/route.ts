@@ -145,15 +145,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // SECURITY: Validate the origin header against allowed CORS origins
-    // to prevent open redirect / phishing attacks on payment flow
+    // SECURITY FIX (P0-2): Host Header Injection protection.
+    // The previous implementation derived appUrl from `request.headers.get('host')`
+    // and `x-forwarded-proto`, which an attacker could spoof via the Host header.
+    // This would allow redirecting the Stripe checkout success/cancel URLs to an
+    // attacker-controlled domain.
+    // Fix: NEXT_PUBLIC_APP_URL is now REQUIRED for the Stripe checkout flow.
     const rawOrigin = request.headers.get('origin') || '';
     const allowedOrigins = process.env.CORS_ORIGINS?.split(',').map(o => o.trim()).filter(Boolean) || [];
-    const host = request.headers.get('host');
-    const protocol = request.headers.get('x-forwarded-proto') || 'https';
-    const appUrl =
-      process.env.NEXT_PUBLIC_APP_URL ||
-      (host ? `${protocol}://${host}` : '');
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL;
     if (!appUrl) {
       return NextResponse.json(
         {

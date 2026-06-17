@@ -51,7 +51,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate state with link flag
+    // SECURITY FIX (P0-3): Removed userId from the OAuth `state` URL parameter.
+    // The previous implementation encoded `{ state, userId, provider }` as base64
+    // and passed it as the `state` query param in the Google/Microsoft authorize URL.
+    // This leaked the internal user ID (PII) to the OAuth provider's logs and URL.
+    // Fix: `state` now contains ONLY the random CSRF token. The userId is stored in
+    // a separate httpOnly cookie (`oauth_link_user_id`) that is never sent to the
+    // OAuth provider — it's only read by our own callback handler.
     const state = crypto.randomBytes(32).toString('base64url');
     // Generate PKCE verifier
     const codeVerifier = crypto.randomBytes(32).toString('base64url');
@@ -60,13 +66,20 @@ export async function POST(request: NextRequest) {
       .update(codeVerifier)
       .digest('base64url');
 
-    // Encode linking info into state (userId + provider + random)
-    const linkState = Buffer.from(
-      JSON.stringify({ state, userId: authResult.user.userId, provider })
-    ).toString('base64url');
-
     let authorizationUrl: string;
     const isProduction = process.env.NODE_ENV === 'production';
+
+    // Cookie options shared across all OAuth cookies (10-min TTL).
+    const cookieOptions = {
+      path: '/',
+      httpOnly: true,
+      secure: isProduction,
+      // SECURITY FIX (P0-3): tighten SameSite from 'lax' to 'strict' for CSRF cookies.
+      // OAuth callbacks still work because the top-level navigation GET carries the
+      // cookies; 'strict' blocks cross-site subrequests, which is what we want.
+      sameSite: 'strict' as const,
+      maxAge: 60 * 10,
+    };
 
     if (provider === 'google') {
       const clientId = process.env.GOOGLE_CLIENT_ID;
@@ -86,29 +99,21 @@ export async function POST(request: NextRequest) {
         scope: 'openid email profile',
         access_type: 'offline',
         prompt: 'consent',
-        state: linkState,
+        // SECURITY FIX: state contains ONLY the random CSRF token, no userId.
+        state,
         code_challenge: codeChallenge,
         code_challenge_method: 'S256',
       });
       authorizationUrl = `https://accounts.google.com/o/oauth2/v2/auth?${params}`;
 
-      // Store state and verifier in cookies (10-min TTL, same as existing OAuth routes)
-      const cookieOptions = {
-        path: '/',
-        httpOnly: true,
-        secure: isProduction,
-        sameSite: 'lax' as const,
-        maxAge: 60 * 10,
-      };
-
       const response = NextResponse.json({ url: authorizationUrl });
-      response.cookies.set('google_oauth_state', linkState, cookieOptions);
+      // Store state (CSRF token only) in cookie for callback verification.
+      response.cookies.set('google_oauth_state', state, cookieOptions);
       response.cookies.set('google_oauth_verifier', codeVerifier, cookieOptions);
-      // Store linking intent
-      response.cookies.set('oauth_link_intent', provider, {
-        ...cookieOptions,
-        httpOnly: true,
-      });
+      // Store linking intent (which provider the user wants to link).
+      response.cookies.set('oauth_link_intent', provider, cookieOptions);
+      // SECURITY FIX: store userId in a SEPARATE httpOnly cookie — never sent to OAuth provider.
+      response.cookies.set('oauth_link_user_id', authResult.user.userId, cookieOptions);
       return response;
     } else {
       // Microsoft
@@ -129,27 +134,19 @@ export async function POST(request: NextRequest) {
         response_type: 'code',
         scope: 'openid email profile User.Read',
         response_mode: 'query',
-        state: linkState,
+        // SECURITY FIX: state contains ONLY the random CSRF token, no userId.
+        state,
         code_challenge: codeChallenge,
         code_challenge_method: 'S256',
       });
       authorizationUrl = `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/authorize?${params}`;
 
-      const cookieOptions = {
-        path: '/',
-        httpOnly: true,
-        secure: isProduction,
-        sameSite: 'lax' as const,
-        maxAge: 60 * 10,
-      };
-
       const response = NextResponse.json({ url: authorizationUrl });
-      response.cookies.set('microsoft_oauth_state', linkState, cookieOptions);
+      response.cookies.set('microsoft_oauth_state', state, cookieOptions);
       response.cookies.set('microsoft_oauth_verifier', codeVerifier, cookieOptions);
-      response.cookies.set('oauth_link_intent', provider, {
-        ...cookieOptions,
-        httpOnly: true,
-      });
+      response.cookies.set('oauth_link_intent', provider, cookieOptions);
+      // SECURITY FIX: store userId in a SEPARATE httpOnly cookie — never sent to OAuth provider.
+      response.cookies.set('oauth_link_user_id', authResult.user.userId, cookieOptions);
       return response;
     }
   } catch (error) {

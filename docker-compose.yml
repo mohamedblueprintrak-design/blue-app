@@ -41,8 +41,8 @@ services:
       # Encryption key for sensitive data (64 hex chars = 256 bits)
       # SECURITY: Must be set in .env for production! Dev fallback uses JWT_SECRET derivation.
       - ENCRYPTION_KEY=${ENCRYPTION_KEY:-}
-      # Multi-tenant mode — set to 'true' for organization-based data isolation
-      - MULTI_TENANT=${MULTI_TENANT:-false}
+      # Multi-tenant mode — defaults to 'true' (SaaS). Set MULTI_TENANT=false for single-org dev.
+      - MULTI_TENANT=${MULTI_TENANT:-true}
       # Stripe Configuration
       - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY:-}
       - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET:-}
