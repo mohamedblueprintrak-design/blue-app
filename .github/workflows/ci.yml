@@ -213,7 +213,12 @@ jobs:
         if: github.event_name == 'pull_request'
         with:
           fail-on-severity: moderate
-          deny-licenses: GPL-3.0, AGPL-3.0
+          # NOTE: The `deny-licenses` option was deprecated in v4 (see issue #997).
+          # To re-enable license checks, create a `.github/dependency-review-config.yml`
+          # file and reference it via `config-file: .github/dependency-review-config.yml`.
+          # Example config:
+          #   allow-licenses: []
+          #   deny-licenses: [GPL-3.0, AGPL-3.0]
 
   # ============================================
   # Stage 5: E2E Tests (on push to main OR pull_request to main)
