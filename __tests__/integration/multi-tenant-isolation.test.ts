@@ -283,7 +283,7 @@ describe('Multi-Tenant Isolation — orgCheck', () => {
     process.env.MULTI_TENANT = originalMultiTenant;
   });
 
-  it('should allow access to records with null organizationId when user has no org', () => {
+  it('should DENY access to records with null organizationId when user has no org (P0-1 security fix)', () => {
     const originalMultiTenant = process.env.MULTI_TENANT;
     process.env.MULTI_TENANT = 'true';
 
@@ -294,12 +294,15 @@ describe('Multi-Tenant Isolation — orgCheck', () => {
       name: 'Test',
       organizationId: null,
     };
-    // Record also has no organizationId
+    // Record also has no organizationId (legacy data)
     const record = { organizationId: null };
 
     const error = orgCheck(ctx, record);
-    // Both have null org, should be allowed (or at least not blocked by org mismatch)
-    expect(error).toBeNull();
+    // P0-1 SECURITY FIX: legacy records (organizationId=null) are no longer accessible
+    // to unscoped users. This was a backdoor for cross-tenant data leakage. Both the
+    // user and the record must have a real org, and they must match.
+    expect(error).not.toBeNull();
+    expect(error!.status).toBe(403);
 
     process.env.MULTI_TENANT = originalMultiTenant;
   });
@@ -482,7 +485,7 @@ describe('Multi-Tenant Isolation — Cross-Tenant Leakage Prevention', () => {
     expect(error!.status).toBe(403);
   });
 
-  it('should handle edge case: record with null organizationId in multi-tenant mode', () => {
+  it('should DENY access to legacy records with null organizationId in multi-tenant mode (P0-1 security fix)', () => {
     process.env.MULTI_TENANT = 'true';
 
     const org1Ctx = {
@@ -496,9 +499,12 @@ describe('Multi-Tenant Isolation — Cross-Tenant Leakage Prevention', () => {
     // A record without organizationId (legacy data or system record)
     const legacyRecord = { organizationId: null };
 
-    // orgCheck should allow access since the record has no org restriction
+    // P0-1 SECURITY FIX: orgCheck no longer allows scoped users to access legacy records
+    // (organizationId=null). This forces legacy data to be migrated to an org before it
+    // becomes accessible, closing the cross-tenant backdoor.
     const error = orgCheck(org1Ctx, legacyRecord);
-    expect(error).toBeNull();
+    expect(error).not.toBeNull();
+    expect(error!.status).toBe(403);
   });
 });
 
@@ -550,7 +556,7 @@ describe('Multi-Tenant Isolation — Environment Configuration', () => {
     expect(filter).toEqual({});
   });
 
-  it('should NOT enforce tenant isolation when MULTI_TENANT is not set (single-tenant default)', () => {
+  it('should ENFORCE tenant isolation when MULTI_TENANT is not set (multi-tenant is now the default — P0-1 security fix)', () => {
     delete (process.env as Record<string, string>).MULTI_TENANT;
 
     const ctx = {
@@ -561,8 +567,13 @@ describe('Multi-Tenant Isolation — Environment Configuration', () => {
       organizationId: null,
     };
 
+    // P0-1 SECURITY FIX: MULTI_TENANT now defaults to 'true' (SaaS is the default mode).
+    // Previously, an unset MULTI_TENANT env var meant single-tenant (no filtering), which
+    // silently left SaaS deployments leaking data across organizations. Now, an unset
+    // var means multi-tenant — users without an org get the __DENIED__ sentinel.
+    // To opt INTO single-tenant mode, set MULTI_TENANT=false explicitly.
     const filter = orgFilter(ctx);
-    expect(filter).toEqual({});
+    expect(filter).toEqual({ organizationId: '__DENIED__' });
   });
 
   it('should always filter by orgId for users with organization regardless of MULTI_TENANT flag', () => {
