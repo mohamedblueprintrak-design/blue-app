@@ -27,8 +27,12 @@ export interface RateLimitEntry {
 // Falling back to in-memory store for rate limiting in middleware.
 
 export const RATE_LIMIT_TIERS: Record<RateLimitTier, RateLimitConfig> = {
+  // P2-33 FIX: tiers are now kept in sync with src/lib/rate-limiter.ts (API routes).
+  // Previously `auth` was 20/min here vs 10/min in rate-limiter.ts — the edge tier
+  // was more lenient than the API tier, so rate-limited clients could still hit
+  // API routes via the edge. Now both use 10/min (production).
   strict:  { maxRequests: 5,   windowMs: 60_000 },  // 5 req/min  — login, register, password reset
-  auth:    { maxRequests: 20,  windowMs: 60_000 },  // 20 req/min — other auth routes (2FA, session, refresh)
+  auth:    { maxRequests: 10,  windowMs: 60_000 },  // 10 req/min — other auth routes (2FA, session, refresh)
   api:     { maxRequests: 100, windowMs: 60_000 },  // 100 req/min — standard CRUD routes
   loose:   { maxRequests: 200, windowMs: 60_000 },  // 200 req/min — read-only/list & dashboard routes
   ai:      { maxRequests: 10,  windowMs: 60_000 },  // 10 req/min  — AI chat/generation (expensive)

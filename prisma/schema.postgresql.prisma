@@ -352,8 +352,8 @@ model Project {
   type                  String    @default("villa") // villa, building, commercial, industrial
   status                String    @default("active") // active, completed, delayed, on_hold, cancelled
   progress              Float     @default(0)
-  budget                Decimal   @default(0)
-  contractValue         Decimal   @default(0) // Total contract value
+  budget                Decimal  @db.Decimal(18, 2) @default(0)
+  contractValue         Decimal  @db.Decimal(18, 2) @default(0) // Total contract value
   paymentMethod         String    @default("") // cash, cheque, transfer, installments
   paymentSchedule       String    @default("") @db.Text // JSON: [{milestone,amount,percentage,dueDate,status}]
   expectedDuration      Int       @default(0) // Expected duration in days
@@ -590,7 +590,7 @@ model Client {
   address        String    @default("") @db.Text
   fullAddress    String    @default("") @db.Text // JSON: {emirate,city,area,street,building,unit}
   taxNumber      String    @default("")
-  creditLimit    Decimal   @default(0)
+  creditLimit    Decimal  @db.Decimal(18, 2) @default(0)
   paymentTerms   String    @default("")
   // Services & Project Info
   servicesWanted String    @default("") @db.Text // JSON array: ["consultation","design","license",...]
@@ -607,7 +607,7 @@ model Client {
   referralSource String    @default("") // social_media, referral, website, walk_in, advertisement, other
   referralDetail String    @default("")
   // Credit & Status
-  creditUsed     Decimal   @default(0)
+  creditUsed     Decimal  @db.Decimal(18, 2) @default(0)
   isActive       Boolean   @default(true)
   organizationId String // SaaS multi-tenant organization
   createdById    String?
@@ -710,6 +710,7 @@ model Task {
   @@index([deletedAt])
   @@index([organizationId, deletedAt])
   @@index([organizationId, status, deletedAt])
+  @@index([createdById])
 }
 
 // ==================== TASK COMMENTS ====================
@@ -741,7 +742,7 @@ model Contract {
   title          String    @default("")
   clientId       String
   projectId      String
-  value          Decimal   @default(0)
+  value          Decimal  @db.Decimal(18, 2) @default(0)
   type           String    @default("engineering_services") // engineering_services, construction, consulting, maintenance
   status         String    @default("draft") // draft, pending_signature, active, expired, completed
   signedByName   String    @default("")
@@ -766,6 +767,7 @@ model Contract {
   @@index([clientId])
   @@index([deletedAt])
   @@index([status])
+  @@index([createdById])
 }
 
 model ContractAmendment {
@@ -796,12 +798,12 @@ model Invoice {
   projectId      String
   issueDate      DateTime
   dueDate        DateTime
-  subtotal       Decimal   @default(0)
-  tax            Decimal   @default(0)
-  taxRate        Decimal   @default(0) // Tax percentage
-  total          Decimal   @default(0)
-  paidAmount     Decimal   @default(0)
-  remaining      Decimal   @default(0)
+  subtotal       Decimal  @db.Decimal(18, 2) @default(0)
+  tax            Decimal  @db.Decimal(18, 2) @default(0)
+  taxRate        Decimal  @db.Decimal(18, 2) @default(0) // Tax percentage
+  total          Decimal  @db.Decimal(18, 2) @default(0)
+  paidAmount     Decimal  @db.Decimal(18, 2) @default(0)
+  remaining      Decimal  @db.Decimal(18, 2) @default(0)
   status         String    @default("draft") // draft, sent, partially_paid, paid, overdue, cancelled
   organizationId String // SaaS multi-tenant organization
   createdById    String?
@@ -826,15 +828,16 @@ model Invoice {
   @@index([dueDate])
   @@index([organizationId, deletedAt])
   @@index([organizationId, status, deletedAt])
+  @@index([createdById])
 }
 
 model InvoiceItem {
   id          String   @id @default(cuid())
   invoiceId   String
   description String   @default("") @db.Text
-  quantity    Decimal  @default(1)
-  unitPrice   Decimal  @default(0)
-  total       Decimal  @default(0)
+  quantity    Decimal @db.Decimal(18, 2) @default(1)
+  unitPrice   Decimal @db.Decimal(18, 2) @default(0)
+  total       Decimal @db.Decimal(18, 2) @default(0)
   boqItemId   String?
   createdAt   DateTime @default(now())
 
@@ -851,7 +854,7 @@ model InvoicePayment {
   id          String   @id @default(cuid())
   invoiceId   String
   paymentId   String
-  amount      Decimal  @default(0) // Amount allocated to this invoice
+  amount      Decimal @db.Decimal(18, 2) @default(0) // Amount allocated to this invoice
   createdAt   DateTime @default(now())
   createdById String?
 
@@ -861,6 +864,7 @@ model InvoicePayment {
 
   @@index([invoiceId])
   @@index([paymentId])
+  @@index([createdById])
 }
 
 // ==================== PAYMENTS ====================
@@ -870,7 +874,7 @@ model Payment {
   voucherNumber   String   @default("") @db.VarChar(100)
   projectId       String?
   invoiceId       String?
-  amount          Decimal  @default(0)
+  amount          Decimal @db.Decimal(18, 2) @default(0)
   payMethod       String   @default("transfer") // cash, cheque, transfer, online
   beneficiary     String   @default("")
   referenceNumber String   @default("") @db.VarChar(100)
@@ -896,6 +900,7 @@ model Payment {
   @@index([status])
   @@index([invoiceId])
   @@index([approvedById])
+  @@index([createdById])
 }
 
 // ==================== PROPOSALS ====================
@@ -905,9 +910,9 @@ model Proposal {
   number         String   @default("")
   clientId       String
   projectId      String?
-  subtotal       Decimal  @default(0)
-  tax            Decimal  @default(0)
-  total          Decimal  @default(0)
+  subtotal       Decimal @db.Decimal(18, 2) @default(0)
+  tax            Decimal @db.Decimal(18, 2) @default(0)
+  total          Decimal @db.Decimal(18, 2) @default(0)
   status         String   @default("draft") // draft, sent, accepted, rejected, expired
   notes          String   @default("") @db.Text
   organizationId String
@@ -929,15 +934,16 @@ model Proposal {
   @@index([clientId])
   @@index([status])
   @@index([deletedAt])
+  @@index([createdById])
 }
 
 model ProposalItem {
   id          String   @id @default(cuid())
   proposalId  String
   description String   @default("") @db.Text
-  quantity    Decimal  @default(1)
-  unitPrice   Decimal  @default(0)
-  total       Decimal  @default(0)
+  quantity    Decimal @db.Decimal(18, 2) @default(1)
+  unitPrice   Decimal @db.Decimal(18, 2) @default(0)
+  total       Decimal @db.Decimal(18, 2) @default(0)
   createdAt   DateTime @default(now())
 
   proposal Proposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
@@ -1001,7 +1007,7 @@ model ContractorEvaluation {
   criteria       String   @default("") // experience, financial, technical, past_performance, resources
   score          Int      @default(0) // 0-100
   maxScore       Int      @default(100)
-  weight         Decimal  @default(1) // percentage weight for this criteria
+  weight         Decimal @db.Decimal(18, 2) @default(1) // percentage weight for this criteria
   notes          String   @default("") @db.Text
   evaluatedBy    String   @default("")
   bidId          String?
@@ -1028,10 +1034,10 @@ model Bid {
   contractorId      String?
   contractorName    String    @default("")
   contractorContact String    @default("")
-  amount            Decimal   @default(0)
+  amount            Decimal  @db.Decimal(18, 2) @default(0)
   technicalScore    Int       @default(0)
   financialScore    Int       @default(0)
-  totalScore        Decimal   @default(0)
+  totalScore        Decimal  @db.Decimal(18, 2) @default(0)
   status            String    @default("submitted") // submitted, under_review, accepted, rejected
   deadline          DateTime?
   notes             String    @default("") @db.Text
@@ -1060,6 +1066,7 @@ model Bid {
   @@index([organizationId])
   @@index([status])
   @@index([deletedAt])
+  @@index([createdById])
 }
 
 // ==================== BUDGETS ====================
@@ -1070,11 +1077,11 @@ model Budget {
   parentId       String?
   name           String   @default("")
   category       String   @default("") // overall, architectural, structural, electrical, mep
-  planned        Decimal  @default(0)
-  actual         Decimal  @default(0)
-  committed      Decimal  @default(0)
-  remaining      Decimal  @default(0)
-  deviation      Decimal  @default(0)
+  planned        Decimal @db.Decimal(18, 2) @default(0)
+  actual         Decimal @db.Decimal(18, 2) @default(0)
+  committed      Decimal @db.Decimal(18, 2) @default(0)
+  remaining      Decimal @db.Decimal(18, 2) @default(0)
+  deviation      Decimal @db.Decimal(18, 2) @default(0)
   organizationId String
   createdById    String?
   updatedById    String?
@@ -1093,6 +1100,7 @@ model Budget {
   @@index([projectId])
   @@index([parentId])
   @@index([deletedAt])
+  @@index([createdById])
 }
 
 // ==================== SITE MANAGEMENT ====================
@@ -1122,6 +1130,7 @@ model SiteVisit {
   @@index([projectId])
   @@index([status])
   @@index([deletedAt])
+  @@index([createdById])
 }
 
 model Defect {
@@ -1149,6 +1158,7 @@ model Defect {
   @@index([assigneeId])
   @@index([status])
   @@index([deletedAt])
+  @@index([createdById])
 }
 
 model SiteDiary {
@@ -1242,7 +1252,7 @@ model ChangeOrder {
   projectId      String
   number         String   @default("")
   type           String   @default("change") // addition, change, deletion
-  costImpact     Decimal  @default(0)
+  costImpact     Decimal @db.Decimal(18, 2) @default(0)
   timeImpact     String   @default("")
   description    String   @default("") @db.Text
   status         String   @default("pending") // pending, approved, rejected
@@ -1339,6 +1349,7 @@ model Risk {
   @@index([projectId])
   @@index([status])
   @@index([deletedAt])
+  @@index([createdById])
 }
 
 model RiskAction {
@@ -1391,6 +1402,7 @@ model Meeting {
   @@index([projectId])
   @@index([date])
   @@index([deletedAt])
+  @@index([createdById])
 }
 
 model MeetingAttendee {
@@ -1429,10 +1441,10 @@ model BOQItem {
   code           String   @default("")
   description    String   @default("") @db.Text
   unit           String   @default("")
-  quantity       Decimal  @default(0)
-  unitPrice      Decimal  @default(0)
-  totalPrice     Decimal  @default(0)
-  total          Decimal  @default(0)
+  quantity       Decimal @db.Decimal(18, 2) @default(0)
+  unitPrice      Decimal @db.Decimal(18, 2) @default(0)
+  totalPrice     Decimal @db.Decimal(18, 2) @default(0)
+  total          Decimal @db.Decimal(18, 2) @default(0)
   category       String   @default("civil") // civil, structural, electrical, finishing
   organizationId String // SaaS multi-tenant organization
   createdAt      DateTime @default(now())
@@ -1483,7 +1495,7 @@ model Employee {
   userId           String    @unique
   department       String    @default("")
   position         String    @default("")
-  salary           Decimal   @default(0)
+  salary           Decimal  @db.Decimal(18, 2) @default(0)
   employmentStatus String    @default("active") // active, on_leave, terminated
   hireDate         DateTime?
   organizationId   String // SaaS multi-tenant organization
@@ -1509,8 +1521,8 @@ model Attendance {
   checkIn        String   @default("")
   checkOut       String   @default("")
   status         String   @default("present") // present, absent, late, leave
-  workHours      Decimal  @default(0)
-  overtimeHours  Decimal  @default(0)
+  workHours      Decimal @db.Decimal(18, 2) @default(0)
+  overtimeHours  Decimal @db.Decimal(18, 2) @default(0)
   organizationId String // SaaS multi-tenant organization
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
@@ -1562,7 +1574,7 @@ model Supplier {
   address        String    @default("") @db.Text
   rating         Int       @default(0)
   deletedAt      DateTime? // Soft delete
-  creditLimit    Decimal   @default(0)
+  creditLimit    Decimal  @db.Decimal(18, 2) @default(0)
   organizationId String // SaaS multi-tenant organization
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
@@ -1581,7 +1593,7 @@ model InventoryItem {
   name           String   @default("")
   quantity       Float    @default(0)
   unit           String   @default("")
-  price          Decimal  @default(0)
+  price          Decimal @db.Decimal(18, 2) @default(0)
   location       String   @default("")
   minimumLevel   Float    @default(0)
   organizationId String // SaaS multi-tenant organization
@@ -1602,7 +1614,7 @@ model PurchaseOrder {
   number         String   @default("")
   supplierId     String
   projectId      String?
-  amount         Decimal  @default(0)
+  amount         Decimal @db.Decimal(18, 2) @default(0)
   status         String   @default("draft") // draft, submitted, approved, received, cancelled
   organizationId String
   createdById    String?
@@ -1620,15 +1632,16 @@ model PurchaseOrder {
   @@index([projectId])
   @@index([status])
   @@index([deletedAt])
+  @@index([createdById])
 }
 
 model PurchaseOrderItem {
   id              String   @id @default(cuid())
   purchaseOrderId String
   itemName        String   @default("")
-  quantity        Decimal  @default(1)
-  unitPrice       Decimal  @default(0)
-  total           Decimal  @default(0)
+  quantity        Decimal @db.Decimal(18, 2) @default(1)
+  unitPrice       Decimal @db.Decimal(18, 2) @default(0)
+  total           Decimal @db.Decimal(18, 2) @default(0)
   createdAt       DateTime @default(now())
 
   purchaseOrder PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
@@ -1644,7 +1657,7 @@ model Equipment {
   serialNumber    String    @default("")
   status          String    @default("available") // available, in_use, maintenance, retired
   location        String    @default("")
-  dailyRate       Decimal   @default(0)
+  dailyRate       Decimal  @db.Decimal(18, 2) @default(0)
   lastMaintenance DateTime?
   nextMaintenance DateTime?
   organizationId  String // SaaS multi-tenant organization
@@ -1787,7 +1800,7 @@ model Approval {
   assignedTo     String
   step           Int      @default(1) // current step in approval chain
   totalSteps     Int      @default(1) // total steps
-  amount         Decimal  @default(0) // relevant financial amount if any
+  amount         Decimal @db.Decimal(18, 2) @default(0) // relevant financial amount if any
   notes          String   @default("") @db.Text
   organizationId String // SaaS multi-tenant organization
   createdAt      DateTime @default(now())
@@ -1818,7 +1831,7 @@ model BuildingInspection {
   inspectorName      String    @default("") @db.VarChar(255)
   summary            String    @default("")
   recommendations    String    @default("")
-  repairEstimate     Decimal   @default(0)
+  repairEstimate     Decimal  @db.Decimal(18, 2) @default(0)
   status             String    @default("draft")
   organizationId     String
   createdById        String?
@@ -1837,6 +1850,7 @@ model BuildingInspection {
   @@index([status])
   @@index([clientId])
   @@index([deletedAt])
+  @@index([createdById])
 }
 
 model InspectionFinding {
@@ -1848,7 +1862,7 @@ model InspectionFinding {
   category      String   @default("")
   photos        String   @default("")
   remediation   String   @default("")
-  estimatedCost Decimal  @default(0)
+  estimatedCost Decimal @db.Decimal(18, 2) @default(0)
   status        String   @default("open")
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -1992,7 +2006,7 @@ model Tender {
   authority          String    @default("") // RAK Municipality, RAK Properties, Al Hamra, Marjan, RAKEZ, Private
   projectType        String    @default("") // villa, building, infrastructure, road, landscape
   description        String    @default("") @db.Text
-  estimatedBudget    Decimal   @default(0)
+  estimatedBudget    Decimal  @db.Decimal(18, 2) @default(0)
   currency           String    @default("AED")
   closingDate        DateTime?
   submissionDate     DateTime?
@@ -2020,6 +2034,7 @@ model Tender {
   @@index([status])
   @@index([assignedTo])
   @@index([deletedAt])
+  @@index([createdById])
 }
 
 model TenderDocument {
@@ -2126,10 +2141,10 @@ model Commission {
   userId         String
   projectId      String?
   type           String    @default("project_referral")
-  amount         Decimal   @default(0)
+  amount         Decimal  @db.Decimal(18, 2) @default(0)
   currency       String    @default("AED")
-  percentage     Decimal   @default(0)
-  baseAmount     Decimal   @default(0)
+  percentage     Decimal  @db.Decimal(18, 2) @default(0)
+  baseAmount     Decimal  @db.Decimal(18, 2) @default(0)
   status         String    @default("pending")
   periodStart    DateTime?
   periodEnd      DateTime?
@@ -2162,8 +2177,8 @@ model Referral {
   referredEmail  String   @default("")
   projectId      String?
   status         String   @default("pending")
-  discountGiven  Decimal  @default(0)
-  rewardAmount   Decimal  @default(0)
+  discountGiven  Decimal @db.Decimal(18, 2) @default(0)
+  rewardAmount   Decimal @db.Decimal(18, 2) @default(0)
   notes          String   @default("") @db.Text
   organizationId String // SaaS multi-tenant organization
   createdAt      DateTime @default(now())
@@ -2185,8 +2200,8 @@ model MarketingCampaign {
   id             String    @id @default(cuid())
   name           String    @default("")
   type           String    @default("")
-  budget         Decimal   @default(0)
-  spent          Decimal   @default(0)
+  budget         Decimal  @db.Decimal(18, 2) @default(0)
+  spent          Decimal  @db.Decimal(18, 2) @default(0)
   leads          Int       @default(0)
   conversions    Int       @default(0)
   startDate      DateTime?
@@ -2470,7 +2485,7 @@ model Plan {
   nameAr          String? // Arabic name
   description     String?
   descriptionAr   String? // Arabic description
-  price           Decimal              @default(0)
+  price           Decimal             @db.Decimal(18, 2) @default(0)
   currency        String               @default("AED")
   interval        SubscriptionInterval @default(MONTH)
   stripeProductId String?
@@ -2515,7 +2530,7 @@ model Subscription {
 model SubscriptionPayment {
   id                    String        @id @default(cuid())
   subscriptionId        String
-  amount                Decimal       @default(0)
+  amount                Decimal      @db.Decimal(18, 2) @default(0)
   currency              String        @default("AED")
   status                PaymentStatus @default(PENDING)
   stripePaymentIntentId String?
@@ -2780,11 +2795,11 @@ model Retainage {
   organizationId String // SaaS multi-tenant organization
   projectId      String
   invoiceId      String? // Link to invoice that generated this retainage
-  percentage     Decimal   @default(0) // Retainage percentage (e.g. 5, 10)
-  retainedAmount Decimal   @default(0) // Amount retained
+  percentage     Decimal  @db.Decimal(18, 2) @default(0) // Retainage percentage (e.g. 5, 10)
+  retainedAmount Decimal  @db.Decimal(18, 2) @default(0) // Amount retained
   releaseDate    DateTime? // Expected or actual release date
   status         String    @default("HELD") // HELD, PARTIALLY_RELEASED, RELEASED
-  releasedAmount Decimal   @default(0) // Amount released so far
+  releasedAmount Decimal  @db.Decimal(18, 2) @default(0) // Amount released so far
   releasedDate   DateTime? // Date of last release
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
@@ -2808,7 +2823,7 @@ model GuaranteeLetter {
   type            String    @default("PERFORMANCE") // PERFORMANCE, ADVANCE_PAYMENT, RETENTION, BID_BOND
   guaranteeNumber String    @default("") // Bank guarantee reference number
   bankName        String    @default("")
-  amount          Decimal   @default(0)
+  amount          Decimal  @db.Decimal(18, 2) @default(0)
   currency        String    @default("AED")
   issueDate       DateTime?
   expiryDate      DateTime?
@@ -2840,12 +2855,12 @@ model ProgressClaim {
   claimNumber       String    @default("") // e.g. "IPC-001"
   period            String    @default("") // e.g. "March 2025"
   claimDate         DateTime?
-  totalClaimAmount  Decimal   @default(0)
-  approvedAmount    Decimal   @default(0)
-  previousCertified Decimal   @default(0) // Cumulative previously certified
-  currentCertified  Decimal   @default(0) // Current certification amount
-  retentionAmount   Decimal   @default(0) // Retention deducted
-  netPayment        Decimal   @default(0) // currentCertified - retentionAmount
+  totalClaimAmount  Decimal  @db.Decimal(18, 2) @default(0)
+  approvedAmount    Decimal  @db.Decimal(18, 2) @default(0)
+  previousCertified Decimal  @db.Decimal(18, 2) @default(0) // Cumulative previously certified
+  currentCertified  Decimal  @db.Decimal(18, 2) @default(0) // Current certification amount
+  retentionAmount   Decimal  @db.Decimal(18, 2) @default(0) // Retention deducted
+  netPayment        Decimal  @db.Decimal(18, 2) @default(0) // currentCertified - retentionAmount
   status            String    @default("DRAFT") // DRAFT, SUBMITTED, UNDER_REVIEW, APPROVED, REJECTED
   certifiedDate     DateTime?
   certifiedById     String? // User who certified

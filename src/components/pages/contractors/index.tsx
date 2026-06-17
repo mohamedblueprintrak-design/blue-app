@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/select";
 import { Plus, Search, Users } from "lucide-react";
 import { getMutationHeaders } from "@/lib/csrf-client";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import type { ContractorItem, ContractorDetail } from "./types";
 import { emptyForm } from "./types";
 import { ContractorCreateForm } from "./contractor-create-form";
@@ -31,6 +32,7 @@ export default function ContractorsPage({ language, projectId, initialTab }: Con
   const ar = language === "ar";
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebouncedValue(search, 300);
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [showDialog, setShowDialog] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -42,11 +44,11 @@ export default function ContractorsPage({ language, projectId, initialTab }: Con
 
   // Fetch contractors
   const { data: contractorsData = [], isLoading } = useQuery<ContractorItem[]>({
-    queryKey: ["contractors-page", projectId, search, categoryFilter],
+    queryKey: ["contractors-page", projectId, debouncedSearch, categoryFilter],
     queryFn: async () => {
       const params = new URLSearchParams();
       if (projectId) params.set("projectId", projectId);
-      if (search) params.set("search", search);
+      if (debouncedSearch) params.set("search", debouncedSearch);
       if (categoryFilter && categoryFilter !== "all") params.set("category", categoryFilter);
       const res = await fetch(`/api/contractors?${params.toString()}`);
       if (!res.ok) return [];

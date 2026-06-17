@@ -8,6 +8,55 @@ import { getStorageProvider, generateStorageKey } from '@/lib/storage';
 import { z } from 'zod';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 
+/**
+ * @openapi
+ * /api/documents:
+ *   get:
+ *     tags: [Documents]
+ *     summary: List documents
+ *     description: Retrieve a paginated list of documents scoped to the user's organization. Supports filtering by projectId, category, and type. Requires DOCUMENT_READ permission.
+ *     parameters:
+ *       - name: page
+ *         in: query
+ *         schema: { type: integer, minimum: 1, default: 1 }
+ *       - name: limit
+ *         in: query
+ *         schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+ *       - name: projectId
+ *         in: query
+ *         schema: { type: string }
+ *       - name: category
+ *         in: query
+ *         schema: { type: string }
+ *       - name: type
+ *         in: query
+ *         schema: { type: string }
+ *     responses:
+ *       200: { description: Paginated list of documents }
+ *       401: { description: Unauthorized }
+ *       403: { description: Forbidden — DOCUMENT_READ required }
+ *   post:
+ *     tags: [Documents]
+ *     summary: Upload document
+ *     description: Upload a new document (file or metadata-only). Requires DOCUMENT_CREATE permission. Files are validated by MIME type allowlist and size limit (50MB).
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               file: { type: string, format: binary }
+ *               name: { type: string }
+ *               projectId: { type: string }
+ *               category: { type: string }
+ *     responses:
+ *       201: { description: Document created }
+ *       401: { description: Unauthorized }
+ *       403: { description: Forbidden — DOCUMENT_CREATE required }
+ *       413: { description: File too large }
+ */
+
 // Zod schema for JSON metadata-only document creation
 const documentCreateSchema = z.object({
   name: z.string().min(1),

@@ -161,13 +161,47 @@ export async function startWorker(
     });
   });
 
-  worker.on('failed', (job: Job | undefined, err: Error) => {
+  worker.on('failed', async (job: Job | undefined, err: Error) => {
     log.error(`[Queue] Job failed`, err, {
       queue: queueName,
       jobId: job?.id,
       jobName: job?.name,
       attemptsMade: job?.attemptsMade,
     });
+
+    // P2-34 FIX: Dead Letter Queue (DLQ).
+    // When a job exhausts all retry attempts (attemptsMade >= opts.attempts),
+    // move it to a `<queueName>-dlq` queue for manual inspection/alerting.
+    // This prevents permanently failed jobs from being silently lost in the
+    // `removeOnFail` cleanup.
+    if (job && job.attemptsMade >= (DEFAULT_QUEUE_OPTIONS.defaultJobOptions.attempts || 3)) {
+      try {
+        const dlqQueue = getQueue(`${queueName}-dlq` as QueueName);
+        await dlqQueue.add(job.name, {
+          originalQueue: queueName,
+          originalJobId: job.id,
+          originalData: job.data,
+          error: err.message,
+          failedAt: new Date().toISOString(),
+          attemptsMade: job.attemptsMade,
+        }, {
+          // DLQ jobs are not retried automatically — they need manual intervention.
+          attempts: 1,
+          removeOnComplete: { count: 1000, age: 30 * 24 * 3600 }, // Keep 30 days
+          removeOnFail: { count: 5000 },
+        });
+        log.warn(`[Queue] Job moved to DLQ`, {
+          queue: queueName,
+          jobId: job.id,
+          dlq: `${queueName}-dlq`,
+        });
+      } catch (dlqError) {
+        log.error(`[Queue] Failed to move job to DLQ`, dlqError, {
+          queue: queueName,
+          jobId: job.id,
+        });
+      }
+    }
   });
 
   worker.on('error', (err: Error) => {

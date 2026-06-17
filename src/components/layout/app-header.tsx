@@ -65,7 +65,7 @@ function AppHeader() {
       {/* Teal gradient accent line at top */}
       <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-teal-500 via-cyan-400 to-teal-500 dark:from-teal-400 dark:via-cyan-300 dark:to-teal-400" />
 
-      <SidebarTrigger className="-ms-1" />
+      <SidebarTrigger className="-ms-1" aria-label={isAr ? "تبديل القائمة الجانبية" : "Toggle sidebar"} />
       <Separator orientation="vertical" className="h-6" />
 
       {/* Page Title */}
