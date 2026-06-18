@@ -38,7 +38,7 @@ BluePrint هو نظام تخطيط موارد المؤسسات (ERP) صُمم خ
 
 ## 🛠️ التقنيات المستخدمة (Tech Stack)
 
-- **Frontend:** Next.js 14 (App Router), React 18, TailwindCSS, Radix UI, Framer Motion.
+- **Frontend:** Next.js 16 (App Router), React 19, TailwindCSS, Radix UI, Framer Motion.
 - **Backend:** Next.js Route Handlers, Prisma ORM.
 - **Database:** PostgreSQL (للإنتاج) / SQLite (للتطوير المحلي).
 - **Authentication:** JWT, HTTPOnly Cookies, Role-Based Access Control (RBAC).
@@ -80,6 +80,13 @@ chmod +x setup.sh
 إذا قمت باختيار **Demo Mode** أثناء الإعداد، يتم إنشاء حسابات تجريبية تلقائياً. يتم عرض بيانات الدخول في سطر الأوامر بعد اكتمال الإعداد — **لا تقم بمشاركة بيانات الدخول أو تضمينها في مستندات عامة**.
 
 > ⚠️ **تنبيه أمني:** لحماية حساباتك، لا يتم حفظ كلمات المرور في المستندات. بعد تشغيل سكريبت الإعداد، ستجد بيانات الدخول في مخرجات السكريبت فقط. قم بتغيير كلمات المرور فوراً بعد أول تسجيل دخول.
+
+---
+
+## 🚪 نظام التسجيل والدعوات (Registration & Invitations)
+
+- **التسجيل الذاتي (Self-Registration):** تم إيقاف التسجيل الذاتي المفتوح من الواجهة الأمامية للمتصفح لدواعي أمنية وضمان عزل المستأجرين (Multi-tenancy Isolation).
+- **دعوة المستخدمين الجدد (User Invitations):** تعتمد عملية إضافة موظفين أو شركاء جدد بالكامل على نظام الدعوات التي يرسلها مديرو المنظمات المسجلون من داخل لوحة التحكم، أو من خلال الربط المباشر مع مزودي الهوية عبر حسابات Microsoft / Google المعتمدة للمنظمة.
 
 ---
 

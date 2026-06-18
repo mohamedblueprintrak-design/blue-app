@@ -17,14 +17,6 @@ interface User {
   organizationId?: string | null;
 }
 
-interface RegisterData {
-  name: string;
-  email: string;
-  password: string;
-  phone?: string;
-  department?: string;
-  position?: string;
-}
 
 interface AuthStore {
   user: User | null;
@@ -33,7 +25,6 @@ interface AuthStore {
   isLoading: boolean;
   login: (user: User) => void;
   logout: () => Promise<void>;
-  register: (data: RegisterData) => Promise<{ success: boolean; error?: string }>;
   updateUser: (data: Partial<User>) => void;
   refreshSession: () => Promise<void>;
   hasPermission: (permission: string) => boolean;
@@ -75,27 +66,6 @@ export const useAuthStore = create<AuthStore>()(
         isAuthenticated: false,
         isInitialized: true,
       });
-    },
-    register: async (data) => {
-      set({ isLoading: true });
-      try {
-        const response = await fetch('/api/auth/register', {
-          method: 'POST',
-          headers: getMutationHeaders(),
-          credentials: 'include',
-          body: JSON.stringify(data),
-        });
-        const result = await response.json();
-        if (result.success && result.user) {
-          set({ user: result.user, isAuthenticated: true, isLoading: false, isInitialized: true });
-          return { success: true };
-        }
-        set({ isLoading: false, isInitialized: true });
-        return { success: false, error: result.error?.message || 'Registration failed' };
-      } catch {
-        set({ isLoading: false, isInitialized: true });
-        return { success: false, error: 'Network error' };
-      }
     },
     updateUser: (data) =>
       set((state) => ({
@@ -144,13 +114,17 @@ export const useAuthStore = create<AuthStore>()(
   })
 );
 
-// Auto-refresh: poll /api/auth/session every 4 minutes while authenticated
+// Auto-refresh: poll /api/auth/session every 4 minutes while authenticated and visible
 let refreshIntervalId: ReturnType<typeof setInterval> | null = null;
 
 useAuthStore.subscribe((state) => {
   if (state.isAuthenticated && !refreshIntervalId) {
     refreshIntervalId = setInterval(() => {
-      useAuthStore.getState().refreshSession();
+      // SECURITY & PERFORMANCE: Only poll if the document is active/visible
+      // to reduce server load and save battery/resources on background tabs.
+      if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
+        useAuthStore.getState().refreshSession();
+      }
     }, 240000);
   } else if (!state.isAuthenticated && refreshIntervalId) {
     clearInterval(refreshIntervalId);
