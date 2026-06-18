@@ -75,33 +75,7 @@ function getSentry(): typeof import('@sentry/nextjs') | null {
           'Navigation cancelled',
         ],
 
-        // Filter sensitive data from events
-        beforeSend(event) {
-          // Filter out sensitive data from headers
-          if (event.request?.headers) {
-            delete event.request.headers.authorization;
-            delete event.request.headers.cookie;
-            delete event.request.headers['x-csrf-token'];
-            delete event.request.headers['x-api-key'];
-          }
-
-          // Filter out sensitive data from request body
-          if (event.request?.data && typeof event.request.data === 'object') {
-            const sensitiveFields = ['password', 'confirmPassword', 'newPassword', 'currentPassword', 'secret', 'token', 'apiKey', 'creditCard', 'cvv', 'iban', 'bankAccount'];
-            for (const field of sensitiveFields) {
-              if (field in (event.request.data as Record<string, unknown>)) {
-                (event.request.data as Record<string, unknown>)[field] = '[REDACTED]';
-              }
-            }
-          }
-
-          // Don't send events in development unless explicitly enabled
-          if (environment === 'development' && !process.env.SENTRY_ENABLE_DEV) {
-            return null;
-          }
-
-          return event;
-        },
+        beforeSend,
 
         // Additional configuration
         debug: false,
@@ -139,12 +113,13 @@ export function captureError(
     extra?: Record<string, unknown>;
   }
 ) {
-  if (!Sentry) {
+  const activeSentry = getSentry();
+  if (!activeSentry) {
     log.error('Error (Sentry not configured):', error);
     return;
   }
 
-  Sentry.withScope((scope) => {
+  activeSentry.withScope((scope) => {
     if (context?.user) {
       scope.setUser({
         id: context.user.id,
@@ -165,7 +140,7 @@ export function captureError(
       });
     }
 
-    Sentry.captureException(error);
+    activeSentry.captureException(error);
   });
 }
 
@@ -223,10 +198,55 @@ export function startSpan<T>(
   options: { name: string; op: string },
   callback: () => T
 ): T {
-  if (!Sentry) return callback();
+  const activeSentry = getSentry();
+  if (!activeSentry) return callback();
 
-  return Sentry.startSpan(options, callback);
+  return activeSentry.startSpan(options, callback);
 }
 
 // Re-export Sentry for direct use (null-safe)
 export { Sentry };
+
+/**
+ * Reset Sentry load state for testing purposes
+ */
+export function resetSentryForTesting() {
+  _sentry = null;
+  _sentryLoadAttempted = false;
+}
+
+export function setSentryForTesting(mockSentry: any) {
+  _sentry = mockSentry;
+  _sentryLoadAttempted = true;
+}
+
+/**
+ * Filter sensitive data from Sentry events before sending
+ */
+export function beforeSend(event: any) {
+  // Filter out sensitive data from headers
+  if (event.request?.headers) {
+    delete event.request.headers.authorization;
+    delete event.request.headers.cookie;
+    delete event.request.headers['x-csrf-token'];
+    delete event.request.headers['x-api-key'];
+  }
+
+  // Filter out sensitive data from request body
+  if (event.request?.data && typeof event.request.data === 'object') {
+    const sensitiveFields = ['password', 'confirmPassword', 'newPassword', 'currentPassword', 'secret', 'token', 'apiKey', 'creditCard', 'cvv', 'iban', 'bankAccount'];
+    for (const field of sensitiveFields) {
+      if (field in (event.request.data as Record<string, unknown>)) {
+        (event.request.data as Record<string, unknown>)[field] = '[REDACTED]';
+      }
+    }
+  }
+
+  // Don't send events in development unless explicitly enabled
+  const environment = process.env.NODE_ENV || 'development';
+  if (environment === 'development' && !process.env.SENTRY_ENABLE_DEV) {
+    return null;
+  }
+
+  return event;
+}
