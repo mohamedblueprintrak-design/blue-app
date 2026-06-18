@@ -224,7 +224,6 @@ async function handleRegister(
       : UserRoleValues.VIEWER;
 
     // Create organization and user atomically in a transaction
-    let organizationId: string | null = null;
     let user;
 
     if (data.organizationName) {
@@ -291,7 +290,7 @@ async function handleRegister(
             });
             return { org, user: createdUser };
           });
-          organizationId = result.org.id;
+
           user = result.user;
           break;
         } catch (error: unknown) {
@@ -336,7 +335,7 @@ async function handleRegister(
           },
         },
       });
-      organizationId = null;
+
     }
 
     // Safety check — user must exist at this point

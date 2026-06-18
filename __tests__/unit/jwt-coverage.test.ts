@@ -445,20 +445,26 @@ describe('JWT Module — decodeToken', () => {
       role: 'admin',
     });
     // Now switch to production — decodeToken should return null
-    Object.defineProperty(process.env, 'NODE_ENV', { value: 'production', configurable: true });
+    const originalEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = 'production';
     const result = decodeToken(token);
     expect(result).toBeNull();
+    process.env.NODE_ENV = originalEnv;
   });
 
   it('should return null for malformed tokens', () => {
-    Object.defineProperty(process.env, 'NODE_ENV', { value: 'development', configurable: true });
+    const originalEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = 'development';
     expect(decodeToken('not-a-jwt')).toBeNull();
     expect(decodeToken('only.two')).toBeNull();
+    process.env.NODE_ENV = originalEnv;
   });
 
   it('should return null for tokens with invalid base64', () => {
-    Object.defineProperty(process.env, 'NODE_ENV', { value: 'development', configurable: true });
+    const originalEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = 'development';
     expect(decodeToken('a.!!!.c')).toBeNull();
+    process.env.NODE_ENV = originalEnv;
   });
 });
 

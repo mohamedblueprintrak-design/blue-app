@@ -13,7 +13,7 @@
 
 import { createServer } from 'http';
 import { Server as IOServer, Socket, DefaultEventsMap } from 'socket.io';
-import { verify } from 'jsonwebtoken';
+import { jwtVerify } from 'jose';
 import { Database } from 'bun:sqlite';
 import path from 'path';
 import {
@@ -149,7 +149,7 @@ const io: TypedIOServer = new IOServer(httpServer, {
 // JWT Authentication Middleware
 // ============================================
 
-io.use((socket: TypedSocket, next: (err?: Error) => void) => {
+io.use(async (socket: TypedSocket, next: (err?: Error) => void) => {
   try {
     const token =
       socket.handshake.auth.token ||
@@ -162,10 +162,12 @@ io.use((socket: TypedSocket, next: (err?: Error) => void) => {
     const secret = JWT_SECRET;
 
     // Verify JWT token
-    const decoded = verify(token, secret, {
+    const secretKey = new TextEncoder().encode(secret);
+    const { payload } = await jwtVerify(token, secretKey, {
       issuer: JWT_ISSUER,
       audience: JWT_AUDIENCE,
-    }) as {
+    });
+    const decoded = payload as unknown as {
       userId: string;
       email: string;
       role: string;

@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck
 /**
  * Dashboard Preset Service
  * خدمة قوالب لوحة المعلومات

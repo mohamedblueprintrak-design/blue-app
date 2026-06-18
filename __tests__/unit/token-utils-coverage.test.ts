@@ -205,18 +205,18 @@ describe('Token Utils — getAuthCookieOptions', () => {
 
   it('should set secure to true in production', () => {
     const originalEnv = process.env.NODE_ENV;
-    Object.defineProperty(process.env, 'NODE_ENV', { value: 'production', configurable: true });
+    process.env.NODE_ENV = 'production';
     const options = getAuthCookieOptions(900);
     expect(options.secure).toBe(true);
-    Object.defineProperty(process.env, 'NODE_ENV', { value: originalEnv, configurable: true });
+    process.env.NODE_ENV = originalEnv;
   });
 
   it('should set secure to false in development', () => {
     const originalEnv = process.env.NODE_ENV;
-    Object.defineProperty(process.env, 'NODE_ENV', { value: 'development', configurable: true });
+    process.env.NODE_ENV = 'development';
     const options = getAuthCookieOptions(900);
     expect(options.secure).toBe(false);
-    Object.defineProperty(process.env, 'NODE_ENV', { value: originalEnv, configurable: true });
+    process.env.NODE_ENV = originalEnv;
   });
 });
 

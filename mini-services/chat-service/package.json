@@ -5,7 +5,7 @@
     "dev": "bun --hot index.ts"
   },
   "dependencies": {
-    "socket.io": "^4.8.3",
-    "jsonwebtoken": "^9.0.3"
+    "jose": "^6.2.3",
+    "socket.io": "^4.8.3"
   }
 }

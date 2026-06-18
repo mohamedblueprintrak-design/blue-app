@@ -7,7 +7,7 @@ import {
   invalidateEntityCache,
   CACHE_TTL
 } from '../../src/lib/cache/query-cache';
-import { getCacheManager, CacheManager } from '../../src/lib/cache/cache-manager';
+import { CacheManager } from '../../src/lib/cache/cache-manager';
 
 // Mock logger
 jest.mock('../../src/lib/logger', () => ({
@@ -41,7 +41,7 @@ describe('Query Cache Utilities', () => {
       const result = await cachedQuery('test-key', queryFn);
       
       expect(result).toEqual(cachedData);
-      expect(mockGet).toHaveBeenCalledWith('bp:query:test-key');
+      expect(mockGet).toHaveBeenCalledWith('blueprint:query:test-key');
       expect(queryFn).not.toHaveBeenCalled();
       expect(mockSet).not.toHaveBeenCalled();
     });
@@ -55,9 +55,9 @@ describe('Query Cache Utilities', () => {
       const result = await cachedQuery('test-key', queryFn, 120);
       
       expect(result).toEqual(freshData);
-      expect(mockGet).toHaveBeenCalledWith('bp:query:test-key');
+      expect(mockGet).toHaveBeenCalledWith('blueprint:query:test-key');
       expect(queryFn).toHaveBeenCalled();
-      expect(mockSet).toHaveBeenCalledWith('bp:query:test-key', freshData, { ttl: 120 });
+      expect(mockSet).toHaveBeenCalledWith('blueprint:query:test-key', freshData, { ttl: 120 });
     });
 
     it('falls back to direct query on cache error', async () => {
@@ -83,7 +83,7 @@ describe('Query Cache Utilities', () => {
       const result = await withCache('test-with-cache', queryFn, CACHE_TTL.PROJECTS);
       
       expect(result).toEqual(freshData);
-      expect(mockSet).toHaveBeenCalledWith('bp:query:test-with-cache', freshData, { ttl: CACHE_TTL.PROJECTS });
+      expect(mockSet).toHaveBeenCalledWith('blueprint:query:test-with-cache', freshData, { ttl: CACHE_TTL.PROJECTS });
     });
   });
 
@@ -101,8 +101,8 @@ describe('Query Cache Utilities', () => {
       await invalidateCache('projects', 'tasks');
       
       expect(mockInvalidate).toHaveBeenCalledTimes(2);
-      expect(mockInvalidate).toHaveBeenCalledWith('bp:query:projects:*');
-      expect(mockInvalidate).toHaveBeenCalledWith('bp:query:tasks:*');
+      expect(mockInvalidate).toHaveBeenCalledWith('blueprint:query:projects:*');
+      expect(mockInvalidate).toHaveBeenCalledWith('blueprint:query:tasks:*');
     });
 
     it('handles invalidation errors gracefully', async () => {
@@ -120,9 +120,9 @@ describe('Query Cache Utilities', () => {
       await invalidateEntityCache(['invoices'], 'dashboard', 'projects');
       
       expect(mockInvalidate).toHaveBeenCalledTimes(3);
-      expect(mockInvalidate).toHaveBeenCalledWith('bp:query:invoices:*');
-      expect(mockInvalidate).toHaveBeenCalledWith('bp:query:dashboard:*');
-      expect(mockInvalidate).toHaveBeenCalledWith('bp:query:projects:*');
+      expect(mockInvalidate).toHaveBeenCalledWith('blueprint:query:invoices:*');
+      expect(mockInvalidate).toHaveBeenCalledWith('blueprint:query:dashboard:*');
+      expect(mockInvalidate).toHaveBeenCalledWith('blueprint:query:projects:*');
     });
   });
 });

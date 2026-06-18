@@ -9,7 +9,7 @@ import {
   generateDbRefreshToken
 } from '../../src/lib/auth/token-utils';
 import { db } from '../../src/lib/db';
-import crypto from 'crypto';
+
 
 // Mock logger
 jest.mock('../../src/lib/logger', () => ({

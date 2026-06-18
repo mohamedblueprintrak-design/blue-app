@@ -216,6 +216,7 @@ model User {
   updatedAt           DateTime  @updatedAt
 
   organization           Organization?         @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  dashboardPresets        DashboardPreset[]
   projects               ProjectAssignment[]
   tasks                  Task[]
   assignedDefects        Defect[]
@@ -2474,6 +2475,7 @@ model Organization {
   timesheets                 Timesheet[]
 
   contractAmendments         ContractAmendment[]
+  dashboardPresets           DashboardPreset[]
   @@index([deletedAt])
 }
 
@@ -2932,3 +2934,38 @@ model TimesheetEntry {
   @@index([timesheetId])
   @@index([projectId])
 }
+
+// Dashboard Presets for role-specific dashboard layouts
+model DashboardPreset {
+  id             String    @id @default(cuid())
+  name           String
+  nameEn         String
+  role           UserRole
+  isDefault      Boolean   @default(false)
+  layout         String    @default("[]") // JSON string layout
+  widgets        String    @default("[]") // JSON string widgets
+  organizationId String?
+  createdById    String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdBy      User?         @relation(fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([role])
+  @@index([organizationId])
+  @@index([createdById])
+}
+
+// Sequence numbering generator (idempotent document sequences)
+model Sequence {
+  id             String   @id @default(cuid())
+  name           String
+  value          Int      @default(0)
+  organizationId String   @default("")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([name, organizationId])
+}
+

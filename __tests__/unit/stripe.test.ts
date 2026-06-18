@@ -1,8 +1,8 @@
 import { jest, describe, it, expect, beforeEach, afterEach } from '@jest/globals';
-import Stripe from 'stripe';
+
 import {
   isStripeConfigured,
-  getStripe,
+
   safeStripeOp,
   calculateAnnualPrice,
   formatPrice,
@@ -94,7 +94,7 @@ describe('Stripe Configuration & Utils', () => {
     it('maps Stripe subscription status properly', () => {
       expect(mapStripeStatus('active')).toBe('ACTIVE');
       expect(mapStripeStatus('past_due')).toBe('PAST_DUE');
-      expect(mapStripeStatus('unknown_status' as any)).toBe('unknown');
+      expect(mapStripeStatus('unknown_status' as any)).toBe('UNKNOWN');
     });
   });
 

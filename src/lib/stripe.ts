@@ -41,8 +41,7 @@ export function getStripe(): Stripe {
       throw new Error('STRIPE_SECRET_KEY is not configured');
     }
     _stripe = new Stripe(secretKey, {
-      // @ts-expect-error — Using stable API version instead of library's default
-      apiVersion: '2024-12-18.acacia',
+      apiVersion: '2026-05-27.dahlia',
       typescript: true,
     });
   }
