@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Sentry Error Monitoring Configuration
  * إعداد مراقبة الأخطاء مع Sentry
