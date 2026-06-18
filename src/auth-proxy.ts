@@ -22,6 +22,7 @@ const COOKIE_NAME = 'blue_token';
 
 const PUBLIC_API_ROUTES = [
   '/api/auth/login', '/api/auth/register',
+  '/api/auth/demo-credentials',
   '/api/auth/session', '/api/auth/forgot-password', '/api/auth/reset-password',
   '/api/auth/verify-email', '/api/auth/resend-verification',
   '/api/auth/2fa/verify', // Only the verify endpoint is public (uses blue_2fa_temp cookie)

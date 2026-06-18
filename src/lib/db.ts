@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client'
+import { registerShutdownCallback } from './shutdown'
 
 /**
  * Global Prisma singleton — standard Next.js pattern to avoid multiple
@@ -106,20 +107,15 @@ function setupGracefulShutdown() {
   if (globalThis.__dbShutdownRegistered) return
   globalThis.__dbShutdownRegistered = true
 
-  const shutdown = async (signal: string) => {
-    console.info(`[db] Received ${signal}, disconnecting Prisma...`)
+  registerShutdownCallback('Prisma Client Disconnect', async () => {
+    console.info('[db] Disconnecting Prisma...')
     try {
       await _dbInstance.$disconnect()
       console.info('[db] Prisma disconnected successfully')
     } catch (err) {
       console.error('[db] Error disconnecting Prisma:', err)
     }
-    process.exit(0)
-  }
-
-  // Use once() to auto-cleanup after first invocation, preventing accumulation
-  process.once('SIGINT', () => shutdown('SIGINT'))
-  process.once('SIGTERM', () => shutdown('SIGTERM'))
+  })
 }
 
 setupGracefulShutdown()

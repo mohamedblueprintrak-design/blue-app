@@ -15,6 +15,7 @@
 import { Queue, Worker, Job } from 'bullmq';
 import { getSharedRedisConnection } from './redis';
 import { log } from '@/lib/logger';
+import { registerShutdownCallback } from '../shutdown';
 
 // ============================================
 // Queue Name Definitions
@@ -353,3 +354,17 @@ export async function addJob(
 
   return job;
 }
+
+// Register with graceful shutdown manager
+declare global {
+  var __queueShutdownRegistered: boolean | undefined;
+}
+
+if (typeof window === 'undefined' && !globalThis.__queueShutdownRegistered) {
+  globalThis.__queueShutdownRegistered = true;
+  registerShutdownCallback('BullMQ Workers Close', async () => {
+    log.info('[Queue] Shutting down queue workers gracefully...');
+    await closeAllWorkers();
+  });
+}
+

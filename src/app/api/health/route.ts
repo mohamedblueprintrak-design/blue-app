@@ -5,6 +5,7 @@ import { checkRedisHealth } from '@/lib/cache/redis';
 import { isStripeConfigured, getStripe } from '@/lib/stripe';
 import { getStorageProvider } from '@/lib/storage';
 import { log } from '@/lib/logger';
+import { getWorkersStatus, WorkerStatus } from '@/lib/queue';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -36,6 +37,8 @@ interface HealthResponse {
     redis: HealthCheckResult;
     stripe: HealthCheckResult;
     storage: HealthCheckResult;
+    queues: HealthCheckResult & { workers?: WorkerStatus[] };
+    chatService: HealthCheckResult;
   };
   memory: MemoryInfo;
 }
@@ -148,6 +151,57 @@ async function checkStorage(): Promise<HealthCheckResult> {
   }
 }
 
+async function checkQueues(): Promise<HealthCheckResult & { workers?: WorkerStatus[] }> {
+  try {
+    const statuses = await getWorkersStatus();
+    const allRunning = statuses.length > 0 && statuses.every((w) => w.isRunning && !w.isPaused);
+    return {
+      status: allRunning ? 'up' : statuses.length === 0 ? 'not_configured' : 'degraded',
+      workers: statuses,
+    };
+  } catch (err) {
+    const error = err instanceof Error ? err.message : 'Unknown Queue error';
+    log.error('Health check: Queue error', err);
+    return { status: 'down', error };
+  }
+}
+
+async function checkChatService(): Promise<HealthCheckResult> {
+  const chatServiceUrl = process.env.CHAT_SERVICE_URL || 'http://localhost:3003';
+  const healthUrl = `${chatServiceUrl}/health`;
+
+  try {
+    const start = Date.now();
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 seconds timeout
+    
+    const response = await fetch(healthUrl, { signal: controller.signal });
+    clearTimeout(timeoutId);
+    
+    const latencyMs = Date.now() - start;
+
+    if (!response.ok) {
+      return { status: 'down', error: `HTTP status ${response.status}` };
+    }
+
+    const data = (await response.json()) as { status: string };
+    if (data.status === 'ok') {
+      return { status: 'up', latencyMs };
+    }
+
+    return { status: 'degraded', error: 'Chat service health status is not ok' };
+  } catch (err) {
+    const error =
+      err instanceof Error
+        ? err.name === 'AbortError'
+          ? 'Timeout'
+          : err.message
+        : 'Unknown chat service error';
+    log.error('Health check: chat service error', err);
+    return { status: 'down', error };
+  }
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Determine overall status
 // ─────────────────────────────────────────────────────────────────────────────
@@ -168,7 +222,9 @@ function computeOverallStatus(
   // Non-critical checks that indicate degradation
   const nonCriticalDegraded =
     checks.redis.status === 'down' ||
-    checks.stripe.status === 'down';
+    checks.stripe.status === 'down' ||
+    checks.queues.status === 'down' ||
+    checks.chatService.status === 'down';
 
   if (nonCriticalDegraded) {
     return 'degraded';
@@ -210,11 +266,13 @@ export async function GET(request: NextRequest) {
   }
 
   // ── Authenticated: run all checks ──
-  const [database, redis, stripe, storage] = await Promise.all([
+  const [database, redis, stripe, storage, queues, chatService] = await Promise.all([
     checkDatabase(),
     checkRedis(),
     checkStripe(),
     checkStorage(),
+    checkQueues(),
+    checkChatService(),
   ]);
 
   const checks: HealthResponse['checks'] = {
@@ -222,6 +280,8 @@ export async function GET(request: NextRequest) {
     redis,
     stripe,
     storage,
+    queues,
+    chatService,
   };
 
   const overallStatus = computeOverallStatus(checks);

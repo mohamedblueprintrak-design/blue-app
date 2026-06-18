@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, Suspense } from "react";
 import { useNavStore } from "@/store/nav-store";
+import { useRouter, usePathname } from "next/navigation";
 import {
   SidebarInset,
   SidebarProvider,
@@ -93,10 +94,28 @@ interface AppLayoutProps {
 }
 
 export default function AppLayout({ language, useFileRouting, children }: AppLayoutProps) {
-  const { currentPage, currentProjectId } = useNavStore();
+  const { currentPage, currentProjectId, setRouter } = useNavStore();
   const locale = useLocale();
   const t = useTranslations("layout");
   const isAr = locale === "ar";
+
+  const router = useRouter();
+  const pathname = usePathname();
+
+  // Inject Next.js router instance to the Zustand navigation store
+  useEffect(() => {
+    setRouter(router);
+    return () => {
+      setRouter(null);
+    };
+  }, [router, setRouter]);
+
+  // Synchronize state when Next.js file-based routing triggers path changes
+  useEffect(() => {
+    if (useFileRouting) {
+      useNavStore.getState().initFromUrl();
+    }
+  }, [pathname, useFileRouting]);
 
   useKeyboardShortcuts();
   usePushNotifications();

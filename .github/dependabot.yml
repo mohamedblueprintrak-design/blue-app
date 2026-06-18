@@ -1,0 +1,25 @@
+version: 2
+updates:
+  # Main Next.js Application
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    groups:
+      main-dependencies:
+        patterns:
+          - "*"
+
+  # Chat Microservice
+  - package-ecosystem: "npm"
+    directory: "/mini-services/chat-service"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    groups:
+      chat-dependencies:
+        patterns:
+          - "*"

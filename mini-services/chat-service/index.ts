@@ -1,5 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck — This is a standalone Bun runtime service, not part of the Next.js build
 /**
  * BluePrint WebSocket Chat Service
  * Standalone Socket.io server with JWT authentication
@@ -124,13 +122,78 @@ const connectedUsers = new Map<string, ConnectedUser>();
 const userSockets = new Map<string, Set<string>>(); // userId -> Set of socketIds
 
 // ============================================
+// Rate Limiting Setup
+// ============================================
+
+interface RateLimitTracker {
+  timestamps: number[];
+}
+
+const rateLimits = {
+  ip: new Map<string, RateLimitTracker>(),
+  user: new Map<string, RateLimitTracker>(),
+};
+
+const LIMIT_WINDOW_MS = 10 * 1000;      // 10 seconds
+const LIMIT_MAX_REQUESTS_IP = 100;      // max 100 requests per IP per 10s
+const LIMIT_MAX_REQUESTS_USER = 50;     // max 50 requests per user per 10s
+const LIMIT_MAX_CONNECTIONS_IP = 10;    // max 10 connections per 10s per IP
+
+function checkRateLimit(key: string, limit: number, map: Map<string, RateLimitTracker>): boolean {
+  const now = Date.now();
+  let tracker = map.get(key);
+  if (!tracker) {
+    tracker = { timestamps: [] };
+    map.set(key, tracker);
+  }
+  
+  // Filter out expired timestamps
+  tracker.timestamps = tracker.timestamps.filter(ts => now - ts < LIMIT_WINDOW_MS);
+  
+  if (tracker.timestamps.length >= limit) {
+    return false;
+  }
+  
+  tracker.timestamps.push(now);
+  return true;
+}
+
+// Clean up expired rate trackers every 5 minutes to prevent memory leaks
+const rateLimitCleanupInterval = setInterval(() => {
+  const now = Date.now();
+  for (const [key, tracker] of rateLimits.ip.entries()) {
+    tracker.timestamps = tracker.timestamps.filter(ts => now - ts < LIMIT_WINDOW_MS);
+    if (tracker.timestamps.length === 0) {
+      rateLimits.ip.delete(key);
+    }
+  }
+  for (const [key, tracker] of rateLimits.user.entries()) {
+    tracker.timestamps = tracker.timestamps.filter(ts => now - ts < LIMIT_WINDOW_MS);
+    if (tracker.timestamps.length === 0) {
+      rateLimits.user.delete(key);
+    }
+  }
+}, 5 * 60 * 1000);
+
+// ============================================
 // Socket.io Server Setup
 // ============================================
 
 type TypedIOServer = IOServer<ClientToServerEvents, ServerToClientEvents, DefaultEventsMap, SocketData>;
 type TypedSocket = Socket<ClientToServerEvents, ServerToClientEvents, DefaultEventsMap, SocketData>;
 
-const httpServer = createServer();
+const httpServer = createServer((req, res) => {
+  // Expose a simple HTTP GET /health endpoint for monitoring
+  if (req.method === 'GET' && req.url === '/health') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ status: 'ok', timestamp: new Date().toISOString() }));
+    return;
+  }
+  
+  // Return 404 for other HTTP requests
+  res.writeHead(404, { 'Content-Type': 'text/plain' });
+  res.end('Not Found');
+});
 
 const io: TypedIOServer = new IOServer(httpServer, {
   // DO NOT change the path — used by Caddy to forward requests to the correct port
@@ -151,6 +214,13 @@ const io: TypedIOServer = new IOServer(httpServer, {
 
 io.use(async (socket: TypedSocket, next: (err?: Error) => void) => {
   try {
+    const ip = socket.handshake.address || socket.conn.remoteAddress || 'unknown';
+    // Connection-level rate limiting
+    if (!checkRateLimit(`conn:${ip}`, LIMIT_MAX_CONNECTIONS_IP, rateLimits.ip)) {
+      console.warn(`[RateLimit] Connection rate limit exceeded for IP: ${ip}`);
+      return next(new Error('Connection rate limit exceeded'));
+    }
+
     const token =
       socket.handshake.auth.token ||
       socket.handshake.headers.authorization?.replace('Bearer ', '');
@@ -303,6 +373,29 @@ function handleConnection(socket: TypedSocket) {
   const { userId, organizationId, userName } = socket.data;
 
   console.info(`[WS] User connected: ${userName} (${userId})`);
+
+  // Packet/Event-level rate limiting
+  socket.use((packet: [string, ...unknown[]], next: (err?: Error) => void) => {
+    const ip = socket.handshake.address || socket.conn.remoteAddress || 'unknown';
+    const socketUserId = socket.data.userId || 'anonymous';
+    const event = packet[0];
+
+    // 1. IP-based event rate limiting
+    if (!checkRateLimit(ip, LIMIT_MAX_REQUESTS_IP, rateLimits.ip)) {
+      console.warn(`[RateLimit] IP event limit exceeded: ${ip} (event: ${event})`);
+      socket.emit('error', { message: 'Too many requests. Please slow down.', code: 'RATE_LIMIT_EXCEEDED' });
+      return; // Drop packet
+    }
+
+    // 2. User-based event rate limiting
+    if (!checkRateLimit(socketUserId, LIMIT_MAX_REQUESTS_USER, rateLimits.user)) {
+      console.warn(`[RateLimit] User event limit exceeded: ${socketUserId} (event: ${event})`);
+      socket.emit('error', { message: 'Too many requests. Please slow down.', code: 'RATE_LIMIT_EXCEEDED' });
+      return; // Drop packet
+    }
+
+    next();
+  });
 
   // Track connected user
   const userConnection: ConnectedUser = {
@@ -626,6 +719,9 @@ httpServer.listen(PORT, () => {
 
 function gracefulShutdown(signal: string) {
   console.info(`[WS] Received ${signal}, shutting down...`);
+
+  // Clear rate limiter cleanup interval to prevent open handles
+  clearInterval(rateLimitCleanupInterval);
 
   // Close all socket connections
   io.disconnectSockets(true);

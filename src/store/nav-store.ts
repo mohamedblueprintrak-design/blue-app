@@ -1,10 +1,16 @@
 import { create } from "zustand";
 
+interface AppRouter {
+  push: (href: string) => void;
+}
+
 interface NavStore {
   currentPage: string;
   currentProjectId: string | null;
   currentProjectTab: string;
   currentProjectSubTab: string;
+  router: AppRouter | null;
+  setRouter: (router: AppRouter | null) => void;
   setCurrentPage: (page: string) => void;
   setCurrentProjectId: (id: string | null) => void;
   setCurrentProjectTab: (tab: string) => void;
@@ -156,6 +162,8 @@ export const useNavStore = create<NavStore>()((set, get) => ({
   currentProjectId: null,
   currentProjectTab: "overview",
   currentProjectSubTab: "",
+  router: null,
+  setRouter: (router) => set({ router }),
 
   setCurrentPage: (page) => {
     set({ currentPage: page });
@@ -165,19 +173,19 @@ export const useNavStore = create<NavStore>()((set, get) => ({
       if (isFileBasedRoutingEnabled()) {
         const route = PAGE_ROUTE_MAP[page];
         if (route) {
-          // Use Next.js router for navigation
-          // The router is accessed via the useNavigation hook or Link component
-          // For programmatic navigation, we use history API
-          const { currentProjectId } = get();
+          const { currentProjectId, router } = get();
           const targetPath = (page === "projects" && currentProjectId)
             ? `${route}/${currentProjectId}`
             : route;
           
-          // Use pushState for SPA navigation without full page reload
-          if (window.location.pathname !== targetPath) {
-            window.history.pushState({}, "", targetPath);
-            // Dispatch popstate event so Next.js router picks it up
-            window.dispatchEvent(new PopStateEvent("popstate"));
+          if (router) {
+            router.push(targetPath);
+          } else {
+            // Use pushState for SPA navigation without full page reload
+            if (window.location.pathname !== targetPath) {
+              window.history.pushState({}, "", targetPath);
+              window.dispatchEvent(new PopStateEvent("popstate"));
+            }
           }
           return;
         }
@@ -199,13 +207,17 @@ export const useNavStore = create<NavStore>()((set, get) => ({
     
     if (typeof window !== "undefined") {
       if (isFileBasedRoutingEnabled()) {
-        const { currentPage } = get();
+        const { currentPage, router } = get();
         const baseRoute = PAGE_ROUTE_MAP[currentPage] || "/dashboard/projects";
         const targetPath = id ? `${baseRoute}/${id}` : baseRoute;
         
-        if (window.location.pathname !== targetPath) {
-          window.history.pushState({}, "", targetPath);
-          window.dispatchEvent(new PopStateEvent("popstate"));
+        if (router) {
+          router.push(targetPath);
+        } else {
+          if (window.location.pathname !== targetPath) {
+            window.history.pushState({}, "", targetPath);
+            window.dispatchEvent(new PopStateEvent("popstate"));
+          }
         }
         return;
       }

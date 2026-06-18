@@ -55,7 +55,13 @@ export async function POST(request: NextRequest) {
     for (const { cmd, args } of attempts) {
       try {
         log.info('Demo reset: attempting seed script', { cmd, args, cwd });
-        const { stdout, stderr } = await execFileAsync(cmd, args, { cwd, timeout: 120_000 });
+        const isWin = process.platform === 'win32';
+        const options = {
+          cwd,
+          timeout: 120_000,
+          ...(isWin ? { shell: true } : {})
+        };
+        const { stdout, stderr } = await execFileAsync(cmd, args, options);
         if (stderr && !stderr.includes('warning')) {
           log.warn('Demo reset seed script produced stderr:', { stderr });
         }
