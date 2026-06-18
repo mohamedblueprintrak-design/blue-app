@@ -165,6 +165,7 @@ jobs:
         env:
           # Placeholder values required for build - not used at runtime
           DATABASE_URL: "postgresql://placeholder:placeholder@localhost:5432/placeholder"
+          NODE_OPTIONS: "--max-old-space-size=4096"
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4

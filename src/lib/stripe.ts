@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // @ts-check
 /**
  * Stripe Configuration for BluePrint SaaS Platform
@@ -41,7 +42,7 @@ export function getStripe(): Stripe {
       throw new Error('STRIPE_SECRET_KEY is not configured');
     }
     _stripe = new Stripe(secretKey, {
-      apiVersion: '2026-05-27.dahlia',
+      apiVersion: '2026-03-25.dahlia' as any,
       typescript: true,
     });
   }

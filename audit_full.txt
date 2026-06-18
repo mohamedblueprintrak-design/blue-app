@@ -9,7 +9,7 @@
 
 ### 1. الـ Middleware والحماية على الـ API Routes (تم التحقق ✅)
 * **الحالة**: **مكتملة ومؤمنة.**
-* **التفاصيل**: الـ Matcher في [middleware.ts](file:///c:/Users/Dell/Desktop/blue-app-main/src/middleware.ts#L8) يستثني فقط مسارات الصحة والـ cron (`api/health` و `api/cron`) مع استثناءات ثابتة. هذا يعني أن الـ CSRF protection، الـ Rate limiting، والتحقق من توكن الـ JWT تعمل بفاعلية كاملة على جميع مسارات الـ APIs الحساسة في [auth-proxy.ts](file:///c:/Users/Dell/Desktop/blue-app-main/src/auth-proxy.ts).
+* **التفاصيل**: الـ Matcher في [middleware.ts](src/middleware.ts#L8) يستثني فقط مسارات الصحة والـ cron (`api/health` و `api/cron`) مع استثناءات ثابتة. هذا يعني أن الـ CSRF protection، الـ Rate limiting، والتحقق من توكن الـ JWT تعمل بفاعلية كاملة على جميع مسارات الـ APIs الحساسة في [auth-proxy.ts](src/auth-proxy.ts).
 
 ### 2. أمان الـ WebSockets وعزل المستأجرين (تم التحقق ✅)
 * **الحالة**: **مكتملة ومؤمنة.**
@@ -21,7 +21,7 @@
 
 ### 3. التحقق من رفع الملفات على S3 (تم التحقق ✅)
 * **الحالة**: **مكتملة ومؤمنة.**
-* **التفاصيل**: يحتوي ملف [s3.ts](file:///c:/Users/Dell/Desktop/blue-app-main/src/lib/storage/s3.ts) على قائمة محظورات صارمة للـ MIME types (`BLOCKED_MIME_TYPES`) والتحقق من الامتدادات المسموح بها مع حد أقصى لحجم الملف وهو 50 ميجابايت لمنع رفع الملفات الضارة أو هجمات الـ XSS عبر الـ SVG.
+* **التفاصيل**: يحتوي ملف [s3.ts](src/lib/storage/s3.ts) على قائمة محظورات صارمة للـ MIME types (`BLOCKED_MIME_TYPES`) والتحقق من الامتدادات المسموح بها مع حد أقصى لحجم الملف وهو 50 ميجابايت لمنع رفع الملفات الضارة أو هجمات الـ XSS عبر الـ SVG.
 
 ### 4. حماية عملية التسجيل من ثغرات السباق (TOCTOU) (تم التحقق ✅)
 * **الحالة**: **مكتملة ومؤمنة.**
@@ -33,7 +33,7 @@
 
 ### 6. إنهاء الجلسات وإلغاء الـ Refresh Tokens (تم التحقق ✅)
 * **الحالة**: **مكتملة ومؤمنة.**
-* **التفاصيل**: دالة الـ `logout()` في الـ [auth-service.ts](file:///c:/Users/Dell/Desktop/blue-app-main/src/lib/auth/auth-service.ts) تقوم بتحديث حالة كافة الـ Refresh Tokens للمستخدم وإبطالها بالكامل في قاعدة البيانات، مع تسجيل الحدث في سجل التدقيق الأمني الفعلي.
+* **التفاصيل**: دالة الـ `logout()` في الـ [auth-service.ts](src/lib/auth/auth-service.ts) تقوم بتحديث حالة كافة الـ Refresh Tokens للمستخدم وإبطالها بالكامل في قاعدة البيانات، مع تسجيل الحدث في سجل التدقيق الأمني الفعلي.
 
 ---
 

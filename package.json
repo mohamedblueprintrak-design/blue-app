@@ -3,7 +3,7 @@
   "version": "0.2.0",
   "private": true,
   "scripts": {
-    "postinstall": "prisma generate",
+    "postinstall": "node scripts/prepare-schema.js && prisma generate",
     "setup": "npx prisma db push && npx tsx prisma/seed.ts",
     "dev": "next dev -p 3000 --webpack",
     "build": "next build",
@@ -19,7 +19,7 @@
     "test:e2e:ui": "npx playwright test --ui",
     "db:push": "prisma db push",
     "db:seed": "npx tsx prisma/seed.ts",
-    "db:generate": "prisma generate",
+    "db:generate": "node scripts/prepare-schema.js && prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:migrate:deploy": "prisma migrate deploy",
     "db:reset": "prisma migrate reset"
@@ -154,6 +154,23 @@
     "seed": "npx tsx prisma/seed.ts"
   },
   "overrides": {
-    "postcss": "^8.5.10"
+    "postcss": "^8.5.10",
+    "dompurify": "^3.4.9",
+    "esbuild": "^0.28.1",
+    "form-data": "^4.0.6",
+    "js-yaml": "^4.2.0",
+    "uuid": "^14.0.0",
+    "ws": "^8.21.0",
+    "@opentelemetry/core": "^2.8.0"
+  },
+  "resolutions": {
+    "postcss": "^8.5.10",
+    "dompurify": "^3.4.9",
+    "esbuild": "^0.28.1",
+    "form-data": "^4.0.6",
+    "js-yaml": "^4.2.0",
+    "uuid": "^14.0.0",
+    "ws": "^8.21.0",
+    "@opentelemetry/core": "^2.8.0"
   }
 }

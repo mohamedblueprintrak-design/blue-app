@@ -125,18 +125,9 @@ EOL
 echo -e "${GREEN}[OK] .env configured${NC}"
 
 echo ""
-echo "Step 5: Configuring Prisma schema..."
-if [ "$DB_CHOICE" = "1" ]; then
-    if [ -f prisma/schema.postgresql.prisma ]; then
-        cp prisma/schema.postgresql.prisma prisma/schema.prisma
-        echo -e "${GREEN}[OK] PostgreSQL schema set${NC}"
-    fi
-else
-    if [ -f prisma/schema.sqlite.prisma ]; then
-        cp prisma/schema.sqlite.prisma prisma/schema.prisma
-        echo -e "${GREEN}[OK] SQLite schema set${NC}"
-    fi
-fi
+echo "Step 5: Preparing Prisma schema..."
+node scripts/prepare-schema.js
+echo -e "${GREEN}[OK] Prisma schema prepared${NC}"
 
 echo ""
 echo "Step 6: Cleaning old files..."

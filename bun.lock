@@ -5,130 +5,137 @@
     "": {
       "name": "nextjs_tailwind_shadcn_ts",
       "dependencies": {
-        "@aws-sdk/client-s3": "^3.1049.0",
-        "@aws-sdk/s3-request-presigner": "^3.1049.0",
+        "@aws-sdk/client-s3": "^3.1071.0",
+        "@aws-sdk/s3-request-presigner": "^3.1071.0",
         "@dnd-kit/core": "^6.3.1",
         "@dnd-kit/sortable": "^8.0.0",
         "@dnd-kit/utilities": "^3.2.2",
-        "@hookform/resolvers": "^5.1.1",
+        "@hookform/resolvers": "^5.4.0",
         "@prisma/client": "^6.19.3",
-        "@radix-ui/react-accordion": "^1.2.11",
-        "@radix-ui/react-alert-dialog": "^1.1.14",
-        "@radix-ui/react-aspect-ratio": "^1.1.7",
-        "@radix-ui/react-avatar": "^1.1.10",
-        "@radix-ui/react-checkbox": "^1.3.2",
-        "@radix-ui/react-collapsible": "^1.1.11",
-        "@radix-ui/react-context-menu": "^2.2.15",
-        "@radix-ui/react-dialog": "^1.1.14",
-        "@radix-ui/react-dropdown-menu": "^2.1.15",
-        "@radix-ui/react-hover-card": "^1.1.14",
-        "@radix-ui/react-label": "^2.1.7",
-        "@radix-ui/react-menubar": "^1.1.15",
-        "@radix-ui/react-navigation-menu": "^1.2.13",
-        "@radix-ui/react-popover": "^1.1.14",
-        "@radix-ui/react-progress": "^1.1.7",
-        "@radix-ui/react-radio-group": "^1.3.7",
-        "@radix-ui/react-scroll-area": "^1.2.9",
-        "@radix-ui/react-select": "^2.2.5",
-        "@radix-ui/react-separator": "^1.1.7",
-        "@radix-ui/react-slider": "^1.3.5",
-        "@radix-ui/react-slot": "^1.2.3",
-        "@radix-ui/react-switch": "^1.2.5",
-        "@radix-ui/react-tabs": "^1.1.12",
-        "@radix-ui/react-toast": "^1.2.14",
-        "@radix-ui/react-toggle": "^1.1.9",
-        "@radix-ui/react-toggle-group": "^1.1.10",
-        "@radix-ui/react-tooltip": "^1.2.7",
-        "@sentry/nextjs": "^10.53.1",
+        "@radix-ui/react-accordion": "^1.2.14",
+        "@radix-ui/react-alert-dialog": "^1.1.17",
+        "@radix-ui/react-aspect-ratio": "^1.1.10",
+        "@radix-ui/react-avatar": "^1.2.0",
+        "@radix-ui/react-checkbox": "^1.3.5",
+        "@radix-ui/react-collapsible": "^1.1.14",
+        "@radix-ui/react-context-menu": "^2.3.1",
+        "@radix-ui/react-dialog": "^1.1.17",
+        "@radix-ui/react-dropdown-menu": "^2.1.18",
+        "@radix-ui/react-hover-card": "^1.1.17",
+        "@radix-ui/react-label": "^2.1.10",
+        "@radix-ui/react-menubar": "^1.1.18",
+        "@radix-ui/react-navigation-menu": "^1.2.16",
+        "@radix-ui/react-popover": "^1.1.17",
+        "@radix-ui/react-progress": "^1.1.10",
+        "@radix-ui/react-radio-group": "^1.4.1",
+        "@radix-ui/react-scroll-area": "^1.2.12",
+        "@radix-ui/react-select": "^2.3.1",
+        "@radix-ui/react-separator": "^1.1.10",
+        "@radix-ui/react-slider": "^1.4.1",
+        "@radix-ui/react-slot": "^1.3.0",
+        "@radix-ui/react-switch": "^1.3.1",
+        "@radix-ui/react-tabs": "^1.1.15",
+        "@radix-ui/react-toast": "^1.2.17",
+        "@radix-ui/react-toggle": "^1.1.12",
+        "@radix-ui/react-toggle-group": "^1.1.13",
+        "@radix-ui/react-tooltip": "^1.2.10",
+        "@sentry/nextjs": "^10.58.0",
         "@serwist/next": "^9.5.11",
         "@serwist/precaching": "^9.5.11",
         "@serwist/sw": "^9.5.11",
         "@socket.io/redis-adapter": "^8.3.0",
-        "@tanstack/react-query": "^5.82.0",
+        "@tanstack/react-query": "^5.101.0",
         "arabic-persian-reshaper": "^1.0.1",
         "bcryptjs": "^3.0.3",
-        "bullmq": "^5.76.10",
+        "bullmq": "^5.79.0",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
         "cmdk": "^1.1.1",
-        "date-fns": "^4.1.0",
+        "date-fns": "^4.4.0",
         "driver.js": "^1.4.0",
         "embla-carousel-react": "^8.6.0",
         "exceljs": "^4.4.0",
-        "framer-motion": "^12.23.2",
+        "framer-motion": "^12.40.0",
         "input-otp": "^1.4.2",
-        "jose": "^6.2.2",
+        "jose": "^6.2.3",
         "jspdf": "^4.2.1",
-        "jspdf-autotable": "^5.0.7",
+        "jspdf-autotable": "^5.0.8",
         "leaflet": "^1.9.4",
         "lucide-react": "^0.525.0",
         "next": "16.2.6",
         "next-intl": "^4.13.0",
         "next-swagger-doc": "^0.4.1",
         "next-themes": "^0.4.6",
-        "nodemailer": "^8.0.5",
-        "otplib": "^13.4.0",
+        "nodemailer": "^8.0.11",
+        "otplib": "^13.4.1",
         "qrcode.react": "^4.2.0",
-        "react": "^19.0.0",
-        "react-day-picker": "^9.8.0",
-        "react-dom": "^19.0.0",
-        "react-hook-form": "^7.60.0",
+        "react": "^19.2.7",
+        "react-day-picker": "^9.14.0",
+        "react-dom": "^19.2.7",
+        "react-hook-form": "^7.79.0",
         "react-leaflet": "^5.0.0",
         "react-markdown": "^10.1.0",
-        "react-resizable-panels": "^3.0.3",
+        "react-resizable-panels": "^3.0.6",
         "react-virtuoso": "^4.18.7",
         "recharts": "^2.15.4",
-        "redis": "^5.11.0",
+        "redis": "^5.12.1",
         "remark-gfm": "^4.0.1",
-        "sharp": "^0.34.3",
+        "sharp": "^0.34.5",
         "socket.io": "^4.8.3",
         "socket.io-client": "^4.8.3",
-        "sonner": "^2.0.6",
-        "stripe": "^22.0.1",
-        "tailwind-merge": "^3.3.1",
+        "sonner": "^2.0.7",
+        "stripe": "^22.2.1",
+        "tailwind-merge": "^3.6.0",
         "uuid": "^14.0.0",
         "vaul": "^1.1.2",
         "web-push": "^3.6.7",
         "winston": "^3.19.0",
         "winston-daily-rotate-file": "^5.0.0",
         "z-ai-web-dev-sdk": "^0.0.17",
-        "zod": "^3.23.8",
-        "zustand": "^5.0.6",
+        "zod": "^3.25.76",
+        "zustand": "^5.0.14",
       },
       "devDependencies": {
-        "@playwright/test": "^1.59.1",
-        "@tailwindcss/postcss": "^4",
+        "@playwright/test": "^1.61.0",
+        "@tailwindcss/postcss": "^4.3.1",
         "@types/bcryptjs": "^2.4.6",
         "@types/better-sqlite3": "^7.6.13",
         "@types/jest": "^30.0.0",
-        "@types/leaflet": "^1.9.0",
-        "@types/nodemailer": "^8.0.0",
-        "@types/react": "^19",
-        "@types/react-dom": "^19",
+        "@types/leaflet": "^1.9.21",
+        "@types/nodemailer": "^8.0.1",
+        "@types/react": "^19.2.17",
+        "@types/react-dom": "^19.2.3",
         "@types/swagger-jsdoc": "^6.0.4",
         "@types/swagger-ui-react": "^5.18.0",
         "@types/uuid": "^10.0.0",
         "@types/web-push": "^3.6.4",
-        "better-sqlite3": "^12.10.0",
+        "better-sqlite3": "^12.11.1",
         "cross-env": "^10.1.0",
-        "eslint": "^9",
+        "eslint": "^9.39.4",
         "eslint-config-next": "16.2.6",
         "husky": "^9.1.7",
-        "jest": "^30.3.0",
-        "lint-staged": "^17.0.5",
+        "jest": "^30.4.2",
+        "lint-staged": "^17.0.7",
         "prisma": "^6.19.3",
         "swagger-jsdoc": "^6.3.0",
         "swagger-ui-react": "^5.32.6",
-        "tailwindcss": "^4",
-        "ts-jest": "^29.4.9",
-        "tsx": "^4.21.0",
-        "tw-animate-css": "^1.3.5",
+        "tailwindcss": "^4.3.1",
+        "ts-jest": "^29.4.11",
+        "tsx": "^4.22.4",
+        "tw-animate-css": "^1.4.0",
         "typescript": "^5.9.3",
       },
     },
   },
   "overrides": {
+    "@opentelemetry/core": "^2.8.0",
+    "dompurify": "^3.4.9",
+    "esbuild": "^0.28.1",
+    "form-data": "^4.0.6",
+    "js-yaml": "^4.2.0",
     "postcss": "^8.5.10",
+    "uuid": "^14.0.0",
+    "ws": "^8.21.0",
   },
   "packages": {
     "@alloc/quick-lru": ["@alloc/quick-lru@5.2.0", "", {}, ""],
@@ -551,7 +558,7 @@
 
     "@opentelemetry/api-logs": ["@opentelemetry/api-logs@0.214.0", "", { "dependencies": { "@opentelemetry/api": "^1.3.0" } }, "sha512-40lSJeqYO8Uz2Yj7u94/SJWE/wONa7rmMKjI1ZcIjgf3MHNHv1OZUCrCETGuaRF62d5pQD1wKIW+L4lmSMTzZA=="],
 
-    "@opentelemetry/core": ["@opentelemetry/core@2.6.1", "", { "dependencies": { "@opentelemetry/semantic-conventions": "^1.29.0" }, "peerDependencies": { "@opentelemetry/api": ">=1.0.0 <1.10.0" } }, "sha512-8xHSGWpJP9wBxgBpnqGL0R3PbdWQndL1Qp50qrg71+B28zK5OQmUgcDKLJgzyAAV38t4tOyLMGDD60LneR5W8g=="],
+    "@opentelemetry/core": ["@opentelemetry/core@2.8.0", "", { "dependencies": { "@opentelemetry/semantic-conventions": "^1.29.0" }, "peerDependencies": { "@opentelemetry/api": ">=1.0.0 <1.10.0" } }, "sha512-hd1Lfh8p545nNz+jq1Ejfz+Mn1hyLuxYn1YzTfFNrxr8urEWMNQLPf1Th8kjOH+HxwawCrtgBp8JpBUR4ZSgww=="],
 
     "@opentelemetry/instrumentation": ["@opentelemetry/instrumentation@0.214.0", "", { "dependencies": { "@opentelemetry/api-logs": "0.214.0", "import-in-the-middle": "^3.0.0", "require-in-the-middle": "^8.0.0" }, "peerDependencies": { "@opentelemetry/api": "^1.3.0" } }, "sha512-MHqEX5Dk59cqVah5LiARMACku7jXSVk9iVDWOea4x3cr7VfdByeDCURK6o1lntT1JS/Tsovw01UJrBhN3/uC5w=="],
 
@@ -1597,7 +1604,7 @@
 
     "dom-helpers": ["dom-helpers@5.2.1", "", { "dependencies": { "@babel/runtime": "^7.8.7", "csstype": "^3.0.2" } }, ""],
 
-    "dompurify": ["dompurify@3.4.7", "", { "optionalDependencies": { "@types/trusted-types": "^2.0.7" } }, "sha512-2jBxDJY4RR06tQNy4w5FlFH7kfxsQZlufd0sbv+chfHCxeJwrFw2baUDsSwvBISD4K4RDbd0PTfy3uNXsR6siA=="],
+    "dompurify": ["dompurify@3.4.11", "", { "optionalDependencies": { "@types/trusted-types": "^2.0.7" } }, "sha512-zhlUV12GsaRzMsf9q5M254YhA4+VuF0fG+QFqu6aYpoGlKtz+w8//jBcGVYBgQkR5GHjUomejY84AV+/uPbWdw=="],
 
     "dotenv": ["dotenv@16.6.1", "", {}, ""],
 
@@ -1693,8 +1700,6 @@
 
     "espree": ["espree@10.4.0", "", { "dependencies": { "acorn": "^8.15.0", "acorn-jsx": "^5.3.2", "eslint-visitor-keys": "^4.2.1" } }, ""],
 
-    "esprima": ["esprima@4.0.1", "", { "bin": { "esparse": "./bin/esparse.js", "esvalidate": "./bin/esvalidate.js" } }, "sha512-eGuFFw7Upda+g4p+QHvnW0RyTX/SVeJBDM/gCtMARO0cLuT2HcEKnTPvhjV6aGeqrCB/sbNop0Kszm0jsaWU4A=="],
-
     "esquery": ["esquery@1.7.0", "", { "dependencies": { "estraverse": "^5.1.0" } }, ""],
 
     "esrecurse": ["esrecurse@4.3.0", "", { "dependencies": { "estraverse": "^5.2.0" } }, ""],
@@ -1783,7 +1788,7 @@
 
     "foreground-child": ["foreground-child@3.3.1", "", { "dependencies": { "cross-spawn": "^7.0.6", "signal-exit": "^4.0.1" } }, "sha512-gIXjKqtFuWEgzFRJA9WCQeSJLZDjgJUOMCMzxtvFq/37KojM1BFGufqsCy0r4qSQmYLsZYMeyRqzIWOMup03sw=="],
 
-    "form-data": ["form-data@4.0.5", "", { "dependencies": { "asynckit": "^0.4.0", "combined-stream": "^1.0.8", "es-set-tostringtag": "^2.1.0", "hasown": "^2.0.2", "mime-types": "^2.1.12" } }, "sha512-8RipRLol37bNs2bhoV67fiTEvdTrbMUYcFTiy3+wuuOnUog2QBHCZWXDRijWQfAkhBj2Uf5UnVaiWwA5vdd82w=="],
+    "form-data": ["form-data@4.0.6", "", { "dependencies": { "asynckit": "^0.4.0", "combined-stream": "^1.0.8", "es-set-tostringtag": "^2.1.0", "hasown": "^2.0.4", "mime-types": "^2.1.35" } }, "sha512-vKatAh4SlVfgbv+YtmhiRjhEMJsYpsG1Y2rMQtR+SVSbytsSD1YGzDIcrAJmdFec88u/+VoGmxnl+80gL1tRCQ=="],
 
     "format": ["format@0.2.2", "", {}, "sha512-wzsgA6WOq+09wrU1tsJ09udeR/YZRaeArL9e1wPbFg3GG2yDnC2ldKpxs4xunpFF9DgqCqOIra3bc1HWrJ37Ww=="],
 
@@ -2079,7 +2084,7 @@
 
     "js-tokens": ["js-tokens@4.0.0", "", {}, ""],
 
-    "js-yaml": ["js-yaml@4.1.1", "", { "dependencies": { "argparse": "^2.0.1" }, "bin": "bin/js-yaml.js" }, ""],
+    "js-yaml": ["js-yaml@4.2.0", "", { "dependencies": { "argparse": "^2.0.1" }, "bin": { "js-yaml": "bin/js-yaml.js" } }, "sha512-ePWsvanv0DWuDRsW8dnt+R4jQ31SCRCQ7hhNcPXZPsoBZiemuZNYGf7adZdqX2D86j6rvKp3RpCxVTSb8WQlOw=="],
 
     "jsesc": ["jsesc@3.1.0", "", { "bin": "bin/jsesc" }, ""],
 
@@ -3025,7 +3030,7 @@
 
     "write-file-atomic": ["write-file-atomic@5.0.1", "", { "dependencies": { "imurmurhash": "^0.1.4", "signal-exit": "^4.0.1" } }, "sha512-+QU2zd6OTD8XWIJCbffaiQeH9U73qIqafo1x6V1snCWYGJf6cVE0cDR4D8xRzcEnfI21IFrUPzPGtcPf8AC+Rw=="],
 
-    "ws": ["ws@8.18.3", "", { "peerDependencies": { "bufferutil": "^4.0.1", "utf-8-validate": ">=5.0.2" }, "optionalPeers": ["bufferutil", "utf-8-validate"] }, "sha512-PEIGCY5tSlUt50cqyMXfCzX+oOPqN0vuGqWzbcJ2xvnkzkq46oOpz7dQaTDBdfICb4N14+GARUDw2XV2N4tvzg=="],
+    "ws": ["ws@8.21.0", "", { "peerDependencies": { "bufferutil": "^4.0.1", "utf-8-validate": ">=5.0.2" }, "optionalPeers": ["bufferutil", "utf-8-validate"] }, "sha512-Vsp28b7DRcimFQvrqu2Wek3z1iYxDCWqHYB8Qsnk/S4RfaCQzPGPyBNuVjJV3cd6UiKtUtp6sNM77gWvzcCH+g=="],
 
     "xml": ["xml@1.0.1", "", {}, "sha512-huCv9IH9Tcf95zuYCsQraZtWnJvBtLVE0QHMOs8bWyZAFZNDcYjsPq1nEx8jKA9y+Beo9v+7OBPRisQTjinQMw=="],
 
@@ -3098,8 +3103,6 @@
     "@istanbuljs/load-nyc-config/camelcase": ["camelcase@5.3.1", "", {}, "sha512-L28STB170nwWS63UjtlEOE3dldQApaJXZkOI1uMFfzf3rRuPegHaHesyee+YxQ+W6SvRDQV6UrdOdRiR153wJg=="],
 
     "@istanbuljs/load-nyc-config/find-up": ["find-up@4.1.0", "", { "dependencies": { "locate-path": "^5.0.0", "path-exists": "^4.0.0" } }, "sha512-PpOwAdQ/YlXQ2vj8a3h8IipDuYRi3wceVQQGYWxNINccq40Anw7BlsEXCMbt1Zt+OLA6Fq9suIpIWD0OsnISlw=="],
-
-    "@istanbuljs/load-nyc-config/js-yaml": ["js-yaml@3.14.2", "", { "dependencies": { "argparse": "^1.0.7", "esprima": "^4.0.0" }, "bin": { "js-yaml": "bin/js-yaml.js" } }, "sha512-PMSmkqxr106Xa156c2M265Z+FTrPl+oxd/rgOQy2tijQeK5TxQ43psO1ZCwhVOSdnn+RzkzlRz/eY4BgJBYVpg=="],
 
     "@istanbuljs/load-nyc-config/resolve-from": ["resolve-from@5.0.0", "", {}, "sha512-qYg9KP24dD5qka9J47d0aVky0N+b4fTU89LN9iDnjB5waksiC49rvMB0PrUJQGoTmH50XPiqOvAjDfaijGxYZw=="],
 
@@ -3261,8 +3264,6 @@
 
     "eslint-plugin-react-hooks/zod": ["zod@4.3.5", "", {}, ""],
 
-    "exceljs/uuid": ["uuid@8.3.2", "", { "bin": "dist/bin/uuid" }, ""],
-
     "execa/signal-exit": ["signal-exit@3.0.7", "", {}, "sha512-wnD2ZE+l+SPC/uoS0vXeE9L1+0wuaMqKlfz9AMUo38JsyLSBWSFcHR1Rri62LZc12vLr1gb3jl7iwQhgwpAbGQ=="],
 
     "fast-check/pure-rand": ["pure-rand@6.1.0", "", {}, "sha512-bVWawvoZoBYpp6yIoQtQXHZjmz35RSVHnUOTefl8Vcjr8snTPY1wnpSPMWekcFwbxI6gtmT7rSYPFvz71ldiOA=="],
@@ -3270,6 +3271,8 @@
     "fast-glob/glob-parent": ["glob-parent@5.1.2", "", { "dependencies": { "is-glob": "^4.0.1" } }, ""],
 
     "fast-png/pako": ["pako@2.1.0", "", {}, ""],
+
+    "form-data/hasown": ["hasown@2.0.4", "", { "dependencies": { "function-bind": "^1.1.2" } }, "sha512-T2UbfbBEF32wiepXIsMlTW9+dDYC6wMh/t/vYA4tuOMKqWz/n3vr1NFSxQiyP+zk2mXsoMA/i/7qV6LKut1t1A=="],
 
     "glob/minimatch": ["minimatch@10.2.5", "", { "dependencies": { "brace-expansion": "^5.0.5" } }, "sha512-MULkVLfKGYDFYejP07QOurDLLQpcjk7Fw+7jXS2R2czRQzR56yHRveU5NDJEOviH+hETZKSkIk5c+T23GjFUMg=="],
 
@@ -3356,8 +3359,6 @@
     "jest-worker/jest-util": ["jest-util@30.4.1", "", { "dependencies": { "@jest/types": "30.4.1", "@types/node": "*", "chalk": "^4.1.2", "ci-info": "^4.2.0", "graceful-fs": "^4.2.11", "picomatch": "^4.0.3" } }, "sha512-vjQb1sACEiv13DKJMDToJpzVW0joCsIQrmbg0fi7CyOOt+g9jTuQl2A216pWRBYhOVt53XbL/2LbMKg1BECWOw=="],
 
     "jest-worker/supports-color": ["supports-color@8.1.1", "", { "dependencies": { "has-flag": "^4.0.0" } }, "sha512-MpUEN2OodtUzxvKQl72cUF7RQ5EiHsGvSsVG0ia9c5RbWGL2CI4C7EpPS8UTBIplnlzZiNuV56w+FuNxy3ty2Q=="],
-
-    "jspdf/dompurify": ["dompurify@3.3.3", "", { "optionalDependencies": { "@types/trusted-types": "^2.0.7" } }, ""],
 
     "jszip/readable-stream": ["readable-stream@2.3.8", "", { "dependencies": { "core-util-is": "~1.0.0", "inherits": "~2.0.3", "isarray": "~1.0.0", "process-nextick-args": "~2.0.0", "safe-buffer": "~5.1.1", "string_decoder": "~1.1.1", "util-deprecate": "~1.0.1" } }, ""],
 
@@ -3504,8 +3505,6 @@
     "@babel/helper-compilation-targets/browserslist/node-releases": ["node-releases@2.0.27", "", {}, ""],
 
     "@istanbuljs/load-nyc-config/find-up/locate-path": ["locate-path@5.0.0", "", { "dependencies": { "p-locate": "^4.1.0" } }, "sha512-t7hw9pI+WvuwNJXwk5zVHpyhIqzg2qTlklJOf0mVxGSbe3Fp2VieZcduNYjaLDoy6p9uGpQEGWG87WpMKlNq8g=="],
-
-    "@istanbuljs/load-nyc-config/js-yaml/argparse": ["argparse@1.0.10", "", { "dependencies": { "sprintf-js": "~1.0.2" } }, "sha512-o5Roy6tNG4SL/FOkCAN6RzjiakZS25RLYFrcMttJqbdd8BWrnA+fGz57iN5Pb06pvBGvl5gQ0B48dJlslXvoTg=="],
 
     "@jest/console/jest-message-util/pretty-format": ["pretty-format@30.4.1", "", { "dependencies": { "@jest/schemas": "30.4.1", "ansi-styles": "^5.2.0", "react-is-18": "npm:react-is@^18.3.1", "react-is-19": "npm:react-is@^19.2.5" } }, "sha512-K6KiKMHTL4jjX4u3Kir2EW07nRfcqVTXIImx50wbjHQTcZPgg+gjVeNTIT3l3L1Rd4UefxfogquC9J37SoFyyw=="],
 

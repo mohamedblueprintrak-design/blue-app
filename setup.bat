@@ -120,18 +120,9 @@ echo STRIPE_WEBHOOK_SECRET=""
 echo [OK] .env configured
 
 echo.
-echo Step 5: Configuring Prisma schema...
-if "%DB_CHOICE%"=="1" (
-    if exist prisma\schema.postgresql.prisma (
-        copy /y prisma\schema.postgresql.prisma prisma\schema.prisma >nul
-        echo [OK] PostgreSQL schema set
-    )
-) else (
-    if exist prisma\schema.sqlite.prisma (
-        copy /y prisma\schema.sqlite.prisma prisma\schema.prisma >nul
-        echo [OK] SQLite schema set
-    )
-)
+echo Step 5: Preparing Prisma schema...
+node scripts\prepare-schema.js
+echo [OK] Prisma schema prepared
 
 echo.
 echo Step 6: Cleaning old files...
