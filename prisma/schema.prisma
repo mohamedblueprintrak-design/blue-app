@@ -160,7 +160,7 @@ model User {
   position            String    @default("")
   isActive            Boolean   @default(true)
   lastLogin           DateTime?
-  organizationId      String // SaaS multi-tenant organization
+  organizationId      String? // SaaS multi-tenant organization
   deletedAt           DateTime? // Soft delete
   // Email verification
   emailVerified       DateTime?
@@ -184,7 +184,7 @@ model User {
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 
-  organization            Organization             @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization            Organization?            @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   projects                ProjectAssignment[]
   tasks                   Task[]
   assignedDefects         Defect[]

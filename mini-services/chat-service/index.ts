@@ -44,7 +44,7 @@ if (process.env.NODE_ENV === 'production' && !process.env.JWT_SECRET) {
   );
 }
 const JWT_SECRET = process.env.JWT_SECRET || 'blueprint-dev-secret-do-not-use-in-production-min32chars!';
-const JWT_ISSUER = process.env.JWT_ISSUER || 'blueprint-erp';
+const JWT_ISSUER = process.env.JWT_ISSUER || 'blueprint-saas';
 const JWT_AUDIENCE = process.env.JWT_AUDIENCE || 'blueprint-ws';
 const CORS_ORIGIN = process.env.CORS_ORIGINS || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
@@ -422,21 +422,21 @@ function setupEventHandlers(socket: TypedSocket) {
         }
       } catch (error) {
         console.error(`[WS] Entity verification failed for ${entityType} ${entityId}:`, error);
-        // Fallthrough: allow subscription if DB check fails (e.g. if using Postgres in a SQLite-only service)
+        return socket.emit('error', { message: 'Unauthorized entity access', code: 'UNAUTHORIZED' });
       }
     }
 
-    joinRoom(socket, 'entity', `${socket.data.organizationId}:${data.entityType}:${data.entityId}`);
+    joinRoom(socket, 'entity', `org:${socket.data.organizationId}:${data.entityType}:${data.entityId}`);
   });
 
   // Unsubscribe from entity updates
   socket.on('unsubscribe_from_entity', (data: { entityType: string; entityId: string }) => {
-    leaveRoom(socket, 'entity', `${socket.data.organizationId}:${data.entityType}:${data.entityId}`);
+    leaveRoom(socket, 'entity', `org:${socket.data.organizationId}:${data.entityType}:${data.entityId}`);
   });
 
   // Typing start indicator
   socket.on('typing_start', (data: { entityType: string; entityId: string }) => {
-    const room = getRoomName('entity', `${socket.data.organizationId}:${data.entityType}:${data.entityId}`);
+    const room = getRoomName('entity', `org:${socket.data.organizationId}:${data.entityType}:${data.entityId}`);
     const payload: TypingPayload = {
       userId: socket.data.userId,
       userName: socket.data.userName,
@@ -451,7 +451,7 @@ function setupEventHandlers(socket: TypedSocket) {
 
   // Typing stop indicator
   socket.on('typing_stop', (data: { entityType: string; entityId: string }) => {
-    const room = getRoomName('entity', `${socket.data.organizationId}:${data.entityType}:${data.entityId}`);
+    const room = getRoomName('entity', `org:${socket.data.organizationId}:${data.entityType}:${data.entityId}`);
     const payload: TypingPayload = {
       userId: socket.data.userId,
       userName: socket.data.userName,

@@ -328,7 +328,7 @@ async function handleRegister(
           name: userName,
           role: UserRoleValues.VIEWER as UserRole,
           department: data.department || '',
-          organizationId: undefined, // Will be stored as NULL in DB — user has no org until invited
+          organizationId: null, // Will be stored as NULL in DB — user has no org until invited
         },
         include: {
           organization: {

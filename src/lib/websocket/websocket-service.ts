@@ -304,7 +304,13 @@ function setupEventHandlers(socket: Socket<ClientToServerEvents, ServerToClientE
 
   // Typing indicators
   socket.on('typing_start', (data: { entityType: string; entityId: string }) => {
-    const room = `entity:${data.entityType}:${data.entityId}`;
+    const orgId = socket.data.organizationId;
+    const room = getRoomName(
+      'entity' as RoomType,
+      orgId
+        ? `org:${orgId}:${data.entityType}:${data.entityId}`
+        : `${data.entityType}:${data.entityId}`
+    );
     socket.to(room).emit('user_typing', {
       userId: socket.data.userId,
       userName: socket.data.userName,
@@ -316,7 +322,13 @@ function setupEventHandlers(socket: Socket<ClientToServerEvents, ServerToClientE
   });
 
   socket.on('typing_stop', (data: { entityType: string; entityId: string }) => {
-    const room = `entity:${data.entityType}:${data.entityId}`;
+    const orgId = socket.data.organizationId;
+    const room = getRoomName(
+      'entity' as RoomType,
+      orgId
+        ? `org:${orgId}:${data.entityType}:${data.entityId}`
+        : `${data.entityType}:${data.entityId}`
+    );
     socket.to(room).emit('user_typing', {
       userId: socket.data.userId,
       userName: socket.data.userName,

@@ -171,7 +171,7 @@ export async function POST(request: NextRequest) {
           previousName: userRecord.name,
           organizationId: userRecord.organizationId,
         }),
-        organizationId: userRecord.organizationId,
+        organizationId: userRecord.organizationId || 'default',
       },
     });
 
