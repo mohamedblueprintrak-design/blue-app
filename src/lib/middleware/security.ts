@@ -15,6 +15,25 @@ export function buildCsp(nonce: string): string {
     ? `script-src 'self' 'nonce-${nonce}' 'unsafe-eval'`
     : `script-src 'self' 'nonce-${nonce}'`;
 
+  // SECURITY NOTE on style-src:
+  // - 'unsafe-inline' is kept for styles (NOT for scripts) because:
+  //   1. Next.js App Router injects inline <style> tags for CSS-in-JS optimizations
+  //   2. Tailwind CSS uses inline <style> for critical CSS extraction
+  //   3. Radix UI components rely on inline styles for animations/positioning
+  //   4. next-themes injects inline styles for theme color transitions
+  //
+  // - Per CSP Level 3 spec: when 'nonce-xxx' is present alongside 'unsafe-inline',
+  //   modern browsers IGNORE 'unsafe-inline' and only allow nonce-tagged styles.
+  //   So including both is SAFE — the nonce takes precedence.
+  //
+  // - Style-based XSS is much rarer than script-based XSS (no DOM access from CSS),
+  //   so the risk of keeping 'unsafe-inline' for styles is acceptable.
+  //
+  // - Scripts are FULLY protected by nonce — no 'unsafe-inline' for script-src.
+  //
+  // Reference: https://www.w3.org/TR/CSP3/#match-element-to-source-list
+  const styleSrc = `style-src 'self' 'unsafe-inline' 'nonce-${nonce}' https://fonts.googleapis.com https://unpkg.com`;
+
   const connectSrc = isDev
     ? "connect-src 'self' https: ws: wss:"
     : "connect-src 'self' https:";
@@ -22,7 +41,7 @@ export function buildCsp(nonce: string): string {
   return [
     "default-src 'self'",
     scriptSrc,
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com",
+    styleSrc,
     "img-src 'self' data: blob: https:",
     "font-src 'self' https://fonts.gstatic.com",
     connectSrc,
