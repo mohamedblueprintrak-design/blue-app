@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { requireVerifiedAuth } from '@/app/api/utils/auth';
+import { requireStepUp2FA, clearStepUpSession } from '@/lib/auth/step-up-2fa';
 import { compare } from 'bcryptjs';
 import { RateLimiter } from '@/lib/rate-limiter';
 import { log } from '@/lib/logger';
@@ -31,6 +32,11 @@ export async function POST(request: NextRequest) {
     const authResult = await requireVerifiedAuth(request);
     if ('error' in authResult) return authResult.error;
     const ctx = authResult.user;
+
+    // ── Step 1.5: Step-up 2FA — required for account deletion ──
+    // ده defensive layer: لو حد سرق session، مش هيقدر يحذف الحساب بدون الكود
+    const stepUpResult = await requireStepUp2FA(request, ctx);
+    if ('error' in stepUpResult) return stepUpResult.error;
 
     // ── Step 2: Parse and validate request body ──
     let body: DeleteAccountBody;
@@ -180,6 +186,9 @@ export async function POST(request: NextRequest) {
       email: userRecord.email,
       organizationId: userRecord.organizationId,
     });
+
+    // ── Step 8.5: Clear step-up session (one-shot — can't reuse it) ──
+    clearStepUpSession(ctx.userId);
 
     // ── Step 9: Return success with cookie-clearing headers ──
     const response = NextResponse.json(

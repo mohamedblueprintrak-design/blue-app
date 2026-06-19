@@ -161,6 +161,46 @@ echo "Step 10: Generating Prisma Client..."
 $EXEC prisma generate
 echo -e "${GREEN}[OK] Prisma Client ready${NC}"
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Step 11: Generate one-time setup token (Demo Mode only)
+# This replaces the old practice of printing plaintext credentials to the terminal.
+# The user opens /setup-complete in the browser and enters this token to view
+# the demo credentials ONCE (token is single-use, expires in 24 hours).
+# ─────────────────────────────────────────────────────────────────────────────
+SETUP_TOKEN=""
+if [ "$MODE_CHOICE" = "1" ]; then
+    echo ""
+    echo "Step 11: Generating one-time setup token..."
+    # Generate a secure random token (URL-safe, 32 chars)
+    if command -v openssl >/dev/null 2>&1; then
+        SETUP_TOKEN=$(openssl rand -hex 24)
+    else
+        # Fallback: use /dev/urandom
+        SETUP_TOKEN=$(head -c 24 /dev/urandom | od -An -tx1 | tr -d ' \n')
+    fi
+
+    # Hash the token (SHA-256) before storing — plaintext never persists
+    TOKEN_HASH=$(printf '%s' "$SETUP_TOKEN" | sha256sum | awk '{print $1}')
+    NOW_MS=$(date +%s%3N 2>/dev/null || python3 -c 'import time; print(int(time.time()*1000))')
+
+    # Write hashed token to .setup-tokens.json (mode 600)
+    cat > .setup-tokens.json <<EOF
+{
+  "version": 1,
+  "tokens": [
+    {
+      "hash": "$TOKEN_HASH",
+      "createdAt": $NOW_MS,
+      "consumed": false
+    }
+  ],
+  "updatedAt": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+}
+EOF
+    chmod 600 .setup-tokens.json
+    echo -e "${GREEN}[OK] Setup token generated${NC}"
+fi
+
 echo ""
 echo -e "${CYAN}╔══════════════════════════════════════════════════╗${NC}"
 echo -e "${CYAN}║          ✅ Setup Complete! — تم الإعداد!         ║${NC}"
@@ -173,10 +213,6 @@ else
     echo "│  Mode:     PRODUCTION — وضع الإنتاج          │"
 fi
 echo "│  URL:      http://localhost:3000              │"
-if [ "$MODE_CHOICE" = "1" ]; then
-    echo "│  Email:    admin@blueprint.ae                 │"
-    echo "│  Password: Admin@BP2024!                     │"
-fi
 if [ "$DB_CHOICE" = "1" ]; then
     echo "│  Database: PostgreSQL                         │"
 else
@@ -184,6 +220,21 @@ else
 fi
 echo "└──────────────────────────────────────────────┘"
 echo ""
+
+if [ "$MODE_CHOICE" = "1" ]; then
+    echo -e "${YELLOW}🔐 لعرض بيانات الدخول التجريبية:${NC}"
+    echo ""
+    echo "  1. افتح الرابط التالي في المتصفح:"
+    echo -e "     ${GREEN}http://localhost:3000/setup-complete${NC}"
+    echo ""
+    echo "  2. أدخل رمز الإعداد التالي (يُستخدم مرة واحدة فقط):"
+    echo ""
+    echo -e "     ${GREEN}$SETUP_TOKEN${NC}"
+    echo ""
+    echo -e "  ${YELLOW}⚠️  احفظ هذا الرمز الآن — لن يظهر مرة أخرى.${NC}"
+    echo -e "  ${YELLOW}    الرمز صالح لمدة 24 ساعة من الآن.${NC}"
+    echo ""
+fi
 
 if [ "$MODE_CHOICE" = "2" ]; then
     echo -e "${YELLOW}⚠️ NOTE FOR PRODUCTION:${NC}"

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireVerifiedAuth } from '@/app/api/utils/auth';
+import { requireStepUp2FA, clearStepUpSession } from '@/lib/auth/step-up-2fa';
 import { hasPermission } from '@/lib/auth/modules/authorization';
 import { Permission } from '@/lib/auth/types';
 import { validateRequest, changePasswordSchema } from '@/lib/api-validation';
@@ -15,12 +16,18 @@ import { validatePasswordStrength, checkPasswordBreached } from '@/lib/auth/modu
  * - Users can change their OWN password (requires currentPassword verification).
  * - Admins with USER_UPDATE permission can reset another user's password
  *   (no currentPassword required for admin resets).
+ *
+ * SECURITY: Step-up 2FA required for both flows (own + admin reset).
  */
 export async function PUT(request: NextRequest) {
   try {
     const authResult = await requireVerifiedAuth(request);
     if ('error' in authResult) return authResult.error;
     const ctx = authResult.user;
+
+    // ── Step-up 2FA: required for password changes (sensitive operation) ──
+    const stepUpResult = await requireStepUp2FA(request, ctx);
+    if ('error' in stepUpResult) return stepUpResult.error;
 
     const body = await request.json();
 
@@ -102,6 +109,9 @@ export async function PUT(request: NextRequest) {
           where: { userId: userRecord.id },
         }),
       ]);
+
+      // Clear step-up session (one-shot — can't reuse after password change)
+      clearStepUpSession(ctx.userId);
 
       return NextResponse.json({ success: true });
     } else {

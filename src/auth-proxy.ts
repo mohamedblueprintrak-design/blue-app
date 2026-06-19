@@ -30,6 +30,7 @@ const PUBLIC_API_ROUTES = [
   '/api/auth/ws-token', '/api/auth/refresh',
   '/api/auth/google', '/api/auth/google/callback', // Google OAuth social login
   '/api/auth/microsoft', '/api/auth/microsoft/callback', // Microsoft OAuth social login
+  '/api/auth/setup-complete', // One-time setup token verification (no JWT yet)
   '/api/quote-requests', '/api/health',
   '/api/stripe/webhook', '/api/public',
   '/api/stripe/plans', '/api/portal',
@@ -45,12 +46,13 @@ const CSRF_EXEMPT_PATHS = [
   '/api/quote-requests', '/api/cron/cleanup', '/api/public/stats',
   '/api/auth/google', '/api/auth/google/callback', // Google OAuth social login
   '/api/auth/microsoft', '/api/auth/microsoft/callback', // Microsoft OAuth social login
+  '/api/auth/setup-complete', // One-time setup token verification
 ];
 
 const PUBLIC_PAGE_ROUTES = [
   '/', '/services', '/calculator', '/quote', '/portal', '/about',
   '/forgot-password', '/reset-password', '/verify-email', '/2fa-setup',
-  '/login', '/register', '/dashboard',
+  '/login', '/register', '/dashboard', '/setup-complete',
 ];
 
 function isPublicApiRoute(pathname: string): boolean {

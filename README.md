@@ -29,20 +29,67 @@ BluePrint هو نظام تخطيط موارد المؤسسات (ERP) صُمم خ
 ### 🤖 الذكاء الاصطناعي (AI Integration)
 - **مساعد الذكاء الاصطناعي:** روبوت محادثة مدمج لمساعدة المهندسين والمديرين في تحليل البيانات واستخراج التقارير.
 - **تحليل المستندات والصور:** استخدام تقنيات AI لتحليل المخططات الهندسية والمستندات.
+- **مزودي AI متعددين:** يدعم النظام 9 مزودين (ZAI, OpenAI, Gemini, DeepSeek, Mistral, OpenRouter, xAI, Groq, HuggingFace) عبر موجه ذكي (AI Router).
 
 ### 🌍 النظام ثنائي اللغة ويدعم تعدد المستأجرين (i18n & Multi-tenant)
 - دعم كامل للعربية والإنجليزية (RTL / LTR) مع إمكانية التبديل الفوري.
-- مصمم لدعم العمليات السحابية متعددة المستأجرين (SaaS / Multi-tenancy).
+- دعم تقويم هجري (Hijri) متكامل للتواريخ في الواجهات والتقارير.
+- مصمم لدعم العمليات السحابية متعددة المستأجرين (SaaS / Multi-tenancy) مع عزل كامل للبيانات.
+
+### 🔔 الإشعارات والوقت الحقيقي (Real-time & Notifications)
+- **WebSocket Server مستقل:** خدمة Socket.io منفصلة على بورت 3003 للدردشة والإشعارات الفورية.
+- **Web Push Notifications:** إشعارات متصفح مدمجة عبر VAPID keys.
+- **BullMQ Workers:** معالجة الخلفية للبريد الإلكتروني، التقارير، والتنبيهات.
 
 ---
 
 ## 🛠️ التقنيات المستخدمة (Tech Stack)
 
-- **Frontend:** Next.js 16 (App Router), React 19, TailwindCSS, Radix UI, Framer Motion.
-- **Backend:** Next.js Route Handlers, Prisma ORM.
-- **Database:** PostgreSQL (للإنتاج) / SQLite (للتطوير المحلي).
-- **Authentication:** JWT, HTTPOnly Cookies, Role-Based Access Control (RBAC).
+- **Frontend:** Next.js 16 (App Router), React 19, TailwindCSS 4, Radix UI / shadcn/ui, Framer Motion.
+- **Backend:** Next.js Route Handlers, Prisma ORM, Zod validation.
+- **Database:** PostgreSQL (للإنتاج) / SQLite (للتطوير المحلي) — مع Dynamic Provider.
+- **Authentication:** JWT (jose), HTTPOnly Cookies, RBAC, 2FA (TOTP + Backup codes), OAuth (Google + Microsoft).
+- **Real-time:** Socket.io (chat-service مستقل), BullMQ + Redis.
+- **Storage:** Local filesystem أو S3-compatible (AWS S3, MinIO, DigitalOcean Spaces).
+- **Payments:** Stripe (subscriptions, invoices, payment intents).
+- **AI:** Z-AI SDK + multi-provider router.
+- **Monitoring:** Sentry (error tracking), Winston (logging with daily rotation).
+- **PWA:** Serwist service worker + offline page.
 - **Runtime:** Bun (بديل سريع لـ npm/Node.js).
+
+---
+
+## 🔐 الأمان (Security)
+
+النظام مبني بمعايير Enterprise-grade:
+
+- **Authentication:** JWT + Refresh Tokens + 2FA (TOTP + Backup + SMS) + OAuth social login.
+- **Authorization:** Role-Based Access Control (RBAC) + per-organization data isolation via `orgFilter()`.
+- **CSRF Protection:** Double-submit cookie pattern على جميع الـ APIs.
+- **Rate Limiting:** Tier-based (strict/auth/api/loose/ai/export/webhook) على Edge + API + WebSocket.
+- **CSP Headers:** Content-Security-Policy مع per-request nonce لمنع XSS.
+- **Security Headers:** X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy.
+- **File Upload Security:** MIME type blocklist + extension validation + 50MB max size.
+- **Account Lockout:** بعد محاولات فاشلة + Cloudflare Turnstile captcha.
+- **Audit Logging:** جميع العمليات الحساسة مسجلة في `SecurityAuditLog` و `ActivityLog`.
+- **Soft Delete:** على الـ User لمنع فقدان البيانات المرتبطة.
+
+راجع التقرير الأمني الكامل: [docs/security-audit.md](docs/security-audit.md)
+
+---
+
+## 📊 المراقبة والصحة (Monitoring & Health)
+
+- **Health Endpoint:** `GET /api/health` يفحص:
+  - Database connection
+  - Redis connection + latency
+  - Stripe API
+  - Storage (local/S3)
+  - BullMQ workers status
+  - Chat-service health (HTTP check على بورت 3003)
+- **Authentication:** الـ detailed checks محمية بـ `HEALTH_CHECK_SECRET` bearer token.
+- **Sentry:** Error tracking + source maps + performance monitoring.
+- **Graceful Shutdown:** SIGTERM/SIGINT handlers لتصريف آمن للـ WebSocket + BullMQ + Prisma + Redis.
 
 ---
 
@@ -90,25 +137,111 @@ chmod +x setup.sh
 
 ---
 
+## 📜 الترخيص (License)
+
+هذا المشروع مُرخّص تحت **Commercial Proprietary License** — جميع الحقوق محفوظة.
+
+- 📄 [LICENSE](LICENSE) — نص الترخيص الكامل.
+- 📄 [NOTICE](NOTICE) — معلومات حقوق الملكية.
+- ❌ **غير مسموح** بالاستخدام، النسخ، التعديل، أو التوزيع بدون إذن كتابي مسبق.
+- ✅ للاستفسارات التجارية أو طلبات الترخيص، يرجى التواصل عبر: `legal@blueprint.ae`.
+
+---
+
+## 🤝 المساهمة (Contributing)
+
+نرحب بمساهمات المجتمع! راجع [CONTRIBUTING.md](CONTRIBUTING.md) للحصول على:
+- إعداد بيئة التطوير المحلية
+- استراتيجية الفروع (Branching Strategy)
+- تنسيق رسائل الالتزام (Conventional Commits)
+- معايير جودة الكود
+
+جميع الـ commits يجب أن تتبع **Conventional Commits** (مُنفّذ عبر `commitlint` + `husky`).
+
+---
+
+## 📋 سجل التغييرات (Changelog)
+
+راجع [CHANGELOG.md](CHANGELOG.md) لمعرفة جميع التغييرات الإصدارات السابقة.
+
+---
+
 ## 📞 الدعم والمساهمة
 هذا المشروع مخصص للاستخدام المؤسسي. إذا واجهت أي مشاكل أثناء الإعداد أو التشغيل، يرجى مراجعة سجلات الخطأ (Logs) أو التواصل مع فريق التطوير.
 
 ### 🛡️ حماية الفرع الرئيسي (Branch Protection)
-لضمان استقرار النظام في بيئة الإنتاج، يرجى تفعيل إعدادات الحماية للفرع الرئيسي `main` عبر إعدادات GitHub (Settings -> Branches -> Add branch protection rule):
+لضمان استقرار النظام في بيئة الإنتاج، يرجى تفعيل إعدادات الحماية للفرع الرئيسي `main` عبر إعدادات GitHub (Settings → Branches → Add branch protection rule):
 1. **Require a pull request before merging:** لتفعيل مراجعة الكود قبل الدمج.
 2. **Require approvals:** تحديد عدد الموافقات المطلوبة (مثلاً 1 أو 2).
 3. **Require status checks to pass before merging:** تأكد من تحديد اختبارات الـ CI لتمريرها أولاً.
+4. **Require conversation resolution before merging:** لضمان حل كل التعليقات.
+5. **Require linear history:** لتفادي merge commits الفوضوية.
 
 ---
 
 ## 🚀 النشر (Deployment)
-يمكنك نشر النظام بسهولة عبر منصة مثل Vercel، أو استخدام الحاويات Docker للبيئات المخصصة.
 
-### باستخدام Docker:
+> ⚠️ **مهم:** هذا التطبيق **لا يدعم Vercel** لأنه يتطلب:
+> - WebSocket server منفصل (chat-service على بورت 3003)
+> - Background workers (BullMQ)
+> - اتصال مستمر بـ Redis و PostgreSQL
+> 
+> Vercel (serverless) لا يدعم هذه الميزات. الاستضافة الموصى بها هي **Docker على VPS**.
+
+### باستخدام Docker (الطريقة الموصى بها):
 ```bash
-docker-compose up -d
+# 1. انسخ ملف البيئة
+cp .env.example .env
+# (حرر .env بقيم الإنتاج)
+
+# 2. شغّل كل الخدمات
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+# 3. هاجر قاعدة البيانات
+docker compose exec app bunx prisma migrate deploy
+
+# 4. زرع البيانات (أول مرة فقط)
+docker compose exec app bunx tsx prisma/seed.ts
 ```
-تأكد من إعداد ملف `.env` وتهيئة قاعدة البيانات في الإنتاج عبر `npx prisma migrate deploy`.
+
+راجع [DEPLOYMENT.md](DEPLOYMENT.md) للتفاصيل الكاملة.
+
+### المتطلبات:
+- VPS بـ 2 vCPU + 4GB RAM على الأقل (Hetzner, DigitalOcean, AWS EC2)
+- PostgreSQL 15+
+- Redis 7+
+- Docker + Docker Compose
+- Domain + SSL (عبر Cloudflare أو Caddy auto-SSL)
+
+---
+
+## 🗂️ بنية المشروع (Project Structure)
+
+```
+blue-app/
+├── src/
+│   ├── app/                  # Next.js App Router (pages + API routes)
+│   │   ├── api/              # 195 API route handler
+│   │   ├── dashboard/        # 66 صفحة لوحة التحكم
+│   │   └── ...               # صفحات عامة (about, services, quote, ...)
+│   ├── components/           # React components (UI + pages + layout)
+│   ├── lib/                  # Business logic (auth, ai, cache, queue, ...)
+│   ├── hooks/                # React hooks (api, real-time, ...)
+│   ├── store/                # Zustand stores
+│   └── middleware.ts         # JWT + CSRF + rate limit proxy
+├── prisma/                   # Prisma schema + migrations + seed
+├── mini-services/
+│   └── chat-service/         # Socket.io standalone server (port 3003)
+├── __tests__/                # Jest unit + integration tests
+├── e2e/                      # Playwright E2E tests
+├── load-tests/               # k6 load tests
+├── docs/                     # Documentation
+│   └── security-audit.md     # Security audit report
+├── .github/                  # CI/CD workflows + dependabot
+├── Dockerfile                # Production multi-stage build
+├── docker-compose*.yml       # Docker orchestration (dev + prod)
+└── Caddyfile                 # Reverse proxy + auto-SSL
+```
 
 ---
 
@@ -116,6 +249,7 @@ docker-compose up -d
 
 - **رقم الهاتف (Phone)**: +971 50 161 1234
 - **البريد الإلكتروني (Email)**: info.blueprintrak@gmail.com
+- **البريد القانوني (Legal)**: legal@blueprint.ae
 - **الموقع (Location)**: Ras Al Khaimah, UAE
 
 </div>

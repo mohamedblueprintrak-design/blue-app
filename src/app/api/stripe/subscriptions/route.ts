@@ -20,6 +20,7 @@ import {
 import { getSubscriptionPeriod, getInvoiceFields } from '@/lib/stripe-types';
 import { successResponse, errorResponse, forbiddenResponse } from '../../utils/response';
 import { requireVerifiedPermission } from '../../utils/auth';
+import { requireStepUp2FA, clearStepUpSession } from '@/lib/auth/step-up-2fa';
 import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
 
@@ -161,6 +162,8 @@ export async function POST(request: NextRequest) {
 
 /**
  * PUT - Update subscription (upgrade/downgrade)
+ *
+ * SECURITY: Step-up 2FA required — modifying billing is a sensitive operation.
  */
 export async function PUT(request: NextRequest) {
   if (!isStripeConfigured) {
@@ -171,6 +174,10 @@ export async function PUT(request: NextRequest) {
   const rbac = await requireVerifiedPermission(request, Permission.INVOICE_UPDATE);
   if ('error' in rbac) return rbac.error;
   const ctx = rbac.user;
+
+  // Step-up 2FA — required for billing changes (upgrade/downgrade)
+  const stepUpResult = await requireStepUp2FA(request, ctx);
+  if ('error' in stepUpResult) return stepUpResult.error;
 
   try {
     const body = await request.json();
@@ -238,6 +245,8 @@ export async function PUT(request: NextRequest) {
 
 /**
  * DELETE - Cancel subscription
+ *
+ * SECURITY: Step-up 2FA required — cancelling billing is a sensitive operation.
  */
 export async function DELETE(request: NextRequest) {
   if (!isStripeConfigured) {
@@ -248,6 +257,10 @@ export async function DELETE(request: NextRequest) {
   const rbac = await requireVerifiedPermission(request, Permission.INVOICE_DELETE);
   if ('error' in rbac) return rbac.error;
   const ctx = rbac.user;
+
+  // Step-up 2FA — required for subscription cancellation
+  const stepUpResult = await requireStepUp2FA(request, ctx);
+  if ('error' in stepUpResult) return stepUpResult.error;
 
   try {
     // NOTE: DELETE requests with body may be stripped by proxies (e.g., Cloudflare, nginx).
@@ -284,6 +297,9 @@ export async function DELETE(request: NextRequest) {
     if (!subscription) {
       return errorResponse('فشل في إلغاء الاشتراك', 'CANCEL_ERROR', 500);
     }
+
+    // Clear step-up session (one-shot — can't reuse after cancellation)
+    clearStepUpSession(ctx.userId);
 
     return successResponse({
       message: immediately

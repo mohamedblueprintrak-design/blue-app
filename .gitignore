@@ -121,3 +121,6 @@ scratch/
 patch_*.js
 fix-*.js
 prisma/test.db
+
+# Setup tokens (one-time demo credentials display)
+.setup-tokens.json
