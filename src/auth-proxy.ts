@@ -15,7 +15,8 @@ import {
 import { 
   addSecurityHeaders, 
   timingSafeCompare, 
-  getAllowedOrigin 
+  getAllowedOrigin,
+  buildCsp
 } from '@/lib/middleware/security';
 
 const COOKIE_NAME = 'blue_token';
@@ -204,6 +205,7 @@ export async function proxy(request: NextRequest) {
         // the CSP header in addSecurityHeaders(); without this, inline scripts
         // in server components would be blocked by the browser's CSP enforcement.
         requestHeaders.set('x-nonce', nonce);
+        requestHeaders.set('Content-Security-Policy', buildCsp(nonce));
         const response = NextResponse.next({ request: { headers: requestHeaders } });
         return addSecurityHeaders(response, nonce, rlInfo);
       } catch {
@@ -297,6 +299,7 @@ export async function proxy(request: NextRequest) {
     // the CSP header in addSecurityHeaders(); without this, inline scripts
     // in server components would be blocked by the browser's CSP enforcement.
     requestHeaders.set('x-nonce', nonce);
+    requestHeaders.set('Content-Security-Policy', buildCsp(nonce));
 
     // SECURITY: Restrict unverified users to email verification flows only
     // If emailVerified is explicitly false, only allow access to verification-related routes
