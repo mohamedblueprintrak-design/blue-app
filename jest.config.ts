@@ -34,24 +34,28 @@ const jestConfig = {
   forceExit: true,
   detectOpenHandles: false,
   coverageThreshold: {
+    // Global thresholds raised from 60/70/70/70 to 70/80/75/75 (m10).
+    // Current coverage: 73% branches, 82% functions, 78% lines, 77% statements.
+    // These thresholds catch regressions without being too strict.
+    // Target: 80%+ global in a future iteration.
     global: {
-      branches: 60,
-      functions: 70,
-      lines: 70,
-      statements: 70,
+      branches: 70,
+      functions: 80,
+      lines: 75,
+      statements: 75,
     },
     // Stricter thresholds for security-critical modules
     './src/lib/auth/': {
-      branches: 70,
-      functions: 80,
-      lines: 80,
-      statements: 80,
+      branches: 80,
+      functions: 85,
+      lines: 85,
+      statements: 85,
     },
     './src/app/api/utils/': {
-      branches: 70,
-      functions: 75,
-      lines: 80,
-      statements: 80,
+      branches: 75,
+      functions: 80,
+      lines: 85,
+      statements: 85,
     },
   },
 };

@@ -68,19 +68,40 @@ test.describe('Accessibility (a11y)', () => {
   test('page should have no console errors on load', async ({ page }) => {
     const errors: string[] = [];
     page.on('console', (msg) => {
-      if (msg.type() === 'error') errors.push(msg.text());
+      if (msg.type() !== 'error') return;
+      const text = msg.text();
+
+      // Filter out expected CI noise — these are NOT real bugs:
+      // 1. Network failures (API calls that fail because CI has no real backend
+      //    for public/stats, demo-credentials, etc.)
+      // 2. Firebase/messaging errors (not configured in CI)
+      // 3. 404s for optional resources (manifest, icons)
+      const isExpectedNoise = [
+        'Failed to fetch',           // Network failures (no backend in CI)
+        'NetworkError',              // Firefox network errors
+        'ERR_NETWORK',               // Chrome network errors
+        'ERR_INTERNET_DISCONNECTED', // Chrome network errors
+        'ERR_CONNECTION_REFUSED',    // Chrome connection refused
+        'ERR_FAILED',                // Chrome generic failures
+        'the server responded with a status of 404', // Optional resources
+        'the server responded with a status of 503', // Service unavailable
+        'Firebase',                  // Firebase not configured in CI
+        'messaging',                 // Web push messaging not configured
+        'Failed to register a ServiceWorker', // SW in CI may not register
+      ].some(pattern => text.includes(pattern));
+
+      if (!isExpectedNoise) {
+        errors.push(text);
+      }
     });
 
     await page.goto('/', { timeout: 30000 });
     await page.waitForLoadState('domcontentloaded');
 
-    // P2-30 FIX: was <50 errors.
-    // CI environment has significant console noise (37 errors observed) because
-    // the landing page makes multiple API calls that fail without a backend.
-    // Kept at <50 to avoid CI flakiness — this test still catches regressions
-    // where errors balloon to 100+. Production should be <5.
-    // The other P2-30 improvements (loadTime, h1, RBAC) are the meaningful ones.
-    expect(errors.length).toBeLessThan(50);
+    // Only count REAL JavaScript errors (not network/API failures)
+    // Production should have 0 real errors. CI threshold is 5 to allow for
+    // minor framework warnings.
+    expect(errors.length).toBeLessThan(5);
   });
 
   test('images should have alt text', async ({ page }) => {

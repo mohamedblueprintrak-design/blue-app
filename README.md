@@ -204,7 +204,7 @@ docker compose exec app bunx prisma migrate deploy
 docker compose exec app bunx tsx prisma/seed.ts
 ```
 
-راجع [DEPLOYMENT.md](DEPLOYMENT.md) للتفاصيل الكاملة.
+راجع [docs/deployment.md](docs/deployment.md) للتفاصيل الكاملة.
 
 ### المتطلبات:
 - VPS بـ 2 vCPU + 4GB RAM على الأقل (Hetzner, DigitalOcean, AWS EC2)
@@ -236,7 +236,10 @@ blue-app/
 ├── e2e/                      # Playwright E2E tests
 ├── load-tests/               # k6 load tests
 ├── docs/                     # Documentation
-│   └── security-audit.md     # Security audit report
+│   ├── security-audit.md     # Security audit report
+│   ├── deployment.md        # Deployment guide
+│   ├── migration.md         # SQLite → PostgreSQL migration
+│   └── remaining-work.md    # Remaining work roadmap
 ├── .github/                  # CI/CD workflows + dependabot
 ├── Dockerfile                # Production multi-stage build
 ├── docker-compose*.yml       # Docker orchestration (dev + prod)

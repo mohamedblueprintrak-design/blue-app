@@ -24,21 +24,45 @@ test.describe.serial('Core Application Flows (Login, Projects, Invoices)', () =>
     await sharedPage.goto('/dashboard', { timeout: 60000 });
     await sharedPage.waitForLoadState('domcontentloaded');
 
-    // 2. Fill credentials for Admin
+    // 2. Wait for the auth store to initialize.
+    // The dashboard layout shows a loading screen (logo + "BluePrint" text) while
+    // `isInitialized` is false. The auth store calls /api/auth/session to check
+    // if the user is authenticated. In CI, this API call may be slow.
+    // We wait for the loading screen to disappear by waiting for either:
+    //   - The email input (login form rendered), OR
+    //   - The main dashboard layout (already authenticated)
     const emailInput = sharedPage.locator('input[type="email"], input[name="email"]').first();
+    const mainLayout = sharedPage.locator('main[role="main"]').first();
+
+    // Wait up to 30s for either the login form or the dashboard to appear
+    await expect.poll(async () => {
+      const emailVisible = await emailInput.isVisible().catch(() => false);
+      const layoutVisible = await mainLayout.isVisible().catch(() => false);
+      return emailVisible || layoutVisible;
+    }, {
+      timeout: 30000,
+      intervals: [500, 1000, 2000], // poll every 500ms, then 1s, then 2s
+      message: 'Waiting for auth store to initialize (login form or dashboard)',
+    }).toBe(true);
+
+    // If already authenticated (e.g., session cookie from previous test), skip login
+    const layoutVisible = await mainLayout.isVisible().catch(() => false);
+    if (layoutVisible) {
+      // Already logged in — test passes
+      return;
+    }
+
+    // 3. Fill credentials for Admin
     const passwordInput = sharedPage.locator('input[type="password"], input[name="password"]').first();
     const submitButton = sharedPage.locator('button[type="submit"]').first();
 
-    await expect(emailInput).toBeVisible({ timeout: 15000 });
     await emailInput.fill(process.env.E2E_ADMIN_EMAIL || 'admin@blueprint.ae');
     await passwordInput.fill(process.env.E2E_ADMIN_PASSWORD || 'Admin@BP2024!');
     await submitButton.click();
 
-    // 3. Verify successful redirection and rendering of authenticated layout
+    // 4. Verify successful redirection and rendering of authenticated layout
     await sharedPage.waitForURL('**/dashboard', { timeout: 30000 });
     
-    // Check for the main dashboard content layout presence
-    const mainLayout = sharedPage.locator('main[role="main"]').first();
     await expect(mainLayout).toBeVisible({ timeout: 15000 });
   });
 

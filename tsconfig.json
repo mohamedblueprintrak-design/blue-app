@@ -42,6 +42,8 @@
     "blue-app-fix",
     "jest.setup.ts",
     "jest.config.ts",
-    "__tests__"
+    "__tests__",
+    "src/stories",
+    ".storybook"
   ]
 }

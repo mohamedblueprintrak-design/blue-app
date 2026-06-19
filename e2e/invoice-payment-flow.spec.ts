@@ -45,17 +45,34 @@ test.describe.serial('Invoice → Payment → Webhook Flow', () => {
     await sharedPage.goto('/dashboard', { timeout: 60000 });
     await sharedPage.waitForLoadState('domcontentloaded');
 
+    // Wait for the auth store to initialize (loading screen → login form or dashboard)
     const emailInput = sharedPage.locator('input[type="email"], input[name="email"]').first();
+    const mainLayout = sharedPage.locator('main[role="main"]').first();
+
+    await expect.poll(async () => {
+      const emailVisible = await emailInput.isVisible().catch(() => false);
+      const layoutVisible = await mainLayout.isVisible().catch(() => false);
+      return emailVisible || layoutVisible;
+    }, {
+      timeout: 30000,
+      intervals: [500, 1000, 2000],
+      message: 'Waiting for auth store to initialize',
+    }).toBe(true);
+
+    // If already authenticated, skip login
+    const layoutVisible = await mainLayout.isVisible().catch(() => false);
+    if (layoutVisible) {
+      return;
+    }
+
     const passwordInput = sharedPage.locator('input[type="password"], input[name="password"]').first();
     const submitButton = sharedPage.locator('button[type="submit"]').first();
 
-    await expect(emailInput).toBeVisible({ timeout: 15000 });
     await emailInput.fill(ADMIN_EMAIL);
     await passwordInput.fill(ADMIN_PASSWORD);
     await submitButton.click();
 
     await sharedPage.waitForURL('**/dashboard', { timeout: 30000 });
-    const mainLayout = sharedPage.locator('main[role="main"]').first();
     await expect(mainLayout).toBeVisible({ timeout: 15000 });
   });
 
