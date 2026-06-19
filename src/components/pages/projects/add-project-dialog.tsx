@@ -110,7 +110,7 @@ export function AddProjectDialog({
   }, [templatesLoaded]);
 
   useEffect(() => {
-    if (useTemplate && open) fetchTemplates(); // eslint-disable-line react-hooks/set-state-in-effect
+    if (useTemplate && open) fetchTemplates();  
   }, [useTemplate, open, fetchTemplates]);
 
   // When template is selected, auto-fill type based on category

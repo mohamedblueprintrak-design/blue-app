@@ -25,7 +25,7 @@ export default function PublicHeader() {
   useEffect(() => {
     const saved = localStorage.getItem("blueprint-lang");
     if (saved === "ar" || saved === "en") {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+       
       setLanguageState(saved);
     }
   }, []);

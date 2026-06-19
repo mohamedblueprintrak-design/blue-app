@@ -46,7 +46,7 @@ export default function AboutPage() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+     
     setMounted(true);
   }, []);
 
@@ -54,7 +54,7 @@ export default function AboutPage() {
   useEffect(() => {
     const saved = localStorage.getItem("blueprint-lang") as "ar" | "en" | null;
     if (saved) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+       
       setLanguage(saved);
     }
     
