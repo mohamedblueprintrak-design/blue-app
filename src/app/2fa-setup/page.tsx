@@ -33,10 +33,6 @@ export default function TwoFASetupPage() {
   const [submitting, setSubmitting] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  useEffect(() => {
-    checkStatus();
-  }, []);
-
   const checkStatus = async () => {
     try {
       const res = await fetch("/api/auth/2fa");
@@ -57,6 +53,10 @@ export default function TwoFASetupPage() {
       setStep("setup");
     }
   };
+
+  useEffect(() => {
+    checkStatus();
+  }, []);
 
   const setup2FA = async () => {
     setSubmitting(true);

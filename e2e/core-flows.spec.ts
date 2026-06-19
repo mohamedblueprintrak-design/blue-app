@@ -30,8 +30,8 @@ test.describe.serial('Core Application Flows (Login, Projects, Invoices)', () =>
     const submitButton = sharedPage.locator('button[type="submit"]').first();
 
     await expect(emailInput).toBeVisible({ timeout: 15000 });
-    await emailInput.fill('admin@blueprint.ae');
-    await passwordInput.fill('Admin@BP2024!');
+    await emailInput.fill(process.env.E2E_ADMIN_EMAIL || 'admin@blueprint.ae');
+    await passwordInput.fill(process.env.E2E_ADMIN_PASSWORD || 'Admin@BP2024!');
     await submitButton.click();
 
     // 3. Verify successful redirection and rendering of authenticated layout

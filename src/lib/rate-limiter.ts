@@ -281,7 +281,7 @@ export const rateLimiters = {
    * Used for login, signup, password reset
    */
   auth: new RateLimiter({
-    maxRequests: isDev ? 60 : 10,
+    maxRequests: isDev ? 1000 : 10,
     windowMs: 60000,
     keyPrefix: 'auth',
   }),
@@ -291,7 +291,7 @@ export const rateLimiters = {
    * General API endpoints
    */
   api: new RateLimiter({
-    maxRequests: isDev ? 300 : 100,
+    maxRequests: isDev ? 1000 : 100,
     windowMs: 60000,
     keyPrefix: 'api',
   }),
@@ -301,7 +301,7 @@ export const rateLimiters = {
    * Used for public endpoints like webhooks, health checks
    */
   public: new RateLimiter({
-    maxRequests: 200,
+    maxRequests: 1000,
     windowMs: 60000,
     keyPrefix: 'public',
   }),
@@ -311,7 +311,7 @@ export const rateLimiters = {
    * Used for public form submissions (quote requests, contact forms)
    */
   publicForm: new RateLimiter({
-    maxRequests: 10,
+    maxRequests: isDev ? 1000 : 10,
     windowMs: 60000,
     keyPrefix: 'publicform',
   }),
@@ -321,7 +321,7 @@ export const rateLimiters = {
    * Used for sensitive operations
    */
   strict: new RateLimiter({
-    maxRequests: isDev ? 30 : 5,
+    maxRequests: isDev ? 1000 : 5,
     windowMs: 60000,
     keyPrefix: 'strict',
   }),

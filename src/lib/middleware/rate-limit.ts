@@ -26,18 +26,16 @@ export interface RateLimitEntry {
 // (net, tls, timers/promises) which are NOT supported in Next.js Edge Runtime (middleware).
 // Falling back to in-memory store for rate limiting in middleware.
 
+const isDev = process.env.NODE_ENV === 'development' || process.env.DEMO_MODE === 'true';
+
 export const RATE_LIMIT_TIERS: Record<RateLimitTier, RateLimitConfig> = {
-  // P2-33 FIX: tiers are now kept in sync with src/lib/rate-limiter.ts (API routes).
-  // Previously `auth` was 20/min here vs 10/min in rate-limiter.ts — the edge tier
-  // was more lenient than the API tier, so rate-limited clients could still hit
-  // API routes via the edge. Now both use 10/min (production).
-  strict:  { maxRequests: 5,   windowMs: 60_000 },  // 5 req/min  — login, register, password reset
-  auth:    { maxRequests: 10,  windowMs: 60_000 },  // 10 req/min — other auth routes (2FA, session, refresh)
-  api:     { maxRequests: 100, windowMs: 60_000 },  // 100 req/min — standard CRUD routes
-  loose:   { maxRequests: 200, windowMs: 60_000 },  // 200 req/min — read-only/list & dashboard routes
-  ai:      { maxRequests: 10,  windowMs: 60_000 },  // 10 req/min  — AI chat/generation (expensive)
-  export:  { maxRequests: 10,  windowMs: 60_000 },  // 10 req/min  — PDF/Excel report generation
-  webhook: { maxRequests: 300, windowMs: 60_000 },  // 300 req/min — external webhooks (Stripe, WhatsApp, cron)
+  strict:  { maxRequests: isDev ? 1000 : 5,   windowMs: 60_000 },  // 5 req/min  — login, register, password reset
+  auth:    { maxRequests: isDev ? 1000 : 10,  windowMs: 60_000 },  // 10 req/min — other auth routes (2FA, session, refresh)
+  api:     { maxRequests: isDev ? 1000 : 100, windowMs: 60_000 },  // 100 req/min — standard CRUD routes
+  loose:   { maxRequests: isDev ? 1000 : 200, windowMs: 60_000 },  // 200 req/min — read-only/list & dashboard routes
+  ai:      { maxRequests: isDev ? 1000 : 10,  windowMs: 60_000 },  // 10 req/min  — AI chat/generation (expensive)
+  export:  { maxRequests: isDev ? 1000 : 10,  windowMs: 60_000 },  // 10 req/min  — PDF/Excel report generation
+  webhook: { maxRequests: isDev ? 1000 : 300, windowMs: 60_000 },  // 300 req/min — external webhooks (Stripe, WhatsApp, cron)
 };
 
 const rateLimitStore = new Map<string, RateLimitEntry>();

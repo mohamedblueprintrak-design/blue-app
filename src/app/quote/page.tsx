@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useLanguage } from "@/hooks/use-lang";
@@ -350,8 +350,6 @@ export default function QuotePage() {
     );
   }
 
-  const StepIcon = getStepIcon();
-
   const areaValues = ["less-300", "300-500", "500-1000", "1000-2000", "2000+"];
 
   const getAreaLabel = (val: string) => {
@@ -401,7 +399,7 @@ export default function QuotePage() {
             <div className="flex items-center justify-between mb-3">
               <span className="text-sm font-medium text-slate-300">{t("الخطوة", "Step")} {step} {t("من", "of")} {TOTAL_STEPS}</span>
               <span className="text-sm text-blue-200/90 flex items-center gap-1.5">
-                <StepIcon className="w-4 h-4" />
+                {React.createElement(getStepIcon(), { className: "w-4 h-4" })}
                 {getStepLabel()}
               </span>
             </div>
