@@ -130,7 +130,7 @@ test.describe.serial('Invoice → Payment → Webhook Flow', () => {
     if (invoices.length > 0) {
       const first = invoices[0];
       expect(first).toHaveProperty('id');
-      expect(first).toHaveProperty('invoiceNumber');
+      expect(first).toHaveProperty('number');
       expect(first).toHaveProperty('status');
     }
   });
@@ -188,13 +188,21 @@ test.describe.serial('Invoice → Payment → Webhook Flow', () => {
   });
 
   test('10. logout should clear session', async () => {
-    const response = await sharedPage.request.post('/api/auth/logout', {
-      data: {},
-      headers: { 'Content-Type': 'application/json' },
-    });
+    // Navigate to dashboard first if not there
+    if (!sharedPage.url().includes('/dashboard')) {
+      await sharedPage.goto('/dashboard');
+    }
+    
+    // Open user dropdown menu by clicking the profile trigger button
+    const userButton = sharedPage.locator('button:has-text("General Manager"), button:has-text("المدير العام"), button:has-text("Admin")').first();
+    await userButton.click();
+    
+    // Click Sign Out/تسجيل الخروج option
+    const logoutItem = sharedPage.locator('[role="menuitem"]:has-text("Sign Out"), [role="menuitem"]:has-text("تسجيل الخروج"), [role="menuitem"]:has-text("خروج")').first();
+    await logoutItem.click();
 
-    // Should be 200 (successful logout)
-    expect(response.status()).toBe(200);
+    // Wait for the login form to become visible
+    await sharedPage.waitForSelector('input[type="email"]', { timeout: 15000 });
 
     // After logout, accessing protected API should fail
     const protectedResponse = await sharedPage.request.get('/api/invoices');

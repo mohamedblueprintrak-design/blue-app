@@ -70,7 +70,7 @@ function AppHeader() {
 
       {/* Page Title */}
       <h1 className="text-base font-semibold text-slate-900 dark:text-white flex-1 truncate">
-        {tTitle(currentPage) || (isAr ? pageTitle.ar : pageTitle.en)}
+        {tTitle.has(currentPage) ? tTitle(currentPage) : (isAr ? pageTitle.ar : pageTitle.en)}
       </h1>
 
       {/* Action Buttons */}

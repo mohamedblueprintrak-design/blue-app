@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, Prisma } from '@prisma/client'
 import { registerShutdownCallback } from './shutdown'
 
 /**
@@ -71,11 +71,41 @@ if (process.env.NODE_ENV !== 'production') globalThis.__dbInitPromise = _dbInitP
  * `$use`, which are not used anywhere. Callers that explicitly type their
  * parameter as `PrismaClient` should cast via `as unknown as PrismaClient`.
  */
+// Dynamically discover all models in the schema that contain a 'deletedAt' field
+const softDeleteModels = new Set<string>(
+  Prisma.dmmf.datamodel.models
+    .filter((model) => model.fields.some((field) => field.name === 'deletedAt'))
+    .map((model) => model.name)
+);
+
+/**
+ * Gated Prisma client — every operation automatically awaits `dbReady` first.
+ * This makes FK enforcement race-free without requiring callers to remember
+ * to await anything.
+ *
+ * It also automatically applies soft-delete filtering (`deletedAt: null`) to
+ * all read, update, and delete queries for models that support it.
+ */
 export const db = _dbInstance.$extends({
   query: {
-    async $allOperations({ args, query }) {
+    async $allOperations({ model, operation, args, query }) {
       await _dbInitPromise
-      return query(args)
+
+      // Apply soft-delete filtering dynamically for models that support it
+      if (
+        model &&
+        softDeleteModels.has(model) &&
+        ['findFirst', 'findMany', 'count', 'aggregate', 'groupBy', 'update', 'updateMany', 'delete', 'deleteMany'].includes(operation)
+      ) {
+        args.where = args.where || {};
+        
+        // If the developer hasn't explicitly queried deletedAt, default to filtering out deleted records
+        if (args.where.deletedAt === undefined) {
+          args.where.deletedAt = null;
+        }
+      }
+
+      return query(args);
     },
   },
 })

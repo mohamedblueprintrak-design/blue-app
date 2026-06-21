@@ -21,7 +21,9 @@ test.describe.serial('Core Application Flows (Login, Projects, Invoices)', () =>
 
   test('should log in successfully via the UI', async () => {
     // 1. Navigate to dashboard login page
-    await sharedPage.goto('/dashboard', { timeout: 60000 });
+    const response = await sharedPage.goto('/dashboard', { timeout: 60000 });
+    expect(response).not.toBeNull();
+    expect(response?.status()).not.toBe(500);
     await sharedPage.waitForLoadState('domcontentloaded');
 
     // 2. Wait for the auth store to initialize.
@@ -68,7 +70,9 @@ test.describe.serial('Core Application Flows (Login, Projects, Invoices)', () =>
 
   test('should navigate to and load the projects list page', async () => {
     // 1. Navigate directly to projects route
-    await sharedPage.goto('/dashboard/projects', { timeout: 60000 });
+    const response = await sharedPage.goto('/dashboard/projects', { timeout: 60000 });
+    expect(response).not.toBeNull();
+    expect(response?.status()).not.toBe(500);
     await sharedPage.waitForLoadState('domcontentloaded');
 
     // 2. Verify URL
@@ -84,7 +88,9 @@ test.describe.serial('Core Application Flows (Login, Projects, Invoices)', () =>
 
   test('should navigate to and load the invoices list page', async () => {
     // 1. Navigate directly to invoices route
-    await sharedPage.goto('/dashboard/invoices', { timeout: 60000 });
+    const response = await sharedPage.goto('/dashboard/invoices', { timeout: 60000 });
+    expect(response).not.toBeNull();
+    expect(response?.status()).not.toBe(500);
     await sharedPage.waitForLoadState('domcontentloaded');
 
     // 2. Verify URL

@@ -27,7 +27,7 @@ const jestConfig = {
   testMatch: ['**/__tests__/**/*.test.{ts,tsx}'],
   collectCoverageFrom: [
     'src/lib/**/*.ts',
-    'src/app/api/utils/**/*.ts',
+    'src/app/api/**/*.ts',
     '!src/**/*.d.ts',
     '!src/**/types.ts',
   ],

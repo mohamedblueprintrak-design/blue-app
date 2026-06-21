@@ -88,6 +88,8 @@ test.describe('Accessibility (a11y)', () => {
         'Firebase',                  // Firebase not configured in CI
         'messaging',                 // Web push messaging not configured
         'Failed to register a ServiceWorker', // SW in CI may not register
+        'Content Security Policy',            // CSP style violations for third-party dynamic styles
+        'violates the following Content Security Policy directive',
       ].some(pattern => text.includes(pattern));
 
       if (!isExpectedNoise) {

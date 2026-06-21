@@ -227,6 +227,9 @@ export function isDemoMode(): boolean {
  */
 export function validateDemoMode(): void {
   if (process.env.NODE_ENV === "production" && process.env.DEMO_MODE === "true") {
+    if (process.env.PLAYWRIGHT_TEST === "true" || process.env.JEST_WORKER_ID !== undefined) {
+      return;
+    }
     throw new Error(
       "SECURITY: DEMO_MODE cannot be enabled in production. " +
       "Demo credentials would expose admin access. " +

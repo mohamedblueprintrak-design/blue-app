@@ -140,6 +140,13 @@ describe('Demo Credentials — isDemoMode', () => {
 describe('Demo Credentials — validateDemoMode', () => {
   const originalNodeEnv = process.env.NODE_ENV;
   const originalDemoMode = process.env.DEMO_MODE;
+  const originalJestWorkerId = process.env.JEST_WORKER_ID;
+  const originalPlaywrightTest = process.env.PLAYWRIGHT_TEST;
+
+  beforeEach(() => {
+    delete process.env.JEST_WORKER_ID;
+    delete process.env.PLAYWRIGHT_TEST;
+  });
 
   afterEach(() => {
     if (originalNodeEnv !== undefined) {
@@ -151,6 +158,16 @@ describe('Demo Credentials — validateDemoMode', () => {
       process.env.DEMO_MODE = originalDemoMode;
     } else {
       delete process.env.DEMO_MODE;
+    }
+    if (originalJestWorkerId !== undefined) {
+      process.env.JEST_WORKER_ID = originalJestWorkerId;
+    } else {
+      delete process.env.JEST_WORKER_ID;
+    }
+    if (originalPlaywrightTest !== undefined) {
+      process.env.PLAYWRIGHT_TEST = originalPlaywrightTest;
+    } else {
+      delete process.env.PLAYWRIGHT_TEST;
     }
   });
 

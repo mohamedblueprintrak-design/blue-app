@@ -109,14 +109,17 @@ export async function requireStepUp2FA(
   startCleanup();
 
   const userId = authCtx.userId;
+  const cookieLang = request.cookies.get('blueprint-lang')?.value;
+  const acceptLang = request.headers.get('accept-language');
+  const isAr = cookieLang === 'ar' || (acceptLang?.startsWith('ar') ?? false);
 
   // Step 1: Check if user has 2FA enabled
   const twoFactorEnabled = await hasTwoFactorEnabled(userId);
 
   if (!twoFactorEnabled) {
     const userRole = authCtx.role?.toUpperCase();
-    if (userRole === 'ADMIN' || userRole === 'MANAGER') {
-      log.security('Step-up 2FA blocked — ADMIN/MANAGER does not have 2FA enabled', {
+    if (userRole === 'ADMIN' || userRole === 'MANAGER' || userRole === 'ACCOUNTANT') {
+      log.security('Step-up 2FA blocked — sensitive role does not have 2FA enabled', {
         userId,
         role: authCtx.role,
         path: request.nextUrl?.pathname,
@@ -126,7 +129,9 @@ export async function requireStepUp2FA(
           {
             error: {
               code: 'STEP_UP_2FA_REQUIRED',
-              message: 'هذه العملية تتطلب تفعيل المصادقة الثنائية (2FA) أولاً لحسابك.',
+              message: isAr
+                ? 'هذه العملية تتطلب تفعيل المصادقة الثنائية (2FA) أولاً لحسابك.'
+                : 'This operation requires two-factor authentication (2FA) to be enabled first for your account.',
               requiresStepUp: true,
             },
           },
@@ -135,7 +140,7 @@ export async function requireStepUp2FA(
       };
     }
 
-    // User doesn't have 2FA enabled and is not ADMIN/MANAGER — allow operation but log warning
+    // User doesn't have 2FA enabled and is not ADMIN/MANAGER/ACCOUNTANT — allow operation but log warning
     log.security('Step-up 2FA bypassed — user does not have 2FA enabled', {
       userId,
       path: request.nextUrl?.pathname,
@@ -175,7 +180,9 @@ export async function requireStepUp2FA(
         {
           error: {
             code: 'STEP_UP_2FA_REQUIRED',
-            message: 'هذه العملية تتطلب تحقق إضافي. الرجاء إدخال رمز المصادقة الثنائية.',
+            message: isAr
+              ? 'هذه العملية تتطلب تحقق إضافي. الرجاء إدخال رمز المصادقة الثنائية.'
+              : 'This operation requires additional verification. Please enter your two-factor authentication code.',
             requiresStepUp: true,
           },
         },
@@ -198,7 +205,9 @@ export async function requireStepUp2FA(
         {
           error: {
             code: 'STEP_UP_2FA_INVALID',
-            message: 'رمز المصادقة الثنائية غير صحيح أو منتهي الصلاحية.',
+            message: isAr
+              ? 'رمز المصادقة الثنائية غير صحيح أو منتهي الصلاحية.'
+              : 'The two-factor authentication code is invalid or has expired.',
             requiresStepUp: true,
           },
         },

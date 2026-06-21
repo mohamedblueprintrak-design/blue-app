@@ -49,6 +49,9 @@ test.describe.serial('Approvals Workflow & Multi-tenant Isolation', () => {
 
   // Helper: login if not already authenticated
   async function ensureLoggedIn() {
+    if (sharedPage.url() === 'about:blank') {
+      await sharedPage.goto('/dashboard', { timeout: 60000 });
+    }
     const alreadyAuthed = await waitForAuth();
     if (alreadyAuthed) return;
 

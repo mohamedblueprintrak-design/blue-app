@@ -252,13 +252,51 @@ export interface RateLimitCheckResult {
   retryAfter?: number;
 }
 
-export async function checkProxyRateLimit(ip: string, tier: RateLimitTier): Promise<RateLimitCheckResult> {
+export async function checkProxyRateLimit(
+  ip: string,
+  tier: RateLimitTier,
+  requestOrigin?: string
+): Promise<RateLimitCheckResult> {
   const config = RATE_LIMIT_TIERS[tier];
   const key = `${tier}:${ip}`;
   const now = Date.now();
 
-  // Redis client removed for Edge Runtime compatibility
-  // In-memory fallback used exclusively for edge rate-limiting
+  const redisUrl = process.env.REDIS_URL;
+  const internalSecret = process.env.INTERNAL_API_SECRET || process.env.JWT_SECRET;
+
+  if (redisUrl && internalSecret && requestOrigin) {
+    try {
+      const internalApiUrl = `${requestOrigin}/api/internal/rate-limit`;
+      const response = await fetch(internalApiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${internalSecret}`,
+        },
+        body: JSON.stringify({ ip, tier }),
+        signal: AbortSignal.timeout(500),
+      });
+
+      if (response.ok) {
+        const result = (await response.json()) as {
+          allowed: boolean;
+          remaining: number;
+          resetTime: number;
+          retryAfter?: number;
+        };
+
+        return {
+          allowed: result.allowed,
+          tier,
+          remaining: result.remaining,
+          resetTime: result.resetTime,
+          retryAfter: result.retryAfter,
+        };
+      }
+    } catch {
+      // Graceful degradation: fallback to in-memory store
+    }
+  }
 
   // Memory Fallback
   cleanupRateLimitStore();

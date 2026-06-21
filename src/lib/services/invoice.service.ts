@@ -382,7 +382,7 @@ class InvoiceService {
       });
 
       if (updateResult.count === 0) {
-        throw new Error('العملية فشلت بسبب تحديث متزامن. الرجاء المحاولة مرة أخرى.');
+        throw new Error('CONCURRENT_UPDATE_ERROR');
       }
 
       const newPaidAmount = currentPaid + amount;
@@ -396,7 +396,7 @@ class InvoiceService {
       });
 
       if (finalUpdateResult.count === 0) {
-        throw new Error('العملية فشلت بسبب تحديث متزامن. الرجاء المحاولة مرة أخرى.');
+        throw new Error('CONCURRENT_UPDATE_ERROR');
       }
 
       const finalInvoice = await tx.invoice.findFirst({ where: { id, organizationId, deletedAt: null }});

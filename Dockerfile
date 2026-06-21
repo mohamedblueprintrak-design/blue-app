@@ -112,8 +112,8 @@ COPY --from=deps /app/node_modules/prisma ./node_modules/prisma
 # Create uploads directory
 RUN mkdir -p /app/uploads && chown -R nextjs:nodejs /app/uploads
 
-# Install postgresql-client for migrations
-RUN apk add --no-cache postgresql-client
+# Install postgresql-client for migrations and tini
+RUN apk add --no-cache postgresql-client tini
 
 # Copy entrypoint script
 COPY --from=builder /app/docker-entrypoint.sh ./
@@ -137,5 +137,5 @@ HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
     CMD wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1
 
 # Start the application via entrypoint
-ENTRYPOINT ["./docker-entrypoint.sh"]
+ENTRYPOINT ["/sbin/tini", "--", "./docker-entrypoint.sh"]
 CMD ["node", "server.js"]
