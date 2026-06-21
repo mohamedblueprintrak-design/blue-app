@@ -88,6 +88,7 @@ export function ProjectTableView({
         </div>
       ) : (
       <TableVirtuoso
+        style={{ height: "calc(100vh - 280px)", minHeight: "400px" }}
         data={projects}
         components={VirtuosoTableComponents}
         fixedHeaderContent={() => (

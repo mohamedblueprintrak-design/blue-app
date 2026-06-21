@@ -173,7 +173,16 @@ export default function AttendancePage({ language }: AttendancePageProps) {
   });
 
   const records = useMemo(() => data?.records || [], [data?.records]);
-  const summary = useMemo(() => data?.summary || { present: 0, absent: 0, late: 0, leave: 0, totalEmployees: 0 }, [data?.summary]);
+  const summary = useMemo(() => {
+    const s = data?.summary;
+    return {
+      present: s?.present ?? s?.PRESENT ?? 0,
+      absent: s?.absent ?? s?.ABSENT ?? 0,
+      late: s?.late ?? s?.LATE ?? 0,
+      leave: s?.leave ?? s?.LEAVE ?? 0,
+      totalEmployees: s?.totalEmployees ?? 0,
+    };
+  }, [data?.summary]);
 
   // Fetch employees for dropdown
   const { data: employees = [] } = useQuery<EmployeeOption[]>({
@@ -224,10 +233,10 @@ export default function AttendancePage({ language }: AttendancePageProps) {
       days.push({
         day: dayStr,
         counts: {
-          PRESENT: dayRecords.filter(r => r.status === "PRESENT").length,
-          LATE: dayRecords.filter(r => r.status === "LATE").length,
-          ABSENT: dayRecords.filter(r => r.status === "ABSENT").length,
-          LEAVE: dayRecords.filter(r => r.status === "LEAVE").length,
+          present: dayRecords.filter(r => r.status === "PRESENT").length,
+          late: dayRecords.filter(r => r.status === "LATE").length,
+          absent: dayRecords.filter(r => r.status === "ABSENT").length,
+          leave: dayRecords.filter(r => r.status === "LEAVE").length,
         },
       });
     }

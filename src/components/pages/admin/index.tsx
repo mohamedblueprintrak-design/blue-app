@@ -51,10 +51,13 @@ export default function AdminPanel({ language: lang }: Props) {
   // Fetch activities
   const { data: activities = [], isLoading: activitiesLoading } = useQuery<ActivityRecord[]>({
     queryKey: ["activity-log", activityFilter],
-    queryFn: () => {
+    queryFn: async () => {
       const params = new URLSearchParams();
       if (activityFilter !== "all") params.set("actionType", activityFilter);
-      return fetch(`/api/activity-log?${params}`).then((r) => r.json());
+      const res = await fetch(`/api/activity-log?${params.toString()}`);
+      if (!res.ok) return [];
+      const json = await res.json();
+      return json.data || json;
     },
   });
 
