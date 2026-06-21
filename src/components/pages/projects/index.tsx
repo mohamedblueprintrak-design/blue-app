@@ -154,10 +154,20 @@ export default function ProjectsList({ language }: ProjectsListProps) {
     },
   });
 
-  const rawProjects: ProjectRow[] = Array.isArray(data?.projects) ? data.projects : [];
+  // API returns: { success, data: [...projects], meta: { pagination: {...} } }
+  // The data array may be at data.data (successResponse wrapper) or data.projects (legacy)
+  const rawProjects: ProjectRow[] = Array.isArray(data?.data)
+    ? data.data
+    : Array.isArray(data?.projects)
+      ? data.projects
+      : Array.isArray(data)
+        ? data
+        : [];
   const projects = rawProjects.filter(p => !optimisticDeletedIds.has(p.id));
-  const totalPages = data?.pagination?.totalPages || 1;
-  const allProjectsCount = data?.pagination?.total || 0;
+  // Pagination may be at data.meta.pagination (new) or data.pagination (legacy)
+  const pagination = data?.meta?.pagination || data?.pagination;
+  const totalPages = pagination?.totalPages || 1;
+  const allProjectsCount = pagination?.total || 0;
 
   // Auto-save draft logic
   useEffect(() => {
