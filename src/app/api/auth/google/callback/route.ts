@@ -257,7 +257,7 @@ export async function GET(request: NextRequest) {
             emailVerified: new Date(), // Google already verified the email
             password: '!oauth_' + crypto.randomUUID() + '_' + Date.now(), // Unusable random password — social login only
             lastLogin: new Date(),
-            organizationId: (await db.organization.findFirst())?.id || "",
+            organizationId: null,
           },
         });
         log.info('Google OAuth: new user created', { userId: user.id, email: googleEmail });

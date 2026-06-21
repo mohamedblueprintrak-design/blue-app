@@ -119,7 +119,7 @@ class ClientService {
       async () => {
         log.service('ClientService', 'getClients', { organizationId });
         return db.client.findMany({
-          where: { organizationId },
+          where: { organizationId, deletedAt: null },
           orderBy: { createdAt: 'desc' },
         });
       },
@@ -138,7 +138,7 @@ class ClientService {
       async () => {
         log.service('ClientService', 'getActiveClients', { organizationId });
         return db.client.findMany({
-          where: { isActive: true, organizationId },
+          where: { isActive: true, organizationId, deletedAt: null },
           orderBy: { name: 'asc' },
           select: {
             id: true,
@@ -158,7 +158,7 @@ class ClientService {
    */
   async getClientById(id: string, organizationId: string): Promise<Client | null> {
     return db.client.findFirst({
-      where: { id, organizationId },
+      where: { id, organizationId, deletedAt: null },
     });
   }
 
@@ -217,7 +217,7 @@ class ClientService {
   ): Promise<Client> {
     // SECURITY: Verify client belongs to organization
     const oldClient = await db.client.findFirst({
-      where: { id, organizationId },
+      where: { id, organizationId, deletedAt: null },
     });
 
     if (!oldClient) {
@@ -257,7 +257,7 @@ class ClientService {
     });
 
     const client = await db.client.findFirst({
-      where: { id, organizationId },
+      where: { id, organizationId, deletedAt: null },
     });
 
     if (!client) {
@@ -292,7 +292,7 @@ class ClientService {
   ): Promise<void> {
     // SECURITY: Verify client belongs to organization
     const client = await db.client.findFirst({
-      where: { id, organizationId },
+      where: { id, organizationId, deletedAt: null },
     });
 
     if (!client) {
@@ -331,8 +331,8 @@ class ClientService {
       async () => {
         log.service('ClientService', 'getClientStats', { organizationId });
         const [total, active] = await Promise.all([
-          db.client.count({ where: { organizationId } }),
-          db.client.count({ where: { isActive: true, organizationId } }),
+          db.client.count({ where: { organizationId, deletedAt: null } }),
+          db.client.count({ where: { isActive: true, organizationId, deletedAt: null } }),
         ]);
 
         return {
@@ -355,6 +355,7 @@ class ClientService {
       where: {
         isActive: true,
         organizationId,
+        deletedAt: null,
         OR: [
           { name: { contains: query } },
           { email: { contains: query } },

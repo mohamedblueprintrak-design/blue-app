@@ -33,15 +33,15 @@ import {
 
 const PORT = parseInt(process.env.PORT || '3003', 10);
 
-// JWT_SECRET: In production, a strong secret MUST be set via environment variable.
-// Using a fallback secret in production is a critical security vulnerability.
-if (process.env.NODE_ENV === 'production' && !process.env.JWT_SECRET) {
+// JWT_SECRET: JWT_SECRET environment variable is required in all environments (minimum 32 characters).
+if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
   throw new Error(
-    'SECURITY: JWT_SECRET environment variable is required in production. ' +
-    'Set a strong, random secret (≥32 characters) before starting the service.'
+    'FATAL: JWT_SECRET environment variable is required (min 32 characters).' +
+    '\n   Set JWT_SECRET in your .env file (min 32 characters)' +
+    '\n   Generate with: openssl rand -base64 48'
   );
 }
-const JWT_SECRET = process.env.JWT_SECRET || 'blueprint-dev-secret-do-not-use-in-production-min32chars!';
+const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_ISSUER = process.env.JWT_ISSUER || 'blueprint-saas';
 const JWT_AUDIENCE = process.env.JWT_AUDIENCE || 'blueprint-ws';
 const CORS_ORIGIN = process.env.CORS_ORIGINS || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
@@ -452,12 +452,6 @@ function setupEventHandlers(socket: TypedSocket) {
     const userConnection = connectedUsers.get(socket.id);
     if (!userConnection) {
       socket.emit('error', { message: 'Unauthorized: not connected properly', code: 'NOT_CONNECTED' });
-      return;
-    }
-
-    // Admins can join any organization room
-    if (socket.data.role === 'ADMIN' || socket.data.role === 'admin') {
-      joinRoom(socket, 'organization', organizationId);
       return;
     }
 

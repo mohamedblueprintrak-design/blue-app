@@ -207,11 +207,10 @@ export async function createAuditEntry(params: CreateAuditEntryParams): Promise<
     const auditDetails =
       details ?? generateDetailsFromDiff(diffOld, diffNew, action);
 
-    let orgId = organizationId;
-    if (!orgId) {
-      const org = await db.organization.findFirst();
-      orgId = org?.id || "";
+    if (!organizationId) {
+      throw new Error('organizationId is required for audit logging to prevent tenant leakage');
     }
+    const orgId = organizationId;
 
     const metadataStr = Object.keys(metadataObj).length > 0 ? JSON.stringify(metadataObj) : null;
 

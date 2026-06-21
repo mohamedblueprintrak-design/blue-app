@@ -257,8 +257,16 @@ export async function GET(request: NextRequest) {
   const isAuthenticated =
     healthCheckSecret && bearerToken && await timingSafeCompare(bearerToken, healthCheckSecret);
 
-  // Unauthenticated: return only basic status
+  // Unauthenticated: check database connectivity and return basic status
   if (!isAuthenticated) {
+    const dbCheck = await checkDatabase();
+    if (dbCheck.status === 'down') {
+      return NextResponse.json({
+        status: 'error',
+        message: 'Database connectivity check failed',
+        timestamp: new Date().toISOString(),
+      }, { status: 503 });
+    }
     return NextResponse.json({
       status: 'ok',
       timestamp: new Date().toISOString(),

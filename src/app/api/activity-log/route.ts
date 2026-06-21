@@ -35,9 +35,10 @@ export async function GET(request: NextRequest) {
     const projectId = searchParams.get('projectId');
     const { page, limit, search } = parsePaginationParams(searchParams);
 
-    // ActivityLog doesn't have organizationId; filter through project relationship
-    const orgWhere = ctx.organizationId ? { project: { organizationId: ctx.organizationId } } : {};
-    const where: Record<string, unknown> = { ...orgWhere };
+    // Filter ActivityLog by organizationId to ensure strict tenant isolation
+    const where: Record<string, unknown> = {
+      organizationId: ctx.organizationId || '__DENIED__',
+    };
 
     if (actionType) {
       where.action = actionType;

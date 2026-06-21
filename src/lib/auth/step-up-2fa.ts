@@ -114,8 +114,28 @@ export async function requireStepUp2FA(
   const twoFactorEnabled = await hasTwoFactorEnabled(userId);
 
   if (!twoFactorEnabled) {
-    // User doesn't have 2FA enabled — allow operation but log warning
-    // (Admin should enforce 2FA for sensitive roles, but we don't block here)
+    const userRole = authCtx.role?.toUpperCase();
+    if (userRole === 'ADMIN' || userRole === 'MANAGER') {
+      log.security('Step-up 2FA blocked — ADMIN/MANAGER does not have 2FA enabled', {
+        userId,
+        role: authCtx.role,
+        path: request.nextUrl?.pathname,
+      });
+      return {
+        error: NextResponse.json(
+          {
+            error: {
+              code: 'STEP_UP_2FA_REQUIRED',
+              message: 'هذه العملية تتطلب تفعيل المصادقة الثنائية (2FA) أولاً لحسابك.',
+              requiresStepUp: true,
+            },
+          },
+          { status: 403 }
+        ),
+      };
+    }
+
+    // User doesn't have 2FA enabled and is not ADMIN/MANAGER — allow operation but log warning
     log.security('Step-up 2FA bypassed — user does not have 2FA enabled', {
       userId,
       path: request.nextUrl?.pathname,

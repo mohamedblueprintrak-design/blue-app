@@ -41,7 +41,7 @@ const CSRF_EXEMPT_PATHS = [
   '/api/stripe/webhook', '/api/health', '/api/auth/login',
   '/api/auth/register', '/api/auth/forgot-password',
   '/api/auth/reset-password', '/api/auth/verify-email', '/api/auth/resend-verification',
-  '/api/auth/2fa/verify', '/api/auth/2fa/backup-codes',
+  '/api/auth/2fa/verify',
   '/api/auth/refresh', '/api/auth/ws-token', '/api/seed',
   '/api/quote-requests', '/api/cron/cleanup', '/api/public/stats',
   '/api/auth/google', '/api/auth/google/callback', // Google OAuth social login

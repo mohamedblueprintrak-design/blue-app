@@ -65,6 +65,10 @@ interface AttendanceSummary {
   late: number;
   leave: number;
   totalEmployees: number;
+  PRESENT?: number;
+  ABSENT?: number;
+  LATE?: number;
+  LEAVE?: number;
 }
 
 interface AttendanceResponse {

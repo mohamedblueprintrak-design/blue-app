@@ -36,7 +36,8 @@ export async function GET(request: NextRequest) {
     // SECURITY: In multi-tenant mode, require orgId to prevent cross-tenant data leakage.
     // In single-tenant mode, default to the first organization.
     const orgId = searchParams.get("orgId")?.trim();
-    const isMultiTenant = process.env.MULTI_TENANT === 'true';
+    const isExplicitSingleTenant = process.env.MULTI_TENANT === 'false';
+    const isMultiTenant = !isExplicitSingleTenant;
     let resolvedOrgId = orgId;
 
     if (!resolvedOrgId) {

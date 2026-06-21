@@ -138,7 +138,7 @@ class ProjectService {
     const limit = pagination?.limit || 10;
     const skip = (page - 1) * limit;
 
-    const where: Record<string, unknown> = { organizationId };
+    const where: Record<string, unknown> = { organizationId, deletedAt: null };
 
     // Apply filters
     if (filters?.status) where.status = filters.status;
@@ -193,7 +193,7 @@ class ProjectService {
    */
   async getProjectById(id: string, organizationId: string) {
     return db.project.findFirst({
-      where: { id, organizationId },
+      where: { id, organizationId, deletedAt: null },
       include: {
         client: true,
         manager: { select: { id: true, name: true, email: true } },
@@ -323,7 +323,7 @@ class ProjectService {
   ): Promise<Project> {
     // SECURITY: Verify project belongs to organization
     const oldProject = await db.project.findFirst({
-      where: { id, organizationId },
+      where: { id, organizationId, deletedAt: null },
     });
 
     if (!oldProject) {
@@ -369,7 +369,7 @@ class ProjectService {
     });
 
     const project = await db.project.findFirst({
-      where: { id, organizationId },
+      where: { id, organizationId, deletedAt: null },
     });
 
     if (!project) {
@@ -397,7 +397,7 @@ class ProjectService {
   async deleteProject(id: string, organizationId: string, userId: string): Promise<void> {
     // SECURITY: Verify project belongs to organization
     const project = await db.project.findFirst({
-      where: { id, organizationId },
+      where: { id, organizationId, deletedAt: null },
     });
 
     if (!project) {
@@ -428,15 +428,15 @@ class ProjectService {
     const [statusCounts, valueAggregate, progressAggregate] = await Promise.all([
       db.project.groupBy({
         by: ['status'],
-        where: { organizationId },
+        where: { organizationId, deletedAt: null },
         _count: true,
       }),
       db.project.aggregate({
-        where: { organizationId },
+        where: { organizationId, deletedAt: null },
         _sum: { contractValue: true },
       }),
       db.project.aggregate({
-        where: { status: 'ACTIVE', organizationId },
+        where: { status: 'ACTIVE', organizationId, deletedAt: null },
         _avg: { progress: true },
       }),
     ]) as [Array<{ status: string; _count: number }>, { _sum: { contractValue: number | null } }, { _avg: { progress: number | null } | null }];
@@ -563,7 +563,7 @@ class ProjectService {
   async updateProgress(id: string, organizationId: string): Promise<number | null> {
     // SECURITY: Verify project belongs to organization
     const project = await db.project.findFirst({
-      where: { id, organizationId },
+      where: { id, organizationId, deletedAt: null },
       select: { id: true },
     });
     

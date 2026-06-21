@@ -224,12 +224,6 @@ function setupEventHandlers(socket: Socket<ClientToServerEvents, ServerToClientE
       return;
     }
     
-    // Admins can join any organization room
-    if (socket.data.role === 'ADMIN' || socket.data.role === 'admin') {
-      joinRoom(socket, 'organization', organizationId);
-      return;
-    }
-
     if (!socket.data.organizationId || socket.data.organizationId !== organizationId) {
       log.warn('[WebSocket] Unauthorized attempt to join organization room', {
         userId: socket.data.userId,

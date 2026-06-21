@@ -4,8 +4,12 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* ===== OVERRIDE TEAL → NAVY BLUE (#133371) ===== */
+/* ===== BRAND COLORS ===== */
+/* Note: The codebase heavily uses teal utility classes (e.g. text-teal-600)
+   but expects brand navy styling. We define both to support existing code
+   and allow proper brand token usage going forward. */
 @theme {
+  /* Brand Navy (aliased as teal to support existing codebase classes) */
   --color-teal-50: #eef2fb;
   --color-teal-100: #dfe7f7;
   --color-teal-200: #bccde9;
@@ -17,6 +21,19 @@
   --color-teal-800: #0b244e;
   --color-teal-900: #081c3d;
   --color-teal-950: #05132c;
+
+  /* Explicit Brand Navy tokens */
+  --color-brand-navy-50: #eef2fb;
+  --color-brand-navy-100: #dfe7f7;
+  --color-brand-navy-200: #bccde9;
+  --color-brand-navy-300: #8eace0;
+  --color-brand-navy-400: #6089d1;
+  --color-brand-navy-500: #3366c0;
+  --color-brand-navy-600: #133371;
+  --color-brand-navy-700: #0f2c5f;
+  --color-brand-navy-800: #0b244e;
+  --color-brand-navy-900: #081c3d;
+  --color-brand-navy-950: #05132c;
 }
 
 @theme inline {

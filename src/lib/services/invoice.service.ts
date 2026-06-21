@@ -93,7 +93,7 @@ class InvoiceService {
     const limit = pagination?.limit || 20;
     const skip = (page - 1) * limit;
 
-    const where: Record<string, unknown> = { organizationId };
+    const where: Record<string, unknown> = { organizationId, deletedAt: null };
 
     // Apply filters
     if (filters?.status) where.status = filters.status;
@@ -145,7 +145,7 @@ class InvoiceService {
    */
   async getInvoiceById(id: string, organizationId: string): Promise<Invoice | null> {
     return db.invoice.findFirst({
-      where: { id, organizationId },
+      where: { id, organizationId, deletedAt: null },
       include: {
         client: true,
       },
@@ -356,46 +356,50 @@ class InvoiceService {
     }
 
     return await db.$transaction(async (tx) => {
-      // First verify the invoice belongs to the organization
+      // First verify the invoice belongs to the organization and is not deleted
       const invoice = await tx.invoice.findFirst({
-        where: { id, organizationId },
+        where: { id, organizationId, deletedAt: null },
       });
 
       if (!invoice) {
         throw new Error('Invoice not found or access denied');
       }
 
-      // Use atomic increment to prevent race conditions
-      await tx.invoice.updateMany({
-        where: { id, organizationId },
+      const currentPaid = Number(invoice.paidAmount);
+      const total = Number(invoice.total);
+
+      // Overpayment protection: payments cannot exceed the total invoice amount
+      if (currentPaid + amount > total) {
+        throw new Error(`Payment amount exceeds remaining balance. Remaining: ${total - currentPaid}`);
+      }
+
+      // Use optimistic concurrency control (OCC) matching on current paidAmount to prevent concurrent updates
+      const updateResult = await tx.invoice.updateMany({
+        where: { id, organizationId, paidAmount: invoice.paidAmount, deletedAt: null },
         data: {
           paidAmount: { increment: amount }
         }
       });
 
-      const updated = await tx.invoice.findFirst({ where: { id, organizationId }});
-      if (!updated) throw new Error('Invoice not found after update');
-
-      const newPaidAmount = Number(updated.paidAmount);
-      const total = Number(updated.total);
-      // Overpayment protection: payments cannot exceed the total invoice amount
-      if (newPaidAmount > total) {
-        // Rollback the overpayment by setting paidAmount to total
-        await tx.invoice.updateMany({
-          where: { id, organizationId },
-          data: { paidAmount: total }
-        });
-        throw new Error(`Payment amount exceeds remaining balance. Remaining: ${Number(invoice.remaining)}`);
+      if (updateResult.count === 0) {
+        throw new Error('العملية فشلت بسبب تحديث متزامن. الرجاء المحاولة مرة أخرى.');
       }
+
+      const newPaidAmount = currentPaid + amount;
       const status = newPaidAmount >= total ? 'PAID' : 'PARTIALLY_PAID';
       const remaining = Math.max(0, total - newPaidAmount);
 
-      await tx.invoice.updateMany({
-        where: { id, organizationId },
+      // Update status and remaining
+      const finalUpdateResult = await tx.invoice.updateMany({
+        where: { id, organizationId, paidAmount: newPaidAmount, deletedAt: null },
         data: { status, remaining }
       });
 
-      const finalInvoice = await tx.invoice.findFirst({ where: { id, organizationId }});
+      if (finalUpdateResult.count === 0) {
+        throw new Error('العملية فشلت بسبب تحديث متزامن. الرجاء المحاولة مرة أخرى.');
+      }
+
+      const finalInvoice = await tx.invoice.findFirst({ where: { id, organizationId, deletedAt: null }});
       if (!finalInvoice) throw new Error('Invoice not found after final update');
 
       await logAudit({
@@ -419,12 +423,12 @@ class InvoiceService {
     const [statusCounts, aggregates] = await Promise.all([
       db.invoice.groupBy({
         by: ['status'],
-        where: { organizationId },
+        where: { organizationId, deletedAt: null },
         _count: true,
         _sum: { total: true, paidAmount: true },
       }),
       db.invoice.aggregate({
-        where: { organizationId },
+        where: { organizationId, deletedAt: null },
         _sum: { total: true, paidAmount: true },
       }),
     ]) as [Array<{ status: string; _count: number; _sum: { total: number | null; paidAmount: number | null } }>, { _sum: { total: number | null; paidAmount: number | null } | null }];
@@ -444,6 +448,7 @@ class InvoiceService {
     stats.OVERDUE = await db.invoice.count({
       where: {
         organizationId,
+        deletedAt: null,
         status: { notIn: ['PAID', 'DRAFT', 'CANCELLED'] },
         dueDate: { lt: new Date() },
       },
