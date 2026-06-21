@@ -100,8 +100,10 @@ export async function GET(
     const progress = await getWorkflowProgress(workflow.id);
 
     return NextResponse.json({
-      ...workflow,
-      progressData: progress,
+      workflow: {
+        ...workflow,
+        progressData: progress,
+      }
     });
   } catch (error: unknown) {
     return handleApiError(error, 'Workflow GET');

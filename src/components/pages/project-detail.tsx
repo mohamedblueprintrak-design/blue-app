@@ -98,12 +98,12 @@ export default function ProjectDetail({ language }: ProjectDetailProps) {
     setCurrentProjectTab(tab);
     // Set default sub-tab for tabs with sub-tabs
     const subTabsMap: Record<string, typeof designSubTabs> = {
-      DESIGN: designSubTabs,
+      design: designSubTabs,
       municipality: municipalitySubTabs,
       boq: boqSubTabs,
       contractor: contractorSubTabs,
       supervision: supervisionSubTabs,
-      FINANCIAL: financialSubTabs,
+      financial: financialSubTabs,
     };
     if (subTabsMap[tab] && subTabsMap[tab].length > 0) {
       const defaultSubTab = subTabsMap[tab][0].id;
@@ -289,7 +289,7 @@ export default function ProjectDetail({ language }: ProjectDetailProps) {
         </TabsContent>
 
         {/* Financial Tab */}
-        <TabsContent value="FINANCIAL" className="mt-4">
+        <TabsContent value="financial" className="mt-4">
           <FinancialTab 
             project={project}
             language={language}

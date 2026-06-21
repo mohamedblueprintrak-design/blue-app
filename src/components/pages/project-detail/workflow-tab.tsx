@@ -37,7 +37,13 @@ export default function WorkflowTab({ projectId, language }: { projectId: string
       const res = await fetch(`/api/projects/${projectId}/workflow`);
       if (!res.ok) throw new Error("Failed");
       const data = await res.json();
-      return data.workflow as WorkflowData | null;
+      if (data && typeof data === "object") {
+        if ("workflow" in data) {
+          return data.workflow as WorkflowData | null;
+        }
+        return data as WorkflowData | null;
+      }
+      return null;
     },
     enabled: !!projectId,
   });
