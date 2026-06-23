@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 /**
  * Gantt Chart Page - Full-featured project scheduling timeline
  * مخطط جانت - جدول زمني متكامل للمشاريع
@@ -41,6 +43,7 @@ interface GanttPageProps {
 }
 
 export default function GanttPage({ language }: GanttPageProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const queryClient = useQueryClient();
   const toast = useToastFeedback({ ar });
@@ -91,7 +94,7 @@ export default function GanttPage({ language }: GanttPageProps) {
       return res.json();
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["gantt-tasks"] }),
-    onError: () => toast.error(ar ? "تحديث المهمة" : "Update task"),
+    onError: () => toast.error(tAuto('auto.updateTask')),
   });
 
   // Create mutation
@@ -108,9 +111,9 @@ export default function GanttPage({ language }: GanttPageProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["gantt-tasks"] });
       setIsCreateDialogOpen(false);
-      toast.created(ar ? "مهمة" : "Task");
+      toast.created(tAuto('auto.task'));
     },
-    onError: () => toast.error(ar ? "إنشاء المهمة" : "Create task"),
+    onError: () => toast.error(tAuto('auto.createTask')),
   });
 
   // Delete mutation
@@ -123,9 +126,9 @@ export default function GanttPage({ language }: GanttPageProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["gantt-tasks"] });
       setIsEditDialogOpen(false);
-      toast.deleted(ar ? "المهمة" : "Task");
+      toast.deleted(tAuto('auto.task'));
     },
-    onError: () => toast.error(ar ? "حذف المهمة" : "Delete task"),
+    onError: () => toast.error(tAuto('auto.deleteTask')),
   });
 
   // Group tasks by phase category
@@ -279,14 +282,14 @@ export default function GanttPage({ language }: GanttPageProps) {
           <div>
             <div className="flex items-center gap-2">
               <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-                {ar ? "مخطط جانت" : "Gantt Chart"}
+                {tAuto('auto.ganttChart')}
               </h2>
               <Badge variant="secondary" className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs border-0">
-                {totalTasks} {ar ? "مهمة" : "tasks"}
+                {totalTasks} {tAuto('auto.tasks')}
               </Badge>
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              {ar ? "جدول زمني تفاعلي للمشاريع والمراحل" : "Interactive project and phase timeline"}
+              {tAuto('auto.interactiveProjectAndPhaseTimeline')}
             </p>
           </div>
         </div>
@@ -295,7 +298,7 @@ export default function GanttPage({ language }: GanttPageProps) {
           className="gap-2 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white text-sm shadow-md shadow-teal-500/20 border-0 h-9 px-4"
         >
           <Plus className="h-4 w-4" />
-          {ar ? "إضافة مهمة" : "Add Task"}
+          {tAuto('auto.addTask')}
         </Button>
       </div>
 
@@ -352,8 +355,8 @@ export default function GanttPage({ language }: GanttPageProps) {
       <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>{ar ? "إضافة مهمة جديدة" : "Add New Task"}</DialogTitle>
-            <DialogDescription>{ar ? "أدخل تفاصيل المهمة للجدول الزمني" : "Enter task details for the timeline"}</DialogDescription>
+            <DialogTitle>{tAuto('auto.addNewTask')}</DialogTitle>
+            <DialogDescription>{tAuto('auto.enterTaskDetailsForTheTimeline')}</DialogDescription>
           </DialogHeader>
           <CreateTaskForm ar={ar} onSubmit={(data) => createMutation.mutate(data)} onCancel={() => setIsCreateDialogOpen(false)} isLoading={createMutation.isPending} />
         </DialogContent>

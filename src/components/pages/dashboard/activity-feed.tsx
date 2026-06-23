@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl';
 import {
   Card,
   CardContent,
@@ -22,6 +23,7 @@ interface ActivityFeedProps {
 }
 
 export function ActivityFeed({ activities, recentProjects, isAr, onProjectClick, onNavigate }: ActivityFeedProps) {
+  const tAuto = useTranslations();
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
       {/* Recent Activity Feed Widget */}
@@ -36,15 +38,15 @@ export function ActivityFeed({ activities, recentProjects, isAr, onProjectClick,
               </div>
               <div>
                 <CardTitle className="text-base font-semibold text-slate-900 dark:text-white">
-                  {isAr ? "آخر الأنشطة" : "Recent Activity"}
+                  {tAuto('auto.recentActivity')}
                 </CardTitle>
                 <CardDescription className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  {isAr ? "آخر التحديثات والأحداث" : "Latest updates and events"}
+                  {tAuto('auto.latestUpdatesAndEvents')}
                 </CardDescription>
               </div>
             </div>
             <Button variant="ghost" size="sm" className="text-xs text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 hover:bg-teal-50 dark:hover:bg-teal-950/30 gap-1">
-              {isAr ? "عرض الكل" : "View All"}
+              {tAuto('auto.viewAll')}
               <ArrowUpRight className="h-3 w-3" />
             </Button>
           </div>
@@ -54,10 +56,10 @@ export function ActivityFeed({ activities, recentProjects, isAr, onProjectClick,
             <div className="flex flex-col items-center justify-center py-10 text-center">
               <Activity className="h-8 w-8 text-slate-300 dark:text-slate-600 mb-2" />
               <p className="text-sm text-slate-500 dark:text-slate-400">
-                {isAr ? "لا توجد أنشطة حالياً" : "No activity data available"}
+                {tAuto('auto.noActivityDataAvailable')}
               </p>
               <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1">
-                {isAr ? "ستظهر الأنشطة هنا عند توفرها" : "Activities will appear here when available"}
+                {tAuto('auto.activitiesWillAppearHereWhenAvailable')}
               </p>
             </div>
           ) : (
@@ -119,10 +121,10 @@ export function ActivityFeed({ activities, recentProjects, isAr, onProjectClick,
             </div>
             <div>
               <CardTitle className="text-base font-semibold text-slate-900 dark:text-white">
-                {isAr ? "نظرة سريعة على المشاريع" : "Project Overview"}
+                {tAuto('auto.projectOverview')}
               </CardTitle>
               <CardDescription className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                {isAr ? "حالة المشاريع النشطة" : "Active projects status"}
+                {tAuto('auto.activeProjectsStatus')}
               </CardDescription>
             </div>
           </div>
@@ -167,7 +169,7 @@ export function ActivityFeed({ activities, recentProjects, isAr, onProjectClick,
               className="w-full text-xs text-slate-500 hover:text-teal-600 dark:hover:text-teal-400 mt-2"
               onClick={() => onNavigate("projects")}
             >
-              {isAr ? "عرض جميع المشاريع" : "View All Projects"}
+              {tAuto('auto.viewAllProjects')}
               <ArrowUpRight className="h-3 w-3 ms-1" />
             </Button>
           </div>

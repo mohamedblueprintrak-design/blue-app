@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -56,6 +58,7 @@ export function RiskFormDialog({
   createMutation,
   resetForm,
 }: RiskFormDialogProps) {
+  const tAuto = useTranslations();
   const score = formData.probability * formData.impact;
 
   const addNewAction = () => {
@@ -78,19 +81,19 @@ export function RiskFormDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <ShieldAlert className="h-5 w-5 text-teal-500" />
-            {ar ? "خطر جديد" : "New Risk"}
+            {tAuto('auto.newRisk')}
           </DialogTitle>
           <DialogDescription>
-            {ar ? "تسجيل خطر جديد وتحديد استراتيجية المعالجة" : "Register a new risk and define mitigation strategy"}
+            {tAuto('auto.registerANewRiskAndDefineMitigationStrat')}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "المشروع *" : "Project *"}</Label>
+              <Label className="text-sm">{tAuto('auto.project2')}</Label>
               <Select value={formData.projectId} onValueChange={(v) => setFormData(prev => ({ ...prev, projectId: v }))}>
-                <SelectTrigger><SelectValue placeholder={ar ? "اختر مشروع" : "Select project"} /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder={tAuto('auto.selectProject')} /></SelectTrigger>
                 <SelectContent>
                   {projects.map((p) => (
                     <SelectItem key={p.id} value={p.id}>{ar ? p.name : p.nameEn || p.name}</SelectItem>
@@ -99,7 +102,7 @@ export function RiskFormDialog({
               </Select>
             </div>
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "التصنيف" : "Category"}</Label>
+              <Label className="text-sm">{tAuto('auto.category')}</Label>
               <Select value={formData.category} onValueChange={(v) => setFormData(prev => ({ ...prev, category: v }))}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -112,11 +115,11 @@ export function RiskFormDialog({
           </div>
 
           <div className="space-y-2">
-            <Label className="text-sm">{ar ? "عنوان الخطر *" : "Risk Title *"}</Label>
+            <Label className="text-sm">{tAuto('auto.riskTitle')}</Label>
             <Input
               value={formData.title}
               onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-              placeholder={ar ? "وصف الخطر" : "Risk description"}
+              placeholder={tAuto('auto.riskDescription')}
             />
           </div>
 
@@ -124,7 +127,7 @@ export function RiskFormDialog({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-2 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
               <div className="flex items-center justify-between">
-                <Label className="text-sm">{ar ? "الاحتمالية" : "Probability"}</Label>
+                <Label className="text-sm">{tAuto('auto.probability')}</Label>
                 <span className="text-sm font-bold text-slate-900 dark:text-white">{formData.probability}</span>
               </div>
               <Slider
@@ -136,13 +139,13 @@ export function RiskFormDialog({
                 className="mt-2"
               />
               <div className="flex justify-between text-[8px] text-slate-400 mt-1">
-                <span>{ar ? "نادر" : "Rare"}</span>
-                <span>{ar ? "مؤكد تقريباً" : "Almost Certain"}</span>
+                <span>{tAuto('auto.rare')}</span>
+                <span>{tAuto('auto.almostCertain')}</span>
               </div>
             </div>
             <div className="space-y-2 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
               <div className="flex items-center justify-between">
-                <Label className="text-sm">{ar ? "التأثير" : "Impact"}</Label>
+                <Label className="text-sm">{tAuto('auto.impact')}</Label>
                 <span className="text-sm font-bold text-slate-900 dark:text-white">{formData.impact}</span>
               </div>
               <Slider
@@ -154,8 +157,8 @@ export function RiskFormDialog({
                 className="mt-2"
               />
               <div className="flex justify-between text-[8px] text-slate-400 mt-1">
-                <span>{ar ? "ضئيل" : "Insignificant"}</span>
-                <span>{ar ? "كارثي" : "Catastrophic"}</span>
+                <span>{tAuto('auto.insignificant')}</span>
+                <span>{tAuto('auto.catastrophic')}</span>
               </div>
             </div>
           </div>
@@ -164,13 +167,13 @@ export function RiskFormDialog({
           <div className={`flex items-center justify-center p-3 rounded-lg ${getScoreColor(score)} bg-opacity-10`}>
             <div className="text-center">
               <div className={`text-2xl font-bold ${getScoreTextColor(score)}`}>{score}</div>
-              <div className="text-xs text-slate-500">{ar ? "درجة الخطر" : "Risk Score"}</div>
+              <div className="text-xs text-slate-500">{tAuto('auto.riskScore')}</div>
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "الاستراتيجية" : "Strategy"}</Label>
+              <Label className="text-sm">{tAuto('auto.strategy')}</Label>
               <Select value={formData.strategy} onValueChange={(v) => setFormData(prev => ({ ...prev, strategy: v }))}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -181,9 +184,9 @@ export function RiskFormDialog({
               </Select>
             </div>
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "المسؤول" : "Assignee"}</Label>
+              <Label className="text-sm">{tAuto('auto.assignee')}</Label>
               <Select value={formData.assigneeId} onValueChange={(v) => setFormData(prev => ({ ...prev, assigneeId: v }))}>
-                <SelectTrigger><SelectValue placeholder={ar ? "اختر مسؤول" : "Select assignee"} /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder={tAuto('auto.selectAssignee')} /></SelectTrigger>
                 <SelectContent>
                   {users.map((u) => (
                     <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
@@ -194,11 +197,11 @@ export function RiskFormDialog({
           </div>
 
           <div className="space-y-2">
-            <Label className="text-sm">{ar ? "خطة التخفيف" : "Mitigation Plan"}</Label>
+            <Label className="text-sm">{tAuto('auto.mitigationPlan')}</Label>
             <Textarea
               value={formData.mitigationPlan}
               onChange={(e) => setFormData(prev => ({ ...prev, mitigationPlan: e.target.value }))}
-              placeholder={ar ? "وصف خطة تخفيف الخطر" : "Describe the risk mitigation plan"}
+              placeholder={tAuto('auto.describeTheRiskMitigationPlan')}
               rows={3}
             />
           </div>
@@ -209,16 +212,16 @@ export function RiskFormDialog({
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <Label className="text-sm font-medium">
-                {ar ? "بنود العمل" : "Action Items"}
+                {tAuto('auto.actionItems')}
               </Label>
               <Button variant="outline" size="sm" className="h-7 text-xs" onClick={addNewAction}>
                 <Plus className="h-3 w-3 me-1" />
-                {ar ? "إضافة بند" : "Add Action"}
+                {tAuto('auto.addAction')}
               </Button>
             </div>
             {newActions.length === 0 ? (
               <div className="text-center py-3 border border-dashed border-slate-200 dark:border-slate-700 rounded-lg">
-                <p className="text-xs text-slate-400">{ar ? "لم يتم إضافة بنود عمل" : "No action items"}</p>
+                <p className="text-xs text-slate-400">{tAuto('auto.noActionItems')}</p>
               </div>
             ) : (
               <div className="space-y-2">
@@ -226,7 +229,7 @@ export function RiskFormDialog({
                   <div key={index} className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-medium text-slate-500">
-                        {ar ? "بند عمل" : "Action"} {index + 1}
+                        {tAuto('auto.action')} {index + 1}
                       </span>
                       <button onClick={() => removeNewAction(index)} className="p-0.5 text-slate-400 hover:text-red-500">
                         <Trash2 className="h-3 w-3" />
@@ -237,11 +240,11 @@ export function RiskFormDialog({
                         className="h-7 text-xs sm:col-span-2"
                         value={action.description}
                         onChange={(e) => updateNewAction(index, "description", e.target.value)}
-                        placeholder={ar ? "وصف الإجراء" : "Action description"}
+                        placeholder={tAuto('auto.actionDescription')}
                       />
                       <Select value={action.assigneeId} onValueChange={(v) => updateNewAction(index, "assigneeId", v)}>
                         <SelectTrigger className="h-7 text-xs">
-                          <SelectValue placeholder={ar ? "مسؤول" : "Assignee"} />
+                          <SelectValue placeholder={tAuto('auto.assignee')} />
                         </SelectTrigger>
                         <SelectContent>
                           {users.map((u) => (
@@ -259,14 +262,14 @@ export function RiskFormDialog({
 
         <DialogFooter>
           <Button variant="outline" onClick={() => { onOpenChange(false); resetForm(); }}>
-            {ar ? "إلغاء" : "Cancel"}
+            {tAuto('auto.cancel')}
           </Button>
           <Button
             className="bg-teal-600 hover:bg-teal-700 text-white"
             onClick={() => createMutation.mutate({ ...formData, actions: newActions })}
             disabled={!formData.projectId || !formData.title || createMutation.isPending}
           >
-            {createMutation.isPending ? (ar ? "جارٍ الإنشاء..." : "Creating...") : (ar ? "إنشاء" : "Create")}
+            {createMutation.isPending ? (tAuto('auto.creating')) : (tAuto('auto.create'))}
           </Button>
         </DialogFooter>
       </DialogContent>

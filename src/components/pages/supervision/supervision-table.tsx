@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { Badge } from "@/components/ui/badge";
 import { StatusIcon } from "@/components/ui/status-icon";
 import { Card } from "@/components/ui/card";
@@ -118,6 +120,7 @@ export function ChecklistList({
   onDeleteChecklist,
   onCreateNew,
 }: ChecklistListProps) {
+  const tAuto = useTranslations();
   if (isLoading) {
     return (
       <div className="space-y-3">
@@ -142,13 +145,13 @@ export function ChecklistList({
             <Plus className="h-4 w-4 text-teal-600 dark:text-teal-400" />
           </div>
         </div>
-        <h3 className="text-base font-semibold text-slate-900 dark:text-white mb-1">{ar ? "لا توجد قوائم مراجعة" : "No checklists found"}</h3>
+        <h3 className="text-base font-semibold text-slate-900 dark:text-white mb-1">{tAuto('auto.noChecklistsFound')}</h3>
         <p className="text-sm text-slate-500 mb-4 max-w-xs">
-          {ar ? "ابدأ بإنشاء قائمة مراجعة جديدة لمتابعة سير العمل" : "Create a new supervision checklist to track work progress"}
+          {tAuto('auto.createANewSupervisionChecklistToTrackWor')}
         </p>
         <Button className="bg-teal-600 hover:bg-teal-700 text-white rounded-lg shadow-sm shadow-teal-600/20" onClick={onCreateNew}>
           <Plus className="h-4 w-4 me-1.5" />
-          {ar ? "قائمة مراجعة جديدة" : "New Checklist"}
+          {tAuto('auto.newChecklist')}
         </Button>
       </div>
     );
@@ -179,7 +182,7 @@ export function ChecklistList({
                 {violationCount > 0 && (
                   <Badge variant="outline" className="text-[10px] h-5 border-red-300 dark:border-red-700 text-red-600 dark:text-red-400">
                     <AlertTriangle className="h-2.5 w-2.5 me-0.5" />
-                    {violationCount} {ar ? "مخالفة" : "violations"}
+                    {violationCount} {tAuto('auto.violations1')}
                   </Badge>
                 )}
               </div>
@@ -197,18 +200,18 @@ export function ChecklistList({
                     {checklist.status === "DRAFT" && (
                       <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onSubmitChecklist(checklist.id); }}>
                         <CheckCircle2 className="h-3.5 w-3.5 me-2 text-blue-500" />
-                        {ar ? "تقديم" : "Submit"}
+                        {tAuto('auto.submit')}
                       </DropdownMenuItem>
                     )}
                     {checklist.status === "SUBMITTED" && (
                       <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onApproveChecklist(checklist.id); }}>
                         <ShieldCheck className="h-3.5 w-3.5 me-2 text-emerald-500" />
-                        {ar ? "اعتماد" : "Approve"}
+                        {tAuto('auto.approve')}
                       </DropdownMenuItem>
                     )}
-                    <DropdownMenuItem className="text-red-600 dark:text-red-400" onClick={(e) => { e.stopPropagation(); if (confirm(ar ? "هل أنت متأكد من الحذف؟" : "Delete this checklist?")) onDeleteChecklist(checklist.id); }}>
+                    <DropdownMenuItem className="text-red-600 dark:text-red-400" onClick={(e) => { e.stopPropagation(); if (confirm(tAuto('auto.deleteThisChecklist'))) onDeleteChecklist(checklist.id); }}>
                       <Trash2 className="h-3.5 w-3.5 me-2" />
-                      {ar ? "حذف" : "Delete"}
+                      {tAuto('auto.delete')}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -216,7 +219,7 @@ export function ChecklistList({
             </div>
 
             <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-1 line-clamp-1">
-              {checklist.title || (ar ? "قائمة مراجعة" : "Checklist")}
+              {checklist.title || (tAuto('auto.checklist'))}
             </h3>
 
             <div className="flex items-center gap-3 text-[11px] text-slate-500 dark:text-slate-400 mb-3">
@@ -276,6 +279,7 @@ export function ViolationsTable({
   onUpdateViolationStatus,
   onDeleteViolation,
 }: ViolationsTableProps) {
+  const tAuto = useTranslations();
   if (isLoading) {
     return (
       <div className="space-y-2">
@@ -295,8 +299,8 @@ export function ViolationsTable({
         <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-100 to-green-50 dark:from-emerald-900/30 dark:to-green-950/20 flex items-center justify-center mb-3">
           <ShieldCheck className="h-7 w-7 text-emerald-400" />
         </div>
-        <h3 className="text-base font-semibold text-slate-900 dark:text-white mb-1">{ar ? "لا توجد مخالفات" : "No violations found"}</h3>
-        <p className="text-sm text-slate-500">{ar ? "لم يتم تسجيل أي مخالفات حتى الآن" : "No violations have been recorded yet"}</p>
+        <h3 className="text-base font-semibold text-slate-900 dark:text-white mb-1">{tAuto('auto.noViolationsFound')}</h3>
+        <p className="text-sm text-slate-500">{tAuto('auto.noViolationsHaveBeenRecordedYet')}</p>
       </div>
     );
   }
@@ -307,12 +311,12 @@ export function ViolationsTable({
         <Table>
           <TableHeader>
             <TableRow className="bg-slate-50 dark:bg-slate-800/50">
-              <TableHead className="text-[11px] h-8">{ar ? "النوع" : "Type"}</TableHead>
-              <TableHead className="text-[11px] h-8">{ar ? "الوصف" : "Description"}</TableHead>
-              <TableHead className="text-[11px] h-8">{ar ? "الخطورة" : "Severity"}</TableHead>
-              <TableHead className="text-[11px] h-8">{ar ? "الحالة" : "Status"}</TableHead>
-              <TableHead className="text-[11px] h-8">{ar ? "المقاول" : "Contractor"}</TableHead>
-              <TableHead className="text-[11px] h-8">{ar ? "الموعد النهائي" : "Deadline"}</TableHead>
+              <TableHead className="text-[11px] h-8">{tAuto('auto.type')}</TableHead>
+              <TableHead className="text-[11px] h-8">{tAuto('auto.description')}</TableHead>
+              <TableHead className="text-[11px] h-8">{tAuto('auto.severity')}</TableHead>
+              <TableHead className="text-[11px] h-8">{tAuto('auto.status1')}</TableHead>
+              <TableHead className="text-[11px] h-8">{tAuto('auto.contractor')}</TableHead>
+              <TableHead className="text-[11px] h-8">{tAuto('auto.deadline')}</TableHead>
               <TableHead className="text-[11px] h-8 w-10"></TableHead>
             </TableRow>
           </TableHeader>
@@ -337,10 +341,10 @@ export function ViolationsTable({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="OPEN">{ar ? "مفتوح" : "Open"}</SelectItem>
-                      <SelectItem value="IN_PROGRESS">{ar ? "قيد المعالجة" : "In Progress"}</SelectItem>
-                      <SelectItem value="RESOLVED">{ar ? "تم الحل" : "Resolved"}</SelectItem>
-                      <SelectItem value="CLOSED">{ar ? "مغلق" : "Closed"}</SelectItem>
+                      <SelectItem value="OPEN">{tAuto('auto.open')}</SelectItem>
+                      <SelectItem value="IN_PROGRESS">{tAuto('auto.inProgress')}</SelectItem>
+                      <SelectItem value="RESOLVED">{tAuto('auto.resolved')}</SelectItem>
+                      <SelectItem value="CLOSED">{tAuto('auto.closed')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </TableCell>

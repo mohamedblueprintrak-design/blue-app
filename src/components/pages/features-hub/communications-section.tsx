@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
@@ -28,12 +30,13 @@ export default function CommunicationsSection({
   setCommFilter,
   onAddInteraction,
 }: CommunicationsSectionProps) {
+  const tAuto = useTranslations();
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white">{language === 'ar' ? 'سجل التواصل مع العملاء' : 'Client Communications Log'}</h2>
-          <p className="text-sm text-slate-500">{language === 'ar' ? 'جميع التفاعلات والاجتماعات والمكالمات' : 'All interactions, meetings and calls'}</p>
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white">{tAuto('auto.clientCommunicationsLog')}</h2>
+          <p className="text-sm text-slate-500">{tAuto('auto.allInteractionsMeetingsAndCalls')}</p>
         </div>
         <div className="flex gap-2">
           <Select value={commFilter.type} onValueChange={v => setCommFilter(p => ({ ...p, type: v }))}>
@@ -41,14 +44,14 @@ export default function CommunicationsSection({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{language === 'ar' ? 'الكل' : 'All'}</SelectItem>
-              <SelectItem value="MEETING">{language === 'ar' ? 'اجتماعات' : 'Meetings'}</SelectItem>
-              <SelectItem value="CALL">{language === 'ar' ? 'مكالمات' : 'Calls'}</SelectItem>
-              <SelectItem value="email">{language === 'ar' ? 'بريد إلكتروني' : 'Email'}</SelectItem>
+              <SelectItem value="all">{tAuto('auto.all')}</SelectItem>
+              <SelectItem value="MEETING">{tAuto('auto.meetings')}</SelectItem>
+              <SelectItem value="CALL">{tAuto('auto.calls')}</SelectItem>
+              <SelectItem value="email">{tAuto('auto.email')}</SelectItem>
             </SelectContent>
           </Select>
           <Button onClick={onAddInteraction} className="bg-teal-600 hover:bg-teal-700 text-white">
-            <Plus className="h-4 w-4 me-2" /> {language === 'ar' ? 'تسجيل تواصل' : 'Log Communication'}
+            <Plus className="h-4 w-4 me-2" /> {tAuto('auto.logCommunication')}
           </Button>
         </div>
       </div>

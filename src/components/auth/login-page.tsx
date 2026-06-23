@@ -98,6 +98,7 @@ interface DemoCredential {
 }
 
 export default function LoginPage({ language: _language }: LoginPageProps) {
+  const tAuto = useTranslations();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -641,11 +642,11 @@ export default function LoginPage({ language: _language }: LoginPageProps) {
                   {/* Demo Mode Role Selector */}
                   <div className="pt-2 pb-1">
                     <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                      {isAr ? "تسجيل الدخول السريع (وضع العرض):" : "Quick Login (Demo Mode):"}
+                      {tAuto('auto.quickLoginDemoMode')}
                     </p>
                     <Select value={selectedRole} onValueChange={handleRoleSelect}>
                       <SelectTrigger className="w-full bg-slate-50/80 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 focus:ring-teal-500/20 focus:border-teal-500">
-                        <SelectValue placeholder={isAr ? "اختر صلاحية الدخول..." : "Select a role..."} />
+                        <SelectValue placeholder={tAuto('auto.selectARole')} />
                       </SelectTrigger>
                       <SelectContent>
                         {ROLES.map((role) => (
@@ -715,7 +716,7 @@ export default function LoginPage({ language: _language }: LoginPageProps) {
               className="flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500 hover:text-teal-600 dark:hover:text-teal-400 transition-colors cursor-pointer"
             >
               <Languages className="h-3.5 w-3.5" />
-              <span>{isAr ? "English" : "العربية"}</span>
+              <span>{tAuto('auto.text8280')}</span>
             </button>
           </div>
         </div>

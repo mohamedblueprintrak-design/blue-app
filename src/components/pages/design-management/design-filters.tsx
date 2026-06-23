@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PenTool, Plus, Filter } from "lucide-react";
@@ -22,6 +24,7 @@ export function DesignFilters({
   phaseCount,
   onAddPhase,
 }: DesignFiltersProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
 
   return (
@@ -32,10 +35,10 @@ export function DesignFilters({
         </div>
         <div>
           <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-            {ar ? "إدارة التصاميم" : "Design Management"}
+            {tAuto('auto.designManagement')}
           </h2>
           <p className="text-[10px] text-slate-500 dark:text-slate-400">
-            {phaseCount} {ar ? "مرحلة تصميمية" : "design phases"}
+            {phaseCount} {tAuto('auto.designPhases')}
           </p>
         </div>
       </div>
@@ -43,10 +46,10 @@ export function DesignFilters({
         <Select value={filterProject} onValueChange={onFilterProjectChange}>
           <SelectTrigger className="w-[180px] h-8 text-xs rounded-lg">
             <Filter className="h-3 w-3 me-1 text-slate-400" />
-            <SelectValue placeholder={ar ? "المشروع" : "Project"} />
+            <SelectValue placeholder={tAuto('auto.project')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">{ar ? "جميع المشاريع" : "All Projects"}</SelectItem>
+            <SelectItem value="all">{tAuto('auto.allProjects')}</SelectItem>
             {projects.map((p) => (
               <SelectItem key={p.id} value={p.id}>{ar ? p.name : p.nameEn || p.name}</SelectItem>
             ))}
@@ -58,7 +61,7 @@ export function DesignFilters({
           onClick={onAddPhase}
         >
           <Plus className="h-3.5 w-3.5 me-1" />
-          {ar ? "مرحلة جديدة" : "New Phase"}
+          {tAuto('auto.newPhase')}
         </Button>
       </div>
     </div>

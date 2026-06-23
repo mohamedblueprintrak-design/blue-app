@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -35,6 +37,7 @@ export function ChatSidebar({
   deleteConversation,
   formatRelativeTime,
 }: ChatSidebarProps) {
+  const tAuto = useTranslations();
   return (
     <AnimatePresence>
       {sidebarOpen && (
@@ -51,7 +54,7 @@ export function ChatSidebar({
               <div className="flex items-center gap-2">
                 <History className="h-4 w-4 text-teal-500" />
                 <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                  {isAr ? "المحادثات السابقة" : "Chat History"}
+                  {tAuto('auto.chatHistory')}
                 </span>
               </div>
               <div className="flex items-center gap-1">
@@ -68,7 +71,7 @@ export function ChatSidebar({
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="bottom" className="text-xs">
-                    {isAr ? "محادثة جديدة" : "New Chat"}
+                    {tAuto('auto.newChat')}
                   </TooltipContent>
                 </Tooltip>
                 <Tooltip>
@@ -84,7 +87,7 @@ export function ChatSidebar({
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="bottom" className="text-xs">
-                    {isAr ? "إغلاق" : "Close"}
+                    {tAuto('auto.close')}
                   </TooltipContent>
                 </Tooltip>
               </div>
@@ -96,7 +99,7 @@ export function ChatSidebar({
                 <div className="p-4 text-center">
                   <MessageSquare className="h-8 w-8 text-slate-300 dark:text-slate-600 mx-auto mb-2" />
                   <p className="text-xs text-slate-400 dark:text-slate-500">
-                    {isAr ? "لا توجد محادثات سابقة" : "No previous conversations"}
+                    {tAuto('auto.noPreviousConversations')}
                   </p>
                 </div>
               ) : (
@@ -128,14 +131,14 @@ export function ChatSidebar({
                           </span>
                           <span className="text-[10px] text-slate-300 dark:text-slate-600 mx-0.5">•</span>
                           <span className="text-[10px] text-slate-400">
-                            {conv.messages.length} {isAr ? "رسالة" : "msgs"}
+                            {conv.messages.length} {tAuto('auto.msgs')}
                           </span>
                         </div>
                       </div>
                       <button
                         onClick={(e) => deleteConversation(e, conv.id)}
                         className="opacity-0 group-hover:opacity-100 shrink-0 p-1 rounded hover:bg-red-100 dark:hover:bg-red-900/30 transition-all"
-                        title={isAr ? "حذف" : "Delete"}
+                        title={tAuto('auto.delete')}
                       >
                         <Trash2 className="h-3 w-3 text-slate-400 hover:text-red-500" />
                       </button>
@@ -152,7 +155,7 @@ export function ChatSidebar({
                 className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-medium text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-950/30 hover:bg-teal-100 dark:hover:bg-teal-950/50 transition-colors"
               >
                 <Plus className="h-3.5 w-3.5" />
-                {isAr ? "محادثة جديدة" : "New Chat"}
+                {tAuto('auto.newChat')}
               </button>
             </div>
           </Card>

@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -18,6 +20,7 @@ const NAV_LINKS = [
 ];
 
 export default function PublicHeader() {
+  const tAuto = useTranslations();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { lang: language } = useLanguage();
   const [languageState, setLanguageState] = useState<"ar" | "en">(language);
@@ -107,7 +110,7 @@ export default function PublicHeader() {
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#4A6FA5] hover:text-[#0F2557] bg-[#EFF6FF]/60 hover:bg-[#EFF6FF] rounded-full transition-all duration-200 border border-transparent hover:border-blue-200/50"
             >
               <Globe className="w-3.5 h-3.5" />
-              {language === "ar" ? "EN" : "عربي"}
+              {tAuto('auto.text3616')}
             </button>
             <Link href="/dashboard">
               <Button className="bg-gradient-to-r from-[#0F2557] to-[#1A4A8B] hover:from-[#1A4A8B] hover:to-[#2563EB] text-white shadow-[0_4px_20px_rgba(15,37,87,0.3)] rounded-full px-6 h-10 text-sm font-semibold transition-all duration-300 hover:scale-105">

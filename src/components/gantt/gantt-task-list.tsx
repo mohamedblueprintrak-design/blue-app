@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl';
 import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -24,11 +25,12 @@ export function GanttTaskList({
   phaseGroups,
   onTaskClick,
 }: GanttTaskListProps) {
+  const tAuto = useTranslations();
   return (
     <div className="w-72 border-e border-slate-200 dark:border-slate-700/50 flex-shrink-0 bg-white dark:bg-slate-900 hidden md:block">
       <div className="h-10 border-b border-slate-200 dark:border-slate-700/50 flex items-center px-3 bg-slate-50 dark:bg-slate-800/30">
         <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
-          {ar ? "المهمة" : "Task"}
+          {tAuto('auto.task')}
         </span>
       </div>
       <div className="max-h-[500px] overflow-y-auto custom-scrollbar">
@@ -64,7 +66,7 @@ export function GanttTaskList({
               <div className="flex items-center gap-2 flex-1 min-w-0">
                 <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: getBarColor(task) }} />
                 {task.type === "phase" && (
-                  <span className="text-[9px] text-violet-500 dark:text-violet-400 font-medium uppercase">{ar ? "مرحلة" : "Phase"}</span>
+                  <span className="text-[9px] text-violet-500 dark:text-violet-400 font-medium uppercase">{tAuto('auto.phase')}</span>
                 )}
                 <span className="text-xs text-slate-700 dark:text-slate-300 truncate">{task.title}</span>
               </div>

@@ -1,16 +1,7 @@
-"use client";
+import { getLocale } from 'next-intl/server';
+import RecurringInvoicesPage from '@/components/pages/recurring-invoices';
 
-import dynamic from "next/dynamic";
-import { useLang } from "@/hooks/use-lang";
-
-const RecurringInvoicesPage = dynamic(() => import("@/components/pages/recurring-invoices"), {
-  loading: () => <div className="p-6 animate-pulse">Loading...</div>,
-  ssr: false,
-});
-
-/**
- * /dashboard/recurring-invoices
- */
-export default function RecurringInvoicesPageRoute() {
-  return <RecurringInvoicesPage language={useLang()} />;
+export default async function RecurringInvoicesPageRoute() {
+  const locale = await getLocale();
+  return <RecurringInvoicesPage language={locale as "ar" | "en"} />;
 }

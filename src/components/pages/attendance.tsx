@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -130,6 +132,7 @@ interface AttendancePageProps {
 }
 
 export default function AttendancePage({ language }: AttendancePageProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const queryClient = useQueryClient();
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -249,7 +252,7 @@ export default function AttendancePage({ language }: AttendancePageProps) {
 
   const summaryCards = [
     {
-      label: ar ? "الحاضرون اليوم" : "Present Today",
+      label: tAuto('auto.presentToday'),
       value: summary.present,
       icon: UserCheck,
       color: "text-green-600 dark:text-green-400",
@@ -258,7 +261,7 @@ export default function AttendancePage({ language }: AttendancePageProps) {
       dotColor: "bg-green-500",
     },
     {
-      label: ar ? "المتأخرون" : "Late Arrivals",
+      label: tAuto('auto.lateArrivals'),
       value: summary.late,
       icon: Clock,
       color: "text-amber-600 dark:text-amber-400",
@@ -267,7 +270,7 @@ export default function AttendancePage({ language }: AttendancePageProps) {
       dotColor: "bg-amber-500",
     },
     {
-      label: ar ? "في إجازة" : "On Leave",
+      label: tAuto('auto.onLeave'),
       value: summary.leave,
       icon: CalendarOff,
       color: "bg-blue-600 dark:text-blue-400",
@@ -330,7 +333,7 @@ export default function AttendancePage({ language }: AttendancePageProps) {
       <Card className="border-slate-200 dark:border-slate-700/50">
         <CardContent className="p-4">
           <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">
-            {ar ? "نظرة أسبوعية" : "Weekly Overview"}
+            {tAuto('auto.weeklyOverview')}
           </h3>
           <div className="grid grid-cols-7 gap-2">
             {weeklyHeatmap.map((day) => (
@@ -372,10 +375,10 @@ export default function AttendancePage({ language }: AttendancePageProps) {
           {/* Legend */}
           <div className="flex items-center gap-3 mt-3 pt-2 border-t border-slate-100 dark:border-slate-800">
             {[
-              { color: "bg-green-500", label: ar ? "حاضر" : "Present" },
-              { color: "bg-amber-500", label: ar ? "متأخر" : "Late" },
-              { color: "bg-red-500", label: ar ? "غائب" : "Absent" },
-              { color: "bg-blue-500", label: ar ? "إجازة" : "Leave" },
+              { color: "bg-green-500", label: tAuto('auto.present') },
+              { color: "bg-amber-500", label: tAuto('auto.late') },
+              { color: "bg-red-500", label: tAuto('auto.absent') },
+              { color: "bg-blue-500", label: tAuto('auto.leave') },
             ].map((item) => (
               <div key={item.label} className="flex items-center gap-1">
                 <span className={`w-2 h-2 rounded-full ${item.color}`} />
@@ -393,12 +396,12 @@ export default function AttendancePage({ language }: AttendancePageProps) {
             <div className="flex items-center gap-2 mb-3">
               <Timer className="h-4 w-4 text-teal-500" />
               <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                {ar ? "جدول اليوم" : "Today's Timeline"}
+                {tAuto('auto.todaySTimeline')}
               </h3>
             </div>
             <div className="space-y-2 max-h-48 overflow-y-auto">
               {todayRecords.map((rec) => {
-                const empName = rec.employee?.user?.name || (ar ? "غير معروف" : "Unknown");
+                const empName = rec.employee?.user?.name || (tAuto('auto.unknown'));
                 const isLate = rec.status === "LATE";
                 return (
                   <div key={rec.id} className="flex items-center gap-3 px-3 py-2 rounded-lg bg-slate-50 dark:bg-slate-800/50">
@@ -422,7 +425,7 @@ export default function AttendancePage({ language }: AttendancePageProps) {
                       <span className="text-[10px] tabular-nums text-slate-500">{rec.workHours}h</span>
                       {isLate && (
                         <Badge variant="secondary" className="text-[9px] h-4 bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300">
-                          {ar ? "متأخر" : "Late"}
+                          {tAuto('auto.late')}
                         </Badge>
                       )}
                       {rec.overtimeHours > 0 && (
@@ -443,7 +446,7 @@ export default function AttendancePage({ language }: AttendancePageProps) {
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
         <div className="flex items-center gap-2 flex-1">
           <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-            {ar ? "سجل الحضور" : "Attendance Records"}
+            {tAuto('auto.attendanceRecords')}
           </h2>
           <Badge variant="secondary" className="text-xs">{records.length}</Badge>
         </div>
@@ -451,10 +454,10 @@ export default function AttendancePage({ language }: AttendancePageProps) {
           <Select value={filterEmployee} onValueChange={setFilterEmployee}>
             <SelectTrigger className="w-[160px] h-8 text-xs">
               <Filter className="h-3 w-3 me-1 text-slate-400" />
-              <SelectValue placeholder={ar ? "الموظف" : "Employee"} />
+              <SelectValue placeholder={tAuto('auto.employee')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{ar ? "جميع الموظفين" : "All Employees"}</SelectItem>
+              <SelectItem value="all">{tAuto('auto.allEmployees')}</SelectItem>
               {employees.map((e) => (
                 <SelectItem key={e.id} value={e.id}>{e.name}</SelectItem>
               ))}
@@ -465,14 +468,14 @@ export default function AttendancePage({ language }: AttendancePageProps) {
             value={filterDateFrom}
             onChange={(e) => setFilterDateFrom(e.target.value)}
             className="w-[140px] h-8 text-xs"
-            placeholder={ar ? "من تاريخ" : "From"}
+            placeholder={tAuto('auto.from')}
           />
           <Input
             type="date"
             value={filterDateTo}
             onChange={(e) => setFilterDateTo(e.target.value)}
             className="w-[140px] h-8 text-xs"
-            placeholder={ar ? "إلى تاريخ" : "To"}
+            placeholder={tAuto('auto.to')}
           />
           {(filterEmployee !== "all" || filterDateFrom || filterDateTo) && (
             <Button
@@ -481,7 +484,7 @@ export default function AttendancePage({ language }: AttendancePageProps) {
               className="h-8 text-xs text-slate-500"
               onClick={() => { setFilterEmployee("all"); setFilterDateFrom(""); setFilterDateTo(""); }}
             >
-              {ar ? "مسح" : "Clear"}
+              {tAuto('auto.clear')}
             </Button>
           )}
           <Button
@@ -490,7 +493,7 @@ export default function AttendancePage({ language }: AttendancePageProps) {
             onClick={() => { setFormData(emptyForm); setShowAddDialog(true); }}
           >
             <Plus className="h-3.5 w-3.5 me-1" />
-            {ar ? "تسجيل حضور" : "Add Record"}
+            {tAuto('auto.addRecord')}
           </Button>
         </div>
       </div>
@@ -500,19 +503,19 @@ export default function AttendancePage({ language }: AttendancePageProps) {
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
-              <TableHead>{ar ? "الموظف" : "Employee"}</TableHead>
-              <TableHead>{ar ? "التاريخ" : "Date"}</TableHead>
-              <TableHead className="hidden sm:table-cell">{ar ? "وقت الحضور" : "Check In"}</TableHead>
-              <TableHead className="hidden sm:table-cell">{ar ? "وقت الانصراف" : "Check Out"}</TableHead>
-              <TableHead>{ar ? "الحالة" : "Status"}</TableHead>
-              <TableHead className="hidden md:table-cell">{ar ? "ساعات العمل" : "Work Hrs"}</TableHead>
-              <TableHead className="hidden md:table-cell">{ar ? "ساعات إضافية" : "Overtime"}</TableHead>
+              <TableHead>{tAuto('auto.employee')}</TableHead>
+              <TableHead>{tAuto('auto.date')}</TableHead>
+              <TableHead className="hidden sm:table-cell">{tAuto('auto.checkIn')}</TableHead>
+              <TableHead className="hidden sm:table-cell">{tAuto('auto.checkOut')}</TableHead>
+              <TableHead>{tAuto('auto.status1')}</TableHead>
+              <TableHead className="hidden md:table-cell">{tAuto('auto.workHrs')}</TableHead>
+              <TableHead className="hidden md:table-cell">{tAuto('auto.overtime')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {records.map((record) => {
               const statusCfg = getAttendanceStatusConfig(record.status);
-              const empName = record.employee?.user?.name || (ar ? "غير معروف" : "Unknown");
+              const empName = record.employee?.user?.name || (tAuto('auto.unknown'));
               return (
                 <TableRow key={record.id} className="group even:bg-slate-50/50 dark:even:bg-slate-800/20 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                   <TableCell>
@@ -565,14 +568,14 @@ export default function AttendancePage({ language }: AttendancePageProps) {
               <TableRow>
                 <TableCell colSpan={7} className="text-center py-12 text-slate-400">
                   <Monitor className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                  {ar ? "لا توجد سجلات حضور" : "No attendance records found"}
+                  {tAuto('auto.noAttendanceRecordsFound')}
                 </TableCell>
               </TableRow>
             )}
             {isLoading && (
               <TableRow>
                 <TableCell colSpan={7} className="text-center py-12 text-slate-400">
-                  {ar ? "جارٍ التحميل..." : "Loading..."}
+                  {tAuto('auto.loading')}
                 </TableCell>
               </TableRow>
             )}
@@ -584,21 +587,21 @@ export default function AttendancePage({ language }: AttendancePageProps) {
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
         <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{ar ? "تسجيل حضور جديد" : "New Attendance Record"}</DialogTitle>
+            <DialogTitle>{tAuto('auto.newAttendanceRecord')}</DialogTitle>
             <DialogDescription>
-              {ar ? "تسجيل حضور أو انصراف موظف" : "Record employee attendance"}
+              {tAuto('auto.recordEmployeeAttendance')}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "الموظف" : "Employee"} *</Label>
+              <Label className="text-sm">{tAuto('auto.employee')} *</Label>
               <Select
                 value={formData.employeeId}
                 onValueChange={(v) => setFormData({ ...formData, employeeId: v })}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder={ar ? "اختر موظف" : "Select employee"} />
+                  <SelectValue placeholder={tAuto('auto.selectEmployee')} />
                 </SelectTrigger>
                 <SelectContent>
                   {employees.map((e) => (
@@ -609,7 +612,7 @@ export default function AttendancePage({ language }: AttendancePageProps) {
             </div>
 
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "التاريخ" : "Date"} *</Label>
+              <Label className="text-sm">{tAuto('auto.date')} *</Label>
               <Input
                 type="date"
                 value={formData.date}
@@ -619,7 +622,7 @@ export default function AttendancePage({ language }: AttendancePageProps) {
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "وقت الحضور" : "Check In"}</Label>
+                <Label className="text-sm">{tAuto('auto.checkIn')}</Label>
                 <Input
                   type="time"
                   value={formData.checkIn}
@@ -627,7 +630,7 @@ export default function AttendancePage({ language }: AttendancePageProps) {
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "وقت الانصراف" : "Check Out"}</Label>
+                <Label className="text-sm">{tAuto('auto.checkOut')}</Label>
                 <Input
                   type="time"
                   value={formData.checkOut}
@@ -637,7 +640,7 @@ export default function AttendancePage({ language }: AttendancePageProps) {
             </div>
 
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "الحالة" : "Status"}</Label>
+              <Label className="text-sm">{tAuto('auto.status1')}</Label>
               <Select
                 value={formData.status}
                 onValueChange={(v) => setFormData({ ...formData, status: v })}
@@ -646,17 +649,17 @@ export default function AttendancePage({ language }: AttendancePageProps) {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="PRESENT">{ar ? "حاضر" : "Present"}</SelectItem>
-                  <SelectItem value="ABSENT">{ar ? "غائب" : "Absent"}</SelectItem>
-                  <SelectItem value="LATE">{ar ? "متأخر" : "Late"}</SelectItem>
-                  <SelectItem value="LEAVE">{ar ? "إجازة" : "On Leave"}</SelectItem>
+                  <SelectItem value="PRESENT">{tAuto('auto.present')}</SelectItem>
+                  <SelectItem value="ABSENT">{tAuto('auto.absent')}</SelectItem>
+                  <SelectItem value="LATE">{tAuto('auto.late')}</SelectItem>
+                  <SelectItem value="LEAVE">{tAuto('auto.onLeave')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "ساعات العمل" : "Work Hours"}</Label>
+                <Label className="text-sm">{tAuto('auto.workHours')}</Label>
                 <Input
                   type="number"
                   step="0.5"
@@ -666,7 +669,7 @@ export default function AttendancePage({ language }: AttendancePageProps) {
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "ساعات إضافية" : "Overtime Hrs"}</Label>
+                <Label className="text-sm">{tAuto('auto.overtimeHrs')}</Label>
                 <Input
                   type="number"
                   step="0.5"
@@ -680,7 +683,7 @@ export default function AttendancePage({ language }: AttendancePageProps) {
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowAddDialog(false)}>
-              {ar ? "إلغاء" : "Cancel"}
+              {tAuto('auto.cancel')}
             </Button>
             <Button
               className="bg-teal-600 hover:bg-teal-700 text-white"
@@ -688,8 +691,8 @@ export default function AttendancePage({ language }: AttendancePageProps) {
               disabled={!formData.employeeId || !formData.date || createMutation.isPending}
             >
               {createMutation.isPending
-                ? (ar ? "جارٍ الحفظ..." : "Saving...")
-                : (ar ? "حفظ" : "Save")}
+                ? (tAuto('auto.saving'))
+                : (tAuto('auto.save'))}
             </Button>
           </DialogFooter>
         </DialogContent>

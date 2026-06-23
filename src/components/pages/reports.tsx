@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -62,6 +64,7 @@ function SimpleTooltip({ active, payload, label }: { active?: boolean; payload?:
 function ReportTypeCard({ icon: Icon, title, description, count, color, active, onClick, ar }: {
   icon: typeof BarChart3; title: string; description: string; count: number; color: string; active: boolean; onClick: () => void; ar: boolean;
 }) {
+  const tAuto = useTranslations();
   return (
     <Card
       className={cn(
@@ -80,7 +83,7 @@ function ReportTypeCard({ icon: Icon, title, description, count, color, active, 
             <p className={cn("text-[11px]", active ? "text-white/70" : "text-slate-500 dark:text-slate-400")}>{description}</p>
           </div>
           <Badge variant="outline" className={cn("text-[10px] font-bold h-5", active ? "bg-white/20 text-white border-transparent" : "text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700")}>
-            {count} {ar ? "تقرير" : "reports"}
+            {count} {tAuto('auto.reports')}
           </Badge>
         </div>
       </CardContent>
@@ -95,6 +98,7 @@ interface ReportsPageProps {
 }
 
 export default function ReportsPage({ projectId }: ReportsPageProps) {
+  const tAuto = useTranslations();
   const lang = useLang();
   const ar = lang === "ar";
   const [dateRange, setDateRange] = useState("this_year");
@@ -187,10 +191,10 @@ export default function ReportsPage({ projectId }: ReportsPageProps) {
 
   // Report type cards data
   const reportTypes = [
-    { key: "projects", icon: FolderKanban, title: ar ? "تقارير المشاريع" : "Project Reports", desc: ar ? "الحالة والتقدم والمواعيد" : "Status, progress & deadlines", count: projects?.projects?.length || 0, color: "bg-emerald-600 hover:bg-emerald-700" },
-    { key: "FINANCIAL", icon: DollarSign, title: ar ? "التقارير المالية" : "Financial Reports", desc: ar ? "الإيرادات والمصروفات والفواتير" : "Revenue, expenses & invoices", count: financial?.topClients?.length || 0, color: "bg-amber-600 hover:bg-amber-700" },
-    { key: "hr", icon: UserCheck, title: ar ? "تقارير الموارد البشرية" : "HR Reports", desc: ar ? "الموظفين والحضور والإجازات" : "Employees, attendance & leave", count: hr?.totalEmployees || 0, color: "bg-sky-600 hover:bg-sky-700" },
-    { key: "clients", icon: Users, title: ar ? "تقارير العملاء" : "Client Reports", desc: ar ? "أعلى العملاء والإيرادات" : "Top clients & revenue", count: financial?.topClients?.length || 0, color: "bg-violet-600 hover:bg-violet-700" },
+    { key: "projects", icon: FolderKanban, title: tAuto('auto.projectReports'), desc: tAuto('auto.statusProgressDeadlines'), count: projects?.projects?.length || 0, color: "bg-emerald-600 hover:bg-emerald-700" },
+    { key: "FINANCIAL", icon: DollarSign, title: tAuto('auto.financialReports'), desc: tAuto('auto.revenueExpensesInvoices'), count: financial?.topClients?.length || 0, color: "bg-amber-600 hover:bg-amber-700" },
+    { key: "hr", icon: UserCheck, title: tAuto('auto.hRReports'), desc: tAuto('auto.employeesAttendanceLeave'), count: hr?.totalEmployees || 0, color: "bg-sky-600 hover:bg-sky-700" },
+    { key: "clients", icon: Users, title: tAuto('auto.clientReports'), desc: tAuto('auto.topClientsRevenue'), count: financial?.topClients?.length || 0, color: "bg-violet-600 hover:bg-violet-700" },
   ];
 
   // Loading state
@@ -208,8 +212,8 @@ export default function ReportsPage({ projectId }: ReportsPageProps) {
             <BarChart3 className="h-4.5 w-4.5 text-teal-600 dark:text-teal-400" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white">{ar ? "التقارير" : "Reports"}</h2>
-            <p className="text-[10px] text-slate-500 dark:text-slate-400">{ar ? "تحليلات الأداء المالي والتشغيلي" : "Financial & operational performance analysis"}</p>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">{tAuto('auto.reports1')}</h2>
+            <p className="text-[10px] text-slate-500 dark:text-slate-400">{tAuto('auto.financialOperationalPerformanceAnalysis')}</p>
           </div>
         </div>
 
@@ -221,12 +225,12 @@ export default function ReportsPage({ projectId }: ReportsPageProps) {
               if (!res.ok) throw new Error("Failed");
               const blob = await res.blob();
               window.open(URL.createObjectURL(blob), "_blank");
-              toastFeedback.showSuccess(ar ? "تم تصدير PDF" : "PDF exported");
-            } catch { toastFeedback.showError(ar ? "فشل التصدير" : "Export failed"); }
+              toastFeedback.showSuccess(tAuto('auto.pDFExported'));
+            } catch { toastFeedback.showError(tAuto('auto.exportFailed')); }
             finally { setExporting(null); }
           }}>
             {exporting === "pdf" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileText className="h-3.5 w-3.5" />}
-            {ar ? "تصدير PDF" : "Export PDF"}
+            {tAuto('auto.exportPDF')}
           </Button>
           <Button size="sm" variant="outline" className="h-8 gap-1.5 text-xs border-slate-200 dark:border-slate-700 hover:bg-teal-50 dark:hover:bg-teal-900/20" disabled={exporting === "excel"} onClick={async () => {
             setExporting("excel");
@@ -237,12 +241,12 @@ export default function ReportsPage({ projectId }: ReportsPageProps) {
               const url = URL.createObjectURL(blob);
               const a = document.createElement("a"); a.href = url; a.download = `blueprint-report.xlsx`; a.click();
               URL.revokeObjectURL(url);
-              toastFeedback.showSuccess(ar ? "تم تصدير Excel" : "Excel exported");
-            } catch { toastFeedback.showError(ar ? "فشل التصدير" : "Export failed"); }
+              toastFeedback.showSuccess(tAuto('auto.excelExported'));
+            } catch { toastFeedback.showError(tAuto('auto.exportFailed')); }
             finally { setExporting(null); }
           }}>
             {exporting === "excel" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileSpreadsheet className="h-3.5 w-3.5" />}
-            {ar ? "تصدير Excel" : "Export Excel"}
+            {tAuto('auto.exportExcel')}
           </Button>
           {dateRanges.map((dr) => (
             <button key={dr.value} onClick={() => setDateRange(dr.value)} className={cn("px-3 py-1.5 rounded-full text-xs font-medium transition-all", dateRange === dr.value ? "bg-teal-600 text-white shadow-sm shadow-teal-600/25" : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700")}>
@@ -265,38 +269,38 @@ export default function ReportsPage({ projectId }: ReportsPageProps) {
           {/* Summary Cards */}
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
             <Card className="py-0 gap-0 border-slate-200 dark:border-slate-700/50"><CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-1"><div className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800"><Briefcase className="h-3.5 w-3.5 text-slate-600 dark:text-slate-400" /></div><span className="text-[11px] text-slate-500 dark:text-slate-400">{ar ? "إجمالي المشاريع" : "Total"}</span></div>
+              <div className="flex items-center gap-2 mb-1"><div className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800"><Briefcase className="h-3.5 w-3.5 text-slate-600 dark:text-slate-400" /></div><span className="text-[11px] text-slate-500 dark:text-slate-400">{tAuto('auto.total')}</span></div>
               <div className="text-base font-bold text-slate-900 dark:text-white tabular-nums">{projects.stats?.total || 0}</div>
             </CardContent></Card>
             <Card className="py-0 gap-0 border-slate-200 dark:border-slate-700/50"><CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-1"><div className="p-1.5 rounded-lg bg-emerald-100 dark:bg-emerald-900/50"><TrendingUp className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" /></div><span className="text-[11px] text-slate-500 dark:text-slate-400">{ar ? "نشطة" : "Active"}</span></div>
+              <div className="flex items-center gap-2 mb-1"><div className="p-1.5 rounded-lg bg-emerald-100 dark:bg-emerald-900/50"><TrendingUp className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" /></div><span className="text-[11px] text-slate-500 dark:text-slate-400">{tAuto('auto.active')}</span></div>
               <div className="text-base font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">{projects.stats?.active || 0}</div>
             </CardContent></Card>
             <Card className="py-0 gap-0 border-slate-200 dark:border-slate-700/50"><CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-1"><div className="p-1.5 rounded-lg bg-sky-100 dark:bg-sky-900/50"><CheckCircle className="h-3.5 w-3.5 text-sky-600 dark:text-sky-400" /></div><span className="text-[11px] text-slate-500 dark:text-slate-400">{ar ? "مكتملة" : "Completed"}</span></div>
+              <div className="flex items-center gap-2 mb-1"><div className="p-1.5 rounded-lg bg-sky-100 dark:bg-sky-900/50"><CheckCircle className="h-3.5 w-3.5 text-sky-600 dark:text-sky-400" /></div><span className="text-[11px] text-slate-500 dark:text-slate-400">{tAuto('auto.completed')}</span></div>
               <div className="text-base font-bold text-sky-600 dark:text-sky-400 tabular-nums">{projects.stats?.completed || 0}</div>
             </CardContent></Card>
             <Card className="py-0 gap-0 border-slate-200 dark:border-slate-700/50"><CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-1"><div className="p-1.5 rounded-lg bg-red-100 dark:bg-red-900/50"><AlertTriangle className="h-3.5 w-3.5 text-red-600 dark:text-red-400" /></div><span className="text-[11px] text-slate-500 dark:text-slate-400">{ar ? "متأخرة" : "Delayed"}</span></div>
+              <div className="flex items-center gap-2 mb-1"><div className="p-1.5 rounded-lg bg-red-100 dark:bg-red-900/50"><AlertTriangle className="h-3.5 w-3.5 text-red-600 dark:text-red-400" /></div><span className="text-[11px] text-slate-500 dark:text-slate-400">{tAuto('auto.delayed')}</span></div>
               <div className="text-base font-bold text-red-600 dark:text-red-400 tabular-nums">{projects.stats?.delayed || 0}</div>
             </CardContent></Card>
             <Card className="py-0 gap-0 border-slate-200 dark:border-slate-700/50"><CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-1"><div className="p-1.5 rounded-lg bg-amber-100 dark:bg-amber-900/50"><CalendarDays className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" /></div><span className="text-[11px] text-slate-500 dark:text-slate-400">{ar ? "معلقة" : "On Hold"}</span></div>
+              <div className="flex items-center gap-2 mb-1"><div className="p-1.5 rounded-lg bg-amber-100 dark:bg-amber-900/50"><CalendarDays className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" /></div><span className="text-[11px] text-slate-500 dark:text-slate-400">{tAuto('auto.onHold')}</span></div>
               <div className="text-base font-bold text-amber-600 dark:text-amber-400 tabular-nums">{projects.stats?.onHold || 0}</div>
             </CardContent></Card>
           </div>
 
           {/* Project Progress Table */}
           <Card className="border-slate-200 dark:border-slate-700/50 shadow-sm"><CardContent className="p-4">
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3">{ar ? "نظرة عامة على تقدم المشاريع" : "Project Progress Overview"}</h3>
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3">{tAuto('auto.projectProgressOverview')}</h3>
             <div className="overflow-x-auto"><Table>
               <TableHeader><TableRow className="hover:bg-transparent bg-slate-50/80 dark:bg-slate-800/50">
-                <TableHead className="text-xs font-semibold">{ar ? "المشروع" : "Project"}</TableHead>
-                <TableHead className="text-xs font-semibold">{ar ? "العميل" : "Client"}</TableHead>
-                <TableHead className="text-xs font-semibold">{ar ? "الحالة" : "Status"}</TableHead>
-                <TableHead className="text-xs font-semibold">{ar ? "التقدم" : "Progress"}</TableHead>
-                <TableHead className="text-xs font-semibold text-start">{ar ? "الميزانية" : "Budget"}</TableHead>
-                <TableHead className="text-xs font-semibold text-start">{ar ? "المصروف" : "Spent"}</TableHead>
+                <TableHead className="text-xs font-semibold">{tAuto('auto.project')}</TableHead>
+                <TableHead className="text-xs font-semibold">{tAuto('auto.client')}</TableHead>
+                <TableHead className="text-xs font-semibold">{tAuto('auto.status1')}</TableHead>
+                <TableHead className="text-xs font-semibold">{tAuto('auto.progress')}</TableHead>
+                <TableHead className="text-xs font-semibold text-start">{tAuto('auto.budget')}</TableHead>
+                <TableHead className="text-xs font-semibold text-start">{tAuto('auto.spent')}</TableHead>
               </TableRow></TableHeader>
               <TableBody>
                 {(projects.projects || []).map((p: { id: string; name: string; nameEn: string; status: string; progress: number; taskProgress: number; budget: number; totalPaid: number; clientName: string }, idx: number) => {
@@ -314,7 +318,7 @@ export default function ReportsPage({ projectId }: ReportsPageProps) {
                   );
                 })}
                 {(!projects.projects || projects.projects.length === 0) && (
-                  <TableRow><TableCell colSpan={6} className="text-center py-8 text-xs text-slate-400">{ar ? "لا توجد بيانات" : "No data"}</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={6} className="text-center py-8 text-xs text-slate-400">{tAuto('auto.noData')}</TableCell></TableRow>
                 )}
               </TableBody>
             </Table></div>
@@ -323,13 +327,13 @@ export default function ReportsPage({ projectId }: ReportsPageProps) {
           {/* Delayed Projects */}
           {projects.projects?.filter((p: { status: string }) => p.status === "DELAYED").length > 0 && (
             <Card className="border-slate-200 dark:border-slate-700/50 shadow-sm"><CardContent className="p-4">
-              <h3 className="text-sm font-semibold text-red-600 dark:text-red-400 mb-3 flex items-center gap-2"><AlertTriangle className="h-4 w-4" />{ar ? "المشاريع المتأخرة" : "Delayed Projects"}</h3>
+              <h3 className="text-sm font-semibold text-red-600 dark:text-red-400 mb-3 flex items-center gap-2"><AlertTriangle className="h-4 w-4" />{tAuto('auto.delayedProjects')}</h3>
               <div className="space-y-2">
                 {projects.projects.filter((p: { status: string }) => p.status === "DELAYED").map((p: { id: string; name: string; nameEn: string; progress: number; taskProgress: number; endDate: string }) => (
                   <div key={p.id} className="flex items-center gap-3 p-3 rounded-lg bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/30">
                     <div className="p-1.5 rounded-lg bg-red-100 dark:bg-red-900/50"><AlertTriangle className="h-3.5 w-3.5 text-red-500" /></div>
                     <div className="flex-1"><p className="text-sm font-medium text-slate-900 dark:text-white">{ar ? p.name : p.nameEn || p.name}</p></div>
-                    {p.endDate && <span className="text-[10px] text-red-500 font-medium">{ar ? "كان الموعد: " : "Due: "}{new Date(p.endDate).toLocaleDateString(ar ? "ar-AE" : "en-US")}</span>}
+                    {p.endDate && <span className="text-[10px] text-red-500 font-medium">{tAuto('auto.due1')}{new Date(p.endDate).toLocaleDateString(ar ? "ar-AE" : "en-US")}</span>}
                   </div>
                 ))}
               </div>
@@ -338,8 +342,8 @@ export default function ReportsPage({ projectId }: ReportsPageProps) {
 
           {/* Budget vs Actual */}
           <Card className="border-slate-200 dark:border-slate-700/50 shadow-sm"><CardContent className="p-4">
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-1">{ar ? "الميزانية مقابل الفعلي" : "Budget vs Actual"}</h3>
-            <p className="text-[10px] text-slate-400 mb-4">{ar ? "مقارنة الميزانية المخططة بالمصروفات الفعلية" : "Planned budget vs actual spending comparison"}</p>
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-1">{tAuto('auto.budgetVsActual')}</h3>
+            <p className="text-[10px] text-slate-400 mb-4">{tAuto('auto.plannedBudgetVsActualSpendingComparison')}</p>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={(projects.projects || []).slice(0, 6).map((p: { name: string; nameEn: string; budget: number; totalPaid: number }) => ({
@@ -350,8 +354,8 @@ export default function ReportsPage({ projectId }: ReportsPageProps) {
                   <YAxis tickFormatter={formatK} tick={{ fontSize: 11, fill: tickColor }} tickLine={false} axisLine={false} />
                   <Tooltip content={<ChartTooltip ar={ar} />} />
                   <Legend wrapperStyle={{ fontSize: 12, color: legendColor }} />
-                  <Bar dataKey="budget" name={ar ? "الميزانية" : "Budget"} fill="#0ea5e9" radius={[6, 6, 0, 0]} />
-                  <Bar dataKey="actual" name={ar ? "المصروف" : "Actual"} fill="#f59e0b" radius={[6, 6, 0, 0]} />
+                  <Bar dataKey="budget" name={tAuto('auto.budget')} fill="#0ea5e9" radius={[6, 6, 0, 0]} />
+                  <Bar dataKey="actual" name={tAuto('auto.actual')} fill="#f59e0b" radius={[6, 6, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -364,15 +368,15 @@ export default function ReportsPage({ projectId }: ReportsPageProps) {
         <div className="space-y-4">
           <div className="grid grid-cols-3 gap-3">
             <Card className="py-0 gap-0 border-0 shadow-sm overflow-hidden"><div className="bg-gradient-to-br from-emerald-500 to-emerald-600 dark:from-emerald-600 dark:to-emerald-700 p-4">
-              <div className="flex items-center gap-2 mb-2"><div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm"><DollarSign className="h-3.5 w-3.5 text-white" /></div><span className="text-[11px] text-emerald-100">{ar ? "فواتير محصلة" : "Collected"}</span></div>
+              <div className="flex items-center gap-2 mb-2"><div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm"><DollarSign className="h-3.5 w-3.5 text-white" /></div><span className="text-[11px] text-emerald-100">{tAuto('auto.collected')}</span></div>
               <div className="text-lg font-bold text-white tabular-nums">{formatCurrency(financial.collectedInvoices || 0, ar)}</div>
             </div></Card>
             <Card className="py-0 gap-0 border-0 shadow-sm overflow-hidden"><div className="bg-gradient-to-br from-amber-500 to-amber-600 dark:from-amber-600 dark:to-amber-700 p-4">
-              <div className="flex items-center gap-2 mb-2"><div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm"><Clock className="h-3.5 w-3.5 text-white" /></div><span className="text-[11px] text-amber-100">{ar ? "فواتير معلقة" : "Pending"}</span></div>
+              <div className="flex items-center gap-2 mb-2"><div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm"><Clock className="h-3.5 w-3.5 text-white" /></div><span className="text-[11px] text-amber-100">{tAuto('auto.pending')}</span></div>
               <div className="text-lg font-bold text-white tabular-nums">{formatCurrency(financial.pendingInvoices || 0, ar)}</div>
             </div></Card>
             <Card className="py-0 gap-0 border-0 shadow-sm overflow-hidden"><div className="bg-gradient-to-br from-red-500 to-red-600 dark:from-red-600 dark:to-red-700 p-4">
-              <div className="flex items-center gap-2 mb-2"><div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm"><AlertTriangle className="h-3.5 w-3.5 text-white" /></div><span className="text-[11px] text-red-100">{ar ? "فواتير متأخرة" : "Overdue"}</span></div>
+              <div className="flex items-center gap-2 mb-2"><div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm"><AlertTriangle className="h-3.5 w-3.5 text-white" /></div><span className="text-[11px] text-red-100">{tAuto('auto.overdue')}</span></div>
               <div className="text-lg font-bold text-white tabular-nums">{formatCurrency(financial.overdueInvoices || 0, ar)} <span className="text-xs font-normal opacity-80">({financial.overdueCount || 0})</span></div>
             </div></Card>
           </div>
@@ -380,12 +384,12 @@ export default function ReportsPage({ projectId }: ReportsPageProps) {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* Top Clients */}
             <Card className="border-slate-200 dark:border-slate-700/50 shadow-sm"><CardContent className="p-4">
-              <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3">{ar ? "أعلى العملاء حسب الإيرادات" : "Top Clients by Revenue"}</h3>
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3">{tAuto('auto.topClientsByRevenue')}</h3>
               <Table><TableHeader><TableRow className="hover:bg-transparent">
-                <TableHead className="text-xs font-semibold">{ar ? "العميل" : "Client"}</TableHead>
-                <TableHead className="text-xs font-semibold text-start">{ar ? "الإيرادات" : "Revenue"}</TableHead>
-                <TableHead className="text-xs font-semibold text-start">{ar ? "المحصل" : "Collected"}</TableHead>
-                <TableHead className="text-xs font-semibold text-start">{ar ? "المتبقي" : "Outstanding"}</TableHead>
+                <TableHead className="text-xs font-semibold">{tAuto('auto.client')}</TableHead>
+                <TableHead className="text-xs font-semibold text-start">{tAuto('auto.revenue')}</TableHead>
+                <TableHead className="text-xs font-semibold text-start">{tAuto('auto.collected')}</TableHead>
+                <TableHead className="text-xs font-semibold text-start">{tAuto('auto.outstanding')}</TableHead>
               </TableRow></TableHeader><TableBody>
                 {(financial.topClients || []).map((c: { clientName: string; clientCompany: string; totalRevenue: number; collectedAmount: number; outstanding: number }, idx: number) => (
                   <TableRow key={c.clientName} className={cn(idx % 2 === 0 ? "bg-white dark:bg-slate-900" : "bg-slate-50/50 dark:bg-slate-800/20")}>
@@ -395,23 +399,23 @@ export default function ReportsPage({ projectId }: ReportsPageProps) {
                     <TableCell className="text-xs text-start text-amber-600 dark:text-amber-400 font-mono tabular-nums">{formatCurrency(c.outstanding, ar)}</TableCell>
                   </TableRow>
                 ))}
-                {(!financial.topClients || financial.topClients.length === 0) && <TableRow><TableCell colSpan={4} className="text-center py-6 text-xs text-slate-400">{ar ? "لا توجد بيانات" : "No data"}</TableCell></TableRow>}
+                {(!financial.topClients || financial.topClients.length === 0) && <TableRow><TableCell colSpan={4} className="text-center py-6 text-xs text-slate-400">{tAuto('auto.noData')}</TableCell></TableRow>}
               </TableBody></Table>
             </CardContent></Card>
 
             {/* Revenue Chart */}
             <Card className="border-slate-200 dark:border-slate-700/50 shadow-sm"><CardContent className="p-4">
-              <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-1">{ar ? "الإيرادات مقابل المصروفات" : "Revenue vs Expenses"}</h3>
-              <p className="text-[10px] text-slate-400 mb-4">{ar ? "تحليل شهري للتدفقات النقدية" : "Monthly cash flow analysis"}</p>
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-1">{tAuto('auto.revenueVsExpenses')}</h3>
+              <p className="text-[10px] text-slate-400 mb-4">{tAuto('auto.monthlyCashFlowAnalysis')}</p>
               <div className="h-64"><ResponsiveContainer width="100%" height="100%">
                 <BarChart data={financial.monthlyData || []} barGap={4}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridStroke} />
-                  <XAxis dataKey={ar ? "monthAr" : "monthEn"} tick={{ fontSize: 11, fill: tickColor }} tickLine={false} />
+                  <XAxis dataKey={tAuto('auto.monthEn')} tick={{ fontSize: 11, fill: tickColor }} tickLine={false} />
                   <YAxis tickFormatter={formatK} tick={{ fontSize: 11, fill: tickColor }} tickLine={false} axisLine={false} />
                   <Tooltip content={<ChartTooltip ar={ar} />} />
                   <Legend wrapperStyle={{ fontSize: 12, color: legendColor }} />
-                  <Bar dataKey="collected" name={ar ? "المحصل" : "Collected"} fill="#0e2a5c" radius={[6, 6, 0, 0]} />
-                  <Bar dataKey="expenses" name={ar ? "المصروفات" : "Expenses"} fill="#f43f5e" radius={[6, 6, 0, 0]} />
+                  <Bar dataKey="collected" name={tAuto('auto.collected')} fill="#0e2a5c" radius={[6, 6, 0, 0]} />
+                  <Bar dataKey="expenses" name={tAuto('auto.expenses')} fill="#f43f5e" radius={[6, 6, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer></div>
             </CardContent></Card>
@@ -420,8 +424,8 @@ export default function ReportsPage({ projectId }: ReportsPageProps) {
           {/* Revenue by Client Pie */}
           {revenueByClientData.length > 0 && (
             <Card className="border-slate-200 dark:border-slate-700/50 shadow-sm"><CardContent className="p-4">
-              <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-1">{ar ? "توزيع الإيرادات حسب العميل" : "Revenue by Client"}</h3>
-              <p className="text-[10px] text-slate-400 mb-4">{ar ? "أعلى 5 عملاء من حيث الإيرادات" : "Top 5 clients by revenue"}</p>
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-1">{tAuto('auto.revenueByClient')}</h3>
+              <p className="text-[10px] text-slate-400 mb-4">{tAuto('auto.top5ClientsByRevenue')}</p>
               <div className="flex flex-col md:flex-row items-center gap-6">
                 <div className="relative w-full max-w-[200px] shrink-0"><ResponsiveContainer width="100%" height={200}>
                   <PieChart><Pie data={revenueByClientData} cx="50%" cy="50%" innerRadius={50} outerRadius={85} paddingAngle={2} dataKey="value" stroke="none">
@@ -430,7 +434,7 @@ export default function ReportsPage({ projectId }: ReportsPageProps) {
                 </ResponsiveContainer>
                   <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                     <span className="text-lg font-bold text-slate-900 dark:text-white font-mono tabular-nums">{formatK(totalRevenueByClient)}</span>
-                    <span className="text-[9px] text-slate-500 dark:text-slate-400">{ar ? "د.إ" : "AED"}</span>
+                    <span className="text-[9px] text-slate-500 dark:text-slate-400">{tAuto('auto.aED')}</span>
                   </div>
                 </div>
                 <div className="flex-1 space-y-3 w-full">
@@ -460,23 +464,23 @@ export default function ReportsPage({ projectId }: ReportsPageProps) {
         <div className="space-y-4">
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
             <Card className="py-0 gap-0 border-slate-200 dark:border-slate-700/50"><CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-1"><div className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800"><Users className="h-3.5 w-3.5 text-slate-600 dark:text-slate-400" /></div><span className="text-[11px] text-slate-500 dark:text-slate-400">{ar ? "إجمالي الموظفين" : "Total"}</span></div>
+              <div className="flex items-center gap-2 mb-1"><div className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800"><Users className="h-3.5 w-3.5 text-slate-600 dark:text-slate-400" /></div><span className="text-[11px] text-slate-500 dark:text-slate-400">{tAuto('auto.total')}</span></div>
               <div className="text-base font-bold text-slate-900 dark:text-white tabular-nums">{hr.totalEmployees || 0}</div>
             </CardContent></Card>
             <Card className="py-0 gap-0 border-slate-200 dark:border-slate-700/50"><CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-1"><div className="p-1.5 rounded-lg bg-emerald-100 dark:bg-emerald-900/50"><CheckCircle className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" /></div><span className="text-[11px] text-slate-500 dark:text-slate-400">{ar ? "حاضرون اليوم" : "Present"}</span></div>
+              <div className="flex items-center gap-2 mb-1"><div className="p-1.5 rounded-lg bg-emerald-100 dark:bg-emerald-900/50"><CheckCircle className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" /></div><span className="text-[11px] text-slate-500 dark:text-slate-400">{tAuto('auto.present')}</span></div>
               <div className="text-base font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">{hr.presentToday || 0}</div>
             </CardContent></Card>
             <Card className="py-0 gap-0 border-slate-200 dark:border-slate-700/50"><CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-1"><div className="p-1.5 rounded-lg bg-red-100 dark:bg-red-900/50"><AlertTriangle className="h-3.5 w-3.5 text-red-600 dark:text-red-400" /></div><span className="text-[11px] text-slate-500 dark:text-slate-400">{ar ? "غائبون" : "Absent"}</span></div>
+              <div className="flex items-center gap-2 mb-1"><div className="p-1.5 rounded-lg bg-red-100 dark:bg-red-900/50"><AlertTriangle className="h-3.5 w-3.5 text-red-600 dark:text-red-400" /></div><span className="text-[11px] text-slate-500 dark:text-slate-400">{tAuto('auto.absent')}</span></div>
               <div className="text-base font-bold text-red-600 dark:text-red-400 tabular-nums">{hr.absentToday || 0}</div>
             </CardContent></Card>
             <Card className="py-0 gap-0 border-slate-200 dark:border-slate-700/50"><CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-1"><div className="p-1.5 rounded-lg bg-amber-100 dark:bg-amber-900/50"><Clock className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" /></div><span className="text-[11px] text-slate-500 dark:text-slate-400">{ar ? "متأخرون" : "Late"}</span></div>
+              <div className="flex items-center gap-2 mb-1"><div className="p-1.5 rounded-lg bg-amber-100 dark:bg-amber-900/50"><Clock className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" /></div><span className="text-[11px] text-slate-500 dark:text-slate-400">{tAuto('auto.late')}</span></div>
               <div className="text-base font-bold text-amber-600 dark:text-amber-400 tabular-nums">{hr.lateToday || 0}</div>
             </CardContent></Card>
             <Card className="py-0 gap-0 border-slate-200 dark:border-slate-700/50"><CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-1"><div className="p-1.5 rounded-lg bg-violet-100 dark:bg-violet-900/50"><CalendarDays className="h-3.5 w-3.5 text-violet-600 dark:text-violet-400" /></div><span className="text-[11px] text-slate-500 dark:text-slate-400">{ar ? "في إجازة" : "On Leave"}</span></div>
+              <div className="flex items-center gap-2 mb-1"><div className="p-1.5 rounded-lg bg-violet-100 dark:bg-violet-900/50"><CalendarDays className="h-3.5 w-3.5 text-violet-600 dark:text-violet-400" /></div><span className="text-[11px] text-slate-500 dark:text-slate-400">{tAuto('auto.onLeave')}</span></div>
               <div className="text-base font-bold text-violet-600 dark:text-violet-400 tabular-nums">{hr.onLeaveToday || 0}</div>
             </CardContent></Card>
           </div>
@@ -485,7 +489,7 @@ export default function ReportsPage({ projectId }: ReportsPageProps) {
             {/* Department Distribution */}
             {departmentData.length > 0 && (
               <Card className="border-slate-200 dark:border-slate-700/50 shadow-sm"><CardContent className="p-4">
-                <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3">{ar ? "توزيع الأقسام" : "Department Distribution"}</h3>
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3">{tAuto('auto.departmentDistribution')}</h3>
                 <div className="space-y-2">
                   {departmentData.map((d: { name: string; value: number; color: string }) => (
                     <div key={d.name} className="flex items-center gap-3">
@@ -508,18 +512,18 @@ export default function ReportsPage({ projectId }: ReportsPageProps) {
             {/* Attendance Trend */}
             {hr.attendanceTrend && hr.attendanceTrend.length > 0 && (
               <Card className="border-slate-200 dark:border-slate-700/50 shadow-sm"><CardContent className="p-4">
-                <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-1">{ar ? "اتجاه الحضور (7 أيام)" : "Attendance Trend (7 Days)"}</h3>
-                <p className="text-[10px] text-slate-400 mb-4">{ar ? "إحصائيات الحضور اليومية" : "Daily attendance statistics"}</p>
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-1">{tAuto('auto.attendanceTrend7Days')}</h3>
+                <p className="text-[10px] text-slate-400 mb-4">{tAuto('auto.dailyAttendanceStatistics')}</p>
                 <div className="h-64"><ResponsiveContainer width="100%" height="100%">
                   <BarChart data={hr.attendanceTrend} barGap={2}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridStroke} />
-                    <XAxis dataKey={ar ? "dateAr" : "dateEn"} tick={{ fontSize: 10, fill: tickColor }} tickLine={false} />
+                    <XAxis dataKey={tAuto('auto.dateEn')} tick={{ fontSize: 10, fill: tickColor }} tickLine={false} />
                     <YAxis tick={{ fontSize: 11, fill: tickColor }} tickLine={false} axisLine={false} />
                     <Tooltip content={<SimpleTooltip />} />
                     <Legend wrapperStyle={{ fontSize: 12, color: legendColor }} />
-                    <Bar dataKey="PRESENT" name={ar ? "حاضر" : "Present"} fill="#10b981" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="LATE" name={ar ? "متأخر" : "Late"} fill="#f59e0b" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="ABSENT" name={ar ? "غائب" : "Absent"} fill="#ef4444" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="PRESENT" name={tAuto('auto.present')} fill="#10b981" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="LATE" name={tAuto('auto.late')} fill="#f59e0b" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="ABSENT" name={tAuto('auto.absent')} fill="#ef4444" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer></div>
               </CardContent></Card>
@@ -529,7 +533,7 @@ export default function ReportsPage({ projectId }: ReportsPageProps) {
           {/* Leave Analysis */}
           {leaveData.length > 0 && (
             <Card className="border-slate-200 dark:border-slate-700/50 shadow-sm"><CardContent className="p-4">
-              <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3">{ar ? "تحليل الإجازات" : "Leave Analysis"}</h3>
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3">{tAuto('auto.leaveAnalysis')}</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {leaveData.map((l: { name: string; value: number; color: string }) => (
                   <div key={l.name} className="flex items-center gap-3 p-3 rounded-lg border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20">
@@ -541,7 +545,7 @@ export default function ReportsPage({ projectId }: ReportsPageProps) {
               {hr.pendingLeaves > 0 && (
                 <div className="mt-3 flex items-center gap-2 p-2 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-100 dark:border-amber-900/30">
                   <Clock className="h-3.5 w-3.5 text-amber-500" />
-                  <span className="text-[11px] text-amber-700 dark:text-amber-300">{hr.pendingLeaves} {ar ? "طلب إجازة معلّق" : "pending leave request(s)"}</span>
+                  <span className="text-[11px] text-amber-700 dark:text-amber-300">{hr.pendingLeaves} {tAuto('auto.pendingLeaveRequestS')}</span>
                 </div>
               )}
             </CardContent></Card>
@@ -550,11 +554,11 @@ export default function ReportsPage({ projectId }: ReportsPageProps) {
           {/* Employees On Leave Today */}
           {hr.onLeaveEmployees && hr.onLeaveEmployees.length > 0 && (
             <Card className="border-slate-200 dark:border-slate-700/50 shadow-sm"><CardContent className="p-4">
-              <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3">{ar ? "الموظفون في إجازة اليوم" : "Employees On Leave Today"}</h3>
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3">{tAuto('auto.employeesOnLeaveToday')}</h3>
               <Table><TableHeader><TableRow className="hover:bg-transparent">
-                <TableHead className="text-xs font-semibold">{ar ? "الاسم" : "Name"}</TableHead>
-                <TableHead className="text-xs font-semibold">{ar ? "القسم" : "Department"}</TableHead>
-                <TableHead className="text-xs font-semibold">{ar ? "المسمى الوظيفي" : "Position"}</TableHead>
+                <TableHead className="text-xs font-semibold">{tAuto('auto.name')}</TableHead>
+                <TableHead className="text-xs font-semibold">{tAuto('auto.department')}</TableHead>
+                <TableHead className="text-xs font-semibold">{tAuto('auto.position')}</TableHead>
               </TableRow></TableHeader><TableBody>
                 {hr.onLeaveEmployees.map((e: { employee: { name: string; department: string; position: string } }, idx: number) => (
                   <TableRow key={e.employee?.name || idx} className={cn(idx % 2 === 0 ? "bg-white dark:bg-slate-900" : "bg-slate-50/50 dark:bg-slate-800/20")}>
@@ -573,14 +577,14 @@ export default function ReportsPage({ projectId }: ReportsPageProps) {
       {activeTab === "clients" && financial && (
         <div className="space-y-4">
           <Card className="border-slate-200 dark:border-slate-700/50 shadow-sm"><CardContent className="p-4">
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3">{ar ? "تقارير العملاء" : "Client Reports"}</h3>
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3">{tAuto('auto.clientReports')}</h3>
             <Table><TableHeader><TableRow className="hover:bg-transparent bg-slate-50/80 dark:bg-slate-800/50">
-              <TableHead className="text-xs font-semibold">{ar ? "العميل" : "Client"}</TableHead>
-              <TableHead className="text-xs font-semibold">{ar ? "الشركة" : "Company"}</TableHead>
-              <TableHead className="text-xs font-semibold text-start">{ar ? "إجمالي الإيرادات" : "Total Revenue"}</TableHead>
-              <TableHead className="text-xs font-semibold text-start">{ar ? "المبلغ المحصل" : "Collected"}</TableHead>
-              <TableHead className="text-xs font-semibold text-start">{ar ? "المبلغ المتبقي" : "Outstanding"}</TableHead>
-              <TableHead className="text-xs font-semibold text-start">{ar ? "نسبة التحصيل" : "Collection Rate"}</TableHead>
+              <TableHead className="text-xs font-semibold">{tAuto('auto.client')}</TableHead>
+              <TableHead className="text-xs font-semibold">{tAuto('auto.company')}</TableHead>
+              <TableHead className="text-xs font-semibold text-start">{tAuto('auto.totalRevenue')}</TableHead>
+              <TableHead className="text-xs font-semibold text-start">{tAuto('auto.collected')}</TableHead>
+              <TableHead className="text-xs font-semibold text-start">{tAuto('auto.outstanding')}</TableHead>
+              <TableHead className="text-xs font-semibold text-start">{tAuto('auto.collectionRate')}</TableHead>
             </TableRow></TableHeader><TableBody>
               {(financial.topClients || []).map((c: { clientName: string; clientCompany: string; totalRevenue: number; collectedAmount: number; outstanding: number }, idx: number) => {
                 const rate = c.totalRevenue > 0 ? Math.round((c.collectedAmount / c.totalRevenue) * 100) : 0;
@@ -595,7 +599,7 @@ export default function ReportsPage({ projectId }: ReportsPageProps) {
                   </TableRow>
                 );
               })}
-              {(!financial.topClients || financial.topClients.length === 0) && <TableRow><TableCell colSpan={6} className="text-center py-8 text-xs text-slate-400">{ar ? "لا توجد بيانات" : "No data"}</TableCell></TableRow>}
+              {(!financial.topClients || financial.topClients.length === 0) && <TableRow><TableCell colSpan={6} className="text-center py-8 text-xs text-slate-400">{tAuto('auto.noData')}</TableCell></TableRow>}
             </TableBody></Table>
           </CardContent></Card>
         </div>

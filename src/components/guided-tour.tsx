@@ -2,6 +2,8 @@
  
 
 
+
+import { useTranslations } from 'next-intl';
 import { useEffect, useState } from "react";
 import { driver } from "driver.js";
 import "driver.js/dist/driver.css";
@@ -13,6 +15,7 @@ interface GuidedTourProps {
 }
 
 export function GuidedTour({ language }: GuidedTourProps) {
+  const tAuto = useTranslations();
   const { currentPage } = useNavStore();
   const { user } = useAuthStore();
   const isAr = language === "ar";
@@ -39,14 +42,14 @@ export function GuidedTour({ language }: GuidedTourProps) {
       const driverObj = driver({
         showProgress: true,
         animate: true,
-        nextBtnText: isAr ? 'التالي' : 'Next',
-        prevBtnText: isAr ? 'السابق' : 'Previous',
-        doneBtnText: isAr ? 'إنهاء' : 'Done',
+        nextBtnText: tAuto('auto.next'),
+        prevBtnText: tAuto('auto.previous'),
+        doneBtnText: tAuto('auto.done'),
         steps: [
           {
             popover: {
-              title: isAr ? 'مرحباً بك في BluePrint 👋' : 'Welcome to BluePrint 👋',
-              description: isAr ? 'هذه جولة سريعة لتعريفك بأهم ميزات النظام في وضع العرض التجريبي.' : 'This is a quick tour to introduce you to the main features in Demo Mode.',
+              title: tAuto('auto.welcomeToBluePrint'),
+              description: tAuto('auto.thisIsAQuickTourToIntroduceYouToTheMainF'),
               side: "bottom",
               align: 'start'
             }
@@ -54,8 +57,8 @@ export function GuidedTour({ language }: GuidedTourProps) {
           {
             element: 'aside', // The sidebar
             popover: {
-              title: isAr ? 'القائمة الجانبية' : 'Sidebar',
-              description: isAr ? 'من هنا يمكنك التنقل بين جميع أقسام النظام (المشاريع، الفواتير، المهام، إلخ).' : 'From here you can navigate between all system modules (Projects, Invoices, Tasks, etc.).',
+              title: tAuto('auto.sidebar'),
+              description: tAuto('auto.fromHereYouCanNavigateBetweenAllSystemMo'),
               side: "right",
               align: 'start'
             }
@@ -63,21 +66,21 @@ export function GuidedTour({ language }: GuidedTourProps) {
           {
             element: 'header', // The header
             popover: {
-              title: isAr ? 'الشريط العلوي' : 'Top Bar',
-              description: isAr ? 'يحتوي على البحث السريع، الإشعارات، وملفك الشخصي.' : 'Contains global search, notifications, and your profile.',
+              title: tAuto('auto.topBar'),
+              description: tAuto('auto.containsGlobalSearchNotificationsAndYour'),
               side: "bottom",
               align: 'center'
             }
           },
           {
             popover: {
-              title: isAr ? 'جاهز للبدء؟ 🚀' : 'Ready to start? 🚀',
-              description: isAr ? 'تصفح النظام بحرية، يمكنك إعادة تعيين البيانات من الشريط العلوي متى شئت.' : 'Explore freely. You can reset demo data from the top banner anytime.',
+              title: tAuto('auto.readyToStart'),
+              description: tAuto('auto.exploreFreelyYouCanResetDemoDataFromTheT'),
             }
           }
         ],
         onDestroyStarted: () => {
-          if (!driverObj.hasNextStep() || confirm(isAr ? "هل أنت متأكد من تخطي الجولة؟" : "Are you sure you want to skip the tour?")) {
+          if (!driverObj.hasNextStep() || confirm(tAuto('auto.areYouSureYouWantToSkipTheTour'))) {
             driverObj.destroy();
             localStorage.setItem("blueprint-tour-seen", "true");
             setHasSeenTour(true);

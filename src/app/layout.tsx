@@ -93,13 +93,13 @@ export default async function RootLayout({
       <body
         className={`${ibmPlexArabic.variable} ${plusJakarta.variable} antialiased bg-background text-foreground font-[family-name:var(--font-ibm-plex-arabic)]`}
       >
-        <SkipNavLink />
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem={true} disableTransitionOnChange>
           <ReactQueryProvider>
             <CsrfProvider>
               <SafeWebSocketProvider>
                 <ErrorBoundary>
                   <NextIntlClientProvider messages={messages}>
+                    <SkipNavLink />
                     {process.env.DEMO_MODE === "true" && <DemoBanner />}
                     {children}
                     <CookieConsent />

@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState, useMemo, useRef, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
@@ -115,6 +117,7 @@ interface Props {
 }
 
 export default function NotificationsPage({ projectId }: Props) {
+  const tAuto = useTranslations();
   const lang = useLang();
   const isAr = lang === "ar";
   const queryClient = useQueryClient();
@@ -265,7 +268,7 @@ export default function NotificationsPage({ projectId }: Props) {
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
 
-    if (diffMin < 1) return isAr ? "الآن" : "Just now";
+    if (diffMin < 1) return tAuto('auto.justNow');
     if (diffMin < 60) {
       return isAr
         ? (diffMin === 1 ? "منذ دقيقة" : `منذ ${diffMin} دقائق`)
@@ -276,7 +279,7 @@ export default function NotificationsPage({ projectId }: Props) {
         ? (diffHours === 1 ? "منذ ساعة" : `منذ ${diffHours} ساعة`)
         : (diffHours === 1 ? "1 hour ago" : `${diffHours} hours ago`);
     }
-    if (diffDays === 1) return isAr ? "أمس" : "yesterday";
+    if (diffDays === 1) return tAuto('auto.yesterday');
     if (diffDays < 7) {
       return isAr
         ? (diffDays === 2 ? "منذ يومين" : `منذ ${diffDays} أيام`)
@@ -329,7 +332,7 @@ export default function NotificationsPage({ projectId }: Props) {
           </div>
           <div>
             <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              {isAr ? "الإشعارات" : "Notifications"}
+              {tAuto('auto.notifications')}
               {liveUnreadCount > 0 && (
                 <Badge className="h-5 px-1.5 text-[10px] font-bold bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800/40">
                   {liveUnreadCount}
@@ -373,7 +376,7 @@ export default function NotificationsPage({ projectId }: Props) {
                 <CheckCheck className="h-3.5 w-3.5" />
               )}
               {confirmMarkAll
-                ? isAr ? "تأكيد؟" : "Confirm?"
+                ? tAuto('auto.confirm1')
                 : isAr
                   ? `تعيين الكل كمقروء (${liveUnreadCount})`
                   : `Mark All Read (${liveUnreadCount})`}
@@ -437,14 +440,14 @@ export default function NotificationsPage({ projectId }: Props) {
             </div>
             <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">
               {activeTab === "unread"
-                ? (isAr ? "ممتاز! تم قراءة الكل" : "All caught up!")
-                : (isAr ? "لا توجد إشعارات" : "No notifications")}
+                ? (tAuto('auto.allCaughtUp'))
+                : (tAuto('auto.noNotifications'))}
             </h3>
             <p className="text-sm text-slate-500 dark:text-slate-400 max-w-sm mx-auto leading-relaxed">
               {activeTab === "unread"
-                ? (isAr ? "جميع الإشعارات تمت قراءتها. أنت محدّث بالكامل!" : "All notifications have been read. You're all caught up!")
+                ? (tAuto('auto.allNotificationsHaveBeenReadYouReAllCaug'))
                 : activeTab === "all"
-                  ? (isAr ? "لا توجد إشعارات حالياً. سنقوم بإشعارك بأي تحديث جديد." : "No notifications right now. We'll notify you of any updates.")
+                  ? (tAuto('auto.noNotificationsRightNowWeLlNotifyYouOfAn'))
                   : (isAr ? `لا توجد إشعارات في فئة "${isAr ? tabConfig[activeTab]?.ar : tabConfig[activeTab]?.en}".` : `No notifications in "${tabConfig[activeTab]?.en}" category.`)
               }
             </p>
@@ -456,7 +459,7 @@ export default function NotificationsPage({ projectId }: Props) {
                 onClick={() => setActiveTab("all")}
               >
                 <Layers className="h-3.5 w-3.5 me-1.5" />
-                {isAr ? "عرض جميع الإشعارات" : "View all notifications"}
+                {tAuto('auto.viewAllNotifications')}
               </Button>
             )}
           </div>
@@ -542,7 +545,7 @@ export default function NotificationsPage({ projectId }: Props) {
                         <button
                           onClick={(e) => { e.stopPropagation(); markReadMutation.mutate(notif.id); }}
                           className="p-1.5 rounded-lg hover:bg-teal-50 dark:hover:bg-teal-900/30 transition-colors"
-                          title={isAr ? "تعيين كمقروء" : "Mark as read"}
+                          title={tAuto('auto.markAsRead')}
                         >
                           <Eye className="h-3.5 w-3.5 text-slate-400 hover:text-teal-500 dark:hover:text-teal-400" />
                         </button>
@@ -551,7 +554,7 @@ export default function NotificationsPage({ projectId }: Props) {
                         <button
                           onClick={(e) => { e.stopPropagation(); handleNotificationClick(notif); }}
                           className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                          title={isAr ? "فتح" : "Open"}
+                          title={tAuto('auto.open')}
                         >
                           <ArrowRight className="h-3.5 w-3.5 text-slate-400 hover:text-teal-500 dark:hover:text-teal-400" />
                         </button>
@@ -559,7 +562,7 @@ export default function NotificationsPage({ projectId }: Props) {
                       <button
                         onClick={(e) => { e.stopPropagation(); deleteMutation.mutate(notif.id); }}
                         className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-                        title={isAr ? "إزالة" : "Dismiss"}
+                        title={tAuto('auto.dismiss')}
                       >
                         <X className="h-3.5 w-3.5 text-slate-300 dark:text-slate-600 hover:text-red-500 dark:hover:text-red-400" />
                       </button>

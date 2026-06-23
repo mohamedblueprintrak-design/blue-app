@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToastFeedback } from "@/hooks/use-toast-feedback";
@@ -20,6 +22,7 @@ interface ContractsPageProps {
 }
 
 export default function ContractsPage({ language, projectId }: ContractsPageProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const queryClient = useQueryClient();
   const toast = useToastFeedback({ ar });
@@ -102,10 +105,10 @@ export default function ContractsPage({ language, projectId }: ContractsPageProp
       queryClient.invalidateQueries({ queryKey: ["contracts", projectId] });
       setShowAddDialog(false);
       setFormData(emptyForm);
-      toast.created(ar ? "العقد" : "Contract");
+      toast.created(tAuto('auto.contract'));
     },
     onError: () => {
-      toast.error(ar ? "إنشاء العقد" : "Create contract");
+      toast.error(tAuto('auto.createContract'));
     },
   });
 
@@ -125,10 +128,10 @@ export default function ContractsPage({ language, projectId }: ContractsPageProp
       queryClient.invalidateQueries({ queryKey: ["contract-detail"] });
       setEditContract(null);
       setFormData(emptyForm);
-      toast.updated(ar ? "العقد" : "Contract");
+      toast.updated(tAuto('auto.contract'));
     },
     onError: () => {
-      toast.error(ar ? "تحديث العقد" : "Update contract");
+      toast.error(tAuto('auto.updateContract'));
     },
   });
 
@@ -140,10 +143,10 @@ export default function ContractsPage({ language, projectId }: ContractsPageProp
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["contracts", projectId] });
       setSelectedContract(null);
-      toast.deleted(ar ? "العقد" : "Contract");
+      toast.deleted(tAuto('auto.contract'));
     },
     onError: () => {
-      toast.error(ar ? "حذف العقد" : "Delete contract");
+      toast.error(tAuto('auto.deleteContract'));
     },
   });
 

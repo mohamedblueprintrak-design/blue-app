@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { Card, CardContent } from "@/components/ui/card";
 import { Clock, CheckCircle2, XCircle, Send } from "lucide-react";
 import type { Summary } from "./types";
@@ -10,6 +12,7 @@ interface TimesheetStatsProps {
 }
 
 export function TimesheetStats({ ar, summary }: TimesheetStatsProps) {
+  const tAuto = useTranslations();
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
       <Card className="border-slate-200 dark:border-slate-700/50">
@@ -20,7 +23,7 @@ export function TimesheetStats({ ar, summary }: TimesheetStatsProps) {
             </div>
             <div>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                {ar ? "ساعات هذا الأسبوع" : "Hours This Week"}
+                {tAuto('auto.hoursThisWeek')}
               </p>
               <p className="text-xl font-bold text-slate-900 dark:text-white tabular-nums">
                 {Number(summary.thisWeekHours) || 0}
@@ -37,7 +40,7 @@ export function TimesheetStats({ ar, summary }: TimesheetStatsProps) {
             </div>
             <div>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                {ar ? "بانتظار الاعتماد" : "Pending Approval"}
+                {tAuto('auto.pendingApproval')}
               </p>
               <p className="text-xl font-bold text-amber-600 dark:text-amber-400 tabular-nums">
                 {summary.pending}
@@ -54,7 +57,7 @@ export function TimesheetStats({ ar, summary }: TimesheetStatsProps) {
             </div>
             <div>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                {ar ? "معتمدة" : "Approved"}
+                {tAuto('auto.approved')}
               </p>
               <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">
                 {summary.approved}
@@ -71,7 +74,7 @@ export function TimesheetStats({ ar, summary }: TimesheetStatsProps) {
             </div>
             <div>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                {ar ? "مرفوضة" : "Rejected"}
+                {tAuto('auto.rejected')}
               </p>
               <p className="text-xl font-bold text-red-600 dark:text-red-400 tabular-nums">
                 {summary.rejected}

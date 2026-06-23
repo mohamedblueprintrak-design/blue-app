@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -39,6 +41,7 @@ interface DesignTabProps {
 }
 
 export default function DesignTab({ project, language, activeSubTab, onSubTabChange }: DesignTabProps) {
+  const tAuto = useTranslations();
   const isAr = language === "ar";
   const t = (ar: string, en: string) => (isAr ? ar : en);
 
@@ -148,10 +151,10 @@ export default function DesignTab({ project, language, activeSubTab, onSubTabCha
                                 value={step.status}
                                 onChange={() => {}}
                               >
-                                <option value="not-started">{isAr ? "لم يبدأ" : "Not Started"}</option>
-                                <option value="in-progress">{isAr ? "قيد التنفيذ" : "In Progress"}</option>
-                                <option value="SUBMITTED">{isAr ? "مقدم" : "Submitted"}</option>
-                                <option value="APPROVED">{isAr ? "معتمد" : "Approved"}</option>
+                                <option value="not-started">{tAuto('auto.notStarted')}</option>
+                                <option value="in-progress">{tAuto('auto.inProgress')}</option>
+                                <option value="SUBMITTED">{tAuto('auto.submitted')}</option>
+                                <option value="APPROVED">{tAuto('auto.approved')}</option>
                               </select>
                             </td>
                             <td className="p-2.5 text-slate-400">{step.date || "—"}</td>

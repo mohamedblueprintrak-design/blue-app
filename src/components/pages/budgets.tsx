@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
@@ -70,6 +72,7 @@ function getCategoryConfig(category: string) {
 
 // ===== Budget Utilization Bar =====
 function BudgetUtilizationBar({ planned, actual, committed, ar }: { planned: number; actual: number; committed: number; ar: boolean }) {
+  const tAuto = useTranslations();
   const pct = planned > 0 ? Math.min((actual / planned) * 100, 100) : 0;
   const commPct = planned > 0 ? Math.min((committed / planned) * 100, 100) : 0;
   const isOver = actual > planned;
@@ -98,10 +101,10 @@ function BudgetUtilizationBar({ planned, actual, committed, ar }: { planned: num
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-3">
           <span className="text-[10px] font-mono tabular-nums text-slate-500 dark:text-slate-400">
-            {ar ? "الفعلي" : "Actual"}: {formatCurrency(actual, ar)}
+            {tAuto('auto.actual')}: {formatCurrency(actual, ar)}
           </span>
           <span className="text-[10px] font-mono tabular-nums text-slate-400">
-            {ar ? "الملزم" : "Comm"}: {formatCurrency(committed, ar)}
+            {tAuto('auto.comm')}: {formatCurrency(committed, ar)}
           </span>
         </div>
         <span className={cn(
@@ -117,6 +120,7 @@ function BudgetUtilizationBar({ planned, actual, committed, ar }: { planned: num
 
 // ===== Variance Indicator =====
 function VarianceIndicator({ deviation, ar }: { deviation: number; ar: boolean }) {
+  const tAuto = useTranslations();
   const isPositive = deviation >= 0;
   return (
     <div className={cn(
@@ -131,7 +135,7 @@ function VarianceIndicator({ deviation, ar }: { deviation: number; ar: boolean }
       <span className="text-[10px] font-bold tabular-nums">
         {deviation > 0 ? "+" : ""}{deviation.toFixed(1)}%
       </span>
-      <span className="text-[10px] text-slate-400">{ar ? "انحراف" : "dev."}</span>
+      <span className="text-[10px] text-slate-400">{tAuto('auto.dev')}</span>
     </div>
   );
 }
@@ -140,6 +144,7 @@ function VarianceIndicator({ deviation, ar }: { deviation: number; ar: boolean }
 interface BudgetsPageProps { language: "ar" | "en"; projectId?: string; }
 
 export default function BudgetsPage({ language, projectId }: BudgetsPageProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const [selectedProject, setSelectedProject] = useState<string>(projectId || "");
 
@@ -190,17 +195,17 @@ export default function BudgetsPage({ language, projectId }: BudgetsPageProps) {
     return (
       <div className="space-y-4">
         <div className="flex items-center gap-2">
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white">{ar ? "الميزانيات" : "Budgets"}</h2>
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white">{tAuto('auto.budgets')}</h2>
         </div>
         <div className="flex flex-col items-center justify-center min-h-[40vh] text-center">
           <div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4">
             <PiggyBank className="h-8 w-8 text-slate-400" />
           </div>
           <h3 className="text-base font-semibold text-slate-900 dark:text-white mb-2">
-            {ar ? "اختر مشروعاً" : "Select a Project"}
+            {tAuto('auto.selectAProject')}
           </h3>
           <p className="text-sm text-slate-500 dark:text-slate-400">
-            {ar ? "اختر مشروعاً لعرض الميزانية التفصيلية" : "Select a project to view detailed budget"}
+            {tAuto('auto.selectAProjectToViewDetailedBudget')}
           </p>
         </div>
       </div>
@@ -234,15 +239,15 @@ export default function BudgetsPage({ language, projectId }: BudgetsPageProps) {
             <PiggyBank className="h-4.5 w-4.5 text-emerald-600 dark:text-emerald-400" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white">{ar ? "الميزانيات" : "Budgets"}</h2>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">{tAuto('auto.budgets')}</h2>
             <p className="text-[10px] text-slate-500 dark:text-slate-400">
-              {ar ? "تتبع الميزانيات والمصروفات" : "Track budgets & expenditures"}
+              {tAuto('auto.trackBudgetsExpenditures')}
             </p>
           </div>
         </div>
         <Select value={activeProjectId} onValueChange={setSelectedProject} {...(projectId ? { hidden: true } : {})}>
           <SelectTrigger className={cn("w-[280px] h-9 text-sm rounded-lg", !!projectId && "hidden")}>
-            <SelectValue placeholder={ar ? "اختر مشروع" : "Select project"} />
+            <SelectValue placeholder={tAuto('auto.selectProject')} />
           </SelectTrigger>
           <SelectContent>
             {projects.map((p) => (
@@ -261,7 +266,7 @@ export default function BudgetsPage({ language, projectId }: BudgetsPageProps) {
           <div className="bg-gradient-to-br from-slate-600 to-slate-700 dark:from-slate-700 dark:to-slate-800 p-4">
             <div className="flex items-center gap-2 mb-2">
               <div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm"><BarChart3 className="h-3.5 w-3.5 text-white" /></div>
-              <span className="text-xs text-slate-200">{ar ? "إجمالي الميزانية" : "Total Budget"}</span>
+              <span className="text-xs text-slate-200">{tAuto('auto.totalBudget')}</span>
             </div>
             <div className="text-lg font-bold text-white font-mono tabular-nums">{formatCurrency(totals.planned, ar)}</div>
           </div>
@@ -279,10 +284,10 @@ export default function BudgetsPage({ language, projectId }: BudgetsPageProps) {
           )}>
             <div className="flex items-center gap-2 mb-2">
               <div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm"><Wallet className="h-3.5 w-3.5 text-white" /></div>
-              <span className="text-xs text-white/80">{ar ? "المصروف" : "Spent"}</span>
+              <span className="text-xs text-white/80">{tAuto('auto.spent')}</span>
             </div>
             <div className="text-lg font-bold text-white font-mono tabular-nums">{formatCurrency(totals.actual, ar)}</div>
-            <p className="text-[10px] text-white/60 mt-1">{utilizationPct.toFixed(1)}% {ar ? "مستهلك" : "utilized"}</p>
+            <p className="text-[10px] text-white/60 mt-1">{utilizationPct.toFixed(1)}% {tAuto('auto.utilized')}</p>
           </div>
         </Card>
 
@@ -298,7 +303,7 @@ export default function BudgetsPage({ language, projectId }: BudgetsPageProps) {
               <div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm">
                 {totals.remaining < 0 ? <AlertTriangle className="h-3.5 w-3.5 text-white" /> : <PiggyBank className="h-3.5 w-3.5 text-white" />}
               </div>
-              <span className="text-xs text-white/80">{ar ? "المتبقي" : "Remaining"}</span>
+              <span className="text-xs text-white/80">{tAuto('auto.remaining')}</span>
             </div>
             <div className="text-lg font-bold text-white font-mono tabular-nums">
               {totals.remaining < 0 ? "-" : ""}{formatCurrency(Math.abs(totals.remaining), ar)}
@@ -311,11 +316,11 @@ export default function BudgetsPage({ language, projectId }: BudgetsPageProps) {
           <div className="bg-gradient-to-br from-violet-500 to-purple-600 dark:from-violet-600 dark:to-purple-700 p-4">
             <div className="flex items-center gap-2 mb-2">
               <div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm"><CircleDot className="h-3.5 w-3.5 text-white" /></div>
-              <span className="text-xs text-violet-100">{ar ? "الملزم" : "Committed"}</span>
+              <span className="text-xs text-violet-100">{tAuto('auto.committed')}</span>
             </div>
             <div className="text-lg font-bold text-white font-mono tabular-nums">{formatCurrency(totals.committed, ar)}</div>
             <p className="text-[10px] text-white/60 mt-1">
-              {totals.planned > 0 ? ((totals.committed / totals.planned) * 100).toFixed(1) : 0}% {ar ? "ملزم" : "committed"}
+              {totals.planned > 0 ? ((totals.committed / totals.planned) * 100).toFixed(1) : 0}% {tAuto('auto.committed1')}
             </p>
           </div>
         </Card>
@@ -334,7 +339,7 @@ export default function BudgetsPage({ language, projectId }: BudgetsPageProps) {
           )}>
             <div className="flex items-center gap-3 mb-3">
               <BarChart3 className="h-5 w-5 text-white/80" />
-              <span className="text-white font-bold">{ar ? "ملخص الميزانية العامة" : "Overall Budget Summary"}</span>
+              <span className="text-white font-bold">{tAuto('auto.overallBudgetSummary')}</span>
               {activeProject && (
                 <span className="text-white/70 text-sm ms-auto">{ar ? activeProject.name : activeProject.nameEn || activeProject.name}</span>
               )}
@@ -358,32 +363,32 @@ export default function BudgetsPage({ language, projectId }: BudgetsPageProps) {
                 />
               </div>
               <div className="flex justify-between text-[10px] text-white/60 mt-1.5">
-                <span>{ar ? "المخطط" : "Planned"}: <span className="font-mono tabular-nums text-white/90">{formatCurrency(totals.planned, ar)}</span></span>
-                <span>{ar ? "المستهلك" : "Used"}: <span className="font-mono tabular-nums text-white/90">{utilizationPct.toFixed(1)}%</span></span>
+                <span>{tAuto('auto.planned')}: <span className="font-mono tabular-nums text-white/90">{formatCurrency(totals.planned, ar)}</span></span>
+                <span>{tAuto('auto.used')}: <span className="font-mono tabular-nums text-white/90">{utilizationPct.toFixed(1)}%</span></span>
               </div>
             </div>
 
             <div className="grid grid-cols-5 gap-2">
               <div className="text-center">
-                <div className="text-[10px] text-white/60">{ar ? "المخطط" : "Planned"}</div>
+                <div className="text-[10px] text-white/60">{tAuto('auto.planned')}</div>
                 <div className="text-sm font-bold text-white font-mono tabular-nums">{formatCurrency(totals.planned, ar)}</div>
               </div>
               <div className="text-center">
-                <div className="text-[10px] text-white/60">{ar ? "الفعلي" : "Actual"}</div>
+                <div className="text-[10px] text-white/60">{tAuto('auto.actual')}</div>
                 <div className="text-sm font-bold text-white font-mono tabular-nums">{formatCurrency(totals.actual, ar)}</div>
               </div>
               <div className="text-center">
-                <div className="text-[10px] text-white/60">{ar ? "الملزم" : "Committed"}</div>
+                <div className="text-[10px] text-white/60">{tAuto('auto.committed')}</div>
                 <div className="text-sm font-bold text-white font-mono tabular-nums">{formatCurrency(totals.committed, ar)}</div>
               </div>
               <div className="text-center">
-                <div className="text-[10px] text-white/60">{ar ? "المتبقي" : "Remaining"}</div>
+                <div className="text-[10px] text-white/60">{tAuto('auto.remaining')}</div>
                 <div className={cn("text-sm font-bold font-mono tabular-nums", totals.remaining < 0 ? "text-red-200" : "text-white")}>
                   {totals.remaining < 0 ? "-" : ""}{formatCurrency(Math.abs(totals.remaining), ar)}
                 </div>
               </div>
               <div className="text-center">
-                <div className="text-[10px] text-white/60">{ar ? "الانحراف" : "Deviation"}</div>
+                <div className="text-[10px] text-white/60">{tAuto('auto.deviation')}</div>
                 <div className={cn("text-sm font-bold font-mono tabular-nums flex items-center justify-center gap-1", totalDeviation > 10 ? "text-red-200" : totalDeviation > 0 ? "text-amber-200" : "text-green-200")}>
                   {totalDeviation > 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
                   {totalDeviation.toFixed(1)}%
@@ -400,7 +405,7 @@ export default function BudgetsPage({ language, projectId }: BudgetsPageProps) {
           <AlertTriangle className="h-5 w-5 text-red-500 flex-shrink-0" />
           <div>
             <p className="text-sm font-medium text-red-700 dark:text-red-400">
-              {ar ? "تنبيه: تجاوز الميزانية" : "Warning: Budget Overrun"}
+              {tAuto('auto.warningBudgetOverrun')}
             </p>
             <p className="text-xs text-red-600 dark:text-red-500">
               {ar
@@ -437,7 +442,7 @@ export default function BudgetsPage({ language, projectId }: BudgetsPageProps) {
                     {isOverBudget && (
                       <Badge variant="secondary" className="bg-white/20 text-white border-0 text-[10px] h-5">
                         <AlertTriangle className="h-3 w-3 me-1" />
-                        {ar ? "تجاوز" : "Overrun"}
+                        {tAuto('auto.overrun')}
                       </Badge>
                     )}
                   </div>
@@ -450,7 +455,7 @@ export default function BudgetsPage({ language, projectId }: BudgetsPageProps) {
                   {/* Key Metrics - 2x2 Grid */}
                   <div className="grid grid-cols-2 gap-2">
                     <div className="rounded-lg bg-slate-50 dark:bg-slate-800/50 px-3 py-2">
-                      <div className="text-[10px] text-slate-400">{ar ? "المخطط" : "Planned"}</div>
+                      <div className="text-[10px] text-slate-400">{tAuto('auto.planned')}</div>
                       <div className="text-sm font-bold text-slate-700 dark:text-slate-300 font-mono tabular-nums">{formatCurrency(budget.planned, ar)}</div>
                     </div>
                     <div className={cn(
@@ -459,14 +464,14 @@ export default function BudgetsPage({ language, projectId }: BudgetsPageProps) {
                         ? "bg-red-50 dark:bg-red-950/30"
                         : "bg-slate-50 dark:bg-slate-800/50"
                     )}>
-                      <div className="text-[10px] text-slate-400">{ar ? "الفعلي" : "Actual"}</div>
+                      <div className="text-[10px] text-slate-400">{tAuto('auto.actual')}</div>
                       <div className={cn(
                         "text-sm font-bold font-mono tabular-nums",
                         isNegativeDeviation ? "text-red-600 dark:text-red-400" : "text-slate-700 dark:text-slate-300"
                       )}>{formatCurrency(budget.actual, ar)}</div>
                     </div>
                     <div className="rounded-lg bg-slate-50 dark:bg-slate-800/50 px-3 py-2">
-                      <div className="text-[10px] text-slate-400">{ar ? "الملزم" : "Committed"}</div>
+                      <div className="text-[10px] text-slate-400">{tAuto('auto.committed')}</div>
                       <div className="text-sm font-bold text-amber-600 dark:text-amber-400 font-mono tabular-nums">{formatCurrency(budget.committed, ar)}</div>
                     </div>
                     <div className={cn(
@@ -475,7 +480,7 @@ export default function BudgetsPage({ language, projectId }: BudgetsPageProps) {
                         ? "bg-red-50 dark:bg-red-950/30"
                         : "bg-emerald-50 dark:bg-emerald-950/30"
                     )}>
-                      <div className="text-[10px] text-slate-400">{ar ? "المتبقي" : "Remaining"}</div>
+                      <div className="text-[10px] text-slate-400">{tAuto('auto.remaining')}</div>
                       <div className={cn(
                         "text-sm font-bold font-mono tabular-nums",
                         budget.remaining < 0
@@ -493,7 +498,7 @@ export default function BudgetsPage({ language, projectId }: BudgetsPageProps) {
                     <VarianceIndicator deviation={budget.deviation} ar={ar} />
                     {isOverBudget && (
                       <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-semibold bg-red-100 text-red-600 dark:bg-red-900/50 dark:text-red-400">
-                        {ar ? "تجاوز" : "OVER"}
+                        {tAuto('auto.oVER')}
                       </span>
                     )}
                   </div>
@@ -506,7 +511,7 @@ export default function BudgetsPage({ language, projectId }: BudgetsPageProps) {
                     <div className="border-t border-slate-100 dark:border-slate-800 pt-3 space-y-2">
                       <div className="flex items-center gap-1.5 mb-2">
                         <ChevronDown className="h-3 w-3 text-slate-400" />
-                        <span className="text-[10px] text-slate-400 font-semibold">{ar ? "التفاصيل" : "Breakdown"}</span>
+                        <span className="text-[10px] text-slate-400 font-semibold">{tAuto('auto.breakdown')}</span>
                       </div>
                       {budget.children.map((child, idx) => {
                         const childPct = child.planned > 0 ? (child.actual / child.planned) * 100 : 0;
@@ -568,10 +573,10 @@ export default function BudgetsPage({ language, projectId }: BudgetsPageProps) {
         <div className="flex flex-col items-center justify-center py-16 text-center">
           <PiggyBank className="h-12 w-12 text-slate-300 dark:text-slate-600 mb-3" />
           <h3 className="text-base font-semibold text-slate-900 dark:text-white mb-1">
-            {ar ? "لا توجد بيانات ميزانية" : "No budget data"}
+            {tAuto('auto.noBudgetData')}
           </h3>
           <p className="text-sm text-slate-500 dark:text-slate-400">
-            {ar ? "لم يتم إنشاء ميزانية لهذا المشروع بعد" : "No budget has been created for this project yet"}
+            {tAuto('auto.noBudgetHasBeenCreatedForThisProjectYet')}
           </p>
         </div>
       )}

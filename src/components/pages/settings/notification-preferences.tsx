@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -253,6 +255,7 @@ const CHANNEL_CONFIG: ChannelConfig[] = [
 // ── Component ──────────────────────────────────────────────────────────────
 
 export function NotificationPreferences({ isAr }: NotificationPreferencesProps) {
+  const tAuto = useTranslations();
   const { toast } = useToast();
   const [channels, setChannels] = useState<Channels>(DEFAULT_CHANNELS);
   const [categories, setCategories] = useState<Categories>(DEFAULT_CATEGORIES);
@@ -294,20 +297,20 @@ export function NotificationPreferences({ isAr }: NotificationPreferencesProps) 
       });
       if (res.ok) {
         toast({
-          title: isAr ? "تم الحفظ" : "Saved",
-          description: isAr ? "تم حفظ تفضيلات الإشعارات بنجاح" : "Notification preferences saved successfully",
+          title: tAuto('auto.saved'),
+          description: tAuto('auto.notificationPreferencesSavedSuccessfully'),
         });
       } else {
         toast({
-          title: isAr ? "خطأ" : "Error",
-          description: isAr ? "فشل حفظ التفضيلات" : "Failed to save preferences",
+          title: tAuto('auto.error'),
+          description: tAuto('auto.failedToSavePreferences'),
           variant: "destructive",
         });
       }
     } catch {
       toast({
-        title: isAr ? "خطأ" : "Error",
-        description: isAr ? "فشل الاتصال بالخادم" : "Failed to connect to server",
+        title: tAuto('auto.error'),
+        description: tAuto('auto.failedToConnectToServer'),
         variant: "destructive",
       });
     } finally {
@@ -348,8 +351,8 @@ export function NotificationPreferences({ isAr }: NotificationPreferencesProps) 
         <CardContent className="p-6">
           <SectionHeader
             icon={Bell}
-            title={isAr ? "قنوات الإشعارات" : "Notification Channels"}
-            subtitle={isAr ? "اختر كيف تريد استلام الإشعارات" : "Choose how you want to receive notifications"}
+            title={tAuto('auto.notificationChannels')}
+            subtitle={tAuto('auto.chooseHowYouWantToReceiveNotifications')}
           />
 
           {loading ? (
@@ -392,8 +395,8 @@ export function NotificationPreferences({ isAr }: NotificationPreferencesProps) 
         <CardContent className="p-6">
           <SectionHeader
             icon={ListTodo}
-            title={isAr ? "تفضيلات الفئات" : "Category Preferences"}
-            subtitle={isAr ? "تحكم في إشعارات كل فئة بالتفصيل" : "Control notifications for each category in detail"}
+            title={tAuto('auto.categoryPreferences')}
+            subtitle={tAuto('auto.controlNotificationsForEachCategoryInDet')}
           />
 
           {loading ? (
@@ -431,16 +434,10 @@ export function NotificationPreferences({ isAr }: NotificationPreferencesProps) 
                             </p>
                             <p className="text-xs text-slate-500 dark:text-slate-400">
                               {allEnabled
-                                ? isAr
-                                  ? "جميع الإشعارات مفعّلة"
-                                  : "All notifications enabled"
+                                ? tAuto('auto.allNotificationsEnabled')
                                 : someEnabled
-                                  ? isAr
-                                    ? "بعض الإشعارات مفعّلة"
-                                    : "Some notifications enabled"
-                                  : isAr
-                                    ? "جميع الإشعارات معطّلة"
-                                    : "All notifications disabled"}
+                                  ? tAuto('auto.someNotificationsEnabled')
+                                  : tAuto('auto.allNotificationsDisabled')}
                             </p>
                           </div>
                         </div>
@@ -495,8 +492,8 @@ export function NotificationPreferences({ isAr }: NotificationPreferencesProps) 
         <CardContent className="p-6">
           <SectionHeader
             icon={Moon}
-            title={isAr ? "ساعات الهدوء" : "Quiet Hours"}
-            subtitle={isAr ? "كتم الإشعارات خلال فترة محددة" : "Mute notifications during a specified period"}
+            title={tAuto('auto.quietHours')}
+            subtitle={tAuto('auto.muteNotificationsDuringASpecifiedPeriod')}
           />
 
           <div className="space-y-4">
@@ -508,12 +505,10 @@ export function NotificationPreferences({ isAr }: NotificationPreferencesProps) 
                 </div>
                 <div>
                   <p className="text-sm font-medium text-slate-900 dark:text-white">
-                    {isAr ? "تفعيل ساعات الهدوء" : "Enable Quiet Hours"}
+                    {tAuto('auto.enableQuietHours')}
                   </p>
                   <p className="text-xs text-slate-500 dark:text-slate-400">
-                    {isAr
-                      ? "لن يتم إرسال إشعارات خلال هذه الفترة"
-                      : "No notifications will be sent during this period"}
+                    {tAuto('auto.noNotificationsWillBeSentDuringThisPerio')}
                   </p>
                 </div>
               </div>
@@ -533,7 +528,7 @@ export function NotificationPreferences({ isAr }: NotificationPreferencesProps) 
                   {/* Start time */}
                   <div className="space-y-2">
                     <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                      {isAr ? "وقت البداية" : "Start Time"}
+                      {tAuto('auto.startTime')}
                     </Label>
                     <Input
                       type="time"
@@ -548,7 +543,7 @@ export function NotificationPreferences({ isAr }: NotificationPreferencesProps) 
                   {/* End time */}
                   <div className="space-y-2">
                     <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                      {isAr ? "وقت النهاية" : "End Time"}
+                      {tAuto('auto.endTime')}
                     </Label>
                     <Input
                       type="time"
@@ -564,7 +559,7 @@ export function NotificationPreferences({ isAr }: NotificationPreferencesProps) 
                 {/* Timezone */}
                 <div className="space-y-2">
                   <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                    {isAr ? "المنطقة الزمنية" : "Timezone"}
+                    {tAuto('auto.timezone')}
                   </Label>
                   <Select
                     value={quietHours.timezone}
@@ -602,7 +597,7 @@ export function NotificationPreferences({ isAr }: NotificationPreferencesProps) 
           ) : (
             <>
               <Save className="h-4 w-4 me-2" />
-              {isAr ? "حفظ التفضيلات" : "Save Preferences"}
+              {tAuto('auto.savePreferences')}
             </>
           )}
         </Button>

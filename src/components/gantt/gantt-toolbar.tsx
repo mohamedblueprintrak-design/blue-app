@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl';
 import React from "react";
 import { ChevronLeft, ChevronRight, Layers, List, LayoutGrid } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -30,6 +31,7 @@ export function GanttToolbar({
   onNavigateNext,
   onToday,
 }: GanttToolbarProps) {
+  const tAuto = useTranslations();
   return (
     <div className="p-3 border-b border-slate-200 dark:border-slate-700/50 bg-slate-50 dark:bg-slate-800/30">
       <div className="flex items-center justify-between flex-wrap gap-3">
@@ -44,10 +46,10 @@ export function GanttToolbar({
                   ? "bg-teal-600 text-white shadow-sm"
                   : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
               )}
-              aria-label={ar ? "عرض القائمة" : "List view"}
+              aria-label={tAuto('auto.listView')}
             >
               <List className="w-3.5 h-3.5" />
-              {ar ? "قائمة" : "List"}
+              {tAuto('auto.list')}
             </button>
             <button
               onClick={() => onMobileViewChange("gantt")}
@@ -57,10 +59,10 @@ export function GanttToolbar({
                   ? "bg-teal-600 text-white shadow-sm"
                   : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
               )}
-              aria-label={ar ? "عرض جانت" : "Gantt view"}
+              aria-label={tAuto('auto.ganttView')}
             >
               <LayoutGrid className="w-3.5 h-3.5" />
-              {ar ? "جانت" : "Gantt"}
+              {tAuto('auto.gantt')}
             </button>
           </div>
 
@@ -77,7 +79,7 @@ export function GanttToolbar({
             onClick={() => onShowPhaseGroupsChange(!showPhaseGroups)}
           >
             <Layers className="w-3.5 h-3.5 me-1.5" />
-            {ar ? "بمراحل" : "Phased"}
+            {tAuto('auto.phased')}
           </Button>
 
           {/* View Mode Toggle — hidden on mobile when in list view */}
@@ -96,7 +98,7 @@ export function GanttToolbar({
                     : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
                 )}
               >
-                {mode === "day" ? (ar ? "يوم" : "Day") : mode === "week" ? (ar ? "أسبوع" : "Week") : ar ? "شهر" : "Month"}
+                {mode === "day" ? (tAuto('auto.day')) : mode === "week" ? (tAuto('auto.week')) : tAuto('auto.month')}
               </button>
             ))}
           </div>
@@ -111,7 +113,7 @@ export function GanttToolbar({
             {ar ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
           </Button>
           <Button variant="ghost" size="sm" className="h-8 text-xs" onClick={onToday}>
-            {ar ? "اليوم" : "Today"}
+            {tAuto('auto.today')}
           </Button>
           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onNavigateNext} aria-label="Next">
             {ar ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}

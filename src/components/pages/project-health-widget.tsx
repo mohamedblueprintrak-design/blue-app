@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { cn } from "@/lib/utils";
 import {
   Card,
@@ -179,6 +181,7 @@ export default function ProjectHealthWidget({
 }: {
   language: "ar" | "en";
 }) {
+  const tAuto = useTranslations();
   const isAr = language === "ar";
   const { setCurrentPage } = useNavStore();
 
@@ -194,12 +197,10 @@ export default function ProjectHealthWidget({
             </div>
             <div>
               <CardTitle className="text-base font-semibold text-slate-900 dark:text-white">
-                {isAr ? "صحة المشاريع" : "Project Health"}
+                {tAuto('auto.projectHealth')}
               </CardTitle>
               <CardDescription className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                {isAr
-                  ? "مؤشر صحة المشاريع النشطة"
-                  : "Health indicators for active projects"}
+                {tAuto('auto.healthIndicatorsForActiveProjects')}
               </CardDescription>
             </div>
           </div>
@@ -207,7 +208,7 @@ export default function ProjectHealthWidget({
             onClick={() => setCurrentPage("projects")}
             className="text-xs text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 flex items-center gap-1 transition-colors"
           >
-            {isAr ? "عرض الكل" : "View All"}
+            {tAuto('auto.viewAll')}
             <ArrowUpRight className="h-3 w-3" />
           </button>
         </div>
@@ -217,19 +218,19 @@ export default function ProjectHealthWidget({
           <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-emerald-500" />
             <span className="text-[10px] text-slate-500 dark:text-slate-400">
-              {isAr ? "جيد (≥75)" : "Good (≥75)"}
+              {tAuto('auto.good75')}
             </span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-amber-500" />
             <span className="text-[10px] text-slate-500 dark:text-slate-400">
-              {isAr ? "متوسط (≥50)" : "Fair (≥50)"}
+              {tAuto('auto.fair50')}
             </span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-red-500" />
             <span className="text-[10px] text-slate-500 dark:text-slate-400">
-              {isAr ? "ضعيف (<50)" : "At Risk (<50)"}
+              {tAuto('auto.atRisk50')}
             </span>
           </div>
         </div>

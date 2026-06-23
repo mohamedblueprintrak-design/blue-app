@@ -1,11 +1,14 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { Building2 } from "lucide-react";
 import { StatusIcon } from "@/components/ui/status-icon";
 import { getStatusConfig } from "./helpers";
 import type { Invoice } from "./types";
 
 export function InvoicePrintContent({ invoice, ar }: { invoice: Invoice; ar: boolean }) {
+  const tAuto = useTranslations();
   return (
     <div className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-6 space-y-5" dir={ar ? "rtl" : "ltr"}>
       {/* Company Header */}
@@ -16,12 +19,12 @@ export function InvoicePrintContent({ invoice, ar }: { invoice: Invoice; ar: boo
           </div>
           <div>
             <div className="text-lg font-bold">BluePrint</div>
-            <div className="text-xs text-slate-500">{ar ? "نظام إدارة مكاتب الاستشارات الهندسية" : "Engineering Consultancy Management"}</div>
-            <div className="text-xs text-slate-400 mt-0.5">{ar ? "الإمارات العربية المتحدة" : "United Arab Emirates"}</div>
+            <div className="text-xs text-slate-500">{tAuto('auto.engineeringConsultancyManagement')}</div>
+            <div className="text-xs text-slate-400 mt-0.5">{tAuto('auto.unitedArabEmirates')}</div>
           </div>
         </div>
         <div className="text-end">
-          <div className="text-xs text-slate-500">{ar ? "فاتورة ضريبية" : "Tax Invoice"}</div>
+          <div className="text-xs text-slate-500">{tAuto('auto.taxInvoice')}</div>
           <div className="text-2xl font-bold font-mono text-teal-600 dark:text-teal-400">{invoice.number}</div>
         </div>
       </div>
@@ -29,22 +32,22 @@ export function InvoicePrintContent({ invoice, ar }: { invoice: Invoice; ar: boo
       {/* Dates & Client Info */}
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1">
-          <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide">{ar ? "معلومات العميل" : "Client Info"}</div>
+          <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide">{tAuto('auto.clientInfo')}</div>
           <div className="text-sm font-semibold">{invoice.client.name}</div>
           {invoice.client.company && <div className="text-xs text-slate-500">{invoice.client.company}</div>}
-          <div className="text-xs text-slate-400 mt-1">{ar ? "المشروع" : "Project"}: {ar ? invoice.project.name : invoice.project.nameEn || invoice.project.name}</div>
+          <div className="text-xs text-slate-400 mt-1">{tAuto('auto.project')}: {ar ? invoice.project.name : invoice.project.nameEn || invoice.project.name}</div>
         </div>
         <div className="space-y-1 text-end">
           <div className="text-xs">
-            <span className="text-slate-500">{ar ? "تاريخ الإصدار" : "Issue Date"}: </span>
+            <span className="text-slate-500">{tAuto('auto.issueDate')}: </span>
             <span className="font-medium">{new Date(invoice.issueDate).toLocaleDateString(ar ? "ar-AE" : "en-US")}</span>
           </div>
           <div className="text-xs">
-            <span className="text-slate-500">{ar ? "تاريخ الاستحقاق" : "Due Date"}: </span>
+            <span className="text-slate-500">{tAuto('auto.dueDate')}: </span>
             <span className="font-medium">{new Date(invoice.dueDate).toLocaleDateString(ar ? "ar-AE" : "en-US")}</span>
           </div>
           <div className="text-xs">
-            <span className="text-slate-500">{ar ? "الحالة" : "Status"}: </span>
+            <span className="text-slate-500">{tAuto('auto.status1')}: </span>
             <span className="font-medium inline-flex items-center gap-1"><StatusIcon status={invoice.status} className="h-3 w-3" />{getStatusConfig(invoice.status)[ar ? "ar" : "en"]}</span>
           </div>
         </div>
@@ -55,10 +58,10 @@ export function InvoicePrintContent({ invoice, ar }: { invoice: Invoice; ar: boo
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-slate-50 dark:bg-slate-800/50">
-              <th className="px-3 py-2 text-start text-xs font-semibold text-slate-600 dark:text-slate-300">{ar ? "الوصف" : "Description"}</th>
-              <th className="px-3 py-2 text-center text-xs font-semibold text-slate-600 dark:text-slate-300 w-16">{ar ? "الكمية" : "Qty"}</th>
-              <th className="px-3 py-2 text-center text-xs font-semibold text-slate-600 dark:text-slate-300 w-24">{ar ? "سعر الوحدة" : "Unit Price"}</th>
-              <th className="px-3 py-2 text-end text-xs font-semibold text-slate-600 dark:text-slate-300 w-28">{ar ? "الإجمالي" : "Total"}</th>
+              <th className="px-3 py-2 text-start text-xs font-semibold text-slate-600 dark:text-slate-300">{tAuto('auto.description')}</th>
+              <th className="px-3 py-2 text-center text-xs font-semibold text-slate-600 dark:text-slate-300 w-16">{tAuto('auto.qty')}</th>
+              <th className="px-3 py-2 text-center text-xs font-semibold text-slate-600 dark:text-slate-300 w-24">{tAuto('auto.unitPrice')}</th>
+              <th className="px-3 py-2 text-end text-xs font-semibold text-slate-600 dark:text-slate-300 w-28">{tAuto('auto.total')}</th>
             </tr>
           </thead>
           <tbody>
@@ -78,15 +81,15 @@ export function InvoicePrintContent({ invoice, ar }: { invoice: Invoice; ar: boo
       <div className="flex justify-end">
         <div className="w-64 space-y-1.5">
           <div className="flex justify-between text-sm">
-            <span className="text-slate-500">{ar ? "المجموع الفرعي" : "Subtotal"}</span>
+            <span className="text-slate-500">{tAuto('auto.subtotal')}</span>
             <span className="font-mono tabular-nums">{invoice.subtotal.toLocaleString()} AED</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-slate-500">{ar ? "ضريبة القيمة المضافة (5%)" : "VAT (5%)"}</span>
+            <span className="text-slate-500">{tAuto('auto.vAT5')}</span>
             <span className="font-mono tabular-nums">{invoice.tax.toLocaleString()} AED</span>
           </div>
           <div className="border-t-2 border-teal-500 dark:border-teal-400 pt-1.5 flex justify-between text-base font-bold">
-            <span>{ar ? "الإجمالي" : "Total"}</span>
+            <span>{tAuto('auto.total')}</span>
             <span className="text-teal-600 dark:text-teal-400 font-mono tabular-nums">{invoice.total.toLocaleString()} AED</span>
           </div>
         </div>
@@ -95,10 +98,10 @@ export function InvoicePrintContent({ invoice, ar }: { invoice: Invoice; ar: boo
       {/* Footer */}
       <div className="border-t border-slate-200 dark:border-slate-700 pt-4 text-center">
         <p className="text-sm text-slate-500 dark:text-slate-400">
-          {ar ? "شكراً لتعاملكم معنا" : "Thank you for your business"}
+          {tAuto('auto.thankYouForYourBusiness')}
         </p>
         <p className="text-xs text-slate-400 mt-1">
-          BluePrint — {ar ? "الإمارات العربية المتحدة" : "United Arab Emirates"}
+          BluePrint — {tAuto('auto.unitedArabEmirates')}
         </p>
       </div>
     </div>

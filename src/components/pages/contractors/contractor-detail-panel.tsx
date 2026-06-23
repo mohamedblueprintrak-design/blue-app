@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -25,13 +27,14 @@ export function ContractorDetailPanel({
   onClose,
   onDelete,
 }: ContractorDetailPanelProps) {
+  const tAuto = useTranslations();
   return (
     <div className="w-full lg:w-[400px] flex-shrink-0 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900 overflow-hidden shadow-sm">
       <div className="bg-gradient-to-r from-slate-600 to-slate-700 dark:from-slate-700 dark:to-slate-800 px-4 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Building2 className="h-4 w-4 text-white/80" />
-            <h3 className="text-sm font-semibold text-white">{ar ? "ملف المقاول" : "Contractor Profile"}</h3>
+            <h3 className="text-sm font-semibold text-white">{tAuto('auto.contractorProfile')}</h3>
           </div>
           <div className="flex items-center gap-1">
             <Button
@@ -72,7 +75,7 @@ export function ContractorDetailPanel({
               <div className="flex items-start gap-2.5">
                 <UserCheck className="h-3.5 w-3.5 text-slate-400 mt-0.5 flex-shrink-0" />
                 <div>
-                  <span className="text-[10px] text-slate-400 block">{ar ? "جهة الاتصال" : "Contact"}</span>
+                  <span className="text-[10px] text-slate-400 block">{tAuto('auto.contact')}</span>
                   <span className="text-xs text-slate-700 dark:text-slate-300">{detail.contactPerson}</span>
                 </div>
               </div>
@@ -99,7 +102,7 @@ export function ContractorDetailPanel({
               <div className="flex items-center gap-2.5">
                 <FileText className="h-3.5 w-3.5 text-slate-400 flex-shrink-0" />
                 <div>
-                  <span className="text-[10px] text-slate-400 block">{ar ? "السجل التجاري" : "CR"}</span>
+                  <span className="text-[10px] text-slate-400 block">{tAuto('auto.cR')}</span>
                   <span className="text-xs text-slate-700 dark:text-slate-300 font-mono" dir="ltr">{detail.crNumber}</span>
                 </div>
               </div>
@@ -108,11 +111,11 @@ export function ContractorDetailPanel({
               <div className="flex items-center gap-2.5">
                 <Award className="h-3.5 w-3.5 text-slate-400 flex-shrink-0" />
                 <div>
-                  <span className="text-[10px] text-slate-400 block">{ar ? "الترخيص" : "License"}</span>
+                  <span className="text-[10px] text-slate-400 block">{tAuto('auto.license')}</span>
                   <span className="text-xs text-slate-700 dark:text-slate-300 font-mono" dir="ltr">{detail.licenseNumber}</span>
                   {detail.licenseExpiry && (
                     <span className="text-[10px] text-slate-400 block ms-4">
-                      {ar ? "ينتهي: " : "Expires: "}{new Date(detail.licenseExpiry).toLocaleDateString(ar ? "ar-AE" : "en-US")}
+                      {tAuto('auto.expires')}{new Date(detail.licenseExpiry).toLocaleDateString(ar ? "ar-AE" : "en-US")}
                     </span>
                   )}
                 </div>
@@ -122,7 +125,7 @@ export function ContractorDetailPanel({
               <div className="flex items-center gap-2.5">
                 <Award className="h-3.5 w-3.5 text-slate-400 flex-shrink-0" />
                 <div>
-                  <span className="text-[10px] text-slate-400 block">{ar ? "التصنيف" : "Classification"}</span>
+                  <span className="text-[10px] text-slate-400 block">{tAuto('auto.classification')}</span>
                   <span className="text-xs text-slate-700 dark:text-slate-300">{detail.classification}</span>
                 </div>
               </div>
@@ -131,9 +134,9 @@ export function ContractorDetailPanel({
               <div className="flex items-center gap-2.5">
                 <Users className="h-3.5 w-3.5 text-slate-400 flex-shrink-0" />
                 <div>
-                  <span className="text-[10px] text-slate-400 block">{ar ? "القوى العاملة" : "Workforce"}</span>
+                  <span className="text-[10px] text-slate-400 block">{tAuto('auto.workforce')}</span>
                   <span className="text-xs text-slate-700 dark:text-slate-300">
-                    {detail.workerCount} {ar ? "عامل" : "workers"} / {detail.engineerCount} {ar ? "مهندس" : "engineers"}
+                    {detail.workerCount} {tAuto('auto.workers')} / {detail.engineerCount} {tAuto('auto.engineers')}
                   </span>
                 </div>
               </div>
@@ -142,11 +145,11 @@ export function ContractorDetailPanel({
               <div className="flex items-center gap-2.5">
                 <FileText className="h-3.5 w-3.5 text-slate-400 flex-shrink-0" />
                 <div>
-                  <span className="text-[10px] text-slate-400 block">{ar ? "السجل التجاري" : "Trade License"}</span>
+                  <span className="text-[10px] text-slate-400 block">{tAuto('auto.tradeLicense')}</span>
                   <span className="text-xs text-slate-700 dark:text-slate-300 font-mono" dir="ltr">{detail.tradeLicense}</span>
                   {detail.tradeLicenseExpiry && (
                     <span className="text-[10px] text-slate-400 block ms-4">
-                      {ar ? "ينتهي: " : "Expires: "}{new Date(detail.tradeLicenseExpiry).toLocaleDateString(ar ? "ar-AE" : "en-US")}
+                      {tAuto('auto.expires')}{new Date(detail.tradeLicenseExpiry).toLocaleDateString(ar ? "ar-AE" : "en-US")}
                     </span>
                   )}
                 </div>
@@ -156,7 +159,7 @@ export function ContractorDetailPanel({
               <div className="flex items-center gap-2.5">
                 <FileText className="h-3.5 w-3.5 text-slate-400 flex-shrink-0" />
                 <div>
-                  <span className="text-[10px] text-slate-400 block">{ar ? "الرقم الضريبي" : "VAT No."}</span>
+                  <span className="text-[10px] text-slate-400 block">{tAuto('auto.vATNo')}</span>
                   <span className="text-xs text-slate-700 dark:text-slate-300 font-mono" dir="ltr">{detail.vatNumber}</span>
                 </div>
               </div>
@@ -165,7 +168,7 @@ export function ContractorDetailPanel({
               <div className="flex items-center gap-2.5">
                 <Calendar className="h-3.5 w-3.5 text-slate-400 flex-shrink-0" />
                 <div>
-                  <span className="text-[10px] text-slate-400 block">{ar ? "تاريخ التأسيس" : "Established"}</span>
+                  <span className="text-[10px] text-slate-400 block">{tAuto('auto.established')}</span>
                   <span className="text-xs text-slate-700 dark:text-slate-300">
                     {new Date(detail.establishmentDate).toLocaleDateString(ar ? "ar-AE" : "en-US")}
                   </span>
@@ -176,7 +179,7 @@ export function ContractorDetailPanel({
               <div className="flex items-center gap-2.5">
                 <TrendingUp className="h-3.5 w-3.5 text-slate-400 flex-shrink-0" />
                 <div>
-                  <span className="text-[10px] text-slate-400 block">{ar ? "الخبرة" : "Experience"}</span>
+                  <span className="text-[10px] text-slate-400 block">{tAuto('auto.experience')}</span>
                   <span className="text-xs text-slate-700 dark:text-slate-300">{detail.experience}</span>
                 </div>
               </div>
@@ -190,7 +193,7 @@ export function ContractorDetailPanel({
             )}
             {detail.notes && (
               <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
-                <span className="text-[10px] text-slate-400">{ar ? "ملاحظات" : "Notes"}</span>
+                <span className="text-[10px] text-slate-400">{tAuto('auto.notes')}</span>
                 <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">{detail.notes}</p>
               </div>
             )}
@@ -227,12 +230,12 @@ export function ContractorDetailPanel({
             size="sm"
             className="w-full h-8 text-red-500 hover:text-red-600 rounded-lg"
             onClick={() => {
-              if (confirm(ar ? "حذف المقاول؟" : "Delete contractor?")) {
+              if (confirm(tAuto('auto.deleteContractor'))) {
                 onDelete(detail.id);
               }
             }}
           >
-            <Trash2 className="h-3.5 w-3.5 me-1" />{ar ? "حذف" : "Delete"}
+            <Trash2 className="h-3.5 w-3.5 me-1" />{tAuto('auto.delete')}
           </Button>
         </div>
       </ScrollArea>

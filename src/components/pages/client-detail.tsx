@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -35,6 +37,7 @@ interface ClientDetailPanelProps {
 }
 
 export default function ClientDetailPanel({ client, ar, onClose, onEdit }: ClientDetailPanelProps) {
+  const tAuto = useTranslations();
   const creditPct = client.creditLimit > 0 ? Math.min((client.creditUsed / client.creditLimit) * 100, 100) : 0;
 
   const services = parseServicesWanted(client.servicesWanted);
@@ -69,7 +72,7 @@ export default function ClientDetailPanel({ client, ar, onClose, onEdit }: Clien
               </Badge>
             )}
             <span className="text-xs text-teal-100">
-              {ar ? "تفاصيل العميل" : "Client Details"}
+              {tAuto('auto.clientDetails')}
             </span>
           </div>
         </div>
@@ -85,13 +88,13 @@ export default function ClientDetailPanel({ client, ar, onClose, onEdit }: Clien
             )}
             <div className="flex items-center gap-2 mt-1">
               <Badge className="text-[10px] h-5 bg-white/20 text-white border-0 hover:bg-white/30">
-                {client._count.projects} {ar ? "مشاريع" : "projects"}
+                {client._count.projects} {tAuto('auto.projects1')}
               </Badge>
               <Badge className="text-[10px] h-5 bg-white/20 text-white border-0 hover:bg-white/30">
-                {client._count.invoices} {ar ? "فواتير" : "invoices"}
+                {client._count.invoices} {tAuto('auto.invoices')}
               </Badge>
               <Badge className="text-[10px] h-5 bg-white/20 text-white border-0 hover:bg-white/30">
-                {client._count.contracts} {ar ? "عقود" : "contracts"}
+                {client._count.contracts} {tAuto('auto.contracts')}
               </Badge>
             </div>
           </div>
@@ -103,7 +106,7 @@ export default function ClientDetailPanel({ client, ar, onClose, onEdit }: Clien
         <div className="flex items-center justify-between mb-1">
           <span className="text-[10px] text-slate-500 flex items-center gap-1">
             <CreditCard className="h-3 w-3" />
-            {ar ? "حد الائتمان" : "Credit Limit"}
+            {tAuto('auto.creditLimit')}
           </span>
           <span className="text-[10px] text-slate-500 tabular-nums font-mono">
             {formatCurrency(client.creditUsed, ar)} / {formatCurrency(client.creditLimit, ar)}
@@ -152,13 +155,13 @@ export default function ClientDetailPanel({ client, ar, onClose, onEdit }: Clien
                   className="flex items-center justify-center gap-2 p-2.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 transition-colors"
                 >
                   <Phone className="h-4 w-4" />
-                  {ar ? "اتصال" : "Call"}
+                  {tAuto('auto.call')}
                 </a>
               )}
             </div>
             {client.extraPhone && (
               <div className="flex flex-col gap-1">
-                <span className="text-xs text-slate-500">{ar ? "رقم إضافي" : "Extra Phone"}</span>
+                <span className="text-xs text-slate-500">{tAuto('auto.extraPhone')}</span>
                 <span className="text-sm font-medium text-slate-900 dark:text-slate-100">{client.extraPhone}</span>
               </div>
             )}
@@ -203,7 +206,7 @@ export default function ClientDetailPanel({ client, ar, onClose, onEdit }: Clien
                   <div className="w-6 h-6 rounded-md bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0">
                     <FileSignature className="h-3 w-3 text-slate-500" />
                   </div>
-                  <span>{ar ? "رقم الهوية:" : "ID:"} {client.idNumber}</span>
+                  <span>{tAuto('auto.iD')} {client.idNumber}</span>
                 </div>
               )}
               {client.nationality && (
@@ -211,7 +214,7 @@ export default function ClientDetailPanel({ client, ar, onClose, onEdit }: Clien
                   <div className="w-6 h-6 rounded-md bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0">
                     <Globe className="h-3 w-3 text-slate-500" />
                   </div>
-                  <span>{ar ? "الجنسية:" : "Nationality:"} {getNationalityLabel(client.nationality, ar)}</span>
+                  <span>{tAuto('auto.nationality')} {getNationalityLabel(client.nationality, ar)}</span>
                 </div>
               )}
             </div>
@@ -222,7 +225,7 @@ export default function ClientDetailPanel({ client, ar, onClose, onEdit }: Clien
             <>
               <Separator />
               <div className="space-y-2">
-                <span className="text-[10px] text-slate-400 block">{ar ? "الخدمات المطلوبة" : "Services Wanted"}</span>
+                <span className="text-[10px] text-slate-400 block">{tAuto('auto.servicesWanted')}</span>
                 <div className="flex flex-wrap gap-1">
                   {services.map((svc) => {
                     const label = SERVICE_LABELS[svc];
@@ -240,7 +243,7 @@ export default function ClientDetailPanel({ client, ar, onClose, onEdit }: Clien
           {/* Project Type */}
           {projectTypeLabel && (
             <div className="space-y-2">
-              <span className="text-[10px] text-slate-400 block">{ar ? "نوع المشروع" : "Project Type"}</span>
+              <span className="text-[10px] text-slate-400 block">{tAuto('auto.projectType')}</span>
               <Badge className={cn("text-[10px] h-5", "bg-violet-100 text-violet-700 dark:bg-violet-900/50 dark:text-violet-300")}>
                 <Home className="h-3 w-3 me-1" />
                 {ar ? projectTypeLabel.ar : projectTypeLabel.en}
@@ -254,7 +257,7 @@ export default function ClientDetailPanel({ client, ar, onClose, onEdit }: Clien
               <Separator />
               <div className="space-y-2">
                 <span className="text-[10px] text-slate-400 font-medium block">
-                  {ar ? "تفاصيل الأرض" : "Land Details"}
+                  {tAuto('auto.landDetails')}
                 </span>
                 {client.landLocation && (
                   <div className="flex items-center gap-2 text-xs text-slate-500">
@@ -265,19 +268,19 @@ export default function ClientDetailPanel({ client, ar, onClose, onEdit }: Clien
                 {client.landArea && (
                   <div className="flex items-center gap-2 text-xs text-slate-500">
                     <FileText className="h-3 w-3 text-slate-400" />
-                    <span>{ar ? "المساحة:" : "Area:"} {client.landArea}</span>
+                    <span>{tAuto('auto.area')} {client.landArea}</span>
                   </div>
                 )}
                 {client.plotNumber && (
                   <div className="flex items-center gap-2 text-xs text-slate-500">
                     <FileText className="h-3 w-3 text-slate-400" />
-                    <span>{ar ? "رقم القطعة:" : "Plot:"} {client.plotNumber}</span>
+                    <span>{tAuto('auto.plot')} {client.plotNumber}</span>
                   </div>
                 )}
                 {client.planNumber && (
                   <div className="flex items-center gap-2 text-xs text-slate-500">
                     <FileText className="h-3 w-3 text-slate-400" />
-                    <span>{ar ? "رقم المخطط:" : "Plan:"} {client.planNumber}</span>
+                    <span>{tAuto('auto.plan')} {client.planNumber}</span>
                   </div>
                 )}
                 {landDocs.length > 0 && (
@@ -299,7 +302,7 @@ export default function ClientDetailPanel({ client, ar, onClose, onEdit }: Clien
             <>
               <Separator />
               <div className="space-y-2">
-                <span className="text-[10px] text-slate-400 block">{ar ? "مصدر العميل" : "Referral Source"}</span>
+                <span className="text-[10px] text-slate-400 block">{tAuto('auto.referralSource')}</span>
                 <Badge className="text-[10px] h-5 bg-sky-100 text-sky-700 dark:bg-sky-900/50 dark:text-sky-300">
                   {ar ? referralLabel.ar : referralLabel.en}
                 </Badge>
@@ -318,7 +321,7 @@ export default function ClientDetailPanel({ client, ar, onClose, onEdit }: Clien
                   <FileText className="h-3 w-3 text-teal-500" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <span className="text-[10px] text-slate-400 block">{ar ? "الغرض" : "Purpose"}</span>
+                  <span className="text-[10px] text-slate-400 block">{tAuto('auto.purpose')}</span>
                   <span className="text-xs text-teal-700 dark:text-teal-300 font-medium">
                     {ar
                       ? { consultation: "استشارة هندسية", DESIGN: "تصميم", license: "استخراج ترخيص", supervision: "إشراف على التنفيذ", inspection: "فحص هندسي", other: "أخرى" }[client.serviceType] || client.serviceType
@@ -340,7 +343,7 @@ export default function ClientDetailPanel({ client, ar, onClose, onEdit }: Clien
                   <div className="w-6 h-6 rounded-md bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0">
                     <FileText className="h-3 w-3 text-slate-500" />
                   </div>
-                  <span>{ar ? "ض.ر:" : "TRN:"} {client.taxNumber}</span>
+                  <span>{tAuto('auto.tRN')} {client.taxNumber}</span>
                 </div>
               )}
               {client.paymentTerms && (
@@ -348,7 +351,7 @@ export default function ClientDetailPanel({ client, ar, onClose, onEdit }: Clien
                   <div className="w-6 h-6 rounded-md bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0">
                     <CreditCard className="h-3 w-3 text-slate-500" />
                   </div>
-                  <span>{ar ? "شروط الدفع:" : "Terms:"} {client.paymentTerms}</span>
+                  <span>{tAuto('auto.terms')} {client.paymentTerms}</span>
                 </div>
               )}
             </div>
@@ -357,7 +360,7 @@ export default function ClientDetailPanel({ client, ar, onClose, onEdit }: Clien
           {/* Notes */}
           {client.notes && (
             <div className="px-3 py-2 rounded-lg bg-slate-50 dark:bg-slate-800/50">
-              <span className="text-[10px] text-slate-400 block mb-1">{ar ? "ملاحظات" : "Notes"}</span>
+              <span className="text-[10px] text-slate-400 block mb-1">{tAuto('auto.notes')}</span>
               <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-3">{client.notes}</p>
             </div>
           )}
@@ -368,19 +371,19 @@ export default function ClientDetailPanel({ client, ar, onClose, onEdit }: Clien
           <Tabs defaultValue="projects" dir={ar ? "rtl" : "ltr"}>
             <TabsList className="grid w-full grid-cols-4 h-9 bg-slate-100 dark:bg-slate-800">
               <TabsTrigger value="projects" className="text-xs gap-1">
-                {ar ? "المشاريع" : "Projects"}
+                {tAuto('auto.projects')}
                 <span className="bg-slate-200 dark:bg-slate-700 text-[9px] px-1 rounded-full">{client._count.projects}</span>
               </TabsTrigger>
               <TabsTrigger value="invoices" className="text-xs gap-1">
-                {ar ? "الفواتير" : "Invoices"}
+                {tAuto('auto.invoices1')}
                 <span className="bg-slate-200 dark:bg-slate-700 text-[9px] px-1 rounded-full">{client._count.invoices}</span>
               </TabsTrigger>
               <TabsTrigger value="contracts" className="text-xs gap-1">
-                {ar ? "العقود" : "Contracts"}
+                {tAuto('auto.contracts1')}
                 <span className="bg-slate-200 dark:bg-slate-700 text-[9px] px-1 rounded-full">{client._count.contracts}</span>
               </TabsTrigger>
               <TabsTrigger value="interactions" className="text-xs gap-1">
-                {ar ? "التواصل" : "Log"}
+                {tAuto('auto.log')}
                 {client.interactions && (
                   <span className="bg-slate-200 dark:bg-slate-700 text-[9px] px-1 rounded-full">{client.interactions.length}</span>
                 )}
@@ -405,7 +408,7 @@ export default function ClientDetailPanel({ client, ar, onClose, onEdit }: Clien
                 ))
               ) : (
                 <p className="text-xs text-slate-400 text-center py-4">
-                  {ar ? "لا توجد مشاريع" : "No projects"}
+                  {tAuto('auto.noProjects')}
                 </p>
               )}
             </TabsContent>
@@ -430,7 +433,7 @@ export default function ClientDetailPanel({ client, ar, onClose, onEdit }: Clien
                 })
               ) : (
                 <p className="text-xs text-slate-400 text-center py-4">
-                  {ar ? "لا توجد فواتير" : "No invoices"}
+                  {tAuto('auto.noInvoices')}
                 </p>
               )}
             </TabsContent>
@@ -455,7 +458,7 @@ export default function ClientDetailPanel({ client, ar, onClose, onEdit }: Clien
                 })
               ) : (
                 <p className="text-xs text-slate-400 text-center py-4">
-                  {ar ? "لا توجد عقود" : "No contracts"}
+                  {tAuto('auto.noContracts')}
                 </p>
               )}
             </TabsContent>
@@ -496,7 +499,7 @@ export default function ClientDetailPanel({ client, ar, onClose, onEdit }: Clien
                 })
               ) : (
                 <p className="text-xs text-slate-400 text-center py-4">
-                  {ar ? "لا توجد تفاعلات" : "No interactions"}
+                  {tAuto('auto.noInteractions')}
                 </p>
               )}
             </TabsContent>

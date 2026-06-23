@@ -1,16 +1,7 @@
-"use client";
+import { getLocale } from 'next-intl/server';
+import SupervisionPage from '@/components/pages/supervision';
 
-import dynamic from "next/dynamic";
-import { useLang } from "@/hooks/use-lang";
-
-const SupervisionPage = dynamic(() => import("@/components/pages/supervision"), {
-  loading: () => <div className="p-6 animate-pulse">Loading...</div>,
-  ssr: false,
-});
-
-/**
- * /dashboard/supervision
- */
-export default function SupervisionPageRoute() {
-  return <SupervisionPage language={useLang()} />;
+export default async function SupervisionPageRoute() {
+  const locale = await getLocale();
+  return <SupervisionPage language={locale as "ar" | "en"} />;
 }

@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -35,6 +37,7 @@ function RFQsView({ ar, contractors, onBack, projectId: _projectId }: {
   onBack: () => void;
   projectId?: string;
 }) {
+  const tAuto = useTranslations();
   const [rfqs] = useState<RFQItem[]>(DEMO_RFQS);
   const [statusFilter, setStatusFilter] = useState("all");
   const [showCreateDialog, setShowCreateDialog] = useState(false);
@@ -63,8 +66,8 @@ function RFQsView({ ar, contractors, onBack, projectId: _projectId }: {
             <Gavel className="h-4.5 w-4.5 text-slate-600 dark:text-slate-400" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white">{ar ? "طلبات العطاءات" : "Request for Quotations"}</h2>
-            <p className="text-[10px] text-slate-500 dark:text-slate-400">{ar ? "إدارة طلبات العطاءات للمقاولين" : "Manage RFQs for contractors"}</p>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">{tAuto('auto.requestForQuotations')}</h2>
+            <p className="text-[10px] text-slate-500 dark:text-slate-400">{tAuto('auto.manageRFQsForContractors')}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -74,11 +77,11 @@ function RFQsView({ ar, contractors, onBack, projectId: _projectId }: {
             onClick={() => setShowCreateDialog(true)}
           >
             <Plus className="h-3.5 w-3.5 me-1" />
-            {ar ? "طلب عطاء جديد" : "New RFQ"}
+            {tAuto('auto.newRFQ')}
           </Button>
           <Button variant="outline" size="sm" className="h-8 rounded-lg" onClick={onBack}>
             <ArrowRight className="h-3.5 w-3.5 me-1 rotate-180" />
-            {ar ? "العودة للقائمة" : "Back to List"}
+            {tAuto('auto.backToList')}
           </Button>
         </div>
       </div>
@@ -117,8 +120,8 @@ function RFQsView({ ar, contractors, onBack, projectId: _projectId }: {
       {filteredRFQs.length === 0 ? (
         <div className="text-center py-16 text-slate-400 rounded-xl border border-dashed border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900">
           <Gavel className="h-12 w-12 mx-auto mb-3 opacity-30" />
-          <p className="text-sm font-medium mb-1">{ar ? "لا توجد طلبات عطاء" : "No RFQs Found"}</p>
-          <p className="text-xs text-slate-400">{ar ? "أنشئ طلب عطاء جديد للبدء" : "Create a new RFQ to get started"}</p>
+          <p className="text-sm font-medium mb-1">{tAuto('auto.noRFQsFound')}</p>
+          <p className="text-xs text-slate-400">{tAuto('auto.createANewRFQToGetStarted')}</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -143,16 +146,16 @@ function RFQsView({ ar, contractors, onBack, projectId: _projectId }: {
                         </span>
                         <span className="flex items-center gap-1">
                           <Calendar className="h-3 w-3" />
-                          {ar ? "الموعد النهائي" : "Deadline"}: {rfq.deadline}
+                          {tAuto('auto.deadline')}: {rfq.deadline}
                         </span>
                         <span className="flex items-center gap-1">
                           <Users className="h-3 w-3" />
-                          {rfq.responseCount} {ar ? "استجابة" : "responses"}
+                          {rfq.responseCount} {tAuto('auto.responses')}
                         </span>
                       </div>
                     </div>
                     <Button variant="outline" size="sm" className="h-7 text-xs rounded-lg flex-shrink-0">
-                      {ar ? "عرض التفاصيل" : "View Details"}
+                      {tAuto('auto.viewDetails')}
                     </Button>
                   </div>
                 </CardContent>
@@ -168,48 +171,48 @@ function RFQsView({ ar, contractors, onBack, projectId: _projectId }: {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Gavel className="h-4.5 w-4.5 text-teal-600" />
-              {ar ? "طلب عطاء جديد" : "New Request for Quotation"}
+              {tAuto('auto.newRequestForQuotation')}
             </DialogTitle>
             <DialogDescription>
-              {ar ? "أنشئ طلب عطاء جديد وأرسله للمقاولين المؤهلين" : "Create a new RFQ and send it to qualified contractors"}
+              {tAuto('auto.createANewRFQAndSendItToQualifiedContrac')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium">{ar ? "عنوان الطلب" : "RFQ Title"} <span className="text-red-500">*</span></Label>
+              <Label className="text-xs font-medium">{tAuto('auto.rFQTitle')} <span className="text-red-500">*</span></Label>
               <Input
                 value={newRFQ.title}
                 onChange={(e) => setNewRFQ({ ...newRFQ, title: e.target.value })}
                 className={inputCls}
-                placeholder={ar ? "مثال: أعمال الحفر والأساسات" : "e.g., Excavation and Foundation Works"}
+                placeholder={tAuto('auto.eGExcavationAndFoundationWorks')}
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium">{ar ? "الوصف" : "Description"} <span className="text-red-500">*</span></Label>
+              <Label className="text-xs font-medium">{tAuto('auto.description')} <span className="text-red-500">*</span></Label>
               <Textarea
                 value={newRFQ.description}
                 onChange={(e) => setNewRFQ({ ...newRFQ, description: e.target.value })}
                 className={cn(inputCls, "min-h-[80px]")}
-                placeholder={ar ? "وصف تفصيلي لمتطلبات العطاء..." : "Detailed description of the RFQ requirements..."}
+                placeholder={tAuto('auto.detailedDescriptionOfTheRFQRequirements')}
               />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label className="text-xs font-medium">{ar ? "الفئة" : "Category"}</Label>
+                <Label className="text-xs font-medium">{tAuto('auto.category')}</Label>
                 <Select value={newRFQ.category} onValueChange={(v) => setNewRFQ({ ...newRFQ, category: v })}>
                   <SelectTrigger className={inputCls}><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="CIVIL">{ar ? "أشغال مدنية" : "Civil"}</SelectItem>
-                    <SelectItem value="ELECTRICAL">{ar ? "كهرباء" : "Electrical"}</SelectItem>
+                    <SelectItem value="CIVIL">{tAuto('auto.civil')}</SelectItem>
+                    <SelectItem value="ELECTRICAL">{tAuto('auto.electrical')}</SelectItem>
                     <SelectItem value="MEP">MEP</SelectItem>
-                    <SelectItem value="FINISHING">{ar ? "تشطيبات" : "Finishing"}</SelectItem>
-                    <SelectItem value="PLUMBING">{ar ? "سباكة" : "Plumbing"}</SelectItem>
-                    <SelectItem value="HVAC">{ar ? "تكييف" : "HVAC"}</SelectItem>
+                    <SelectItem value="FINISHING">{tAuto('auto.finishing')}</SelectItem>
+                    <SelectItem value="PLUMBING">{tAuto('auto.plumbing')}</SelectItem>
+                    <SelectItem value="HVAC">{tAuto('auto.hVAC')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs font-medium">{ar ? "الموعد النهائي" : "Deadline"}</Label>
+                <Label className="text-xs font-medium">{tAuto('auto.deadline')}</Label>
                 <Input
                   type="date"
                   value={newRFQ.deadline}
@@ -219,7 +222,7 @@ function RFQsView({ ar, contractors, onBack, projectId: _projectId }: {
               </div>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium">{ar ? "المقاولون المختارون" : "Selected Contractors"}</Label>
+              <Label className="text-xs font-medium">{tAuto('auto.selectedContractors')}</Label>
               <div className="text-xs text-slate-400 mb-1">
                 {ar ? `${contractors.length} مقاول متاح` : `${contractors.length} contractors available`}
               </div>
@@ -238,7 +241,7 @@ function RFQsView({ ar, contractors, onBack, projectId: _projectId }: {
           </div>
           <DialogFooter>
             <Button variant="outline" className="h-9 rounded-lg" onClick={() => setShowCreateDialog(false)}>
-              {ar ? "إلغاء" : "Cancel"}
+              {tAuto('auto.cancel')}
             </Button>
             <Button
               className="h-9 bg-teal-600 hover:bg-teal-700 text-white rounded-lg min-w-[120px]"
@@ -249,7 +252,7 @@ function RFQsView({ ar, contractors, onBack, projectId: _projectId }: {
                 setNewRFQ({ title: "", description: "", category: "CIVIL", deadline: "" });
               }}
             >
-              {ar ? "إرسال الطلب" : "Submit RFQ"}
+              {tAuto('auto.submitRFQ')}
             </Button>
           </DialogFooter>
         </DialogContent>

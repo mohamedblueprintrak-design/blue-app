@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -42,6 +44,7 @@ export function ChatHeader({
   onQuickAction,
   isLoading,
 }: ChatHeaderProps) {
+  const tAuto = useTranslations();
   return (
     <>
       <div className="flex items-center justify-between mb-3">
@@ -60,7 +63,7 @@ export function ChatHeader({
               </Button>
             </TooltipTrigger>
             <TooltipContent side="bottom" className="text-xs">
-              {isAr ? "سجل المحادثات" : "Chat History"}
+              {tAuto('auto.chatHistory')}
             </TooltipContent>
           </Tooltip>
 
@@ -69,14 +72,14 @@ export function ChatHeader({
           </div>
           <div>
             <h2 className="text-base font-semibold text-slate-900 dark:text-white">
-              {isAr ? "مساعد بلوبرنت الذكي" : "BluePrint AI Assistant"}
+              {tAuto('auto.bluePrintAIAssistant')}
             </h2>
             <p className="text-xs text-slate-500 flex items-center gap-1.5">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
               </span>
-              {isAr ? "متصل ومتاح" : "Online and ready"}
+              {tAuto('auto.onlineAndReady')}
             </p>
           </div>
         </div>
@@ -94,10 +97,10 @@ export function ChatHeader({
               size="sm"
               onClick={exportChat}
               className="text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 h-8 gap-1.5 rounded-lg"
-              title={isAr ? "تصدير المحادثة" : "Export Chat"}
+              title={tAuto('auto.exportChat')}
             >
               <Download className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">{isAr ? "تصدير" : "Export"}</span>
+              <span className="hidden sm:inline">{tAuto('auto.export')}</span>
             </Button>
           )}
 
@@ -111,20 +114,18 @@ export function ChatHeader({
                   className="text-slate-500 hover:text-red-500 h-8 gap-1.5 rounded-lg"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline">{isAr ? "مسح" : "Clear"}</span>
+                  <span className="hidden sm:inline">{tAuto('auto.clear')}</span>
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-sm" dir={isAr ? "rtl" : "ltr"}>
                 <DialogHeader>
                   <DialogTitle className="flex items-center gap-2">
                     <Trash2 className="h-5 w-5 text-red-500" />
-                    {isAr ? "مسح المحادثة" : "Clear Chat"}
+                    {tAuto('auto.clearChat')}
                   </DialogTitle>
                 </DialogHeader>
                 <p className="text-sm text-slate-600 dark:text-slate-400">
-                  {isAr
-                    ? "هل أنت متأكد من مسح جميع الرسائل؟ لا يمكن التراجع عن هذا الإجراء."
-                    : "Are you sure you want to clear all messages? This action cannot be undone."}
+                  {tAuto('auto.areYouSureYouWantToClearAllMessagesThisA')}
                 </p>
                 <div className="flex justify-end gap-2 mt-4">
                   <Button
@@ -133,7 +134,7 @@ export function ChatHeader({
                     onClick={() => setClearDialogOpen(false)}
                     className="h-9 rounded-lg"
                   >
-                    {isAr ? "إلغاء" : "Cancel"}
+                    {tAuto('auto.cancel')}
                   </Button>
                   <Button
                     size="sm"
@@ -141,7 +142,7 @@ export function ChatHeader({
                     className="h-9 rounded-lg bg-red-600 hover:bg-red-700 text-white"
                   >
                     <Trash2 className="h-3.5 w-3.5 me-1.5" />
-                    {isAr ? "مسح الكل" : "Clear All"}
+                    {tAuto('auto.clearAll')}
                   </Button>
                 </div>
               </DialogContent>

@@ -1,16 +1,7 @@
-"use client";
+import { getLocale } from 'next-intl/server';
+import EmployeesPage from '@/components/pages/employees';
 
-import dynamic from "next/dynamic";
-import { useLang } from "@/hooks/use-lang";
-
-const EmployeesPage = dynamic(() => import("@/components/pages/employees"), {
-  loading: () => <div className="p-6 animate-pulse">Loading...</div>,
-  ssr: false,
-});
-
-/**
- * /dashboard/employees
- */
-export default function EmployeesPageRoute() {
-  return <EmployeesPage language={useLang()} />;
+export default async function EmployeesPageRoute() {
+  const locale = await getLocale();
+  return <EmployeesPage language={locale as "ar" | "en"} />;
 }

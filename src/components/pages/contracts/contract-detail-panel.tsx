@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState } from "react";
 import SignDocumentDialog from "@/components/common/sign-document-dialog";
 
@@ -21,6 +23,7 @@ import type { ContractDetail } from "./types";
 import { getStatusConfig, getTypeLabel, getAmendmentStatus } from "./helpers";
 
 export function ContractDetailPanel({ contract, ar, onClose, onEdit }: { contract: ContractDetail; ar: boolean; onClose: () => void; onEdit: () => void }) {
+  const tAuto = useTranslations();
   const statusCfg = getStatusConfig(contract.status);
   const [signDialogOpen, setSignDialogOpen] = useState(false);
 
@@ -30,7 +33,7 @@ export function ContractDetailPanel({ contract, ar, onClose, onEdit }: { contrac
       <div className="bg-gradient-to-r from-slate-600 to-slate-700 dark:from-slate-700 dark:to-slate-800 px-4 py-3">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold text-white">
-            {ar ? "تفاصيل العقد" : "Contract Details"}
+            {tAuto('auto.contractDetails')}
           </h3>
           <div className="flex items-center gap-1">
             <Button variant="ghost" size="icon" className="h-7 w-7 text-white/80 hover:text-white hover:bg-white/10" onClick={onEdit} aria-label="Edit">
@@ -64,11 +67,11 @@ export function ContractDetailPanel({ contract, ar, onClose, onEdit }: { contrac
               <div className="flex items-center gap-2 mb-1">
                 <DollarSign className="h-4 w-4 text-teal-500 dark:text-teal-400" />
                 <span className="text-xs text-teal-600 dark:text-teal-400">
-                  {ar ? "قيمة العقد" : "Contract Value"}
+                  {tAuto('auto.contractValue')}
                 </span>
               </div>
               <div className="text-2xl font-bold text-teal-700 dark:text-teal-300 font-mono tabular-nums">
-                {contract.value.toLocaleString(ar ? "ar-AE" : "en-US")} <span className="text-sm font-medium">{ar ? "د.إ" : "AED"}</span>
+                {contract.value.toLocaleString(ar ? "ar-AE" : "en-US")} <span className="text-sm font-medium">{tAuto('auto.aED')}</span>
               </div>
             </div>
 
@@ -79,7 +82,7 @@ export function ContractDetailPanel({ contract, ar, onClose, onEdit }: { contrac
                     <FileText className="h-3.5 w-3.5 text-slate-400" />
                   </div>
                   <div>
-                    <span className="text-[10px] text-slate-400 block">{ar ? "رقم العقد" : "No."}</span>
+                    <span className="text-[10px] text-slate-400 block">{tAuto('auto.no')}</span>
                     <span className="font-mono text-xs">{contract.number}</span>
                   </div>
                 </div>
@@ -90,7 +93,7 @@ export function ContractDetailPanel({ contract, ar, onClose, onEdit }: { contrac
                   <User className="h-3.5 w-3.5 text-slate-400" />
                 </div>
                 <div>
-                  <span className="text-[10px] text-slate-400 block">{ar ? "العميل" : "Client"}</span>
+                  <span className="text-[10px] text-slate-400 block">{tAuto('auto.client')}</span>
                   <span className="text-xs">{contract.client.name}</span>
                 </div>
               </div>
@@ -100,7 +103,7 @@ export function ContractDetailPanel({ contract, ar, onClose, onEdit }: { contrac
                   <Building2 className="h-3.5 w-3.5 text-slate-400" />
                 </div>
                 <div>
-                  <span className="text-[10px] text-slate-400 block">{ar ? "المشروع" : "Project"}</span>
+                  <span className="text-[10px] text-slate-400 block">{tAuto('auto.project')}</span>
                   <span className="text-xs">{ar ? contract.project.name : contract.project.nameEn || contract.project.name}</span>
                 </div>
               </div>
@@ -110,7 +113,7 @@ export function ContractDetailPanel({ contract, ar, onClose, onEdit }: { contrac
                   <Calendar className="h-3.5 w-3.5 text-slate-400" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <span className="text-[10px] text-slate-400 block">{ar ? "المدة" : "Duration"}</span>
+                  <span className="text-[10px] text-slate-400 block">{tAuto('auto.duration')}</span>
                   <span className="text-xs">
                     {contract.startDate && (
                       <>{new Date(contract.startDate).toLocaleDateString(ar ? "ar-AE" : "en-US")}
@@ -118,7 +121,7 @@ export function ContractDetailPanel({ contract, ar, onClose, onEdit }: { contrac
                         <> — {new Date(contract.endDate).toLocaleDateString(ar ? "ar-AE" : "en-US")}</>
                       )}</>
                     )}
-                    {!contract.startDate && (ar ? "غير محدد" : "Not specified")}
+                    {!contract.startDate && (tAuto('auto.notSpecified'))}
                   </span>
                 </div>
               </div>
@@ -188,7 +191,7 @@ export function ContractDetailPanel({ contract, ar, onClose, onEdit }: { contrac
               <div className="flex flex-col gap-2 w-full mt-4 pt-2 border-t border-slate-100 dark:border-slate-800">
                 <Button variant="outline" className="w-full justify-start text-[#133371] border-[#133371]/20 hover:bg-[#133371]/5 dark:text-blue-400 dark:border-blue-900/50 dark:hover:bg-blue-900/20" onClick={() => setSignDialogOpen(true)}>
                   <Pencil className="h-4 w-4 me-2" />
-                  {ar ? "توقيع العقد إلكترونياً" : "E-Sign Contract"}
+                  {tAuto('auto.eSignContract')}
                 </Button>
               </div>
             </div>
@@ -200,7 +203,7 @@ export function ContractDetailPanel({ contract, ar, onClose, onEdit }: { contrac
           <div>
             <div className="flex items-center justify-between mb-3">
               <h5 className="text-sm font-semibold text-slate-900 dark:text-white">
-                {ar ? "التعديلات" : "Amendments"}
+                {tAuto('auto.amendments')}
               </h5>
               <span className={cn(
                 "inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold",
@@ -266,10 +269,10 @@ export function ContractDetailPanel({ contract, ar, onClose, onEdit }: { contrac
                   <FileText className="h-5 w-5 text-slate-300 dark:text-slate-600" />
                 </div>
                 <p className="text-xs text-slate-400 dark:text-slate-500">
-                  {ar ? "لا توجد تعديلات" : "No amendments"}
+                  {tAuto('auto.noAmendments')}
                 </p>
                 <p className="text-[10px] text-slate-400/60 dark:text-slate-500/60 mt-0.5">
-                  {ar ? "ستظهر التعديلات هنا عند إضافتها" : "Amendments will appear here when added"}
+                  {tAuto('auto.amendmentsWillAppearHereWhenAdded')}
                 </p>
               </div>
             )}

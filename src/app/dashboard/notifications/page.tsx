@@ -1,15 +1,7 @@
-"use client";
+import { getLocale } from 'next-intl/server';
+import NotificationsPage from '@/components/pages/notifications';
 
-import dynamic from "next/dynamic";
-
-const NotificationsPage = dynamic(() => import("@/components/pages/notifications"), {
-  loading: () => <div className="p-6 animate-pulse">Loading...</div>,
-  ssr: false,
-});
-
-/**
- * /dashboard/notifications
- */
-export default function NotificationsPageRoute() {
-  return <NotificationsPage />;
+export default async function NotificationsPageRoute() {
+  const locale = await getLocale();
+  return <NotificationsPage language={locale as "ar" | "en"} />;
 }

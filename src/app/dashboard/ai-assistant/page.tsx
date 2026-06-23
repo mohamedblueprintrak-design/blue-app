@@ -1,16 +1,7 @@
-"use client";
+import { getLocale } from 'next-intl/server';
+import AiAssistantPage from '@/components/pages/ai-assistant';
 
-import dynamic from "next/dynamic";
-import { useLang } from "@/hooks/use-lang";
-
-const AiAssistantPage = dynamic(() => import("@/components/pages/ai-assistant"), {
-  loading: () => <div className="p-6 animate-pulse">Loading...</div>,
-  ssr: false,
-});
-
-/**
- * /dashboard/ai-assistant
- */
-export default function AiAssistantPageRoute() {
-  return <AiAssistantPage language={useLang()} />;
+export default async function AiAssistantPageRoute() {
+  const locale = await getLocale();
+  return <AiAssistantPage language={locale as "ar" | "en"} />;
 }

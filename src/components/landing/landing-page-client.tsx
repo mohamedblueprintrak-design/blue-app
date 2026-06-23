@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useLanguage } from "@/hooks/use-lang";
@@ -15,6 +17,7 @@ import { HeroVideoBackground } from "@/components/landing/hero-video-background"
 import { ProjectCard } from "@/components/landing/project-card";
 import { ContactSection } from "@/components/landing/contact-section";
 export default function LandingPageClient() {
+  const tAuto = useTranslations();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -111,7 +114,7 @@ export default function LandingPageClient() {
                 onClick={toggleLanguage}
                 className={`px-3 py-2 text-xs font-medium transition-colors ${scrolled ? 'text-[#4A6FA5] hover:text-[#0F2557]' : 'text-blue-200/80 hover:text-white'}`}
               >
-                {language === "ar" ? "EN" : "عربي"}
+                {tAuto('auto.text163')}
               </button>
             </nav>
 

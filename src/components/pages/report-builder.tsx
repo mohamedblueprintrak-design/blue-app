@@ -1,4 +1,6 @@
 "use client";
+
+import { useTranslations } from 'next-intl';
 /* eslint-disable */
 
 
@@ -184,6 +186,7 @@ interface ReportBuilderProps {
 }
 
 export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
+  const tAuto = useTranslations();
   const lang = useLang();
   const ar = lang === "ar";
   const toastFeedback = useToastFeedback({ ar });
@@ -284,13 +287,13 @@ export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
         a.download = `${definition.name || "report"}.csv`;
         a.click();
         URL.revokeObjectURL(url);
-        toastFeedback.showSuccess(ar ? "تم تصدير CSV" : "CSV exported");
+        toastFeedback.showSuccess(tAuto('auto.cSVExported'));
       } else if (contentType.includes("application/pdf")) {
         // Download PDF
         const blob = await res.blob();
         const url = URL.createObjectURL(blob);
         window.open(url, "_blank");
-        toastFeedback.showSuccess(ar ? "تم تصدير PDF" : "PDF exported");
+        toastFeedback.showSuccess(tAuto('auto.pDFExported'));
       } else {
         // JSON
         const json = await res.json();
@@ -298,7 +301,7 @@ export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
       }
     },
     onError: (err: Error) => {
-      toastFeedback.showError(err.message || (ar ? "فشل تنفيذ التقرير" : "Failed to execute report"));
+      toastFeedback.showError(err.message || (tAuto('auto.failedToExecuteReport')));
     },
   });
 
@@ -331,12 +334,12 @@ export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
       return res.json();
     },
     onSuccess: () => {
-      toastFeedback.showSuccess(ar ? "تم حفظ التقرير" : "Report saved");
+      toastFeedback.showSuccess(tAuto('auto.reportSaved'));
       queryClient.invalidateQueries({ queryKey: ["report-builder-templates"] });
       onReportSaved?.();
     },
     onError: (err: Error) => {
-      toastFeedback.showError(err.message || (ar ? "فشل حفظ التقرير" : "Failed to save report"));
+      toastFeedback.showError(err.message || (tAuto('auto.failedToSaveReport')));
     },
   });
 
@@ -360,9 +363,9 @@ export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
         format: "json",
       });
       setCurrentStep(0);
-      toastFeedback.showSuccess(ar ? "تم تحميل التقرير" : "Report loaded");
+      toastFeedback.showSuccess(tAuto('auto.reportLoaded'));
     },
-    [ar, toastFeedback]
+    [ar, toastFeedback, tAuto]
   );
 
   // ============================================
@@ -390,7 +393,7 @@ export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
 
   const handlePreview = () => {
     if (!definition.name.trim()) {
-      definition.name = ar ? "تقرير مخصص" : "Custom Report";
+      definition.name = tAuto('auto.customReport');
     }
     executeMutation.mutate({ ...definition, format: "json" });
   };
@@ -401,7 +404,7 @@ export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
 
   const handleSave = () => {
     if (!definition.name.trim()) {
-      toastFeedback.showError(ar ? "يرجى إدخال اسم التقرير" : "Please enter a report name");
+      toastFeedback.showError(tAuto('auto.pleaseEnterAReportName'));
       return;
     }
     saveMutation.mutate(definition);
@@ -476,10 +479,10 @@ export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
           </div>
           <div>
             <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-              {ar ? "منشئ التقارير المخصص" : "Custom Report Builder"}
+              {tAuto('auto.customReportBuilder')}
             </h2>
             <p className="text-[10px] text-slate-500 dark:text-slate-400">
-              {ar ? "إنشاء تقارير مخصصة من مصادر بيانات متعددة" : "Build custom reports from multiple data sources"}
+              {tAuto('auto.buildCustomReportsFromMultipleDataSource')}
             </p>
           </div>
         </div>
@@ -490,7 +493,7 @@ export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
         <Card className="border-slate-200 dark:border-slate-700/50">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold text-slate-900 dark:text-white">
-              {ar ? "التقارير المحفوظة" : "Saved Reports"}
+              {tAuto('auto.savedReports')}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-4 pt-0">
@@ -542,23 +545,23 @@ export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <Label className="text-xs text-slate-500 dark:text-slate-400 mb-1.5 block">
-            {ar ? "اسم التقرير" : "Report Name"} *
+            {tAuto('auto.reportName')} *
           </Label>
           <Input
             value={definition.name}
             onChange={(e) => setDefinition((prev) => ({ ...prev, name: e.target.value }))}
-            placeholder={ar ? "أدخل اسم التقرير" : "Enter report name"}
+            placeholder={tAuto('auto.enterReportName')}
             className="h-9 text-sm"
           />
         </div>
         <div>
           <Label className="text-xs text-slate-500 dark:text-slate-400 mb-1.5 block">
-            {ar ? "الاسم بالعربية" : "Name (Arabic)"}
+            {tAuto('auto.nameArabic')}
           </Label>
           <Input
             value={definition.nameAr ?? ""}
             onChange={(e) => setDefinition((prev) => ({ ...prev, nameAr: e.target.value || undefined }))}
-            placeholder={ar ? "اسم التقرير بالعربية" : "Report name in Arabic"}
+            placeholder={tAuto('auto.reportNameInArabic')}
             className="h-9 text-sm"
             dir="rtl"
           />
@@ -572,7 +575,7 @@ export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
           {currentStep === 0 && (
             <div className="space-y-4">
               <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
-                {ar ? "اختر مصدر البيانات" : "Select Data Source"}
+                {tAuto('auto.selectDataSource')}
               </h3>
               {dsLoading ? (
                 <div className="flex items-center justify-center py-12">
@@ -639,15 +642,15 @@ export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
-                  {ar ? "اختر الحقول" : "Select Fields"}
+                  {tAuto('auto.selectFields')}
                 </h3>
                 <Badge variant="outline" className="text-[10px]">
-                  {definition.fields.length} {ar ? "محدد" : "selected"}
+                  {definition.fields.length} {tAuto('auto.selected1')}
                 </Badge>
               </div>
               {availableFields.length === 0 ? (
                 <p className="text-xs text-slate-400 py-8 text-center">
-                  {ar ? "اختر مصدر بيانات أولاً" : "Select a data source first"}
+                  {tAuto('auto.selectADataSourceFirst')}
                 </p>
               ) : (
                 <div className="space-y-2">
@@ -674,7 +677,7 @@ export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
                           </p>
                           <p className="text-[10px] text-slate-400">
                             {field.key} · {field.type}
-                            {field.aggregatable ? ` · ${ar ? "قابل للتجميع" : "Aggregatable"}` : ""}
+                            {field.aggregatable ? ` · ${tAuto('auto.aggregatable')}` : ""}
                           </p>
                         </div>
                         {isSelected && field.aggregatable && (
@@ -688,12 +691,12 @@ export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="none">{ar ? "بلا" : "None"}</SelectItem>
-                              <SelectItem value="sum">{ar ? "مجموع" : "Sum"}</SelectItem>
-                              <SelectItem value="avg">{ar ? "متوسط" : "Avg"}</SelectItem>
-                              <SelectItem value="count">{ar ? "عدد" : "Count"}</SelectItem>
-                              <SelectItem value="min">{ar ? "أقل" : "Min"}</SelectItem>
-                              <SelectItem value="max">{ar ? "أعلى" : "Max"}</SelectItem>
+                              <SelectItem value="none">{tAuto('auto.none')}</SelectItem>
+                              <SelectItem value="sum">{tAuto('auto.sum')}</SelectItem>
+                              <SelectItem value="avg">{tAuto('auto.avg')}</SelectItem>
+                              <SelectItem value="count">{tAuto('auto.count')}</SelectItem>
+                              <SelectItem value="min">{tAuto('auto.min1')}</SelectItem>
+                              <SelectItem value="max">{tAuto('auto.max')}</SelectItem>
                             </SelectContent>
                           </Select>
                         )}
@@ -710,7 +713,7 @@ export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
-                  {ar ? "إضافة تصفية" : "Add Filters"}
+                  {tAuto('auto.addFilters')}
                 </h3>
                 <Button
                   size="sm"
@@ -719,12 +722,12 @@ export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
                   onClick={addFilter}
                 >
                   <Plus className="h-3 w-3" />
-                  {ar ? "إضافة" : "Add"}
+                  {tAuto('auto.add')}
                 </Button>
               </div>
               {definition.filters.length === 0 ? (
                 <p className="text-xs text-slate-400 py-8 text-center">
-                  {ar ? "لا توجد تصفيات. التصفية اختيارية." : "No filters. Filtering is optional."}
+                  {tAuto('auto.noFiltersFilteringIsOptional')}
                 </p>
               ) : (
                 <div className="space-y-2">
@@ -739,7 +742,7 @@ export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
                         onValueChange={(val) => updateFilter(idx, { field: val })}
                       >
                         <SelectTrigger className="h-8 w-36 text-xs">
-                          <SelectValue placeholder={ar ? "الحقل" : "Field"} />
+                          <SelectValue placeholder={tAuto('auto.field')} />
                         </SelectTrigger>
                         <SelectContent>
                           {availableFields.map((f) => (
@@ -773,7 +776,7 @@ export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
                       <Input
                         value={String(filter.value ?? "")}
                         onChange={(e) => updateFilter(idx, { value: e.target.value })}
-                        placeholder={ar ? "القيمة" : "Value"}
+                        placeholder={tAuto('auto.value')}
                         className="h-8 text-xs flex-1"
                       />
 
@@ -782,7 +785,7 @@ export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
                         <Input
                           value={String(filter.value2 ?? "")}
                           onChange={(e) => updateFilter(idx, { value2: e.target.value })}
-                          placeholder={ar ? "القيمة 2" : "Value 2"}
+                          placeholder={tAuto('auto.value2')}
                           className="h-8 text-xs flex-1"
                         />
                       )}
@@ -807,13 +810,13 @@ export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
           {currentStep === 3 && (
             <div className="space-y-4">
               <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
-                {ar ? "التجميع والترتيب" : "Grouping & Sorting"}
+                {tAuto('auto.groupingSorting')}
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {/* Group By */}
                 <div>
                   <Label className="text-xs text-slate-500 dark:text-slate-400 mb-1.5 block">
-                    {ar ? "تجميع حسب" : "Group By"}
+                    {tAuto('auto.groupBy')}
                   </Label>
                   <Select
                     value={definition.groupBy ?? "_none"}
@@ -825,11 +828,11 @@ export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
                     }
                   >
                     <SelectTrigger className="h-9 text-sm">
-                      <SelectValue placeholder={ar ? "بلا تجميع" : "No grouping"} />
+                      <SelectValue placeholder={tAuto('auto.noGrouping')} />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="_none">
-                        {ar ? "بلا تجميع" : "No grouping"}
+                        {tAuto('auto.noGrouping')}
                       </SelectItem>
                       {availableFields
                         .filter((f) => f.type === "string" || f.type === "date")
@@ -845,7 +848,7 @@ export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
                 {/* Sort By */}
                 <div>
                   <Label className="text-xs text-slate-500 dark:text-slate-400 mb-1.5 block">
-                    {ar ? "ترتيب حسب" : "Sort By"}
+                    {tAuto('auto.sortBy1')}
                   </Label>
                   <Select
                     value={definition.sortBy ?? "_none"}
@@ -857,11 +860,11 @@ export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
                     }
                   >
                     <SelectTrigger className="h-9 text-sm">
-                      <SelectValue placeholder={ar ? "بلا ترتيب" : "No sorting"} />
+                      <SelectValue placeholder={tAuto('auto.noSorting')} />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="_none">
-                        {ar ? "بلا ترتيب" : "No sorting"}
+                        {tAuto('auto.noSorting')}
                       </SelectItem>
                       {availableFields.map((f) => (
                         <SelectItem key={f.key} value={f.key}>
@@ -875,7 +878,7 @@ export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
                 {/* Sort Order */}
                 <div>
                   <Label className="text-xs text-slate-500 dark:text-slate-400 mb-1.5 block">
-                    {ar ? "اتجاه الترتيب" : "Sort Order"}
+                    {tAuto('auto.sortOrder')}
                   </Label>
                   <Select
                     value={definition.sortOrder ?? "desc"}
@@ -891,10 +894,10 @@ export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="asc">
-                        {ar ? "تصاعدي" : "Ascending"}
+                        {tAuto('auto.ascending')}
                       </SelectItem>
                       <SelectItem value="desc">
-                        {ar ? "تنازلي" : "Descending"}
+                        {tAuto('auto.descending')}
                       </SelectItem>
                     </SelectContent>
                   </Select>
@@ -907,7 +910,7 @@ export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
           {currentStep === 4 && (
             <div className="space-y-4">
               <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
-                {ar ? "تنسيق الإخراج" : "Output Format"}
+                {tAuto('auto.outputFormat')}
               </h3>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {(
@@ -979,7 +982,7 @@ export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
               {/* Export format */}
               <div className="mt-4">
                 <Label className="text-xs text-slate-500 dark:text-slate-400 mb-1.5 block">
-                  {ar ? "تنسيق التصدير" : "Export Format"}
+                  {tAuto('auto.exportFormat')}
                 </Label>
                 <Select
                   value={definition.format ?? "json"}
@@ -1005,7 +1008,7 @@ export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
-                  {ar ? "معاينة التقرير" : "Report Preview"}
+                  {tAuto('auto.reportPreview')}
                 </h3>
                 <div className="flex items-center gap-2">
                   <Button
@@ -1020,7 +1023,7 @@ export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
                     ) : (
                       <Play className="h-3.5 w-3.5" />
                     )}
-                    {ar ? "تشغيل" : "Run"}
+                    {tAuto('auto.run')}
                   </Button>
                   <Button
                     size="sm"
@@ -1053,7 +1056,7 @@ export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
                     ) : (
                       <Save className="h-3.5 w-3.5" />
                     )}
-                    {ar ? "حفظ" : "Save"}
+                    {tAuto('auto.save')}
                   </Button>
                 </div>
               </div>
@@ -1063,7 +1066,7 @@ export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
                   <div>
                     <span className="text-slate-400">
-                      {ar ? "مصدر البيانات:" : "Data Source:"}
+                      {tAuto('auto.dataSource')}
                     </span>{" "}
                     <span className="font-medium text-slate-900 dark:text-white">
                       {currentDsMeta
@@ -1075,7 +1078,7 @@ export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
                   </div>
                   <div>
                     <span className="text-slate-400">
-                      {ar ? "الحقول:" : "Fields:"}
+                      {tAuto('auto.fields')}
                     </span>{" "}
                     <span className="font-medium text-slate-900 dark:text-white">
                       {definition.fields.length}
@@ -1083,7 +1086,7 @@ export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
                   </div>
                   <div>
                     <span className="text-slate-400">
-                      {ar ? "التصفيات:" : "Filters:"}
+                      {tAuto('auto.filters')}
                     </span>{" "}
                     <span className="font-medium text-slate-900 dark:text-white">
                       {definition.filters.length}
@@ -1091,7 +1094,7 @@ export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
                   </div>
                   <div>
                     <span className="text-slate-400">
-                      {ar ? "التنسيق:" : "Format:"}
+                      {tAuto('auto.format')}
                     </span>{" "}
                     <span className="font-medium text-slate-900 dark:text-white uppercase">
                       {definition.chartType}
@@ -1139,7 +1142,7 @@ export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
                               colSpan={previewData.columns.length}
                               className="text-center py-8 text-xs text-slate-400"
                             >
-                              {ar ? "لا توجد بيانات" : "No data"}
+                              {tAuto('auto.noData')}
                             </TableCell>
                           </TableRow>
                         )}
@@ -1147,14 +1150,14 @@ export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
                     </Table>
                   </div>
                   <div className="px-4 py-2 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-700 text-[10px] text-slate-400">
-                    {previewData.totalRows} {ar ? "صف" : "rows"}
+                    {previewData.totalRows} {tAuto('auto.rows')}
                   </div>
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center py-12 text-slate-400">
                   <Eye className="h-8 w-8 mb-2" />
                   <p className="text-sm">
-                    {ar ? "اضغط تشغيل لمعاينة التقرير" : "Click Run to preview the report"}
+                    {tAuto('auto.clickRunToPreviewTheReport')}
                   </p>
                 </div>
               )}
@@ -1173,7 +1176,7 @@ export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
           disabled={currentStep === 0}
         >
           <ChevronLeft className="h-3.5 w-3.5" />
-          {ar ? "السابق" : "Previous"}
+          {tAuto('auto.previous')}
         </Button>
         <span className="text-xs text-slate-400">
           {currentStep + 1} / {STEPS.length}
@@ -1186,7 +1189,7 @@ export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
           }
           disabled={currentStep === STEPS.length - 1 || !canGoNext()}
         >
-          {ar ? "التالي" : "Next"}
+          {tAuto('auto.next')}
           <ChevronRight className="h-3.5 w-3.5" />
         </Button>
       </div>

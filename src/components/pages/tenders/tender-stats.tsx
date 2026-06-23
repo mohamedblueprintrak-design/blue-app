@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FileText, Clock, Trophy, XCircle } from "lucide-react";
@@ -26,6 +28,7 @@ export function TenderStats({
   isLoading,
   isAr,
 }: TenderStatsProps) {
+  const tAuto = useTranslations();
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
       <Card className="py-0 gap-0 border-0 shadow-sm overflow-hidden">
@@ -34,7 +37,7 @@ export function TenderStats({
             <div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm">
               <FileText className="h-3.5 w-3.5 text-slate-600 dark:text-slate-300" />
             </div>
-            <span className="text-xs text-slate-500 dark:text-slate-400">{isAr ? "إجمالي المناقصات" : "Total Tenders"}</span>
+            <span className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.totalTenders')}</span>
           </div>
           <div className="text-xl font-bold text-slate-900 dark:text-white tabular-nums">
             {isLoading ? <Skeleton className="h-6 w-12" /> : totalCount}
@@ -51,13 +54,13 @@ export function TenderStats({
             <div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm">
               <Clock className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
             </div>
-            <span className="text-xs text-amber-600 dark:text-amber-400">{isAr ? "قيد التقديم" : "In Progress"}</span>
+            <span className="text-xs text-amber-600 dark:text-amber-400">{tAuto('auto.inProgress')}</span>
           </div>
           <div className="text-xl font-bold text-amber-700 dark:text-amber-300 tabular-nums">
             {isLoading ? <Skeleton className="h-6 w-12" /> : preparingCount}
           </div>
           <p className="text-[10px] text-amber-500/60 dark:text-amber-400/60 mt-1">
-            {isAr ? "قيد التحضير والتقديم" : "Preparing & submitting"}
+            {tAuto('auto.preparingSubmitting')}
           </p>
         </div>
       </Card>
@@ -68,13 +71,13 @@ export function TenderStats({
             <div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm">
               <Trophy className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
             </div>
-            <span className="text-xs text-emerald-600 dark:text-emerald-400">{isAr ? "فُزنا" : "Won"}</span>
+            <span className="text-xs text-emerald-600 dark:text-emerald-400">{tAuto('auto.won')}</span>
           </div>
           <div className="text-xl font-bold text-emerald-700 dark:text-emerald-300 tabular-nums">
             {isLoading ? <Skeleton className="h-6 w-12" /> : wonCount}
           </div>
           <p className="text-[10px] text-emerald-500/60 dark:text-emerald-400/60 mt-1">
-            {wonCount > 0 ? formatCurrency(wonBudget, isAr) : (isAr ? "لا توجد" : "None yet")}
+            {wonCount > 0 ? formatCurrency(wonBudget, isAr) : (tAuto('auto.noneYet'))}
           </p>
         </div>
       </Card>
@@ -85,13 +88,13 @@ export function TenderStats({
             <div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm">
               <XCircle className="h-3.5 w-3.5 text-red-600 dark:text-red-400" />
             </div>
-            <span className="text-xs text-red-600 dark:text-red-400">{isAr ? "خسرنا" : "Lost"}</span>
+            <span className="text-xs text-red-600 dark:text-red-400">{tAuto('auto.lost')}</span>
           </div>
           <div className="text-xl font-bold text-red-700 dark:text-red-300 tabular-nums">
             {isLoading ? <Skeleton className="h-6 w-12" /> : lostCount}
           </div>
           <p className="text-[10px] text-red-500/60 dark:text-red-400/60 mt-1">
-            {isAr ? "مناقصات خاسرة" : "Lost tenders"}
+            {tAuto('auto.lostTenders')}
           </p>
         </div>
       </Card>

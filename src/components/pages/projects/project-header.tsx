@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Download, GitCompareArrows, Building2 } from "lucide-react";
@@ -26,6 +28,7 @@ export function ProjectHeader({
   onShowCompare,
   onShowAddDialog,
 }: ProjectHeaderProps) {
+  const tAuto = useTranslations();
   return (
     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
       <div className="flex items-center gap-3">
@@ -59,21 +62,21 @@ export function ProjectHeader({
           variant="outline"
           onClick={() => {
             const statusLabels: Record<string, string> = {
-              ACTIVE: isAr ? "نشط" : "Active",
-              COMPLETED: isAr ? "مكتمل" : "Completed",
-              DELAYED: isAr ? "متأخر" : "Delayed",
-              ON_HOLD: isAr ? "معلق" : "On Hold",
-              CANCELLED: isAr ? "ملغى" : "Cancelled",
-              DESIGN: isAr ? "تصميم" : "Design",
-              SUBMISSION: isAr ? "تقديم" : "Submission",
-              APPROVAL: isAr ? "اعتماد" : "Approval",
-              CONSTRUCTION: isAr ? "تنفيذ" : "Construction",
+              ACTIVE: tAuto('auto.active'),
+              COMPLETED: tAuto('auto.completed'),
+              DELAYED: tAuto('auto.delayed'),
+              ON_HOLD: tAuto('auto.onHold'),
+              CANCELLED: tAuto('auto.cancelled'),
+              DESIGN: tAuto('auto.design'),
+              SUBMISSION: tAuto('auto.submission'),
+              APPROVAL: tAuto('auto.approval'),
+              CONSTRUCTION: tAuto('auto.construction'),
             };
             const typeLabels: Record<string, string> = {
-              VILLA: isAr ? "فيلا" : "Villa",
-              BUILDING: isAr ? "مبنى" : "Building",
-              COMMERCIAL: isAr ? "تجاري" : "Commercial",
-              INDUSTRIAL: isAr ? "صناعي" : "Industrial",
+              VILLA: tAuto('auto.villa'),
+              BUILDING: tAuto('auto.building'),
+              COMMERCIAL: tAuto('auto.commercial'),
+              INDUSTRIAL: tAuto('auto.industrial'),
             };
             exportToCSV(
               projects.map((p: ProjectRow) => ({
@@ -87,7 +90,7 @@ export function ProjectHeader({
                 [t("الإنجاز %", "Progress %")]: p.progress,
                 [t("الميزانية", "Budget")]: p.budget,
               })),
-              isAr ? "المشاريع" : "projects"
+              tAuto('auto.projects1')
             );
           }}
           className="text-slate-600 dark:text-slate-300 gap-2"

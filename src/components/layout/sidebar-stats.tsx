@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useQuery } from "@tanstack/react-query";
 import {
   FolderKanban,
@@ -18,6 +20,7 @@ interface SidebarStatsData {
 }
 
 export default function SidebarStats() {
+  const tAuto = useTranslations();
   const { data } = useQuery<SidebarStatsData>({
     queryKey: ["sidebar-quick-stats"],
     queryFn: async () => {
@@ -43,7 +46,7 @@ export default function SidebarStats() {
     {
       icon: FolderKanban,
       count: activeProjects,
-      label: isAr ? "نشطة" : "Active",
+      label: tAuto('auto.active'),
       pillBg: "bg-teal-50 dark:bg-teal-950/30",
       iconColor: "text-teal-600 dark:text-teal-400",
       countColor: "text-teal-700 dark:text-teal-300",
@@ -51,7 +54,7 @@ export default function SidebarStats() {
     {
       icon: ListTodo,
       count: pendingTasks,
-      label: isAr ? "معلقة" : "Pending",
+      label: tAuto('auto.pending'),
       pillBg: "bg-amber-50 dark:bg-amber-950/30",
       iconColor: "text-amber-600 dark:text-amber-400",
       countColor: "text-amber-700 dark:text-amber-300",
@@ -59,7 +62,7 @@ export default function SidebarStats() {
     {
       icon: Bell,
       count: unreadNotifs,
-      label: isAr ? "جديدة" : "New",
+      label: tAuto('auto.new'),
       pillBg: "bg-red-50 dark:bg-red-950/30",
       iconColor: "text-red-600 dark:text-red-400",
       countColor: "text-red-700 dark:text-red-300",

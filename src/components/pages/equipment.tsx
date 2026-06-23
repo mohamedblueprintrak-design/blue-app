@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToastFeedback } from "@/hooks/use-toast-feedback";
@@ -90,6 +92,7 @@ interface EquipmentPageProps {
 }
 
 export default function EquipmentPage({ language }: EquipmentPageProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const queryClient = useQueryClient();
   const toast = useToastFeedback({ ar });
@@ -140,10 +143,10 @@ export default function EquipmentPage({ language }: EquipmentPageProps) {
       queryClient.invalidateQueries({ queryKey: ["EQUIPMENT"] });
       setShowAddDialog(false);
       setFormData(emptyForm);
-      toast.created(ar ? "المعدة" : "Equipment");
+      toast.created(tAuto('auto.equipment'));
     },
     onError: () => {
-      toast.error(ar ? "إنشاء المعدة" : "Create equipment");
+      toast.error(tAuto('auto.createEquipment'));
     },
   });
 
@@ -166,10 +169,10 @@ export default function EquipmentPage({ language }: EquipmentPageProps) {
       queryClient.invalidateQueries({ queryKey: ["EQUIPMENT"] });
       setEditEquip(null);
       setFormData(emptyForm);
-      toast.updated(ar ? "المعدة" : "Equipment");
+      toast.updated(tAuto('auto.equipment'));
     },
     onError: () => {
-      toast.error(ar ? "تحديث المعدة" : "Update equipment");
+      toast.error(tAuto('auto.updateEquipment'));
     },
   });
 
@@ -180,10 +183,10 @@ export default function EquipmentPage({ language }: EquipmentPageProps) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["EQUIPMENT"] });
-      toast.deleted(ar ? "المعدة" : "Equipment");
+      toast.deleted(tAuto('auto.equipment'));
     },
     onError: () => {
-      toast.error(ar ? "حذف المعدة" : "Delete equipment");
+      toast.error(tAuto('auto.deleteEquipment'));
     },
   });
 
@@ -226,28 +229,28 @@ export default function EquipmentPage({ language }: EquipmentPageProps) {
 
   const summaryCards = [
     {
-      label: ar ? "الإجمالي" : "Total",
+      label: tAuto('auto.total'),
       value: summary.totalEquipment,
       icon: Wrench,
       color: "text-slate-600 dark:text-slate-400",
       bg: "bg-slate-100 dark:bg-slate-800",
     },
     {
-      label: ar ? "متاح" : "Available",
+      label: tAuto('auto.available'),
       value: summary.availableCount,
       icon: CheckCircle2,
       color: "text-green-600 dark:text-green-400",
       bg: "bg-green-100 dark:bg-green-900/30",
     },
     {
-      label: ar ? "قيد الاستخدام" : "In Use",
+      label: tAuto('auto.inUse'),
       value: summary.inUseCount,
       icon: Building,
       color: "text-blue-600 dark:text-blue-400",
       bg: "bg-blue-100 dark:bg-blue-900/30",
     },
     {
-      label: ar ? "صيانة" : "Maintenance",
+      label: tAuto('auto.maintenance'),
       value: summary.maintenanceCount,
       icon: Settings,
       color: "text-amber-600 dark:text-amber-400",
@@ -280,7 +283,7 @@ export default function EquipmentPage({ language }: EquipmentPageProps) {
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
         <div className="flex items-center gap-2 flex-1">
           <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-            {ar ? "المعدات" : "Equipment"}
+            {tAuto('auto.equipment')}
           </h2>
           <Badge variant="secondary" className="text-xs">{equipmentList.length}</Badge>
         </div>
@@ -290,16 +293,16 @@ export default function EquipmentPage({ language }: EquipmentPageProps) {
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder={ar ? "بحث..." : "Search..."}
+              placeholder={tAuto('auto.search1')}
               className="ps-9 h-8 text-sm"
             />
           </div>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className="w-[120px] h-8 text-sm">
-              <SelectValue placeholder={ar ? "الحالة" : "Status"} />
+              <SelectValue placeholder={tAuto('auto.status1')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{ar ? "الكل" : "All"}</SelectItem>
+              <SelectItem value="all">{tAuto('auto.all')}</SelectItem>
               {Object.entries(statusConfig).map(([key, cfg]) => (
                 <SelectItem key={key} value={key}>{ar ? cfg.ar : cfg.en}</SelectItem>
               ))}
@@ -308,10 +311,10 @@ export default function EquipmentPage({ language }: EquipmentPageProps) {
           {uniqueTypes.length > 0 && (
             <Select value={typeFilter} onValueChange={setTypeFilter}>
               <SelectTrigger className="w-[120px] h-8 text-sm">
-                <SelectValue placeholder={ar ? "النوع" : "Type"} />
+                <SelectValue placeholder={tAuto('auto.type')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">{ar ? "الكل" : "All"}</SelectItem>
+                <SelectItem value="all">{tAuto('auto.all')}</SelectItem>
                 {uniqueTypes.map((type: string) => (
                   <SelectItem key={type} value={type}>{type}</SelectItem>
                 ))}
@@ -324,7 +327,7 @@ export default function EquipmentPage({ language }: EquipmentPageProps) {
             onClick={() => { setFormData(emptyForm); setShowAddDialog(true); }}
           >
             <Plus className="h-3.5 w-3.5 me-1" />
-            {ar ? "إضافة" : "Add"}
+            {tAuto('auto.add')}
           </Button>
         </div>
       </div>
@@ -349,7 +352,7 @@ export default function EquipmentPage({ language }: EquipmentPageProps) {
       ) : filteredEquipment.length === 0 ? (
         <div className="text-center py-16 text-slate-400">
           <Wrench className="h-10 w-10 mx-auto mb-3 opacity-50" />
-          <p className="text-sm">{ar ? "لا توجد معدات" : "No equipment found"}</p>
+          <p className="text-sm">{tAuto('auto.noEquipmentFound')}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -396,7 +399,7 @@ export default function EquipmentPage({ language }: EquipmentPageProps) {
                         <DropdownMenuContent align={ar ? "start" : "end"}>
                           <DropdownMenuItem onClick={() => openEditDialog(equip)}>
                             <Pencil className="me-2 h-3.5 w-3.5" />
-                            {ar ? "تعديل" : "Edit"}
+                            {tAuto('auto.edit')}
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             className="text-red-600 dark:text-red-400"
@@ -407,7 +410,7 @@ export default function EquipmentPage({ language }: EquipmentPageProps) {
                             }}
                           >
                             <Trash2 className="me-2 h-3.5 w-3.5" />
-                            {ar ? "حذف" : "Delete"}
+                            {tAuto('auto.delete')}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -450,7 +453,7 @@ export default function EquipmentPage({ language }: EquipmentPageProps) {
                         <DollarSign className="h-3 w-3 text-teal-500" />
                         <span className="text-xs font-semibold text-teal-700 dark:text-teal-400 tabular-nums font-mono">
                           {formatCurrency(equip.dailyRate, ar)}
-                          <span className="text-[10px] text-slate-400 font-normal ms-0.5">/{ar ? "يوم" : "day"}</span>
+                          <span className="text-[10px] text-slate-400 font-normal ms-0.5">/{tAuto('auto.day1')}</span>
                         </span>
                       </div>
                     </div>
@@ -459,7 +462,7 @@ export default function EquipmentPage({ language }: EquipmentPageProps) {
                     <div className="border-t border-slate-100 dark:border-slate-800 pt-2.5 space-y-1.5">
                       <div className="flex items-center justify-between text-xs">
                         <span className="text-slate-400">
-                          {ar ? "آخر صيانة" : "Last Maintenance"}
+                          {tAuto('auto.lastMaintenance')}
                         </span>
                         <span className="text-slate-600 dark:text-slate-400">
                           {formatDate(equip.lastMaintenance, ar)}
@@ -467,7 +470,7 @@ export default function EquipmentPage({ language }: EquipmentPageProps) {
                       </div>
                       <div className="flex items-center justify-between text-xs">
                         <span className="text-slate-400">
-                          {ar ? "الصيانة القادمة" : "Next Maintenance"}
+                          {tAuto('auto.nextMaintenance')}
                         </span>
                         <span className={`font-medium ${isOverdueMaintenance ? "text-red-500" : needsMaintenanceWarning ? "text-amber-500" : "text-slate-600 dark:text-slate-400"}`}>
                           {formatDate(equip.nextMaintenance, ar)}
@@ -512,55 +515,55 @@ export default function EquipmentPage({ language }: EquipmentPageProps) {
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {editEquip ? (ar ? "تعديل معدة" : "Edit Equipment") : (ar ? "إضافة معدة" : "Add Equipment")}
+              {editEquip ? (tAuto('auto.editEquipment')) : (tAuto('auto.addEquipment'))}
             </DialogTitle>
             <DialogDescription>
               {editEquip
-                ? (ar ? "تعديل بيانات المعدة" : "Edit equipment details")
-                : (ar ? "إضافة معدة جديدة" : "Add new equipment")}
+                ? (tAuto('auto.editEquipmentDetails'))
+                : (tAuto('auto.addNewEquipment'))}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "الاسم" : "Name"} *</Label>
+                <Label className="text-sm">{tAuto('auto.name')} *</Label>
                 <Input
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder={ar ? "اسم المعدة" : "Equipment name"}
+                  placeholder={tAuto('auto.equipmentName')}
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "النوع" : "Type"}</Label>
+                <Label className="text-sm">{tAuto('auto.type')}</Label>
                 <Input
                   value={formData.type}
                   onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                  placeholder={ar ? "مثال: رافعة, حفار" : "e.g., Crane, Excavator"}
+                  placeholder={tAuto('auto.eGCraneExcavator')}
                 />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "الموديل" : "Model"}</Label>
+                <Label className="text-sm">{tAuto('auto.model')}</Label>
                 <Input
                   value={formData.model}
                   onChange={(e) => setFormData({ ...formData, model: e.target.value })}
-                  placeholder={ar ? "الموديل" : "Model"}
+                  placeholder={tAuto('auto.model')}
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "الرقم التسلسلي" : "Serial Number"}</Label>
+                <Label className="text-sm">{tAuto('auto.serialNumber')}</Label>
                 <Input
                   value={formData.serialNumber}
                   onChange={(e) => setFormData({ ...formData, serialNumber: e.target.value })}
-                  placeholder={ar ? "الرقم التسلسلي" : "Serial Number"}
+                  placeholder={tAuto('auto.serialNumber')}
                 />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "الحالة" : "Status"}</Label>
+                <Label className="text-sm">{tAuto('auto.status1')}</Label>
                 <Select value={formData.status} onValueChange={(v) => setFormData({ ...formData, status: v })}>
                   <SelectTrigger>
                     <SelectValue />
@@ -573,16 +576,16 @@ export default function EquipmentPage({ language }: EquipmentPageProps) {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "الموقع" : "Location"}</Label>
+                <Label className="text-sm">{tAuto('auto.location')}</Label>
                 <Input
                   value={formData.location}
                   onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                  placeholder={ar ? "مثال: الموقع 1, المستودع" : "e.g., Site 1, Warehouse"}
+                  placeholder={tAuto('auto.eGSite1Warehouse')}
                 />
               </div>
             </div>
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "المعدل اليومي" : "Daily Rate"} ({ar ? "د.إ" : "AED"})</Label>
+              <Label className="text-sm">{tAuto('auto.dailyRate')} ({tAuto('auto.aED')})</Label>
               <Input
                 type="number"
                 value={formData.dailyRate}
@@ -592,7 +595,7 @@ export default function EquipmentPage({ language }: EquipmentPageProps) {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "آخر صيانة" : "Last Maintenance"}</Label>
+                <Label className="text-sm">{tAuto('auto.lastMaintenance')}</Label>
                 <Input
                   type="date"
                   value={formData.lastMaintenance}
@@ -600,7 +603,7 @@ export default function EquipmentPage({ language }: EquipmentPageProps) {
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "الصيانة القادمة" : "Next Maintenance"}</Label>
+                <Label className="text-sm">{tAuto('auto.nextMaintenance')}</Label>
                 <Input
                   type="date"
                   value={formData.nextMaintenance}
@@ -615,7 +618,7 @@ export default function EquipmentPage({ language }: EquipmentPageProps) {
               variant="outline"
               onClick={() => { setShowAddDialog(false); setEditEquip(null); setFormData(emptyForm); }}
             >
-              {ar ? "إلغاء" : "Cancel"}
+              {tAuto('auto.cancel')}
             </Button>
             <Button
               className="bg-teal-600 hover:bg-teal-700 text-white"
@@ -623,8 +626,8 @@ export default function EquipmentPage({ language }: EquipmentPageProps) {
               disabled={!formData.name || createMutation.isPending || updateMutation.isPending}
             >
               {(createMutation.isPending || updateMutation.isPending)
-                ? (ar ? "جارٍ الحفظ..." : "Saving...")
-                : (ar ? "حفظ" : "Save")}
+                ? (tAuto('auto.saving'))
+                : (tAuto('auto.save'))}
             </Button>
           </DialogFooter>
         </DialogContent>

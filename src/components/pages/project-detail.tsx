@@ -1,6 +1,8 @@
 "use client";
 
 
+
+import { useTranslations } from 'next-intl';
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavStore } from "@/store/nav-store";
@@ -52,6 +54,7 @@ import type { ProjectDetailProps, ProjectData } from "./project-detail/types";
 
 // ===== MAIN COMPONENT =====
 export default function ProjectDetail({ language }: ProjectDetailProps) {
+  const tAuto = useTranslations();
   const isAr = language === "ar";
   const t = (ar: string, en: string) => (isAr ? ar : en);
   const { 
@@ -154,7 +157,7 @@ export default function ProjectDetail({ language }: ProjectDetailProps) {
         <CardContent className="p-5">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             <div className="flex items-start gap-3">
-              <Button variant="ghost" size="icon" onClick={handleBack} className="h-9 w-9 shrink-0 mt-0.5" aria-label={isAr ? "الرجوع" : "Go back"}>
+              <Button variant="ghost" size="icon" onClick={handleBack} className="h-9 w-9 shrink-0 mt-0.5" aria-label={tAuto('auto.goBack')}>
                 {isAr ? <ChevronLeft className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5 rotate-180" />}
               </Button>
               <div>

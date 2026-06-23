@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useLanguage } from "@/hooks/use-lang";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,6 +26,7 @@ interface OrganizationStepProps {
 }
 
 export default function OrganizationStep({ data, onChange, onNext, onBack, onSkip }: OrganizationStepProps) {
+  const tAuto = useTranslations();
   const { t, isAr } = useLanguage();
 
   const canContinue = data.companyName.trim().length > 0;
@@ -60,7 +63,7 @@ export default function OrganizationStep({ data, onChange, onNext, onBack, onSki
               id="onboarding-company"
               value={data.companyName}
               onChange={(e) => onChange({ companyName: e.target.value })}
-              placeholder={isAr ? "مثال: مكتب الإبداع الهندسي" : "e.g., Creative Engineering Office"}
+              placeholder={tAuto('auto.eGCreativeEngineeringOffice')}
               className="ps-10"
               onKeyDown={handleKeyDown}
               dir={isAr ? "rtl" : "ltr"}

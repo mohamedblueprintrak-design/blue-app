@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToastFeedback } from "@/hooks/use-toast-feedback";
@@ -121,6 +123,7 @@ function CommentItem({
   onDelete: (id: string) => void;
   isDeleting: boolean;
 }) {
+  const tAuto = useTranslations();
   const avatarColor = getAvatarColor(comment.user.name || comment.user.id);
 
   return (
@@ -147,7 +150,7 @@ function CommentItem({
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-0.5">
           <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">
-            {comment.user.name || (isAr ? "مستخدم" : "User")}
+            {comment.user.name || (tAuto('auto.user'))}
           </span>
           <span className="text-[10px] text-slate-400 dark:text-slate-500">
             {formatTimeAgo(comment.createdAt, isAr)}
@@ -167,7 +170,7 @@ function CommentItem({
                     <Trash2 className="h-3 w-3" />
                   </TooltipTrigger>
                   <TooltipContent side="top" className="text-xs">
-                    {isAr ? "حذف التعليق" : "Delete comment"}
+                    {tAuto('auto.deleteComment')}
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -189,6 +192,7 @@ interface TaskCommentsProps {
 }
 
 export default function TaskComments({ taskId, language }: TaskCommentsProps) {
+  const tAuto = useTranslations();
   const isAr = language === "ar";
   const queryClient = useQueryClient();
   const toast = useToastFeedback({ ar: isAr });
@@ -253,11 +257,11 @@ export default function TaskComments({ taskId, language }: TaskCommentsProps) {
         textareaRef.current.style.height = "auto";
       }
       toast.showSuccess(
-        isAr ? "تم إضافة التعليق" : "Comment added"
+        tAuto('auto.commentAdded')
       );
     },
     onError: () => {
-      toast.error(isAr ? "إضافة التعليق" : "Add comment");
+      toast.error(tAuto('auto.addComment'));
     },
   });
 
@@ -279,12 +283,12 @@ export default function TaskComments({ taskId, language }: TaskCommentsProps) {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       setDeletingId(null);
       toast.showSuccess(
-        isAr ? "تم حذف التعليق" : "Comment deleted"
+        tAuto('auto.commentDeleted')
       );
     },
     onError: () => {
       setDeletingId(null);
-      toast.error(isAr ? "حذف التعليق" : "Delete comment");
+      toast.error(tAuto('auto.deleteComment'));
     },
   });
 
@@ -414,12 +418,10 @@ export default function TaskComments({ taskId, language }: TaskCommentsProps) {
             <MessageSquare className="h-7 w-7 text-slate-300 dark:text-slate-600" />
           </div>
           <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">
-            {isAr ? "لا توجد تعليقات بعد" : "No comments yet"}
+            {tAuto('auto.noCommentsYet')}
           </p>
           <p className="text-xs text-slate-400 dark:text-slate-500">
-            {isAr
-              ? "أضف أول تعليق على هذه المهمة"
-              : "Add the first comment on this task"}
+            {tAuto('auto.addTheFirstCommentOnThisTask')}
           </p>
         </div>
       ) : (
@@ -454,9 +456,7 @@ export default function TaskComments({ taskId, language }: TaskCommentsProps) {
               onChange={handleTextareaChange}
               onKeyDown={handleKeyDown}
               placeholder={
-                isAr
-                  ? "اكتب تعليقاً... (@للإشارة)"
-                  : "Write a comment... (@ to mention)"
+                tAuto('auto.writeACommentToMention')
               }
               className="text-xs resize-none min-h-[36px] max-h-[120px] py-2 px-3 rounded-lg border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 focus:bg-white dark:focus:bg-slate-900 transition-colors"
               rows={1}
@@ -480,7 +480,7 @@ export default function TaskComments({ taskId, language }: TaskCommentsProps) {
               >
                 <div className="p-1.5">
                   <p className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 px-1.5 pb-1">
-                    {isAr ? "الأعضاء" : "Team members"}
+                    {tAuto('auto.teamMembers')}
                   </p>
                   {filteredUsers.slice(0, 8).map((user) => (
                     <button

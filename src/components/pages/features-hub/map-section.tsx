@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import dynamic from 'next/dynamic'
@@ -52,6 +54,7 @@ export default function MapSection({
   setSelectedRealProject,
   stats,
 }: MapSectionProps) {
+  const tAuto = useTranslations();
   // Total budget calculation from source
   const totalBudget = hasRealData
     ? (projectsApiResponse || []).reduce((a, p) => a + (p.budget || 0), 0)
@@ -62,12 +65,12 @@ export default function MapSection({
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-            {language === 'ar' ? 'خريطة المشاريع' : 'Projects Map'}
+            {tAuto('auto.projectsMap')}
           </h2>
           <p className="text-sm text-slate-500">
             {hasRealData
-              ? (language === 'ar' ? 'جميع المشاريع المسجلة على الخريطة' : 'All registered projects on the map')
-              : (language === 'ar' ? 'جميع مواقع المشاريع في رأس الخيمة (بيانات تجريبية)' : 'All project locations in Ras Al Khaimah (demo data)')}
+              ? (tAuto('auto.allRegisteredProjectsOnTheMap'))
+              : (tAuto('auto.allProjectLocationsInRasAlKhaimahDemoDat'))}
           </p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
@@ -84,7 +87,7 @@ export default function MapSection({
       {hasRealData && (
         <div className="flex items-center gap-2 text-xs text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/20 px-3 py-1.5 rounded-lg w-fit">
           <div className="w-2 h-2 rounded-full bg-teal-500 animate-pulse" />
-          {language === 'ar' ? 'بيانات حقيقية من قاعدة البيانات' : 'Live data from database'} — {realProjectsForMap.length} {language === 'ar' ? 'مشروع على الخريطة' : 'projects on map'}
+          {tAuto('auto.liveDataFromDatabase')} — {realProjectsForMap.length} {tAuto('auto.projectsOnMap')}
         </div>
       )}
 
@@ -97,7 +100,7 @@ export default function MapSection({
                 <TrendingUp className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
               </div>
               <div>
-                <p className="text-xs text-slate-500">{language === 'ar' ? 'مشاريع نشطة' : 'Active'}</p>
+                <p className="text-xs text-slate-500">{tAuto('auto.active')}</p>
                 <p className="text-xl font-bold text-slate-900 dark:text-white">{stats.activeProjects}</p>
               </div>
             </div>
@@ -110,7 +113,7 @@ export default function MapSection({
                 <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400" />
               </div>
               <div>
-                <p className="text-xs text-slate-500">{language === 'ar' ? 'مشاريع متأخرة' : 'Delayed'}</p>
+                <p className="text-xs text-slate-500">{tAuto('auto.delayed')}</p>
                 <p className="text-xl font-bold text-slate-900 dark:text-white">{stats.delayedProjects}</p>
               </div>
             </div>
@@ -123,7 +126,7 @@ export default function MapSection({
                 <CheckCircle2 className="h-5 w-5 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
-                <p className="text-xs text-slate-500">{language === 'ar' ? 'مشاريع مكتملة' : 'Completed'}</p>
+                <p className="text-xs text-slate-500">{tAuto('auto.completed')}</p>
                 <p className="text-xl font-bold text-slate-900 dark:text-white">{stats.completedProjects}</p>
               </div>
             </div>
@@ -136,7 +139,7 @@ export default function MapSection({
                 <DollarSign className="h-5 w-5 text-teal-600 dark:text-teal-400" />
               </div>
               <div>
-                <p className="text-xs text-slate-500">{language === 'ar' ? 'إجمالي الميزانية' : 'Total Budget'}</p>
+                <p className="text-xs text-slate-500">{tAuto('auto.totalBudget')}</p>
                 <p className="text-lg font-bold text-slate-900 dark:text-white">{formatCurrency(totalBudget, language)}</p>
               </div>
             </div>
@@ -282,7 +285,7 @@ export default function MapSection({
                   )}
                   <div className="mb-2">
                     <div className="flex items-center justify-between text-xs mb-1">
-                      <span className="text-slate-600 dark:text-slate-400">{language === 'ar' ? 'التقدم' : 'Progress'}</span>
+                      <span className="text-slate-600 dark:text-slate-400">{tAuto('auto.progress')}</span>
                       <span className="font-medium text-slate-900 dark:text-white">{project.progress || 0}%</span>
                     </div>
                     <Progress value={project.progress || 0} className="h-2" />
@@ -291,7 +294,7 @@ export default function MapSection({
                     <div className="flex items-center justify-between text-xs">
                       <span className="text-slate-500">{formatCurrency(project.budget || 0, language)}</span>
                       {!hasCoords && (
-                        <span className="text-amber-500 text-[10px]">{language === 'ar' ? 'بدون موقع' : 'No location'}</span>
+                        <span className="text-amber-500 text-[10px]">{tAuto('auto.noLocation')}</span>
                       )}
                     </div>
                   )}
@@ -321,7 +324,7 @@ export default function MapSection({
                 <p className="text-xs text-slate-500 mb-3">{project.client} • {project.type}</p>
                 <div className="mb-2">
                   <div className="flex items-center justify-between text-xs mb-1">
-                    <span className="text-slate-600 dark:text-slate-400">{language === 'ar' ? 'التقدم' : 'Progress'}</span>
+                    <span className="text-slate-600 dark:text-slate-400">{tAuto('auto.progress')}</span>
                     <span className="font-medium text-slate-900 dark:text-white">{project.progress}%</span>
                   </div>
                   <Progress value={project.progress} className="h-2" />
@@ -340,9 +343,7 @@ export default function MapSection({
       {hasRealData && (projectsApiResponse || []).some(p => !p.latitude || !p.longitude) && (
         <div className="text-center text-xs text-slate-400 bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3">
           <MapPin className="h-4 w-4 inline me-1 text-amber-500" />
-          {language === 'ar'
-            ? 'بعض المشاريع ليس لها موقع على الخريطة. يمكنك إضافة الموقع عند تعديل المشروع أو إنشاء مشروع جديد مع تحديد الموقع على الخريطة.'
-            : 'Some projects have no map location. You can add a location when editing a project or creating a new one with the map picker.'}
+          {tAuto('auto.someProjectsHaveNoMapLocationYouCanAddAL')}
         </div>
       )}
     </div>

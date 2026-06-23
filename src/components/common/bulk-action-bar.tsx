@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
@@ -17,6 +19,7 @@ export function BulkActionBar({
   onClearSelection,
   onDeleteSelected,
 }: BulkActionBarProps) {
+  const tAuto = useTranslations();
   return (
     <AnimatePresence>
       {selectedCount > 0 && (
@@ -31,7 +34,7 @@ export function BulkActionBar({
               {selectedCount}
             </span>
             <span className="text-sm font-medium">
-              {ar ? "تم التحديد" : "Selected"}
+              {tAuto('auto.selected')}
             </span>
           </div>
 
@@ -44,7 +47,7 @@ export function BulkActionBar({
             className="text-red-400 hover:text-red-300 hover:bg-red-400/10 h-8 gap-2 px-3"
           >
             <Trash2 className="h-4 w-4" />
-            <span className="text-xs font-medium">{ar ? "حذف" : "Delete"}</span>
+            <span className="text-xs font-medium">{tAuto('auto.delete')}</span>
           </Button>
 
           <Button
@@ -52,7 +55,7 @@ export function BulkActionBar({
             size="icon"
             onClick={onClearSelection}
             className="text-slate-400 hover:text-white hover:bg-slate-800 h-8 w-8 rounded-full ms-2"
-            aria-label={ar ? "إلغاء التحديد" : "Clear selection"}
+            aria-label={tAuto('auto.clearSelection')}
           >
             <X className="h-4 w-4" />
           </Button>

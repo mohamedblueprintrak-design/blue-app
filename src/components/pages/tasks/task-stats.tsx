@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -35,6 +37,7 @@ export function BulkActionBar({
   isBulkPriorityPending,
   isBulkDeletePending,
 }: BulkActionBarProps) {
+  const tAuto = useTranslations();
   return (
     <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 animate-fade-in">
       <div className="flex items-center gap-2 bg-slate-900 dark:bg-slate-800 border border-slate-700 dark:border-slate-600 rounded-full px-3 py-2 shadow-xl">
@@ -49,7 +52,7 @@ export function BulkActionBar({
         <Select onValueChange={onBulkStatusChange} disabled={isBulkStatusPending}>
           <SelectTrigger className="h-8 w-[110px] text-[11px] border-0 bg-white/10 text-white hover:bg-white/20 rounded-lg">
             <ArrowRightLeft className="h-3 w-3 me-1" />
-            {ar ? "الحالة" : "Status"}
+            {tAuto('auto.status1')}
           </SelectTrigger>
           <SelectContent>
             {COLUMNS.map((c) => (
@@ -62,13 +65,13 @@ export function BulkActionBar({
         <Select onValueChange={onBulkPriorityChange} disabled={isBulkPriorityPending}>
           <SelectTrigger className="h-8 w-[110px] text-[11px] border-0 bg-white/10 text-white hover:bg-white/20 rounded-lg">
             <Flag className="h-3 w-3 me-1" />
-            {ar ? "الأولوية" : "Priority"}
+            {tAuto('auto.priority')}
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="NORMAL">{ar ? "عادي" : "Normal"}</SelectItem>
-            <SelectItem value="MEDIUM">{ar ? "متوسط" : "Medium"}</SelectItem>
-            <SelectItem value="HIGH">{ar ? "عالي" : "High"}</SelectItem>
-            <SelectItem value="URGENT">{ar ? "عاجل" : "Urgent"}</SelectItem>
+            <SelectItem value="NORMAL">{tAuto('auto.normal')}</SelectItem>
+            <SelectItem value="MEDIUM">{tAuto('auto.medium')}</SelectItem>
+            <SelectItem value="HIGH">{tAuto('auto.high')}</SelectItem>
+            <SelectItem value="URGENT">{tAuto('auto.urgent')}</SelectItem>
           </SelectContent>
         </Select>
 

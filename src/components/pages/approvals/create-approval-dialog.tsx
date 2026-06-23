@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -49,6 +51,7 @@ export function CreateApprovalDialog({
   entityList,
   handleEntitySelect,
 }: CreateApprovalDialogProps) {
+  const tAuto = useTranslations();
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700">
@@ -57,10 +60,10 @@ export function CreateApprovalDialog({
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-teal-500 to-cyan-600 flex items-center justify-center">
               <Plus className="h-4 w-4 text-white" />
             </div>
-            {ar ? "طلب موافقة جديد" : "New Approval Request"}
+            {tAuto('auto.newApprovalRequest')}
           </DialogTitle>
           <DialogDescription className="text-slate-500 dark:text-slate-400">
-            {ar ? "أنشئ طلب موافقة جديد للمراجعة والموافقة" : "Create a new approval request for review"}
+            {tAuto('auto.createANewApprovalRequestForReview')}
           </DialogDescription>
         </DialogHeader>
 
@@ -68,21 +71,21 @@ export function CreateApprovalDialog({
           {/* Entity Type */}
           <div className="space-y-1.5">
             <Label className="text-xs font-medium text-slate-700 dark:text-slate-300">
-              {ar ? "نوع الكيان" : "Entity Type"} <span className="text-red-500">*</span>
+              {tAuto('auto.entityType')} <span className="text-red-500">*</span>
             </Label>
             <Select
               value={createForm.entityType}
               onValueChange={(v) => setCreateForm((prev) => ({ ...prev, entityType: v }))}
             >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder={ar ? "اختر النوع..." : "Select type..."} />
+                <SelectValue placeholder={tAuto('auto.selectType')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="invoice">{ar ? "فاتورة" : "Invoice"}</SelectItem>
-                <SelectItem value="payment">{ar ? "دفعة" : "Payment"}</SelectItem>
-                <SelectItem value="purchase_order">{ar ? "أمر شراء" : "Purchase Order"}</SelectItem>
-                <SelectItem value="change_order">{ar ? "أمر تغيير" : "Change Order"}</SelectItem>
-                <SelectItem value="LEAVE">{ar ? "إجازة" : "Leave"}</SelectItem>
+                <SelectItem value="invoice">{tAuto('auto.invoice')}</SelectItem>
+                <SelectItem value="payment">{tAuto('auto.payment')}</SelectItem>
+                <SelectItem value="purchase_order">{tAuto('auto.purchaseOrder')}</SelectItem>
+                <SelectItem value="change_order">{tAuto('auto.changeOrder')}</SelectItem>
+                <SelectItem value="LEAVE">{tAuto('auto.leave')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -90,12 +93,12 @@ export function CreateApprovalDialog({
           {/* Title */}
           <div className="space-y-1.5">
             <Label className="text-xs font-medium text-slate-700 dark:text-slate-300">
-              {ar ? "العنوان" : "Title"} <span className="text-red-500">*</span>
+              {tAuto('auto.title')} <span className="text-red-500">*</span>
             </Label>
             <Input
               value={createForm.title}
               onChange={(e) => setCreateForm((prev) => ({ ...prev, title: e.target.value }))}
-              placeholder={ar ? "عنوان طلب الموافقة..." : "Approval request title..."}
+              placeholder={tAuto('auto.approvalRequestTitle')}
               className="text-sm"
             />
           </div>
@@ -103,12 +106,12 @@ export function CreateApprovalDialog({
           {/* Description */}
           <div className="space-y-1.5">
             <Label className="text-xs font-medium text-slate-700 dark:text-slate-300">
-              {ar ? "الوصف" : "Description"}
+              {tAuto('auto.description')}
             </Label>
             <Textarea
               value={createForm.description}
               onChange={(e) => setCreateForm((prev) => ({ ...prev, description: e.target.value }))}
-              placeholder={ar ? "وصف تفصيلي للطلب..." : "Detailed description..."}
+              placeholder={tAuto('auto.detailedDescription')}
               className="text-sm h-20 resize-none"
             />
           </div>
@@ -117,14 +120,14 @@ export function CreateApprovalDialog({
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label className="text-xs font-medium text-slate-700 dark:text-slate-300">
-                {ar ? "المسند إليه" : "Assigned To"} <span className="text-red-500">*</span>
+                {tAuto('auto.assignedTo')} <span className="text-red-500">*</span>
               </Label>
               <Select
                 value={createForm.assignedTo}
                 onValueChange={(v) => setCreateForm((prev) => ({ ...prev, assignedTo: v }))}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder={ar ? "اختر..." : "Select..."} />
+                  <SelectValue placeholder={tAuto('auto.select')} />
                 </SelectTrigger>
                 <SelectContent>
                   {mockUsers.map((u) => (
@@ -143,7 +146,7 @@ export function CreateApprovalDialog({
 
             <div className="space-y-1.5">
               <Label className="text-xs font-medium text-slate-700 dark:text-slate-300">
-                {ar ? "عدد خطوات الموافقة" : "Approval Steps"}
+                {tAuto('auto.approvalSteps')}
               </Label>
               <Select
                 value={createForm.totalSteps}
@@ -153,11 +156,11 @@ export function CreateApprovalDialog({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="1">{ar ? "خطوة واحدة" : "1 Step"}</SelectItem>
-                  <SelectItem value="2">{ar ? "خطوتان" : "2 Steps"}</SelectItem>
-                  <SelectItem value="3">{ar ? "3 خطوات" : "3 Steps"}</SelectItem>
-                  <SelectItem value="4">{ar ? "4 خطوات" : "4 Steps"}</SelectItem>
-                  <SelectItem value="5">{ar ? "5 خطوات" : "5 Steps"}</SelectItem>
+                  <SelectItem value="1">{tAuto('auto.1Step')}</SelectItem>
+                  <SelectItem value="2">{tAuto('auto.2Steps')}</SelectItem>
+                  <SelectItem value="3">{tAuto('auto.3Steps')}</SelectItem>
+                  <SelectItem value="4">{tAuto('auto.4Steps')}</SelectItem>
+                  <SelectItem value="5">{tAuto('auto.5Steps')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -166,13 +169,13 @@ export function CreateApprovalDialog({
           {/* Amount */}
           <div className="space-y-1.5">
             <Label className="text-xs font-medium text-slate-700 dark:text-slate-300">
-              {ar ? "المبلغ (د.إ)" : "Amount (AED)"}
+              {tAuto('auto.amountAED')}
             </Label>
             <Input
               type="number"
               value={createForm.amount}
               onChange={(e) => setCreateForm((prev) => ({ ...prev, amount: e.target.value }))}
-              placeholder={ar ? "0.00" : "0.00"}
+              placeholder={tAuto('auto.000')}
               className="text-sm font-mono tabular-nums"
             />
           </div>
@@ -180,7 +183,7 @@ export function CreateApprovalDialog({
           {/* Priority */}
           <div className="space-y-1.5">
             <Label className="text-xs font-medium text-slate-700 dark:text-slate-300">
-              {ar ? "الأولوية" : "Priority"}
+              {tAuto('auto.priority')}
             </Label>
             <div className="flex items-center gap-2">
               {(["LOW", "NORMAL", "HIGH", "URGENT"] as const).map((p) => {
@@ -218,14 +221,14 @@ export function CreateApprovalDialog({
               {(createForm.entityType === "invoice" || createForm.entityType === "payment" || createForm.entityType === "change_order") && (
                 <div className="space-y-1.5">
                   <Label className="text-xs font-medium text-slate-700 dark:text-slate-300">
-                    {ar ? "اختر الكيان" : "Select Entity"}
+                    {tAuto('auto.selectEntity')}
                   </Label>
                   <Select
                     value={createForm.entityId}
                     onValueChange={handleEntitySelect}
                   >
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder={ar ? "اختر عنصراً..." : "Select an item..."} />
+                      <SelectValue placeholder={tAuto('auto.selectAnItem')} />
                     </SelectTrigger>
                     <SelectContent>
                       {entityList.map((e) => (
@@ -242,7 +245,7 @@ export function CreateApprovalDialog({
                       ))}
                       {entityList.length === 0 && (
                         <div className="py-4 text-center text-xs text-slate-400">
-                          {ar ? "لا توجد عناصر" : "No items found"}
+                          {tAuto('auto.noItemsFound')}
                         </div>
                       )}
                     </SelectContent>
@@ -258,7 +261,7 @@ export function CreateApprovalDialog({
             onClick={() => onOpenChange(false)}
             className="text-sm"
           >
-            {ar ? "إلغاء" : "Cancel"}
+            {tAuto('auto.cancel')}
           </Button>
           <Button
             onClick={() => onCreate(createForm)}
@@ -266,7 +269,7 @@ export function CreateApprovalDialog({
             className="gap-2 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white border-0 shadow-md shadow-teal-500/20 text-sm"
           >
             {createMutationIsPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
-            {ar ? "إنشاء الطلب" : "Create Request"}
+            {tAuto('auto.createRequest')}
           </Button>
         </DialogFooter>
       </DialogContent>

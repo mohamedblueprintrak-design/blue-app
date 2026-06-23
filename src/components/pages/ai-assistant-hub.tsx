@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from '@/components/ui/card'
@@ -149,6 +151,7 @@ const categoryConfig: Record<string, { ar: string; en: string; color: string; ic
 interface AIAssistantHubProps { language: "ar" | "en"; }
 
 export default function AIAssistantHub({ language }: AIAssistantHubProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
 
   // Chat state
@@ -156,9 +159,7 @@ export default function AIAssistantHub({ language }: AIAssistantHubProps) {
     {
       id: "welcome",
       role: "assistant",
-      content: ar
-        ? "مرحباً! أنا المساعد الذكي لـ BluePrint. يمكنني مساعدتك في تحليل المشاريع، مقارنة عروض الأسعار، الإجابة على أسئلتك حول النظام، والمزيد. كيف يمكنني مساعدتك اليوم؟"
-        : "Hello! I'm BluePrint's AI Assistant. I can help you analyze projects, compare contractor bids, answer questions about the system, and more. How can I help you today?",
+      content: tAuto('auto.helloIMBluePrintSAIAssistantICanHelpYouA'),
       timestamp: new Date(),
     },
   ]);
@@ -229,9 +230,7 @@ export default function AIAssistantHub({ language }: AIAssistantHubProps) {
           m.id === aiMsgId
             ? {
                 ...m,
-                content: ar
-                  ? "عذراً، حدث خطأ في الاتصال بالمساعد الذكي. يرجى المحاولة مرة أخرى."
-                  : "Sorry, there was an error connecting to the AI assistant. Please try again.",
+                content: tAuto('auto.sorryThereWasAnErrorConnectingToTheAIAss'),
               }
             : m
         )
@@ -264,10 +263,10 @@ export default function AIAssistantHub({ language }: AIAssistantHubProps) {
         </div>
         <div>
           <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-            {ar ? "المركز الذكي" : "Smart Hub"}
+            {tAuto('auto.smartHub')}
           </h2>
           <p className="text-xs text-slate-500 dark:text-slate-400">
-            {ar ? "مساعد ذكي • قاعدة معرفة • مساعدة" : "AI Assistant • Knowledge Base • Help"}
+            {tAuto('auto.aIAssistantKnowledgeBaseHelp')}
           </p>
         </div>
       </div>
@@ -277,15 +276,15 @@ export default function AIAssistantHub({ language }: AIAssistantHubProps) {
         <TabsList className="grid w-full grid-cols-3 h-11 bg-slate-100 dark:bg-slate-800 rounded-xl p-1">
           <TabsTrigger value="chat" className="gap-2 rounded-lg text-sm font-medium data-[state=active]:bg-white data-[state=active]:dark:bg-slate-900 data-[state=active]:shadow-sm">
             <Bot className="h-4 w-4 text-teal-500" />
-            {ar ? "المساعد الذكي" : "AI Chat"}
+            {tAuto('auto.aIChat')}
           </TabsTrigger>
           <TabsTrigger value="knowledge" className="gap-2 rounded-lg text-sm font-medium data-[state=active]:bg-white data-[state=active]:dark:bg-slate-900 data-[state=active]:shadow-sm">
             <BookMarked className="h-4 w-4 text-purple-500" />
-            {ar ? "قاعدة المعرفة" : "Knowledge"}
+            {tAuto('auto.knowledge')}
           </TabsTrigger>
           <TabsTrigger value="help" className="gap-2 rounded-lg text-sm font-medium data-[state=active]:bg-white data-[state=active]:dark:bg-slate-900 data-[state=active]:shadow-sm">
             <HelpCircle className="h-4 w-4 text-amber-500" />
-            {ar ? "المساعدة" : "Help"}
+            {tAuto('auto.help')}
           </TabsTrigger>
         </TabsList>
 
@@ -375,7 +374,7 @@ export default function AIAssistantHub({ language }: AIAssistantHubProps) {
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
-                  placeholder={ar ? "اكتب سؤالك هنا..." : "Type your question here..."}
+                  placeholder={tAuto('auto.typeYourQuestionHere')}
                   className="flex-1 h-10 rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
                 />
                 <Button
@@ -400,21 +399,21 @@ export default function AIAssistantHub({ language }: AIAssistantHubProps) {
                 <Input
                   value={kbSearch}
                   onChange={(e) => setKbSearch(e.target.value)}
-                  placeholder={ar ? "ابحث في قاعدة المعرفة..." : "Search knowledge base..."}
+                  placeholder={tAuto('auto.searchKnowledgeBase')}
                   className="ps-9 h-9 rounded-lg"
                 />
               </div>
               <Select value={faqFilter} onValueChange={setFaqFilter}>
                 <SelectTrigger className="w-[160px] h-9 rounded-lg">
-                  <SelectValue placeholder={ar ? "التصنيف" : "Category"} />
+                  <SelectValue placeholder={tAuto('auto.category')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">{ar ? "الكل" : "All"}</SelectItem>
-                  <SelectItem value="projects">{ar ? "المشاريع" : "Projects"}</SelectItem>
-                  <SelectItem value="contractors">{ar ? "المقاولون" : "Contractors"}</SelectItem>
-                  <SelectItem value="design">{ar ? "التصميم" : "Design"}</SelectItem>
-                  <SelectItem value="municipality">{ar ? "البلدية" : "Municipality"}</SelectItem>
-                  <SelectItem value="supervision">{ar ? "الإشراف" : "Supervision"}</SelectItem>
+                  <SelectItem value="all">{tAuto('auto.all')}</SelectItem>
+                  <SelectItem value="projects">{tAuto('auto.projects')}</SelectItem>
+                  <SelectItem value="contractors">{tAuto('auto.contractors')}</SelectItem>
+                  <SelectItem value="design">{tAuto('auto.design')}</SelectItem>
+                  <SelectItem value="municipality">{tAuto('auto.municipality')}</SelectItem>
+                  <SelectItem value="supervision">{tAuto('auto.supervision')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -425,7 +424,7 @@ export default function AIAssistantHub({ language }: AIAssistantHubProps) {
                 <div className="bg-gradient-to-br from-purple-500 to-violet-500 p-3">
                   <div className="flex items-center gap-2">
                     <BookMarked className="h-4 w-4 text-white/80" />
-                    <span className="text-xs text-purple-100">{ar ? "المقالات" : "Articles"}</span>
+                    <span className="text-xs text-purple-100">{tAuto('auto.articles')}</span>
                   </div>
                   <div className="text-lg font-bold text-white mt-1">{knowledgeArticles.length}</div>
                 </div>
@@ -434,7 +433,7 @@ export default function AIAssistantHub({ language }: AIAssistantHubProps) {
                 <div className="bg-gradient-to-br from-teal-500 to-cyan-500 p-3">
                   <div className="flex items-center gap-2">
                     <FolderOpen className="h-4 w-4 text-white/80" />
-                    <span className="text-xs text-teal-100">{ar ? "التصنيفات" : "Categories"}</span>
+                    <span className="text-xs text-teal-100">{tAuto('auto.categories')}</span>
                   </div>
                   <div className="text-lg font-bold text-white mt-1">{Object.keys(categoryConfig).length}</div>
                 </div>
@@ -443,7 +442,7 @@ export default function AIAssistantHub({ language }: AIAssistantHubProps) {
                 <div className="bg-gradient-to-br from-amber-500 to-orange-500 p-3">
                   <div className="flex items-center gap-2">
                     <TrendingUp className="h-4 w-4 text-white/80" />
-                    <span className="text-xs text-amber-100">{ar ? "الأكثر قراءة" : "Most Read"}</span>
+                    <span className="text-xs text-amber-100">{tAuto('auto.mostRead')}</span>
                   </div>
                   <div className="text-lg font-bold text-white mt-1">
                     {knowledgeArticles.reduce((max, a) => (a.id > max.id ? a : max), knowledgeArticles[0])?.title.substring(0, 15)}...
@@ -494,7 +493,7 @@ export default function AIAssistantHub({ language }: AIAssistantHubProps) {
               <Input
                 value={kbSearch}
                 onChange={(e) => setKbSearch(e.target.value)}
-                placeholder={ar ? "ابحث في الأسئلة الشائعة..." : "Search FAQs..."}
+                placeholder={tAuto('auto.searchFAQs')}
                 className="ps-9 h-9 rounded-lg"
               />
             </div>
@@ -508,7 +507,7 @@ export default function AIAssistantHub({ language }: AIAssistantHubProps) {
                   faqFilter === "all" ? "bg-teal-600 text-white" : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700"
                 )}
               >
-                {ar ? "الكل" : "All"}
+                {tAuto('auto.all')}
               </button>
               {Object.entries(categoryConfig).map(([key, cat]) => (
                 <button
@@ -543,7 +542,7 @@ export default function AIAssistantHub({ language }: AIAssistantHubProps) {
                           <div className="flex items-center gap-3 mt-2">
                             <Badge className={cn("text-[9px]", cat.color)}>{ar ? cat.ar : cat.en}</Badge>
                             <span className="text-[10px] text-slate-400 flex items-center gap-1">
-                              <Star className="h-3 w-3" />{faq.helpful} {ar ? "مفيد" : "helpful"}
+                              <Star className="h-3 w-3" />{faq.helpful} {tAuto('auto.helpful')}
                             </span>
                           </div>
                         </div>
@@ -562,8 +561,8 @@ export default function AIAssistantHub({ language }: AIAssistantHubProps) {
                     <MessageSquare className="h-5 w-5 text-teal-600 dark:text-teal-400" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white">{ar ? "تحتاج مساعدة إضافية؟" : "Need more help?"}</h3>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">{ar ? "تواصل مع فريق الدعم الفني" : "Contact our technical support team"}</p>
+                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white">{tAuto('auto.needMoreHelp')}</h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.contactOurTechnicalSupportTeam')}</p>
                   </div>
                 </div>
               </CardContent>

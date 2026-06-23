@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -73,6 +75,7 @@ export function TaskFilters({
   onEnterBulkMode,
   onAddTask,
 }: TaskFiltersProps) {
+  const tAuto = useTranslations();
   const now = new Date();
   const urgentCount = tasks.filter((t) => t.priority === "URGENT").length;
   const overdueCount = tasks.filter((t) => t.dueDate && new Date(t.dueDate) < now).length;
@@ -87,10 +90,10 @@ export function TaskFilters({
           </div>
           <div>
             <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-              {ar ? "المهام" : "Tasks"}
+              {tAuto('auto.tasks1')}
             </h2>
             <p className="text-[10px] text-slate-500 dark:text-slate-400">
-              {tasks.length} {ar ? "مهمة إجمالاً" : "total tasks"}
+              {tasks.length} {tAuto('auto.totalTasks1')}
             </p>
           </div>
         </div>
@@ -108,8 +111,8 @@ export function TaskFilters({
           >
             <CheckSquare className={cn("h-3.5 w-3.5 me-1", bulkMode && "me-0")} />
             {bulkMode
-              ? (ar ? "إلغاء التحديد" : "Cancel")
-              : (ar ? "تحديد متعدد" : "Bulk Select")}
+              ? (tAuto('auto.cancel'))
+              : (tAuto('auto.bulkSelect'))}
           </Button>
           <Button
             size="sm"
@@ -117,7 +120,7 @@ export function TaskFilters({
             onClick={onAddTask}
           >
             <Plus className="h-3.5 w-3.5 me-1" />
-            {ar ? "إضافة مهمة" : "Add Task"}
+            {tAuto('auto.addTask')}
           </Button>
         </div>
       </div>
@@ -125,25 +128,25 @@ export function TaskFilters({
       {/* Filter Chips */}
       <div className="flex items-center gap-2 flex-wrap">
         <FilterChip
-          label={ar ? "الكل" : "All"}
+          label={tAuto('auto.all')}
           active={quickFilter === "all"}
           onClick={() => setQuickFilter("all")}
           count={tasks.length}
         />
         <FilterChip
-          label={ar ? "عاجل" : "Urgent"}
+          label={tAuto('auto.urgent')}
           active={quickFilter === "URGENT"}
           onClick={() => setQuickFilter("URGENT")}
           count={urgentCount}
         />
         <FilterChip
-          label={ar ? "متأخر" : "Overdue"}
+          label={tAuto('auto.overdue')}
           active={quickFilter === "OVERDUE"}
           onClick={() => setQuickFilter("OVERDUE")}
           count={overdueCount}
         />
         <FilterChip
-          label={ar ? "حكومي" : "Governmental"}
+          label={tAuto('auto.governmental')}
           active={quickFilter === "governmental"}
           onClick={() => setQuickFilter("governmental")}
           count={govCount}
@@ -154,10 +157,10 @@ export function TaskFilters({
           {!projectId && (
             <Select value={filterProject} onValueChange={setFilterProject}>
               <SelectTrigger className="w-[140px] h-7 text-[11px] border-slate-200 dark:border-slate-700 rounded-lg">
-                <SelectValue placeholder={ar ? "المشروع" : "Project"} />
+                <SelectValue placeholder={tAuto('auto.project')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">{ar ? "جميع المشاريع" : "All Projects"}</SelectItem>
+                <SelectItem value="all">{tAuto('auto.allProjects')}</SelectItem>
                 {projects.map((p) => (
                   <SelectItem key={p.id} value={p.id}>
                     {ar ? p.name : p.nameEn || p.name}
@@ -168,10 +171,10 @@ export function TaskFilters({
           )}
           <Select value={filterAssignee} onValueChange={setFilterAssignee}>
             <SelectTrigger className="w-[140px] h-7 text-[11px] border-slate-200 dark:border-slate-700 rounded-lg">
-              <SelectValue placeholder={ar ? "المسؤول" : "Assignee"} />
+              <SelectValue placeholder={tAuto('auto.assignee')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{ar ? "الكل" : "All"}</SelectItem>
+              <SelectItem value="all">{tAuto('auto.all')}</SelectItem>
               {users.map((u) => (
                 <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
               ))}

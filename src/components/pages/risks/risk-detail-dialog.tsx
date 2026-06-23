@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -32,6 +34,7 @@ export function RiskDetailDialog({
   selectedRisk,
   toggleActionMutation,
 }: RiskDetailDialogProps) {
+  const tAuto = useTranslations();
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -51,21 +54,21 @@ export function RiskDetailDialog({
               {/* Risk Info */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3 text-center">
-                  <div className="text-[10px] text-slate-500">{ar ? "الاحتمالية" : "Probability"}</div>
+                  <div className="text-[10px] text-slate-500">{tAuto('auto.probability')}</div>
                   <div className="text-lg font-bold text-slate-900 dark:text-white">{selectedRisk.probability}</div>
                 </div>
                 <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3 text-center">
-                  <div className="text-[10px] text-slate-500">{ar ? "التأثير" : "Impact"}</div>
+                  <div className="text-[10px] text-slate-500">{tAuto('auto.impact')}</div>
                   <div className="text-lg font-bold text-slate-900 dark:text-white">{selectedRisk.impact}</div>
                 </div>
                 <div className={`rounded-lg p-3 text-center ${getScoreColor(selectedRisk.score)} bg-opacity-20`}>
-                  <div className="text-[10px] text-slate-500">{ar ? "الدرجة" : "Score"}</div>
+                  <div className="text-[10px] text-slate-500">{tAuto('auto.score')}</div>
                   <Badge className={`text-sm font-bold ${getScoreColor(selectedRisk.score)} text-white border-0 h-7`}>
                     {selectedRisk.score}
                   </Badge>
                 </div>
                 <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3 text-center">
-                  <div className="text-[10px] text-slate-500">{ar ? "الحالة" : "Status"}</div>
+                  <div className="text-[10px] text-slate-500">{tAuto('auto.status1')}</div>
                   <div className="mt-1">{getStatusBadge(selectedRisk.status, ar)}</div>
                 </div>
               </div>
@@ -78,7 +81,7 @@ export function RiskDetailDialog({
               {selectedRisk.mitigationPlan && (
                 <div className="space-y-1.5">
                   <div className="text-xs font-medium text-slate-600 dark:text-slate-400">
-                    {ar ? "خطة التخفيف" : "Mitigation Plan"}
+                    {tAuto('auto.mitigationPlan')}
                   </div>
                   <p className="text-sm text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3">
                     {selectedRisk.mitigationPlan}
@@ -91,12 +94,12 @@ export function RiskDetailDialog({
               {/* Action Items */}
               <div className="space-y-2">
                 <Label className="text-sm font-medium">
-                  {ar ? "بنود العمل" : "Action Items"} ({selectedRisk.actions.length})
+                  {tAuto('auto.actionItems')} ({selectedRisk.actions.length})
                 </Label>
 
                 {selectedRisk.actions.length === 0 ? (
                   <div className="text-center py-3 border border-dashed border-slate-200 dark:border-slate-700 rounded-lg">
-                    <p className="text-xs text-slate-400">{ar ? "لا توجد بنود عمل" : "No action items"}</p>
+                    <p className="text-xs text-slate-400">{tAuto('auto.noActionItems')}</p>
                   </div>
                 ) : (
                   <div className="space-y-2">

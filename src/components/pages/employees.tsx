@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToastFeedback } from "@/hooks/use-toast-feedback";
@@ -48,6 +50,7 @@ interface EmployeesPageProps {
 }
 
 export default function EmployeesPage({ language }: EmployeesPageProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const queryClient = useQueryClient();
   const toast = useToastFeedback({ ar });
@@ -98,10 +101,10 @@ export default function EmployeesPage({ language }: EmployeesPageProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employees"] });
       setShowAddDialog(false);
-      toast.created(ar ? "الموظف" : "Employee");
+      toast.created(tAuto('auto.employee'));
     },
     onError: () => {
-      toast.error(ar ? "إنشاء الموظف" : "Create employee");
+      toast.error(tAuto('auto.createEmployee'));
     },
   });
 
@@ -119,10 +122,10 @@ export default function EmployeesPage({ language }: EmployeesPageProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employees"] });
       setEditEmployee(null);
-      toast.updated(ar ? "الموظف" : "Employee");
+      toast.updated(tAuto('auto.employee'));
     },
     onError: () => {
-      toast.error(ar ? "تحديث الموظف" : "Update employee");
+      toast.error(tAuto('auto.updateEmployee'));
     },
   });
 
@@ -134,10 +137,10 @@ export default function EmployeesPage({ language }: EmployeesPageProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employees"] });
       setSelectedEmployee(null);
-      toast.deleted(ar ? "الموظف" : "Employee");
+      toast.deleted(tAuto('auto.employee'));
     },
     onError: () => {
-      toast.error(ar ? "حذف الموظف" : "Delete employee");
+      toast.error(tAuto('auto.deleteEmployee'));
     },
   });
 
@@ -185,7 +188,7 @@ export default function EmployeesPage({ language }: EmployeesPageProps) {
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
         <div className="flex items-center gap-2 flex-1">
           <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-            {ar ? "الموظفون" : "Employees"}
+            {tAuto('auto.employees')}
           </h2>
           <Badge variant="secondary" className="text-xs">{employees.length}</Badge>
         </div>
@@ -195,16 +198,16 @@ export default function EmployeesPage({ language }: EmployeesPageProps) {
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder={ar ? "بحث عن موظف..." : "Search employees..."}
+              placeholder={tAuto('auto.searchEmployees')}
               className="ps-9 h-8 text-sm"
             />
           </div>
           <Select value={filterDept} onValueChange={setFilterDept}>
             <SelectTrigger className="w-[160px] h-8 text-xs">
-              <SelectValue placeholder={ar ? "القسم" : "Department"} />
+              <SelectValue placeholder={tAuto('auto.department')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{ar ? "جميع الأقسام" : "All Departments"}</SelectItem>
+              <SelectItem value="all">{tAuto('auto.allDepartments')}</SelectItem>
               {departments.map((d) => (
                 <SelectItem key={d} value={d}>{d}</SelectItem>
               ))}
@@ -217,7 +220,7 @@ export default function EmployeesPage({ language }: EmployeesPageProps) {
               size="icon"
               className={`h-8 w-8 rounded-none ${viewMode === "table" ? "bg-slate-100 dark:bg-slate-800" : ""}`}
               onClick={() => setViewMode("table")}
-              aria-label={ar ? "عرض جدول" : "Table view"}
+              aria-label={tAuto('auto.tableView')}
             >
               <LayoutList className="h-3.5 w-3.5" />
             </Button>
@@ -226,7 +229,7 @@ export default function EmployeesPage({ language }: EmployeesPageProps) {
               size="icon"
               className={`h-8 w-8 rounded-none ${viewMode === "grid" ? "bg-slate-100 dark:bg-slate-800" : ""}`}
               onClick={() => setViewMode("grid")}
-              aria-label={ar ? "عرض شبكي" : "Grid view"}
+              aria-label={tAuto('auto.gridView')}
             >
               <LayoutGrid className="h-3.5 w-3.5" />
             </Button>
@@ -237,7 +240,7 @@ export default function EmployeesPage({ language }: EmployeesPageProps) {
             onClick={openAddDialog}
           >
             <Plus className="h-3.5 w-3.5 me-1" />
-            {ar ? "موظف جديد" : "New Employee"}
+            {tAuto('auto.newEmployee')}
           </Button>
         </div>
       </div>
@@ -316,7 +319,7 @@ export default function EmployeesPage({ language }: EmployeesPageProps) {
           {filteredEmployees.length === 0 && !isLoading && (
             <div className="col-span-full text-center py-12 text-slate-400">
               <Users className="h-8 w-8 mx-auto mb-2 opacity-50" />
-              {ar ? "لا يوجد موظفون" : "No employees found"}
+              {tAuto('auto.noEmployeesFound')}
             </div>
           )}
         </div>
@@ -372,6 +375,7 @@ function EmployeeProfileCard({ employee, ar, onClose, onEdit }: {
   onClose: () => void;
   onEdit: () => void;
 }) {
+  const tAuto = useTranslations();
   const statusCfg = getStatusConfig(employee.employmentStatus);
   const deptColor = departmentColors[employee.department] || "bg-slate-400";
 
@@ -435,13 +439,13 @@ function EmployeeProfileCard({ employee, ar, onClose, onEdit }: {
         {/* Work Details */}
         <div className="space-y-3">
           <h5 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-            {ar ? "تفاصيل العمل" : "Work Details"}
+            {tAuto('auto.workDetails')}
           </h5>
           <div className="grid grid-cols-2 gap-3">
             <div className="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/50">
               <div className="flex items-center gap-1.5 text-[10px] text-slate-400 mb-1">
                 <Building2 className="h-3 w-3" />
-                {ar ? "القسم" : "Dept."}
+                {tAuto('auto.dept')}
               </div>
               <p className="text-xs font-medium text-slate-700 dark:text-slate-200 truncate">
                 {employee.department || "—"}
@@ -450,7 +454,7 @@ function EmployeeProfileCard({ employee, ar, onClose, onEdit }: {
             <div className="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/50">
               <div className="flex items-center gap-1.5 text-[10px] text-slate-400 mb-1">
                 <Briefcase className="h-3 w-3" />
-                {ar ? "المنصب" : "Role"}
+                {tAuto('auto.role')}
               </div>
               <p className="text-xs font-medium text-slate-700 dark:text-slate-200 truncate">
                 {employee.position || "—"}
@@ -459,7 +463,7 @@ function EmployeeProfileCard({ employee, ar, onClose, onEdit }: {
             <div className="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/50">
               <div className="flex items-center gap-1.5 text-[10px] text-slate-400 mb-1">
                 <DollarSign className="h-3 w-3" />
-                {ar ? "الراتب" : "Salary"}
+                {tAuto('auto.salary')}
               </div>
               <p className="text-xs font-medium text-slate-700 dark:text-slate-200">
                 {formatCurrency(employee.salary, ar)}
@@ -468,7 +472,7 @@ function EmployeeProfileCard({ employee, ar, onClose, onEdit }: {
             <div className="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/50">
               <div className="flex items-center gap-1.5 text-[10px] text-slate-400 mb-1">
                 <Calendar className="h-3 w-3" />
-                {ar ? "تاريخ التعيين" : "Hire Date"}
+                {tAuto('auto.hireDate')}
               </div>
               <p className="text-xs font-medium text-slate-700 dark:text-slate-200">
                 {employee.hireDate

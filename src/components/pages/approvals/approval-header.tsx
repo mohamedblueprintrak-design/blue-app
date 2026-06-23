@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ClipboardCheck, Plus } from "lucide-react";
@@ -12,6 +14,7 @@ interface ApprovalHeaderProps {
 }
 
 export function ApprovalHeader({ ar, totalCount, pendingCount, onNewClick }: ApprovalHeaderProps) {
+  const tAuto = useTranslations();
   return (
     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
       <div className="flex items-center gap-3">
@@ -21,7 +24,7 @@ export function ApprovalHeader({ ar, totalCount, pendingCount, onNewClick }: App
         <div>
           <div className="flex items-center gap-2">
             <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-              {ar ? "مركز الموافقات" : "Approval Center"}
+              {tAuto('auto.approvalCenter')}
             </h2>
             {pendingCount > 0 && (
               <span className="relative flex h-5 w-5">
@@ -46,7 +49,7 @@ export function ApprovalHeader({ ar, totalCount, pendingCount, onNewClick }: App
         className="gap-2 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white text-sm shadow-md shadow-teal-500/20 border-0 h-9 px-4"
       >
         <Plus className="h-4 w-4" />
-        {ar ? "طلب موافقة جديد" : "New Approval Request"}
+        {tAuto('auto.newApprovalRequest')}
       </Button>
     </div>
   );

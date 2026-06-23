@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState, forwardRef, type ComponentPropsWithoutRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { TableVirtuoso } from "react-virtuoso";
@@ -178,6 +180,7 @@ interface TransmittalsProps {
 }
 
 export default function Transmittals({ language, projectId }: TransmittalsProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const queryClient = useQueryClient();
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -343,7 +346,7 @@ export default function Transmittals({ language, projectId }: TransmittalsProps)
           </div>
           <div>
             <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-              {ar ? "الإحالات" : "Transmittals"}
+              {tAuto('auto.transmittals')}
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400">
               {ar ? `إجمالي ${transmittals.length} إحالة` : `${transmittals.length} total transmittals`}
@@ -356,10 +359,10 @@ export default function Transmittals({ language, projectId }: TransmittalsProps)
           <Select value={filterProject} onValueChange={setFilterProject}>
             <SelectTrigger className="w-[160px] h-8 text-xs">
               <Filter className="h-3 w-3 me-1 text-slate-400" />
-              <SelectValue placeholder={ar ? "المشروع" : "Project"} />
+              <SelectValue placeholder={tAuto('auto.project')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{ar ? "جميع المشاريع" : "All Projects"}</SelectItem>
+              <SelectItem value="all">{tAuto('auto.allProjects')}</SelectItem>
               {projects.map((p) => (
                 <SelectItem key={p.id} value={p.id}>
                   {ar ? p.name : p.nameEn || p.name}
@@ -371,14 +374,14 @@ export default function Transmittals({ language, projectId }: TransmittalsProps)
 
           <Select value={filterStatus} onValueChange={setFilterStatus}>
             <SelectTrigger className="w-[130px] h-8 text-xs">
-              <SelectValue placeholder={ar ? "الحالة" : "Status"} />
+              <SelectValue placeholder={tAuto('auto.status1')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{ar ? "الكل" : "All"}</SelectItem>
-              <SelectItem value="SENT">{ar ? "مرسل" : "Sent"}</SelectItem>
-              <SelectItem value="RECEIVED">{ar ? "مستلم" : "Received"}</SelectItem>
-              <SelectItem value="REPLIED">{ar ? "تم الرد" : "Replied"}</SelectItem>
-              <SelectItem value="CLOSED">{ar ? "مغلق" : "Closed"}</SelectItem>
+              <SelectItem value="all">{tAuto('auto.all')}</SelectItem>
+              <SelectItem value="SENT">{tAuto('auto.sent')}</SelectItem>
+              <SelectItem value="RECEIVED">{tAuto('auto.received')}</SelectItem>
+              <SelectItem value="REPLIED">{tAuto('auto.replied')}</SelectItem>
+              <SelectItem value="CLOSED">{tAuto('auto.closed')}</SelectItem>
             </SelectContent>
           </Select>
 
@@ -388,7 +391,7 @@ export default function Transmittals({ language, projectId }: TransmittalsProps)
             onClick={() => setShowAddDialog(true)}
           >
             <Plus className="h-3.5 w-3.5 me-1" />
-            {ar ? "إحالة جديدة" : "New Transmittal"}
+            {tAuto('auto.newTransmittal')}
           </Button>
         </div>
       </div>
@@ -402,7 +405,7 @@ export default function Transmittals({ language, projectId }: TransmittalsProps)
                 <ArrowRightLeft className="h-5 w-5 text-teal-600 dark:text-teal-400" />
               </div>
               <div>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{ar ? "إجمالي الإحالات" : "Total Transmittals"}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.totalTransmittals')}</p>
                 <p className="text-xl font-bold text-slate-900 dark:text-white tabular-nums">{transmittals.length}</p>
               </div>
             </div>
@@ -415,7 +418,7 @@ export default function Transmittals({ language, projectId }: TransmittalsProps)
                 <Send className="h-5 w-5 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{ar ? "مرسلة" : "Sent"}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.sent')}</p>
                 <p className="text-xl font-bold text-blue-600 dark:text-blue-400 tabular-nums">{transmittals.filter(t => t.status === "SENT").length}</p>
               </div>
             </div>
@@ -428,7 +431,7 @@ export default function Transmittals({ language, projectId }: TransmittalsProps)
                 <Inbox className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
               </div>
               <div>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{ar ? "مستلمة" : "Received"}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.received')}</p>
                 <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">{transmittals.filter(t => t.status === "RECEIVED").length}</p>
               </div>
             </div>
@@ -441,7 +444,7 @@ export default function Transmittals({ language, projectId }: TransmittalsProps)
                 <Clock className="h-5 w-5 text-amber-600 dark:text-amber-400" />
               </div>
               <div>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{ar ? "بانتظار الرد" : "Pending Response"}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.pendingResponse')}</p>
                 <p className="text-xl font-bold text-amber-600 dark:text-amber-400 tabular-nums">{transmittals.filter(t => t.status === "SENT" || t.status === "RECEIVED").length}</p>
               </div>
             </div>
@@ -470,7 +473,7 @@ export default function Transmittals({ language, projectId }: TransmittalsProps)
             })()}
           </div>
           <div className="flex items-center gap-2">
-            {[{color: "bg-blue-500", label: ar ? "مرسل" : "Sent"}, {color: "bg-emerald-500", label: ar ? "مستلم" : "Received"}, {color: "bg-amber-500", label: ar ? "تم الرد" : "Replied"}, {color: "bg-slate-400", label: ar ? "مغلق" : "Closed"}].map(item => (
+            {[{color: "bg-blue-500", label: tAuto('auto.sent')}, {color: "bg-emerald-500", label: tAuto('auto.received')}, {color: "bg-amber-500", label: tAuto('auto.replied')}, {color: "bg-slate-400", label: tAuto('auto.closed')}].map(item => (
               <div key={item.label} className="flex items-center gap-1">
                 <div className={`w-2 h-2 rounded-full ${item.color}`} />
                 <span className="text-[10px] text-slate-500">{item.label}</span>
@@ -495,10 +498,10 @@ export default function Transmittals({ language, projectId }: TransmittalsProps)
             <Send className="h-7 w-7 text-slate-400" />
           </div>
           <h3 className="text-base font-semibold text-slate-900 dark:text-white mb-1">
-            {ar ? "لا توجد إحالات" : "No transmittals"}
+            {tAuto('auto.noTransmittals')}
           </h3>
           <p className="text-sm text-slate-500">
-            {ar ? "ابدأ بإضافة إحالة جديدة" : "Start by adding a new transmittal"}
+            {tAuto('auto.startByAddingANewTransmittal')}
           </p>
         </div>
       ) : (
@@ -508,15 +511,15 @@ export default function Transmittals({ language, projectId }: TransmittalsProps)
             components={VirtuosoTableComponents}
             fixedHeaderContent={() => (
               <TableRow className="bg-slate-50/80 dark:bg-slate-800/50">
-                <TableHead className="text-xs font-semibold py-2.5 px-3">{ar ? "رقم" : "Number"}</TableHead>
-                <TableHead className="text-xs font-semibold py-2.5 px-3">{ar ? "المشروع" : "Project"}</TableHead>
-                <TableHead className="text-xs font-semibold py-2.5 px-3">{ar ? "الموضوع" : "Subject"}</TableHead>
-                <TableHead className="text-xs font-semibold py-2.5 px-3">{ar ? "إلى" : "To"}</TableHead>
-                <TableHead className="text-xs font-semibold py-2.5 px-3">{ar ? "طريقة التسليم" : "Delivery"}</TableHead>
-                <TableHead className="text-xs font-semibold py-2.5 px-3 hidden md:table-cell">{ar ? "التاريخ" : "Date"}</TableHead>
-                <TableHead className="text-xs font-semibold py-2.5 px-3 text-center">{ar ? "البنود" : "Items"}</TableHead>
-                <TableHead className="text-xs font-semibold py-2.5 px-3">{ar ? "الحالة" : "Status"}</TableHead>
-                <TableHead className="text-xs font-semibold py-2.5 px-3">{ar ? "الرد" : "Reply"}</TableHead>
+                <TableHead className="text-xs font-semibold py-2.5 px-3">{tAuto('auto.number')}</TableHead>
+                <TableHead className="text-xs font-semibold py-2.5 px-3">{tAuto('auto.project')}</TableHead>
+                <TableHead className="text-xs font-semibold py-2.5 px-3">{tAuto('auto.subject')}</TableHead>
+                <TableHead className="text-xs font-semibold py-2.5 px-3">{tAuto('auto.to')}</TableHead>
+                <TableHead className="text-xs font-semibold py-2.5 px-3">{tAuto('auto.delivery')}</TableHead>
+                <TableHead className="text-xs font-semibold py-2.5 px-3 hidden md:table-cell">{tAuto('auto.date')}</TableHead>
+                <TableHead className="text-xs font-semibold py-2.5 px-3 text-center">{tAuto('auto.items1')}</TableHead>
+                <TableHead className="text-xs font-semibold py-2.5 px-3">{tAuto('auto.status1')}</TableHead>
+                <TableHead className="text-xs font-semibold py-2.5 px-3">{tAuto('auto.reply')}</TableHead>
                 <TableHead className="text-xs font-semibold py-2.5 px-3 w-10"></TableHead>
               </TableRow>
             )}
@@ -561,12 +564,12 @@ export default function Transmittals({ language, projectId }: TransmittalsProps)
                     return hasResponse ? (
                       <span className="inline-flex items-center gap-1 text-[10px] font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 rounded-full px-1.5 py-0.5">
                         <CheckCircle2 className="h-3 w-3" />
-                        {ar ? "تم الرد" : "Responded"}
+                        {tAuto('auto.responded')}
                       </span>
                     ) : (
                       <span className="inline-flex items-center gap-1 text-[10px] font-medium text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 rounded-full px-1.5 py-0.5">
                         <MessageSquare className="h-3 w-3" />
-                        {ar ? "بانتظار الرد" : "Awaiting"}
+                        {tAuto('auto.awaiting')}
                       </span>
                     );
                   })()}
@@ -584,19 +587,19 @@ export default function Transmittals({ language, projectId }: TransmittalsProps)
                     <DropdownMenuContent align={ar ? "start" : "end"} className="w-36">
                       <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleOpenDetail(t); }}>
                         <Eye className="h-3.5 w-3.5 me-2" />
-                        {ar ? "عرض" : "View"}
+                        {tAuto('auto.view')}
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         className="text-red-600 dark:text-red-400"
                         onClick={(e) => {
                           e.stopPropagation();
-                          if (confirm(ar ? "هل أنت متأكد من الحذف؟" : "Delete this transmittal?")) {
+                          if (confirm(tAuto('auto.deleteThisTransmittal'))) {
                             deleteMutation.mutate(t.id);
                           }
                         }}
                       >
                         <Trash2 className="h-3.5 w-3.5 me-2" />
-                        {ar ? "حذف" : "Delete"}
+                        {tAuto('auto.delete')}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -613,19 +616,19 @@ export default function Transmittals({ language, projectId }: TransmittalsProps)
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Send className="h-5 w-5 text-teal-500" />
-              {ar ? "إحالة جديدة" : "New Transmittal"}
+              {tAuto('auto.newTransmittal')}
             </DialogTitle>
             <DialogDescription>
-              {ar ? "إنشاء إحالة مستندات جديدة وإرسالها" : "Create and send a new document transmittal"}
+              {tAuto('auto.createAndSendANewDocumentTransmittal')}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "المشروع *" : "Project *"}</Label>
+                <Label className="text-sm">{tAuto('auto.project2')}</Label>
                 <Select value={formData.projectId} onValueChange={(v) => setFormData({ ...formData, projectId: v })}>
-                  <SelectTrigger><SelectValue placeholder={ar ? "اختر مشروع" : "Select project"} /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder={tAuto('auto.selectProject')} /></SelectTrigger>
                   <SelectContent>
                     {projects.map((p) => (
                       <SelectItem key={p.id} value={p.id}>{ar ? p.name : p.nameEn || p.name}</SelectItem>
@@ -634,26 +637,26 @@ export default function Transmittals({ language, projectId }: TransmittalsProps)
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "طريقة التسليم" : "Delivery Method"}</Label>
+                <Label className="text-sm">{tAuto('auto.deliveryMethod')}</Label>
                 <Select value={formData.deliveryMethod} onValueChange={(v) => setFormData({ ...formData, deliveryMethod: v })}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="EMAIL">{ar ? "بريد إلكتروني" : "Email"}</SelectItem>
-                    <SelectItem value="MANUAL">{ar ? "يدوي" : "Manual"}</SelectItem>
-                    <SelectItem value="COURIER">{ar ? "ساعي" : "Courier"}</SelectItem>
+                    <SelectItem value="EMAIL">{tAuto('auto.email')}</SelectItem>
+                    <SelectItem value="MANUAL">{tAuto('auto.manual')}</SelectItem>
+                    <SelectItem value="COURIER">{tAuto('auto.courier')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "الموضوع *" : "Subject *"}</Label>
+              <Label className="text-sm">{tAuto('auto.subject1')}</Label>
               <Input
                 value={formData.subject}
                 onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                placeholder={ar ? "موضوع الإحالة" : "Transmittal subject"}
+                placeholder={tAuto('auto.transmittalSubject')}
               />
             </div>
 
@@ -661,9 +664,9 @@ export default function Transmittals({ language, projectId }: TransmittalsProps)
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "من (المرسل) *" : "From *"}</Label>
+                <Label className="text-sm">{tAuto('auto.from1')}</Label>
                 <Select value={formData.fromId} onValueChange={(v) => setFormData({ ...formData, fromId: v })}>
-                  <SelectTrigger><SelectValue placeholder={ar ? "اختر المرسل" : "Select sender"} /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder={tAuto('auto.selectSender')} /></SelectTrigger>
                   <SelectContent>
                     {users.map((u) => (
                       <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
@@ -672,18 +675,18 @@ export default function Transmittals({ language, projectId }: TransmittalsProps)
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "إلى (الاسم)" : "To (Name)"}</Label>
+                <Label className="text-sm">{tAuto('auto.toName')}</Label>
                 <Input
                   value={formData.toName}
                   onChange={(e) => setFormData({ ...formData, toName: e.target.value })}
-                  placeholder={ar ? "اسم المستلم" : "Recipient name"}
+                  placeholder={tAuto('auto.recipientName')}
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "البريد الإلكتروني" : "Email"}</Label>
+                <Label className="text-sm">{tAuto('auto.email')}</Label>
                 <Input
                   value={formData.toEmail}
                   onChange={(e) => setFormData({ ...formData, toEmail: e.target.value })}
@@ -692,19 +695,19 @@ export default function Transmittals({ language, projectId }: TransmittalsProps)
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "الشركة" : "Company"}</Label>
+                <Label className="text-sm">{tAuto('auto.company')}</Label>
                 <Input
                   value={formData.toCompany}
                   onChange={(e) => setFormData({ ...formData, toCompany: e.target.value })}
-                  placeholder={ar ? "اسم الشركة" : "Company name"}
+                  placeholder={tAuto('auto.companyName')}
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "الهاتف" : "Phone"}</Label>
+                <Label className="text-sm">{tAuto('auto.phone')}</Label>
                 <Input
                   value={formData.toPhone}
                   onChange={(e) => setFormData({ ...formData, toPhone: e.target.value })}
-                  placeholder={ar ? "رقم الهاتف" : "Phone number"}
+                  placeholder={tAuto('auto.phoneNumber')}
                 />
               </div>
             </div>
@@ -716,18 +719,18 @@ export default function Transmittals({ language, projectId }: TransmittalsProps)
               <div className="flex items-center justify-between">
                 <Label className="text-sm font-medium flex items-center gap-1.5">
                   <Package className="h-4 w-4" />
-                  {ar ? "بنود الإحالة" : "Transmittal Items"}
+                  {tAuto('auto.transmittalItems')}
                 </Label>
                 <Button variant="outline" size="sm" className="h-7 text-xs" onClick={addNewItem}>
                   <Plus className="h-3 w-3 me-1" />
-                  {ar ? "إضافة بند" : "Add Item"}
+                  {tAuto('auto.addItem1')}
                 </Button>
               </div>
 
               {newItems.length === 0 ? (
                 <div className="text-center py-4 border border-dashed border-slate-200 dark:border-slate-700 rounded-lg">
                   <p className="text-xs text-slate-400">
-                    {ar ? "لم يتم إضافة بنود بعد" : "No items added yet"}
+                    {tAuto('auto.noItemsAddedYet')}
                   </p>
                 </div>
               ) : (
@@ -736,7 +739,7 @@ export default function Transmittals({ language, projectId }: TransmittalsProps)
                     <div key={index} className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg space-y-2">
                       <div className="flex items-center justify-between">
                         <span className="text-xs font-medium text-slate-600 dark:text-slate-400">
-                          {ar ? "بند" : "Item"} {index + 1}
+                          {tAuto('auto.item')} {index + 1}
                         </span>
                         <button
                           onClick={() => removeNewItem(index)}
@@ -750,29 +753,29 @@ export default function Transmittals({ language, projectId }: TransmittalsProps)
                           className="h-7 text-xs"
                           value={item.documentNumber}
                           onChange={(e) => updateNewItem(index, "documentNumber", e.target.value)}
-                          placeholder={ar ? "رقم المستند" : "Doc Number"}
+                          placeholder={tAuto('auto.docNumber')}
                         />
                         <Input
                           className="h-7 text-xs"
                           value={item.title}
                           onChange={(e) => updateNewItem(index, "title", e.target.value)}
-                          placeholder={ar ? "العنوان" : "Title"}
+                          placeholder={tAuto('auto.title')}
                         />
                         <Input
                           className="h-7 text-xs"
                           value={item.revision}
                           onChange={(e) => updateNewItem(index, "revision", e.target.value)}
-                          placeholder={ar ? "المراجعة" : "Rev"}
+                          placeholder={tAuto('auto.rev2')}
                         />
                         <Select value={item.purpose} onValueChange={(v) => updateNewItem(index, "purpose", v)}>
                           <SelectTrigger className="h-7 text-xs">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="REVIEW">{ar ? "مراجعة" : "Review"}</SelectItem>
-                            <SelectItem value="APPROVAL">{ar ? "اعتماد" : "Approval"}</SelectItem>
-                            <SelectItem value="INFORMATION">{ar ? "معلومات" : "Information"}</SelectItem>
-                            <SelectItem value="EXECUTION">{ar ? "تنفيذ" : "Execution"}</SelectItem>
+                            <SelectItem value="REVIEW">{tAuto('auto.review')}</SelectItem>
+                            <SelectItem value="APPROVAL">{tAuto('auto.approval')}</SelectItem>
+                            <SelectItem value="INFORMATION">{tAuto('auto.information')}</SelectItem>
+                            <SelectItem value="EXECUTION">{tAuto('auto.execution')}</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -785,14 +788,14 @@ export default function Transmittals({ language, projectId }: TransmittalsProps)
 
           <DialogFooter>
             <Button variant="outline" onClick={() => { setShowAddDialog(false); resetForm(); }}>
-              {ar ? "إلغاء" : "Cancel"}
+              {tAuto('auto.cancel')}
             </Button>
             <Button
               className="bg-teal-600 hover:bg-teal-700 text-white"
               onClick={handleSubmit}
               disabled={!formData.projectId || !formData.subject || !formData.fromId || createMutation.isPending}
             >
-              {createMutation.isPending ? (ar ? "جارٍ الإنشاء..." : "Creating...") : (ar ? "إنشاء وإرسال" : "Create & Send")}
+              {createMutation.isPending ? (tAuto('auto.creating')) : (tAuto('auto.createSend'))}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -806,7 +809,7 @@ export default function Transmittals({ language, projectId }: TransmittalsProps)
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
                   <Send className="h-5 w-5 text-teal-500" />
-                  {ar ? "تفاصيل الإحالة" : "Transmittal Details"}
+                  {tAuto('auto.transmittalDetails')}
                 </DialogTitle>
                 <DialogDescription>
                   {selectedTransmittal.number || selectedTransmittal.id.slice(0, 8)} — {selectedTransmittal.subject}
@@ -817,23 +820,23 @@ export default function Transmittals({ language, projectId }: TransmittalsProps)
                 {/* Transmittal Info */}
                 <div className="grid grid-cols-2 gap-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4">
                   <div className="space-y-1">
-                    <div className="text-[10px] text-slate-500 uppercase tracking-wider">{ar ? "المشروع" : "Project"}</div>
+                    <div className="text-[10px] text-slate-500 uppercase tracking-wider">{tAuto('auto.project')}</div>
                     <div className="text-sm font-medium text-slate-900 dark:text-white">
                       {selectedTransmittal.project ? (ar ? selectedTransmittal.project.name : selectedTransmittal.project.nameEn || selectedTransmittal.project.name) : "-"}
                     </div>
                   </div>
                   <div className="space-y-1">
-                    <div className="text-[10px] text-slate-500 uppercase tracking-wider">{ar ? "الحالة" : "Status"}</div>
+                    <div className="text-[10px] text-slate-500 uppercase tracking-wider">{tAuto('auto.status1')}</div>
                     {getStatusBadge(selectedTransmittal.status, ar)}
                   </div>
                   <div className="space-y-1">
-                    <div className="text-[10px] text-slate-500 uppercase tracking-wider">{ar ? "من" : "From"}</div>
+                    <div className="text-[10px] text-slate-500 uppercase tracking-wider">{tAuto('auto.from')}</div>
                     <div className="text-sm text-slate-700 dark:text-slate-300">
                       {selectedTransmittal.from?.name || "-"} {selectedTransmittal.from?.email && <span className="text-xs text-slate-400">({selectedTransmittal.from.email})</span>}
                     </div>
                   </div>
                   <div className="space-y-1">
-                    <div className="text-[10px] text-slate-500 uppercase tracking-wider">{ar ? "طريقة التسليم" : "Delivery"}</div>
+                    <div className="text-[10px] text-slate-500 uppercase tracking-wider">{tAuto('auto.delivery')}</div>
                     {getDeliveryBadge(selectedTransmittal.deliveryMethod, ar)}
                   </div>
                 </div>
@@ -842,20 +845,20 @@ export default function Transmittals({ language, projectId }: TransmittalsProps)
                 {(selectedTransmittal.toName || selectedTransmittal.toCompany) && (
                   <Card className="p-3 border-slate-200 dark:border-slate-700">
                     <div className="text-xs font-medium text-slate-600 dark:text-slate-400 mb-2">
-                      {ar ? "معلومات المستلم" : "Recipient Information"}
+                      {tAuto('auto.recipientInformation')}
                     </div>
                     <div className="grid grid-cols-2 gap-2 text-xs">
                       {selectedTransmittal.toName && (
-                        <div><span className="text-slate-400">{ar ? "الاسم: " : "Name: "}</span>{selectedTransmittal.toName}</div>
+                        <div><span className="text-slate-400">{tAuto('auto.name1')}</span>{selectedTransmittal.toName}</div>
                       )}
                       {selectedTransmittal.toCompany && (
-                        <div><span className="text-slate-400">{ar ? "الشركة: " : "Company: "}</span>{selectedTransmittal.toCompany}</div>
+                        <div><span className="text-slate-400">{tAuto('auto.company1')}</span>{selectedTransmittal.toCompany}</div>
                       )}
                       {selectedTransmittal.toEmail && (
-                        <div><span className="text-slate-400">{ar ? "البريد: " : "Email: "}</span>{selectedTransmittal.toEmail}</div>
+                        <div><span className="text-slate-400">{tAuto('auto.email1')}</span>{selectedTransmittal.toEmail}</div>
                       )}
                       {selectedTransmittal.toPhone && (
-                        <div><span className="text-slate-400">{ar ? "الهاتف: " : "Phone: "}</span>{selectedTransmittal.toPhone}</div>
+                        <div><span className="text-slate-400">{tAuto('auto.phone1')}</span>{selectedTransmittal.toPhone}</div>
                       )}
                     </div>
                   </Card>
@@ -865,23 +868,23 @@ export default function Transmittals({ language, projectId }: TransmittalsProps)
                 <div className="space-y-2">
                   <Label className="text-sm font-medium flex items-center gap-1.5">
                     <Package className="h-4 w-4" />
-                    {ar ? "بنود الإحالة" : "Transmittal Items"} ({selectedTransmittal.items.length})
+                    {tAuto('auto.transmittalItems')} ({selectedTransmittal.items.length})
                   </Label>
 
                   {selectedTransmittal.items.length === 0 ? (
                     <div className="text-center py-4 border border-dashed border-slate-200 dark:border-slate-700 rounded-lg">
-                      <p className="text-xs text-slate-400">{ar ? "لا توجد بنود" : "No items"}</p>
+                      <p className="text-xs text-slate-400">{tAuto('auto.noItems')}</p>
                     </div>
                   ) : (
                     <div className="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
                       <Table>
                         <TableHeader>
                           <TableRow className="bg-slate-50 dark:bg-slate-800/50">
-                            <TableHead className="text-[10px] font-semibold py-2 px-2">{ar ? "رقم المستند" : "Doc #"}</TableHead>
-                            <TableHead className="text-[10px] font-semibold py-2 px-2">{ar ? "العنوان" : "Title"}</TableHead>
-                            <TableHead className="text-[10px] font-semibold py-2 px-2">{ar ? "مراجعة" : "Rev"}</TableHead>
-                            <TableHead className="text-[10px] font-semibold py-2 px-2">{ar ? "نسخ" : "Copies"}</TableHead>
-                            <TableHead className="text-[10px] font-semibold py-2 px-2">{ar ? "الغرض" : "Purpose"}</TableHead>
+                            <TableHead className="text-[10px] font-semibold py-2 px-2">{tAuto('auto.doc')}</TableHead>
+                            <TableHead className="text-[10px] font-semibold py-2 px-2">{tAuto('auto.title')}</TableHead>
+                            <TableHead className="text-[10px] font-semibold py-2 px-2">{tAuto('auto.rev2')}</TableHead>
+                            <TableHead className="text-[10px] font-semibold py-2 px-2">{tAuto('auto.copies')}</TableHead>
+                            <TableHead className="text-[10px] font-semibold py-2 px-2">{tAuto('auto.purpose')}</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -904,7 +907,7 @@ export default function Transmittals({ language, projectId }: TransmittalsProps)
                 {selectedTransmittal.items.length > 0 && (
                   <div className="space-y-3">
                     <Label className="text-sm font-medium">
-                      {ar ? "قسم الردود" : "Reply Section"}
+                      {tAuto('auto.replySection')}
                     </Label>
                     {selectedTransmittal.items.map((item) => {
                       const reply = itemReplies[item.id];
@@ -927,7 +930,7 @@ export default function Transmittals({ language, projectId }: TransmittalsProps)
                                 }}
                                 className="h-3.5 w-3.5"
                               />
-                              <span className="text-xs text-slate-600">{ar ? "مستلم" : "Received"}</span>
+                              <span className="text-xs text-slate-600">{tAuto('auto.received')}</span>
                             </div>
                             <div className="flex items-center gap-1.5">
                               <Checkbox
@@ -940,7 +943,7 @@ export default function Transmittals({ language, projectId }: TransmittalsProps)
                                 }}
                                 className="h-3.5 w-3.5"
                               />
-                              <span className="text-xs text-green-600">{ar ? "معتمد" : "Approved"}</span>
+                              <span className="text-xs text-green-600">{tAuto('auto.approved')}</span>
                             </div>
                             <div className="flex items-center gap-1.5">
                               <Checkbox
@@ -953,7 +956,7 @@ export default function Transmittals({ language, projectId }: TransmittalsProps)
                                 }}
                                 className="h-3.5 w-3.5"
                               />
-                              <span className="text-xs text-red-600">{ar ? "مرفوض" : "Rejected"}</span>
+                              <span className="text-xs text-red-600">{tAuto('auto.rejected')}</span>
                             </div>
                             <div className="flex items-center gap-1.5">
                               <Checkbox
@@ -966,12 +969,12 @@ export default function Transmittals({ language, projectId }: TransmittalsProps)
                                 }}
                                 className="h-3.5 w-3.5"
                               />
-                              <span className="text-xs text-amber-600">{ar ? "يحتاج مراجعة" : "Needs Revision"}</span>
+                              <span className="text-xs text-amber-600">{tAuto('auto.needsRevision')}</span>
                             </div>
                           </div>
                           <Textarea
                             className="text-xs min-h-[60px]"
-                            placeholder={ar ? "ملاحظات الرد..." : "Reply notes..."}
+                            placeholder={tAuto('auto.replyNotes')}
                             value={reply?.replyNotes || ""}
                             onChange={(e) => {
                               setItemReplies(prev => ({

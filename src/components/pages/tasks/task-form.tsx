@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useEffect } from "react";
 
 import { useForm, type Resolver } from "react-hook-form";
@@ -54,6 +56,7 @@ export function TaskForm({
   projects,
   users,
 }: TaskFormProps) {
+  const tAuto = useTranslations();
   const queryClient = useQueryClient();
   const toast = useToastFeedback({ ar });
 
@@ -85,7 +88,7 @@ export function TaskForm({
           Object.keys(parsed).forEach(k => {
             setValue(k as keyof TaskFormData, parsed[k]);
           });
-          toast.showSuccess(ar ? "تم استعادة المسودة بنجاح" : "Draft restored successfully");
+          toast.showSuccess(tAuto('auto.draftRestoredSuccessfully'));
         } catch (_e) { /* intentional */ }
       }
       
@@ -119,7 +122,7 @@ export function TaskForm({
       onOpenChange(false);
       localStorage.removeItem("draft_task_form");
       reset();
-      toast.created(ar ? "المهمة" : "Task");
+      toast.created(tAuto('auto.task'));
     },
     onError: (error: Error) => {
       toast.showError(ar ? `فشل في إنشاء المهمة: ${error.message}` : `Failed to create task: ${error.message}`);
@@ -130,19 +133,19 @@ export function TaskForm({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{ar ? "مهمة جديدة" : "New Task"}</DialogTitle>
+          <DialogTitle>{tAuto('auto.newTask')}</DialogTitle>
           <DialogDescription>
-            {ar ? "إضافة مهمة جديدة إلى لوحة المهام" : "Add a new task to the board"}
+            {tAuto('auto.addANewTaskToTheBoard')}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={rhfHandleSubmit((data) => createTaskMutation.mutate({ ...data, status: defaultStatus }))} className="space-y-4">
           {/* Title */}
           <div className="space-y-2">
-            <Label className="text-sm">{ar ? "العنوان" : "Title"} *</Label>
+            <Label className="text-sm">{tAuto('auto.title')} *</Label>
             <Input
               {...register("title")}
-              placeholder={ar ? "أدخل عنوان المهمة" : "Enter task title"}
+              placeholder={tAuto('auto.enterTaskTitle')}
               className={cn(errors.title && "border-red-500 focus:ring-red-500/20 focus:border-red-500")}
             />
             {errors.title && <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle className="h-3 w-3 shrink-0" />{getErrorMessage(errors.title.message || "", ar)}</p>}
@@ -150,10 +153,10 @@ export function TaskForm({
 
           {/* Description */}
           <div className="space-y-2">
-            <Label className="text-sm">{ar ? "الوصف" : "Description"}</Label>
+            <Label className="text-sm">{tAuto('auto.description')}</Label>
             <Textarea
               {...register("description")}
-              placeholder={ar ? "وصف المهمة (اختياري)" : "Task description (optional)"}
+              placeholder={tAuto('auto.taskDescriptionOptional')}
               rows={3}
             />
           </div>
@@ -161,14 +164,14 @@ export function TaskForm({
           {/* Project + Assignee */}
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "المشروع" : "Project"}</Label>
+              <Label className="text-sm">{tAuto('auto.project')}</Label>
               <Select
                  
                 value={watch("projectId")}
                 onValueChange={(v) => setValue("projectId", v)}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder={ar ? "اختر مشروع" : "Select project"} />
+                  <SelectValue placeholder={tAuto('auto.selectProject')} />
                 </SelectTrigger>
                 <SelectContent>
                   {projects.map((p) => (
@@ -180,13 +183,13 @@ export function TaskForm({
               </Select>
             </div>
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "المسؤول" : "Assignee"}</Label>
+              <Label className="text-sm">{tAuto('auto.assignee')}</Label>
               <Select
                 value={watch("assigneeId")}
                 onValueChange={(v) => setValue("assigneeId", v)}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder={ar ? "اختر مسؤول" : "Select assignee"} />
+                  <SelectValue placeholder={tAuto('auto.selectAssignee')} />
                 </SelectTrigger>
                 <SelectContent>
                   {users.map((u) => (
@@ -200,7 +203,7 @@ export function TaskForm({
           {/* Priority + Dates */}
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "الأولوية" : "Priority"}</Label>
+              <Label className="text-sm">{tAuto('auto.priority')}</Label>
               <Select
                 value={watch("priority")}
                 onValueChange={(v) => setValue("priority", v as TaskFormData["priority"])}
@@ -209,16 +212,16 @@ export function TaskForm({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="NORMAL">{ar ? "عادي" : "Normal"}</SelectItem>
-                  <SelectItem value="MEDIUM">{ar ? "متوسط" : "Medium"}</SelectItem>
-                  <SelectItem value="HIGH">{ar ? "عالي" : "High"}</SelectItem>
-                  <SelectItem value="URGENT">{ar ? "عاجل" : "Urgent"}</SelectItem>
+                  <SelectItem value="NORMAL">{tAuto('auto.normal')}</SelectItem>
+                  <SelectItem value="MEDIUM">{tAuto('auto.medium')}</SelectItem>
+                  <SelectItem value="HIGH">{tAuto('auto.high')}</SelectItem>
+                  <SelectItem value="URGENT">{tAuto('auto.urgent')}</SelectItem>
                 </SelectContent>
               </Select>
               {errors.priority && <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle className="h-3 w-3 shrink-0" />{getErrorMessage(errors.priority.message || "", ar)}</p>}
             </div>
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "تاريخ البدء" : "Start Date"}</Label>
+              <Label className="text-sm">{tAuto('auto.startDate')}</Label>
               <Input
                 type="date"
                 {...register("startDate")}
@@ -229,7 +232,7 @@ export function TaskForm({
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "تاريخ الاستحقاق" : "Due Date"}</Label>
+              <Label className="text-sm">{tAuto('auto.dueDate')}</Label>
               <Input
                 type="date"
                 {...register("dueDate")}
@@ -250,25 +253,25 @@ export function TaskForm({
               }}
             />
             <Label className="text-sm cursor-pointer">
-              {ar ? "مهمة حكومية" : "Governmental Task"}
+              {tAuto('auto.governmentalTask')}
             </Label>
           </div>
 
           {(watch("isGovernmental") || watch("taskType") === 'GOVERNMENTAL' || watch("taskType") === 'MANDATORY') && (
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "أيام SLA" : "SLA Days"}</Label>
+              <Label className="text-sm">{tAuto('auto.sLADays')}</Label>
               <Input
                 type="number"
                 min={1}
                 value={watch("slaDays") || ""}
                 onChange={(e) => setValue("slaDays", e.target.value)}
-                placeholder={ar ? "عدد أيام المستوى الخدمي" : "Number of SLA days"}
+                placeholder={tAuto('auto.numberOfSLADays')}
               />
             </div>
           )}
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              {ar ? "إلغاء" : "Cancel"}
+              {tAuto('auto.cancel')}
             </Button>
             <Button
               className="bg-teal-600 hover:bg-teal-700 text-white"
@@ -276,8 +279,8 @@ export function TaskForm({
               disabled={createTaskMutation.isPending}
             >
               {createTaskMutation.isPending
-                ? ar ? "جارٍ الإنشاء..." : "Creating..."
-                : ar ? "إنشاء" : "Create"}
+                ? tAuto('auto.creating')
+                : tAuto('auto.create')}
             </Button>
           </DialogFooter>
         </form>

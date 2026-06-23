@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -80,6 +82,7 @@ export function TimesheetFormDialog({
   handleSubmit,
   resetForm,
 }: TimesheetFormDialogProps) {
+  const tAuto = useTranslations();
   return (
     <Dialog
       open={open}
@@ -92,20 +95,20 @@ export function TimesheetFormDialog({
         <DialogHeader>
           <DialogTitle>
             {editingId
-              ? ar ? "تعديل سجل الدوام" : "Edit Timesheet"
-              : ar ? "سجل دوام جديد" : "New Timesheet"}
+              ? tAuto('auto.editTimesheet')
+              : tAuto('auto.newTimesheet')}
           </DialogTitle>
           <DialogDescription>
             {editingId
-              ? ar ? "تعديل بيانات سجل الدوام" : "Update timesheet details"
-              : ar ? "إنشاء سجل دوام جديد" : "Create a new timesheet"}
+              ? tAuto('auto.updateTimesheetDetails')
+              : tAuto('auto.createANewTimesheet')}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">
           {/* Week navigation */}
           <div className="flex items-center justify-between">
-            <Button variant="outline" size="sm" className="h-8 w-8 p-0" onClick={() => navigateWeek(-1)} aria-label={ar ? "الأسبوع السابق" : "Previous week"}>
+            <Button variant="outline" size="sm" className="h-8 w-8 p-0" onClick={() => navigateWeek(-1)} aria-label={tAuto('auto.previousWeek')}>
               <ChevronLeft className="h-4 w-4" />
             </Button>
             <span className="text-sm font-medium text-slate-900 dark:text-white">
@@ -119,7 +122,7 @@ export function TimesheetFormDialog({
                 { month: "short", day: "numeric", year: "numeric" }
               )}
             </span>
-            <Button variant="outline" size="sm" className="h-8 w-8 p-0" onClick={() => navigateWeek(1)} aria-label={ar ? "الأسبوع التالي" : "Next week"}>
+            <Button variant="outline" size="sm" className="h-8 w-8 p-0" onClick={() => navigateWeek(1)} aria-label={tAuto('auto.nextWeek')}>
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
@@ -127,14 +130,14 @@ export function TimesheetFormDialog({
           {/* Employee & Project */}
           <div className="grid sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label className="text-xs">{ar ? "الموظف" : "Employee"} *</Label>
+              <Label className="text-xs">{tAuto('auto.employee')} *</Label>
               <Select
                 value={formEmployeeId}
                 onValueChange={setFormEmployeeId}
                 disabled={!!editingId}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder={ar ? "اختر الموظف" : "Select employee"} />
+                  <SelectValue placeholder={tAuto('auto.selectEmployee')} />
                 </SelectTrigger>
                 <SelectContent>
                   {employees.map((emp) => (
@@ -146,16 +149,16 @@ export function TimesheetFormDialog({
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs">{ar ? "المشروع (اختياري)" : "Project (optional)"}</Label>
+              <Label className="text-xs">{tAuto('auto.projectOptional')}</Label>
               <Select
                 value={formProjectId || "none"}
                 onValueChange={(v) => setFormProjectId(v === "none" ? null : v)}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder={ar ? "اختر مشروع" : "Select project"} />
+                  <SelectValue placeholder={tAuto('auto.selectProject')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">{ar ? "بدون مشروع" : "No project"}</SelectItem>
+                  <SelectItem value="none">{tAuto('auto.noProject')}</SelectItem>
                   {projects.map((p) => (
                     <SelectItem key={p.id} value={p.id}>
                       {ar ? p.name : p.nameEn || p.name}
@@ -170,10 +173,10 @@ export function TimesheetFormDialog({
           <div>
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
-                {ar ? "إدخال الساعات اليومية" : "Daily Hours Entry"}
+                {tAuto('auto.dailyHoursEntry')}
               </h3>
               <Badge variant="outline" className="text-[10px] px-1.5">
-                {ar ? "الإجمالي" : "Total"}: {totalFormHours}h
+                {tAuto('auto.total')}: {totalFormHours}h
               </Badge>
             </div>
             <div className="rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
@@ -231,11 +234,11 @@ export function TimesheetFormDialog({
 
           {/* Notes */}
           <div className="space-y-1.5">
-            <Label className="text-xs">{ar ? "ملاحظات" : "Notes"}</Label>
+            <Label className="text-xs">{tAuto('auto.notes')}</Label>
             <Textarea
               value={formNotes}
               onChange={(e) => setFormNotes(e.target.value)}
-              placeholder={ar ? "أي ملاحظات إضافية..." : "Any additional notes..."}
+              placeholder={tAuto('auto.anyAdditionalNotes')}
               rows={2}
             />
           </div>
@@ -243,7 +246,7 @@ export function TimesheetFormDialog({
 
         <DialogFooter>
           <Button variant="outline" onClick={() => { resetForm(); onOpenChange(false); }}>
-            {ar ? "إلغاء" : "Cancel"}
+            {tAuto('auto.cancel')}
           </Button>
           <Button
             onClick={handleSubmit}
@@ -251,10 +254,10 @@ export function TimesheetFormDialog({
             className="bg-violet-600 hover:bg-violet-700 text-white"
           >
             {saveMutation.isPending
-              ? ar ? "جارٍ الحفظ..." : "Saving..."
+              ? tAuto('auto.saving')
               : editingId
-              ? ar ? "تحديث" : "Update"
-              : ar ? "إنشاء" : "Create"}
+              ? tAuto('auto.update')
+              : tAuto('auto.create')}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -275,23 +278,24 @@ export function TimesheetViewDialog({
   onOpenChange,
   viewingTimesheet,
 }: TimesheetViewDialogProps) {
+  const tAuto = useTranslations();
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{ar ? "تفاصيل سجل الدوام" : "Timesheet Details"}</DialogTitle>
+          <DialogTitle>{tAuto('auto.timesheetDetails')}</DialogTitle>
         </DialogHeader>
         {viewingTimesheet && (
           <div className="space-y-4">
             <div className="grid sm:grid-cols-2 gap-3">
               <div>
-                <Label className="text-xs text-slate-500">{ar ? "الموظف" : "Employee"}</Label>
+                <Label className="text-xs text-slate-500">{tAuto('auto.employee')}</Label>
                 <p className="text-sm font-medium text-slate-900 dark:text-white">
                   {viewingTimesheet.employee?.user?.name || "-"}
                 </p>
               </div>
               <div>
-                <Label className="text-xs text-slate-500">{ar ? "المشروع" : "Project"}</Label>
+                <Label className="text-xs text-slate-500">{tAuto('auto.project')}</Label>
                 <p className="text-sm font-medium text-slate-900 dark:text-white">
                   {viewingTimesheet.project
                     ? ar
@@ -301,7 +305,7 @@ export function TimesheetViewDialog({
                 </p>
               </div>
               <div>
-                <Label className="text-xs text-slate-500">{ar ? "الأسبوع" : "Week"}</Label>
+                <Label className="text-xs text-slate-500">{tAuto('auto.week')}</Label>
                 <p className="text-sm font-medium text-slate-900 dark:text-white">
                   {new Date(viewingTimesheet.weekStart).toLocaleDateString(ar ? "ar-AE" : "en-US", {
                     month: "short",
@@ -315,7 +319,7 @@ export function TimesheetViewDialog({
                 </p>
               </div>
               <div>
-                <Label className="text-xs text-slate-500">{ar ? "الحالة" : "Status"}</Label>
+                <Label className="text-xs text-slate-500">{tAuto('auto.status1')}</Label>
                 <span
                   className={cn(
                     "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border mt-0.5",
@@ -328,14 +332,14 @@ export function TimesheetViewDialog({
                 </span>
               </div>
               <div>
-                <Label className="text-xs text-slate-500">{ar ? "إجمالي الساعات" : "Total Hours"}</Label>
+                <Label className="text-xs text-slate-500">{tAuto('auto.totalHours')}</Label>
                 <p className="text-sm font-bold text-violet-600 dark:text-violet-400">
                   {Number(viewingTimesheet.totalHours)}h
                 </p>
               </div>
               {viewingTimesheet.approvedBy && (
                 <div>
-                  <Label className="text-xs text-slate-500">{ar ? "اعتمد بواسطة" : "Approved By"}</Label>
+                  <Label className="text-xs text-slate-500">{tAuto('auto.approvedBy')}</Label>
                   <p className="text-sm font-medium text-slate-900 dark:text-white">
                     {viewingTimesheet.approvedBy.name}
                   </p>
@@ -345,7 +349,7 @@ export function TimesheetViewDialog({
 
             {viewingTimesheet.rejectedReason && (
               <div className="rounded-lg bg-red-50 dark:bg-red-900/20 p-3 border border-red-200 dark:border-red-800">
-                <Label className="text-xs text-red-600 dark:text-red-400">{ar ? "سبب الرفض" : "Rejection Reason"}</Label>
+                <Label className="text-xs text-red-600 dark:text-red-400">{tAuto('auto.rejectionReason')}</Label>
                 <p className="text-sm text-red-700 dark:text-red-300 mt-1">{viewingTimesheet.rejectedReason}</p>
               </div>
             )}
@@ -353,24 +357,24 @@ export function TimesheetViewDialog({
             {/* Entries table */}
             <div>
               <h4 className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                {ar ? "تفاصيل الساعات" : "Hour Details"}
+                {tAuto('auto.hourDetails')}
               </h4>
               <div className="rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
                 <Table>
                   <TableHeader>
                     <TableRow className="hover:bg-transparent bg-slate-50/80 dark:bg-slate-800/50">
-                      <TableHead className="text-xs">{ar ? "اليوم" : "Day"}</TableHead>
-                      <TableHead className="text-xs">{ar ? "التاريخ" : "Date"}</TableHead>
-                      <TableHead className="text-xs">{ar ? "الساعات" : "Hours"}</TableHead>
-                      <TableHead className="text-xs">{ar ? "النوع" : "Type"}</TableHead>
-                      <TableHead className="text-xs">{ar ? "الوصف" : "Description"}</TableHead>
+                      <TableHead className="text-xs">{tAuto('auto.day')}</TableHead>
+                      <TableHead className="text-xs">{tAuto('auto.date')}</TableHead>
+                      <TableHead className="text-xs">{tAuto('auto.hours')}</TableHead>
+                      <TableHead className="text-xs">{tAuto('auto.type')}</TableHead>
+                      <TableHead className="text-xs">{tAuto('auto.description')}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {viewingTimesheet.entries.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={5} className="text-center text-xs text-slate-400 py-4">
-                          {ar ? "لا توجد إدخالات" : "No entries"}
+                          {tAuto('auto.noEntries')}
                         </TableCell>
                       </TableRow>
                     ) : (
@@ -412,7 +416,7 @@ export function TimesheetViewDialog({
 
             {viewingTimesheet.notes && (
               <div>
-                <Label className="text-xs text-slate-500">{ar ? "ملاحظات" : "Notes"}</Label>
+                <Label className="text-xs text-slate-500">{tAuto('auto.notes')}</Label>
                 <p className="text-sm text-slate-700 dark:text-slate-300 mt-1">{viewingTimesheet.notes}</p>
               </div>
             )}
@@ -442,31 +446,32 @@ export function TimesheetRejectDialog({
   onReject,
   isPending,
 }: TimesheetRejectDialogProps) {
+  const tAuto = useTranslations();
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>{ar ? "رفض سجل الدوام" : "Reject Timesheet"}</DialogTitle>
+          <DialogTitle>{tAuto('auto.rejectTimesheet')}</DialogTitle>
           <DialogDescription>
-            {ar ? "يرجى تقديم سبب الرفض" : "Please provide a reason for rejection"}
+            {tAuto('auto.pleaseProvideAReasonForRejection')}
           </DialogDescription>
         </DialogHeader>
         <Textarea
           value={rejectedReason}
           onChange={(e) => setRejectedReason(e.target.value)}
-          placeholder={ar ? "سبب الرفض..." : "Rejection reason..."}
+          placeholder={tAuto('auto.rejectionReason1')}
           rows={3}
         />
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            {ar ? "إلغاء" : "Cancel"}
+            {tAuto('auto.cancel')}
           </Button>
           <Button
             variant="destructive"
             onClick={onReject}
             disabled={!rejectedReason.trim() || isPending}
           >
-            {ar ? "رفض" : "Reject"}
+            {tAuto('auto.reject')}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 interface StatusDonutProps {
   ar: boolean;
   filteredCount: number;
@@ -21,6 +23,7 @@ export function StatusDonut({
   pendingPct,
   overduePct,
 }: StatusDonutProps) {
+  const tAuto = useTranslations();
   return (
     <div className="flex items-center gap-4 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900 p-3 shadow-sm">
       <div
@@ -41,17 +44,17 @@ export function StatusDonut({
       <div className="flex items-center gap-3 flex-wrap">
         <div className="flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full bg-emerald-500" />
-          <span className="text-[10px] text-slate-500 dark:text-slate-400">{ar ? "مدفوعة" : "Paid"}</span>
+          <span className="text-[10px] text-slate-500 dark:text-slate-400">{tAuto('auto.paid')}</span>
           <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">{paidCount}</span>
         </div>
         <div className="flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full bg-amber-500" />
-          <span className="text-[10px] text-slate-500 dark:text-slate-400">{ar ? "معلّقة" : "Pending"}</span>
+          <span className="text-[10px] text-slate-500 dark:text-slate-400">{tAuto('auto.pending')}</span>
           <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 tabular-nums">{pendingCount}</span>
         </div>
         <div className="flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full bg-red-500" />
-          <span className="text-[10px] text-slate-500 dark:text-slate-400">{ar ? "متأخرة" : "Overdue"}</span>
+          <span className="text-[10px] text-slate-500 dark:text-slate-400">{tAuto('auto.overdue')}</span>
           <span className="text-[10px] font-bold text-red-600 dark:text-red-400 tabular-nums">{overdueCount}</span>
         </div>
       </div>

@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
@@ -158,6 +160,7 @@ function clearRecentSearches() {
 }
 
 export default function GlobalSearch({ language: lang, projectId }: Props) {
+  const tAuto = useTranslations();
   const isAr = lang === "ar";
   const { setCurrentPage, setCurrentProjectId } = useNavStore();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -313,9 +316,7 @@ export default function GlobalSearch({ language: lang, projectId }: Props) {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder={
-                  isAr
-                    ? "ابحث عن المشاريع، المهام، العملاء، الفواتير..."
-                    : "Search projects, tasks, clients, invoices..."
+                  tAuto('auto.searchProjectsTasksClientsInvoices')
                 }
                 className="flex-1 bg-transparent text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none py-1"
               />
@@ -363,9 +364,7 @@ export default function GlobalSearch({ language: lang, projectId }: Props) {
                       : `No results found for "${query}"`}
                   </p>
                   <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
-                    {isAr
-                      ? "حاول البحث بكلمات مختلفة"
-                      : "Try different keywords"}
+                    {tAuto('auto.tryDifferentKeywords')}
                   </p>
                 </div>
               )}
@@ -455,14 +454,14 @@ export default function GlobalSearch({ language: lang, projectId }: Props) {
                     <div className="flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400">
                       <Clock className="h-3.5 w-3.5" />
                       <span>
-                        {isAr ? "عمليات البحث الأخيرة" : "Recent Searches"}
+                        {tAuto('auto.recentSearches')}
                       </span>
                     </div>
                     <button
                       onClick={handleClearRecent}
                       className="text-[11px] text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
                     >
-                      {isAr ? "مسح الكل" : "Clear All"}
+                      {tAuto('auto.clearAll')}
                     </button>
                   </div>
                   <div className="space-y-0.5">
@@ -488,13 +487,13 @@ export default function GlobalSearch({ language: lang, projectId }: Props) {
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] text-slate-400 dark:text-slate-500 flex items-center gap-1">
                       <Clock className="h-3 w-3" />
-                      {isAr ? "عمليات البحث الأخيرة" : "Recent Searches"}
+                      {tAuto('auto.recentSearches')}
                     </span>
                     <button
                       onClick={handleClearRecent}
                       className="text-[10px] text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
                     >
-                      {isAr ? "مسح السجل" : "Clear History"}
+                      {tAuto('auto.clearHistory')}
                     </button>
                   </div>
                   <div className="flex items-center gap-2 mt-1.5 flex-wrap">
@@ -515,7 +514,7 @@ export default function GlobalSearch({ language: lang, projectId }: Props) {
               {!hasQuery && !showRecentIdle && (
                 <div className="p-4">
                   <p className="text-xs font-medium text-slate-400 dark:text-slate-500 mb-3 px-1">
-                    {isAr ? "أو تصفح حسب الفئة" : "Browse by Category"}
+                    {tAuto('auto.browseByCategory')}
                   </p>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                     {Object.entries(typeConfig).map(([key, config]) => {
@@ -567,23 +566,23 @@ export default function GlobalSearch({ language: lang, projectId }: Props) {
                   <kbd className="px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-[10px] font-mono">
                     ↑↓
                   </kbd>
-                  <span>{isAr ? "تنقل" : "Navigate"}</span>
+                  <span>{tAuto('auto.navigate')}</span>
                 </div>
                 <div className="flex items-center gap-1 text-[11px] text-slate-400">
                   <kbd className="px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-[10px] font-mono">
                     ↵
                   </kbd>
-                  <span>{isAr ? "اختيار" : "Select"}</span>
+                  <span>{tAuto('auto.select1')}</span>
                 </div>
                 <div className="flex items-center gap-1 text-[11px] text-slate-400">
                   <kbd className="px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-[10px] font-mono">
                     esc
                   </kbd>
-                  <span>{isAr ? "إغلاق" : "Close"}</span>
+                  <span>{tAuto('auto.close')}</span>
                 </div>
               </div>
               <div className="text-[11px] text-slate-400">
-                {isAr ? "BluePrint ⌘" : "BluePrint ⌘"}
+                {tAuto('auto.bluePrint1')}
               </div>
             </div>
           </motion.div>

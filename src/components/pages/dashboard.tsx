@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { Suspense } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuthStore } from "@/store/auth-store";
@@ -36,6 +38,7 @@ const ProjectHealthBudget = dynamic(() => import("./dashboard/project-health-bud
 
 // ===== Main Dashboard Component =====
 export default function Dashboard({ language }: { language: "ar" | "en" }) {
+  const tAuto = useTranslations();
   const isAr = language === "ar";
   const { user } = useAuthStore();
   const { setCurrentPage, setCurrentProjectId } = useNavStore();
@@ -68,10 +71,10 @@ export default function Dashboard({ language }: { language: "ar" | "en" }) {
       <div className="flex flex-col items-center justify-center min-h-[40vh] text-center">
         <AlertCircle className="h-12 w-12 text-red-400 mb-3" />
         <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
-          {isAr ? "خطأ في تحميل البيانات" : "Error loading data"}
+          {tAuto('auto.errorLoadingData')}
         </h3>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-          {isAr ? "تعذر تحميل بيانات لوحة التحكم" : "Failed to load dashboard data"}
+          {tAuto('auto.failedToLoadDashboardData')}
         </p>
       </div>
     );
@@ -89,10 +92,10 @@ export default function Dashboard({ language }: { language: "ar" | "en" }) {
 
   // Project status pie chart data (derived from real API stats)
   const projectStatusData = [
-    { name: isAr ? "نشط" : "Active", value: stats.activeProjects, color: "#0d9488" },
-    { name: isAr ? "مكتمل" : "Completed", value: stats.completedProjects, color: "#10b981" },
-    { name: isAr ? "متأخر" : "Delayed", value: stats.delayedProjects, color: "#ef4444" },
-    { name: isAr ? "معلق" : "On Hold", value: Math.max(0, stats.totalProjects - stats.activeProjects - stats.completedProjects - stats.delayedProjects), color: "#f59e0b" },
+    { name: tAuto('auto.active'), value: stats.activeProjects, color: "#0d9488" },
+    { name: tAuto('auto.completed'), value: stats.completedProjects, color: "#10b981" },
+    { name: tAuto('auto.delayed'), value: stats.delayedProjects, color: "#ef4444" },
+    { name: tAuto('auto.onHold'), value: Math.max(0, stats.totalProjects - stats.activeProjects - stats.completedProjects - stats.delayedProjects), color: "#f59e0b" },
   ];
 
   // Task trend data from API
@@ -113,7 +116,7 @@ export default function Dashboard({ language }: { language: "ar" | "en" }) {
   // Stat cards config
   const statCards: StatCardConfig[] = [
     {
-      label: isAr ? "إجمالي المشاريع" : "Total Projects",
+      label: tAuto('auto.totalProjects'),
       value: formatNumber(stats.totalProjects, language),
       icon: FolderKanban,
       gradientFrom: "from-teal-500",
@@ -121,11 +124,11 @@ export default function Dashboard({ language }: { language: "ar" | "en" }) {
       borderAccent: "border-s-teal-500",
       bgColor: "bg-teal-100 dark:bg-teal-950/30",
       iconColor: "text-teal-600 dark:text-teal-400",
-      trend: { value: stats.activeProjects, label: isAr ? "نشط" : "ACTIVE", isPositive: true },
-      secondaryBadge: stats.delayedProjects > 0 ? { value: stats.delayedProjects, label: isAr ? "متأخر" : "DELAYED", type: "danger" as const } : null,
+      trend: { value: stats.activeProjects, label: tAuto('auto.aCTIVE'), isPositive: true },
+      secondaryBadge: stats.delayedProjects > 0 ? { value: stats.delayedProjects, label: tAuto('auto.dELAYED'), type: "danger" as const } : null,
     },
     {
-      label: isAr ? "الفواتير المستحقة" : "Outstanding Invoices",
+      label: tAuto('auto.outstandingInvoices'),
       value: formatCurrency(invoices.outstandingTotal, language),
       valueSuffix: "AED",
       icon: Receipt,
@@ -134,12 +137,12 @@ export default function Dashboard({ language }: { language: "ar" | "en" }) {
       borderAccent: "border-s-amber-500",
       bgColor: "bg-amber-100 dark:bg-amber-950/30",
       iconColor: "text-amber-600 dark:text-amber-400",
-      trend: invoices.overdueCount > 0 ? { value: invoices.overdueCount, label: isAr ? "متأخر" : "OVERDUE", isPositive: false } : null,
+      trend: invoices.overdueCount > 0 ? { value: invoices.overdueCount, label: tAuto('auto.oVERDUE'), isPositive: false } : null,
       secondaryBadge: null,
       valueSub: `(${invoices.outstandingCount})`,
     },
     {
-      label: isAr ? "إيرادات هذا الشهر" : "This Month Revenue",
+      label: tAuto('auto.thisMonthRevenue'),
       value: formatCurrency(revenue.thisMonth, language),
       valueSuffix: "AED",
       icon: TrendingUp,
@@ -150,10 +153,10 @@ export default function Dashboard({ language }: { language: "ar" | "en" }) {
       iconColor: "text-emerald-600 dark:text-emerald-400",
       trend: revenue.change !== 0 ? { value: Math.abs(revenue.change), label: "%", isPositive: revenue.change > 0, showArrow: true } : null,
       secondaryBadge: null,
-      valueSub: revenue.change !== 0 ? (isAr ? "مقارنة بالشهر الماضي" : "vs last month") : undefined,
+      valueSub: revenue.change !== 0 ? (tAuto('auto.vsLastMonth')) : undefined,
     },
     {
-      label: isAr ? "المهام القادمة (7 أيام)" : "Upcoming Tasks (7 days)",
+      label: tAuto('auto.upcomingTasks7Days'),
       value: formatNumber(activeTasksCount, language),
       icon: CheckSquare,
       gradientFrom: "from-blue-500",
@@ -161,7 +164,7 @@ export default function Dashboard({ language }: { language: "ar" | "en" }) {
       borderAccent: "border-s-blue-500",
       bgColor: "bg-blue-100 dark:bg-blue-950/30",
       iconColor: "text-blue-600 dark:text-blue-400",
-      trend: overdueTasksCount > 0 ? { value: overdueTasksCount, label: isAr ? "متأخر" : "OVERDUE", isPositive: false } : null,
+      trend: overdueTasksCount > 0 ? { value: overdueTasksCount, label: tAuto('auto.oVERDUE'), isPositive: false } : null,
       secondaryBadge: null,
     },
   ];

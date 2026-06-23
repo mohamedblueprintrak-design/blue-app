@@ -1,16 +1,7 @@
-"use client";
+import { getLocale } from 'next-intl/server';
+import SearchPage from '@/components/pages/search';
 
-import dynamic from "next/dynamic";
-import { useLang } from "@/hooks/use-lang";
-
-const SearchPage = dynamic(() => import("@/components/pages/search"), {
-  loading: () => <div className="p-6 animate-pulse">Loading...</div>,
-  ssr: false,
-});
-
-/**
- * /dashboard/search
- */
-export default function SearchPageRoute() {
-  return <SearchPage language={useLang()} />;
+export default async function SearchPageRoute() {
+  const locale = await getLocale();
+  return <SearchPage language={locale as "ar" | "en"} />;
 }

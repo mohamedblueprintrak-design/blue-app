@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
@@ -43,6 +45,7 @@ export function ApprovalDetailPanel({
   selectedApproval,
   linkedEntity,
 }: ApprovalDetailPanelProps) {
+  const tAuto = useTranslations();
   return (
     <Sheet open={!!selectedApprovalId} onOpenChange={(open) => !open && setSelectedApprovalId(null)}>
       <SheetContent side="right" className="w-full sm:max-w-md p-0 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 overflow-hidden">
@@ -53,7 +56,7 @@ export function ApprovalDetailPanel({
               <SheetHeader className="text-start space-y-0">
                 <SheetTitle className="text-white text-base font-bold">{selectedApproval.title}</SheetTitle>
                 <SheetDescription className="text-slate-300 text-xs mt-1">
-                  {selectedApproval.description || (ar ? "لا يوجد وصف" : "No description")}
+                  {selectedApproval.description || (tAuto('auto.noDescription'))}
                 </SheetDescription>
               </SheetHeader>
 
@@ -89,7 +92,7 @@ export function ApprovalDetailPanel({
                     <div className="flex items-center justify-between mb-2">
                       <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
                         <EntityTypeIcon type={selectedApproval.entityType} className="h-4 w-4 text-teal-600 dark:text-teal-400" />
-                        {ar ? "الكيان المرتبط" : "Linked Entity"}
+                        {tAuto('auto.linkedEntity')}
                       </h4>
                       <Badge variant="secondary" className={cn("text-[10px]", getEntityTypeBadgeColor(selectedApproval.entityType))}>
                         {getEntityTypeLabel(selectedApproval.entityType, ar)}
@@ -97,7 +100,7 @@ export function ApprovalDetailPanel({
                     </div>
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">{ar ? "رقم التعريف" : "Entity ID"}</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.entityID')}</p>
                         <p className="text-sm font-mono text-slate-900 dark:text-white mt-0.5">{selectedApproval.entityId}</p>
                       </div>
                       <a
@@ -116,7 +119,7 @@ export function ApprovalDetailPanel({
                         className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-teal-600 dark:text-teal-400 bg-teal-100 dark:bg-teal-900/30 hover:bg-teal-200 dark:hover:bg-teal-900/50 transition-colors"
                       >
                         <Eye className="h-3.5 w-3.5" />
-                        {ar ? "عرض الكيان" : "View Entity"}
+                        {tAuto('auto.viewEntity')}
                         <ExternalLink className="h-3 w-3" />
                       </a>
                     </div>
@@ -127,7 +130,7 @@ export function ApprovalDetailPanel({
                       const leAmount = le.amount ? Number(le.amount) : 0;
                       return (
                         <div className="mt-3 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-100 dark:border-slate-700">
-                          <span className="text-[10px] text-slate-400 mb-1 block">{ar ? "تفاصيل الكيان" : "Entity Details"}</span>
+                          <span className="text-[10px] text-slate-400 mb-1 block">{tAuto('auto.entityDetails')}</span>
                           <p className="text-xs font-medium text-slate-700 dark:text-slate-300">
                             {leNumber ? `#${leNumber} — ` : ""}
                             {leTitle}
@@ -146,7 +149,7 @@ export function ApprovalDetailPanel({
                 {/* Key Info */}
                 <div className="grid grid-cols-2 gap-3">
                   <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3">
-                    <p className="text-[10px] text-slate-500 dark:text-slate-400 mb-1">{ar ? "الطالب" : "Requested By"}</p>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 mb-1">{tAuto('auto.requestedBy')}</p>
                     <div className="flex items-center gap-2">
                       <div className={cn("w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold text-white", getHashColor(selectedApproval.requestedBy))}>
                         {selectedApproval.requestedBy.charAt(0).toUpperCase()}
@@ -155,7 +158,7 @@ export function ApprovalDetailPanel({
                     </div>
                   </div>
                   <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3">
-                    <p className="text-[10px] text-slate-500 dark:text-slate-400 mb-1">{ar ? "المسند إليه" : "Assigned To"}</p>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 mb-1">{tAuto('auto.assignedTo')}</p>
                     <div className="flex items-center gap-2">
                       <div className={cn("w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold text-white", getHashColor(selectedApproval.assignedTo))}>
                         {selectedApproval.assignedTo.charAt(0).toUpperCase()}
@@ -164,13 +167,13 @@ export function ApprovalDetailPanel({
                     </div>
                   </div>
                   <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3">
-                    <p className="text-[10px] text-slate-500 dark:text-slate-400 mb-1">{ar ? "تاريخ الإنشاء" : "Created"}</p>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 mb-1">{tAuto('auto.created')}</p>
                     <span className="text-xs font-medium text-slate-900 dark:text-white">
                       {new Date(selectedApproval.createdAt).toLocaleDateString(ar ? "ar-AE" : "en-US", { year: "numeric", month: "short", day: "numeric" })}
                     </span>
                   </div>
                   <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3">
-                    <p className="text-[10px] text-slate-500 dark:text-slate-400 mb-1">{ar ? "آخر تحديث" : "Updated"}</p>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 mb-1">{tAuto('auto.updated')}</p>
                     <span className="text-xs font-medium text-slate-900 dark:text-white">
                       {timeAgo(selectedApproval.updatedAt, ar)}
                     </span>
@@ -183,7 +186,7 @@ export function ApprovalDetailPanel({
                 <div>
                   <h4 className="text-sm font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
                     <ChevronDown className="h-4 w-4 text-teal-500" />
-                    {ar ? "سلسلة الموافقة" : "Approval Chain"}
+                    {tAuto('auto.approvalChain')}
                   </h4>
 
                   <div className="relative">
@@ -248,10 +251,10 @@ export function ApprovalDetailPanel({
                                 {stepLabel}
                               </p>
                               <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
-                                {stepStatus === "COMPLETED" && (ar ? "تمت الموافقة" : "Approved")}
+                                {stepStatus === "COMPLETED" && (tAuto('auto.approved'))}
                                 {stepStatus === "current" && (ar ? `بانتظار ${selectedApproval.assignedTo}` : `Pending with ${selectedApproval.assignedTo}`)}
-                                {stepStatus === "PENDING" && (ar ? "بانتظار المرحلة السابقة" : "Awaiting previous step")}
-                                {stepStatus === "REJECTED" && (ar ? "مرفوضة" : "Rejected")}
+                                {stepStatus === "PENDING" && (tAuto('auto.awaitingPreviousStep'))}
+                                {stepStatus === "REJECTED" && (tAuto('auto.rejected'))}
                               </p>
                               {stepStatus === "COMPLETED" && (
                                 <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">
@@ -268,10 +271,10 @@ export function ApprovalDetailPanel({
                               stepStatus === "PENDING" && "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400",
                               stepStatus === "REJECTED" && "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300",
                             )}>
-                              {stepStatus === "COMPLETED" && (ar ? "مكتمل" : "Done")}
-                              {stepStatus === "current" && (ar ? "حالي" : "Current")}
-                              {stepStatus === "PENDING" && (ar ? "في الانتظار" : "Waiting")}
-                              {stepStatus === "REJECTED" && (ar ? "مرفوض" : "Rejected")}
+                              {stepStatus === "COMPLETED" && (tAuto('auto.done'))}
+                              {stepStatus === "current" && (tAuto('auto.current'))}
+                              {stepStatus === "PENDING" && (tAuto('auto.waiting'))}
+                              {stepStatus === "REJECTED" && (tAuto('auto.rejected'))}
                             </span>
                           </div>
                         );
@@ -286,7 +289,7 @@ export function ApprovalDetailPanel({
                 <div>
                   <h4 className="text-sm font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
                     <MessageSquare className="h-4 w-4 text-teal-500" />
-                    {ar ? "الملاحظات" : "Notes & Comments"}
+                    {tAuto('auto.notesComments')}
                   </h4>
                   {selectedApproval.notes ? (
                     <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3 border border-slate-100 dark:border-slate-800">
@@ -308,7 +311,7 @@ export function ApprovalDetailPanel({
                   ) : (
                     <div className="text-center py-6 text-slate-400 dark:text-slate-500">
                       <MessageSquare className="h-8 w-8 mx-auto mb-2 opacity-30" />
-                      <p className="text-xs">{ar ? "لا توجد ملاحظات" : "No notes yet"}</p>
+                      <p className="text-xs">{tAuto('auto.noNotesYet')}</p>
                     </div>
                   )}
                 </div>
@@ -319,7 +322,7 @@ export function ApprovalDetailPanel({
                 <div>
                   <h4 className="text-sm font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
                     <Clock className="h-4 w-4 text-teal-500" />
-                    {ar ? "سجل النشاط" : "Activity Log"}
+                    {tAuto('auto.activityLog')}
                   </h4>
                   <div className="space-y-2">
                     {/* Created event */}
@@ -330,7 +333,7 @@ export function ApprovalDetailPanel({
                       <div>
                         <p className="text-[11px] text-slate-700 dark:text-slate-300">
                           <span className="font-semibold">{selectedApproval.requestedBy}</span>
-                          {" "}{ar ? "أنشأ طلب الموافقة" : "created the approval request"}
+                          {" "}{tAuto('auto.createdTheApprovalRequest')}
                         </p>
                         <p className="text-[10px] text-slate-400 dark:text-slate-500">
                           {timeAgo(selectedApproval.createdAt, ar)}
@@ -347,10 +350,10 @@ export function ApprovalDetailPanel({
                         <div>
                           <p className="text-[11px] text-slate-700 dark:text-slate-300">
                             <span className="font-semibold">{selectedApproval.assignedTo}</span>
-                            {" "}{ar ? "أعتمد الخطوة" : "approved step"} {selectedApproval.step - 1}
+                            {" "}{tAuto('auto.approvedStep')} {selectedApproval.step - 1}
                           </p>
                           <p className="text-[10px] text-slate-400 dark:text-slate-500">
-                            {ar ? "تم التوجيه للخطوة التالية" : "Forwarded to next step"}
+                            {tAuto('auto.forwardedToNextStep')}
                           </p>
                         </div>
                       </div>
@@ -365,7 +368,7 @@ export function ApprovalDetailPanel({
                         <div>
                           <p className="text-[11px] text-slate-700 dark:text-slate-300">
                             <span className="font-semibold">{selectedApproval.assignedTo}</span>
-                            {" "}{ar ? "أعتمد الطلب نهائياً" : "approved the request"}
+                            {" "}{tAuto('auto.approvedTheRequest')}
                           </p>
                           <p className="text-[10px] text-slate-400 dark:text-slate-500">
                             {timeAgo(selectedApproval.updatedAt, ar)}
@@ -382,7 +385,7 @@ export function ApprovalDetailPanel({
                         <div>
                           <p className="text-[11px] text-slate-700 dark:text-slate-300">
                             <span className="font-semibold">{selectedApproval.assignedTo}</span>
-                            {" "}{ar ? "رفض الطلب" : "rejected the request"}
+                            {" "}{tAuto('auto.rejectedTheRequest')}
                           </p>
                           {selectedApproval.notes && (
                             <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 italic">
@@ -403,7 +406,7 @@ export function ApprovalDetailPanel({
                         </div>
                         <div>
                           <p className="text-[11px] text-slate-700 dark:text-slate-300">
-                            {ar ? "تم إلغاء الطلب" : "Request was cancelled"}
+                            {tAuto('auto.requestWasCancelled')}
                           </p>
                         </div>
                       </div>

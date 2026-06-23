@@ -1,5 +1,7 @@
 "use client"
 
+
+import { useTranslations } from 'next-intl';
 import * as React from "react"
 import { format } from "date-fns"
 import { Calendar as CalendarIcon } from "lucide-react"
@@ -26,6 +28,7 @@ export function DatePickerWithRange({
   setDate,
   isAr,
 }: DatePickerWithRangeProps) {
+  const tAuto = useTranslations();
 
   return (
     <div className={cn("grid gap-2", className)}>
@@ -40,7 +43,7 @@ export function DatePickerWithRange({
               isAr ? "text-right" : "text-left"
             )}
           >
-            <CalendarIcon className={cn("h-4 w-4", isAr ? "ml-2" : "mr-2")} />
+            <CalendarIcon className={cn("h-4 w-4", tAuto('auto.mr2'))} />
             {date?.from ? (
               date.to ? (
                 <>
@@ -51,7 +54,7 @@ export function DatePickerWithRange({
                 format(date.from, "LLL dd, y")
               )
             ) : (
-              <span>{isAr ? "اختر فترة زمنية" : "Pick a date range"}</span>
+              <span>{tAuto('auto.pickADateRange')}</span>
             )}
           </Button>
         </PopoverTrigger>

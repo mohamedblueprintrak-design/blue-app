@@ -1,12 +1,7 @@
-"use client";
-
-import { useLang } from "@/hooks/use-lang";
+import { getLocale } from 'next-intl/server';
 import { ProjectTemplatesPage } from "@/components/pages/project-templates";
 
-/**
- * /dashboard/project-templates
- */
-export default function ProjectTemplatesPageRoute() {
-  const lang = useLang();
-  return <ProjectTemplatesPage isAr={lang === "ar"} />;
+export default async function ProjectTemplatesPageRoute() {
+  const locale = await getLocale();
+  return <ProjectTemplatesPage isAr={locale === "ar"} />;
 }

@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl';
 import React, { RefObject } from "react";
 import { GripHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -50,6 +51,7 @@ export function GanttTimeline({
   onTaskClick,
   timelineRef,
 }: GanttTimelineProps) {
+  const tAuto = useTranslations();
   return (
     <div
       className="flex-1 overflow-x-auto"
@@ -93,7 +95,7 @@ export function GanttTimeline({
         {todayPosition !== null && (
           <div className="absolute top-0 bottom-0 w-0.5 bg-teal-500 z-10 pointer-events-none" style={{ left: `${todayPosition}%` }}>
             <div className="absolute -top-5 -translate-x-1/2 bg-teal-500 text-white text-[9px] px-1.5 py-0.5 rounded whitespace-nowrap shadow-sm">
-              {ar ? "اليوم" : "Today"}
+              {tAuto('auto.today')}
             </div>
           </div>
         )}

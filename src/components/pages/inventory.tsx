@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -101,6 +103,7 @@ interface InventoryPageProps {
 }
 
 export default function InventoryPage({ language }: InventoryPageProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
@@ -230,39 +233,39 @@ export default function InventoryPage({ language }: InventoryPageProps) {
   const groupedItems = useMemo(() => {
     const groups: Record<string, InventoryItem[]> = {};
     filteredItems.forEach(item => {
-      const loc = item.location || (ar ? "بدون موقع" : "No Location");
+      const loc = item.location || (tAuto('auto.noLocation1'));
       if (!groups[loc]) groups[loc] = [];
       groups[loc].push(item);
     });
     return groups;
-  }, [filteredItems, ar]);
+  }, [filteredItems, ar, tAuto]);
 
   const hasMultipleLocations = Object.keys(groupedItems).length > 1;
 
   const statCards = [
     {
-      label: ar ? "إجمالي الأصناف" : "Total Items",
+      label: tAuto('auto.totalItems'),
       value: stats.total,
       icon: Layers,
       color: "text-blue-600 dark:text-blue-400",
       bg: "bg-blue-100 dark:bg-blue-900/30",
     },
     {
-      label: ar ? "متوفر" : "In Stock",
+      label: tAuto('auto.inStock'),
       value: stats.inStock,
       icon: CheckCircle,
       color: "text-green-600 dark:text-green-400",
       bg: "bg-green-100 dark:bg-green-900/30",
     },
     {
-      label: ar ? "منخفض" : "Low Stock",
+      label: tAuto('auto.lowStock'),
       value: stats.lowStock,
       icon: AlertTriangle,
       color: "text-amber-600 dark:text-amber-400",
       bg: "bg-amber-100 dark:bg-amber-900/30",
     },
     {
-      label: ar ? "نفذ" : "Out of Stock",
+      label: tAuto('auto.outOfStock'),
       value: stats.outOfStock,
       icon: Ban,
       color: "text-red-600 dark:text-red-400",
@@ -299,7 +302,7 @@ export default function InventoryPage({ language }: InventoryPageProps) {
               <DollarSign className="h-5 w-5 text-teal-600 dark:text-teal-400" />
             </div>
             <div>
-              <p className="text-xs text-slate-500 dark:text-slate-400">{ar ? "إجمالي قيمة المخزون" : "Total Inventory Value"}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.totalInventoryValue')}</p>
               <p className="text-xl font-bold text-teal-700 dark:text-teal-300 font-mono tabular-nums">
                 {formatCurrency(summary.totalValue, ar)}
               </p>
@@ -312,7 +315,7 @@ export default function InventoryPage({ language }: InventoryPageProps) {
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
         <div className="flex items-center gap-2 flex-1">
           <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-            {ar ? "المخزون" : "Inventory"}
+            {tAuto('auto.inventory')}
           </h2>
           <Badge variant="secondary" className="text-xs">{items.length}</Badge>
         </div>
@@ -322,7 +325,7 @@ export default function InventoryPage({ language }: InventoryPageProps) {
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder={ar ? "بحث عن صنف..." : "Search items..."}
+              placeholder={tAuto('auto.searchItems')}
               className="ps-9 h-8 text-sm"
             />
           </div>
@@ -332,7 +335,7 @@ export default function InventoryPage({ language }: InventoryPageProps) {
             onClick={() => { setFormData(emptyForm); setShowAddDialog(true); }}
           >
             <Plus className="h-3.5 w-3.5 me-1" />
-            {ar ? "صنف جديد" : "New Item"}
+            {tAuto('auto.newItem')}
           </Button>
         </div>
       </div>
@@ -343,14 +346,14 @@ export default function InventoryPage({ language }: InventoryPageProps) {
           <Table>
             <TableHeader>
               <TableRow className="hover:bg-transparent sticky top-0 bg-white dark:bg-slate-900 z-10">
-                <TableHead>{ar ? "الاسم" : "Name"}</TableHead>
-                <TableHead className="hidden md:table-cell">{ar ? "المشروع" : "Project"}</TableHead>
-                <TableHead>{ar ? "الكمية" : "Qty"}</TableHead>
-                <TableHead className="hidden sm:table-cell">{ar ? "مستوى المخزون" : "Stock Level"}</TableHead>
-                <TableHead className="hidden lg:table-cell">{ar ? "السعر" : "Price"}</TableHead>
-                <TableHead className="hidden lg:table-cell">{ar ? "القيمة" : "Value"}</TableHead>
-                <TableHead className="hidden md:table-cell">{ar ? "الموقع" : "Location"}</TableHead>
-                <TableHead className="text-start">{ar ? "إجراءات" : "Actions"}</TableHead>
+                <TableHead>{tAuto('auto.name')}</TableHead>
+                <TableHead className="hidden md:table-cell">{tAuto('auto.project')}</TableHead>
+                <TableHead>{tAuto('auto.qty')}</TableHead>
+                <TableHead className="hidden sm:table-cell">{tAuto('auto.stockLevel')}</TableHead>
+                <TableHead className="hidden lg:table-cell">{tAuto('auto.price')}</TableHead>
+                <TableHead className="hidden lg:table-cell">{tAuto('auto.value')}</TableHead>
+                <TableHead className="hidden md:table-cell">{tAuto('auto.location')}</TableHead>
+                <TableHead className="text-start">{tAuto('auto.actions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -368,7 +371,7 @@ export default function InventoryPage({ language }: InventoryPageProps) {
                 <TableRow>
                   <TableCell colSpan={8} className="text-center py-12 text-slate-400">
                     <Package className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                    {ar ? "لا توجد أصناف" : "No items found"}
+                    {tAuto('auto.noItemsFound')}
                   </TableCell>
                 </TableRow>
               ) : (
@@ -405,33 +408,33 @@ export default function InventoryPage({ language }: InventoryPageProps) {
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {editItem ? (ar ? "تعديل صنف" : "Edit Item") : (ar ? "صنف جديد" : "New Item")}
+              {editItem ? (tAuto('auto.editItem')) : (tAuto('auto.newItem'))}
             </DialogTitle>
             <DialogDescription>
               {editItem
-                ? (ar ? "تعديل بيانات الصنف" : "Edit item information")
-                : (ar ? "إضافة صنف جديد للمخزون" : "Add a new inventory item")}
+                ? (tAuto('auto.editItemInformation'))
+                : (tAuto('auto.addANewInventoryItem'))}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "اسم الصنف" : "Item Name"} *</Label>
+              <Label className="text-sm">{tAuto('auto.itemName')} *</Label>
               <Input
                 value={formData.name}
                 onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                placeholder={ar ? "مثال: أسمنت بورتلاندي" : "e.g., Portland Cement"}
+                placeholder={tAuto('auto.eGPortlandCement')}
               />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "المشروع" : "Project"} ({ar ? "اختياري" : "optional"})</Label>
+                <Label className="text-sm">{tAuto('auto.project')} ({tAuto('auto.optional1')})</Label>
                 <Select value={formData.projectId} onValueChange={(v) => setFormData(prev => ({ ...prev, projectId: v }))}>
                   <SelectTrigger>
-                    <SelectValue placeholder={ar ? "بدون مشروع" : "No project"} />
+                    <SelectValue placeholder={tAuto('auto.noProject')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">{ar ? "بدون مشروع" : "No project"}</SelectItem>
+                    <SelectItem value="none">{tAuto('auto.noProject')}</SelectItem>
                     {projects.map((p) => (
                       <SelectItem key={p.id} value={p.id}>
                         {p.number} — {ar ? p.name : p.nameEn || p.name}
@@ -441,17 +444,17 @@ export default function InventoryPage({ language }: InventoryPageProps) {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "الوحدة" : "Unit"}</Label>
+                <Label className="text-sm">{tAuto('auto.unit')}</Label>
                 <Input
                   value={formData.unit}
                   onChange={(e) => setFormData(prev => ({ ...prev, unit: e.target.value }))}
-                  placeholder={ar ? "مثال: كيس, طن, متر" : "e.g., bag, ton, m"}
+                  placeholder={tAuto('auto.eGBagTonM')}
                 />
               </div>
             </div>
             <div className="grid grid-cols-3 gap-3">
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "الكمية" : "Quantity"}</Label>
+                <Label className="text-sm">{tAuto('auto.quantity')}</Label>
                 <Input
                   type="number"
                   value={formData.quantity}
@@ -460,7 +463,7 @@ export default function InventoryPage({ language }: InventoryPageProps) {
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "السعر" : "Price"} ({ar ? "د.إ" : "AED"})</Label>
+                <Label className="text-sm">{tAuto('auto.price')} ({tAuto('auto.aED')})</Label>
                 <Input
                   type="number"
                   value={formData.price}
@@ -469,7 +472,7 @@ export default function InventoryPage({ language }: InventoryPageProps) {
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "الحد الأدنى" : "Min Level"}</Label>
+                <Label className="text-sm">{tAuto('auto.minLevel')}</Label>
                 <Input
                   type="number"
                   value={formData.minimumLevel}
@@ -479,11 +482,11 @@ export default function InventoryPage({ language }: InventoryPageProps) {
               </div>
             </div>
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "الموقع" : "Location"}</Label>
+              <Label className="text-sm">{tAuto('auto.location')}</Label>
               <Input
                 value={formData.location}
                 onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
-                placeholder={ar ? "مثال: المستودع A, الموقع 1" : "e.g., Warehouse A, Site 1"}
+                placeholder={tAuto('auto.eGWarehouseASite1')}
               />
             </div>
           </div>
@@ -493,7 +496,7 @@ export default function InventoryPage({ language }: InventoryPageProps) {
               variant="outline"
               onClick={() => { setShowAddDialog(false); setEditItem(null); setFormData(emptyForm); }}
             >
-              {ar ? "إلغاء" : "Cancel"}
+              {tAuto('auto.cancel')}
             </Button>
             <Button
               className="bg-teal-600 hover:bg-teal-700 text-white"
@@ -501,8 +504,8 @@ export default function InventoryPage({ language }: InventoryPageProps) {
               disabled={!formData.name || createMutation.isPending || updateMutation.isPending}
             >
               {(createMutation.isPending || updateMutation.isPending)
-                ? (ar ? "جارٍ الحفظ..." : "Saving...")
-                : (ar ? "حفظ" : "Save")}
+                ? (tAuto('auto.saving'))
+                : (tAuto('auto.save'))}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -527,13 +530,14 @@ function GroupedRows({
   onEdit: (item: InventoryItem) => void;
   onDelete: (id: string, name: string) => void;
 }) {
+  const tAuto = useTranslations();
   return (
     <>
       {hasMultipleLocations && (
         <TableRow className="bg-slate-100 dark:bg-slate-800/50 hover:bg-transparent">
           <TableCell colSpan={8} className="py-1.5 px-4">
             <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              📍 {location} ({items.length} {ar ? "أصناف" : "items"})
+              📍 {location} ({items.length} {tAuto('auto.items')})
             </span>
           </TableCell>
         </TableRow>
@@ -603,14 +607,14 @@ function GroupedRows({
                 <DropdownMenuContent align={ar ? "start" : "end"}>
                   <DropdownMenuItem onClick={() => onEdit(item)}>
                     <Pencil className="me-2 h-3.5 w-3.5" />
-                    {ar ? "تعديل" : "Edit"}
+                    {tAuto('auto.edit')}
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     className="text-red-600 dark:text-red-400"
                     onClick={() => onDelete(item.id, item.name)}
                   >
                     <Trash2 className="me-2 h-3.5 w-3.5" />
-                    {ar ? "حذف" : "Delete"}
+                    {tAuto('auto.delete')}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

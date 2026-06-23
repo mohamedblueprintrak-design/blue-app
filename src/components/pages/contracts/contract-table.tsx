@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/lib/formatters";
 import { Button } from "@/components/ui/button";
@@ -81,6 +83,7 @@ export function ContractTable({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onEditFromDetail,
 }: ContractTableProps) {
+  const tAuto = useTranslations();
   return (
     <div className="space-y-4">
       {/* Header */}
@@ -92,14 +95,14 @@ export function ContractTable({
           <div>
             <div className="flex items-center gap-2">
               <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-                {ar ? "العقود" : "Contracts"}
+                {tAuto('auto.contracts1')}
               </h2>
               <Badge variant="secondary" className="text-[10px] font-medium h-5 px-1.5">
                 {contracts.length}
               </Badge>
             </div>
             <p className="text-[10px] text-slate-500 dark:text-slate-400">
-              {ar ? "إدارة وتتبع العقود" : "Manage and track contracts"}
+              {tAuto('auto.manageAndTrackContracts')}
             </p>
           </div>
         </div>
@@ -109,21 +112,21 @@ export function ContractTable({
             <Input
               value={search}
               onChange={(e) => onSearchChange(e.target.value)}
-              placeholder={ar ? "بحث في العقود..." : "Search contracts..."}
+              placeholder={tAuto('auto.searchContracts')}
               className="ps-9 h-8 text-sm rounded-lg"
             />
           </div>
           <Select value={filterStatus} onValueChange={onFilterStatusChange}>
             <SelectTrigger className="w-[140px] h-8 text-xs rounded-lg">
-              <SelectValue placeholder={ar ? "الحالة" : "Status"} />
+              <SelectValue placeholder={tAuto('auto.status1')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{ar ? "الكل" : "All"}</SelectItem>
-              <SelectItem value="DRAFT">{ar ? "مسودة" : "Draft"}</SelectItem>
-              <SelectItem value="PENDING_SIGNATURE">{ar ? "بانتظار التوقيع" : "Pending"}</SelectItem>
-              <SelectItem value="ACTIVE">{ar ? "نشط" : "Active"}</SelectItem>
-              <SelectItem value="EXPIRED">{ar ? "منتهي" : "Expired"}</SelectItem>
-              <SelectItem value="COMPLETED">{ar ? "مكتمل" : "Completed"}</SelectItem>
+              <SelectItem value="all">{tAuto('auto.all')}</SelectItem>
+              <SelectItem value="DRAFT">{tAuto('auto.draft')}</SelectItem>
+              <SelectItem value="PENDING_SIGNATURE">{tAuto('auto.pending')}</SelectItem>
+              <SelectItem value="ACTIVE">{tAuto('auto.active')}</SelectItem>
+              <SelectItem value="EXPIRED">{tAuto('auto.expired')}</SelectItem>
+              <SelectItem value="COMPLETED">{tAuto('auto.completed')}</SelectItem>
             </SelectContent>
           </Select>
           <Button
@@ -132,7 +135,7 @@ export function ContractTable({
             onClick={onAddClick}
           >
             <Plus className="h-3.5 w-3.5 me-1" />
-            {ar ? "عقد جديد" : "New Contract"}
+            {tAuto('auto.newContract')}
           </Button>
         </div>
       </div>
@@ -145,7 +148,7 @@ export function ContractTable({
               <div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm">
                 <FileText className="h-3.5 w-3.5 text-slate-600 dark:text-slate-300" />
               </div>
-              <span className="text-xs text-slate-500 dark:text-slate-400">{ar ? "إجمالي العقود" : "Total Contracts"}</span>
+              <span className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.totalContracts')}</span>
             </div>
             <div className="text-xl font-bold text-slate-900 dark:text-white tabular-nums">
               {filteredContracts.length}
@@ -162,13 +165,13 @@ export function ContractTable({
               <div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm">
                 <DollarSign className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" />
               </div>
-              <span className="text-xs text-teal-600 dark:text-teal-400">{ar ? "إجمالي القيمة" : "Total Value"}</span>
+              <span className="text-xs text-teal-600 dark:text-teal-400">{tAuto('auto.totalValue')}</span>
             </div>
             <div className="text-xl font-bold text-slate-900 dark:text-white font-mono tabular-nums">
               {formatCurrency(totalValue, ar)}
             </div>
             <p className="text-[10px] text-teal-500/60 dark:text-teal-400/60 mt-1">
-              {ar ? "جميع العقود" : "All contracts"}
+              {tAuto('auto.allContracts')}
             </p>
           </div>
         </Card>
@@ -179,13 +182,13 @@ export function ContractTable({
               <div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm">
                 <TrendingUp className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
               </div>
-              <span className="text-xs text-emerald-600 dark:text-emerald-400">{ar ? "العقود النشطة" : "Active Contracts"}</span>
+              <span className="text-xs text-emerald-600 dark:text-emerald-400">{tAuto('auto.activeContracts')}</span>
             </div>
             <div className="text-xl font-bold text-emerald-700 dark:text-emerald-300 tabular-nums">
               {contracts.filter((c) => c.status === "ACTIVE").length}
             </div>
             <p className="text-[10px] text-emerald-500/60 dark:text-emerald-400/60 mt-1">
-              {ar ? "قيد التنفيذ" : "In progress"}
+              {tAuto('auto.inProgress1')}
             </p>
           </div>
         </Card>
@@ -196,13 +199,13 @@ export function ContractTable({
               <div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm">
                 <Sparkles className="h-3.5 w-3.5 text-violet-600 dark:text-violet-400" />
               </div>
-              <span className="text-xs text-violet-600 dark:text-violet-400">{ar ? "قيمة النشطة" : "Active Value"}</span>
+              <span className="text-xs text-violet-600 dark:text-violet-400">{tAuto('auto.activeValue')}</span>
             </div>
             <div className="text-xl font-bold text-violet-700 dark:text-violet-300 font-mono tabular-nums">
               {formatCurrency(activeValue, ar)}
             </div>
             <p className="text-[10px] text-violet-500/60 dark:text-violet-400/60 mt-1">
-              {ar ? "عقود سارية المفعول" : "Active value"}
+              {tAuto('auto.activeValue1')}
             </p>
           </div>
         </Card>
@@ -217,13 +220,13 @@ export function ContractTable({
           <Table>
             <TableHeader>
               <TableRow className="hover:bg-transparent bg-slate-50/80 dark:bg-slate-800/50">
-                <TableHead className="text-xs font-semibold">{ar ? "الرقم" : "No."}</TableHead>
-                <TableHead className="text-xs font-semibold">{ar ? "العنوان" : "Title"}</TableHead>
-                <TableHead className="text-xs font-semibold hidden md:table-cell">{ar ? "العميل" : "Client"}</TableHead>
-                <TableHead className="text-xs font-semibold hidden md:table-cell">{ar ? "المشروع" : "Project"}</TableHead>
-                <TableHead className="text-xs font-semibold">{ar ? "القيمة" : "Value"}</TableHead>
-                <TableHead className="text-xs font-semibold hidden sm:table-cell">{ar ? "الحالة" : "Status"}</TableHead>
-                <TableHead className="text-xs font-semibold text-start">{ar ? "الإجراءات" : "Actions"}</TableHead>
+                <TableHead className="text-xs font-semibold">{tAuto('auto.no')}</TableHead>
+                <TableHead className="text-xs font-semibold">{tAuto('auto.title')}</TableHead>
+                <TableHead className="text-xs font-semibold hidden md:table-cell">{tAuto('auto.client')}</TableHead>
+                <TableHead className="text-xs font-semibold hidden md:table-cell">{tAuto('auto.project')}</TableHead>
+                <TableHead className="text-xs font-semibold">{tAuto('auto.value')}</TableHead>
+                <TableHead className="text-xs font-semibold hidden sm:table-cell">{tAuto('auto.status1')}</TableHead>
+                <TableHead className="text-xs font-semibold text-start">{tAuto('auto.actions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -254,7 +257,7 @@ export function ContractTable({
                       {ar ? contract.project.name : contract.project.nameEn || contract.project.name}
                     </TableCell>
                     <TableCell className="font-medium text-slate-900 dark:text-white text-sm font-mono tabular-nums">
-                      <span className="text-slate-400 dark:text-slate-500">{ar ? "د.إ" : "AED"} </span>{contract.value.toLocaleString(ar ? "ar-AE" : "en-US")}
+                      <span className="text-slate-400 dark:text-slate-500">{tAuto('auto.aED')} </span>{contract.value.toLocaleString(ar ? "ar-AE" : "en-US")}
                     </TableCell>
                     <TableCell className="hidden sm:table-cell">
                       <span className={cn(
@@ -310,10 +313,10 @@ export function ContractTable({
                       </div>
                       <div>
                         <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
-                          {ar ? "لا توجد عقود" : "No contracts found"}
+                          {tAuto('auto.noContractsFound')}
                         </p>
                         <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
-                          {ar ? "أضف عقدًا جديدًا للبدء" : "Add a new contract to get started"}
+                          {tAuto('auto.addANewContractToGetStarted')}
                         </p>
                       </div>
                       <Button
@@ -322,7 +325,7 @@ export function ContractTable({
                         onClick={onAddClick}
                       >
                         <Plus className="h-3.5 w-3.5 me-1" />
-                        {ar ? "عقد جديد" : "New Contract"}
+                        {tAuto('auto.newContract')}
                       </Button>
                     </div>
                   </TableCell>

@@ -1,5 +1,7 @@
 'use client';
 
+
+import { useTranslations } from 'next-intl';
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
@@ -141,6 +143,7 @@ function TriggerIcon({ type }: { type: string }) {
 }
 
 export default function AutomationsPage({ language }: Props) {
+  const tAuto = useTranslations();
   const isAr = language === 'ar';
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -171,14 +174,14 @@ export default function AutomationsPage({ language }: Props) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['automations'] });
       toast({
-        title: isAr ? 'تم التحديث' : 'Updated',
-        description: isAr ? 'تم تحديث حالة الأتمتة' : 'Automation status updated',
+        title: tAuto('auto.updated'),
+        description: tAuto('auto.automationStatusUpdated'),
       });
     },
     onError: () => {
       toast({
-        title: isAr ? 'خطأ' : 'Error',
-        description: isAr ? 'فشل في تحديث الحالة' : 'Failed to update status',
+        title: tAuto('auto.error'),
+        description: tAuto('auto.failedToUpdateStatus'),
         variant: 'destructive',
       });
     },
@@ -198,15 +201,15 @@ export default function AutomationsPage({ language }: Props) {
         setCreateDialogOpen(false);
         setNewAutomation({ name: '', description: '', triggerType: 'event', actionType: 'notification' });
         toast({
-          title: isAr ? 'تم بنجاح' : 'Success',
-          description: isAr ? 'تم إنشاء الأتمتة بنجاح' : 'Automation created successfully',
+          title: tAuto('auto.success'),
+          description: tAuto('auto.automationCreatedSuccessfully'),
         });
       }
     },
     onError: () => {
       toast({
-        title: isAr ? 'خطأ' : 'Error',
-        description: isAr ? 'فشل في إنشاء الأتمتة' : 'Failed to create automation',
+        title: tAuto('auto.error'),
+        description: tAuto('auto.failedToCreateAutomation'),
         variant: 'destructive',
       });
     },
@@ -219,8 +222,8 @@ export default function AutomationsPage({ language }: Props) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['automations'] });
       toast({
-        title: isAr ? 'تم الحذف' : 'Deleted',
-        description: isAr ? 'تم حذف الأتمتة بنجاح' : 'Automation deleted successfully',
+        title: tAuto('auto.deleted'),
+        description: tAuto('auto.automationDeletedSuccessfully'),
       });
     },
   });
@@ -244,45 +247,45 @@ export default function AutomationsPage({ language }: Props) {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
-            {isAr ? 'الأتمتة' : 'Automations'}
+            {tAuto('auto.automations')}
           </h1>
           <p className="text-slate-500 dark:text-slate-400 mt-1">
-            {isAr ? 'أتمتة المهام والعمليات المتكررة' : 'Automate repetitive tasks and workflows'}
+            {tAuto('auto.automateRepetitiveTasksAndWorkflows')}
           </p>
         </div>
         <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
           <DialogTrigger asChild>
             <Button className="bg-teal-600 hover:bg-teal-700 text-white gap-1.5 shadow-sm shadow-teal-500/20">
               <Plus className="w-4 h-4" />
-              {isAr ? 'إنشاء أتمتة جديدة' : 'New Automation'}
+              {tAuto('auto.newAutomation')}
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-md" dir={isAr ? 'rtl' : 'ltr'}>
             <DialogHeader>
-              <DialogTitle>{isAr ? 'إنشاء أتمتة جديدة' : 'Create New Automation'}</DialogTitle>
+              <DialogTitle>{tAuto('auto.createNewAutomation')}</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 pt-2">
               <div className="space-y-1.5">
-                <Label className="text-xs font-medium">{isAr ? 'الاسم' : 'Name'}</Label>
+                <Label className="text-xs font-medium">{tAuto('auto.name')}</Label>
                 <Input
                   value={newAutomation.name}
                   onChange={(e) => setNewAutomation({ ...newAutomation, name: e.target.value })}
-                  placeholder={isAr ? 'تنبيه المهام المتأخرة' : 'Overdue task alerts'}
+                  placeholder={tAuto('auto.overdueTaskAlerts')}
                   className="h-10 rounded-lg"
                 />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs font-medium">{isAr ? 'الوصف' : 'Description'}</Label>
+                <Label className="text-xs font-medium">{tAuto('auto.description')}</Label>
                 <Input
                   value={newAutomation.description}
                   onChange={(e) => setNewAutomation({ ...newAutomation, description: e.target.value })}
-                  placeholder={isAr ? 'وصف اختياري' : 'Optional description'}
+                  placeholder={tAuto('auto.optionalDescription')}
                   className="h-10 rounded-lg"
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-medium">{isAr ? 'نوع المشغل' : 'Trigger Type'}</Label>
+                  <Label className="text-xs font-medium">{tAuto('auto.triggerType')}</Label>
                   <Select
                     value={newAutomation.triggerType}
                     onValueChange={(v) => setNewAutomation({ ...newAutomation, triggerType: v })}
@@ -300,7 +303,7 @@ export default function AutomationsPage({ language }: Props) {
                   </Select>
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-medium">{isAr ? 'نوع الإجراء' : 'Action Type'}</Label>
+                  <Label className="text-xs font-medium">{tAuto('auto.actionType')}</Label>
                   <Select
                     value={newAutomation.actionType}
                     onValueChange={(v) => setNewAutomation({ ...newAutomation, actionType: v })}
@@ -326,7 +329,7 @@ export default function AutomationsPage({ language }: Props) {
                 {createMutation.isPending ? (
                   <RotateCcw className="h-4 w-4 animate-spin me-2" />
                 ) : null}
-                {isAr ? 'إنشاء الأتمتة' : 'Create Automation'}
+                {tAuto('auto.createAutomation')}
               </Button>
             </div>
           </DialogContent>
@@ -339,7 +342,7 @@ export default function AutomationsPage({ language }: Props) {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{isAr ? 'إجمالي الأتمتة' : 'Total'}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.total')}</p>
                 <p className="text-2xl font-bold text-slate-900 dark:text-white tabular-nums">{automations.length}</p>
               </div>
               <div className="w-10 h-10 bg-teal-100 dark:bg-teal-900/30 rounded-xl flex items-center justify-center">
@@ -353,7 +356,7 @@ export default function AutomationsPage({ language }: Props) {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-emerald-600 dark:text-emerald-400">{isAr ? 'نشطة' : 'Active'}</p>
+                <p className="text-xs text-emerald-600 dark:text-emerald-400">{tAuto('auto.active')}</p>
                 <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">{activeCount}</p>
               </div>
               <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center">
@@ -367,7 +370,7 @@ export default function AutomationsPage({ language }: Props) {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{isAr ? 'غير نشطة' : 'Inactive'}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.inactive')}</p>
                 <p className="text-2xl font-bold text-slate-900/80 dark:text-white/80 tabular-nums">{inactiveCount}</p>
               </div>
               <div className="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-xl flex items-center justify-center">
@@ -381,7 +384,7 @@ export default function AutomationsPage({ language }: Props) {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-violet-600 dark:text-violet-400">{isAr ? 'إجمالي التشغيلات' : 'Total Runs'}</p>
+                <p className="text-xs text-violet-600 dark:text-violet-400">{tAuto('auto.totalRuns')}</p>
                 <p className="text-2xl font-bold text-violet-600 dark:text-violet-400 tabular-nums">{totalRuns}</p>
               </div>
               <div className="w-10 h-10 bg-violet-100 dark:bg-violet-900/30 rounded-xl flex items-center justify-center">
@@ -395,7 +398,7 @@ export default function AutomationsPage({ language }: Props) {
       {/* Automations List */}
       <div className="space-y-4">
         <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
-          {isAr ? 'القواعد النشطة' : 'Active Rules'}
+          {tAuto('auto.activeRules')}
         </h2>
         {automations.map((automation) => {
           const statusInfo = statusLabels[automation.status] || statusLabels.INACTIVE;
@@ -425,7 +428,7 @@ export default function AutomationsPage({ language }: Props) {
                       <div className="flex flex-wrap items-center gap-x-5 gap-y-1">
                         <div className="flex items-center gap-1.5">
                           <TriggerIcon type={automation.triggerType} />
-                          <span className="text-xs text-slate-500 dark:text-slate-400">{isAr ? 'المحفز:' : 'Trigger:'}</span>
+                          <span className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.trigger')}</span>
                           <span className="text-xs font-medium text-slate-700 dark:text-slate-300">
                             {triggerTypeLabels[automation.triggerType]?.[isAr ? 'ar' : 'en'] || automation.triggerType}
                           </span>
@@ -438,7 +441,7 @@ export default function AutomationsPage({ language }: Props) {
                         </div>
                         <div className="flex items-center gap-1.5">
                           <Play className="h-3 w-3 text-slate-400" />
-                          <span className="text-xs text-slate-500">{isAr ? 'التشغيلات:' : 'Runs:'}</span>
+                          <span className="text-xs text-slate-500">{tAuto('auto.runs')}</span>
                           <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 tabular-nums">{automation.runCount}</span>
                         </div>
                         {automation.lastRunAt && (
@@ -491,7 +494,7 @@ export default function AutomationsPage({ language }: Props) {
       {/* Templates */}
       <div className="space-y-4">
         <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
-          {isAr ? 'قوالب جاهزة' : 'Ready Templates'}
+          {tAuto('auto.readyTemplates')}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {templates.map((template, index) => (
@@ -545,19 +548,17 @@ export default function AutomationsPage({ language }: Props) {
               <Zap className="w-8 h-8 text-slate-300 dark:text-slate-600" />
             </div>
             <p className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
-              {isAr ? 'لا توجد أتمتة' : 'No automations yet'}
+              {tAuto('auto.noAutomationsYet')}
             </p>
             <p className="text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-4">
-              {isAr
-                ? 'ابدأ بإنشاء أتمتة جديدة أو استخدم أحد القوالب الجاهزة لأتمتة مهامك'
-                : 'Create a new automation or use one of the ready-made templates to automate your tasks'}
+              {tAuto('auto.createANewAutomationOrUseOneOfTheReadyMa')}
             </p>
             <Button
               onClick={() => setCreateDialogOpen(true)}
               className="bg-teal-600 hover:bg-teal-700 text-white gap-1.5"
             >
               <Plus className="w-4 h-4" />
-              {isAr ? 'إنشاء أتمتة جديدة' : 'Create Automation'}
+              {tAuto('auto.createAutomation')}
             </Button>
           </CardContent>
         </Card>

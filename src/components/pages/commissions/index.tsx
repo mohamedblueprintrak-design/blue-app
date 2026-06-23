@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getMutationHeaders } from "@/lib/csrf-client";
@@ -20,6 +22,7 @@ interface CommissionsPageProps {
 }
 
 export default function CommissionsPage({ language }: CommissionsPageProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const [activeTab, setActiveTab] = useState("commissions");
 
@@ -52,9 +55,9 @@ export default function CommissionsPage({ language }: CommissionsPageProps) {
           <Gift className="h-4.5 w-4.5 text-teal-600 dark:text-teal-400" />
         </div>
         <div>
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white">{ar ? "العمولات والإحالات" : "Commissions & Referrals"}</h2>
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white">{tAuto('auto.commissionsReferrals')}</h2>
           <p className="text-[10px] text-slate-500 dark:text-slate-400">
-            {ar ? "إدارة العمولات والإحالات والحملات التسويقية" : "Manage commissions, referrals and marketing campaigns"}
+            {tAuto('auto.manageCommissionsReferralsAndMarketingCa')}
           </p>
         </div>
       </div>
@@ -64,15 +67,15 @@ export default function CommissionsPage({ language }: CommissionsPageProps) {
         <TabsList className="bg-slate-100 dark:bg-slate-800/50 h-9 p-1">
           <TabsTrigger value="commissions" className="text-xs gap-1.5 h-7 rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:shadow-sm">
             <DollarSign className="h-3.5 w-3.5" />
-            {ar ? "العمولات" : "Commissions"}
+            {tAuto('auto.commissions')}
           </TabsTrigger>
           <TabsTrigger value="referrals" className="text-xs gap-1.5 h-7 rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:shadow-sm">
             <Users className="h-3.5 w-3.5" />
-            {ar ? "الإحالات" : "Referrals"}
+            {tAuto('auto.referrals')}
           </TabsTrigger>
           <TabsTrigger value="campaigns" className="text-xs gap-1.5 h-7 rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:shadow-sm">
             <Megaphone className="h-3.5 w-3.5" />
-            {ar ? "الحملات التسويقية" : "Campaigns"}
+            {tAuto('auto.campaigns')}
           </TabsTrigger>
         </TabsList>
 
@@ -162,6 +165,7 @@ function ReferralsTab({ language, users, projects }: { language: "ar" | "en"; us
 
 // ===== CAMPAIGNS TAB =====
 function CampaignsTab({ language }: { language: "ar" | "en" }) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const queryClient = useQueryClient();
   const [showDialog, setShowDialog] = useState(false);
@@ -215,14 +219,14 @@ function CampaignsTab({ language }: { language: "ar" | "en" }) {
       <CampaignStats language={language} campaignCount={campaigns.length} totalBudget={totalBudget} totalLeads={totalLeads} totalConversions={totalConversions} />
       <div className="flex items-center justify-end">
         <Button size="sm" className="h-8 bg-teal-600 hover:bg-teal-700 text-white rounded-lg shadow-sm shadow-teal-600/20" onClick={() => { setEditId(null); setShowDialog(true); }}>
-          <Plus className="h-3.5 w-3.5 me-1" />{ar ? "حملة جديدة" : "New Campaign"}
+          <Plus className="h-3.5 w-3.5 me-1" />{tAuto('auto.newCampaign')}
         </Button>
       </div>
       {campaigns.length === 0 ? (
         <Card className="border-slate-200 dark:border-slate-700/50">
           <CardContent className="p-12 text-center">
             <Megaphone className="h-12 w-12 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
-            <p className="text-slate-400">{ar ? "لا توجد حملات تسويقية" : "No marketing campaigns yet"}</p>
+            <p className="text-slate-400">{tAuto('auto.noMarketingCampaignsYet')}</p>
           </CardContent>
         </Card>
       ) : (

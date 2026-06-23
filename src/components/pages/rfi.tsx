@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm, type Resolver } from "react-hook-form";
@@ -123,6 +125,7 @@ function formatSLABadge(days: number | null, ar: boolean) {
 interface RFIProps { language: "ar" | "en"; projectId?: string; }
 
 export default function RFI({ language, projectId }: RFIProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const queryClient = useQueryClient();
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -237,9 +240,9 @@ export default function RFI({ language, projectId }: RFIProps) {
             <MessageSquareQuote className="h-4.5 w-4.5 text-teal-600 dark:text-teal-400" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white">{ar ? "طلبات المعلومات" : "RFI"}</h2>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">{tAuto('auto.rFI')}</h2>
             <p className="text-[10px] text-slate-500 dark:text-slate-400">
-              {rfis.length} {ar ? "طلب" : "requests"}
+              {rfis.length} {tAuto('auto.requests')}
             </p>
           </div>
         </div>
@@ -248,10 +251,10 @@ export default function RFI({ language, projectId }: RFIProps) {
           <Select value={filterProject} onValueChange={setFilterProject}>
             <SelectTrigger className="w-[160px] h-8 text-xs rounded-lg">
               <Filter className="h-3 w-3 me-1 text-slate-400" />
-              <SelectValue placeholder={ar ? "المشروع" : "Project"} />
+              <SelectValue placeholder={tAuto('auto.project')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{ar ? "جميع المشاريع" : "All Projects"}</SelectItem>
+              <SelectItem value="all">{tAuto('auto.allProjects')}</SelectItem>
               {projects.map((p) => (
                 <SelectItem key={p.id} value={p.id}>{ar ? p.name : p.nameEn || p.name}</SelectItem>
               ))}
@@ -259,7 +262,7 @@ export default function RFI({ language, projectId }: RFIProps) {
           </Select>
           )}
           <Button size="sm" className="h-8 bg-teal-600 hover:bg-teal-700 text-white rounded-lg shadow-sm shadow-teal-600/20" onClick={() => setShowAddDialog(true)}>
-            <Plus className="h-3.5 w-3.5 me-1" />{ar ? "طلب جديد" : "New RFI"}
+            <Plus className="h-3.5 w-3.5 me-1" />{tAuto('auto.newRFI')}
           </Button>
         </div>
       </div>
@@ -273,7 +276,7 @@ export default function RFI({ language, projectId }: RFIProps) {
                 <Inbox className="h-5 w-5 text-slate-600 dark:text-slate-400" />
               </div>
               <div>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{ar ? "إجمالي الطلبات" : "Total RFI"}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.totalRFI')}</p>
                 <p className="text-xl font-bold text-slate-900 dark:text-white tabular-nums">{totalRFI}</p>
               </div>
             </div>
@@ -286,7 +289,7 @@ export default function RFI({ language, projectId }: RFIProps) {
                 <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
               </div>
               <div>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{ar ? "مفتوح" : "Open"}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.open')}</p>
                 <p className="text-xl font-bold text-amber-600 dark:text-amber-400 tabular-nums">{openCount}</p>
               </div>
             </div>
@@ -299,7 +302,7 @@ export default function RFI({ language, projectId }: RFIProps) {
                 <MessageCircle className="h-5 w-5 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{ar ? "تم الرد" : "Answered"}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.answered')}</p>
                 <p className="text-xl font-bold text-blue-600 dark:text-blue-400 tabular-nums">{answeredCount}</p>
               </div>
             </div>
@@ -312,7 +315,7 @@ export default function RFI({ language, projectId }: RFIProps) {
                 <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400" />
               </div>
               <div>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{ar ? "متأخر" : "Overdue"}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.overdue')}</p>
                 <div className="flex items-center gap-1">
                   <p className="text-xl font-bold text-red-600 dark:text-red-400 tabular-nums">{overdueCount}</p>
                   {overdueCount > 0 && (
@@ -331,27 +334,27 @@ export default function RFI({ language, projectId }: RFIProps) {
       {/* Table */}
       <div className="rounded-xl border border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900 overflow-hidden shadow-sm">
         {isLoading ? (
-          <div className="p-8 text-center text-slate-400">{ar ? "جارٍ التحميل..." : "Loading..."}</div>
+          <div className="p-8 text-center text-slate-400">{tAuto('auto.loading')}</div>
         ) : rfis.length === 0 ? (
           <div className="flex flex-col items-center justify-center min-h-[30vh] text-center p-8">
             <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-3">
               <MessageSquareQuote className="h-6 w-6 text-slate-400" />
             </div>
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-1">{ar ? "لا توجد طلبات" : "No RFIs"}</h3>
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-1">{tAuto('auto.noRFIs')}</h3>
           </div>
         ) : (
           <div className="overflow-x-auto max-h-[calc(100vh-380px)] overflow-y-auto">
             <Table>
               <TableHeader>
                 <TableRow className="hover:bg-transparent bg-slate-50/80 dark:bg-slate-800/50">
-                  <TableHead className="text-xs font-semibold">{ar ? "الرقم" : "Number"}</TableHead>
-                  <TableHead className="text-xs font-semibold">{ar ? "المشروع" : "Project"}</TableHead>
-                  <TableHead className="text-xs font-semibold">{ar ? "الموضوع" : "Subject"}</TableHead>
-                  <TableHead className="text-xs font-semibold">{ar ? "من" : "From"}</TableHead>
-                  <TableHead className="text-xs font-semibold">{ar ? "إلى" : "To"}</TableHead>
-                  <TableHead className="text-xs font-semibold">{ar ? "الأولوية" : "Priority"}</TableHead>
-                  <TableHead className="text-xs font-semibold">{ar ? "الموعد النهائي" : "Due Date"}</TableHead>
-                  <TableHead className="text-xs font-semibold">{ar ? "الحالة" : "Status"}</TableHead>
+                  <TableHead className="text-xs font-semibold">{tAuto('auto.number')}</TableHead>
+                  <TableHead className="text-xs font-semibold">{tAuto('auto.project')}</TableHead>
+                  <TableHead className="text-xs font-semibold">{tAuto('auto.subject')}</TableHead>
+                  <TableHead className="text-xs font-semibold">{tAuto('auto.from')}</TableHead>
+                  <TableHead className="text-xs font-semibold">{tAuto('auto.to')}</TableHead>
+                  <TableHead className="text-xs font-semibold">{tAuto('auto.priority')}</TableHead>
+                  <TableHead className="text-xs font-semibold">{tAuto('auto.dueDate')}</TableHead>
+                  <TableHead className="text-xs font-semibold">{tAuto('auto.status1')}</TableHead>
                   <TableHead className="w-10"></TableHead>
                 </TableRow>
               </TableHeader>
@@ -438,11 +441,11 @@ export default function RFI({ language, projectId }: RFIProps) {
                           <DropdownMenuContent align={ar ? "start" : "end"} className="w-40">
                             {rfi.status !== "CLOSED" && (
                               <DropdownMenuItem onClick={() => handleOpenReply(rfi)}>
-                                <Reply className="h-3.5 w-3.5 me-2" />{ar ? "رد" : "Reply"}
+                                <Reply className="h-3.5 w-3.5 me-2" />{tAuto('auto.reply')}
                               </DropdownMenuItem>
                             )}
-                            <DropdownMenuItem className="text-red-600 dark:text-red-400" onClick={() => { if (confirm(ar ? "هل أنت متأكد من الحذف؟" : "Delete this RFI?")) deleteMutation.mutate(rfi.id); }}>
-                              <Trash2 className="h-3.5 w-3.5 me-2" />{ar ? "حذف" : "Delete"}
+                            <DropdownMenuItem className="text-red-600 dark:text-red-400" onClick={() => { if (confirm(tAuto('auto.deleteThisRFI'))) deleteMutation.mutate(rfi.id); }}>
+                              <Trash2 className="h-3.5 w-3.5 me-2" />{tAuto('auto.delete')}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -460,16 +463,16 @@ export default function RFI({ language, projectId }: RFIProps) {
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{ar ? "طلب معلومات جديد" : "New RFI"}</DialogTitle>
-            <DialogDescription>{ar ? "إرسال طلب معلومات جديد" : "Submit a new Request for Information"}</DialogDescription>
+            <DialogTitle>{tAuto('auto.newRFI')}</DialogTitle>
+            <DialogDescription>{tAuto('auto.submitANewRequestForInformation')}</DialogDescription>
           </DialogHeader>
           <form onSubmit={rhfHandleSubmit((data) => createMutation.mutate(data))} className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "المشروع" : "Project"} *</Label>
+                <Label className="text-sm">{tAuto('auto.project')} *</Label>
                 {/* eslint-disable-next-line react-hooks/incompatible-library */}
                 <Select value={watch("projectId")} onValueChange={(v) => setValue("projectId", v)}>
-                  <SelectTrigger className={cn(errors.projectId && "border-red-500")}><SelectValue placeholder={ar ? "اختر مشروع" : "Select project"} /></SelectTrigger>
+                  <SelectTrigger className={cn(errors.projectId && "border-red-500")}><SelectValue placeholder={tAuto('auto.selectProject')} /></SelectTrigger>
                   <SelectContent>
                     {projects.map((p) => (<SelectItem key={p.id} value={p.id}>{ar ? p.name : p.nameEn || p.name}</SelectItem>))}
                   </SelectContent>
@@ -477,24 +480,24 @@ export default function RFI({ language, projectId }: RFIProps) {
                 {errors.projectId && <p className="text-red-500 text-xs mt-1">{getErrorMessage(errors.projectId.message || "", ar)}</p>}
               </div>
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "الرقم" : "Number"}</Label>
-                <Input {...register("number")} placeholder={ar ? "RFI-001" : "RFI-001"} />
+                <Label className="text-sm">{tAuto('auto.number')}</Label>
+                <Input {...register("number")} placeholder={tAuto('auto.rFI001')} />
               </div>
             </div>
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "الموضوع" : "Subject"} *</Label>
-              <Input {...register("subject")} placeholder={ar ? "موضوع الطلب" : "RFI subject"} className={cn(errors.subject && "border-red-500")} />
+              <Label className="text-sm">{tAuto('auto.subject')} *</Label>
+              <Input {...register("subject")} placeholder={tAuto('auto.rFISubject')} className={cn(errors.subject && "border-red-500")} />
               {errors.subject && <p className="text-red-500 text-xs mt-1">{getErrorMessage(errors.subject.message || "", ar)}</p>}
             </div>
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "الوصف" : "Description"}</Label>
-              <Textarea {...register("description")} placeholder={ar ? "تفاصيل الطلب" : "RFI details"} rows={3} />
+              <Label className="text-sm">{tAuto('auto.description')}</Label>
+              <Textarea {...register("description")} placeholder={tAuto('auto.rFIDetails')} rows={3} />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "من" : "From"} *</Label>
+                <Label className="text-sm">{tAuto('auto.from')} *</Label>
                 <Select value={watch("fromId")} onValueChange={(v) => setValue("fromId", v)}>
-                  <SelectTrigger className={cn(errors.fromId && "border-red-500")}><SelectValue placeholder={ar ? "المرسل" : "From"} /></SelectTrigger>
+                  <SelectTrigger className={cn(errors.fromId && "border-red-500")}><SelectValue placeholder={tAuto('auto.from')} /></SelectTrigger>
                   <SelectContent>
                     {users.map((u) => (<SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>))}
                   </SelectContent>
@@ -502,9 +505,9 @@ export default function RFI({ language, projectId }: RFIProps) {
                 {errors.fromId && <p className="text-red-500 text-xs mt-1">{getErrorMessage(errors.fromId.message || "", ar)}</p>}
               </div>
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "إلى" : "To"} *</Label>
+                <Label className="text-sm">{tAuto('auto.to')} *</Label>
                 <Select value={watch("toId")} onValueChange={(v) => setValue("toId", v)}>
-                  <SelectTrigger className={cn(errors.toId && "border-red-500")}><SelectValue placeholder={ar ? "المستقبل" : "To"} /></SelectTrigger>
+                  <SelectTrigger className={cn(errors.toId && "border-red-500")}><SelectValue placeholder={tAuto('auto.to')} /></SelectTrigger>
                   <SelectContent>
                     {users.map((u) => (<SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>))}
                   </SelectContent>
@@ -514,26 +517,26 @@ export default function RFI({ language, projectId }: RFIProps) {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "الأولوية" : "Priority"}</Label>
+                <Label className="text-sm">{tAuto('auto.priority')}</Label>
                 <Select value={watch("priority")} onValueChange={(v) => setValue("priority", v as RfiFormData["priority"])}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="NORMAL">{ar ? "عادي" : "Normal"}</SelectItem>
-                    <SelectItem value="MEDIUM">{ar ? "متوسط" : "Medium"}</SelectItem>
-                    <SelectItem value="HIGH">{ar ? "عالي" : "High"}</SelectItem>
-                    <SelectItem value="URGENT">{ar ? "عاجل" : "Urgent"}</SelectItem>
+                    <SelectItem value="NORMAL">{tAuto('auto.normal')}</SelectItem>
+                    <SelectItem value="MEDIUM">{tAuto('auto.medium')}</SelectItem>
+                    <SelectItem value="HIGH">{tAuto('auto.high')}</SelectItem>
+                    <SelectItem value="URGENT">{tAuto('auto.urgent')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "تاريخ الاستحقاق" : "Due Date"}</Label>
+                <Label className="text-sm">{tAuto('auto.dueDate')}</Label>
                 <Input type="date" {...register("dueDate")} />
               </div>
             </div>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => { setShowAddDialog(false); resetForm(); }}>{ar ? "إلغاء" : "Cancel"}</Button>
+            <Button type="button" variant="outline" onClick={() => { setShowAddDialog(false); resetForm(); }}>{tAuto('auto.cancel')}</Button>
             <Button type="submit" className="bg-teal-600 hover:bg-teal-700 text-white" disabled={createMutation.isPending}>
-              {createMutation.isPending ? (ar ? "جارٍ الإرسال..." : "Sending...") : (ar ? "إرسال" : "Submit")}
+              {createMutation.isPending ? (tAuto('auto.sending')) : (tAuto('auto.submit'))}
             </Button>
           </DialogFooter>
           </form>
@@ -548,7 +551,7 @@ export default function RFI({ language, projectId }: RFIProps) {
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
                   <Reply className="h-5 w-5 text-teal-500" />
-                  {ar ? "الرد على الطلب" : "Reply to RFI"}
+                  {tAuto('auto.replyToRFI')}
                 </DialogTitle>
                 <DialogDescription>{selectedRFI.subject}</DialogDescription>
               </DialogHeader>
@@ -578,18 +581,18 @@ export default function RFI({ language, projectId }: RFIProps) {
 
                 {/* Reply Area */}
                 <div className="space-y-2">
-                  <Label className="text-sm">{ar ? "الرد" : "Response"}</Label>
+                  <Label className="text-sm">{tAuto('auto.response')}</Label>
                   <Textarea
                     value={replyText}
                     onChange={(e) => setReplyText(e.target.value)}
-                    placeholder={ar ? "اكتب ردك هنا..." : "Type your response here..."}
+                    placeholder={tAuto('auto.typeYourResponseHere')}
                     rows={5}
                   />
                 </div>
 
                 {selectedRFI.response && (
                   <div className="bg-blue-50 dark:bg-blue-950/20 rounded-lg p-3">
-                    <div className="text-[10px] font-semibold text-blue-600 dark:text-blue-400 mb-1">{ar ? "الرد السابق" : "Previous Response"}</div>
+                    <div className="text-[10px] font-semibold text-blue-600 dark:text-blue-400 mb-1">{tAuto('auto.previousResponse')}</div>
                     <p className="text-xs text-blue-700 dark:text-blue-300">{selectedRFI.response}</p>
                   </div>
                 )}
@@ -597,7 +600,7 @@ export default function RFI({ language, projectId }: RFIProps) {
 
               <DialogFooter>
                 <Button variant="outline" onClick={() => { setShowReplyDialog(false); setReplyText(""); }}>
-                  {ar ? "إلغاء" : "Cancel"}
+                  {tAuto('auto.cancel')}
                 </Button>
                 <Button
                   variant="secondary"
@@ -606,7 +609,7 @@ export default function RFI({ language, projectId }: RFIProps) {
                   disabled={!replyText || replyMutation.isPending}
                 >
                   <Reply className="h-3.5 w-3.5 me-1" />
-                  {replyMutation.isPending ? (ar ? "جارٍ الإرسال..." : "Sending...") : (ar ? "إرسال الرد" : "Send Reply")}
+                  {replyMutation.isPending ? (tAuto('auto.sending')) : (tAuto('auto.sendReply'))}
                 </Button>
                 <Button
                   className="bg-green-600 hover:bg-green-700 text-white"
@@ -614,7 +617,7 @@ export default function RFI({ language, projectId }: RFIProps) {
                   disabled={!replyText || replyMutation.isPending}
                 >
                   <CheckCircle className="h-3.5 w-3.5 me-1" />
-                  {replyMutation.isPending ? (ar ? "جارٍ الإغلاق..." : "Closing...") : (ar ? "رد وإغلاق" : "Reply & Close")}
+                  {replyMutation.isPending ? (tAuto('auto.closing')) : (tAuto('auto.replyClose'))}
                 </Button>
               </DialogFooter>
             </>

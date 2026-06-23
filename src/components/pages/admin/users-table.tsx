@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TabsContent } from "@/components/ui/tabs";
@@ -59,6 +61,7 @@ export function UsersTable({
   newUser,
   setNewUser,
 }: UsersTableProps) {
+  const tAuto = useTranslations();
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -74,11 +77,11 @@ export function UsersTable({
       fetch(`/api/users/${id}`, { method: "DELETE", headers: getMutationHeaders() }).then((r) => r.json()),
     onSuccess: (data) => {
       if (data.error) {
-        toast({ title: isAr ? "خطأ" : "Error", description: extractErrorMessage(data.error, isAr ? "حدث خطأ" : "An error occurred"), variant: "destructive" });
+        toast({ title: tAuto('auto.error'), description: extractErrorMessage(data.error, tAuto('auto.anErrorOccurred')), variant: "destructive" });
         return;
       }
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
-      toast({ title: isAr ? "تم بنجاح" : "Success", description: isAr ? "تم حذف المستخدم" : "User deleted" });
+      toast({ title: tAuto('auto.success'), description: tAuto('auto.userDeleted') });
     },
   });
 
@@ -91,7 +94,7 @@ export function UsersTable({
       }).then((r) => r.json()),
     onSuccess: (data) => {
       if (data.error) {
-        toast({ title: isAr ? "خطأ" : "Error", description: extractErrorMessage(data.error, isAr ? "حدث خطأ" : "An error occurred"), variant: "destructive" });
+        toast({ title: tAuto('auto.error'), description: extractErrorMessage(data.error, tAuto('auto.anErrorOccurred')), variant: "destructive" });
         return;
       }
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
@@ -109,16 +112,16 @@ export function UsersTable({
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <CardTitle className="text-lg flex items-center gap-2">
               <Users className="h-5 w-5 text-teal-600" />
-              {isAr ? "إدارة المستخدمين" : "User Management"}
+              {tAuto('auto.userManagement')}
               <Badge variant="secondary" className="text-xs">
-                {users.length} {isAr ? "مستخدم" : "users"}
+                {users.length} {tAuto('auto.users1')}
               </Badge>
             </CardTitle>
             <div className="flex items-center gap-2">
               <div className="relative">
                 <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <Input
-                  placeholder={isAr ? "بحث عن مستخدم..." : "Search users..."}
+                  placeholder={tAuto('auto.searchUsers')}
                   value={userSearch}
                   onChange={(e) => setUserSearch(e.target.value)}
                   className="ps-9 w-56 h-9 rounded-lg text-sm"
@@ -147,12 +150,12 @@ export function UsersTable({
               <Table>
                 <TableHeader>
                   <TableRow className="bg-slate-50/80 dark:bg-slate-800/50">
-                    <TableHead className="text-xs font-semibold">{isAr ? "المستخدم" : "User"}</TableHead>
-                    <TableHead className="text-xs font-semibold hidden md:table-cell">{isAr ? "الدور" : "Role"}</TableHead>
-                    <TableHead className="text-xs font-semibold hidden lg:table-cell">{isAr ? "القسم" : "Department"}</TableHead>
-                    <TableHead className="text-xs font-semibold hidden lg:table-cell">{isAr ? "آخر دخول" : "Last Login"}</TableHead>
-                    <TableHead className="text-xs font-semibold">{isAr ? "الحالة" : "Status"}</TableHead>
-                    <TableHead className="text-xs font-semibold text-end">{isAr ? "إجراءات" : "Actions"}</TableHead>
+                    <TableHead className="text-xs font-semibold">{tAuto('auto.user')}</TableHead>
+                    <TableHead className="text-xs font-semibold hidden md:table-cell">{tAuto('auto.role')}</TableHead>
+                    <TableHead className="text-xs font-semibold hidden lg:table-cell">{tAuto('auto.department')}</TableHead>
+                    <TableHead className="text-xs font-semibold hidden lg:table-cell">{tAuto('auto.lastLogin')}</TableHead>
+                    <TableHead className="text-xs font-semibold">{tAuto('auto.status1')}</TableHead>
+                    <TableHead className="text-xs font-semibold text-end">{tAuto('auto.actions')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -223,8 +226,8 @@ export function UsersTable({
                             )}
                           >
                             {user.isActive
-                              ? isAr ? "نشط" : "Active"
-                              : isAr ? "معطل" : "Disabled"}
+                              ? tAuto('auto.active')
+                              : tAuto('auto.disabled')}
                           </Badge>
                         </div>
                       </TableCell>
@@ -238,14 +241,14 @@ export function UsersTable({
                           <DropdownMenuContent align={isAr ? "start" : "end"}>
                             <DropdownMenuItem className="gap-2">
                               <Edit className="h-3.5 w-3.5" />
-                              {isAr ? "تعديل" : "Edit"}
+                              {tAuto('auto.edit')}
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               className="gap-2 text-red-600 dark:text-red-400"
                               onClick={() => deleteUserMutation.mutate(user.id)}
                             >
                               <Trash2 className="h-3.5 w-3.5" />
-                              {isAr ? "حذف" : "Delete"}
+                              {tAuto('auto.delete')}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>

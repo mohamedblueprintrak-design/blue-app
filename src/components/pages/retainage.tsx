@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -94,6 +96,7 @@ interface RetainagePageProps {
 }
 
 export default function RetainagePage({ language, projectId }: RetainagePageProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
@@ -208,15 +211,15 @@ export default function RetainagePage({ language, projectId }: RetainagePageProp
             <ShieldCheck className="h-4.5 w-4.5 text-amber-600 dark:text-amber-400" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white">{ar ? "إدارة الاحتجاز" : "Retainage Management"}</h2>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">{tAuto('auto.retainageManagement')}</h2>
             <p className="text-[10px] text-slate-500 dark:text-slate-400">
-              {ar ? "تتبع المبالغ المحتجزة حتى اكتمال المشروع" : "Track retained amounts until project completion"}
+              {tAuto('auto.trackRetainedAmountsUntilProjectCompleti')}
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2 w-full sm:w-auto sm:ms-auto">
           <Button size="sm" className="h-8 bg-teal-600 hover:bg-teal-700 text-white rounded-lg shadow-sm shadow-teal-600/20" onClick={() => { setFormData(emptyForm); setShowAddDialog(true); }}>
-            <Plus className="h-3.5 w-3.5 me-1" />{ar ? "احتجاز جديد" : "New Retainage"}
+            <Plus className="h-3.5 w-3.5 me-1" />{tAuto('auto.newRetainage')}
           </Button>
         </div>
       </div>
@@ -227,7 +230,7 @@ export default function RetainagePage({ language, projectId }: RetainagePageProp
           <div className="bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20 p-4">
             <div className="flex items-center gap-2 mb-2">
               <div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm"><Lock className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" /></div>
-              <span className="text-xs text-amber-600 dark:text-amber-400">{ar ? "إجمالي المحتجز" : "Total Retained"}</span>
+              <span className="text-xs text-amber-600 dark:text-amber-400">{tAuto('auto.totalRetained')}</span>
             </div>
             <div className="text-xl font-bold text-slate-900 dark:text-white font-mono tabular-nums">{formatCurrency(totalRetained, ar)}</div>
           </div>
@@ -236,7 +239,7 @@ export default function RetainagePage({ language, projectId }: RetainagePageProp
           <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 p-4">
             <div className="flex items-center gap-2 mb-2">
               <div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm"><Unlock className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" /></div>
-              <span className="text-xs text-emerald-600 dark:text-emerald-400">{ar ? "المُفرج عنه" : "Released"}</span>
+              <span className="text-xs text-emerald-600 dark:text-emerald-400">{tAuto('auto.released')}</span>
             </div>
             <div className="text-xl font-bold text-slate-900 dark:text-white font-mono tabular-nums">{formatCurrency(totalReleased, ar)}</div>
           </div>
@@ -245,7 +248,7 @@ export default function RetainagePage({ language, projectId }: RetainagePageProp
           <div className="bg-gradient-to-br from-sky-50 to-sky-100 dark:from-sky-900/20 dark:to-sky-800/20 p-4">
             <div className="flex items-center gap-2 mb-2">
               <div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm"><ArrowRightLeft className="h-3.5 w-3.5 text-sky-600 dark:text-sky-400" /></div>
-              <span className="text-xs text-sky-600 dark:text-sky-400">{ar ? "قيد الإفراج" : "Pending Release"}</span>
+              <span className="text-xs text-sky-600 dark:text-sky-400">{tAuto('auto.pendingRelease')}</span>
             </div>
             <div className="text-xl font-bold text-slate-900 dark:text-white font-mono tabular-nums">{formatCurrency(pendingRelease, ar)}</div>
           </div>
@@ -256,13 +259,13 @@ export default function RetainagePage({ language, projectId }: RetainagePageProp
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
         <div className="relative flex-1 sm:w-64">
           <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={ar ? "بحث..." : "Search..."} className="ps-9 h-8 text-sm rounded-lg" />
+          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={tAuto('auto.search1')} className="ps-9 h-8 text-sm rounded-lg" />
         </div>
         {!projectId && (
           <Select value={filterProject} onValueChange={setFilterProject}>
-            <SelectTrigger className="w-[180px] h-8 text-xs rounded-lg"><SelectValue placeholder={ar ? "المشروع" : "Project"} /></SelectTrigger>
+            <SelectTrigger className="w-[180px] h-8 text-xs rounded-lg"><SelectValue placeholder={tAuto('auto.project')} /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{ar ? "جميع المشاريع" : "All Projects"}</SelectItem>
+              <SelectItem value="all">{tAuto('auto.allProjects')}</SelectItem>
               {projects.map((p) => (
                 <SelectItem key={p.id} value={p.id}>{ar ? p.name : p.nameEn || p.name}</SelectItem>
               ))}
@@ -270,12 +273,12 @@ export default function RetainagePage({ language, projectId }: RetainagePageProp
           </Select>
         )}
         <Select value={filterStatus} onValueChange={setFilterStatus}>
-          <SelectTrigger className="w-[150px] h-8 text-xs rounded-lg"><SelectValue placeholder={ar ? "الحالة" : "Status"} /></SelectTrigger>
+          <SelectTrigger className="w-[150px] h-8 text-xs rounded-lg"><SelectValue placeholder={tAuto('auto.status1')} /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">{ar ? "الكل" : "All"}</SelectItem>
-            <SelectItem value="HELD">{ar ? "محتجز" : "Held"}</SelectItem>
-            <SelectItem value="PARTIALLY_RELEASED">{ar ? "مُفرج جزئياً" : "Partially Released"}</SelectItem>
-            <SelectItem value="RELEASED">{ar ? "مُفرج" : "Released"}</SelectItem>
+            <SelectItem value="all">{tAuto('auto.all')}</SelectItem>
+            <SelectItem value="HELD">{tAuto('auto.held')}</SelectItem>
+            <SelectItem value="PARTIALLY_RELEASED">{tAuto('auto.partiallyReleased')}</SelectItem>
+            <SelectItem value="RELEASED">{tAuto('auto.released')}</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -285,13 +288,13 @@ export default function RetainagePage({ language, projectId }: RetainagePageProp
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent bg-slate-50/80 dark:bg-slate-800/50">
-              <TableHead className="text-xs font-semibold">{ar ? "المشروع" : "Project"}</TableHead>
+              <TableHead className="text-xs font-semibold">{tAuto('auto.project')}</TableHead>
               <TableHead className="text-xs font-semibold">{ar ? "النسبة %" : "%"}</TableHead>
-              <TableHead className="text-xs font-semibold">{ar ? "المبلغ المحتجز" : "Retained"}</TableHead>
-              <TableHead className="text-xs font-semibold hidden md:table-cell">{ar ? "المُفرج" : "Released"}</TableHead>
-              <TableHead className="text-xs font-semibold hidden sm:table-cell">{ar ? "الحالة" : "Status"}</TableHead>
-              <TableHead className="text-xs font-semibold hidden lg:table-cell">{ar ? "تاريخ الإفراج" : "Release Date"}</TableHead>
-              <TableHead className="text-xs font-semibold text-start">{ar ? "الإجراءات" : "Actions"}</TableHead>
+              <TableHead className="text-xs font-semibold">{tAuto('auto.retained')}</TableHead>
+              <TableHead className="text-xs font-semibold hidden md:table-cell">{tAuto('auto.released')}</TableHead>
+              <TableHead className="text-xs font-semibold hidden sm:table-cell">{tAuto('auto.status1')}</TableHead>
+              <TableHead className="text-xs font-semibold hidden lg:table-cell">{tAuto('auto.releaseDate')}</TableHead>
+              <TableHead className="text-xs font-semibold text-start">{tAuto('auto.actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -330,7 +333,7 @@ export default function RetainagePage({ language, projectId }: RetainagePageProp
                         }}
                       >
                         <Unlock className="h-3 w-3 me-1" />
-                        {ar ? "إفراج" : "Release"}
+                        {tAuto('auto.release')}
                       </Button>
                     )}
                   </TableCell>
@@ -344,7 +347,7 @@ export default function RetainagePage({ language, projectId }: RetainagePageProp
                     <div className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
                       <Inbox className="h-7 w-7 text-slate-300 dark:text-slate-600" />
                     </div>
-                    <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{ar ? "لا توجد احتجازات" : "No retainages found"}</p>
+                    <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{tAuto('auto.noRetainagesFound')}</p>
                   </div>
                 </TableCell>
               </TableRow>
@@ -357,14 +360,14 @@ export default function RetainagePage({ language, projectId }: RetainagePageProp
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>{ar ? "احتجاز جديد" : "New Retainage"}</DialogTitle>
-            <DialogDescription>{ar ? "إضافة احتجاز جديد للمشروع" : "Add a new retainage for the project"}</DialogDescription>
+            <DialogTitle>{tAuto('auto.newRetainage')}</DialogTitle>
+            <DialogDescription>{tAuto('auto.addANewRetainageForTheProject')}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "المشروع" : "Project"} *</Label>
+              <Label className="text-sm">{tAuto('auto.project')} *</Label>
               <Select value={formData.projectId} onValueChange={(v) => setFormData({ ...formData, projectId: v })}>
-                <SelectTrigger className="h-8 text-sm rounded-lg"><SelectValue placeholder={ar ? "اختر مشروع" : "Select project"} /></SelectTrigger>
+                <SelectTrigger className="h-8 text-sm rounded-lg"><SelectValue placeholder={tAuto('auto.selectProject')} /></SelectTrigger>
                 <SelectContent>
                   {projects.map((p) => (<SelectItem key={p.id} value={p.id}>{ar ? p.name : p.nameEn || p.name}</SelectItem>))}
                 </SelectContent>
@@ -372,27 +375,27 @@ export default function RetainagePage({ language, projectId }: RetainagePageProp
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "النسبة %" : "Percentage %"}</Label>
+                <Label className="text-sm">{tAuto('auto.percentage')}</Label>
                 <Input type="number" value={formData.percentage} onChange={(e) => setFormData({ ...formData, percentage: e.target.value })} className="h-8 text-sm rounded-lg" placeholder="5" />
               </div>
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "المبلغ المحتجز" : "Retained Amount"}</Label>
+                <Label className="text-sm">{tAuto('auto.retainedAmount')}</Label>
                 <Input type="number" value={formData.retainedAmount} onChange={(e) => setFormData({ ...formData, retainedAmount: e.target.value })} className="h-8 text-sm font-mono rounded-lg" placeholder="0" />
               </div>
             </div>
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "رقم الفاتورة" : "Invoice ID"}</Label>
-              <Input value={formData.invoiceId} onChange={(e) => setFormData({ ...formData, invoiceId: e.target.value })} className="h-8 text-sm rounded-lg" placeholder={ar ? "اختياري" : "Optional"} />
+              <Label className="text-sm">{tAuto('auto.invoiceID')}</Label>
+              <Input value={formData.invoiceId} onChange={(e) => setFormData({ ...formData, invoiceId: e.target.value })} className="h-8 text-sm rounded-lg" placeholder={tAuto('auto.optional')} />
             </div>
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "تاريخ الإفراج المتوقع" : "Expected Release Date"}</Label>
+              <Label className="text-sm">{tAuto('auto.expectedReleaseDate')}</Label>
               <Input type="date" value={formData.releaseDate} onChange={(e) => setFormData({ ...formData, releaseDate: e.target.value })} className="h-8 text-sm rounded-lg" />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" className="rounded-lg" onClick={() => setShowAddDialog(false)}>{ar ? "إلغاء" : "Cancel"}</Button>
+            <Button variant="outline" className="rounded-lg" onClick={() => setShowAddDialog(false)}>{tAuto('auto.cancel')}</Button>
             <Button className="bg-teal-600 hover:bg-teal-700 text-white rounded-lg" disabled={createMutation.isPending} onClick={() => createMutation.mutate(formData)}>
-              {createMutation.isPending ? (ar ? "جارٍ الحفظ..." : "Saving...") : (ar ? "حفظ" : "Save")}
+              {createMutation.isPending ? (tAuto('auto.saving')) : (tAuto('auto.save'))}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -402,33 +405,33 @@ export default function RetainagePage({ language, projectId }: RetainagePageProp
       <Dialog open={!!showReleaseDialog} onOpenChange={(open) => { if (!open) setShowReleaseDialog(null); }}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>{ar ? "إفراج الاحتجاز" : "Release Retainage"}</DialogTitle>
+            <DialogTitle>{tAuto('auto.releaseRetainage')}</DialogTitle>
             <DialogDescription>
-              {showReleaseDialog && `${ar ? "المبلغ المتبقي" : "Remaining"}: ${formatCurrency(Number(showReleaseDialog.retainedAmount) - Number(showReleaseDialog.releasedAmount), ar)}`}
+              {showReleaseDialog && `${tAuto('auto.remaining')}: ${formatCurrency(Number(showReleaseDialog.retainedAmount) - Number(showReleaseDialog.releasedAmount), ar)}`}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="flex items-center gap-3">
               <label className="flex items-center gap-2 text-sm cursor-pointer">
                 <input type="checkbox" checked={isFullRelease} onChange={(e) => setIsFullRelease(e.target.checked)} className="rounded" />
-                {ar ? "إفراج كامل" : "Full Release"}
+                {tAuto('auto.fullRelease')}
               </label>
             </div>
             {!isFullRelease && (
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "مبلغ الإفراج" : "Release Amount"}</Label>
+                <Label className="text-sm">{tAuto('auto.releaseAmount')}</Label>
                 <Input type="number" value={releaseAmount} onChange={(e) => setReleaseAmount(e.target.value)} className="h-8 text-sm font-mono rounded-lg" />
               </div>
             )}
           </div>
           <DialogFooter>
-            <Button variant="outline" className="rounded-lg" onClick={() => setShowReleaseDialog(null)}>{ar ? "إلغاء" : "Cancel"}</Button>
+            <Button variant="outline" className="rounded-lg" onClick={() => setShowReleaseDialog(null)}>{tAuto('auto.cancel')}</Button>
             <Button className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg" disabled={releaseMutation.isPending} onClick={() => {
               if (showReleaseDialog) {
                 releaseMutation.mutate({ id: showReleaseDialog.id, releasedAmount: releaseAmount, isFullRelease });
               }
             }}>
-              {releaseMutation.isPending ? (ar ? "جارٍ الإفراج..." : "Releasing...") : (ar ? "إفراج" : "Release")}
+              {releaseMutation.isPending ? (tAuto('auto.releasing')) : (tAuto('auto.release'))}
             </Button>
           </DialogFooter>
         </DialogContent>

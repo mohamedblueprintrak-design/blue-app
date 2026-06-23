@@ -1,16 +1,7 @@
-"use client";
+import { getLocale } from 'next-intl/server';
+import ChangeOrdersPage from '@/components/pages/change-orders';
 
-import dynamic from "next/dynamic";
-import { useLang } from "@/hooks/use-lang";
-
-const ChangeOrdersPage = dynamic(() => import("@/components/pages/change-orders"), {
-  loading: () => <div className="p-6 animate-pulse">Loading...</div>,
-  ssr: false,
-});
-
-/**
- * /dashboard/change-orders
- */
-export default function ChangeOrdersPageRoute() {
-  return <ChangeOrdersPage language={useLang()} />;
+export default async function ChangeOrdersPageRoute() {
+  const locale = await getLocale();
+  return <ChangeOrdersPage language={locale as "ar" | "en"} />;
 }

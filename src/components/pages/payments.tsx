@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -84,6 +86,7 @@ function getMethodConfig(method: string) {
 
 // ===== Payment Timeline Component =====
 function PaymentTimeline({ payments, ar }: { payments: PaymentItem[]; ar: boolean }) {
+  const tAuto = useTranslations();
   const now = new Date();
   const months: { key: string; label: string; amount: number }[] = [];
 
@@ -109,9 +112,9 @@ function PaymentTimeline({ payments, ar }: { payments: PaymentItem[]; ar: boolea
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-          {ar ? "المدفوعات الشهرية (6 أشهر)" : "Monthly Payments (6 Months)"}
+          {tAuto('auto.monthlyPayments6Months')}
         </p>
-        <p className="text-[10px] text-slate-400">{ar ? "المكتملة فقط" : "Completed only"}</p>
+        <p className="text-[10px] text-slate-400">{tAuto('auto.completedOnly')}</p>
       </div>
       <div className="flex items-end gap-2 h-20">
         {months.map((m) => {
@@ -145,6 +148,7 @@ interface PaymentsPageProps {
 }
 
 export default function PaymentsPage({ language, projectId }: PaymentsPageProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
@@ -256,29 +260,29 @@ export default function PaymentsPage({ language, projectId }: PaymentsPageProps)
             <Wallet className="h-4.5 w-4.5 text-teal-600 dark:text-teal-400" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white">{ar ? "المدفوعات" : "Payments"}</h2>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">{tAuto('auto.payments')}</h2>
             <p className="text-[10px] text-slate-500 dark:text-slate-400">
-              {payments.length} {ar ? "دفعة" : "payments"}
+              {payments.length} {tAuto('auto.payments1')}
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2 w-full sm:w-auto sm:ms-auto">
           <div className="relative flex-1 sm:w-64">
             <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-            <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={ar ? "بحث..." : "Search..."} className="ps-9 h-8 text-sm rounded-lg" />
+            <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={tAuto('auto.search1')} className="ps-9 h-8 text-sm rounded-lg" />
           </div>
           <Select value={filterStatus} onValueChange={setFilterStatus}>
             <SelectTrigger className="w-[130px] h-8 text-xs rounded-lg"><SelectValue /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{ar ? "الكل" : "All"}</SelectItem>
-              <SelectItem value="PENDING">{ar ? "معلّق" : "Pending"}</SelectItem>
-              <SelectItem value="APPROVED">{ar ? "معتمد" : "Approved"}</SelectItem>
-              <SelectItem value="COMPLETED">{ar ? "مكتمل" : "Completed"}</SelectItem>
-              <SelectItem value="CANCELLED">{ar ? "ملغي" : "Cancelled"}</SelectItem>
+              <SelectItem value="all">{tAuto('auto.all')}</SelectItem>
+              <SelectItem value="PENDING">{tAuto('auto.pending')}</SelectItem>
+              <SelectItem value="APPROVED">{tAuto('auto.approved')}</SelectItem>
+              <SelectItem value="COMPLETED">{tAuto('auto.completed')}</SelectItem>
+              <SelectItem value="CANCELLED">{tAuto('auto.cancelled')}</SelectItem>
             </SelectContent>
           </Select>
           <Button size="sm" className="h-8 bg-teal-600 hover:bg-teal-700 text-white rounded-lg shadow-sm shadow-teal-600/20" onClick={() => { setFormData(emptyForm); setShowDialog(true); }}>
-            <Plus className="h-3.5 w-3.5 me-1" />{ar ? "دفعة جديدة" : "New Payment"}
+            <Plus className="h-3.5 w-3.5 me-1" />{tAuto('auto.newPayment')}
           </Button>
         </div>
       </div>
@@ -290,10 +294,10 @@ export default function PaymentsPage({ language, projectId }: PaymentsPageProps)
           <div className="bg-gradient-to-br from-teal-500 to-cyan-600 dark:from-teal-600 dark:to-cyan-700 p-4">
             <div className="flex items-center gap-2 mb-2">
               <div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm"><Wallet className="h-3.5 w-3.5 text-white" /></div>
-              <span className="text-xs text-teal-100">{ar ? "إجمالي المدفوعات" : "Total Payments"}</span>
+              <span className="text-xs text-teal-100">{tAuto('auto.totalPayments')}</span>
             </div>
             <div className="text-xl font-bold text-white font-mono tabular-nums">{formatCurrency(totalAmount, ar)}</div>
-            <p className="text-[10px] text-white/60 mt-1">{filtered.length} {ar ? "دفعة" : "payments"}</p>
+            <p className="text-[10px] text-white/60 mt-1">{filtered.length} {tAuto('auto.payments1')}</p>
           </div>
         </Card>
 
@@ -302,7 +306,7 @@ export default function PaymentsPage({ language, projectId }: PaymentsPageProps)
           <div className="bg-gradient-to-br from-amber-500 to-orange-500 dark:from-amber-600 dark:to-orange-600 p-4">
             <div className="flex items-center gap-2 mb-2">
               <div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm"><Clock className="h-3.5 w-3.5 text-white" /></div>
-              <span className="text-xs text-amber-100">{ar ? "بانتظار الاعتماد" : "Pending Approval"}</span>
+              <span className="text-xs text-amber-100">{tAuto('auto.pendingApproval')}</span>
             </div>
             <div className="text-xl font-bold text-white tabular-nums">{pendingCount}</div>
             <p className="text-[10px] text-white/60 mt-1">
@@ -316,7 +320,7 @@ export default function PaymentsPage({ language, projectId }: PaymentsPageProps)
           <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 dark:from-emerald-600 dark:to-emerald-700 p-4">
             <div className="flex items-center gap-2 mb-2">
               <div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm"><BadgeCheck className="h-3.5 w-3.5 text-white" /></div>
-              <span className="text-xs text-emerald-100">{ar ? "معتمدة هذا الشهر" : "Approved This Month"}</span>
+              <span className="text-xs text-emerald-100">{tAuto('auto.approvedThisMonth')}</span>
             </div>
             <div className="text-xl font-bold text-white tabular-nums">{approvedThisMonth}</div>
             <p className="text-[10px] text-white/60 mt-1">
@@ -335,11 +339,11 @@ export default function PaymentsPage({ language, projectId }: PaymentsPageProps)
           <div className="bg-gradient-to-br from-violet-500 to-purple-600 dark:from-violet-600 dark:to-purple-700 p-4">
             <div className="flex items-center gap-2 mb-2">
               <div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm"><CheckCircle className="h-3.5 w-3.5 text-white" /></div>
-              <span className="text-xs text-violet-100">{ar ? "إجمالي المكتمل (د.إ)" : "Completed (AED)"}</span>
+              <span className="text-xs text-violet-100">{tAuto('auto.completedAED')}</span>
             </div>
             <div className="text-xl font-bold text-white font-mono tabular-nums">{formatCurrency(completedAmount, ar)}</div>
             <p className="text-[10px] text-white/60 mt-1">
-              {filtered.filter((p) => p.status === "COMPLETED").length} {ar ? "دفعة" : "payments"}
+              {filtered.filter((p) => p.status === "COMPLETED").length} {tAuto('auto.payments1')}
             </p>
           </div>
         </Card>
@@ -358,14 +362,14 @@ export default function PaymentsPage({ language, projectId }: PaymentsPageProps)
           <Table>
             <TableHeader>
               <TableRow className="hover:bg-transparent bg-slate-50/80 dark:bg-slate-800/50">
-                <TableHead className="text-xs font-semibold">{ar ? "رقم القسيمة" : "Voucher #"}</TableHead>
-                <TableHead className="text-xs font-semibold hidden md:table-cell">{ar ? "المشروع" : "Project"}</TableHead>
-                <TableHead className="text-xs font-semibold text-end">{ar ? "المبلغ" : "Amount"}</TableHead>
-                <TableHead className="text-xs font-semibold">{ar ? "الطريقة" : "Method"}</TableHead>
-                <TableHead className="text-xs font-semibold hidden lg:table-cell">{ar ? "المستفيد" : "Beneficiary"}</TableHead>
-                <TableHead className="text-xs font-semibold hidden lg:table-cell">{ar ? "المرجع" : "Reference"}</TableHead>
-                <TableHead className="text-xs font-semibold">{ar ? "الحالة" : "Status"}</TableHead>
-                <TableHead className="text-xs font-semibold text-start">{ar ? "إجراءات" : "Actions"}</TableHead>
+                <TableHead className="text-xs font-semibold">{tAuto('auto.voucher1')}</TableHead>
+                <TableHead className="text-xs font-semibold hidden md:table-cell">{tAuto('auto.project')}</TableHead>
+                <TableHead className="text-xs font-semibold text-end">{tAuto('auto.amount')}</TableHead>
+                <TableHead className="text-xs font-semibold">{tAuto('auto.method')}</TableHead>
+                <TableHead className="text-xs font-semibold hidden lg:table-cell">{tAuto('auto.beneficiary')}</TableHead>
+                <TableHead className="text-xs font-semibold hidden lg:table-cell">{tAuto('auto.reference')}</TableHead>
+                <TableHead className="text-xs font-semibold">{tAuto('auto.status1')}</TableHead>
+                <TableHead className="text-xs font-semibold text-start">{tAuto('auto.actions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -404,16 +408,16 @@ export default function PaymentsPage({ language, projectId }: PaymentsPageProps)
                         {payment.status === "PENDING" && (
                           <>
                             <Button variant="ghost" size="sm" className="h-7 text-xs text-green-600 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-950/30" onClick={() => statusMutation.mutate({ id: payment.id, status: "APPROVED" })}>
-                              <CheckCircle className="h-3.5 w-3.5 me-1" />{ar ? "اعتماد" : "Approve"}
+                              <CheckCircle className="h-3.5 w-3.5 me-1" />{tAuto('auto.approve')}
                             </Button>
                             <Button variant="ghost" size="sm" className="h-7 text-xs text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30" onClick={() => statusMutation.mutate({ id: payment.id, status: "CANCELLED" })}>
-                              <XCircle className="h-3.5 w-3.5 me-1" />{ar ? "رفض" : "Reject"}
+                              <XCircle className="h-3.5 w-3.5 me-1" />{tAuto('auto.reject')}
                             </Button>
                           </>
                         )}
                         {payment.status === "APPROVED" && (
                           <Button variant="ghost" size="sm" className="h-7 text-xs text-green-600 hover:text-green-700" onClick={() => statusMutation.mutate({ id: payment.id, status: "COMPLETED" })}>
-                            <CheckCircle className="h-3.5 w-3.5 me-1" />{ar ? "إتمام" : "Complete"}
+                            <CheckCircle className="h-3.5 w-3.5 me-1" />{tAuto('auto.complete')}
                           </Button>
                         )}
                       </div>
@@ -424,7 +428,7 @@ export default function PaymentsPage({ language, projectId }: PaymentsPageProps)
               {filtered.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={8} className="text-center py-12 text-slate-400">
-                    {ar ? "لا توجد مدفوعات" : "No payments found"}
+                    {tAuto('auto.noPaymentsFound')}
                   </TableCell>
                 </TableRow>
               )}
@@ -437,19 +441,19 @@ export default function PaymentsPage({ language, projectId }: PaymentsPageProps)
       <Dialog open={showDialog} onOpenChange={(open) => { if (!open) { setShowDialog(false); setFormData(emptyForm); } }}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>{ar ? "دفعة جديدة" : "New Payment"}</DialogTitle>
-            <DialogDescription>{ar ? "إضافة دفعة جديدة" : "Add a new payment"}</DialogDescription>
+            <DialogTitle>{tAuto('auto.newPayment')}</DialogTitle>
+            <DialogDescription>{tAuto('auto.addANewPayment')}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <Label className="text-xs">{ar ? "رقم القسيمة" : "Voucher #"}</Label>
+                <Label className="text-xs">{tAuto('auto.voucher1')}</Label>
                 <Input value={formData.voucherNumber} onChange={(e) => setFormData({ ...formData, voucherNumber: e.target.value })} placeholder="PAY-001" className="h-8 text-sm rounded-lg" />
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">{ar ? "المشروع" : "Project"}</Label>
+                <Label className="text-xs">{tAuto('auto.project')}</Label>
                 <Select value={formData.projectId} onValueChange={(v) => setFormData({ ...formData, projectId: v })}>
-                  <SelectTrigger className="h-8 text-sm rounded-lg"><SelectValue placeholder={ar ? "اختر مشروع" : "Select project"} /></SelectTrigger>
+                  <SelectTrigger className="h-8 text-sm rounded-lg"><SelectValue placeholder={tAuto('auto.selectProject')} /></SelectTrigger>
                   <SelectContent>
                     {projects.map((p) => (<SelectItem key={p.id} value={p.id}>{ar ? p.name : p.nameEn || p.name}</SelectItem>))}
                   </SelectContent>
@@ -458,39 +462,39 @@ export default function PaymentsPage({ language, projectId }: PaymentsPageProps)
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <Label className="text-xs">{ar ? "المبلغ (د.إ)" : "Amount (AED)"} *</Label>
+                <Label className="text-xs">{tAuto('auto.amountAED')} *</Label>
                 <Input type="number" value={formData.amount} onChange={(e) => setFormData({ ...formData, amount: e.target.value })} placeholder="0" className="h-8 text-sm tabular-nums font-mono rounded-lg" />
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">{ar ? "طريقة الدفع" : "Payment Method"} *</Label>
+                <Label className="text-xs">{tAuto('auto.paymentMethod')} *</Label>
                 <Select value={formData.payMethod} onValueChange={(v) => setFormData({ ...formData, payMethod: v })}>
                   <SelectTrigger className="h-8 text-sm rounded-lg"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="CASH">{ar ? "نقدي" : "Cash"}</SelectItem>
-                    <SelectItem value="CHEQUE">{ar ? "شيك" : "Cheque"}</SelectItem>
-                    <SelectItem value="TRANSFER">{ar ? "تحويل بنكي" : "Bank Transfer"}</SelectItem>
-                    <SelectItem value="ONLINE">{ar ? "دفع إلكتروني" : "Online Payment"}</SelectItem>
+                    <SelectItem value="CASH">{tAuto('auto.cash')}</SelectItem>
+                    <SelectItem value="CHEQUE">{tAuto('auto.cheque')}</SelectItem>
+                    <SelectItem value="TRANSFER">{tAuto('auto.bankTransfer')}</SelectItem>
+                    <SelectItem value="ONLINE">{tAuto('auto.onlinePayment')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">{ar ? "المستفيد" : "Beneficiary"}</Label>
-              <Input value={formData.beneficiary} onChange={(e) => setFormData({ ...formData, beneficiary: e.target.value })} placeholder={ar ? "اسم المستفيد" : "Beneficiary name"} className="h-8 text-sm rounded-lg" />
+              <Label className="text-xs">{tAuto('auto.beneficiary')}</Label>
+              <Input value={formData.beneficiary} onChange={(e) => setFormData({ ...formData, beneficiary: e.target.value })} placeholder={tAuto('auto.beneficiaryName')} className="h-8 text-sm rounded-lg" />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">{ar ? "رقم المرجع" : "Reference #"}</Label>
-              <Input value={formData.referenceNumber} onChange={(e) => setFormData({ ...formData, referenceNumber: e.target.value })} placeholder={ar ? "رقم المرجع" : "Reference number"} className="h-8 text-sm rounded-lg" />
+              <Label className="text-xs">{tAuto('auto.reference1')}</Label>
+              <Input value={formData.referenceNumber} onChange={(e) => setFormData({ ...formData, referenceNumber: e.target.value })} placeholder={tAuto('auto.referenceNumber')} className="h-8 text-sm rounded-lg" />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">{ar ? "الوصف" : "Description"}</Label>
-              <Textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} placeholder={ar ? "وصف الدفعة" : "Payment description"} className="text-sm min-h-[60px] rounded-lg" />
+              <Label className="text-xs">{tAuto('auto.description')}</Label>
+              <Textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} placeholder={tAuto('auto.paymentDescription')} className="text-sm min-h-[60px] rounded-lg" />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => { setShowDialog(false); setFormData(emptyForm); }}>{ar ? "إلغاء" : "Cancel"}</Button>
+            <Button variant="outline" onClick={() => { setShowDialog(false); setFormData(emptyForm); }}>{tAuto('auto.cancel')}</Button>
             <Button className="bg-teal-600 hover:bg-teal-700 text-white" onClick={() => createMutation.mutate(formData)} disabled={!formData.amount || createMutation.isPending}>
-              {createMutation.isPending ? (ar ? "جارٍ الحفظ..." : "Saving...") : (ar ? "حفظ" : "Save")}
+              {createMutation.isPending ? (tAuto('auto.saving')) : (tAuto('auto.save'))}
             </Button>
           </DialogFooter>
         </DialogContent>

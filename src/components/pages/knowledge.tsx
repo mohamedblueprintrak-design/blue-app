@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -118,6 +120,7 @@ interface KnowledgePageProps {
 }
 
 export default function KnowledgePage({ language, projectId }: KnowledgePageProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const queryClient = useQueryClient();
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
@@ -286,7 +289,7 @@ export default function KnowledgePage({ language, projectId }: KnowledgePageProp
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder={ar ? "بحث في المقالات..." : "Search articles..."}
+              placeholder={tAuto('auto.searchArticles')}
               className="ps-9 h-8 text-sm"
             />
           </div>
@@ -295,7 +298,7 @@ export default function KnowledgePage({ language, projectId }: KnowledgePageProp
 
           {/* Categories */}
           <div className="space-y-1">
-            <p className="text-[11px] font-semibold text-slate-400 uppercase mb-2">{ar ? "التصنيفات" : "Categories"}</p>
+            <p className="text-[11px] font-semibold text-slate-400 uppercase mb-2">{tAuto('auto.categories')}</p>
             {categories.map((cat) => {
               const count = cat.value === "all" ? articles.length : (categoryCounts[cat.value] || 0);
               const isActive = selectedCategory === cat.value;
@@ -329,7 +332,7 @@ export default function KnowledgePage({ language, projectId }: KnowledgePageProp
             onClick={() => { setFormData(emptyForm); setEditArticle(null); setShowDialog(true); }}
           >
             <Plus className="h-3.5 w-3.5 me-1" />
-            {ar ? "مقال جديد" : "New Article"}
+            {tAuto('auto.newArticle')}
           </Button>
         </div>
       </div>
@@ -345,7 +348,7 @@ export default function KnowledgePage({ language, projectId }: KnowledgePageProp
               </div>
               <div>
                 <p className="text-sm font-bold text-slate-900 dark:text-white tabular-nums">{allArticlesQuery.data?.length || 0}</p>
-                <p className="text-[10px] text-slate-500">{ar ? "إجمالي المقالات" : "Total Articles"}</p>
+                <p className="text-[10px] text-slate-500">{tAuto('auto.totalArticles')}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -354,7 +357,7 @@ export default function KnowledgePage({ language, projectId }: KnowledgePageProp
               </div>
               <div>
                 <p className="text-sm font-bold text-slate-900 dark:text-white tabular-nums">{Object.keys(categoryCounts).length}</p>
-                <p className="text-[10px] text-slate-500">{ar ? "التصنيفات" : "Categories"}</p>
+                <p className="text-[10px] text-slate-500">{tAuto('auto.categories')}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -366,7 +369,7 @@ export default function KnowledgePage({ language, projectId }: KnowledgePageProp
                   const diffDays = Math.floor((Date.now() - new Date(a.updatedAt).getTime()) / 86400000);
                   return diffDays <= 7;
                 }).length || 0}</p>
-                <p className="text-[10px] text-slate-500">{ar ? "تحديثات حديثة" : "Recent Updates"}</p>
+                <p className="text-[10px] text-slate-500">{tAuto('auto.recentUpdates')}</p>
               </div>
             </div>
           </div>
@@ -380,7 +383,7 @@ export default function KnowledgePage({ language, projectId }: KnowledgePageProp
                 className="flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors mb-2"
               >
                 <ArrowLeft className="h-4 w-4" />
-                {ar ? "العودة" : "Back"}
+                {tAuto('auto.back')}
               </button>
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 min-w-0">
@@ -397,11 +400,11 @@ export default function KnowledgePage({ language, projectId }: KnowledgePageProp
                   </Badge>
                   <Button variant="ghost" size="sm" className="h-8 text-xs" onClick={() => openEdit(articleDetail)}>
                     <Pencil className="h-3.5 w-3.5 me-1 text-teal-600" />
-                    {ar ? "تعديل" : "Edit"}
+                    {tAuto('auto.edit')}
                   </Button>
                   <Button variant="ghost" size="sm" className="h-8 text-xs" onClick={() => setDeleteTarget(articleDetail)}>
                     <Trash2 className="h-3.5 w-3.5 me-1 text-red-500" />
-                    {ar ? "حذف" : "Delete"}
+                    {tAuto('auto.delete')}
                   </Button>
                 </div>
               </div>
@@ -429,7 +432,7 @@ export default function KnowledgePage({ language, projectId }: KnowledgePageProp
                   <div>
                     <p className="text-xs font-semibold text-slate-400 mb-2 flex items-center gap-1">
                       <Tag className="h-3 w-3" />
-                      {ar ? "الوسوم" : "Tags"}
+                      {tAuto('auto.tags')}
                     </p>
                     <div className="flex flex-wrap gap-2">
                       {articleDetail.tags.split(",").map((tag, idx) => (
@@ -451,7 +454,7 @@ export default function KnowledgePage({ language, projectId }: KnowledgePageProp
             <div className="p-4">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
-                  {ar ? "المقالات" : "Articles"}
+                  {tAuto('auto.articles')}
                   <Badge variant="secondary" className="ms-2 text-xs">{articles.length}</Badge>
                 </h3>
                 <div className="flex items-center gap-1">
@@ -474,7 +477,7 @@ export default function KnowledgePage({ language, projectId }: KnowledgePageProp
               <div className="space-y-2">
                 {articles.map((article) => {
                   const catCfg = getCategoryConfig(article.category);
-                  const authorName = article.author?.name || (ar ? "مجهول" : "Unknown");
+                  const authorName = article.author?.name || (tAuto('auto.unknown'));
                   return (
                     <Card
                       key={article.id}
@@ -531,8 +534,8 @@ export default function KnowledgePage({ language, projectId }: KnowledgePageProp
                     <div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-3">
                       <BookOpen className="h-8 w-8 text-slate-300 dark:text-slate-600" />
                     </div>
-                    <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{ar ? "لا توجد مقالات" : "No articles found"}</p>
-                    <p className="text-xs mt-1 text-slate-400 dark:text-slate-500">{ar ? "حاول تغيير التصنيف أو كلمة البحث" : "Try changing category or search"}</p>
+                    <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{tAuto('auto.noArticlesFound')}</p>
+                    <p className="text-xs mt-1 text-slate-400 dark:text-slate-500">{tAuto('auto.tryChangingCategoryOrSearch')}</p>
                   </div>
                 )}
               </div>
@@ -541,18 +544,18 @@ export default function KnowledgePage({ language, projectId }: KnowledgePageProp
                 <table className="w-full">
                   <thead>
                     <tr className="bg-slate-50/80 dark:bg-slate-800/50">
-                      <th className="text-xs font-semibold py-2.5 px-3 text-start">{ar ? "العنوان" : "Title"}</th>
-                      <th className="text-xs font-semibold py-2.5 px-3 text-start">{ar ? "التصنيف" : "Category"}</th>
-                      <th className="text-xs font-semibold py-2.5 px-3 text-start hidden md:table-cell">{ar ? "المؤلف" : "Author"}</th>
-                      <th className="text-xs font-semibold py-2.5 px-3 text-center">{ar ? "القراءة" : "Reading"}</th>
-                      <th className="text-xs font-semibold py-2.5 px-3 text-center">{ar ? "المشاهدات" : "Views"}</th>
-                      <th className="text-xs font-semibold py-2.5 px-3 text-start">{ar ? "التحديث" : "Updated"}</th>
+                      <th className="text-xs font-semibold py-2.5 px-3 text-start">{tAuto('auto.title')}</th>
+                      <th className="text-xs font-semibold py-2.5 px-3 text-start">{tAuto('auto.category')}</th>
+                      <th className="text-xs font-semibold py-2.5 px-3 text-start hidden md:table-cell">{tAuto('auto.author')}</th>
+                      <th className="text-xs font-semibold py-2.5 px-3 text-center">{tAuto('auto.reading')}</th>
+                      <th className="text-xs font-semibold py-2.5 px-3 text-center">{tAuto('auto.views')}</th>
+                      <th className="text-xs font-semibold py-2.5 px-3 text-start">{tAuto('auto.updated')}</th>
                     </tr>
                   </thead>
                   <tbody>
                     {articles.map((article, _idx) => {
                       const catCfg = getCategoryConfig(article.category);
-                      const authorName = article.author?.name || (ar ? "مجهول" : "Unknown");
+                      const authorName = article.author?.name || (tAuto('auto.unknown'));
                       return (
                         <tr
                           key={article.id}
@@ -596,7 +599,7 @@ export default function KnowledgePage({ language, projectId }: KnowledgePageProp
                     <div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-3">
                       <BookOpen className="h-8 w-8 text-slate-300 dark:text-slate-600" />
                     </div>
-                    <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{ar ? "لا توجد مقالات" : "No articles found"}</p>
+                    <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{tAuto('auto.noArticlesFound')}</p>
                   </div>
                 )}
               </div>
@@ -610,17 +613,17 @@ export default function KnowledgePage({ language, projectId }: KnowledgePageProp
       <Dialog open={showDialog} onOpenChange={(open) => { if (!open) { setShowDialog(false); setEditArticle(null); setFormData(emptyForm); } }}>
         <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{editArticle ? (ar ? "تعديل مقال" : "Edit Article") : (ar ? "مقال جديد" : "New Article")}</DialogTitle>
-            <DialogDescription>{editArticle ? (ar ? "تعديل بيانات المقال" : "Update article details") : (ar ? "إضافة مقال جديد لقاعدة المعرفة" : "Add new article to knowledge base")}</DialogDescription>
+            <DialogTitle>{editArticle ? (tAuto('auto.editArticle')) : (tAuto('auto.newArticle'))}</DialogTitle>
+            <DialogDescription>{editArticle ? (tAuto('auto.updateArticleDetails')) : (tAuto('auto.addNewArticleToKnowledgeBase'))}</DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
             <div className="space-y-1">
-              <Label className="text-xs">{ar ? "العنوان" : "Title"} *</Label>
-              <Input value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} placeholder={ar ? "عنوان المقال" : "Article title"} className="h-8 text-sm" />
+              <Label className="text-xs">{tAuto('auto.title')} *</Label>
+              <Input value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} placeholder={tAuto('auto.articleTitle')} className="h-8 text-sm" />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">{ar ? "التصنيف" : "Category"} *</Label>
+              <Label className="text-xs">{tAuto('auto.category')} *</Label>
               <Select value={formData.category} onValueChange={(v) => setFormData({ ...formData, category: v })}>
                 <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -631,24 +634,24 @@ export default function KnowledgePage({ language, projectId }: KnowledgePageProp
               </Select>
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">{ar ? "المحتوى" : "Content"}</Label>
+              <Label className="text-xs">{tAuto('auto.content')}</Label>
               <textarea
                 value={formData.content}
                 onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                placeholder={ar ? "اكتب محتوى المقال هنا..." : "Write article content here..."}
+                placeholder={tAuto('auto.writeArticleContentHere')}
                 className="w-full min-h-[200px] rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm resize-y focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
               />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">{ar ? "الوسوم (مفصولة بفاصلة)" : "Tags (comma-separated)"}</Label>
-              <Input value={formData.tags} onChange={(e) => setFormData({ ...formData, tags: e.target.value })} placeholder={ar ? "تصميم, معماري, دليل" : "design, architectural, guide"} className="h-8 text-sm" />
+              <Label className="text-xs">{tAuto('auto.tagsCommaSeparated')}</Label>
+              <Input value={formData.tags} onChange={(e) => setFormData({ ...formData, tags: e.target.value })} placeholder={tAuto('auto.designArchitecturalGuide')} className="h-8 text-sm" />
             </div>
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => { setShowDialog(false); setEditArticle(null); setFormData(emptyForm); }}>{ar ? "إلغاء" : "Cancel"}</Button>
+            <Button variant="outline" onClick={() => { setShowDialog(false); setEditArticle(null); setFormData(emptyForm); }}>{tAuto('auto.cancel')}</Button>
             <Button className="bg-teal-600 hover:bg-teal-700 text-white" onClick={handleSave} disabled={!formData.title || createMutation.isPending || updateMutation.isPending}>
-              {(createMutation.isPending || updateMutation.isPending) ? (ar ? "جارٍ الحفظ..." : "Saving...") : (editArticle ? (ar ? "تحديث" : "Update") : (ar ? "نشر" : "Publish"))}
+              {(createMutation.isPending || updateMutation.isPending) ? (tAuto('auto.saving')) : (editArticle ? (tAuto('auto.update')) : (tAuto('auto.publish')))}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -658,7 +661,7 @@ export default function KnowledgePage({ language, projectId }: KnowledgePageProp
       <AlertDialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{ar ? "تأكيد الحذف" : "Confirm Delete"}</AlertDialogTitle>
+            <AlertDialogTitle>{tAuto('auto.confirmDelete')}</AlertDialogTitle>
             <AlertDialogDescription>
               {ar
                 ? `هل أنت متأكد من حذف المقال "${deleteTarget?.title || ""}"؟ لا يمكن التراجع عن هذا الإجراء.`
@@ -666,13 +669,13 @@ export default function KnowledgePage({ language, projectId }: KnowledgePageProp
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>{ar ? "إلغاء" : "Cancel"}</AlertDialogCancel>
+            <AlertDialogCancel>{tAuto('auto.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               disabled={deleteMutation.isPending}
               className="bg-red-600 hover:bg-red-700 text-white"
             >
-              {deleteMutation.isPending ? (ar ? "جارٍ الحذف..." : "Deleting...") : (ar ? "حذف" : "Delete")}
+              {deleteMutation.isPending ? (tAuto('auto.deleting')) : (tAuto('auto.delete'))}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

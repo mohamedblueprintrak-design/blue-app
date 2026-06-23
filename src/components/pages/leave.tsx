@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -131,6 +133,7 @@ interface LeavePageProps {
 }
 
 export default function LeavePage({ language }: LeavePageProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const queryClient = useQueryClient();
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -187,10 +190,10 @@ export default function LeavePage({ language }: LeavePageProps) {
 
   // Leave balance cards
   const leaveBalance = useMemo(() => ({
-    ANNUAL: { used: typeDistribution["ANNUAL"] || 0, total: 30, label: ar ? "سنوية" : "Annual", color: "text-blue-600 dark:text-blue-400", barColor: "bg-blue-500" },
-    SICK: { used: typeDistribution["SICK"] || 0, total: 15, label: ar ? "مرضية" : "Sick", color: "text-amber-600 dark:text-amber-400", barColor: "bg-amber-500" },
-    EMERGENCY: { used: typeDistribution["EMERGENCY"] || 0, total: 7, label: ar ? "طوارئ" : "Emergency", color: "text-red-600 dark:text-red-400", barColor: "bg-red-500" },
-  }), [typeDistribution, ar]);
+    ANNUAL: { used: typeDistribution["ANNUAL"] || 0, total: 30, label: tAuto('auto.annual'), color: "text-blue-600 dark:text-blue-400", barColor: "bg-blue-500" },
+    SICK: { used: typeDistribution["SICK"] || 0, total: 15, label: tAuto('auto.sick'), color: "text-amber-600 dark:text-amber-400", barColor: "bg-amber-500" },
+    EMERGENCY: { used: typeDistribution["EMERGENCY"] || 0, total: 7, label: tAuto('auto.emergency'), color: "text-red-600 dark:text-red-400", barColor: "bg-red-500" },
+  }), [typeDistribution, ar, tAuto]);
 
   // Calendar strip - next 14 days
   const calendarStrip = useMemo(() => {
@@ -282,7 +285,7 @@ export default function LeavePage({ language }: LeavePageProps) {
 
   const summaryCards = [
     {
-      label: ar ? "إجمالي الطلبات" : "Total Requests",
+      label: tAuto('auto.totalRequests'),
       value: stats.total,
       icon: BarChart3,
       color: "text-slate-600 dark:text-slate-400",
@@ -290,7 +293,7 @@ export default function LeavePage({ language }: LeavePageProps) {
       border: "border-slate-200 dark:border-slate-700/50",
     },
     {
-      label: ar ? "بانتظار الموافقة" : "Pending Approval",
+      label: tAuto('auto.pendingApproval'),
       value: stats.PENDING,
       icon: HourglassIcon,
       color: "text-amber-600 dark:text-amber-400",
@@ -298,7 +301,7 @@ export default function LeavePage({ language }: LeavePageProps) {
       border: "border-amber-200 dark:border-amber-800/50",
     },
     {
-      label: ar ? "موافق عليها" : "Approved",
+      label: tAuto('auto.approved'),
       value: stats.APPROVED,
       icon: CheckCircle,
       color: "text-green-600 dark:text-green-400",
@@ -306,7 +309,7 @@ export default function LeavePage({ language }: LeavePageProps) {
       border: "border-green-200 dark:border-green-800/50",
     },
     {
-      label: ar ? "مرفوضة" : "Rejected",
+      label: tAuto('auto.rejected'),
       value: stats.REJECTED,
       icon: XCircle,
       color: "text-red-600 dark:text-red-400",
@@ -348,7 +351,7 @@ export default function LeavePage({ language }: LeavePageProps) {
             <div className="flex items-center gap-2 mb-3">
               <BarChart3 className="h-4 w-4 text-slate-400" />
               <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                {ar ? "توزيع أنواع الإجازات" : "Leave Type Distribution"}
+                {tAuto('auto.leaveTypeDistribution')}
               </h3>
             </div>
             {totalDays > 0 ? (
@@ -376,7 +379,7 @@ export default function LeavePage({ language }: LeavePageProps) {
               </div>
             ) : (
               <p className="text-xs text-slate-400 text-center py-4">
-                {ar ? "لا توجد بيانات" : "No data available"}
+                {tAuto('auto.noDataAvailable')}
               </p>
             )}
           </CardContent>
@@ -402,7 +405,7 @@ export default function LeavePage({ language }: LeavePageProps) {
                       {remaining}
                     </p>
                     <p className="text-[10px] text-slate-400">
-                      {ar ? "متبقي من" : "left of"} {balance.total}
+                      {tAuto('auto.leftOf')} {balance.total}
                     </p>
                   </div>
                   <div className="h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
@@ -412,8 +415,8 @@ export default function LeavePage({ language }: LeavePageProps) {
                     />
                   </div>
                   <div className="flex justify-between text-[10px] text-slate-400">
-                    <span>{ar ? "مستخدم" : "Used"}: {balance.used}</span>
-                    <span>{ar ? "متاح" : "Avail"}: {remaining}</span>
+                    <span>{tAuto('auto.used')}: {balance.used}</span>
+                    <span>{tAuto('auto.avail')}: {remaining}</span>
                   </div>
                 </CardContent>
               </Card>
@@ -428,7 +431,7 @@ export default function LeavePage({ language }: LeavePageProps) {
           <div className="flex items-center gap-2 mb-3">
             <CalendarDays className="h-4 w-4 text-teal-500" />
             <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              {ar ? "أيام الإجازات المعتمدة" : "Approved Leave Days"}
+              {tAuto('auto.approvedLeaveDays')}
             </h3>
           </div>
           <div className="flex gap-1.5 overflow-x-auto pb-1">
@@ -483,7 +486,7 @@ export default function LeavePage({ language }: LeavePageProps) {
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
         <div className="flex items-center gap-2 flex-1">
           <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-            {ar ? "الإجازات" : "Leave Requests"}
+            {tAuto('auto.leaveRequests')}
           </h2>
           <Badge variant="secondary" className="text-xs">{records.length}</Badge>
         </div>
@@ -491,25 +494,25 @@ export default function LeavePage({ language }: LeavePageProps) {
           <Select value={filterStatus} onValueChange={setFilterStatus}>
             <SelectTrigger className="w-[130px] h-8 text-xs">
               <Filter className="h-3 w-3 me-1 text-slate-400" />
-              <SelectValue placeholder={ar ? "الحالة" : "Status"} />
+              <SelectValue placeholder={tAuto('auto.status1')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{ar ? "جميع الحالات" : "All Status"}</SelectItem>
-              <SelectItem value="PENDING">{ar ? "معلق" : "Pending"}</SelectItem>
-              <SelectItem value="APPROVED">{ar ? "موافق" : "Approved"}</SelectItem>
-              <SelectItem value="REJECTED">{ar ? "مرفوض" : "Rejected"}</SelectItem>
+              <SelectItem value="all">{tAuto('auto.allStatus')}</SelectItem>
+              <SelectItem value="PENDING">{tAuto('auto.pending')}</SelectItem>
+              <SelectItem value="APPROVED">{tAuto('auto.approved')}</SelectItem>
+              <SelectItem value="REJECTED">{tAuto('auto.rejected')}</SelectItem>
             </SelectContent>
           </Select>
           <Select value={filterType} onValueChange={setFilterType}>
             <SelectTrigger className="w-[130px] h-8 text-xs">
-              <SelectValue placeholder={ar ? "النوع" : "Type"} />
+              <SelectValue placeholder={tAuto('auto.type')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{ar ? "جميع الأنواع" : "All Types"}</SelectItem>
-              <SelectItem value="ANNUAL">{ar ? "سنوية" : "Annual"}</SelectItem>
-              <SelectItem value="SICK">{ar ? "مرضية" : "Sick"}</SelectItem>
-              <SelectItem value="EMERGENCY">{ar ? "طوارئ" : "Emergency"}</SelectItem>
-              <SelectItem value="UNPAID">{ar ? "بدون راتب" : "Unpaid"}</SelectItem>
+              <SelectItem value="all">{tAuto('auto.allTypes')}</SelectItem>
+              <SelectItem value="ANNUAL">{tAuto('auto.annual')}</SelectItem>
+              <SelectItem value="SICK">{tAuto('auto.sick')}</SelectItem>
+              <SelectItem value="EMERGENCY">{tAuto('auto.emergency')}</SelectItem>
+              <SelectItem value="UNPAID">{tAuto('auto.unpaid')}</SelectItem>
             </SelectContent>
           </Select>
           <Button
@@ -518,7 +521,7 @@ export default function LeavePage({ language }: LeavePageProps) {
             onClick={() => { setFormData(emptyForm); setShowAddDialog(true); }}
           >
             <Plus className="h-3.5 w-3.5 me-1" />
-            {ar ? "طلب إجازة" : "New Request"}
+            {tAuto('auto.newRequest')}
           </Button>
         </div>
       </div>
@@ -529,21 +532,21 @@ export default function LeavePage({ language }: LeavePageProps) {
           <Table>
             <TableHeader>
               <TableRow className="hover:bg-transparent sticky top-0 bg-white dark:bg-slate-900 z-10">
-                <TableHead>{ar ? "الموظف" : "Employee"}</TableHead>
-                <TableHead>{ar ? "النوع" : "Type"}</TableHead>
-                <TableHead className="hidden sm:table-cell">{ar ? "من" : "Start"}</TableHead>
-                <TableHead className="hidden sm:table-cell">{ar ? "إلى" : "End"}</TableHead>
-                <TableHead className="hidden md:table-cell">{ar ? "الأيام" : "Days"}</TableHead>
-                <TableHead className="hidden lg:table-cell">{ar ? "السبب" : "Reason"}</TableHead>
-                <TableHead>{ar ? "الحالة" : "Status"}</TableHead>
-                <TableHead className="text-start">{ar ? "إجراءات" : "Actions"}</TableHead>
+                <TableHead>{tAuto('auto.employee')}</TableHead>
+                <TableHead>{tAuto('auto.type')}</TableHead>
+                <TableHead className="hidden sm:table-cell">{tAuto('auto.start')}</TableHead>
+                <TableHead className="hidden sm:table-cell">{tAuto('auto.end')}</TableHead>
+                <TableHead className="hidden md:table-cell">{tAuto('auto.days')}</TableHead>
+                <TableHead className="hidden lg:table-cell">{tAuto('auto.reason')}</TableHead>
+                <TableHead>{tAuto('auto.status1')}</TableHead>
+                <TableHead className="text-start">{tAuto('auto.actions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {records.map((record) => {
                 const typeCfg = getLeaveTypeConfig(record.type);
                 const statusCfg = getLeaveStatusConfig(record.status);
-                const empName = record.employee?.name || (ar ? "غير معروف" : "Unknown");
+                const empName = record.employee?.name || (tAuto('auto.unknown'));
                 const isUrgent = urgentRequests.some(u => u.id === record.id);
                 return (
                   <TableRow
@@ -607,7 +610,7 @@ export default function LeavePage({ language }: LeavePageProps) {
                             size="icon"
                             className="h-7 w-7 text-green-600 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-950/30"
                             onClick={() => statusMutation.mutate({ id: record.id, status: "APPROVED", approvedById: "admin" })}
-                            title={ar ? "موافقة" : "Approve"}
+                            title={tAuto('auto.approve')}
                             aria-label="Approve"
                           >
                             <CheckCircle className="h-3.5 w-3.5" />
@@ -617,7 +620,7 @@ export default function LeavePage({ language }: LeavePageProps) {
                             size="icon"
                             className="h-7 w-7 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
                             onClick={() => statusMutation.mutate({ id: record.id, status: "REJECTED", approvedById: "admin" })}
-                            title={ar ? "رفض" : "Reject"}
+                            title={tAuto('auto.reject')}
                             aria-label="Reject"
                           >
                             <XCircle className="h-3.5 w-3.5" />
@@ -637,14 +640,14 @@ export default function LeavePage({ language }: LeavePageProps) {
                 <TableRow>
                   <TableCell colSpan={8} className="text-center py-12 text-slate-400">
                     <CalendarOff className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                    {ar ? "لا توجد طلبات إجازة" : "No leave requests found"}
+                    {tAuto('auto.noLeaveRequestsFound')}
                   </TableCell>
                 </TableRow>
               )}
               {isLoading && (
                 <TableRow>
                   <TableCell colSpan={8} className="text-center py-12 text-slate-400">
-                    {ar ? "جارٍ التحميل..." : "Loading..."}
+                    {tAuto('auto.loading')}
                   </TableCell>
                 </TableRow>
               )}
@@ -657,21 +660,21 @@ export default function LeavePage({ language }: LeavePageProps) {
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
         <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{ar ? "طلب إجازة جديد" : "New Leave Request"}</DialogTitle>
+            <DialogTitle>{tAuto('auto.newLeaveRequest')}</DialogTitle>
             <DialogDescription>
-              {ar ? "تقديم طلب إجازة جديد" : "Submit a new leave request"}
+              {tAuto('auto.submitANewLeaveRequest')}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "الموظف" : "Employee"} *</Label>
+              <Label className="text-sm">{tAuto('auto.employee')} *</Label>
               <Select
                 value={formData.employeeId}
                 onValueChange={(v) => setFormData({ ...formData, employeeId: v })}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder={ar ? "اختر موظف" : "Select employee"} />
+                  <SelectValue placeholder={tAuto('auto.selectEmployee')} />
                 </SelectTrigger>
                 <SelectContent>
                   {employeeUsers.map((u) => (
@@ -682,7 +685,7 @@ export default function LeavePage({ language }: LeavePageProps) {
             </div>
 
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "نوع الإجازة" : "Leave Type"} *</Label>
+              <Label className="text-sm">{tAuto('auto.leaveType')} *</Label>
               <Select
                 value={formData.type}
                 onValueChange={(v) => setFormData({ ...formData, type: v })}
@@ -691,17 +694,17 @@ export default function LeavePage({ language }: LeavePageProps) {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ANNUAL">{ar ? "سنوية" : "Annual"}</SelectItem>
-                  <SelectItem value="SICK">{ar ? "مرضية" : "Sick"}</SelectItem>
-                  <SelectItem value="EMERGENCY">{ar ? "طوارئ" : "Emergency"}</SelectItem>
-                  <SelectItem value="UNPAID">{ar ? "بدون راتب" : "Unpaid"}</SelectItem>
+                  <SelectItem value="ANNUAL">{tAuto('auto.annual')}</SelectItem>
+                  <SelectItem value="SICK">{tAuto('auto.sick')}</SelectItem>
+                  <SelectItem value="EMERGENCY">{tAuto('auto.emergency')}</SelectItem>
+                  <SelectItem value="UNPAID">{tAuto('auto.unpaid')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "من تاريخ" : "Start Date"} *</Label>
+                <Label className="text-sm">{tAuto('auto.startDate')} *</Label>
                 <Input
                   type="date"
                   value={formData.startDate}
@@ -709,7 +712,7 @@ export default function LeavePage({ language }: LeavePageProps) {
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "إلى تاريخ" : "End Date"} *</Label>
+                <Label className="text-sm">{tAuto('auto.endDate')} *</Label>
                 <Input
                   type="date"
                   value={formData.endDate}
@@ -719,7 +722,7 @@ export default function LeavePage({ language }: LeavePageProps) {
             </div>
 
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "عدد الأيام" : "Days"}</Label>
+              <Label className="text-sm">{tAuto('auto.days')}</Label>
               <Input
                 type="number"
                 min={1}
@@ -729,11 +732,11 @@ export default function LeavePage({ language }: LeavePageProps) {
             </div>
 
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "السبب" : "Reason"}</Label>
+              <Label className="text-sm">{tAuto('auto.reason')}</Label>
               <Textarea
                 value={formData.reason}
                 onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
-                placeholder={ar ? "سبب الإجازة (اختياري)" : "Leave reason (optional)"}
+                placeholder={tAuto('auto.leaveReasonOptional')}
                 rows={3}
               />
             </div>
@@ -741,7 +744,7 @@ export default function LeavePage({ language }: LeavePageProps) {
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowAddDialog(false)}>
-              {ar ? "إلغاء" : "Cancel"}
+              {tAuto('auto.cancel')}
             </Button>
             <Button
               className="bg-teal-600 hover:bg-teal-700 text-white"
@@ -749,8 +752,8 @@ export default function LeavePage({ language }: LeavePageProps) {
               disabled={!formData.employeeId || !formData.startDate || !formData.endDate || createMutation.isPending}
             >
               {createMutation.isPending
-                ? (ar ? "جارٍ الإرسال..." : "Submitting...")
-                : (ar ? "إرسال الطلب" : "Submit Request")}
+                ? (tAuto('auto.submitting'))
+                : (tAuto('auto.submitRequest'))}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -38,6 +40,7 @@ export function AuditLog({
   activityFilter,
   setActivityFilter,
 }: AuditLogProps) {
+  const tAuto = useTranslations();
   return (
     <TabsContent value="activity" className="mt-2">
       <Card>
@@ -45,16 +48,16 @@ export function AuditLog({
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <CardTitle className="text-lg flex items-center gap-2">
               <Activity className="h-5 w-5 text-teal-600" />
-              {isAr ? "سجل النشاط" : "Activity Log"}
+              {tAuto('auto.activityLog')}
             </CardTitle>
             <div className="flex items-center gap-2">
               <Filter className="h-4 w-4 text-slate-400" />
               <Select value={activityFilter} onValueChange={setActivityFilter}>
                 <SelectTrigger className="w-40 h-9 text-xs rounded-lg">
-                  <SelectValue placeholder={isAr ? "جميع الإجراءات" : "All Actions"} />
+                  <SelectValue placeholder={tAuto('auto.allActions')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">{isAr ? "الكل" : "All"}</SelectItem>
+                  <SelectItem value="all">{tAuto('auto.all')}</SelectItem>
                   {Object.entries(actionLabels).map(([key, label]) => (
                     <SelectItem key={key} value={key}>
                       {isAr ? label.ar : label.en}
@@ -76,7 +79,7 @@ export function AuditLog({
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <Activity className="h-10 w-10 text-slate-300 dark:text-slate-600 mb-3" />
               <p className="text-sm text-slate-500">
-                {isAr ? "لا توجد أنشطة مسجلة" : "No activities recorded"}
+                {tAuto('auto.noActivitiesRecorded')}
               </p>
             </div>
           ) : (
@@ -84,11 +87,11 @@ export function AuditLog({
               <Table>
                 <TableHeader>
                   <TableRow className="bg-slate-50/80 dark:bg-slate-800/50">
-                    <TableHead className="text-xs font-semibold">{isAr ? "المستخدم" : "User"}</TableHead>
-                    <TableHead className="text-xs font-semibold">{isAr ? "الإجراء" : "Action"}</TableHead>
-                    <TableHead className="text-xs font-semibold hidden md:table-cell">{isAr ? "الكيان" : "Entity"}</TableHead>
-                    <TableHead className="text-xs font-semibold hidden lg:table-cell">{isAr ? "التفاصيل" : "Details"}</TableHead>
-                    <TableHead className="text-xs font-semibold">{isAr ? "التاريخ" : "Date"}</TableHead>
+                    <TableHead className="text-xs font-semibold">{tAuto('auto.user')}</TableHead>
+                    <TableHead className="text-xs font-semibold">{tAuto('auto.action')}</TableHead>
+                    <TableHead className="text-xs font-semibold hidden md:table-cell">{tAuto('auto.entity')}</TableHead>
+                    <TableHead className="text-xs font-semibold hidden lg:table-cell">{tAuto('auto.details')}</TableHead>
+                    <TableHead className="text-xs font-semibold">{tAuto('auto.date')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>

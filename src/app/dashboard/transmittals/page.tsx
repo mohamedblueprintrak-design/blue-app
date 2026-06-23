@@ -1,16 +1,7 @@
-"use client";
+import { getLocale } from 'next-intl/server';
+import TransmittalsPage from '@/components/pages/transmittals';
 
-import dynamic from "next/dynamic";
-import { useLang } from "@/hooks/use-lang";
-
-const TransmittalsPage = dynamic(() => import("@/components/pages/transmittals"), {
-  loading: () => <div className="p-6 animate-pulse">Loading...</div>,
-  ssr: false,
-});
-
-/**
- * /dashboard/transmittals
- */
-export default function TransmittalsPageRoute() {
-  return <TransmittalsPage language={useLang()} />;
+export default async function TransmittalsPageRoute() {
+  const locale = await getLocale();
+  return <TransmittalsPage language={locale as "ar" | "en"} />;
 }

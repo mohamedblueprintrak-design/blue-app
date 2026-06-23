@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { FolderKanban, Users, ListChecks, Settings, X, Sparkles } from "lucide-react";
@@ -10,6 +12,7 @@ interface WelcomeModalProps {
 }
 
 export default function WelcomeModal({ language }: WelcomeModalProps) {
+  const tAuto = useTranslations();
   const [show, setShow] = useState(false);
   const ar = language === "ar";
 
@@ -45,15 +48,15 @@ export default function WelcomeModal({ language }: WelcomeModalProps) {
             <X className="h-5 w-5" />
           </button>
           <LogoImage size={56} className="mx-auto mb-3" />
-          <h2 className="text-xl font-bold text-white">{ar ? "مرحباً بك في BluePrint" : "Welcome to BluePrint"}</h2>
-          <p className="text-sm text-white/80 mt-1">{ar ? "نظام إدارة مكاتب الاستشارات الهندسية" : "Engineering Consultancy Management System"}</p>
+          <h2 className="text-xl font-bold text-white">{tAuto('auto.welcomeToBluePrint1')}</h2>
+          <p className="text-sm text-white/80 mt-1">{tAuto('auto.engineeringConsultancyManagementSystem')}</p>
         </div>
 
         {/* Steps */}
         <div className="p-6 space-y-3">
           <div className="flex items-center gap-2 mb-4">
             <Sparkles className="h-4 w-4 text-teal-500" />
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-white">{ar ? "ابدأ باستكشاف:" : "Get started by:"}</h3>
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-white">{tAuto('auto.getStartedBy')}</h3>
           </div>
           {steps.map((step, i) => {
             const Icon = step.icon;
@@ -71,10 +74,10 @@ export default function WelcomeModal({ language }: WelcomeModalProps) {
         {/* Footer */}
         <div className="px-6 pb-6 flex flex-col gap-2">
           <Button onClick={handleDismiss} className="w-full bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white rounded-xl h-11 font-semibold">
-            {ar ? "ابدأ الآن" : "Get Started"}
+            {tAuto('auto.getStarted')}
           </Button>
           <button onClick={handleDismiss} className="w-full text-sm text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 text-center py-1">
-            {ar ? "تخطي" : "Skip"}
+            {tAuto('auto.skip')}
           </button>
         </div>
       </div>

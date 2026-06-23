@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -57,6 +59,7 @@ export function SupervisionDetail({
   onSubmit,
   onApprove,
 }: SupervisionDetailProps) {
+  const tAuto = useTranslations();
   return (
     <Dialog open={!!viewChecklist} onOpenChange={(open) => { if (!open) onClose(); }}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
@@ -64,7 +67,7 @@ export function SupervisionDetail({
           <>
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                {viewChecklist.title || (ar ? "قائمة مراجعة" : "Checklist")}
+                {viewChecklist.title || (tAuto('auto.checklist'))}
                 {getStatusBadge(viewChecklist.status, ar)}
               </DialogTitle>
               <DialogDescription>
@@ -75,16 +78,16 @@ export function SupervisionDetail({
             <div className="space-y-4">
               {/* Info Grid */}
               <div className="grid grid-cols-4 gap-3">
-                <InfoPill icon={<Sun className="h-3.5 w-3.5" />} label={ar ? "الطقس" : "Weather"} value={viewChecklist.weather || "-"} />
-                <InfoPill icon={<Thermometer className="h-3.5 w-3.5" />} label={ar ? "الحرارة" : "Temp"} value={viewChecklist.temperature ? `${viewChecklist.temperature}°C` : "-"} />
-                <InfoPill icon={<Users className="h-3.5 w-3.5" />} label={ar ? "العمال" : "Workers"} value={viewChecklist.workerCount > 0 ? String(viewChecklist.workerCount) : "-"} />
-                <InfoPill icon={<HardHat className="h-3.5 w-3.5" />} label={ar ? "المقاول" : "Contractor"} value={viewChecklist.contractorName || "-"} />
+                <InfoPill icon={<Sun className="h-3.5 w-3.5" />} label={tAuto('auto.weather')} value={viewChecklist.weather || "-"} />
+                <InfoPill icon={<Thermometer className="h-3.5 w-3.5" />} label={tAuto('auto.temp')} value={viewChecklist.temperature ? `${viewChecklist.temperature}°C` : "-"} />
+                <InfoPill icon={<Users className="h-3.5 w-3.5" />} label={tAuto('auto.workers1')} value={viewChecklist.workerCount > 0 ? String(viewChecklist.workerCount) : "-"} />
+                <InfoPill icon={<HardHat className="h-3.5 w-3.5" />} label={tAuto('auto.contractor')} value={viewChecklist.contractorName || "-"} />
               </div>
 
               {/* Overall Progress */}
               <Card className="p-4 bg-gradient-to-r from-teal-50 to-cyan-50 dark:from-teal-950/20 dark:to-cyan-950/20 border-teal-100 dark:border-teal-900/30">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-semibold text-teal-700 dark:text-teal-300">{ar ? "نسبة الإنجاز الكلية" : "Overall Progress"}</span>
+                  <span className="text-xs font-semibold text-teal-700 dark:text-teal-300">{tAuto('auto.overallProgress')}</span>
                   <span className="text-lg font-bold text-teal-700 dark:text-teal-300">{Math.round(viewChecklist.progressOverall)}%</span>
                 </div>
                 <Progress value={viewChecklist.progressOverall} className="h-2 bg-teal-100 dark:bg-teal-900/30" />
@@ -94,7 +97,7 @@ export function SupervisionDetail({
               <div className="space-y-2">
                 <h4 className="text-sm font-semibold text-slate-900 dark:text-white flex items-center gap-2">
                   <ClipboardCheck className="h-4 w-4 text-teal-600 dark:text-teal-400" />
-                  {ar ? "بنود المراجعة" : "Checklist Items"} ({viewChecklist.items.length})
+                  {tAuto('auto.checklistItems')} ({viewChecklist.items.length})
                 </h4>
                 <div className="space-y-1.5 max-h-64 overflow-y-auto">
                   {viewChecklist.items.map((item) => (
@@ -118,7 +121,7 @@ export function SupervisionDetail({
                     </div>
                   ))}
                   {viewChecklist.items.length === 0 && (
-                    <p className="text-xs text-slate-400 text-center py-4">{ar ? "لا توجد بنود" : "No items"}</p>
+                    <p className="text-xs text-slate-400 text-center py-4">{tAuto('auto.noItems')}</p>
                   )}
                 </div>
               </div>
@@ -128,7 +131,7 @@ export function SupervisionDetail({
                 <div className="space-y-2">
                   <h4 className="text-sm font-semibold text-slate-900 dark:text-white flex items-center gap-2">
                     <ShieldAlert className="h-4 w-4 text-red-500 dark:text-red-400" />
-                    {ar ? "المخالفات" : "Violations"} ({viewChecklist.violations.length})
+                    {tAuto('auto.violations')} ({viewChecklist.violations.length})
                   </h4>
                   <div className="space-y-1.5">
                     {viewChecklist.violations.map((v) => (
@@ -150,7 +153,7 @@ export function SupervisionDetail({
               {/* Notes */}
               {viewChecklist.notes && (
                 <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
-                  <p className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 mb-1">{ar ? "ملاحظات" : "Notes"}</p>
+                  <p className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 mb-1">{tAuto('auto.notes')}</p>
                   <p className="text-xs text-slate-700 dark:text-slate-300 whitespace-pre-wrap">{viewChecklist.notes}</p>
                 </div>
               )}
@@ -159,12 +162,12 @@ export function SupervisionDetail({
             <DialogFooter>
               {viewChecklist.status === "DRAFT" && (
                 <Button className="bg-blue-600 hover:bg-blue-700 text-white" onClick={() => { onSubmit(viewChecklist.id); onClose(); }}>
-                  {ar ? "تقديم" : "Submit"}
+                  {tAuto('auto.submit')}
                 </Button>
               )}
               {viewChecklist.status === "SUBMITTED" && (
                 <Button className="bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => { onApprove(viewChecklist.id); onClose(); }}>
-                  <ShieldCheck className="h-4 w-4 me-1" />{ar ? "اعتماد" : "Approve"}
+                  <ShieldCheck className="h-4 w-4 me-1" />{tAuto('auto.approve')}
                 </Button>
               )}
             </DialogFooter>

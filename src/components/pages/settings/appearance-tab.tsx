@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useTheme } from "next-themes";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -27,6 +29,7 @@ export function AppearanceTab({
   accentSaving,
   handleAccentColorChange,
 }: AppearanceTabProps) {
+  const tAuto = useTranslations();
   const { theme, setTheme } = useTheme();
 
   return (
@@ -34,18 +37,18 @@ export function AppearanceTab({
       <CardContent className="p-6">
         <SectionHeader
           icon={Palette}
-          title={isAr ? "المظهر والتخصيص" : "Appearance & Customization"}
-          subtitle={isAr ? "تخصيص سمة اللون واللغة واتجاه النص" : "Customize color theme, language, and text direction"}
+          title={tAuto('auto.appearanceCustomization')}
+          subtitle={tAuto('auto.customizeColorThemeLanguageAndTextDirect')}
         />
 
         <div className="space-y-3">
           <Label className="text-sm font-semibold text-slate-900 dark:text-white">
-            {isAr ? "السمة" : "Theme"}
+            {tAuto('auto.theme')}
           </Label>
           <div className="grid grid-cols-3 gap-3">
             {[
-              { key: "light", icon: Sun, label: isAr ? "فاتح" : "Light", color: "bg-white border-slate-200 dark:border-slate-600" },
-              { key: "dark", icon: Moon, label: isAr ? "داكن" : "Dark", color: "bg-slate-900 border-slate-700" },
+              { key: "light", icon: Sun, label: tAuto('auto.light'), color: "bg-white border-slate-200 dark:border-slate-600" },
+              { key: "dark", icon: Moon, label: tAuto('auto.dark'), color: "bg-slate-900 border-slate-700" },
             ].map((themeOption) => {
               const isActive = theme === themeOption.key;
               return (
@@ -65,7 +68,7 @@ export function AppearanceTab({
                   <span className="text-sm font-medium text-slate-900 dark:text-white">{themeOption.label}</span>
                   {isActive && (
                     <Badge className="bg-teal-100 text-teal-700 dark:bg-teal-900 dark:text-teal-300 text-[10px] h-5 px-1.5 border-0">
-                      {isAr ? "نشط" : "Active"}
+                      {tAuto('auto.active')}
                     </Badge>
                   )}
                 </button>
@@ -79,7 +82,7 @@ export function AppearanceTab({
         {/* Accent Color Selector */}
         <div className="space-y-3">
           <Label className="text-sm font-semibold text-slate-900 dark:text-white">
-            {isAr ? "لون التمييز" : "Accent Color"}
+            {tAuto('auto.accentColor')}
             {accentSaving && (
               <span className="h-3 w-3 border-2 border-teal-300 border-t-teal-600 rounded-full animate-spin inline-block ms-2 align-middle" />
             )}
@@ -104,7 +107,7 @@ export function AppearanceTab({
 
         <div className="space-y-3">
           <Label className="text-sm font-semibold text-slate-900 dark:text-white">
-            {isAr ? "اللغة" : "Language"}
+            {tAuto('auto.language')}
           </Label>
           <div className="grid grid-cols-2 gap-3">
             {[
@@ -141,12 +144,12 @@ export function AppearanceTab({
 
         <div className="space-y-3">
           <Label className="text-sm font-semibold text-slate-900 dark:text-white">
-            {isAr ? "اتجاه النص" : "Text Direction"}
+            {tAuto('auto.textDirection')}
           </Label>
           <div className="grid grid-cols-2 gap-3">
             {[
-              { key: "rtl" as const, label: isAr ? "من اليمين لليسار" : "Right to Left", icon: "←", active: isAr },
-              { key: "ltr" as const, label: isAr ? "من اليسار لليمين" : "Left to Right", icon: "→", active: !isAr },
+              { key: "rtl" as const, label: tAuto('auto.rightToLeft'), icon: "←", active: isAr },
+              { key: "ltr" as const, label: tAuto('auto.leftToRight'), icon: "→", active: !isAr },
             ].map((dir) => (
               <button
                 key={dir.key}

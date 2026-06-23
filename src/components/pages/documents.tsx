@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState, useMemo } from 'react'
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -138,6 +140,7 @@ interface DocumentsPageProps {
 }
 
 export default function DocumentsPage({ language, projectId }: DocumentsPageProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
@@ -302,13 +305,13 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
 
   // Breadcrumb path
   const breadcrumbItems = useMemo(() => {
-    if (filterCategory === "all") return [ar ? "الجذر" : "Root"];
+    if (filterCategory === "all") return [tAuto('auto.root')];
     const cat = folderCategories.find(c => c.key === filterCategory);
     return [
-      { label: ar ? "الجذر" : "Root", key: "all" },
+      { label: tAuto('auto.root'), key: "all" },
       { label: cat ? (ar ? cat.ar : cat.en) : (filterCategory), key: filterCategory },
     ];
-  }, [filterCategory, ar]);
+  }, [filterCategory, ar, tAuto]);
 
   const categories = ["all", "general", "contract", "drawings", "report", "invoice", "transmittal", "specs", "calculations", "photos"];
 
@@ -344,7 +347,7 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
                 <FileText className="h-5 w-5 text-teal-600 dark:text-teal-400" />
               </div>
               <div>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{ar ? "إجمالي المستندات" : "Total Documents"}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.totalDocuments')}</p>
                 <p className="text-xl font-bold tabular-nums text-slate-900 dark:text-white">{stats.total}</p>
               </div>
             </div>
@@ -357,7 +360,7 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
                 <CalendarDays className="h-5 w-5 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{ar ? "هذا الشهر" : "This Month"}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.thisMonth1')}</p>
                 <p className="text-xl font-bold tabular-nums text-slate-900 dark:text-white">{stats.thisMonth}</p>
               </div>
             </div>
@@ -370,7 +373,7 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
                 <Clock className="h-5 w-5 text-amber-600 dark:text-amber-400" />
               </div>
               <div>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{ar ? "بانتظار المراجعة" : "Pending Review"}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.pendingReview')}</p>
                 <p className="text-xl font-bold tabular-nums text-slate-900 dark:text-white">{stats.pendingReview}</p>
               </div>
             </div>
@@ -383,7 +386,7 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
                 <HardDrive className="h-5 w-5 text-violet-600 dark:text-violet-400" />
               </div>
               <div>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{ar ? "التخزين المستخدم" : "Storage Used"}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.storageUsed')}</p>
                 <p className="text-xl font-bold tabular-nums text-slate-900 dark:text-white">{formatFileSize(stats.totalSize)}</p>
               </div>
             </div>
@@ -412,19 +415,19 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
         <div className="flex items-center gap-2 flex-1">
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white">{ar ? "المستندات" : "Documents"}</h2>
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white">{tAuto('auto.documents')}</h2>
           <Badge variant="secondary" className="text-xs">{sortedFiltered.length}</Badge>
         </div>
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <div className="relative flex-1 sm:w-64">
             <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 dark:text-slate-500" />
-            <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={ar ? "بحث في المستندات..." : "Search documents..."} className="ps-9 h-8 text-sm" />
+            <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={tAuto('auto.searchDocuments')} className="ps-9 h-8 text-sm" />
           </div>
           {!projectId && (
           <Select value={filterProject} onValueChange={setFilterProject}>
             <SelectTrigger className="w-[140px] h-8 text-xs hidden sm:block"><SelectValue /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{ar ? "كل المشاريع" : "All Projects"}</SelectItem>
+              <SelectItem value="all">{tAuto('auto.allProjects')}</SelectItem>
               {projects.map((p) => (
                 <SelectItem key={p.id} value={p.id}>{ar ? p.name : p.nameEn || p.name}</SelectItem>
               ))}
@@ -454,15 +457,15 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
           </div>
           {/* View Toggle */}
           <div className="flex rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <Button variant={viewMode === "grid" ? "secondary" : "ghost"} size="icon" className="h-8 w-8 rounded-none" onClick={() => setViewMode("grid")} aria-label={ar ? "عرض شبكي" : "Grid view"}>
+            <Button variant={viewMode === "grid" ? "secondary" : "ghost"} size="icon" className="h-8 w-8 rounded-none" onClick={() => setViewMode("grid")} aria-label={tAuto('auto.gridView')}>
               <LayoutGrid className="h-3.5 w-3.5" />
             </Button>
-            <Button variant={viewMode === "list" ? "secondary" : "ghost"} size="icon" className="h-8 w-8 rounded-none" onClick={() => setViewMode("list")} aria-label={ar ? "عرض قائمة" : "List view"}>
+            <Button variant={viewMode === "list" ? "secondary" : "ghost"} size="icon" className="h-8 w-8 rounded-none" onClick={() => setViewMode("list")} aria-label={tAuto('auto.listView')}>
               <List className="h-3.5 w-3.5" />
             </Button>
           </div>
           <Button size="sm" className="h-8 bg-teal-600 hover:bg-teal-700 text-white" onClick={() => { setFormData(emptyForm); setEditDoc(null); setShowDialog(true); }}>
-            <Plus className="h-3.5 w-3.5 me-1" />{ar ? "مستند جديد" : "New Document"}
+            <Plus className="h-3.5 w-3.5 me-1" />{tAuto('auto.newDocument')}
           </Button>
         </div>
       </div>
@@ -473,7 +476,7 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
           <Card className="border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900">
             <CardContent className="p-2">
               <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase px-3 py-2">
-                {ar ? "التصنيفات" : "Categories"}
+                {tAuto('auto.categories')}
               </p>
               <ScrollArea className="max-h-[calc(100vh-20rem)]">
                 <div className="space-y-0.5">
@@ -523,7 +526,7 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
                   <div className="w-8 h-8 rounded-lg bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
                     <HardDrive className="h-4 w-4 text-teal-600 dark:text-teal-400" />
                   </div>
-                  <p className="text-sm font-semibold text-slate-900 dark:text-white">{ar ? "استخدام التخزين" : "Storage Usage"}</p>
+                  <p className="text-sm font-semibold text-slate-900 dark:text-white">{tAuto('auto.storageUsage')}</p>
                 </div>
                 <span className="text-sm font-bold font-mono tabular-nums text-slate-900 dark:text-white">
                   {storageUsed.toFixed(1)} GB <span className="text-xs font-normal text-slate-400">/ {storageTotal} GB</span>
@@ -539,7 +542,7 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
                 />
               </div>
               <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1.5">
-                {(storageTotal - storageUsed).toFixed(1)} GB {ar ? "متاح" : "AVAILABLE"} ({Math.round(100 - storagePercent)}% {ar ? "فارغ" : "free"})
+                {(storageTotal - storageUsed).toFixed(1)} GB {tAuto('auto.aVAILABLE')} ({Math.round(100 - storagePercent)}% {tAuto('auto.free1')})
               </p>
             </CardContent>
           </Card>
@@ -555,10 +558,10 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
               </div>
               <div className="text-center">
                 <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                  {ar ? "اسحب الملفات هنا أو انقر للرفع" : "Drag files here or click to upload"}
+                  {tAuto('auto.dragFilesHereOrClickToUpload')}
                 </p>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                  PDF, DWG, DOCX, XLSX, JPG, PNG — {ar ? "حتى 50 ميجابايت" : "up to 50MB"}
+                  PDF, DWG, DOCX, XLSX, JPG, PNG — {tAuto('auto.upTo50MB')}
                 </p>
               </div>
               <Button
@@ -567,7 +570,7 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
                 onClick={(e) => { e.stopPropagation(); setShowUploadZone(false); setShowDialog(true); }}
               >
                 <Plus className="h-3.5 w-3.5 me-1" />
-                {ar ? "اختيار ملفات" : "Choose Files"}
+                {tAuto('auto.chooseFiles')}
               </Button>
             </div>
           )}
@@ -579,7 +582,7 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
               className="w-full border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl p-4 flex items-center justify-center gap-2 text-slate-400 dark:text-slate-500 hover:border-teal-300 dark:hover:border-teal-700 hover:text-teal-500 dark:hover:text-teal-400 transition-colors"
             >
               <Upload className="h-4 w-4" />
-              <span className="text-xs font-medium">{ar ? "اسحب الملفات هنا للرفع" : "Drag files here to upload"}</span>
+              <span className="text-xs font-medium">{tAuto('auto.dragFilesHereToUpload')}</span>
             </button>
           )}
 
@@ -611,7 +614,7 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
                       {/* File name + size */}
                       <div className="flex items-center gap-2 min-w-0">
                         <h3 className="text-sm font-semibold text-slate-900 dark:text-white truncate" title={doc.name}>
-                          {doc.name || (ar ? "بدون اسم" : "Untitled")}
+                          {doc.name || (tAuto('auto.untitled'))}
                         </h3>
                         <span className="shrink-0 text-[10px] font-mono text-slate-400 dark:text-slate-500">
                           {formatFileSize(doc.fileSize)}
@@ -644,7 +647,7 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
                             {avatarInitial}
                           </div>
                           <span className="text-[10px] text-slate-500 dark:text-slate-400 truncate max-w-[100px]">
-                            {doc.uploader?.name || (ar ? "غير محدد" : "Unknown")}
+                            {doc.uploader?.name || (tAuto('auto.unknown'))}
                           </span>
                         </div>
                         <div className="flex items-center gap-2 text-[10px] text-slate-400 dark:text-slate-500">
@@ -653,7 +656,7 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
                             size="icon"
                             className="h-5 w-5"
                             onClick={(e: React.MouseEvent) => { e.stopPropagation(); setVersionHistoryDoc(doc); }}
-                            title={ar ? "سجل الإصدارات" : "Version History"}
+                            title={tAuto('auto.versionHistory')}
                           >
                             <History className="h-3 w-3" />
                           </Button>
@@ -669,8 +672,8 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
                   <div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-3">
                     <FileText className="h-8 w-8 text-slate-300 dark:text-slate-600" />
                   </div>
-                  <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{ar ? "لا توجد مستندات" : "No documents found"}</p>
-                  <p className="text-xs mt-1">{ar ? "حاول تغيير التصنيف أو كلمة البحث" : "Try changing category or search"}</p>
+                  <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{tAuto('auto.noDocumentsFound')}</p>
+                  <p className="text-xs mt-1">{tAuto('auto.tryChangingCategoryOrSearch')}</p>
                 </div>
               )}
             </div>
@@ -683,15 +686,15 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
                 <Table>
                   <TableHeader>
                     <TableRow className="hover:bg-transparent bg-slate-50/80 dark:bg-slate-800/50">
-                      <TableHead className="text-xs font-semibold">{ar ? "الاسم" : "Name"}</TableHead>
-                      <TableHead className="text-xs font-semibold hidden md:table-cell">{ar ? "النوع" : "Type"}</TableHead>
-                      <TableHead className="text-xs font-semibold hidden sm:table-cell">{ar ? "التصنيف" : "Category"}</TableHead>
-                      <TableHead className="text-xs font-semibold hidden lg:table-cell">{ar ? "المشروع" : "Project"}</TableHead>
-                      <TableHead className="text-xs font-semibold">{ar ? "الحجم" : "Size"}</TableHead>
-                      <TableHead className="text-xs font-semibold">{ar ? "الإصدار" : "Ver"}</TableHead>
-                      <TableHead className="text-xs font-semibold hidden sm:table-cell">{ar ? "التاريخ" : "Date"}</TableHead>
-                      <TableHead className="text-xs font-semibold hidden lg:table-cell">{ar ? "رفع بواسطة" : "Uploaded By"}</TableHead>
-                      <TableHead className="text-xs font-semibold text-start">{ar ? "إجراءات" : "Actions"}</TableHead>
+                      <TableHead className="text-xs font-semibold">{tAuto('auto.name')}</TableHead>
+                      <TableHead className="text-xs font-semibold hidden md:table-cell">{tAuto('auto.type')}</TableHead>
+                      <TableHead className="text-xs font-semibold hidden sm:table-cell">{tAuto('auto.category')}</TableHead>
+                      <TableHead className="text-xs font-semibold hidden lg:table-cell">{tAuto('auto.project')}</TableHead>
+                      <TableHead className="text-xs font-semibold">{tAuto('auto.size')}</TableHead>
+                      <TableHead className="text-xs font-semibold">{tAuto('auto.ver')}</TableHead>
+                      <TableHead className="text-xs font-semibold hidden sm:table-cell">{tAuto('auto.date')}</TableHead>
+                      <TableHead className="text-xs font-semibold hidden lg:table-cell">{tAuto('auto.uploadedBy')}</TableHead>
+                      <TableHead className="text-xs font-semibold text-start">{tAuto('auto.actions')}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -712,7 +715,7 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
                               <div className={`shrink-0 w-8 h-8 rounded-lg ${typeConf.bg} flex items-center justify-center`}>
                                 <TypeIcon className={`h-4 w-4 ${typeConf.color}`} />
                               </div>
-                              <span className="text-sm font-medium text-slate-900 dark:text-white max-w-[200px] truncate">{doc.name || (ar ? "بدون اسم" : "Untitled")}</span>
+                              <span className="text-sm font-medium text-slate-900 dark:text-white max-w-[200px] truncate">{doc.name || (tAuto('auto.untitled'))}</span>
                             </div>
                           </TableCell>
                           <TableCell className="hidden md:table-cell text-xs text-slate-500 dark:text-slate-400 uppercase font-medium">{doc.fileType || "—"}</TableCell>
@@ -744,7 +747,7 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
                               <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setViewDoc(doc)} aria-label="View"><Eye className="h-3.5 w-3.5" /></Button>
                               <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setVersionHistoryDoc(doc)} aria-label="Version History"><History className="h-3.5 w-3.5" /></Button>
                               <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(doc)} aria-label="Edit"><Pencil className="h-3.5 w-3.5" /></Button>
-                              <Button variant="ghost" size="icon" className="h-7 w-7 text-red-500" onClick={() => { if (confirm(ar ? "حذف المستند؟" : "Delete document?")) deleteMutation.mutate(doc.id); }} aria-label="Delete"><Trash2 className="h-3.5 w-3.5" /></Button>
+                              <Button variant="ghost" size="icon" className="h-7 w-7 text-red-500" onClick={() => { if (confirm(tAuto('auto.deleteDocument'))) deleteMutation.mutate(doc.id); }} aria-label="Delete"><Trash2 className="h-3.5 w-3.5" /></Button>
                             </div>
                           </TableCell>
                         </TableRow>
@@ -753,7 +756,7 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
                     {sortedFiltered.length === 0 && (
                       <TableRow>
                         <TableCell colSpan={9} className="text-center py-12 text-slate-400 dark:text-slate-500">
-                          {ar ? "لا توجد مستندات" : "No documents found"}
+                          {tAuto('auto.noDocumentsFound')}
                         </TableCell>
                       </TableRow>
                     )}
@@ -781,46 +784,46 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
                       </span>
                     );
                   })()}
-                  {viewDoc.name || (ar ? "بدون اسم" : "Untitled")}
+                  {viewDoc.name || (tAuto('auto.untitled'))}
                 </DialogTitle>
-                <DialogDescription>{ar ? "تفاصيل المستند" : "Document details"}</DialogDescription>
+                <DialogDescription>{tAuto('auto.documentDetails')}</DialogDescription>
               </DialogHeader>
               <div className="space-y-3">
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <Label className="text-xs text-slate-400 dark:text-slate-500">{ar ? "التصنيف" : "Category"}</Label>
+                    <Label className="text-xs text-slate-400 dark:text-slate-500">{tAuto('auto.category')}</Label>
                     <Badge variant="secondary" className={`text-xs mt-1 ${getCategoryConfig(viewDoc.category).color}`}>
                       {ar ? getCategoryConfig(viewDoc.category).ar : getCategoryConfig(viewDoc.category).en}
                     </Badge>
                   </div>
                   <div>
-                    <Label className="text-xs text-slate-400 dark:text-slate-500">{ar ? "نوع الملف" : "File Type"}</Label>
+                    <Label className="text-xs text-slate-400 dark:text-slate-500">{tAuto('auto.fileType')}</Label>
                     <p className="text-sm font-medium text-slate-900 dark:text-white mt-1">{viewDoc.fileType.toUpperCase() || "—"}</p>
                   </div>
                   <div>
-                    <Label className="text-xs text-slate-400 dark:text-slate-500">{ar ? "الحجم" : "File Size"}</Label>
+                    <Label className="text-xs text-slate-400 dark:text-slate-500">{tAuto('auto.fileSize')}</Label>
                     <p className="text-sm font-medium text-slate-900 dark:text-white mt-1">{formatFileSize(viewDoc.fileSize)}</p>
                   </div>
                   <div>
-                    <Label className="text-xs text-slate-400 dark:text-slate-500">{ar ? "الإصدار" : "Version"}</Label>
+                    <Label className="text-xs text-slate-400 dark:text-slate-500">{tAuto('auto.version')}</Label>
                     <p className="text-sm font-medium text-slate-900 dark:text-white mt-1">v{viewDoc.version}</p>
                   </div>
                   <div>
-                    <Label className="text-xs text-slate-400 dark:text-slate-500">{ar ? "المشروع" : "Project"}</Label>
-                    <p className="text-sm font-medium text-slate-900 dark:text-white mt-1">{viewDoc.project ? (ar ? viewDoc.project.name : viewDoc.project.nameEn || viewDoc.project.name) : (ar ? "غير مرتبط" : "Unlinked")}</p>
+                    <Label className="text-xs text-slate-400 dark:text-slate-500">{tAuto('auto.project')}</Label>
+                    <p className="text-sm font-medium text-slate-900 dark:text-white mt-1">{viewDoc.project ? (ar ? viewDoc.project.name : viewDoc.project.nameEn || viewDoc.project.name) : (tAuto('auto.unlinked'))}</p>
                   </div>
                   <div>
-                    <Label className="text-xs text-slate-400 dark:text-slate-500">{ar ? "رفع بواسطة" : "Uploaded By"}</Label>
+                    <Label className="text-xs text-slate-400 dark:text-slate-500">{tAuto('auto.uploadedBy')}</Label>
                     <div className="flex items-center gap-1.5 mt-1">
                       <div className={`h-5 w-5 rounded-full ${getAvatarColor(viewDoc.uploader?.name || "")} flex items-center justify-center text-[8px] font-bold text-white`}>
                         {(viewDoc.uploader?.name || "?").charAt(0).toUpperCase()}
                       </div>
-                      <p className="text-sm font-medium text-slate-900 dark:text-white">{viewDoc.uploader?.name || (ar ? "غير محدد" : "Unknown")}</p>
+                      <p className="text-sm font-medium text-slate-900 dark:text-white">{viewDoc.uploader?.name || (tAuto('auto.unknown'))}</p>
                     </div>
                   </div>
                 </div>
                 <div>
-                  <Label className="text-xs text-slate-400 dark:text-slate-500">{ar ? "تاريخ الرفع" : "Upload Date"}</Label>
+                  <Label className="text-xs text-slate-400 dark:text-slate-500">{tAuto('auto.uploadDate')}</Label>
                   <p className="text-sm font-medium text-slate-900 dark:text-white mt-1">{new Date(viewDoc.createdAt).toLocaleString(ar ? "ar-AE" : "en-US")}</p>
                 </div>
               </div>
@@ -828,7 +831,7 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
               {/* Document Preview section */}
               {viewDoc.filePath && (
                 <div className="mt-4 border-t border-slate-200 dark:border-slate-800 pt-4">
-                  <Label className="text-xs text-slate-400 dark:text-slate-500 mb-2 block">{ar ? "معاينة المستند" : "Document Preview"}</Label>
+                  <Label className="text-xs text-slate-400 dark:text-slate-500 mb-2 block">{tAuto('auto.documentPreview')}</Label>
                   {["jpg", "jpeg", "png", "gif", "webp"].includes((viewDoc.fileType || "").toLowerCase()) ? (
                     <div className="rounded-md overflow-hidden border border-slate-200 dark:border-slate-700">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -840,9 +843,9 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
                     </div>
                   ) : (
                     <div className="p-8 text-center border rounded-md bg-slate-50 dark:bg-slate-800/50">
-                      <p className="text-sm text-slate-500">{ar ? "المعاينة غير متاحة لهذا النوع من الملفات" : "Preview not available for this file type"}</p>
+                      <p className="text-sm text-slate-500">{tAuto('auto.previewNotAvailableForThisFileType')}</p>
                       <Button variant="outline" size="sm" className="mt-3" onClick={() => window.open(viewDoc.filePath, '_blank')}>
-                        {ar ? "تحميل الملف" : "Download File"}
+                        {tAuto('auto.downloadFile')}
                       </Button>
                     </div>
                   )}
@@ -857,20 +860,20 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
       <Dialog open={showDialog && !viewDoc} onOpenChange={(open) => { if (!open) { setShowDialog(false); setEditDoc(null); setFormData(emptyForm); } }}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>{editDoc ? (ar ? "تعديل مستند" : "Edit Document") : (ar ? "مستند جديد" : "New Document")}</DialogTitle>
-            <DialogDescription>{editDoc ? (ar ? "تعديل بيانات المستند" : "Update document metadata") : (ar ? "إضافة مستند جديد (تخزين بيانات فقط)" : "Add new document (metadata only)")}</DialogDescription>
+            <DialogTitle>{editDoc ? (tAuto('auto.editDocument')) : (tAuto('auto.newDocument'))}</DialogTitle>
+            <DialogDescription>{editDoc ? (tAuto('auto.updateDocumentMetadata')) : (tAuto('auto.addNewDocumentMetadataOnly'))}</DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
             <div className="space-y-1">
-              <Label className="text-xs">{ar ? "اسم المستند" : "Document Name"} *</Label>
-              <Input value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} placeholder={ar ? "أدخل اسم المستند" : "Enter document name"} className="h-8 text-sm" />
+              <Label className="text-xs">{tAuto('auto.documentName')} *</Label>
+              <Input value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} placeholder={tAuto('auto.enterDocumentName')} className="h-8 text-sm" />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <Label className="text-xs">{ar ? "نوع الملف" : "File Type"}</Label>
+                <Label className="text-xs">{tAuto('auto.fileType')}</Label>
                 <Select value={formData.fileType} onValueChange={(v) => setFormData({ ...formData, fileType: v })}>
-                  <SelectTrigger className="h-8 text-sm"><SelectValue placeholder={ar ? "اختر النوع" : "Select type"} /></SelectTrigger>
+                  <SelectTrigger className="h-8 text-sm"><SelectValue placeholder={tAuto('auto.selectType1')} /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="pdf">PDF</SelectItem>
                     <SelectItem value="dwg">DWG</SelectItem>
@@ -884,12 +887,12 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
                 </Select>
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">{ar ? "حجم الملف (بالبايت)" : "File Size (bytes)"}</Label>
+                <Label className="text-xs">{tAuto('auto.fileSizeBytes')}</Label>
                 <Input type="number" value={formData.fileSize || ""} onChange={(e) => setFormData({ ...formData, fileSize: parseFloat(e.target.value) || 0 })} placeholder="1024" className="h-8 text-sm tabular-nums" />
               </div>
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">{ar ? "التصنيف" : "Category"} *</Label>
+              <Label className="text-xs">{tAuto('auto.category')} *</Label>
               <Select value={formData.category} onValueChange={(v) => setFormData({ ...formData, category: v })}>
                 <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -901,11 +904,11 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
               </Select>
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">{ar ? "المشروع" : "Project"}</Label>
+              <Label className="text-xs">{tAuto('auto.project')}</Label>
               <Select value={formData.projectId || "none"} onValueChange={(v) => setFormData({ ...formData, projectId: v === "none" ? "" : v })}>
-                <SelectTrigger className="h-8 text-sm"><SelectValue placeholder={ar ? "اختر مشروع (اختياري)" : "Select project (optional)"} /></SelectTrigger>
+                <SelectTrigger className="h-8 text-sm"><SelectValue placeholder={tAuto('auto.selectProjectOptional')} /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">{ar ? "بدون مشروع" : "No project"}</SelectItem>
+                  <SelectItem value="none">{tAuto('auto.noProject')}</SelectItem>
                   {projects.map((p) => (
                     <SelectItem key={p.id} value={p.id}>{ar ? p.name : p.nameEn || p.name}</SelectItem>
                   ))}
@@ -914,20 +917,20 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <Label className="text-xs">{ar ? "رقم العقد" : "Contract ID"}</Label>
-                <Input value={formData.contractId} onChange={(e) => setFormData({ ...formData, contractId: e.target.value })} placeholder={ar ? "اختياري" : "Optional"} className="h-8 text-sm" />
+                <Label className="text-xs">{tAuto('auto.contractID')}</Label>
+                <Input value={formData.contractId} onChange={(e) => setFormData({ ...formData, contractId: e.target.value })} placeholder={tAuto('auto.optional')} className="h-8 text-sm" />
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">{ar ? "الإصدار" : "Version"}</Label>
+                <Label className="text-xs">{tAuto('auto.version')}</Label>
                 <Input type="number" value={formData.version} onChange={(e) => setFormData({ ...formData, version: parseInt(e.target.value) || 1 })} className="h-8 text-sm tabular-nums" />
               </div>
             </div>
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => { setShowDialog(false); setEditDoc(null); setFormData(emptyForm); }}>{ar ? "إلغاء" : "Cancel"}</Button>
+            <Button variant="outline" onClick={() => { setShowDialog(false); setEditDoc(null); setFormData(emptyForm); }}>{tAuto('auto.cancel')}</Button>
             <Button className="bg-teal-600 hover:bg-teal-700 text-white" onClick={handleSave} disabled={!formData.name || createMutation.isPending}>
-              {createMutation.isPending ? (ar ? "جارٍ الحفظ..." : "Saving...") : (ar ? "حفظ" : "Save")}
+              {createMutation.isPending ? (tAuto('auto.saving')) : (tAuto('auto.save'))}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 /**
  * BOQ (Bill of Quantities) Page
  * صفحة جدول الكميات
@@ -109,6 +111,7 @@ interface BOQPageProps {
 }
 
 export default function BOQPage({ language, projectId }: BOQPageProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const queryClient = useQueryClient();
   const toast = useToastFeedback({ ar });
@@ -176,9 +179,9 @@ export default function BOQPage({ language, projectId }: BOQPageProps) {
       queryClient.invalidateQueries({ queryKey: ["boq-items"] });
       setShowAddDialog(false);
       resetFormData();
-      toast.created(ar ? "بند جدول الكميات" : "BOQ item");
+      toast.created(tAuto('auto.bOQItem'));
     },
-    onError: () => toast.error(ar ? "إضافة البند" : "Add item"),
+    onError: () => toast.error(tAuto('auto.addItem')),
   });
 
   // Update mutation
@@ -196,9 +199,9 @@ export default function BOQPage({ language, projectId }: BOQPageProps) {
       queryClient.invalidateQueries({ queryKey: ["boq-items"] });
       setShowEditDialog(false);
       setSelectedItem(null);
-      toast.updated(ar ? "البند" : "Item");
+      toast.updated(tAuto('auto.item'));
     },
-    onError: () => toast.error(ar ? "تحديث البند" : "Update item"),
+    onError: () => toast.error(tAuto('auto.updateItem')),
   });
 
   // Delete mutation
@@ -212,9 +215,9 @@ export default function BOQPage({ language, projectId }: BOQPageProps) {
       queryClient.invalidateQueries({ queryKey: ["boq-items"] });
       setShowDeleteDialog(false);
       setSelectedItem(null);
-      toast.deleted(ar ? "البند" : "Item");
+      toast.deleted(tAuto('auto.item'));
     },
-    onError: () => toast.error(ar ? "حذف البند" : "Delete item"),
+    onError: () => toast.error(tAuto('auto.deleteItem')),
   });
 
   // Filter items
@@ -263,7 +266,7 @@ export default function BOQPage({ language, projectId }: BOQPageProps) {
     link.download = `boq-${new Date().toISOString().split("T")[0]}.csv`;
     link.click();
     URL.revokeObjectURL(url);
-    toast.showSuccess(ar ? "تم تصدير الملف" : "File exported");
+    toast.showSuccess(tAuto('auto.fileExported'));
   };
 
   const resetFormData = () => {
@@ -309,24 +312,24 @@ export default function BOQPage({ language, projectId }: BOQPageProps) {
           </div>
           <div>
             <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-              {ar ? "جدول الكميات" : "Bill of Quantities"}
+              {tAuto('auto.billOfQuantities')}
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              {ar ? "إدارة بنود وجدول كميات المشاريع" : "Manage project quantity items"}
+              {tAuto('auto.manageProjectQuantityItems')}
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" onClick={handleExport} disabled={filteredItems.length === 0} className="gap-2 h-9 text-xs">
             <Download className="h-3.5 w-3.5" />
-            {ar ? "تصدير CSV" : "Export CSV"}
+            {tAuto('auto.exportCSV')}
           </Button>
           <Button
             onClick={() => { resetFormData(); setShowAddDialog(true); }}
             className="gap-2 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white text-sm shadow-md shadow-teal-500/20 border-0 h-9 px-4"
           >
             <Plus className="h-4 w-4" />
-            {ar ? "إضافة بند" : "Add Item"}
+            {tAuto('auto.addItem1')}
           </Button>
         </div>
       </div>
@@ -341,7 +344,7 @@ export default function BOQPage({ language, projectId }: BOQPageProps) {
               </div>
             </div>
             <div className="text-2xl font-bold text-white tabular-nums">{boqSummary?.itemCount ?? 0}</div>
-            <p className="text-[11px] text-teal-100 mt-0.5">{ar ? "إجمالي البنود" : "Total Items"}</p>
+            <p className="text-[11px] text-teal-100 mt-0.5">{tAuto('auto.totalItems')}</p>
           </div>
         </Card>
 
@@ -353,7 +356,7 @@ export default function BOQPage({ language, projectId }: BOQPageProps) {
               </div>
             </div>
             <div className="text-2xl font-bold text-white tabular-nums font-mono">{formatCurrency(boqSummary?.total ?? 0, ar)}</div>
-            <p className="text-[11px] text-emerald-100 mt-0.5">{ar ? "إجمالي القيمة" : "Total Value"}</p>
+            <p className="text-[11px] text-emerald-100 mt-0.5">{tAuto('auto.totalValue')}</p>
           </div>
         </Card>
 
@@ -367,7 +370,7 @@ export default function BOQPage({ language, projectId }: BOQPageProps) {
             <div className="text-2xl font-bold text-white tabular-nums">
               {boqSummary ? Object.keys(boqSummary.byCategory).length : 0}
             </div>
-            <p className="text-[11px] text-violet-100 mt-0.5">{ar ? "الفئات المستخدمة" : "Categories Used"}</p>
+            <p className="text-[11px] text-violet-100 mt-0.5">{tAuto('auto.categoriesUsed')}</p>
           </div>
         </Card>
       </div>
@@ -378,7 +381,7 @@ export default function BOQPage({ language, projectId }: BOQPageProps) {
           <div className="relative flex-1 min-w-[200px]">
             <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <Input
-              placeholder={ar ? "بحث بالوصف أو الرقم..." : "Search by description or code..."}
+              placeholder={tAuto('auto.searchByDescriptionOrCode')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="ps-9 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 h-9 text-sm"
@@ -387,10 +390,10 @@ export default function BOQPage({ language, projectId }: BOQPageProps) {
           {!projectId && (
           <Select value={projectFilter} onValueChange={setProjectFilter}>
             <SelectTrigger className="w-[180px] bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 h-9 text-sm">
-              <SelectValue placeholder={ar ? "المشروع" : "Project"} />
+              <SelectValue placeholder={tAuto('auto.project')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{ar ? "جميع المشاريع" : "All Projects"}</SelectItem>
+              <SelectItem value="all">{tAuto('auto.allProjects')}</SelectItem>
               {projects.map((project) => (
                 <SelectItem key={project.id} value={project.id}>
                   {project.name}
@@ -413,7 +416,7 @@ export default function BOQPage({ language, projectId }: BOQPageProps) {
               : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
           )}
         >
-          {ar ? "الكل" : "All"} ({boqItems.length})
+          {tAuto('auto.all')} ({boqItems.length})
         </button>
         {BOQ_CATEGORIES.map((cat) => {
           const count = boqItems.filter((i) => i.category === cat.value).length;
@@ -444,10 +447,10 @@ export default function BOQPage({ language, projectId }: BOQPageProps) {
                 <Building2 className="h-10 w-10 text-slate-300 dark:text-slate-600" />
               </div>
               <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
-                {ar ? "اختر مشروعاً" : "Select a Project"}
+                {tAuto('auto.selectAProject')}
               </h3>
               <p className="text-sm text-slate-500 dark:text-slate-400 max-w-md">
-                {ar ? "يرجى اختيار مشروع من القائمة لعرض جدول الكميات الخاص به" : "Please select a project from the list to view its BOQ items"}
+                {tAuto('auto.pleaseSelectAProjectFromTheListToViewIts')}
               </p>
             </div>
           ) : filteredItems.length === 0 ? (
@@ -456,10 +459,10 @@ export default function BOQPage({ language, projectId }: BOQPageProps) {
                 <FileSpreadsheet className="h-10 w-10 text-slate-300 dark:text-slate-600" />
               </div>
               <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
-                {ar ? "لا توجد بنود" : "No Items Found"}
+                {tAuto('auto.noItemsFound1')}
               </h3>
               <p className="text-sm text-slate-500 dark:text-slate-400 max-w-md">
-                {ar ? "لم يتم العثور على بنود لهذا المشروع" : "No BOQ items found for this project"}
+                {tAuto('auto.noBOQItemsFoundForThisProject')}
               </p>
             </div>
           ) : (
@@ -467,14 +470,14 @@ export default function BOQPage({ language, projectId }: BOQPageProps) {
               <Table>
                 <TableHeader>
                   <TableRow className="bg-slate-50 dark:bg-slate-800/30 hover:bg-slate-50 dark:hover:bg-slate-800/30 border-slate-200 dark:border-slate-700/50">
-                    <TableHead className="text-xs font-semibold text-slate-500 dark:text-slate-400 w-16">{ar ? "الرقم" : "No."}</TableHead>
-                    <TableHead className="text-xs font-semibold text-slate-500 dark:text-slate-400">{ar ? "الوصف" : "Description"}</TableHead>
-                    <TableHead className="text-xs font-semibold text-slate-500 dark:text-slate-400 w-32">{ar ? "الفئة" : "Category"}</TableHead>
-                    <TableHead className="text-xs font-semibold text-slate-500 dark:text-slate-400 w-20 text-end">{ar ? "الوحدة" : "Unit"}</TableHead>
-                    <TableHead className="text-xs font-semibold text-slate-500 dark:text-slate-400 w-20 text-end">{ar ? "الكمية" : "Qty"}</TableHead>
-                    <TableHead className="text-xs font-semibold text-slate-500 dark:text-slate-400 w-28 text-end">{ar ? "سعر الوحدة" : "Unit Price"}</TableHead>
-                    <TableHead className="text-xs font-semibold text-slate-500 dark:text-slate-400 w-28 text-end">{ar ? "الإجمالي" : "Total"}</TableHead>
-                    <TableHead className="text-xs font-semibold text-slate-500 dark:text-slate-400 w-20 text-center">{ar ? "إجراءات" : "Actions"}</TableHead>
+                    <TableHead className="text-xs font-semibold text-slate-500 dark:text-slate-400 w-16">{tAuto('auto.no')}</TableHead>
+                    <TableHead className="text-xs font-semibold text-slate-500 dark:text-slate-400">{tAuto('auto.description')}</TableHead>
+                    <TableHead className="text-xs font-semibold text-slate-500 dark:text-slate-400 w-32">{tAuto('auto.category')}</TableHead>
+                    <TableHead className="text-xs font-semibold text-slate-500 dark:text-slate-400 w-20 text-end">{tAuto('auto.unit')}</TableHead>
+                    <TableHead className="text-xs font-semibold text-slate-500 dark:text-slate-400 w-20 text-end">{tAuto('auto.qty')}</TableHead>
+                    <TableHead className="text-xs font-semibold text-slate-500 dark:text-slate-400 w-28 text-end">{tAuto('auto.unitPrice')}</TableHead>
+                    <TableHead className="text-xs font-semibold text-slate-500 dark:text-slate-400 w-28 text-end">{tAuto('auto.total')}</TableHead>
+                    <TableHead className="text-xs font-semibold text-slate-500 dark:text-slate-400 w-20 text-center">{tAuto('auto.actions')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -518,7 +521,7 @@ export default function BOQPage({ language, projectId }: BOQPageProps) {
                 </div>
               ))}
               <div className="flex justify-between text-sm font-bold mt-2 pt-2 border-t border-slate-200 dark:border-slate-700">
-                <span className="text-slate-900 dark:text-white">{ar ? "الإجمالي الكلي" : "Grand Total"}</span>
+                <span className="text-slate-900 dark:text-white">{tAuto('auto.grandTotal')}</span>
                 <span className="text-teal-600 dark:text-teal-400 font-mono tabular-nums">{formatCurrency(filteredTotal, ar)}</span>
               </div>
             </div>
@@ -530,8 +533,8 @@ export default function BOQPage({ language, projectId }: BOQPageProps) {
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>{ar ? "إضافة بند جديد" : "Add New Item"}</DialogTitle>
-            <DialogDescription>{ar ? "أدخل تفاصيل بند جدول الكميات" : "Enter BOQ item details"}</DialogDescription>
+            <DialogTitle>{tAuto('auto.addNewItem')}</DialogTitle>
+            <DialogDescription>{tAuto('auto.enterBOQItemDetails')}</DialogDescription>
           </DialogHeader>
           <BOQItemForm
             ar={ar}
@@ -550,8 +553,8 @@ export default function BOQPage({ language, projectId }: BOQPageProps) {
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>{ar ? "تعديل البند" : "Edit Item"}</DialogTitle>
-            <DialogDescription>{ar ? "تعديل تفاصيل بند جدول الكميات" : "Edit BOQ item details"}</DialogDescription>
+            <DialogTitle>{tAuto('auto.editItem')}</DialogTitle>
+            <DialogDescription>{tAuto('auto.editBOQItemDetails')}</DialogDescription>
           </DialogHeader>
           <BOQItemForm
             ar={ar}
@@ -572,14 +575,14 @@ export default function BOQPage({ language, projectId }: BOQPageProps) {
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle className="text-red-600 dark:text-red-400">{ar ? "حذف البند" : "Delete Item"}</DialogTitle>
+            <DialogTitle className="text-red-600 dark:text-red-400">{tAuto('auto.deleteItem1')}</DialogTitle>
             <DialogDescription>
               {ar ? `هل أنت متأكد من حذف "${selectedItem?.description}"؟` : `Are you sure you want to delete "${selectedItem?.description}"?`}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2">
             <Button variant="outline" onClick={() => setShowDeleteDialog(false)} className="text-xs">
-              {ar ? "إلغاء" : "Cancel"}
+              {tAuto('auto.cancel')}
             </Button>
             <Button
               onClick={() => selectedItem && deleteMutation.mutate(selectedItem.id)}
@@ -587,7 +590,7 @@ export default function BOQPage({ language, projectId }: BOQPageProps) {
               className="bg-red-600 hover:bg-red-700 text-white border-0 text-xs"
             >
               {deleteMutation.isPending ? <Loader2 className="w-3.5 h-3.5 me-1 animate-spin" /> : <Trash2 className="w-3.5 h-3.5 me-1" />}
-              {ar ? "حذف" : "Delete"}
+              {tAuto('auto.delete')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -616,13 +619,14 @@ function BOQItemForm({
   onSubmit: () => void;
   onCancel: () => void;
 }) {
+  const tAuto = useTranslations();
   const computedTotal = formData.quantity * formData.unitPrice;
 
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label className="text-xs">{ar ? "رقم البند" : "Item Code"}</Label>
+          <Label className="text-xs">{tAuto('auto.itemCode')}</Label>
           <Input
             value={formData.code}
             onChange={(e) => setFormData({ ...formData, code: e.target.value })}
@@ -631,7 +635,7 @@ function BOQItemForm({
           />
         </div>
         <div className="space-y-2">
-          <Label className="text-xs">{ar ? "الفئة" : "Category"} *</Label>
+          <Label className="text-xs">{tAuto('auto.category')} *</Label>
           <Select value={formData.category} onValueChange={(v) => setFormData({ ...formData, category: v })}>
             <SelectTrigger className="bg-slate-50 dark:bg-slate-800 text-sm">
               <SelectValue />
@@ -648,21 +652,21 @@ function BOQItemForm({
       </div>
 
       <div className="space-y-2">
-        <Label className="text-xs">{ar ? "الوصف" : "Description"} *</Label>
+        <Label className="text-xs">{tAuto('auto.description')} *</Label>
         <Input
           value={formData.description}
           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-          placeholder={ar ? "وصف البند" : "Item description"}
+          placeholder={tAuto('auto.itemDescription')}
           className="bg-slate-50 dark:bg-slate-800 text-sm"
         />
       </div>
 
       <div className="grid grid-cols-3 gap-4">
         <div className="space-y-2">
-          <Label className="text-xs">{ar ? "الوحدة" : "Unit"} *</Label>
+          <Label className="text-xs">{tAuto('auto.unit')} *</Label>
           <Select value={formData.unit} onValueChange={(v) => setFormData({ ...formData, unit: v })}>
             <SelectTrigger className="bg-slate-50 dark:bg-slate-800 text-sm">
-              <SelectValue placeholder={ar ? "الوحدة" : "Unit"} />
+              <SelectValue placeholder={tAuto('auto.unit')} />
             </SelectTrigger>
             <SelectContent>
               {BOQ_UNITS.map((u) => (
@@ -674,7 +678,7 @@ function BOQItemForm({
           </Select>
         </div>
         <div className="space-y-2">
-          <Label className="text-xs">{ar ? "الكمية" : "Quantity"} *</Label>
+          <Label className="text-xs">{tAuto('auto.quantity')} *</Label>
           <Input
             type="number"
             value={formData.quantity || ""}
@@ -683,7 +687,7 @@ function BOQItemForm({
           />
         </div>
         <div className="space-y-2">
-          <Label className="text-xs">{ar ? "سعر الوحدة" : "Unit Price"} *</Label>
+          <Label className="text-xs">{tAuto('auto.unitPrice')} *</Label>
           <Input
             type="number"
             value={formData.unitPrice || ""}
@@ -695,7 +699,7 @@ function BOQItemForm({
 
       {/* Auto-calculated Total */}
       <div className="flex items-center justify-between p-3 bg-teal-50 dark:bg-teal-900/20 rounded-lg border border-teal-100 dark:border-teal-800/30">
-        <span className="text-sm text-slate-600 dark:text-slate-400">{ar ? "الإجمالي" : "Total"}</span>
+        <span className="text-sm text-slate-600 dark:text-slate-400">{tAuto('auto.total')}</span>
         <span className="text-lg font-bold text-teal-600 dark:text-teal-400 font-mono tabular-nums">
           {formatCurrency(computedTotal, ar)}
         </span>
@@ -703,7 +707,7 @@ function BOQItemForm({
 
       <DialogFooter>
         <Button variant="outline" onClick={onCancel} className="text-xs">
-          {ar ? "إلغاء" : "Cancel"}
+          {tAuto('auto.cancel')}
         </Button>
         <Button
           onClick={onSubmit}
@@ -711,7 +715,7 @@ function BOQItemForm({
           className="bg-teal-600 hover:bg-teal-700 text-white border-0 text-xs"
         >
           {isLoading ? <Loader2 className="w-4 h-4 me-1 animate-spin" /> : <Save className="w-4 h-4 me-1" />}
-          {ar ? "حفظ" : "Save"}
+          {tAuto('auto.save')}
         </Button>
       </DialogFooter>
     </div>

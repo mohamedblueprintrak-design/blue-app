@@ -1,16 +1,7 @@
-"use client";
+import { getLocale } from 'next-intl/server';
+import MeetingsPage from '@/components/pages/meetings';
 
-import dynamic from "next/dynamic";
-import { useLang } from "@/hooks/use-lang";
-
-const MeetingsPage = dynamic(() => import("@/components/pages/meetings"), {
-  loading: () => <div className="p-6 animate-pulse">Loading...</div>,
-  ssr: false,
-});
-
-/**
- * /dashboard/meetings
- */
-export default function MeetingsPageRoute() {
-  return <MeetingsPage language={useLang()} />;
+export default async function MeetingsPageRoute() {
+  const locale = await getLocale();
+  return <MeetingsPage language={locale as "ar" | "en"} />;
 }

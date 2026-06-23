@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { Card } from "@/components/ui/card";
 import { ShieldAlert } from "lucide-react";
 import { getMatrixCellColor, getMatrixDotColor } from "./helpers";
@@ -12,6 +14,7 @@ interface RiskMatrixProps {
 }
 
 export function RiskMatrix({ ar, risks, onSelectRisk }: RiskMatrixProps) {
+  const tAuto = useTranslations();
   const matrixData = risks.reduce<Record<string, RiskItem[]>>((acc, risk) => {
     const key = `${risk.probability}-${risk.impact}`;
     if (!acc[key]) acc[key] = [];
@@ -33,7 +36,7 @@ export function RiskMatrix({ ar, risks, onSelectRisk }: RiskMatrixProps) {
       <div className="flex items-center gap-2 mb-3">
         <ShieldAlert className="h-4 w-4 text-teal-500" />
         <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-          {ar ? "مصفوفة المخاطر" : "Risk Matrix"}
+          {tAuto('auto.riskMatrix')}
         </h3>
       </div>
 
@@ -106,10 +109,10 @@ export function RiskMatrix({ ar, risks, onSelectRisk }: RiskMatrixProps) {
       {/* Legend */}
       <div className="flex items-center justify-center gap-4 mt-3 pt-3 border-t border-slate-100 dark:border-slate-800">
         {[
-          { label: ar ? "منخفض (1-4)" : "Low (1-4)", color: "bg-green-500" },
-          { label: ar ? "متوسط (5-9)" : "Medium (5-9)", color: "bg-yellow-500" },
-          { label: ar ? "عالي (10-15)" : "High (10-15)", color: "bg-orange-500" },
-          { label: ar ? "حرج (16-25)" : "Critical (16-25)", color: "bg-red-500" },
+          { label: tAuto('auto.low14'), color: "bg-green-500" },
+          { label: tAuto('auto.medium59'), color: "bg-yellow-500" },
+          { label: tAuto('auto.high1015'), color: "bg-orange-500" },
+          { label: tAuto('auto.critical1625'), color: "bg-red-500" },
         ].map((legend) => (
           <div key={legend.label} className="flex items-center gap-1.5">
             <div className={`w-3 h-3 rounded-sm ${legend.color}`} />

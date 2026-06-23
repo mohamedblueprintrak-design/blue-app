@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Users, UserCheck, Clock, UserPlus } from "lucide-react";
@@ -15,6 +17,7 @@ interface EmployeeStatsProps {
 }
 
 export function EmployeeStats({ employees, ar }: EmployeeStatsProps) {
+  const tAuto = useTranslations();
   const stats = useMemo(() => ({
     total: employees.length,
     ACTIVE: employees.filter(e => e.employmentStatus === "ACTIVE").length,
@@ -29,28 +32,28 @@ export function EmployeeStats({ employees, ar }: EmployeeStatsProps) {
 
   const statCards = [
     {
-      label: ar ? "إجمالي الموظفين" : "Total Employees",
+      label: tAuto('auto.totalEmployees'),
       value: stats.total,
       icon: Users,
       color: "text-slate-600 dark:text-slate-400",
       bg: "bg-slate-100 dark:bg-slate-800",
     },
     {
-      label: ar ? "نشط" : "Active",
+      label: tAuto('auto.active'),
       value: stats.ACTIVE,
       icon: UserCheck,
       color: "text-green-600 dark:text-green-400",
       bg: "bg-green-100 dark:bg-green-900/30",
     },
     {
-      label: ar ? "في إجازة" : "On Leave",
+      label: tAuto('auto.onLeave'),
       value: stats.onLeave,
       icon: Clock,
       color: "text-amber-600 dark:text-amber-400",
       bg: "bg-amber-100 dark:bg-amber-900/30",
     },
     {
-      label: ar ? "جديد هذا الشهر" : "New This Month",
+      label: tAuto('auto.newThisMonth'),
       value: stats.newThisMonth,
       icon: UserPlus,
       color: "text-blue-600 dark:text-blue-400",

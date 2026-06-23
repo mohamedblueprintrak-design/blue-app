@@ -1,15 +1,7 @@
-"use client";
+import { getLocale } from 'next-intl/server';
+import ReportsPage from '@/components/pages/reports';
 
-import dynamic from "next/dynamic";
-
-const ReportsPage = dynamic(() => import("@/components/pages/reports"), {
-  loading: () => <div className="p-6 animate-pulse">Loading...</div>,
-  ssr: false,
-});
-
-/**
- * /dashboard/reports
- */
-export default function ReportsPageRoute() {
-  return <ReportsPage />;
+export default async function ReportsPageRoute() {
+  const locale = await getLocale();
+  return <ReportsPage language={locale as "ar" | "en"} />;
 }

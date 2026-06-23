@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState } from "react";
 import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -57,6 +59,7 @@ export default function ProjectFormDialog({
   onSubmit,
   isPending,
 }: ProjectFormDialogProps) {
+  const tAuto = useTranslations();
   const [mapLocation, setMapLocation] = useState<{ lat: number; lng: number } | null>(null);
   const form = useForm<ProjectFormData>({
     resolver: zodResolver(projectSchema) as Resolver<ProjectFormData>,
@@ -115,12 +118,12 @@ export default function ProjectFormDialog({
           </div>
           <div className="space-y-2">
             <Label>{t("اسم المشروع (عربي)", "Project Name (Arabic)")}</Label>
-            <Input {...register("name")} placeholder={isAr ? "اسم المشروع بالعربي" : "Project name in Arabic"} dir="rtl" className={cn(errors.name && "border-red-500 focus:ring-red-500/20 focus:border-red-500")} />
+            <Input {...register("name")} placeholder={tAuto('auto.projectNameInArabic')} dir="rtl" className={cn(errors.name && "border-red-500 focus:ring-red-500/20 focus:border-red-500")} />
             {errors.name && <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle className="h-3 w-3 shrink-0" />{getErrorMessage(errors.name.message || "", isAr)}</p>}
           </div>
           <div className="space-y-2">
             <Label>{t("اسم المشروع (إنجليزي)", "Project Name (English)")}</Label>
-            <Input {...register("nameEn")} placeholder={isAr ? "Project name in English" : "Project name in English"} dir="ltr" />
+            <Input {...register("nameEn")} placeholder={tAuto('auto.projectNameInEnglish')} dir="ltr" />
           </div>
           <div className="space-y-2">
             <Label>{t("العميل", "Client")}</Label>
@@ -158,7 +161,7 @@ export default function ProjectFormDialog({
           </div>
           <div className="space-y-2">
             <Label>{t("الموقع", "Location")}</Label>
-            <Input {...register("location")} placeholder={isAr ? "رأس الخيمة" : "Ras Al Khaimah"} className={cn(errors.location && "border-red-500 focus:ring-red-500/20 focus:border-red-500")} />
+            <Input {...register("location")} placeholder={tAuto('auto.rasAlKhaimah')} className={cn(errors.location && "border-red-500 focus:ring-red-500/20 focus:border-red-500")} />
             {errors.location && <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle className="h-3 w-3 shrink-0" />{getErrorMessage(errors.location.message || "", isAr)}</p>}
           </div>
           <div className="space-y-2">
@@ -170,8 +173,8 @@ export default function ProjectFormDialog({
             />
           </div>
           <div className="space-y-2">
-            <Label>{isAr ? "رقم القسيمة" : "Plot Number"}</Label>
-            <Input {...register("plotNumber")} placeholder={isAr ? "مثال: RKN-LOT-4521" : "e.g. RKN-LOT-4521"} />
+            <Label>{tAuto('auto.plotNumber')}</Label>
+            <Input {...register("plotNumber")} placeholder={tAuto('auto.eGRKNLOT4521')} />
           </div>
           <div className="space-y-2">
             <Label>{t("الميزانية (AED)", "Budget (AED)")}</Label>

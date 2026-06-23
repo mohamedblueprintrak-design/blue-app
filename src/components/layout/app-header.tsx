@@ -33,6 +33,7 @@ import { useTranslations, useLocale } from "next-intl";
 
 // ===== HEADER COMPONENT =====
 function AppHeader() {
+  const tAuto = useTranslations();
   const { user, logout } = useAuthStore();
   const { currentPage, setCurrentPage } = useNavStore();
   const locale = useLocale();
@@ -65,7 +66,7 @@ function AppHeader() {
       {/* Teal gradient accent line at top */}
       <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-teal-500 via-cyan-400 to-teal-500 dark:from-teal-400 dark:via-cyan-300 dark:to-teal-400" />
 
-      <SidebarTrigger className="-ms-1" aria-label={isAr ? "تبديل القائمة الجانبية" : "Toggle sidebar"} />
+      <SidebarTrigger className="-ms-1" aria-label={tAuto('auto.toggleSidebar')} />
       <Separator orientation="vertical" className="h-6" />
 
       {/* Page Title */}
@@ -123,7 +124,7 @@ function AppHeader() {
                 size="icon"
                 className="md:hidden h-9 w-9 text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800/60 transition-all duration-200"
                 onClick={() => setCurrentPage("search")}
-                aria-label={isAr ? "بحث" : "Search"}
+                aria-label={tAuto('auto.search')}
               >
                 <Search className="h-4 w-4" />
               </Button>
@@ -143,7 +144,7 @@ function AppHeader() {
                 size="icon"
                 className="h-9 w-9 text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800/60 transition-all duration-200"
                 onClick={toggleLanguage}
-                aria-label={isAr ? "تغيير اللغة" : "Toggle language"}
+                aria-label={tAuto('auto.toggleLanguage')}
               >
                 <Globe className="h-4 w-4" />
               </Button>

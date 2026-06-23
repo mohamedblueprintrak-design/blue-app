@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import {
   Table,
   TableBody,
@@ -50,20 +52,21 @@ export function TimesheetTable({
   onSubmitStatus,
   onReject,
 }: TimesheetTableProps) {
+  const tAuto = useTranslations();
   return (
     <div className="rounded-xl border border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900 overflow-hidden shadow-sm">
       {isLoading ? (
-        <div className="p-8 text-center text-slate-400">{ar ? "جارٍ التحميل..." : "Loading..."}</div>
+        <div className="p-8 text-center text-slate-400">{tAuto('auto.loading')}</div>
       ) : timesheets.length === 0 ? (
         <div className="flex flex-col items-center justify-center min-h-[30vh] text-center p-8">
           <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-3">
             <Clock className="h-6 w-6 text-slate-400" />
           </div>
           <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-1">
-            {ar ? "لا توجد سجلات دوام" : "No timesheets"}
+            {tAuto('auto.noTimesheets')}
           </h3>
           <p className="text-xs text-slate-500 dark:text-slate-400">
-            {ar ? "أضف سجل دوام جديد للبدء" : "Add a new timesheet to get started"}
+            {tAuto('auto.addANewTimesheetToGetStarted')}
           </p>
         </div>
       ) : (
@@ -71,11 +74,11 @@ export function TimesheetTable({
           <Table>
             <TableHeader>
               <TableRow className="hover:bg-transparent bg-slate-50/80 dark:bg-slate-800/50">
-                <TableHead className="text-xs font-semibold">{ar ? "الموظف" : "Employee"}</TableHead>
-                <TableHead className="text-xs font-semibold">{ar ? "الأسبوع" : "Week"}</TableHead>
-                <TableHead className="text-xs font-semibold">{ar ? "المشروع" : "Project"}</TableHead>
-                <TableHead className="text-xs font-semibold">{ar ? "إجمالي الساعات" : "Total Hours"}</TableHead>
-                <TableHead className="text-xs font-semibold">{ar ? "الحالة" : "Status"}</TableHead>
+                <TableHead className="text-xs font-semibold">{tAuto('auto.employee')}</TableHead>
+                <TableHead className="text-xs font-semibold">{tAuto('auto.week')}</TableHead>
+                <TableHead className="text-xs font-semibold">{tAuto('auto.project')}</TableHead>
+                <TableHead className="text-xs font-semibold">{tAuto('auto.totalHours')}</TableHead>
+                <TableHead className="text-xs font-semibold">{tAuto('auto.status1')}</TableHead>
                 <TableHead className="w-10"></TableHead>
               </TableRow>
             </TableHeader>
@@ -143,51 +146,51 @@ export function TimesheetTable({
                         <DropdownMenuContent align={ar ? "start" : "end"} className="w-40">
                           <DropdownMenuItem onClick={() => onView(ts)}>
                             <Eye className="h-3.5 w-3.5 me-2" />
-                            {ar ? "عرض" : "View"}
+                            {tAuto('auto.view')}
                           </DropdownMenuItem>
                           {(ts.status === "DRAFT" || ts.status === "REJECTED") && (
                             <DropdownMenuItem onClick={() => onEdit(ts)}>
                               <FileText className="h-3.5 w-3.5 me-2" />
-                              {ar ? "تعديل" : "Edit"}
+                              {tAuto('auto.edit')}
                             </DropdownMenuItem>
                           )}
                           {ts.status === "DRAFT" && (
                             <DropdownMenuItem onClick={() => onSubmitStatus(ts.id, "SUBMITTED")}>
                               <Send className="h-3.5 w-3.5 me-2" />
-                              {ar ? "تقديم" : "Submit"}
+                              {tAuto('auto.submit')}
                             </DropdownMenuItem>
                           )}
                           {ts.status === "SUBMITTED" && (
                             <>
                               <DropdownMenuItem onClick={() => onSubmitStatus(ts.id, "APPROVED")}>
                                 <CheckCircle2 className="h-3.5 w-3.5 me-2" />
-                                {ar ? "اعتماد" : "Approve"}
+                                {tAuto('auto.approve')}
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 className="text-red-600 dark:text-red-400 focus:text-red-600"
                                 onClick={() => onReject(ts.id)}
                               >
                                 <XCircle className="h-3.5 w-3.5 me-2" />
-                                {ar ? "رفض" : "Reject"}
+                                {tAuto('auto.reject')}
                               </DropdownMenuItem>
                             </>
                           )}
                           {ts.status === "REJECTED" && (
                             <DropdownMenuItem onClick={() => onSubmitStatus(ts.id, "DRAFT")}>
                               <Undo2 className="h-3.5 w-3.5 me-2" />
-                              {ar ? "إعادة للمسودة" : "Revert to Draft"}
+                              {tAuto('auto.revertToDraft')}
                             </DropdownMenuItem>
                           )}
                           {(ts.status === "DRAFT" || ts.status === "REJECTED") && (
                             <DropdownMenuItem
                               className="text-red-600 dark:text-red-400 focus:text-red-600"
                               onClick={() => {
-                                if (confirm(ar ? "هل أنت متأكد من الحذف؟" : "Delete this timesheet?"))
+                                if (confirm(tAuto('auto.deleteThisTimesheet')))
                                   onDelete(ts.id);
                               }}
                             >
                               <Trash2 className="h-3.5 w-3.5 me-2" />
-                              {ar ? "حذف" : "Delete"}
+                              {tAuto('auto.delete')}
                             </DropdownMenuItem>
                           )}
                         </DropdownMenuContent>

@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -64,6 +66,7 @@ export function SupervisionForm({
   onSubmit,
   onCancel,
 }: SupervisionFormProps) {
+  const tAuto = useTranslations();
   const loadStageTemplate = (stage: string) => {
     const templates = STAGE_TEMPLATES[stage] || [];
     setCreateItems(templates.map(t => ({
@@ -81,18 +84,18 @@ export function SupervisionForm({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{ar ? "قائمة مراجعة جديدة" : "New Supervision Checklist"}</DialogTitle>
-          <DialogDescription>{ar ? "إنشاء قائمة مراجعة إشرافية جديدة" : "Create a new supervision checklist"}</DialogDescription>
+          <DialogTitle>{tAuto('auto.newSupervisionChecklist')}</DialogTitle>
+          <DialogDescription>{tAuto('auto.createANewSupervisionChecklist')}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           {/* Basic Info */}
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label className="text-xs">{ar ? "المشروع *" : "Project *"}</Label>
+              <Label className="text-xs">{tAuto('auto.project2')}</Label>
               <Select value={createForm.projectId} onValueChange={(v) => setCreateForm({ ...createForm, projectId: v })}>
                 <SelectTrigger className="h-9 text-sm">
-                  <SelectValue placeholder={ar ? "اختر مشروع" : "Select project"} />
+                  <SelectValue placeholder={tAuto('auto.selectProject')} />
                 </SelectTrigger>
                 <SelectContent>
                   {projects.map((p) => (
@@ -102,10 +105,10 @@ export function SupervisionForm({
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs">{ar ? "المرحلة *" : "Stage *"}</Label>
+              <Label className="text-xs">{tAuto('auto.stage')}</Label>
               <Select value={createForm.stage} onValueChange={(v) => { setCreateForm({ ...createForm, stage: v }); loadStageTemplate(v); }}>
                 <SelectTrigger className="h-9 text-sm">
-                  <SelectValue placeholder={ar ? "اختر مرحلة" : "Select stage"} />
+                  <SelectValue placeholder={tAuto('auto.selectStage')} />
                 </SelectTrigger>
                 <SelectContent>
                   {STAGES.map((s) => (
@@ -118,16 +121,16 @@ export function SupervisionForm({
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label className="text-xs">{ar ? "العنوان" : "Title"}</Label>
+              <Label className="text-xs">{tAuto('auto.title')}</Label>
               <Input
                 value={createForm.title}
                 onChange={(e) => setCreateForm({ ...createForm, title: e.target.value })}
-                placeholder={ar ? "عنوان الزيارة" : "Visit title"}
+                placeholder={tAuto('auto.visitTitle')}
                 className="h-9 text-sm"
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs">{ar ? "التاريخ *" : "Date *"}</Label>
+              <Label className="text-xs">{tAuto('auto.date1')}</Label>
               <Input
                 type="date"
                 value={createForm.visitDate}
@@ -139,22 +142,22 @@ export function SupervisionForm({
 
           <div className="grid grid-cols-3 gap-3">
             <div className="space-y-1.5">
-              <Label className="text-xs">{ar ? "الطقس" : "Weather"}</Label>
+              <Label className="text-xs">{tAuto('auto.weather')}</Label>
               <Select value={createForm.weather} onValueChange={(v) => setCreateForm({ ...createForm, weather: v })}>
                 <SelectTrigger className="h-9 text-sm">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="sunny">{ar ? "مشمس" : "Sunny"}</SelectItem>
-                  <SelectItem value="cloudy">{ar ? "غائم" : "Cloudy"}</SelectItem>
-                  <SelectItem value="rainy">{ar ? "ممطر" : "Rainy"}</SelectItem>
-                  <SelectItem value="hot">{ar ? "حار" : "Hot"}</SelectItem>
-                  <SelectItem value="windy">{ar ? "عاصف" : "Windy"}</SelectItem>
+                  <SelectItem value="sunny">{tAuto('auto.sunny')}</SelectItem>
+                  <SelectItem value="cloudy">{tAuto('auto.cloudy')}</SelectItem>
+                  <SelectItem value="rainy">{tAuto('auto.rainy')}</SelectItem>
+                  <SelectItem value="hot">{tAuto('auto.hot')}</SelectItem>
+                  <SelectItem value="windy">{tAuto('auto.windy')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs">{ar ? "درجة الحرارة" : "Temperature"}</Label>
+              <Label className="text-xs">{tAuto('auto.temperature')}</Label>
               <Input
                 value={createForm.temperature}
                 onChange={(e) => setCreateForm({ ...createForm, temperature: e.target.value })}
@@ -164,7 +167,7 @@ export function SupervisionForm({
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs">{ar ? "عدد العمال" : "Workers"}</Label>
+              <Label className="text-xs">{tAuto('auto.workers1')}</Label>
               <Input
                 type="number"
                 min={0}
@@ -177,11 +180,11 @@ export function SupervisionForm({
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-xs">{ar ? "اسم المقاول" : "Contractor Name"}</Label>
+            <Label className="text-xs">{tAuto('auto.contractorName')}</Label>
             <Input
               value={createForm.contractorName}
               onChange={(e) => setCreateForm({ ...createForm, contractorName: e.target.value })}
-              placeholder={ar ? "اسم المقاول" : "Contractor name"}
+              placeholder={tAuto('auto.contractorName1')}
               className="h-9 text-sm"
             />
           </div>
@@ -189,7 +192,7 @@ export function SupervisionForm({
           {/* Progress Sliders */}
           <Separator />
           <div className="space-y-3">
-            <Label className="text-xs font-semibold">{ar ? "نسب الإنجاز" : "Progress"}</Label>
+            <Label className="text-xs font-semibold">{tAuto('auto.progress')}</Label>
             <div className="grid grid-cols-2 gap-3">
               {[
                 { key: "concreteProgress", ar: "الخرسانة", en: "Concrete" },
@@ -218,14 +221,14 @@ export function SupervisionForm({
           <Separator />
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <Label className="text-xs font-semibold">{ar ? "بنود المراجعة" : "Checklist Items"} ({createItems.length})</Label>
+              <Label className="text-xs font-semibold">{tAuto('auto.checklistItems')} ({createItems.length})</Label>
               <Button
                 variant="outline"
                 size="sm"
                 className="h-7 text-[11px]"
                 onClick={() => setCreateItems([...createItems, { _key: crypto.randomUUID(), category: "", description: "", specification: "", isChecked: false, compliant: true, notes: "" }])}
               >
-                <Plus className="h-3 w-3 me-1" />{ar ? "إضافة بند" : "Add Item"}
+                <Plus className="h-3 w-3 me-1" />{tAuto('auto.addItem1')}
               </Button>
             </div>
 
@@ -249,7 +252,7 @@ export function SupervisionForm({
                         updated[idx] = { ...updated[idx], description: e.target.value };
                         setCreateItems(updated);
                       }}
-                      placeholder={ar ? "وصف البند" : "Item description"}
+                      placeholder={tAuto('auto.itemDescription')}
                       className="h-8 text-xs flex-1"
                     />
                     <Select
@@ -261,16 +264,16 @@ export function SupervisionForm({
                       }}
                     >
                       <SelectTrigger className="h-8 w-[100px] text-xs">
-                        <SelectValue placeholder={ar ? "الفئة" : "Category"} />
+                        <SelectValue placeholder={tAuto('auto.category')} />
                       </SelectTrigger>
                       <SelectContent>
                         {Array.from(new Set(createItems.map(i => i.category).filter(Boolean))).map((cat) => (
                           <SelectItem key={cat} value={cat}>{cat}</SelectItem>
                         ))}
-                        <SelectItem value="السلامة">{ar ? "السلامة" : "Safety"}</SelectItem>
-                        <SelectItem value="الجودة">{ar ? "الجودة" : "Quality"}</SelectItem>
-                        <SelectItem value="المواصفات">{ar ? "المواصفات" : "Specs"}</SelectItem>
-                        <SelectItem value="أخرى">{ar ? "أخرى" : "Other"}</SelectItem>
+                        <SelectItem value="السلامة">{tAuto('auto.safety')}</SelectItem>
+                        <SelectItem value="الجودة">{tAuto('auto.quality')}</SelectItem>
+                        <SelectItem value="المواصفات">{tAuto('auto.specs')}</SelectItem>
+                        <SelectItem value="أخرى">{tAuto('auto.other')}</SelectItem>
                       </SelectContent>
                     </Select>
                     {item.isChecked && (
@@ -286,8 +289,8 @@ export function SupervisionForm({
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="yes">{ar ? "مطابق" : "OK"}</SelectItem>
-                          <SelectItem value="no">{ar ? "غير مطابق" : "Non-Compliant"}</SelectItem>
+                          <SelectItem value="yes">{tAuto('auto.oK')}</SelectItem>
+                          <SelectItem value="no">{tAuto('auto.nonCompliant')}</SelectItem>
                         </SelectContent>
                       </Select>
                     )}
@@ -304,14 +307,14 @@ export function SupervisionForm({
           <Separator />
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <Label className="text-xs font-semibold">{ar ? "المخالفات" : "Violations"} ({createViolations.length})</Label>
+              <Label className="text-xs font-semibold">{tAuto('auto.violations')} ({createViolations.length})</Label>
               <Button
                 variant="outline"
                 size="sm"
                 className="h-7 text-[11px]"
                 onClick={() => setCreateViolations([...createViolations, { _key: crypto.randomUUID(), type: "SAFETY", severity: "LOW", description: "", contractorName: "", deadline: "" }])}
               >
-                <Plus className="h-3 w-3 me-1" />{ar ? "إضافة مخالفة" : "Add Violation"}
+                <Plus className="h-3 w-3 me-1" />{tAuto('auto.addViolation')}
               </Button>
             </div>
 
@@ -326,7 +329,7 @@ export function SupervisionForm({
                         updated[idx] = { ...updated[idx], description: e.target.value };
                         setCreateViolations(updated);
                       }}
-                      placeholder={ar ? "وصف المخالفة" : "Violation description"}
+                      placeholder={tAuto('auto.violationDescription')}
                       className="min-h-[36px] text-xs flex-1 resize-none"
                       rows={1}
                     />
@@ -342,10 +345,10 @@ export function SupervisionForm({
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="LOW">{ar ? "منخفض" : "Low"}</SelectItem>
-                        <SelectItem value="MEDIUM">{ar ? "متوسط" : "Medium"}</SelectItem>
-                        <SelectItem value="HIGH">{ar ? "مرتفع" : "High"}</SelectItem>
-                        <SelectItem value="CRITICAL">{ar ? "حرج" : "Critical"}</SelectItem>
+                        <SelectItem value="LOW">{tAuto('auto.low')}</SelectItem>
+                        <SelectItem value="MEDIUM">{tAuto('auto.medium')}</SelectItem>
+                        <SelectItem value="HIGH">{tAuto('auto.high')}</SelectItem>
+                        <SelectItem value="CRITICAL">{tAuto('auto.critical')}</SelectItem>
                       </SelectContent>
                     </Select>
                     <button className="p-1 text-slate-400 hover:text-red-500 transition-colors" onClick={() => setCreateViolations(createViolations.filter((_, i) => i !== idx))}>
@@ -360,11 +363,11 @@ export function SupervisionForm({
           {/* Notes */}
           <Separator />
           <div className="space-y-1.5">
-            <Label className="text-xs">{ar ? "ملاحظات عامة" : "General Notes"}</Label>
+            <Label className="text-xs">{tAuto('auto.generalNotes')}</Label>
             <Textarea
               value={createForm.notes}
               onChange={(e) => setCreateForm({ ...createForm, notes: e.target.value })}
-              placeholder={ar ? "ملاحظات إضافية" : "Additional notes"}
+              placeholder={tAuto('auto.additionalNotes')}
               className="text-sm"
               rows={2}
             />
@@ -372,13 +375,13 @@ export function SupervisionForm({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={onCancel}>{ar ? "إلغاء" : "Cancel"}</Button>
+          <Button variant="outline" onClick={onCancel}>{tAuto('auto.cancel')}</Button>
           <Button
             className="bg-teal-600 hover:bg-teal-700 text-white"
             onClick={onSubmit}
             disabled={!createForm.projectId || !createForm.visitDate || isPending}
           >
-            {isPending ? (ar ? "جارٍ الإنشاء..." : "Creating...") : (ar ? "إنشاء" : "Create")}
+            {isPending ? (tAuto('auto.creating')) : (tAuto('auto.create'))}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToastFeedback } from "@/hooks/use-toast-feedback";
@@ -14,6 +16,7 @@ import { TenderForm } from "./tender-form";
 import { TenderDetailPanel } from "./tender-detail";
 
 export default function TendersPage({ language: _language }: TendersPageProps) {
+  const tAuto = useTranslations();
   const lang = useLang();
   const isAr = lang === "ar";
 
@@ -71,10 +74,10 @@ export default function TendersPage({ language: _language }: TendersPageProps) {
       queryClient.invalidateQueries({ queryKey: ["tenders"] });
       setShowAddDialog(false);
       setFormData(emptyForm);
-      toast.created(isAr ? "المناقصة" : "Tender");
+      toast.created(tAuto('auto.tender'));
     },
     onError: () => {
-      toast.error(isAr ? "إنشاء المناقصة" : "Create tender");
+      toast.error(tAuto('auto.createTender'));
     },
   });
 
@@ -94,10 +97,10 @@ export default function TendersPage({ language: _language }: TendersPageProps) {
       queryClient.invalidateQueries({ queryKey: ["tender-detail"] });
       setEditTender(null);
       setFormData(emptyForm);
-      toast.updated(isAr ? "المناقصة" : "Tender");
+      toast.updated(tAuto('auto.tender'));
     },
     onError: () => {
-      toast.error(isAr ? "تحديث المناقصة" : "Update tender");
+      toast.error(tAuto('auto.updateTender'));
     },
   });
 
@@ -109,10 +112,10 @@ export default function TendersPage({ language: _language }: TendersPageProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tenders"] });
       setSelectedTender(null);
-      toast.deleted(isAr ? "المناقصة" : "Tender");
+      toast.deleted(tAuto('auto.tender'));
     },
     onError: () => {
-      toast.error(isAr ? "حذف المناقصة" : "Delete tender");
+      toast.error(tAuto('auto.deleteTender'));
     },
   });
 

@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState, useRef } from "react";
 import {
   Dialog,
@@ -44,6 +46,7 @@ interface ProfileData {
 }
 
 export default function ProfilePage({ language }: { language: "ar" | "en" }) {
+  const tAuto = useTranslations();
   const isAr = language === "ar";
   const { user, updateUser } = useAuthStore();
   const { theme, setTheme } = useTheme();
@@ -104,15 +107,15 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
       });
       queryClient.invalidateQueries({ queryKey: ["profile"] });
       toast({
-        title: isAr ? "تم بنجاح" : "Success",
-        description: isAr ? "تم تحديث الملف الشخصي" : "Profile updated successfully",
+        title: tAuto('auto.success'),
+        description: tAuto('auto.profileUpdatedSuccessfully'),
         variant: "success",
       });
       setIsEditing(false);
     },
     onError: (error: Error) => {
       toast({
-        title: isAr ? "خطأ" : "Error",
+        title: tAuto('auto.error'),
         description: error.message,
         variant: "destructive",
       });
@@ -135,15 +138,15 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
     },
     onSuccess: () => {
       toast({
-        title: isAr ? "تم بنجاح" : "Success",
-        description: isAr ? "تم تغيير كلمة المرور" : "Password changed successfully",
+        title: tAuto('auto.success'),
+        description: tAuto('auto.passwordChangedSuccessfully'),
         variant: "success",
       });
       setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
     },
     onError: (error: Error) => {
       toast({
-        title: isAr ? "خطأ" : "Error",
+        title: tAuto('auto.error'),
         description: error.message,
         variant: "destructive",
       });
@@ -170,14 +173,14 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
       updateUser({ avatar: data.avatar });
       queryClient.invalidateQueries({ queryKey: ["profile"] });
       toast({
-        title: isAr ? "تم بنجاح" : "Success",
-        description: isAr ? "تم تحديث الصورة الشخصية" : "Avatar updated successfully",
+        title: tAuto('auto.success'),
+        description: tAuto('auto.avatarUpdatedSuccessfully'),
         variant: "success",
       });
     },
     onError: (error: Error) => {
       toast({
-        title: isAr ? "خطأ" : "Error",
+        title: tAuto('auto.error'),
         description: error.message,
         variant: "destructive",
       });
@@ -198,14 +201,14 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
       updateUser({ avatar: "" });
       queryClient.invalidateQueries({ queryKey: ["profile"] });
       toast({
-        title: isAr ? "تم بنجاح" : "Success",
-        description: isAr ? "تم حذف الصورة الشخصية" : "Avatar deleted successfully",
+        title: tAuto('auto.success'),
+        description: tAuto('auto.avatarDeletedSuccessfully'),
         variant: "success",
       });
     },
     onError: (error: Error) => {
       toast({
-        title: isAr ? "خطأ" : "Error",
+        title: tAuto('auto.error'),
         description: error.message,
         variant: "destructive",
       });
@@ -219,16 +222,16 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
   const handleChangePassword = () => {
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
       toast({
-        title: isAr ? "خطأ" : "Error",
-        description: isAr ? "كلمات المرور غير متطابقة" : "Passwords do not match",
+        title: tAuto('auto.error'),
+        description: tAuto('auto.passwordsDoNotMatch'),
         variant: "destructive",
       });
       return;
     }
     if (passwordForm.newPassword.length < 6) {
       toast({
-        title: isAr ? "خطأ" : "Error",
-        description: isAr ? "كلمة المرور قصيرة جداً" : "Password too short",
+        title: tAuto('auto.error'),
+        description: tAuto('auto.passwordTooShort'),
         variant: "destructive",
       });
       return;
@@ -247,8 +250,8 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
     const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
     if (!allowedTypes.includes(file.type)) {
       toast({
-        title: isAr ? "خطأ" : "Error",
-        description: isAr ? "نوع الملف غير مدعوم" : "File type not supported",
+        title: tAuto('auto.error'),
+        description: tAuto('auto.fileTypeNotSupported'),
         variant: "destructive",
       });
       return;
@@ -256,8 +259,8 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
 
     if (file.size > 5 * 1024 * 1024) {
       toast({
-        title: isAr ? "خطأ" : "Error",
-        description: isAr ? "حجم الملف كبير جداً" : "File too large",
+        title: tAuto('auto.error'),
+        description: tAuto('auto.fileTooLarge'),
         variant: "destructive",
       });
       return;
@@ -280,7 +283,7 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
       const res = await fetch("/api/profile/export-data");
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(extractErrorMessage(err.error, isAr ? "فشل تصدير البيانات" : "Failed to export data"));
+        throw new Error(extractErrorMessage(err.error, tAuto('auto.failedToExportData')));
       }
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
@@ -292,15 +295,15 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
       toast({
-        title: isAr ? "تم بنجاح" : "Success",
-        description: isAr ? "تم تصدير بياناتك بنجاح" : "Your data was exported successfully",
+        title: tAuto('auto.success'),
+        description: tAuto('auto.yourDataWasExportedSuccessfully'),
         variant: "success",
       });
       setShowExportDialog(false);
     } catch (error) {
       toast({
-        title: isAr ? "خطأ" : "Error",
-        description: error instanceof Error ? error.message : (isAr ? "حدث خطأ أثناء التصدير" : "An error occurred during export"),
+        title: tAuto('auto.error'),
+        description: error instanceof Error ? error.message : (tAuto('auto.anErrorOccurredDuringExport')),
         variant: "destructive",
       });
     } finally {
@@ -339,10 +342,10 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
-            {isAr ? "الملف الشخصي" : "Profile"}
+            {tAuto('auto.profile')}
           </h1>
           <p className="text-slate-500 dark:text-slate-400 mt-1">
-            {isAr ? "إدارة معلومات حسابك" : "Manage your account information"}
+            {tAuto('auto.manageYourAccountInformation')}
           </p>
         </div>
       </div>
@@ -351,15 +354,15 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
         <TabsList className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-1">
           <TabsTrigger value="profile" className="data-[state=active]:bg-slate-100 dark:data-[state=active]:bg-slate-800">
             <User className="w-4 h-4 me-2" />
-            {isAr ? "المعلومات الشخصية" : "Personal Info"}
+            {tAuto('auto.personalInfo')}
           </TabsTrigger>
           <TabsTrigger value="security" className="data-[state=active]:bg-slate-100 dark:data-[state=active]:bg-slate-800">
             <Shield className="w-4 h-4 me-2" />
-            {isAr ? "الأمان" : "Security"}
+            {tAuto('auto.security')}
           </TabsTrigger>
           <TabsTrigger value="preferences" className="data-[state=active]:bg-slate-100 dark:data-[state=active]:bg-slate-800">
             <Globe className="w-4 h-4 me-2" />
-            {isAr ? "التفضيلات" : "Preferences"}
+            {tAuto('auto.preferences')}
           </TabsTrigger>
         </TabsList>
 
@@ -381,7 +384,7 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
                     className="absolute bottom-0 end-0 rounded-full bg-teal-500 hover:bg-teal-600 w-8 h-8 shadow-md"
                     onClick={handleAvatarClick}
                     disabled={isUploadingAvatar}
-                    aria-label={isAr ? "تغيير الصورة الشخصية" : "Change avatar"}
+                    aria-label={tAuto('auto.changeAvatar')}
                   >
                     {isUploadingAvatar ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
@@ -399,14 +402,14 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
                 </div>
                 <div className="text-center md:text-start flex-1">
                   <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-                    {profileUser?.name || (isAr ? "مستخدم" : "User")}
+                    {profileUser?.name || (tAuto('auto.user'))}
                   </h2>
                   <p className="text-slate-500 dark:text-slate-400">{profileUser?.email}</p>
                   <div className="flex items-center justify-center md:justify-start gap-2 mt-2">
                     {getRoleBadge(profileUser?.role || "VIEWER")}
                     {profileUser?.isActive && (
                       <Badge variant="outline" className="text-emerald-500 border-emerald-500/30">
-                        {isAr ? "نشط" : "Active"}
+                        {tAuto('auto.active')}
                       </Badge>
                     )}
                   </div>
@@ -419,7 +422,7 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
                       className="border-red-500/30 text-red-400 hover:bg-red-500/10"
                       onClick={handleDeleteAvatar}
                       disabled={isUploadingAvatar}
-                      aria-label={isAr ? "حذف الصورة الشخصية" : "Delete avatar"}
+                      aria-label={tAuto('auto.deleteAvatar')}
                     >
                       <Trash2 className="w-4 h-4" />
                     </Button>
@@ -430,8 +433,8 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
                     onClick={() => setIsEditing(!isEditing)}
                   >
                     {isEditing
-                      ? (isAr ? "إلغاء" : "Cancel")
-                      : (isAr ? "تعديل" : "Edit")}
+                      ? (tAuto('auto.cancel'))
+                      : (tAuto('auto.edit'))}
                   </Button>
                 </div>
               </div>
@@ -442,17 +445,17 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
           <Card className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
             <CardHeader>
               <CardTitle className="text-slate-900 dark:text-white">
-                {isAr ? "المعلومات الشخصية" : "Personal Information"}
+                {tAuto('auto.personalInformation')}
               </CardTitle>
               <CardDescription className="text-slate-500 dark:text-slate-400">
-                {isAr ? "تحديث معلوماتك الشخصية" : "Update your personal information"}
+                {tAuto('auto.updateYourPersonalInformation')}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label className="text-slate-700 dark:text-slate-300">
-                    {isAr ? "الاسم الكامل" : "Full Name"}
+                    {tAuto('auto.fullName')}
                   </Label>
                   <Input
                     value={profileForm.name}
@@ -463,7 +466,7 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
                 </div>
                 <div className="space-y-2">
                   <Label className="text-slate-700 dark:text-slate-300">
-                    {isAr ? "البريد الإلكتروني" : "Email"}
+                    {tAuto('auto.email')}
                   </Label>
                   <Input
                     type="email"
@@ -475,7 +478,7 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
                 </div>
                 <div className="space-y-2">
                   <Label className="text-slate-700 dark:text-slate-300">
-                    {isAr ? "الهاتف" : "Phone"}
+                    {tAuto('auto.phone')}
                   </Label>
                   <Input
                     value={profileForm.phone}
@@ -486,7 +489,7 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
                 </div>
                 <div className="space-y-2">
                   <Label className="text-slate-700 dark:text-slate-300">
-                    {isAr ? "المسمى الوظيفي" : "Job Title"}
+                    {tAuto('auto.jobTitle')}
                   </Label>
                   <Input
                     value={profileForm.position}
@@ -497,7 +500,7 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
                 </div>
                 <div className="space-y-2 md:col-span-2">
                   <Label className="text-slate-700 dark:text-slate-300">
-                    {isAr ? "القسم" : "Department"}
+                    {tAuto('auto.department')}
                   </Label>
                   <Input
                     value={profileForm.department}
@@ -521,8 +524,8 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
                     <Save className="w-4 h-4 me-2" />
                   )}
                   {isSaving
-                    ? (isAr ? "جاري الحفظ..." : "Saving...")
-                    : (isAr ? "حفظ التغييرات" : "Save Changes")}
+                    ? (tAuto('auto.saving'))
+                    : (tAuto('auto.saveChanges'))}
                 </Button>
               </CardFooter>
             )}
@@ -532,7 +535,7 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
           <Card className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
             <CardHeader>
               <CardTitle className="text-slate-900 dark:text-white">
-                {isAr ? "معلومات العمل" : "Work Information"}
+                {tAuto('auto.workInformation')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -541,7 +544,7 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
                   <Building2 className="w-5 h-5 text-teal-500" />
                   <div>
                     <p className="text-sm text-slate-500 dark:text-slate-400">
-                      {isAr ? "المنظمة" : "Organization"}
+                      {tAuto('auto.organization')}
                     </p>
                     <p className="text-slate-900 dark:text-white font-medium">
                       BluePrint Engineering
@@ -552,7 +555,7 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
                   <Calendar className="w-5 h-5 text-emerald-500" />
                   <div>
                     <p className="text-sm text-slate-500 dark:text-slate-400">
-                      {isAr ? "تاريخ الانضمام" : "Join Date"}
+                      {tAuto('auto.joinDate')}
                     </p>
                     <p className="text-slate-900 dark:text-white font-medium">
                       {profileData?.createdAt
@@ -565,12 +568,12 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
                   <Calendar className="w-5 h-5 text-violet-500" />
                   <div>
                     <p className="text-sm text-slate-500 dark:text-slate-400">
-                      {isAr ? "آخر تسجيل دخول" : "Last Login"}
+                      {tAuto('auto.lastLogin')}
                     </p>
                     <p className="text-slate-900 dark:text-white font-medium">
                       {profileData?.lastLogin
                         ? new Date(profileData.lastLogin).toLocaleDateString(isAr ? "ar-AE" : "en-US")
-                        : (isAr ? "اليوم" : "Today")}
+                        : (tAuto('auto.today'))}
                     </p>
                   </div>
                 </div>
@@ -585,10 +588,10 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
           <Card className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
             <CardHeader>
               <CardTitle className="text-slate-900 dark:text-white">
-                {isAr ? "تصدير بياناتي" : "Export My Data"}
+                {tAuto('auto.exportMyData')}
               </CardTitle>
               <CardDescription className="text-slate-500 dark:text-slate-400">
-                {isAr ? "قم بتنزيل نسخة من جميع بياناتك الشخصية" : "Download a copy of all your personal data"}
+                {tAuto('auto.downloadACopyOfAllYourPersonalData')}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -597,10 +600,10 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
                   <Download className="w-5 h-5 text-teal-500" />
                   <div>
                     <p className="text-slate-900 dark:text-white font-medium">
-                      {isAr ? "تنزيل بياناتي" : "Download My Data"}
+                      {tAuto('auto.downloadMyData')}
                     </p>
                     <p className="text-sm text-slate-500 dark:text-slate-400">
-                      {isAr ? "ملف JSON يحتوي على جميع بياناتك" : "JSON file containing all your data"}
+                      {tAuto('auto.jSONFileContainingAllYourData')}
                     </p>
                   </div>
                 </div>
@@ -616,8 +619,8 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
                     <Download className="w-4 h-4 me-2" />
                   )}
                   {isExporting
-                    ? (isAr ? "جاري التصدير..." : "Exporting...")
-                    : (isAr ? "تصدير" : "Export")}
+                    ? (tAuto('auto.exporting'))
+                    : (tAuto('auto.export'))}
                 </Button>
               </div>
             </CardContent>
@@ -628,12 +631,10 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
             <DialogContent className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
               <DialogHeader>
                 <DialogTitle className="text-slate-900 dark:text-white">
-                  {isAr ? "تأكيد تصدير البيانات" : "Confirm Data Export"}
+                  {tAuto('auto.confirmDataExport')}
                 </DialogTitle>
                 <DialogDescription className="text-slate-500 dark:text-slate-400">
-                  {isAr
-                    ? "سيتم تنزيل ملف JSON يحتوي على جميع بياناتك"
-                    : "A JSON file containing all your data will be downloaded"}
+                  {tAuto('auto.aJSONFileContainingAllYourDataWillBeDown')}
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-3 py-2">
@@ -641,27 +642,25 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
                   <AlertTriangle className="w-5 h-5 text-amber-500 mt-0.5 shrink-0" />
                   <div>
                     <p className="text-sm font-medium text-amber-700 dark:text-amber-400">
-                      {isAr ? "مهم: حافظ على أمان ملف البيانات" : "Important: Keep your data file secure"}
+                      {tAuto('auto.importantKeepYourDataFileSecure')}
                     </p>
                     <p className="text-xs text-amber-600 dark:text-amber-500 mt-1">
-                      {isAr
-                        ? "يحتوي هذا الملف على معلومات حساسة. لا تشاركه مع أي شخص."
-                        : "This file contains sensitive information. Do not share it with anyone."}
+                      {tAuto('auto.thisFileContainsSensitiveInformationDoNo')}
                     </p>
                   </div>
                 </div>
                 <div className="text-sm text-slate-600 dark:text-slate-400 space-y-1.5">
                   <p className="font-medium text-slate-900 dark:text-white">
-                    {isAr ? "البيانات المتضمنة:" : "Data included:"}
+                    {tAuto('auto.dataIncluded')}
                   </p>
                   <ul className="list-disc list-inside space-y-1">
-                    <li>{isAr ? "الملف الشخصي (الاسم، البريد، الهاتف، الدور)" : "Profile (name, email, phone, role)"}</li>
-                    <li>{isAr ? "المشاريع التي أنشأتها أو المعين بها" : "Projects you created or are assigned to"}</li>
-                    <li>{isAr ? "المهام المعينة لك" : "Tasks assigned to you"}</li>
-                    <li>{isAr ? "الفواتير التي أنشأتها" : "Invoices you created"}</li>
-                    <li>{isAr ? "المستندات التي رفعتها" : "Documents you uploaded"}</li>
-                    <li>{isAr ? "سجل النشاط" : "Activity log"}</li>
-                    <li>{isAr ? "الإشعارات" : "Notifications"}</li>
+                    <li>{tAuto('auto.profileNameEmailPhoneRole')}</li>
+                    <li>{tAuto('auto.projectsYouCreatedOrAreAssignedTo')}</li>
+                    <li>{tAuto('auto.tasksAssignedToYou')}</li>
+                    <li>{tAuto('auto.invoicesYouCreated')}</li>
+                    <li>{tAuto('auto.documentsYouUploaded')}</li>
+                    <li>{tAuto('auto.activityLog1')}</li>
+                    <li>{tAuto('auto.notifications')}</li>
                   </ul>
                 </div>
               </div>
@@ -672,7 +671,7 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
                   className="border-slate-200 dark:border-slate-700"
                   disabled={isExporting}
                 >
-                  {isAr ? "إلغاء" : "Cancel"}
+                  {tAuto('auto.cancel')}
                 </Button>
                 <Button
                   onClick={handleExportData}
@@ -685,8 +684,8 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
                     <Download className="w-4 h-4 me-2" />
                   )}
                   {isExporting
-                    ? (isAr ? "جاري التصدير..." : "Exporting...")
-                    : (isAr ? "تصدير البيانات" : "Export Data")}
+                    ? (tAuto('auto.exporting'))
+                    : (tAuto('auto.exportData'))}
                 </Button>
               </DialogFooter>
             </DialogContent>
@@ -695,16 +694,16 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
           <Card className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
             <CardHeader>
               <CardTitle className="text-slate-900 dark:text-white">
-                {isAr ? "تغيير كلمة المرور" : "Change Password"}
+                {tAuto('auto.changePassword')}
               </CardTitle>
               <CardDescription className="text-slate-500 dark:text-slate-400">
-                {isAr ? "تحديث كلمة المرور الخاصة بك" : "Update your password"}
+                {tAuto('auto.updateYourPassword')}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label className="text-slate-700 dark:text-slate-300">
-                  {isAr ? "كلمة المرور الحالية" : "Current Password"}
+                  {tAuto('auto.currentPassword')}
                 </Label>
                 <div className="relative">
                   <Input
@@ -718,7 +717,7 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
                     size="icon"
                     className="absolute end-0 top-0 h-full text-slate-400 hover:text-slate-600"
                     onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                    aria-label={isAr ? "إظهار/إخفاء كلمة المرور" : "Toggle password visibility"}
+                    aria-label={tAuto('auto.togglePasswordVisibility')}
                   >
                     {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </Button>
@@ -727,7 +726,7 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label className="text-slate-700 dark:text-slate-300">
-                    {isAr ? "كلمة المرور الجديدة" : "New Password"}
+                    {tAuto('auto.newPassword')}
                   </Label>
                   <div className="relative">
                     <Input
@@ -741,7 +740,7 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
                       size="icon"
                       className="absolute end-0 top-0 h-full text-slate-400 hover:text-slate-600"
                       onClick={() => setShowNewPassword(!showNewPassword)}
-                      aria-label={isAr ? "إظهار/إخفاء كلمة المرور" : "Toggle password visibility"}
+                      aria-label={tAuto('auto.togglePasswordVisibility')}
                     >
                       {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </Button>
@@ -749,7 +748,7 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
                 </div>
                 <div className="space-y-2">
                   <Label className="text-slate-700 dark:text-slate-300">
-                    {isAr ? "تأكيد كلمة المرور" : "Confirm Password"}
+                    {tAuto('auto.confirmPassword')}
                   </Label>
                   <Input
                     type="password"
@@ -760,9 +759,7 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
                 </div>
               </div>
               <p className="text-xs text-slate-400 mt-2">
-                {isAr
-                  ? "يجب أن تكون كلمة المرور 6 أحرف على الأقل"
-                  : "Password must be at least 6 characters"}
+                {tAuto('auto.passwordMustBeAtLeast6Characters')}
               </p>
             </CardContent>
             <CardFooter className="border-t border-slate-200 dark:border-slate-700 pt-4">
@@ -777,8 +774,8 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
                   <Key className="w-4 h-4 me-2" />
                 )}
                 {isChangingPassword
-                  ? (isAr ? "جاري التغيير..." : "Changing...")
-                  : (isAr ? "تغيير كلمة المرور" : "Change Password")}
+                  ? (tAuto('auto.changing'))
+                  : (tAuto('auto.changePassword'))}
               </Button>
             </CardFooter>
           </Card>
@@ -789,7 +786,7 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
           <Card className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
             <CardHeader>
               <CardTitle className="text-slate-900 dark:text-white">
-                {isAr ? "التفضيلات" : "Preferences"}
+                {tAuto('auto.preferences')}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -798,10 +795,10 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
                   <Globe className="w-5 h-5 text-teal-500" />
                   <div>
                     <p className="text-slate-900 dark:text-white font-medium">
-                      {isAr ? "اللغة" : "Language"}
+                      {tAuto('auto.language')}
                     </p>
                     <p className="text-sm text-slate-500 dark:text-slate-400">
-                      {isAr ? "اختر لغة الواجهة" : "Choose interface language"}
+                      {tAuto('auto.chooseInterfaceLanguage')}
                     </p>
                   </div>
                 </div>
@@ -836,10 +833,10 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
                   )}
                   <div>
                     <p className="text-slate-900 dark:text-white font-medium">
-                      {isAr ? "المظهر" : "Theme"}
+                      {tAuto('auto.theme')}
                     </p>
                     <p className="text-sm text-slate-500 dark:text-slate-400">
-                      {isAr ? "اختر مظهر التطبيق" : "Choose app appearance"}
+                      {tAuto('auto.chooseAppAppearance')}
                     </p>
                   </div>
                 </div>
@@ -851,7 +848,7 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
                     className={theme === "light" ? "bg-teal-500 hover:bg-teal-600 text-white" : "border-slate-200 dark:border-slate-700"}
                   >
                     <Sun className="w-4 h-4 me-1" />
-                    {isAr ? "فاتح" : "Light"}
+                    {tAuto('auto.light')}
                   </Button>
                   <Button
                     variant={theme === "dark" ? "default" : "outline"}
@@ -860,7 +857,7 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
                     className={theme === "dark" ? "bg-teal-500 hover:bg-teal-600 text-white" : "border-slate-200 dark:border-slate-700"}
                   >
                     <Moon className="w-4 h-4 me-1" />
-                    {isAr ? "داكن" : "Dark"}
+                    {tAuto('auto.dark')}
                   </Button>
                 </div>
               </div>

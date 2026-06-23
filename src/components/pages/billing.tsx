@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -96,6 +98,7 @@ interface BillingPageProps {
 }
 
 export default function BillingPage({ language }: BillingPageProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
 
@@ -191,10 +194,10 @@ export default function BillingPage({ language }: BillingPageProps) {
         </div>
         <div>
           <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-            {ar ? "إدارة الاشتراك والفواتير" : "Subscription & Billing"}
+            {tAuto('auto.subscriptionBilling')}
           </h2>
           <p className="text-sm text-slate-500 dark:text-slate-400">
-            {ar ? "إدارة خطتك وطرق الدفع" : "Manage your plan and payment methods"}
+            {tAuto('auto.manageYourPlanAndPaymentMethods')}
           </p>
         </div>
       </div>
@@ -204,7 +207,7 @@ export default function BillingPage({ language }: BillingPageProps) {
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">
             <Crown className="h-4 w-4 text-amber-500" />
-            {ar ? "الخطة الحالية" : "Current Plan"}
+            {tAuto('auto.currentPlan')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -227,8 +230,8 @@ export default function BillingPage({ language }: BillingPageProps) {
                 </h3>
                 <p className="text-sm text-slate-500">
                   {currentPlan.price === 0
-                    ? (ar ? "مجاني للأبد" : "Free forever")
-                    : `$${currentPlan.price}/${ar ? "شهر" : "month"}`}
+                    ? (tAuto('auto.freeForever'))
+                    : `$${currentPlan.price}/${tAuto('auto.month1')}`}
                 </p>
               </div>
             </div>
@@ -243,7 +246,7 @@ export default function BillingPage({ language }: BillingPageProps) {
                 ) : (
                   <ExternalLink className="h-4 w-4 me-2" />
                 )}
-                {ar ? "إدارة الاشتراك" : "Manage Subscription"}
+                {tAuto('auto.manageSubscription')}
               </Button>
             )}
           </div>
@@ -251,14 +254,14 @@ export default function BillingPage({ language }: BillingPageProps) {
             <div className="mt-4 flex items-center gap-2">
               <Badge variant={subscription.status === "ACTIVE" ? "default" : "secondary"}>
                 {subscription.status === "ACTIVE"
-                  ? (ar ? "نشط" : "Active")
+                  ? (tAuto('auto.active'))
                   : subscription.status === "CANCELED"
-                  ? (ar ? "ملغي" : "Canceled")
+                  ? (tAuto('auto.canceled'))
                   : subscription.status}
               </Badge>
               {subscription.currentPeriodEnd && (
                 <span className="text-xs text-slate-500">
-                  {ar ? "يتجدد في" : "Renews on"}{" "}
+                  {tAuto('auto.renewsOn')}{" "}
                   {new Date(subscription.currentPeriodEnd).toLocaleDateString(ar ? "ar-AE" : "en-US")}
                 </span>
               )}
@@ -273,7 +276,7 @@ export default function BillingPage({ language }: BillingPageProps) {
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
               <CreditCard className="h-4 w-4" />
-              {ar ? "طرق الدفع" : "Payment Methods"}
+              {tAuto('auto.paymentMethods')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -293,7 +296,7 @@ export default function BillingPage({ language }: BillingPageProps) {
                       •••• •••• •••• {pm.card?.last4}
                     </p>
                     <p className="text-xs text-slate-500">
-                      {ar ? "ينتهي في" : "Expires"} {pm.card?.expMonth}/{pm.card?.expYear}
+                      {tAuto('auto.expires1')} {pm.card?.expMonth}/{pm.card?.expYear}
                     </p>
                   </div>
                 </div>
@@ -306,7 +309,7 @@ export default function BillingPage({ language }: BillingPageProps) {
       {/* Plans */}
       <div>
         <h3 className="text-lg font-semibold mb-4 text-slate-900 dark:text-white">
-          {ar ? "اختر الخطة المناسبة" : "Choose the right plan for you"}
+          {tAuto('auto.chooseTheRightPlanForYou')}
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {plans.map((plan) => (
@@ -330,7 +333,7 @@ export default function BillingPage({ language }: BillingPageProps) {
                     ${plan.price}
                   </span>
                   <span className="text-sm text-slate-500">
-                    /{ar ? "شهر" : "mo"}
+                    /{tAuto('auto.mo')}
                   </span>
                 </div>
               </CardHeader>
@@ -359,10 +362,10 @@ export default function BillingPage({ language }: BillingPageProps) {
                     <Loader2 className="h-4 w-4 animate-spin me-2" />
                   ) : null}
                   {subscription?.planId === plan.id
-                    ? (ar ? "الخطة الحالية" : "Current Plan")
+                    ? (tAuto('auto.currentPlan'))
                     : plan.price === 0
-                    ? (ar ? "المجانية" : "Free")
-                    : (ar ? "اشترك الآن" : "Subscribe")}
+                    ? (tAuto('auto.free'))
+                    : (tAuto('auto.subscribe'))}
                 </Button>
               </CardContent>
             </Card>
@@ -374,7 +377,7 @@ export default function BillingPage({ language }: BillingPageProps) {
       <Card className="border-slate-200 dark:border-slate-700/50">
         <CardHeader>
           <CardTitle className="text-base">
-            {ar ? "مقارنة الميزات" : "Features Comparison"}
+            {tAuto('auto.featuresComparison')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -382,7 +385,7 @@ export default function BillingPage({ language }: BillingPageProps) {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-slate-200 dark:border-slate-700">
-                  <th className="text-start py-2 px-3">{ar ? "الميزة" : "Feature"}</th>
+                  <th className="text-start py-2 px-3">{tAuto('auto.feature')}</th>
                   {plans.map((p) => (
                     <th key={p.id} className="text-center py-2 px-3">
                       {ar ? p.nameAr : p.nameEn}
@@ -394,7 +397,7 @@ export default function BillingPage({ language }: BillingPageProps) {
                 <tr className="border-b border-slate-100 dark:border-slate-800">
                   <td className="py-2 px-3 flex items-center gap-2">
                     <Building2 className="h-4 w-4 text-slate-400" />
-                    {ar ? "المشاريع" : "Projects"}
+                    {tAuto('auto.projects')}
                   </td>
                   <td className="text-center py-2 px-3">1</td>
                   <td className="text-center py-2 px-3">10</td>
@@ -403,7 +406,7 @@ export default function BillingPage({ language }: BillingPageProps) {
                 <tr className="border-b border-slate-100 dark:border-slate-800">
                   <td className="py-2 px-3 flex items-center gap-2">
                     <Users className="h-4 w-4 text-slate-400" />
-                    {ar ? "المستخدمين" : "Users"}
+                    {tAuto('auto.users')}
                   </td>
                   <td className="text-center py-2 px-3">5</td>
                   <td className="text-center py-2 px-3">25</td>
@@ -412,7 +415,7 @@ export default function BillingPage({ language }: BillingPageProps) {
                 <tr className="border-b border-slate-100 dark:border-slate-800">
                   <td className="py-2 px-3 flex items-center gap-2">
                     <HardDrive className="h-4 w-4 text-slate-400" />
-                    {ar ? "التخزين" : "Storage"}
+                    {tAuto('auto.storage')}
                   </td>
                   <td className="text-center py-2 px-3">1GB</td>
                   <td className="text-center py-2 px-3">10GB</td>
@@ -421,10 +424,10 @@ export default function BillingPage({ language }: BillingPageProps) {
                 <tr>
                   <td className="py-2 px-3 flex items-center gap-2">
                     <Headphones className="h-4 w-4 text-slate-400" />
-                    {ar ? "الدعم" : "Support"}
+                    {tAuto('auto.support')}
                   </td>
-                  <td className="text-center py-2 px-3">{ar ? "إيميل" : "Email"}</td>
-                  <td className="text-center py-2 px-3">{ar ? "هاتف" : "Phone"}</td>
+                  <td className="text-center py-2 px-3">{tAuto('auto.email')}</td>
+                  <td className="text-center py-2 px-3">{tAuto('auto.phone')}</td>
                   <td className="text-center py-2 px-3">24/7</td>
                 </tr>
               </tbody>

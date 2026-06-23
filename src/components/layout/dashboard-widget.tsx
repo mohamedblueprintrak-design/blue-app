@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import React from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -42,6 +44,7 @@ export function DashboardWidget({
   onHide,
   className,
 }: DashboardWidgetProps) {
+  const tAuto = useTranslations();
   const lang = useLang();
   const ar = lang === "ar";
   const {
@@ -88,7 +91,7 @@ export function DashboardWidget({
             "focus:outline-none focus:ring-2 focus:ring-teal-500/30",
             isDragging && "text-teal-600 dark:text-teal-400 bg-teal-100/60 dark:bg-teal-900/30"
           )}
-          aria-label={ar ? "اسحب لإعادة الترتيب" : "Drag to reorder"}
+          aria-label={tAuto('auto.dragToReorder')}
           tabIndex={0}
         >
           <GripVertical className="h-4 w-4" />
@@ -111,7 +114,7 @@ export function DashboardWidget({
               size="icon"
               className="h-7 w-7 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
               onClick={onToggleCollapse}
-              aria-label={isCollapsed ? (ar ? "توسيع العنصر" : "Expand widget") : (ar ? "طي العنصر" : "Collapse widget")}
+              aria-label={isCollapsed ? (tAuto('auto.expandWidget')) : (tAuto('auto.collapseWidget'))}
             >
               {isCollapsed ? (
                 <ChevronDown className="h-3.5 w-3.5" />
@@ -128,7 +131,7 @@ export function DashboardWidget({
                 variant="ghost"
                 size="icon"
                 className="h-7 w-7 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity"
-                aria-label={ar ? "خيارات أخرى" : "More options"}
+                aria-label={tAuto('auto.moreOptions')}
               >
                 <MoreHorizontal className="h-3.5 w-3.5" />
               </Button>
@@ -139,7 +142,7 @@ export function DashboardWidget({
                 className="text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400 cursor-pointer"
               >
                 <EyeOff className="h-3.5 w-3.5 me-2" />
-                {ar ? "إخفاء العنصر" : "Hide widget"}
+                {tAuto('auto.hideWidget')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

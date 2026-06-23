@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -122,6 +124,7 @@ interface PurchaseOrdersPageProps {
 }
 
 export default function PurchaseOrdersPage({ language }: PurchaseOrdersPageProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
@@ -183,28 +186,28 @@ export default function PurchaseOrdersPage({ language }: PurchaseOrdersPageProps
 
   const statCards = [
     {
-      label: ar ? "إجمالي الطلبات" : "Total POs",
+      label: tAuto('auto.totalPOs'),
       value: stats.total,
       icon: ShoppingCart,
       color: "text-blue-600 dark:text-blue-400",
       bg: "bg-blue-100 dark:bg-blue-900/30",
     },
     {
-      label: ar ? "بانتظار الاعتماد" : "Pending",
+      label: tAuto('auto.pending'),
       value: stats.PENDING,
       icon: Clock,
       color: "text-amber-600 dark:text-amber-400",
       bg: "bg-amber-100 dark:bg-amber-900/30",
     },
     {
-      label: ar ? "معتمد/مستلم" : "Approved",
+      label: tAuto('auto.approved'),
       value: stats.APPROVED,
       icon: FileCheck,
       color: "text-green-600 dark:text-green-400",
       bg: "bg-green-100 dark:bg-green-900/30",
     },
     {
-      label: ar ? "إجمالي المبلغ" : "Total Value",
+      label: tAuto('auto.totalValue'),
       value: formatCurrency(stats.totalValue, ar),
       icon: DollarSign,
       color: "text-teal-600 dark:text-teal-400",
@@ -390,7 +393,7 @@ export default function PurchaseOrdersPage({ language }: PurchaseOrdersPageProps
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
         <div className="flex items-center gap-2 flex-1">
           <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-            {ar ? "أوامر الشراء" : "Purchase Orders"}
+            {tAuto('auto.purchaseOrders')}
           </h2>
           <Badge variant="secondary" className="text-xs">{orders.length}</Badge>
         </div>
@@ -400,16 +403,16 @@ export default function PurchaseOrdersPage({ language }: PurchaseOrdersPageProps
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder={ar ? "بحث..." : "Search..."}
+              placeholder={tAuto('auto.search1')}
               className="ps-9 h-8 text-sm"
             />
           </div>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className="w-[130px] h-8 text-sm">
-              <SelectValue placeholder={ar ? "الحالة" : "Status"} />
+              <SelectValue placeholder={tAuto('auto.status1')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{ar ? "الكل" : "All"}</SelectItem>
+              <SelectItem value="all">{tAuto('auto.all')}</SelectItem>
               {Object.entries(statusConfig).map(([key, cfg]) => (
                 <SelectItem key={key} value={key}>{ar ? cfg.ar : cfg.en}</SelectItem>
               ))}
@@ -421,7 +424,7 @@ export default function PurchaseOrdersPage({ language }: PurchaseOrdersPageProps
             onClick={() => { setFormData(emptyForm); setShowAddDialog(true); }}
           >
             <Plus className="h-3.5 w-3.5 me-1" />
-            {ar ? "طلب جديد" : "New PO"}
+            {tAuto('auto.newPO')}
           </Button>
         </div>
       </div>
@@ -432,13 +435,13 @@ export default function PurchaseOrdersPage({ language }: PurchaseOrdersPageProps
           <Table>
             <TableHeader>
               <TableRow className="hover:bg-transparent">
-                <TableHead>{ar ? "الرقم" : "Number"}</TableHead>
-                <TableHead>{ar ? "المورد" : "Supplier"}</TableHead>
-                <TableHead className="hidden md:table-cell">{ar ? "المشروع" : "Project"}</TableHead>
-                <TableHead>{ar ? "المبلغ" : "Amount"}</TableHead>
-                <TableHead>{ar ? "الحالة" : "Status"}</TableHead>
-                <TableHead className="hidden sm:table-cell">{ar ? "التاريخ" : "Date"}</TableHead>
-                <TableHead className="text-start">{ar ? "الإجراءات" : "Actions"}</TableHead>
+                <TableHead>{tAuto('auto.number')}</TableHead>
+                <TableHead>{tAuto('auto.supplier')}</TableHead>
+                <TableHead className="hidden md:table-cell">{tAuto('auto.project')}</TableHead>
+                <TableHead>{tAuto('auto.amount')}</TableHead>
+                <TableHead>{tAuto('auto.status1')}</TableHead>
+                <TableHead className="hidden sm:table-cell">{tAuto('auto.date')}</TableHead>
+                <TableHead className="text-start">{tAuto('auto.actions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -456,7 +459,7 @@ export default function PurchaseOrdersPage({ language }: PurchaseOrdersPageProps
                 <TableRow>
                   <TableCell colSpan={7} className="text-center py-12 text-slate-400">
                     <ShoppingCart className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                    {ar ? "لا توجد أوامر شراء" : "No purchase orders found"}
+                    {tAuto('auto.noPurchaseOrdersFound')}
                   </TableCell>
                 </TableRow>
               ) : (
@@ -494,7 +497,7 @@ export default function PurchaseOrdersPage({ language }: PurchaseOrdersPageProps
                         </span>
                         {highValue && (
                           <Badge variant="secondary" className="text-[9px] h-4 ms-1.5 bg-teal-100 text-teal-700 dark:bg-teal-900/50 dark:text-teal-300 border-0">
-                            {ar ? "عالي القيمة" : "High Value"}
+                            {tAuto('auto.highValue')}
                           </Badge>
                         )}
                       </TableCell>
@@ -529,7 +532,7 @@ export default function PurchaseOrdersPage({ language }: PurchaseOrdersPageProps
                                 size="icon"
                                 className="h-7 w-7 text-green-600 hover:text-green-700"
                                 onClick={() => updateStatusMutation.mutate({ id: order.id, status: "APPROVED" })}
-                                title={ar ? "اعتماد" : "Approve"}
+                                title={tAuto('auto.approve')}
                                 aria-label="Approve"
                               >
                                 <CheckCircle className="h-3.5 w-3.5" />
@@ -539,7 +542,7 @@ export default function PurchaseOrdersPage({ language }: PurchaseOrdersPageProps
                                 size="icon"
                                 className="h-7 w-7 text-red-500 hover:text-red-600"
                                 onClick={() => updateStatusMutation.mutate({ id: order.id, status: "CANCELLED" })}
-                                title={ar ? "رفض" : "Reject"}
+                                title={tAuto('auto.reject')}
                                 aria-label="Reject"
                               >
                                 <XCircle className="h-3.5 w-3.5" />
@@ -552,7 +555,7 @@ export default function PurchaseOrdersPage({ language }: PurchaseOrdersPageProps
                               size="icon"
                               className="h-7 w-7 text-teal-600 hover:text-teal-700"
                               onClick={() => updateStatusMutation.mutate({ id: order.id, status: "RECEIVED" })}
-                              title={ar ? "استلام" : "Mark Received"}
+                              title={tAuto('auto.markReceived')}
                               aria-label="Mark received"
                             >
                               <CheckCircle className="h-3.5 w-3.5" />
@@ -568,12 +571,12 @@ export default function PurchaseOrdersPage({ language }: PurchaseOrdersPageProps
                               <DropdownMenuContent align={ar ? "start" : "end"}>
                                 <DropdownMenuItem onClick={() => openEditDialog(order)}>
                                   <Pencil className="me-2 h-3.5 w-3.5" />
-                                  {ar ? "تعديل" : "Edit"}
+                                  {tAuto('auto.edit')}
                                 </DropdownMenuItem>
                                 {order.status === "DRAFT" && (
                                   <DropdownMenuItem onClick={() => updateStatusMutation.mutate({ id: order.id, status: "SUBMITTED" })}>
                                     <ArrowRight className="me-2 h-3.5 w-3.5" />
-                                    {ar ? "تقديم" : "Submit"}
+                                    {tAuto('auto.submit')}
                                   </DropdownMenuItem>
                                 )}
                                 <DropdownMenuItem
@@ -585,7 +588,7 @@ export default function PurchaseOrdersPage({ language }: PurchaseOrdersPageProps
                                   }}
                                 >
                                   <Trash2 className="me-2 h-3.5 w-3.5" />
-                                  {ar ? "حذف" : "Delete"}
+                                  {tAuto('auto.delete')}
                                 </DropdownMenuItem>
                                 {order.status === "DRAFT" && (
                                   <DropdownMenuItem
@@ -597,7 +600,7 @@ export default function PurchaseOrdersPage({ language }: PurchaseOrdersPageProps
                                         body: JSON.stringify({
                                           entityType: "purchase_order",
                                           entityId: order.id,
-                                          title: `${ar ? "موافقة أمر شراء" : "PO approval"} - ${order.number}`,
+                                          title: `${tAuto('auto.pOApproval')} - ${order.number}`,
                                           description: order.supplier.name,
                                           requestedBy: "المستخدم الحالي",
                                           assignedTo: "المدير",
@@ -609,7 +612,7 @@ export default function PurchaseOrdersPage({ language }: PurchaseOrdersPageProps
                                     }}
                                   >
                                     <CheckCircle2 className="me-2 h-3.5 w-3.5" />
-                                    {ar ? "طلب موافقة" : "Request Approval"}
+                                    {tAuto('auto.requestApproval')}
                                   </DropdownMenuItem>
                                 )}
                               </DropdownMenuContent>
@@ -633,11 +636,11 @@ export default function PurchaseOrdersPage({ language }: PurchaseOrdersPageProps
             <>
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
-                  <span>{ar ? "أمر شراء" : "Purchase Order"}</span>
+                  <span>{tAuto('auto.purchaseOrder')}</span>
                   <span className="font-mono text-sm text-teal-600 dark:text-teal-400">#{viewOrder.number}</span>
                   {isHighValue(viewOrder.amount) && (
                     <Badge variant="secondary" className="text-[9px] h-4 bg-teal-100 text-teal-700 dark:bg-teal-900/50 dark:text-teal-300 border-0">
-                      {ar ? "عالي القيمة" : "High Value"}
+                      {tAuto('auto.highValue')}
                     </Badge>
                   )}
                 </DialogTitle>
@@ -646,17 +649,17 @@ export default function PurchaseOrdersPage({ language }: PurchaseOrdersPageProps
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div>
-                    <span className="text-xs text-slate-500">{ar ? "المورد" : "Supplier"}</span>
+                    <span className="text-xs text-slate-500">{tAuto('auto.supplier')}</span>
                     <p className="font-medium text-slate-900 dark:text-white">{viewOrder.supplier.name}</p>
                   </div>
                   <div>
-                    <span className="text-xs text-slate-500">{ar ? "المشروع" : "Project"}</span>
+                    <span className="text-xs text-slate-500">{tAuto('auto.project')}</span>
                     <p className="font-medium text-slate-900 dark:text-white">
                       {viewOrder.project ? (ar ? viewOrder.project.name : viewOrder.project.nameEn || viewOrder.project.name) : "—"}
                     </p>
                   </div>
                   <div>
-                    <span className="text-xs text-slate-500">{ar ? "الحالة" : "Status"}</span>
+                    <span className="text-xs text-slate-500">{tAuto('auto.status1')}</span>
                     <div className="mt-1">
                       <Badge variant="secondary" className={`text-[10px] h-5 flex items-center gap-1 ${statusConfig[viewOrder.status]?.color || ""}`}>
                         <StatusIcon status={viewOrder.status} className="h-3 w-3" />
@@ -665,7 +668,7 @@ export default function PurchaseOrdersPage({ language }: PurchaseOrdersPageProps
                     </div>
                   </div>
                   <div>
-                    <span className="text-xs text-slate-500">{ar ? "التاريخ" : "Date"}</span>
+                    <span className="text-xs text-slate-500">{tAuto('auto.date')}</span>
                     <p className="font-medium text-slate-900 dark:text-white">
                       {new Date(viewOrder.createdAt).toLocaleDateString(ar ? "ar-AE" : "en-US")}
                     </p>
@@ -675,15 +678,15 @@ export default function PurchaseOrdersPage({ language }: PurchaseOrdersPageProps
                 {/* Line Items */}
                 {viewOrder.items.length > 0 && (
                   <div>
-                    <span className="text-xs text-slate-500">{ar ? "الأصناف" : "Items"}</span>
+                    <span className="text-xs text-slate-500">{tAuto('auto.items1')}</span>
                     <div className="mt-2 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
                       <Table>
                         <TableHeader>
                           <TableRow className="hover:bg-transparent">
-                            <TableHead className="text-xs">{ar ? "الصنف" : "Item"}</TableHead>
-                            <TableHead className="text-xs text-center">{ar ? "الكمية" : "Qty"}</TableHead>
-                            <TableHead className="text-xs text-end">{ar ? "السعر" : "Price"}</TableHead>
-                            <TableHead className="text-xs text-end">{ar ? "الإجمالي" : "Total"}</TableHead>
+                            <TableHead className="text-xs">{tAuto('auto.item')}</TableHead>
+                            <TableHead className="text-xs text-center">{tAuto('auto.qty')}</TableHead>
+                            <TableHead className="text-xs text-end">{tAuto('auto.price')}</TableHead>
+                            <TableHead className="text-xs text-end">{tAuto('auto.total')}</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -702,7 +705,7 @@ export default function PurchaseOrdersPage({ language }: PurchaseOrdersPageProps
                 )}
 
                 <div className="flex justify-between items-center p-3 rounded-lg bg-gradient-to-l from-teal-50 to-sky-50 dark:from-teal-950/20 dark:to-sky-950/20">
-                  <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{ar ? "الإجمالي" : "Total Amount"}</span>
+                  <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{tAuto('auto.totalAmount')}</span>
                   <span className="text-lg font-bold text-teal-700 dark:text-teal-300 tabular-nums font-mono">
                     {formatCurrency(viewOrder.amount, ar)}
                   </span>
@@ -718,14 +721,14 @@ export default function PurchaseOrdersPage({ language }: PurchaseOrdersPageProps
                           onClick={() => updateStatusMutation.mutate({ id: viewOrder.id, status: "APPROVED" })}
                         >
                           <CheckCircle className="h-4 w-4 me-1" />
-                          {ar ? "اعتماد" : "Approve"}
+                          {tAuto('auto.approve')}
                         </Button>
                         <Button
                           className="flex-1 bg-red-600 hover:bg-red-700 text-white"
                           onClick={() => updateStatusMutation.mutate({ id: viewOrder.id, status: "CANCELLED" })}
                         >
                           <XCircle className="h-4 w-4 me-1" />
-                          {ar ? "رفض" : "Reject"}
+                          {tAuto('auto.reject')}
                         </Button>
                       </>
                     )}
@@ -735,7 +738,7 @@ export default function PurchaseOrdersPage({ language }: PurchaseOrdersPageProps
                         onClick={() => updateStatusMutation.mutate({ id: viewOrder.id, status: "RECEIVED" })}
                       >
                         <CheckCircle className="h-4 w-4 me-1" />
-                        {ar ? "تأكيد الاستلام" : "Mark as Received"}
+                        {tAuto('auto.markAsReceived')}
                       </Button>
                     )}
                   </div>
@@ -756,30 +759,30 @@ export default function PurchaseOrdersPage({ language }: PurchaseOrdersPageProps
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {editOrder ? (ar ? "تعديل أمر شراء" : "Edit Purchase Order") : (ar ? "أمر شراء جديد" : "New Purchase Order")}
+              {editOrder ? (tAuto('auto.editPurchaseOrder')) : (tAuto('auto.newPurchaseOrder'))}
             </DialogTitle>
             <DialogDescription>
               {editOrder
-                ? (ar ? "تعديل بيانات أمر الشراء" : "Edit purchase order details")
-                : (ar ? "إنشاء أمر شراء جديد" : "Create a new purchase order")}
+                ? (tAuto('auto.editPurchaseOrderDetails'))
+                : (tAuto('auto.createANewPurchaseOrder'))}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "رقم الطلب" : "PO Number"} *</Label>
+                <Label className="text-sm">{tAuto('auto.pONumber')} *</Label>
                 <Input
                   value={formData.number}
                   onChange={(e) => setFormData({ ...formData, number: e.target.value })}
-                  placeholder={ar ? "PO-2024-001" : "PO-2024-001"}
+                  placeholder={tAuto('auto.pO2024001')}
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "المورد" : "Supplier"} *</Label>
+                <Label className="text-sm">{tAuto('auto.supplier')} *</Label>
                 <Select value={formData.supplierId} onValueChange={(v) => setFormData({ ...formData, supplierId: v })}>
                   <SelectTrigger>
-                    <SelectValue placeholder={ar ? "اختر المورد" : "Select supplier"} />
+                    <SelectValue placeholder={tAuto('auto.selectSupplier')} />
                   </SelectTrigger>
                   <SelectContent>
                     {suppliers.map((s) => (
@@ -791,13 +794,13 @@ export default function PurchaseOrdersPage({ language }: PurchaseOrdersPageProps
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "المشروع" : "Project"} ({ar ? "اختياري" : "optional"})</Label>
+                <Label className="text-sm">{tAuto('auto.project')} ({tAuto('auto.optional1')})</Label>
                 <Select value={formData.projectId} onValueChange={(v) => setFormData({ ...formData, projectId: v })}>
                   <SelectTrigger>
-                    <SelectValue placeholder={ar ? "بدون مشروع" : "No project"} />
+                    <SelectValue placeholder={tAuto('auto.noProject')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">{ar ? "بدون مشروع" : "No project"}</SelectItem>
+                    <SelectItem value="none">{tAuto('auto.noProject')}</SelectItem>
                     {projects.map((p) => (
                       <SelectItem key={p.id} value={p.id}>
                         {p.number} — {ar ? p.name : p.nameEn || p.name}
@@ -807,7 +810,7 @@ export default function PurchaseOrdersPage({ language }: PurchaseOrdersPageProps
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "الحالة" : "Status"}</Label>
+                <Label className="text-sm">{tAuto('auto.status1')}</Label>
                 <Select value={formData.status} onValueChange={(v) => setFormData({ ...formData, status: v })}>
                   <SelectTrigger>
                     <SelectValue />
@@ -824,7 +827,7 @@ export default function PurchaseOrdersPage({ language }: PurchaseOrdersPageProps
             {/* Line Items */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <Label className="text-sm">{ar ? "الأصناف" : "Line Items"}</Label>
+                <Label className="text-sm">{tAuto('auto.lineItems')}</Label>
                 <Button
                   type="button"
                   variant="outline"
@@ -833,17 +836,17 @@ export default function PurchaseOrdersPage({ language }: PurchaseOrdersPageProps
                   onClick={addLineItem}
                 >
                   <Plus className="h-3 w-3 me-1" />
-                  {ar ? "إضافة صنف" : "Add Item"}
+                  {tAuto('auto.addItem1')}
                 </Button>
               </div>
 
               <div className="space-y-2">
                 {/* Header */}
                 <div className="grid grid-cols-[1fr,80px,100px,100px,32px] gap-2 text-[10px] text-slate-500 px-1">
-                  <span>{ar ? "الصنف" : "Item Name"}</span>
-                  <span className="text-center">{ar ? "الكمية" : "Qty"}</span>
-                  <span className="text-end">{ar ? "السعر" : "Price"}</span>
-                  <span className="text-end">{ar ? "الإجمالي" : "Total"}</span>
+                  <span>{tAuto('auto.itemName')}</span>
+                  <span className="text-center">{tAuto('auto.qty')}</span>
+                  <span className="text-end">{tAuto('auto.price')}</span>
+                  <span className="text-end">{tAuto('auto.total')}</span>
                   <span></span>
                 </div>
 
@@ -852,7 +855,7 @@ export default function PurchaseOrdersPage({ language }: PurchaseOrdersPageProps
                     <Input
                       value={item.itemName}
                       onChange={(e) => updateLineItem(index, "itemName", e.target.value)}
-                      placeholder={ar ? "اسم الصنف" : "Item name"}
+                      placeholder={tAuto('auto.itemName1')}
                       className="h-8 text-xs"
                     />
                     <Input
@@ -878,7 +881,7 @@ export default function PurchaseOrdersPage({ language }: PurchaseOrdersPageProps
                       className="h-7 w-7 text-slate-400 hover:text-red-500"
                       onClick={() => formData.items.length > 1 && removeLineItem(index)}
                       disabled={formData.items.length <= 1}
-                      aria-label={ar ? "حذف البند" : "Remove item"}
+                      aria-label={tAuto('auto.removeItem')}
                     >
                       <Minus className="h-3 w-3" />
                     </Button>
@@ -889,7 +892,7 @@ export default function PurchaseOrdersPage({ language }: PurchaseOrdersPageProps
 
             {/* Total */}
             <div className="flex justify-between items-center p-3 rounded-lg bg-gradient-to-l from-teal-50 to-sky-50 dark:from-teal-950/20 dark:to-sky-950/20">
-              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{ar ? "الإجمالي" : "Total Amount"}</span>
+              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{tAuto('auto.totalAmount')}</span>
               <span className="text-lg font-bold text-teal-700 dark:text-teal-300 tabular-nums font-mono">
                 {formatCurrency(parseFloat(formData.amount) || 0, ar)}
               </span>
@@ -901,7 +904,7 @@ export default function PurchaseOrdersPage({ language }: PurchaseOrdersPageProps
               variant="outline"
               onClick={() => { setShowAddDialog(false); setEditOrder(null); setFormData(emptyForm); }}
             >
-              {ar ? "إلغاء" : "Cancel"}
+              {tAuto('auto.cancel')}
             </Button>
             <Button
               className="bg-teal-600 hover:bg-teal-700 text-white"
@@ -909,8 +912,8 @@ export default function PurchaseOrdersPage({ language }: PurchaseOrdersPageProps
               disabled={!formData.number || !formData.supplierId || createMutation.isPending || updateMutation.isPending}
             >
               {(createMutation.isPending || updateMutation.isPending)
-                ? (ar ? "جارٍ الحفظ..." : "Saving...")
-                : (ar ? "حفظ" : "Save")}
+                ? (tAuto('auto.saving'))
+                : (tAuto('auto.save'))}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState, forwardRef, type ComponentPropsWithoutRef } from 'react'
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { TableVirtuoso } from "react-virtuoso";
@@ -170,6 +172,7 @@ const VirtuosoTableComponents = {
 interface InspectionsProps { language: "ar" | "en"; projectId?: string; }
 
 export default function Inspections({ language, projectId: _projectId }: InspectionsProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const queryClient = useQueryClient();
   const toast = useToastFeedback({ ar });
@@ -274,10 +277,10 @@ export default function Inspections({ language, projectId: _projectId }: Inspect
       queryClient.invalidateQueries({ queryKey: ["inspections"] });
       setShowFormDialog(false);
       resetForm();
-      toast[editingId ? "updated" : "created"](ar ? "الفحص" : "Inspection");
+      toast[editingId ? "updated" : "created"](tAuto('auto.inspection'));
     },
     onError: () => {
-      toast.error(ar ? "حفظ الفحص" : "Save inspection");
+      toast.error(tAuto('auto.saveInspection'));
     },
   });
 
@@ -288,10 +291,10 @@ export default function Inspections({ language, projectId: _projectId }: Inspect
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["inspections"] });
-      toast.deleted(ar ? "الفحص" : "Inspection");
+      toast.deleted(tAuto('auto.inspection'));
     },
     onError: () => {
-      toast.error(ar ? "حذف الفحص" : "Delete inspection");
+      toast.error(tAuto('auto.deleteInspection'));
     },
   });
 
@@ -390,9 +393,9 @@ export default function Inspections({ language, projectId: _projectId }: Inspect
             <SearchCheck className="h-4.5 w-4.5 text-teal-600 dark:text-teal-400" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white">{ar ? "فحص المباني" : "Building Inspections"}</h2>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">{tAuto('auto.buildingInspections')}</h2>
             <p className="text-[10px] text-slate-500 dark:text-slate-400">
-              {inspections.length} {ar ? "فحص" : "inspections"}
+              {inspections.length} {tAuto('auto.inspections')}
             </p>
           </div>
         </div>
@@ -400,22 +403,22 @@ export default function Inspections({ language, projectId: _projectId }: Inspect
           <Select value={filterRisk} onValueChange={setFilterRisk}>
             <SelectTrigger className="w-[140px] h-8 text-xs rounded-lg">
               <Filter className="h-3 w-3 me-1 text-slate-400" />
-              <SelectValue placeholder={ar ? "مستوى الخطورة" : "Risk Level"} />
+              <SelectValue placeholder={tAuto('auto.riskLevel')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{ar ? "جميع المستويات" : "All Levels"}</SelectItem>
-              <SelectItem value="green">🟢 {ar ? "آمن" : "Safe"}</SelectItem>
-              <SelectItem value="yellow">🟡 {ar ? "صيانة" : "Maintenance"}</SelectItem>
-              <SelectItem value="orange">🟠 {ar ? "ترميم" : "Repair"}</SelectItem>
-              <SelectItem value="red">🔴 {ar ? "خطر" : "Danger"}</SelectItem>
+              <SelectItem value="all">{tAuto('auto.allLevels')}</SelectItem>
+              <SelectItem value="green">🟢 {tAuto('auto.safe')}</SelectItem>
+              <SelectItem value="yellow">🟡 {tAuto('auto.maintenance')}</SelectItem>
+              <SelectItem value="orange">🟠 {tAuto('auto.repair')}</SelectItem>
+              <SelectItem value="red">🔴 {tAuto('auto.danger')}</SelectItem>
             </SelectContent>
           </Select>
           <Select value={filterType} onValueChange={setFilterType}>
             <SelectTrigger className="w-[140px] h-8 text-xs rounded-lg">
-              <SelectValue placeholder={ar ? "نوع الفحص" : "Inspection Type"} />
+              <SelectValue placeholder={tAuto('auto.inspectionType')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{ar ? "جميع الأنواع" : "All Types"}</SelectItem>
+              <SelectItem value="all">{tAuto('auto.allTypes')}</SelectItem>
               {INSPECTION_TYPES.map((t) => (
                 <SelectItem key={t.value} value={t.value}>{ar ? t.labelAr : t.labelEn}</SelectItem>
               ))}
@@ -426,7 +429,7 @@ export default function Inspections({ language, projectId: _projectId }: Inspect
             className="h-8 bg-teal-600 hover:bg-teal-700 text-white rounded-lg shadow-sm shadow-teal-600/20"
             onClick={() => { resetForm(); setShowFormDialog(true); }}
           >
-            <Plus className="h-3.5 w-3.5 me-1" />{ar ? "فحص جديد" : "New Inspection"}
+            <Plus className="h-3.5 w-3.5 me-1" />{tAuto('auto.newInspection')}
           </Button>
         </div>
       </div>
@@ -440,7 +443,7 @@ export default function Inspections({ language, projectId: _projectId }: Inspect
                 <ClipboardList className="h-5 w-5 text-slate-600 dark:text-slate-400" />
               </div>
               <div>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{ar ? "إجمالي الفحوصات" : "Total Inspections"}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.totalInspections')}</p>
                 <p className="text-xl font-bold text-slate-900 dark:text-white tabular-nums">{stats.total}</p>
               </div>
             </div>
@@ -453,7 +456,7 @@ export default function Inspections({ language, projectId: _projectId }: Inspect
                 <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
               </div>
               <div>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{ar ? "آمنة" : "Safe"}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.safe')}</p>
                 <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">{stats.green}</p>
               </div>
             </div>
@@ -466,7 +469,7 @@ export default function Inspections({ language, projectId: _projectId }: Inspect
                 <Clock className="h-5 w-5 text-amber-600 dark:text-amber-400" />
               </div>
               <div>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{ar ? "تحتاج متابعة" : "Need Follow-up"}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.needFollowUp')}</p>
                 <p className="text-xl font-bold text-amber-600 dark:text-amber-400 tabular-nums">{stats.yellow + stats.orange}</p>
               </div>
             </div>
@@ -479,7 +482,7 @@ export default function Inspections({ language, projectId: _projectId }: Inspect
                 <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400" />
               </div>
               <div>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{ar ? "خطرة" : "Dangerous"}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.dangerous')}</p>
                 <p className="text-xl font-bold text-red-600 dark:text-red-400 tabular-nums">{stats.red}</p>
               </div>
             </div>
@@ -491,7 +494,7 @@ export default function Inspections({ language, projectId: _projectId }: Inspect
       {stats.total > 0 && (
         <div className="rounded-xl border border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900 p-3">
           <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
-            {ar ? "توزيع مستويات الخطورة" : "Risk Level Distribution"}
+            {tAuto('auto.riskLevelDistribution')}
           </span>
           <div className="flex h-2 rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800 mt-2">
             {stats.green > 0 && <div className="bg-emerald-400 transition-all" style={{ width: `${(stats.green / stats.total) * 100}%` }} />}
@@ -511,15 +514,15 @@ export default function Inspections({ language, projectId: _projectId }: Inspect
       {/* Table */}
       <div className="rounded-xl border border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900 overflow-hidden shadow-sm">
         {isLoading ? (
-          <div className="p-8 text-center text-slate-400">{ar ? "جارٍ التحميل..." : "Loading..."}</div>
+          <div className="p-8 text-center text-slate-400">{tAuto('auto.loading')}</div>
         ) : inspections.length === 0 ? (
           <div className="flex flex-col items-center justify-center min-h-[30vh] text-center p-8">
             <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-3">
               <SearchCheck className="h-6 w-6 text-slate-400" />
             </div>
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-1">{ar ? "لا توجد فحوصات" : "No inspections"}</h3>
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-1">{tAuto('auto.noInspections')}</h3>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              {ar ? "أضف فحص جديد للبدء" : "Add a new inspection to get started"}
+              {tAuto('auto.addANewInspectionToGetStarted')}
             </p>
           </div>
         ) : (
@@ -528,14 +531,14 @@ export default function Inspections({ language, projectId: _projectId }: Inspect
             components={VirtuosoTableComponents}
             fixedHeaderContent={() => (
               <TableRow className="hover:bg-transparent bg-slate-50/80 dark:bg-slate-800/50">
-                <TableHead className="text-xs font-semibold">{ar ? "رقم الفحص" : "No."}</TableHead>
-                <TableHead className="text-xs font-semibold">{ar ? "المبنى" : "Building"}</TableHead>
-                <TableHead className="text-xs font-semibold">{ar ? "نوع الفحص" : "Type"}</TableHead>
-                <TableHead className="text-xs font-semibold">{ar ? "تاريخ الفحص" : "Date"}</TableHead>
-                <TableHead className="text-xs font-semibold">{ar ? "مستوى الخطورة" : "Risk"}</TableHead>
-                <TableHead className="text-xs font-semibold">{ar ? "الحالة" : "Status"}</TableHead>
-                <TableHead className="text-xs font-semibold">{ar ? "المخلوقات" : "Findings"}</TableHead>
-                <TableHead className="text-xs font-semibold">{ar ? "التكلفة" : "Cost"}</TableHead>
+                <TableHead className="text-xs font-semibold">{tAuto('auto.no')}</TableHead>
+                <TableHead className="text-xs font-semibold">{tAuto('auto.building')}</TableHead>
+                <TableHead className="text-xs font-semibold">{tAuto('auto.type')}</TableHead>
+                <TableHead className="text-xs font-semibold">{tAuto('auto.date')}</TableHead>
+                <TableHead className="text-xs font-semibold">{tAuto('auto.risk')}</TableHead>
+                <TableHead className="text-xs font-semibold">{tAuto('auto.status1')}</TableHead>
+                <TableHead className="text-xs font-semibold">{tAuto('auto.findings')}</TableHead>
+                <TableHead className="text-xs font-semibold">{tAuto('auto.cost')}</TableHead>
                 <TableHead className="w-10"></TableHead>
               </TableRow>
             )}
@@ -583,16 +586,16 @@ export default function Inspections({ language, projectId: _projectId }: Inspect
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align={ar ? "start" : "end"} className="w-36">
                         <DropdownMenuItem onClick={() => handleView(inspection)}>
-                          <Eye className="h-3.5 w-3.5 me-2" />{ar ? "عرض" : "View"}
+                          <Eye className="h-3.5 w-3.5 me-2" />{tAuto('auto.view')}
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleEdit(inspection)}>
-                          <Edit3 className="h-3.5 w-3.5 me-2" />{ar ? "تعديل" : "Edit"}
+                          <Edit3 className="h-3.5 w-3.5 me-2" />{tAuto('auto.edit')}
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           className="text-red-600 dark:text-red-400 focus:text-red-600"
-                          onClick={() => { if (confirm(ar ? "هل أنت متأكد من الحذف؟" : "Delete this inspection?")) deleteMutation.mutate(inspection.id); }}
+                          onClick={() => { if (confirm(tAuto('auto.deleteThisInspection'))) deleteMutation.mutate(inspection.id); }}
                         >
-                          <Trash2 className="h-3.5 w-3.5 me-2" />{ar ? "حذف" : "Delete"}
+                          <Trash2 className="h-3.5 w-3.5 me-2" />{tAuto('auto.delete')}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -609,10 +612,10 @@ export default function Inspections({ language, projectId: _projectId }: Inspect
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {editingId ? (ar ? "تعديل الفحص" : "Edit Inspection") : (ar ? "فحص جديد" : "New Inspection")}
+              {editingId ? (tAuto('auto.editInspection')) : (tAuto('auto.newInspection'))}
             </DialogTitle>
             <DialogDescription>
-              {editingId ? (ar ? "تعديل بيانات الفحص" : "Update inspection details") : (ar ? "إنشاء فحص مبنى جديد" : "Create a new building inspection")}
+              {editingId ? (tAuto('auto.updateInspectionDetails')) : (tAuto('auto.createANewBuildingInspection'))}
             </DialogDescription>
           </DialogHeader>
 
@@ -621,21 +624,21 @@ export default function Inspections({ language, projectId: _projectId }: Inspect
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <Building2 className="h-4 w-4 text-teal-600 dark:text-teal-400" />
-                <h3 className="text-sm font-semibold text-slate-900 dark:text-white">{ar ? "بيانات المبنى" : "Building Information"}</h3>
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-white">{tAuto('auto.buildingInformation')}</h3>
               </div>
               <div className="grid sm:grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <Label className="text-xs">{ar ? "اسم المبنى" : "Building Name"} *</Label>
-                  <Input value={formData.buildingName} onChange={(e) => setFormData((p) => ({ ...p, buildingName: e.target.value }))} placeholder={ar ? "مثال: فيلا أحمد" : "e.g. Ahmed Villa"} />
+                  <Label className="text-xs">{tAuto('auto.buildingName')} *</Label>
+                  <Input value={formData.buildingName} onChange={(e) => setFormData((p) => ({ ...p, buildingName: e.target.value }))} placeholder={tAuto('auto.eGAhmedVilla')} />
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-xs">{ar ? "عنوان المبنى" : "Building Address"}</Label>
-                  <Input value={formData.buildingAddress} onChange={(e) => setFormData((p) => ({ ...p, buildingAddress: e.target.value }))} placeholder={ar ? "العنوان التفصيلي" : "Full address"} />
+                  <Label className="text-xs">{tAuto('auto.buildingAddress')}</Label>
+                  <Input value={formData.buildingAddress} onChange={(e) => setFormData((p) => ({ ...p, buildingAddress: e.target.value }))} placeholder={tAuto('auto.fullAddress1')} />
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-xs">{ar ? "المشروع (اختياري)" : "Project (optional)"}</Label>
+                  <Label className="text-xs">{tAuto('auto.projectOptional')}</Label>
                   <Select value={formData.projectId} onValueChange={(v) => setFormData((p) => ({ ...p, projectId: v }))}>
-                    <SelectTrigger><SelectValue placeholder={ar ? "اختر مشروع" : "Select project"} /></SelectTrigger>
+                    <SelectTrigger><SelectValue placeholder={tAuto('auto.selectProject')} /></SelectTrigger>
                     <SelectContent>
                       {projects.map((p) => (
                         <SelectItem key={p.id} value={p.id}>{ar ? p.name : p.nameEn || p.name}</SelectItem>
@@ -644,9 +647,9 @@ export default function Inspections({ language, projectId: _projectId }: Inspect
                   </Select>
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-xs">{ar ? "العميل (اختياري)" : "Client (optional)"}</Label>
+                  <Label className="text-xs">{tAuto('auto.clientOptional')}</Label>
                   <Select value={formData.clientId} onValueChange={(v) => setFormData((p) => ({ ...p, clientId: v }))}>
-                    <SelectTrigger><SelectValue placeholder={ar ? "اختر عميل" : "Select client"} /></SelectTrigger>
+                    <SelectTrigger><SelectValue placeholder={tAuto('auto.selectClient')} /></SelectTrigger>
                     <SelectContent>
                       {clients.map((c) => (
                         <SelectItem key={c.id} value={c.id}>{c.name}{c.company ? ` - ${c.company}` : ""}</SelectItem>
@@ -661,13 +664,13 @@ export default function Inspections({ language, projectId: _projectId }: Inspect
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <CalendarDays className="h-4 w-4 text-teal-600 dark:text-teal-400" />
-                <h3 className="text-sm font-semibold text-slate-900 dark:text-white">{ar ? "تفاصيل الفحص" : "Inspection Details"}</h3>
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-white">{tAuto('auto.inspectionDetails')}</h3>
               </div>
               <div className="grid sm:grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <Label className="text-xs">{ar ? "نوع الفحص" : "Inspection Type"} *</Label>
+                  <Label className="text-xs">{tAuto('auto.inspectionType')} *</Label>
                   <Select value={formData.inspectionType} onValueChange={(v) => setFormData((p) => ({ ...p, inspectionType: v }))}>
-                    <SelectTrigger><SelectValue placeholder={ar ? "اختر نوع الفحص" : "Select type"} /></SelectTrigger>
+                    <SelectTrigger><SelectValue placeholder={tAuto('auto.selectType1')} /></SelectTrigger>
                     <SelectContent>
                       {INSPECTION_TYPES.map((t) => (
                         <SelectItem key={t.value} value={t.value}>{ar ? t.labelAr : t.labelEn}</SelectItem>
@@ -676,45 +679,45 @@ export default function Inspections({ language, projectId: _projectId }: Inspect
                   </Select>
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-xs">{ar ? "المفتش" : "Inspector"}</Label>
-                  <Input value={formData.inspectorName} onChange={(e) => setFormData((p) => ({ ...p, inspectorName: e.target.value }))} placeholder={ar ? "اسم المفتش" : "Inspector name"} />
+                  <Label className="text-xs">{tAuto('auto.inspector')}</Label>
+                  <Input value={formData.inspectorName} onChange={(e) => setFormData((p) => ({ ...p, inspectorName: e.target.value }))} placeholder={tAuto('auto.inspectorName')} />
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-xs">{ar ? "تاريخ الفحص" : "Inspection Date"} *</Label>
+                  <Label className="text-xs">{tAuto('auto.inspectionDate')} *</Label>
                   <Input type="date" value={formData.inspectionDate} onChange={(e) => setFormData((p) => ({ ...p, inspectionDate: e.target.value }))} />
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-xs">{ar ? "موعد الفحص القادم" : "Next Inspection"}</Label>
+                  <Label className="text-xs">{tAuto('auto.nextInspection')}</Label>
                   <Input type="date" value={formData.nextInspectionDate} onChange={(e) => setFormData((p) => ({ ...p, nextInspectionDate: e.target.value }))} />
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-xs">{ar ? "مستوى الخطورة" : "Risk Level"}</Label>
+                  <Label className="text-xs">{tAuto('auto.riskLevel')}</Label>
                   <div className="flex items-center gap-2">
                     <Select value={formData.riskLevel} onValueChange={(v) => setFormData((p) => ({ ...p, riskLevel: v }))}>
                       <SelectTrigger className="flex-1">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="green">🟢 {ar ? "آمن" : "Safe"}</SelectItem>
-                        <SelectItem value="yellow">🟡 {ar ? "يحتاج صيانة" : "Maintenance"}</SelectItem>
-                        <SelectItem value="orange">🟠 {ar ? "يحتاج ترميم" : "Repair"}</SelectItem>
-                        <SelectItem value="red">🔴 {ar ? "خطر" : "Dangerous"}</SelectItem>
+                        <SelectItem value="green">🟢 {tAuto('auto.safe')}</SelectItem>
+                        <SelectItem value="yellow">🟡 {tAuto('auto.maintenance')}</SelectItem>
+                        <SelectItem value="orange">🟠 {tAuto('auto.repair')}</SelectItem>
+                        <SelectItem value="red">🔴 {tAuto('auto.dangerous')}</SelectItem>
                       </SelectContent>
                     </Select>
                     <span className="text-[10px] text-slate-400 whitespace-nowrap">
-                      {ar ? "تلقائي:" : "Auto:"} {getRiskConfig(autoRiskLevel).icon} {ar ? getRiskConfig(autoRiskLevel).label : getRiskConfig(autoRiskLevel).labelEn}
+                      {tAuto('auto.auto')} {getRiskConfig(autoRiskLevel).icon} {ar ? getRiskConfig(autoRiskLevel).label : getRiskConfig(autoRiskLevel).labelEn}
                     </span>
                   </div>
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-xs">{ar ? "الحالة" : "Status"}</Label>
+                  <Label className="text-xs">{tAuto('auto.status1')}</Label>
                   <Select value={formData.status} onValueChange={(v) => setFormData((p) => ({ ...p, status: v }))}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="DRAFT">{ar ? "مسودة" : "Draft"}</SelectItem>
-                      <SelectItem value="COMPLETED">{ar ? "مكتمل" : "Completed"}</SelectItem>
-                      <SelectItem value="sent_to_client">{ar ? "أُرسل للعميل" : "Sent to Client"}</SelectItem>
-                      <SelectItem value="followup_needed">{ar ? "يحتاج متابعة" : "Follow-up Needed"}</SelectItem>
+                      <SelectItem value="DRAFT">{tAuto('auto.draft')}</SelectItem>
+                      <SelectItem value="COMPLETED">{tAuto('auto.completed')}</SelectItem>
+                      <SelectItem value="sent_to_client">{tAuto('auto.sentToClient')}</SelectItem>
+                      <SelectItem value="followup_needed">{tAuto('auto.followUpNeeded')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -726,11 +729,11 @@ export default function Inspections({ language, projectId: _projectId }: Inspect
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <AlertCircle className="h-4 w-4 text-teal-600 dark:text-teal-400" />
-                  <h3 className="text-sm font-semibold text-slate-900 dark:text-white">{ar ? "الملاحظات" : "Findings"}</h3>
+                  <h3 className="text-sm font-semibold text-slate-900 dark:text-white">{tAuto('auto.findings')}</h3>
                   <Badge variant="outline" className="text-[10px] px-1.5">{formData.findings.length}</Badge>
                 </div>
                 <Button variant="outline" size="sm" className="h-7 text-xs" onClick={addFinding}>
-                  <Plus className="h-3 w-3 me-1" />{ar ? "إضافة" : "Add"}
+                  <Plus className="h-3 w-3 me-1" />{tAuto('auto.add')}
                 </Button>
               </div>
               <div className="space-y-3">
@@ -738,7 +741,7 @@ export default function Inspections({ language, projectId: _projectId }: Inspect
                   <div key={idx} className="rounded-lg border border-slate-200 dark:border-slate-700 p-3 space-y-3 bg-slate-50/50 dark:bg-slate-800/50">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-medium text-slate-600 dark:text-slate-400">
-                        {ar ? "ملاحظة" : "Finding"} #{idx + 1}
+                        {tAuto('auto.finding')} #{idx + 1}
                       </span>
                       {formData.findings.length > 1 && (
                         <button onClick={() => removeFinding(idx)} className="text-red-400 hover:text-red-600 transition-colors">
@@ -748,15 +751,15 @@ export default function Inspections({ language, projectId: _projectId }: Inspect
                     </div>
                     <div className="grid sm:grid-cols-2 gap-3">
                       <div className="space-y-1.5">
-                        <Label className="text-xs">{ar ? "الموقع" : "Location"}</Label>
-                        <Input value={finding.location} onChange={(e) => updateFinding(idx, "location", e.target.value)} placeholder={ar ? "مثال: الطابق الثاني - الحمام" : "e.g. 2nd Floor - Bathroom"} className="text-sm h-8" />
+                        <Label className="text-xs">{tAuto('auto.location')}</Label>
+                        <Input value={finding.location} onChange={(e) => updateFinding(idx, "location", e.target.value)} placeholder={tAuto('auto.eG2ndFloorBathroom')} className="text-sm h-8" />
                       </div>
                       <div className="space-y-1.5">
-                        <Label className="text-xs">{ar ? "الوصف" : "Description"}</Label>
-                        <Input value={finding.description} onChange={(e) => updateFinding(idx, "description", e.target.value)} placeholder={ar ? "وصف المشكلة" : "Problem description"} className="text-sm h-8" />
+                        <Label className="text-xs">{tAuto('auto.description')}</Label>
+                        <Input value={finding.description} onChange={(e) => updateFinding(idx, "description", e.target.value)} placeholder={tAuto('auto.problemDescription')} className="text-sm h-8" />
                       </div>
                       <div className="space-y-1.5">
-                        <Label className="text-xs">{ar ? "الخطورة" : "Severity"}</Label>
+                        <Label className="text-xs">{tAuto('auto.severity')}</Label>
                         <Select value={finding.severity} onValueChange={(v) => updateFinding(idx, "severity", v)}>
                           <SelectTrigger className="text-sm h-8"><SelectValue /></SelectTrigger>
                           <SelectContent>
@@ -767,7 +770,7 @@ export default function Inspections({ language, projectId: _projectId }: Inspect
                         </Select>
                       </div>
                       <div className="space-y-1.5">
-                        <Label className="text-xs">{ar ? "الفئة" : "Category"}</Label>
+                        <Label className="text-xs">{tAuto('auto.category')}</Label>
                         <Select value={finding.category} onValueChange={(v) => updateFinding(idx, "category", v)}>
                           <SelectTrigger className="text-sm h-8"><SelectValue /></SelectTrigger>
                           <SelectContent>
@@ -778,11 +781,11 @@ export default function Inspections({ language, projectId: _projectId }: Inspect
                         </Select>
                       </div>
                       <div className="space-y-1.5">
-                        <Label className="text-xs">{ar ? "التكلفة المقدرة (AED)" : "Est. Cost (AED)"}</Label>
+                        <Label className="text-xs">{tAuto('auto.estCostAED')}</Label>
                         <Input type="number" value={finding.estimatedCost || ""} onChange={(e) => updateFinding(idx, "estimatedCost", parseFloat(e.target.value) || 0)} placeholder="0" className="text-sm h-8" />
                       </div>
                       <div className="space-y-1.5">
-                        <Label className="text-xs">{ar ? "الحالة" : "Status"}</Label>
+                        <Label className="text-xs">{tAuto('auto.status1')}</Label>
                         <Select value={finding.status} onValueChange={(v) => updateFinding(idx, "status", v)}>
                           <SelectTrigger className="text-sm h-8"><SelectValue /></SelectTrigger>
                           <SelectContent>
@@ -794,8 +797,8 @@ export default function Inspections({ language, projectId: _projectId }: Inspect
                       </div>
                     </div>
                     <div className="space-y-1.5">
-                      <Label className="text-xs">{ar ? "الإصلاح المقترح" : "Remediation"}</Label>
-                      <Textarea value={finding.remediation} onChange={(e) => updateFinding(idx, "remediation", e.target.value)} placeholder={ar ? "وصف طريقة الإصلاح" : "Describe remediation approach"} rows={2} className="text-sm" />
+                      <Label className="text-xs">{tAuto('auto.remediation')}</Label>
+                      <Textarea value={finding.remediation} onChange={(e) => updateFinding(idx, "remediation", e.target.value)} placeholder={tAuto('auto.describeRemediationApproach')} rows={2} className="text-sm" />
                     </div>
                   </div>
                 ))}
@@ -805,23 +808,23 @@ export default function Inspections({ language, projectId: _projectId }: Inspect
             {/* Summary & Recommendations */}
             <div className="grid sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label className="text-xs">{ar ? "ملخص الفحص" : "Summary"}</Label>
-                <Textarea value={formData.summary} onChange={(e) => setFormData((p) => ({ ...p, summary: e.target.value }))} placeholder={ar ? "ملخص عام عن حالة المبنى" : "General summary of building condition"} rows={3} className="text-sm" />
+                <Label className="text-xs">{tAuto('auto.summary')}</Label>
+                <Textarea value={formData.summary} onChange={(e) => setFormData((p) => ({ ...p, summary: e.target.value }))} placeholder={tAuto('auto.generalSummaryOfBuildingCondition')} rows={3} className="text-sm" />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs">{ar ? "التوصيات" : "Recommendations"}</Label>
-                <Textarea value={formData.recommendations} onChange={(e) => setFormData((p) => ({ ...p, recommendations: e.target.value }))} placeholder={ar ? "توصيات الإصلاح والصيانة" : "Repair and maintenance recommendations"} rows={3} className="text-sm" />
+                <Label className="text-xs">{tAuto('auto.recommendations')}</Label>
+                <Textarea value={formData.recommendations} onChange={(e) => setFormData((p) => ({ ...p, recommendations: e.target.value }))} placeholder={tAuto('auto.repairAndMaintenanceRecommendations')} rows={3} className="text-sm" />
               </div>
             </div>
 
             {/* Auto-calculated totals */}
             <div className="rounded-lg bg-slate-100 dark:bg-slate-800 p-3">
               <div className="flex items-center justify-between text-xs">
-                <span className="text-slate-500">{ar ? "المستوى التلقائي" : "Auto Risk Level"}</span>
+                <span className="text-slate-500">{tAuto('auto.autoRiskLevel')}</span>
                 <span className="font-medium">{getRiskConfig(autoRiskLevel).icon} {ar ? getRiskConfig(autoRiskLevel).label : getRiskConfig(autoRiskLevel).labelEn}</span>
               </div>
               <div className="flex items-center justify-between text-xs mt-1">
-                <span className="text-slate-500">{ar ? "إجمالي التكلفة المقدرة" : "Total Est. Cost"}</span>
+                <span className="text-slate-500">{tAuto('auto.totalEstCost')}</span>
                 <span className="font-medium tabular-nums">{autoRepairEstimate.toLocaleString()} AED</span>
               </div>
             </div>
@@ -829,14 +832,14 @@ export default function Inspections({ language, projectId: _projectId }: Inspect
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => { resetForm(); setShowFormDialog(false); }}>
-              {ar ? "إلغاء" : "Cancel"}
+              {tAuto('auto.cancel')}
             </Button>
             <Button
               className="bg-teal-600 hover:bg-teal-700 text-white"
               disabled={saveMutation.isPending || !formData.buildingName || !formData.inspectionType || !formData.inspectionDate}
               onClick={handleSubmit}
             >
-              {saveMutation.isPending ? (ar ? "جارٍ الحفظ..." : "Saving...") : (editingId ? (ar ? "تحديث" : "Update") : (ar ? "إنشاء" : "Create"))}
+              {saveMutation.isPending ? (tAuto('auto.saving')) : (editingId ? (tAuto('auto.update')) : (tAuto('auto.create')))}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -849,7 +852,7 @@ export default function Inspections({ language, projectId: _projectId }: Inspect
             <>
               <DialogHeader>
                 <div className="flex items-center gap-3">
-                  <DialogTitle>{ar ? "تفاصيل الفحص" : "Inspection Details"}</DialogTitle>
+                  <DialogTitle>{tAuto('auto.inspectionDetails')}</DialogTitle>
                   <span className="text-sm font-mono text-slate-400">{viewingInspection.inspectionNumber}</span>
                 </div>
               </DialogHeader>
@@ -862,12 +865,12 @@ export default function Inspections({ language, projectId: _projectId }: Inspect
                     {viewingInspection.buildingAddress && <p className="text-xs text-slate-500 mt-1">{viewingInspection.buildingAddress}</p>}
                     {viewingInspection.project && (
                       <p className="text-xs text-teal-600 dark:text-teal-400 mt-1">
-                        {ar ? "مشروع: " : "Project: "}{ar ? viewingInspection.project.name : viewingInspection.project.nameEn || viewingInspection.project.name}
+                        {tAuto('auto.project1')}{ar ? viewingInspection.project.name : viewingInspection.project.nameEn || viewingInspection.project.name}
                       </p>
                     )}
                     {viewingInspection.client && (
                       <p className="text-xs text-slate-500 mt-0.5">
-                        {ar ? "العميل: " : "Client: "}{viewingInspection.client.name}
+                        {tAuto('auto.client1')}{viewingInspection.client.name}
                       </p>
                     )}
                   </div>
@@ -885,21 +888,21 @@ export default function Inspections({ language, projectId: _projectId }: Inspect
                 {/* Details Grid */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 rounded-lg bg-slate-50 dark:bg-slate-800/50 p-3">
                   <div>
-                    <p className="text-[10px] text-slate-400 uppercase">{ar ? "تاريخ الفحص" : "Inspection Date"}</p>
+                    <p className="text-[10px] text-slate-400 uppercase">{tAuto('auto.inspectionDate')}</p>
                     <p className="text-xs font-medium text-slate-900 dark:text-white mt-0.5">{new Date(viewingInspection.inspectionDate).toLocaleDateString(ar ? "ar-AE" : "en-US")}</p>
                   </div>
                   {viewingInspection.nextInspectionDate && (
                     <div>
-                      <p className="text-[10px] text-slate-400 uppercase">{ar ? "الفحص القادم" : "Next Inspection"}</p>
+                      <p className="text-[10px] text-slate-400 uppercase">{tAuto('auto.nextInspection')}</p>
                       <p className="text-xs font-medium text-slate-900 dark:text-white mt-0.5">{new Date(viewingInspection.nextInspectionDate).toLocaleDateString(ar ? "ar-AE" : "en-US")}</p>
                     </div>
                   )}
                   <div>
-                    <p className="text-[10px] text-slate-400 uppercase">{ar ? "المفتش" : "Inspector"}</p>
+                    <p className="text-[10px] text-slate-400 uppercase">{tAuto('auto.inspector')}</p>
                     <p className="text-xs font-medium text-slate-900 dark:text-white mt-0.5">{viewingInspection.inspectorName || "-"}</p>
                   </div>
                   <div>
-                    <p className="text-[10px] text-slate-400 uppercase">{ar ? "تكلفة الإصلاح" : "Repair Cost"}</p>
+                    <p className="text-[10px] text-slate-400 uppercase">{tAuto('auto.repairCost')}</p>
                     <p className="text-xs font-medium text-slate-900 dark:text-white mt-0.5">{viewingInspection.repairEstimate > 0 ? `${viewingInspection.repairEstimate.toLocaleString()} AED` : "-"}</p>
                   </div>
                 </div>
@@ -907,7 +910,7 @@ export default function Inspections({ language, projectId: _projectId }: Inspect
                 {/* Summary */}
                 {viewingInspection.summary && (
                   <div>
-                    <h4 className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">{ar ? "الملخص" : "Summary"}</h4>
+                    <h4 className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">{tAuto('auto.summary')}</h4>
                     <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{viewingInspection.summary}</p>
                   </div>
                 )}
@@ -916,7 +919,7 @@ export default function Inspections({ language, projectId: _projectId }: Inspect
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <h4 className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                      {ar ? "الملاحظات" : "Findings"} ({viewingInspection.findings?.length || 0})
+                      {tAuto('auto.findings')} ({viewingInspection.findings?.length || 0})
                     </h4>
                   </div>
                   {viewingInspection.findings && viewingInspection.findings.length > 0 ? (
@@ -954,11 +957,11 @@ export default function Inspections({ language, projectId: _projectId }: Inspect
                             {isExpanded && (
                               <div className="px-3 pb-3 pt-1 border-t border-slate-100 dark:border-slate-700/50 space-y-2 bg-slate-50/50 dark:bg-slate-800/30">
                                 <div className="grid grid-cols-2 gap-2 text-xs">
-                                  <div><span className="text-slate-400">{ar ? "الموقع:" : "Location:"}</span> <span className="text-slate-700 dark:text-slate-300">{finding.location || "-"}</span></div>
-                                  <div><span className="text-slate-400">{ar ? "الفئة:" : "Category:"}</span> <span className="text-slate-700 dark:text-slate-300">{catLabel ? (ar ? catLabel.labelAr : catLabel.labelEn) : finding.category}</span></div>
-                                  <div><span className="text-slate-400">{ar ? "الحالة:" : "Status:"}</span> <span className="text-slate-700 dark:text-slate-300">{fStatusLabel ? (ar ? fStatusLabel.labelAr : fStatusLabel.labelEn) : finding.status}</span></div>
+                                  <div><span className="text-slate-400">{tAuto('auto.location1')}</span> <span className="text-slate-700 dark:text-slate-300">{finding.location || "-"}</span></div>
+                                  <div><span className="text-slate-400">{tAuto('auto.category1')}</span> <span className="text-slate-700 dark:text-slate-300">{catLabel ? (ar ? catLabel.labelAr : catLabel.labelEn) : finding.category}</span></div>
+                                  <div><span className="text-slate-400">{tAuto('auto.status')}</span> <span className="text-slate-700 dark:text-slate-300">{fStatusLabel ? (ar ? fStatusLabel.labelAr : fStatusLabel.labelEn) : finding.status}</span></div>
                                   {finding.estimatedCost > 0 && (
-                                    <div><span className="text-slate-400">{ar ? "التكلفة:" : "Cost:"}</span> <span className="text-slate-700 dark:text-slate-300 tabular-nums">{finding.estimatedCost.toLocaleString()} AED</span></div>
+                                    <div><span className="text-slate-400">{tAuto('auto.cost1')}</span> <span className="text-slate-700 dark:text-slate-300 tabular-nums">{finding.estimatedCost.toLocaleString()} AED</span></div>
                                   )}
                                 </div>
                                 {finding.description && (
@@ -966,7 +969,7 @@ export default function Inspections({ language, projectId: _projectId }: Inspect
                                 )}
                                 {finding.remediation && (
                                   <div className="rounded bg-teal-50 dark:bg-teal-900/20 p-2">
-                                    <p className="text-[10px] font-medium text-teal-700 dark:text-teal-400 mb-0.5">{ar ? "الإصلاح المقترح" : "Remediation"}</p>
+                                    <p className="text-[10px] font-medium text-teal-700 dark:text-teal-400 mb-0.5">{tAuto('auto.remediation')}</p>
                                     <p className="text-xs text-teal-600 dark:text-teal-300">{finding.remediation}</p>
                                   </div>
                                 )}
@@ -977,14 +980,14 @@ export default function Inspections({ language, projectId: _projectId }: Inspect
                       })}
                     </div>
                   ) : (
-                    <p className="text-xs text-slate-400 text-center py-4">{ar ? "لا توجد ملاحظات مسجلة" : "No findings recorded"}</p>
+                    <p className="text-xs text-slate-400 text-center py-4">{tAuto('auto.noFindingsRecorded')}</p>
                   )}
                 </div>
 
                 {/* Recommendations */}
                 {viewingInspection.recommendations && (
                   <div>
-                    <h4 className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">{ar ? "التوصيات" : "Recommendations"}</h4>
+                    <h4 className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">{tAuto('auto.recommendations')}</h4>
                     <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{viewingInspection.recommendations}</p>
                   </div>
                 )}

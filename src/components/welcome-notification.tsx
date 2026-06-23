@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useEffect, useRef } from "react";
 import { useLang } from "@/hooks/use-lang";
 import { useToast } from "@/hooks/use-toast";
@@ -7,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 const WELCOME_SHOWN_KEY = "blueprint-welcome-shown";
 
 export default function WelcomeNotification() {
+  const tAuto = useTranslations();
   const lang = useLang();
   const isAr = lang === "ar";
   const { toast } = useToast();
@@ -25,10 +28,8 @@ export default function WelcomeNotification() {
       sessionStorage.setItem(WELCOME_SHOWN_KEY, "true");
 
       toast({
-        title: isAr ? "مرحباً بك في BluePrint! 🎉" : "Welcome to BluePrint! 🎉",
-        description: isAr
-          ? "اختر دوراً سريعاً أو أدخل بياناتك"
-          : "Choose a quick role or enter your credentials",
+        title: tAuto('auto.welcomeToBluePrint2'),
+        description: tAuto('auto.chooseAQuickRoleOrEnterYourCredentials'),
         duration: 5000,
       });
     }, 800);

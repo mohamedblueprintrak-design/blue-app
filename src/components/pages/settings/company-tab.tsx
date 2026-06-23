@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
@@ -47,6 +49,7 @@ export function CompanyTab({
   toggleWorkingDay,
   handleSave,
 }: CompanyTabProps) {
+  const tAuto = useTranslations();
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -55,32 +58,32 @@ export function CompanyTab({
       <CardContent className="p-6">
         <SectionHeader
           icon={Building2}
-          title={isAr ? "معلومات الشركة" : "Company Information"}
-          subtitle={isAr ? "تحديث بيانات الشركة الأساسية والشعار" : "Update core company information and logo"}
+          title={tAuto('auto.companyInformation')}
+          subtitle={tAuto('auto.updateCoreCompanyInformationAndLogo')}
         />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div className="space-y-1.5">
             <Label className="text-xs font-medium text-slate-700 dark:text-slate-300">
-              {isAr ? "اسم الشركة (عربي)" : "Company Name (Arabic)"}
+              {tAuto('auto.companyNameArabic')}
             </Label>
             <Input
               value={(formData.name as string) || settings?.name || ""}
               onChange={(e) => updateField("name", e.target.value)}
               dir="rtl"
-              placeholder={isAr ? "مكتب الاستشارات الهندسية" : "Engineering Consultancy"}
+              placeholder={tAuto('auto.engineeringConsultancy')}
               className="h-10 rounded-lg"
             />
           </div>
           <div className="space-y-1.5">
             <Label className="text-xs font-medium text-slate-700 dark:text-slate-300">
-              {isAr ? "اسم الشركة (إنجليزي)" : "Company Name (English)"}
+              {tAuto('auto.companyNameEnglish')}
             </Label>
             <Input
               value={(formData.nameEn as string) || settings?.nameEn || ""}
               onChange={(e) => updateField("nameEn", e.target.value)}
               dir="ltr"
-              placeholder={isAr ? "مكتب الاستشارات الهندسية" : "Engineering Consultancy Office"}
+              placeholder={tAuto('auto.engineeringConsultancyOffice')}
               className="h-10 rounded-lg"
             />
           </div>
@@ -89,7 +92,7 @@ export function CompanyTab({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-5">
           <div className="space-y-1.5">
             <Label className="text-xs font-medium text-slate-700 dark:text-slate-300">
-              {isAr ? "البريد الإلكتروني" : "Email"}
+              {tAuto('auto.email')}
             </Label>
             <Input
               type="email"
@@ -102,7 +105,7 @@ export function CompanyTab({
           </div>
           <div className="space-y-1.5">
             <Label className="text-xs font-medium text-slate-700 dark:text-slate-300">
-              {isAr ? "رقم الهاتف" : "Phone"}
+              {tAuto('auto.phone')}
             </Label>
             <Input
               value={(formData.phone as string) || settings?.phone || ""}
@@ -116,12 +119,12 @@ export function CompanyTab({
 
         <div className="mt-5 space-y-1.5">
           <Label className="text-xs font-medium text-slate-700 dark:text-slate-300">
-            {isAr ? "العنوان" : "Address"}
+            {tAuto('auto.address')}
           </Label>
           <Input
             value={(formData.address as string) || settings?.address || ""}
             onChange={(e) => updateField("address", e.target.value)}
-            placeholder={isAr ? "العنوان الكامل" : "Full address"}
+            placeholder={tAuto('auto.fullAddress1')}
             className="h-10 rounded-lg"
           />
         </div>
@@ -129,18 +132,18 @@ export function CompanyTab({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-5">
           <div className="space-y-1.5">
             <Label className="text-xs font-medium text-slate-700 dark:text-slate-300">
-              {isAr ? "الرقم الضريبي" : "Tax Number"}
+              {tAuto('auto.taxNumber')}
             </Label>
             <Input
               value={(formData.taxNumber as string) || settings?.taxNumber || ""}
               onChange={(e) => updateField("taxNumber", e.target.value)}
-              placeholder={isAr ? "الرقم الضريبي" : "Tax Registration Number"}
+              placeholder={tAuto('auto.taxRegistrationNumber')}
               className="h-10 rounded-lg"
             />
           </div>
           <div className="space-y-1.5">
             <Label className="text-xs font-medium text-slate-700 dark:text-slate-300">
-              {isAr ? "العملة" : "Currency"}
+              {tAuto('auto.currency')}
             </Label>
             <Input
               value={(formData.currency as string) || settings?.currency || "AED"}
@@ -155,7 +158,7 @@ export function CompanyTab({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-5">
           <div className="space-y-1.5">
             <Label className="text-xs font-medium text-slate-700 dark:text-slate-300">
-              {isAr ? "المنطقة الزمنية" : "Timezone"}
+              {tAuto('auto.timezone')}
             </Label>
             <div className="relative">
               <Globe className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -169,7 +172,7 @@ export function CompanyTab({
           </div>
           <div className="space-y-1.5">
             <Label className="text-xs font-medium text-slate-700 dark:text-slate-300">
-              {isAr ? "ساعات العمل" : "Working Hours"}
+              {tAuto('auto.workingHours')}
             </Label>
             <div className="relative">
               <Clock className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -189,7 +192,7 @@ export function CompanyTab({
         {/* Logo Upload Area */}
         <div className="space-y-2">
           <Label className="text-xs font-medium text-slate-700 dark:text-slate-300">
-            {isAr ? "شعار الشركة" : "Company Logo"}
+            {tAuto('auto.companyLogo')}
           </Label>
           <input
             ref={fileInputRef}
@@ -200,7 +203,7 @@ export function CompanyTab({
               const file = e.target.files?.[0];
               if (!file) return;
               if (file.size > 2 * 1024 * 1024) {
-                alert(isAr ? "حجم الملف يتجاوز 2MB" : "File size exceeds 2MB");
+                alert(tAuto('auto.fileSizeExceeds2MB'));
                 return;
               }
               try {
@@ -243,17 +246,17 @@ export function CompanyTab({
             {logoUploading ? (
               <div className="flex flex-col items-center gap-2">
                 <span className="h-8 w-8 border-2 border-teal-300 border-t-teal-600 rounded-full animate-spin" />
-                <p className="text-sm text-slate-500">{isAr ? "جاري الرفع..." : "Uploading..."}</p>
+                <p className="text-sm text-slate-500">{tAuto('auto.uploading')}</p>
               </div>
             ) : logoPreview || settings?.logo ? (
               <div className="flex flex-col items-center gap-2">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={logoPreview || settings?.logo}
-                  alt={isAr ? "شعار الشركة" : "Company Logo"}
+                  alt={tAuto('auto.companyLogo')}
                   className="w-24 h-24 object-contain rounded-xl"
                 />
-                <p className="text-xs text-slate-500">{isAr ? "انقر لتغيير الشعار" : "Click to change logo"}</p>
+                <p className="text-xs text-slate-500">{tAuto('auto.clickToChangeLogo')}</p>
               </div>
             ) : (
               <>
@@ -262,10 +265,10 @@ export function CompanyTab({
                 </div>
                 <div className="text-center">
                   <p className="text-sm font-medium text-slate-600 dark:text-slate-300">
-                    {isAr ? "اسحب الشعار هنا أو انقر للرفع" : "Drag logo here or click to upload"}
+                    {tAuto('auto.dragLogoHereOrClickToUpload')}
                   </p>
                   <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
-                    PNG, JPG, SVG — {isAr ? "الحد الأقصى 2MB" : "Max 2MB"}
+                    PNG, JPG, SVG — {tAuto('auto.max2MB')}
                   </p>
                 </div>
               </>
@@ -278,7 +281,7 @@ export function CompanyTab({
         {/* Working Days */}
         <div className="space-y-3">
           <Label className="text-xs font-medium text-slate-700 dark:text-slate-300">
-            {isAr ? "أيام العمل" : "Working Days"}
+            {tAuto('auto.workingDays')}
           </Label>
           <div className="flex flex-wrap gap-2">
             {WORKING_DAYS.map((day) => {
@@ -313,17 +316,17 @@ export function CompanyTab({
             {saving ? (
               <span className="flex items-center gap-2">
                 <span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                {isAr ? "جاري الحفظ..." : "Saving..."}
+                {tAuto('auto.saving')}
               </span>
             ) : saved ? (
               <span className="flex items-center gap-2">
                 <Check className="h-4 w-4" />
-                {isAr ? "تم الحفظ!" : "Saved!"}
+                {tAuto('auto.saved1')}
               </span>
             ) : (
               <span className="flex items-center gap-2">
                 <Save className="h-4 w-4" />
-                {isAr ? "حفظ التغييرات" : "Save Changes"}
+                {tAuto('auto.saveChanges')}
               </span>
             )}
           </Button>

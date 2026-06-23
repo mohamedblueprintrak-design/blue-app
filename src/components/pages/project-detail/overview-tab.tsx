@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -38,6 +40,7 @@ import type { ProjectData } from "./types";
 
 // ===== OVERVIEW TAB CONTENT =====
 export default function OverviewTab({ project, language }: { project: ProjectData; language: "ar" | "en" }) {
+  const tAuto = useTranslations();
   const isAr = language === "ar";
   const t = (ar: string, en: string) => (isAr ? ar : en);
 
@@ -73,7 +76,7 @@ export default function OverviewTab({ project, language }: { project: ProjectDat
                 </div>
                 <div className="flex items-center gap-1.5 bg-white/15 backdrop-blur-sm rounded-full px-3 py-1.5 text-xs">
                   <Wallet className="h-3 w-3" />
-                  <span className="text-mono font-semibold">{project.budget.toLocaleString()} {isAr ? "د.إ" : "AED"}</span>
+                  <span className="text-mono font-semibold">{project.budget.toLocaleString()} {tAuto('auto.aED')}</span>
                 </div>
               </div>
 

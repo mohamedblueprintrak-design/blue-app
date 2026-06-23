@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { Plus, X, DollarSign, Coins } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -97,27 +99,28 @@ export function InvoiceFormDialog({
   calcTotal,
   isSaving,
 }: InvoiceFormDialogProps) {
+  const tAuto = useTranslations();
   return (
     <Dialog open={open} onOpenChange={(isOpen) => { if (!isOpen) onClose(); }}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{editInvoice ? (ar ? "تعديل فاتورة" : "Edit Invoice") : (ar ? "فاتورة جديدة" : "New Invoice")}</DialogTitle>
-          <DialogDescription>{editInvoice ? (ar ? "تعديل بيانات الفاتورة" : "Update invoice details") : (ar ? "إنشاء فاتورة جديدة" : "Create a new invoice")}</DialogDescription>
+          <DialogTitle>{editInvoice ? (tAuto('auto.editInvoice')) : (tAuto('auto.newInvoice'))}</DialogTitle>
+          <DialogDescription>{editInvoice ? (tAuto('auto.updateInvoiceDetails')) : (tAuto('auto.createANewInvoice'))}</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={onSubmit} className="space-y-4">
           {/* Top row */}
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
             <div className="space-y-1">
-              <Label className="text-xs">{ar ? "رقم الفاتورة" : "Invoice No."} *</Label>
+              <Label className="text-xs">{tAuto('auto.invoiceNo')} *</Label>
               <Input {...register("number")} placeholder="INV-001" className="h-8 text-sm rounded-lg" />
               {errors.number && <p className="text-red-500 text-xs mt-1">{getErrorMessage(errors.number.message || "", ar)}</p>}
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">{ar ? "العميل" : "Client"} *</Label>
+              <Label className="text-xs">{tAuto('auto.client')} *</Label>
               { }
               <Select value={watch("clientId")} onValueChange={(v) => { setValue("clientId", v); setFormData({ ...formData, clientId: v }); }}>
-                <SelectTrigger className="h-8 text-sm rounded-lg"><SelectValue placeholder={ar ? "اختر عميل" : "Select client"} /></SelectTrigger>
+                <SelectTrigger className="h-8 text-sm rounded-lg"><SelectValue placeholder={tAuto('auto.selectClient')} /></SelectTrigger>
                 <SelectContent>
                   {clients.map((c) => (<SelectItem key={c.id} value={c.id}>{c.name}{c.company ? ` (${c.company})` : ""}</SelectItem>))}
                 </SelectContent>
@@ -125,9 +128,9 @@ export function InvoiceFormDialog({
               {errors.clientId && <p className="text-red-500 text-xs mt-1">{getErrorMessage(errors.clientId.message || "", ar)}</p>}
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">{ar ? "المشروع" : "Project"} *</Label>
+              <Label className="text-xs">{tAuto('auto.project')} *</Label>
               <Select value={watch("projectId")} onValueChange={(v) => { setValue("projectId", v); setFormData({ ...formData, projectId: v }); }}>
-                <SelectTrigger className="h-8 text-sm rounded-lg"><SelectValue placeholder={ar ? "اختر مشروع" : "Select project"} /></SelectTrigger>
+                <SelectTrigger className="h-8 text-sm rounded-lg"><SelectValue placeholder={tAuto('auto.selectProject')} /></SelectTrigger>
                 <SelectContent>
                   {projects.map((p) => (<SelectItem key={p.id} value={p.id}>{ar ? p.name : p.nameEn || p.name}</SelectItem>))}
                 </SelectContent>
@@ -135,7 +138,7 @@ export function InvoiceFormDialog({
               {errors.projectId && <p className="text-red-500 text-xs mt-1">{getErrorMessage(errors.projectId.message || "", ar)}</p>}
             </div>
             <div className="space-y-1">
-              <Label className="text-xs flex items-center gap-1"><Coins className="h-3 w-3" />{ar ? "العملة" : "Currency"}</Label>
+              <Label className="text-xs flex items-center gap-1"><Coins className="h-3 w-3" />{tAuto('auto.currency')}</Label>
               <Select value={formData.currency || "AED"} onValueChange={(v) => setFormData({ ...formData, currency: v })}>
                 <SelectTrigger className="h-8 text-sm rounded-lg"><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -146,15 +149,15 @@ export function InvoiceFormDialog({
               </Select>
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">{ar ? "الحالة" : "Status"}</Label>
+              <Label className="text-xs">{tAuto('auto.status1')}</Label>
               <Select value={watch("status")} onValueChange={(v) => { setValue("status", v as InvoiceFormData["status"]); setFormData({ ...formData, status: v }); }}>
                 <SelectTrigger className="h-8 text-sm rounded-lg"><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="DRAFT">{ar ? "مسودة" : "Draft"}</SelectItem>
-                  <SelectItem value="SENT">{ar ? "مرسلة" : "Sent"}</SelectItem>
-                  <SelectItem value="PARTIALLY_PAID">{ar ? "جزئية" : "Partially Paid"}</SelectItem>
-                  <SelectItem value="PAID">{ar ? "مدفوعة" : "Paid"}</SelectItem>
-                  <SelectItem value="CANCELLED">{ar ? "ملغاة" : "Cancelled"}</SelectItem>
+                  <SelectItem value="DRAFT">{tAuto('auto.draft')}</SelectItem>
+                  <SelectItem value="SENT">{tAuto('auto.sent')}</SelectItem>
+                  <SelectItem value="PARTIALLY_PAID">{tAuto('auto.partiallyPaid')}</SelectItem>
+                  <SelectItem value="PAID">{tAuto('auto.paid')}</SelectItem>
+                  <SelectItem value="CANCELLED">{tAuto('auto.cancelled')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -163,12 +166,12 @@ export function InvoiceFormDialog({
           {/* Dates - two columns */}
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
-              <Label className="text-xs">{ar ? "تاريخ الإصدار" : "Issue Date"} *</Label>
+              <Label className="text-xs">{tAuto('auto.issueDate')} *</Label>
               <Input type="date" {...register("issueDate")} className="h-8 text-sm rounded-lg" />
               {errors.issueDate && <p className="text-red-500 text-xs mt-1">{getErrorMessage(errors.issueDate.message || "", ar)}</p>}
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">{ar ? "تاريخ الاستحقاق" : "Due Date"} *</Label>
+              <Label className="text-xs">{tAuto('auto.dueDate')} *</Label>
               <Input type="date" {...register("dueDate")} className="h-8 text-sm rounded-lg" />
               {errors.dueDate && <p className="text-red-500 text-xs mt-1">{getErrorMessage(errors.dueDate.message || "", ar)}</p>}
             </div>
@@ -177,17 +180,17 @@ export function InvoiceFormDialog({
           {/* Line Items */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <Label className="text-sm font-semibold">{ar ? "بنود الفاتورة" : "Line Items"}</Label>
-              <Button variant="outline" size="sm" className="h-7 text-xs rounded-lg" onClick={addLineItem}><Plus className="h-3 w-3 me-1" />{ar ? "إضافة بند" : "Add Item"}</Button>
+              <Label className="text-sm font-semibold">{tAuto('auto.lineItems')}</Label>
+              <Button variant="outline" size="sm" className="h-7 text-xs rounded-lg" onClick={addLineItem}><Plus className="h-3 w-3 me-1" />{tAuto('auto.addItem1')}</Button>
             </div>
             <div className="rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
               <Table>
                 <TableHeader>
                   <TableRow className="hover:bg-transparent bg-slate-50 dark:bg-slate-800/50">
-                    <TableHead className="text-xs">{ar ? "الوصف" : "Description"}</TableHead>
-                    <TableHead className="text-xs w-24">{ar ? "الكمية" : "Qty"}</TableHead>
-                    <TableHead className="text-xs w-28">{ar ? "سعر الوحدة" : "Unit Price"}</TableHead>
-                    <TableHead className="text-xs w-28 text-start">{ar ? "الإجمالي" : "Total"}</TableHead>
+                    <TableHead className="text-xs">{tAuto('auto.description')}</TableHead>
+                    <TableHead className="text-xs w-24">{tAuto('auto.qty')}</TableHead>
+                    <TableHead className="text-xs w-28">{tAuto('auto.unitPrice')}</TableHead>
+                    <TableHead className="text-xs w-28 text-start">{tAuto('auto.total')}</TableHead>
                     <TableHead className="w-10"></TableHead>
                   </TableRow>
                 </TableHeader>
@@ -209,7 +212,7 @@ export function InvoiceFormDialog({
                           )}>
                             {idx + 1}
                           </span>
-                          <Input value={item.description} onChange={(e) => updateLineItem(idx, "description", e.target.value)} placeholder={ar ? "وصف البند" : "Item description"} className="h-8 text-xs rounded-lg" />
+                          <Input value={item.description} onChange={(e) => updateLineItem(idx, "description", e.target.value)} placeholder={tAuto('auto.itemDescription')} className="h-8 text-xs rounded-lg" />
                         </div>
                       </TableCell>
                       <TableCell><Input type="number" value={item.quantity} onChange={(e) => updateLineItem(idx, "quantity", parseFloat(e.target.value) || 0)} className="h-8 text-xs tabular-nums font-mono rounded-lg" /></TableCell>
@@ -217,7 +220,7 @@ export function InvoiceFormDialog({
                       <TableCell className="text-start text-sm font-medium tabular-nums font-mono">{formatCurrencyMulti(item.quantity * item.unitPrice, formData.currency || "AED", ar ? "ar" : "en")}</TableCell>
                       <TableCell>
                         {formData.items.length > 1 && (
-                          <Button variant="ghost" size="icon" className="h-7 w-7 text-red-400" onClick={() => removeLineItem(idx)} aria-label={ar ? "حذف البند" : "Remove item"}><X className="h-3.5 w-3.5" /></Button>
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-red-400" onClick={() => removeLineItem(idx)} aria-label={tAuto('auto.removeItem')}><X className="h-3.5 w-3.5" /></Button>
                         )}
                       </TableCell>
                     </TableRow>
@@ -231,16 +234,16 @@ export function InvoiceFormDialog({
           <div className="flex justify-end">
             <div className="w-72 rounded-xl border border-slate-200 dark:border-slate-700 p-4 bg-gradient-to-br from-slate-50 to-white dark:from-slate-800/50 dark:to-slate-900 space-y-2.5">
               <div className="flex justify-between text-sm">
-                <span className="text-slate-500">{ar ? "المجموع الفرعي" : "Subtotal"}</span>
+                <span className="text-slate-500">{tAuto('auto.subtotal')}</span>
                 <span className="tabular-nums font-mono text-slate-700 dark:text-slate-300">{formatCurrencyMulti(calcSubtotal, formData.currency || "AED", ar ? "ar" : "en")}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-slate-500">{ar ? "الضريبة (5%)" : "Tax (5%)"}</span>
+                <span className="text-slate-500">{tAuto('auto.tax5')}</span>
                 <span className="tabular-nums font-mono text-slate-700 dark:text-slate-300">{formatCurrencyMulti(calcTax, formData.currency || "AED", ar ? "ar" : "en")}</span>
               </div>
               <div className="border-t border-slate-200 dark:border-slate-700 pt-2.5">
                 <div className="flex justify-between text-base font-bold">
-                  <span>{ar ? "الإجمالي" : "Total"}</span>
+                  <span>{tAuto('auto.total')}</span>
                   <span className="text-teal-600 dark:text-teal-400 tabular-nums font-mono">{formatCurrencyMulti(calcTotal, formData.currency || "AED", ar ? "ar" : "en")}</span>
                 </div>
               </div>
@@ -248,7 +251,7 @@ export function InvoiceFormDialog({
                 <div className="flex items-center gap-1.5 pt-1">
                   <DollarSign className="h-3 w-3 text-slate-400" />
                   <span className="text-[10px] text-slate-400">
-                    {ar ? "شامل ضريبة القيمة المضافة" : "Inclusive of VAT"}
+                    {tAuto('auto.inclusiveOfVAT')}
                   </span>
                 </div>
               )}
@@ -256,9 +259,9 @@ export function InvoiceFormDialog({
           </div>
 
         <DialogFooter>
-          <Button type="button" variant="outline" onClick={onClose}>{ar ? "إلغاء" : "Cancel"}</Button>
+          <Button type="button" variant="outline" onClick={onClose}>{tAuto('auto.cancel')}</Button>
           <Button type="submit" className="bg-teal-600 hover:bg-teal-700 text-white" disabled={isSaving}>
-            {isSaving ? (ar ? "جارٍ الحفظ..." : "Saving...") : (ar ? "حفظ" : "Save")}
+            {isSaving ? (tAuto('auto.saving')) : (tAuto('auto.save'))}
           </Button>
         </DialogFooter>
       </form>

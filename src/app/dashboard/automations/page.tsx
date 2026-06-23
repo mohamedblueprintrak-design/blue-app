@@ -1,16 +1,7 @@
-"use client";
+import { getLocale } from 'next-intl/server';
+import AutomationsPage from '@/components/pages/automations';
 
-import dynamic from "next/dynamic";
-import { useLang } from "@/hooks/use-lang";
-
-const AutomationsPage = dynamic(() => import("@/components/pages/automations"), {
-  loading: () => <div className="p-6 animate-pulse">Loading...</div>,
-  ssr: false,
-});
-
-/**
- * /dashboard/automations
- */
-export default function AutomationsPageRoute() {
-  return <AutomationsPage language={useLang()} />;
+export default async function AutomationsPageRoute() {
+  const locale = await getLocale();
+  return <AutomationsPage language={locale as "ar" | "en"} />;
 }

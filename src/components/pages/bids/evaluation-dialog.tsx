@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -40,6 +42,7 @@ export function EvaluationDialog({
   open: boolean;
   onClose: () => void;
 }) {
+  const tAuto = useTranslations();
   const queryClient = useQueryClient();
   const [scores, setScores] = useState<Record<string, number>>({});
   const [notes, setNotes] = useState("");
@@ -122,7 +125,7 @@ export function EvaluationDialog({
             {ar ? `تقييم عطاء - ${bid.contractorName}` : `Evaluate Bid - ${bid.contractorName}`}
           </DialogTitle>
           <DialogDescription>
-            {ar ? "قم بتسجيل الدرجات لكل معيار تقييم" : "Score each evaluation criterion (0-100)"}
+            {tAuto('auto.scoreEachEvaluationCriterion0100')}
           </DialogDescription>
         </DialogHeader>
 
@@ -131,12 +134,12 @@ export function EvaluationDialog({
           <div className="space-y-1">
             <Label className="text-xs flex items-center gap-1.5">
               <UserCheck className="h-3 w-3" />
-              {ar ? "المُقيّم" : "Evaluator"}
+              {tAuto('auto.evaluator')}
             </Label>
             <Input
               value={evaluatorName}
               onChange={(e) => setEvaluatorName(e.target.value)}
-              placeholder={ar ? "اسم المُقيّم" : "Evaluator name"}
+              placeholder={tAuto('auto.evaluatorName')}
               className="h-8 text-sm rounded-lg"
             />
           </div>
@@ -182,7 +185,7 @@ export function EvaluationDialog({
           <div className="rounded-xl bg-gradient-to-r from-teal-500 to-emerald-600 p-4 text-white">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-white/70">{ar ? "المجموع المرجح" : "Weighted Total"}</p>
+                <p className="text-xs text-white/70">{tAuto('auto.weightedTotal')}</p>
                 <p className="text-3xl font-bold tabular-nums">{totalWeighted}</p>
               </div>
               <div className="text-4xl font-bold text-white/20">/ 100</div>
@@ -197,7 +200,7 @@ export function EvaluationDialog({
                   <PolarGrid stroke="var(--color-slate-200)" />
                   <PolarAngleAxis dataKey="criteria" tick={{ fontSize: 10 }} />
                   <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fontSize: 9 }} />
-                  <Radar name={ar ? "الدرجات" : "Scores"} dataKey="score" stroke="var(--color-teal-500)" fill="var(--color-teal-500)" fillOpacity={0.3} />
+                  <Radar name={tAuto('auto.scores')} dataKey="score" stroke="var(--color-teal-500)" fill="var(--color-teal-500)" fillOpacity={0.3} />
                 </RadarChart>
               </ResponsiveContainer>
             </div>
@@ -205,11 +208,11 @@ export function EvaluationDialog({
 
           {/* Notes */}
           <div className="space-y-1">
-            <Label className="text-xs">{ar ? "ملاحظات التقييم" : "Evaluation Notes"}</Label>
+            <Label className="text-xs">{tAuto('auto.evaluationNotes')}</Label>
             <Textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder={ar ? "أضف ملاحظات التقييم..." : "Add evaluation notes..."}
+              placeholder={tAuto('auto.addEvaluationNotes')}
               className="text-sm min-h-[60px] rounded-lg"
             />
           </div>
@@ -217,7 +220,7 @@ export function EvaluationDialog({
 
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
-            {ar ? "إلغاء" : "Cancel"}
+            {tAuto('auto.cancel')}
           </Button>
           <Button
             className={cn(
@@ -230,11 +233,11 @@ export function EvaluationDialog({
             disabled={saveMutation.isPending || saved}
           >
             {saved ? (
-              <><CheckCircle className="h-3.5 w-3.5 me-1" />{ar ? "تم الحفظ" : "Saved"}</>
+              <><CheckCircle className="h-3.5 w-3.5 me-1" />{tAuto('auto.saved')}</>
             ) : saveMutation.isPending ? (
-              ar ? "جارٍ الحفظ..." : "Saving..."
+              tAuto('auto.saving')
             ) : (
-              <><ClipboardCheck className="h-3.5 w-3.5 me-1" />{ar ? "حفظ التقييم" : "Save Evaluation"}</>
+              <><ClipboardCheck className="h-3.5 w-3.5 me-1" />{tAuto('auto.saveEvaluation')}</>
             )}
           </Button>
         </DialogFooter>

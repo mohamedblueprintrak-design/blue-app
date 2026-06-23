@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { useToastFeedback } from "@/hooks/use-toast-feedback";
 import { useDroppable } from "@dnd-kit/core";
@@ -36,6 +38,7 @@ import {
 
 // ===== Task Actions Dropdown =====
 function TaskActionsDropdown({ taskId, taskTitle, ar, onOpenComments }: { taskId: string; taskTitle: string; ar: boolean; onOpenComments?: () => void }) {
+  const tAuto = useTranslations();
   const queryClient = useQueryClient();
   const toast = useToastFeedback({ ar });
   const deleteMutation = useMutation({
@@ -52,7 +55,7 @@ function TaskActionsDropdown({ taskId, taskTitle, ar, onOpenComments }: { taskId
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
-      toast.deleted(ar ? "المهمة" : "Task");
+      toast.deleted(tAuto('auto.task'));
     },
     onError: (error: Error) => {
       toast.showError(ar ? `فشل في حذف المهمة: ${error.message}` : `Failed to delete task: ${error.message}`);
@@ -73,7 +76,7 @@ function TaskActionsDropdown({ taskId, taskTitle, ar, onOpenComments }: { taskId
             onClick={() => onOpenComments()}
           >
             <MessageSquare className="h-3.5 w-3.5 me-2" />
-            {ar ? "التعليقات" : "Comments"}
+            {tAuto('auto.comments')}
           </DropdownMenuItem>
         )}
         <DropdownMenuItem
@@ -85,7 +88,7 @@ function TaskActionsDropdown({ taskId, taskTitle, ar, onOpenComments }: { taskId
           }}
         >
           <Trash2 className="h-3.5 w-3.5 me-2" />
-          {ar ? "حذف" : "Delete"}
+          {tAuto('auto.delete')}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -94,6 +97,7 @@ function TaskActionsDropdown({ taskId, taskTitle, ar, onOpenComments }: { taskId
 
 // ===== Sortable Task Card =====
 function SortableTaskCard({ task, ar, bulkMode, selected, onToggle, onOpenComments }: { task: TaskItem; ar: boolean; bulkMode?: boolean; selected?: boolean; onToggle?: (id: string) => void; onOpenComments?: (task: TaskItem) => void }) {
+  const tAuto = useTranslations();
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: task.id,
     data: { status: task.status },
@@ -167,7 +171,7 @@ function SortableTaskCard({ task, ar, bulkMode, selected, onToggle, onOpenCommen
               )}
             >
               <Landmark className="h-3 w-3 me-1" />
-              {ar ? "حكومي" : "Gov"}
+              {tAuto('auto.gov')}
               {slaApproaching && !slaOverdue && (
                 <Clock className="h-2.5 w-2.5 ms-1" />
               )}
@@ -200,7 +204,7 @@ function SortableTaskCard({ task, ar, bulkMode, selected, onToggle, onOpenCommen
         {task.progress > 0 && (
           <div className="mb-2">
             <div className="flex items-center justify-between mb-0.5">
-              <span className="text-[10px] text-slate-400">{ar ? "التقدم" : "Progress"}</span>
+              <span className="text-[10px] text-slate-400">{tAuto('auto.progress')}</span>
               <span className="text-[10px] text-slate-400 font-medium">{Math.round(task.progress)}%</span>
             </div>
             <Progress value={task.progress} className="h-1.5" />
@@ -246,10 +250,10 @@ function SortableTaskCard({ task, ar, bulkMode, selected, onToggle, onOpenCommen
             <Calendar className="h-3 w-3" />
             <span>{dueDate.toLocaleDateString(ar ? "ar-AE" : "en-US")}</span>
             {isOverdue && (
-              <span className="font-semibold">({ar ? "متأخر!" : "Overdue!"})</span>
+              <span className="font-semibold">({tAuto('auto.overdue1')})</span>
             )}
             {isApproaching && !isOverdue && (
-              <span className="text-amber-500 font-medium">({ar ? "قريباً" : "Soon"})</span>
+              <span className="text-amber-500 font-medium">({tAuto('auto.soon')})</span>
             )}
           </div>
         )}
@@ -272,7 +276,7 @@ function SortableTaskCard({ task, ar, bulkMode, selected, onToggle, onOpenCommen
             )}
             {slaOverdue && (
               <Badge variant="destructive" className="text-[10px] h-4 px-1 ms-1">
-                {ar ? "تجاوز!" : "Overdue!"}
+                {tAuto('auto.overdue1')}
               </Badge>
             )}
           </div>
@@ -295,7 +299,7 @@ function SortableTaskCard({ task, ar, bulkMode, selected, onToggle, onOpenCommen
               </span>
             </div>
           ) : (
-            <div className="text-xs text-slate-400">{ar ? "غير محدد" : "Unassigned"}</div>
+            <div className="text-xs text-slate-400">{tAuto('auto.unassigned')}</div>
           )}
           {task.project && (
             <div className="flex items-center gap-1 text-[10px] text-slate-400 dark:text-slate-500 truncate max-w-[120px]">
@@ -315,6 +319,7 @@ export function DroppableColumn({
 }: {
   id: string; tasks: TaskItem[]; activeId: string | null; ar: boolean; onAddTask: (status: string) => void; bulkMode?: boolean; selectedIds?: Set<string>; onToggleSelect?: (id: string) => void; onToggleSelectAll?: () => void; onOpenComments?: (task: TaskItem) => void;
 }) {
+  const tAuto = useTranslations();
   const col = COLUMNS.find((c) => c.id === id)!;
   const { setNodeRef, isOver } = useDroppable({ id });
   const taskCount = tasks.filter((t) => t.id !== activeId).length;
@@ -383,7 +388,7 @@ export function DroppableColumn({
               <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
                 <LayoutList className="h-5 w-5" />
               </div>
-              <span className="font-medium">{ar ? "لا توجد مهام" : "No tasks"}</span>
+              <span className="font-medium">{tAuto('auto.noTasks')}</span>
             </div>
           )}
         </div>
@@ -394,6 +399,7 @@ export function DroppableColumn({
 
 // ===== Drag Overlay Card =====
 export function TaskCardOverlay({ task, ar }: { task: TaskItem; ar: boolean }) {
+  const tAuto = useTranslations();
   const priorityConfig = getPriorityConfig(task.priority);
   return (
     <Card className={cn("py-0 gap-0 border-slate-200/70 dark:border-slate-700/40 bg-white dark:bg-slate-900/95 shadow-2xl rotate-2 w-[300px] rounded-lg border-s-3", priorityConfig.leftBorder, priorityConfig.gradient || "bg-white dark:bg-slate-900/95")}>
@@ -405,7 +411,7 @@ export function TaskCardOverlay({ task, ar }: { task: TaskItem; ar: boolean }) {
           {(task.taskType === 'GOVERNMENTAL' || task.taskType === 'MANDATORY') && (
             <Badge variant="secondary" className="text-[10px] h-5 px-1.5 rounded-md bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300">
               <Landmark className="h-3 w-3 me-1" />
-              {ar ? "حكومي" : "Gov"}
+              {tAuto('auto.gov')}
             </Badge>
           )}
         </div>

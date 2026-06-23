@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -120,6 +122,7 @@ interface ProjectTemplatesPageProps {
 }
 
 export function ProjectTemplatesPage({ isAr, userRole }: ProjectTemplatesPageProps) {
+  const tAuto = useTranslations();
   const t = (ar: string, en: string) => (isAr ? ar : en);
   const isAdmin = userRole?.toUpperCase() === "ADMIN" || userRole?.toUpperCase() === "MANAGER";
 
@@ -432,7 +435,7 @@ export function ProjectTemplatesPage({ isAr, userRole }: ProjectTemplatesPagePro
                             size="icon"
                             className="h-8 w-8 text-slate-400 hover:text-teal-600"
                             onClick={() => openEditDialog(tpl)}
-                            title={isAr ? "تعديل" : "Edit"}
+                            title={tAuto('auto.edit')}
                           >
                             <Pencil className="h-3.5 w-3.5" />
                           </Button>
@@ -441,7 +444,7 @@ export function ProjectTemplatesPage({ isAr, userRole }: ProjectTemplatesPagePro
                             size="icon"
                             className="h-8 w-8 text-slate-400 hover:text-red-500"
                             onClick={() => handleDeleteTemplate(tpl.id)}
-                            title={isAr ? "حذف" : "Delete"}
+                            title={tAuto('auto.delete')}
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                           </Button>

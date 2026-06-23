@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,6 +43,7 @@ export function UserForm({
   setNewUser,
   onSuccess,
 }: UserFormProps) {
+  const tAuto = useTranslations();
   const { toast } = useToast();
 
   const createUserMutation = useMutation({
@@ -53,8 +56,8 @@ export function UserForm({
     onSuccess: (data) => {
       if (data.error) {
         toast({
-          title: isAr ? "خطأ" : "Error",
-          description: extractErrorMessage(data.error, isAr ? "حدث خطأ" : "An error occurred"),
+          title: tAuto('auto.error'),
+          description: extractErrorMessage(data.error, tAuto('auto.anErrorOccurred')),
           variant: "destructive",
         });
         return;
@@ -70,25 +73,25 @@ export function UserForm({
       <DialogTrigger asChild>
         <Button className="bg-teal-600 hover:bg-teal-700 text-white gap-1.5 h-9 rounded-lg shadow-sm shadow-teal-500/20">
           <UserPlus className="h-4 w-4" />
-          {isAr ? "إضافة مستخدم" : "Add User"}
+          {tAuto('auto.addUser')}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-md" dir={isAr ? "rtl" : "ltr"}>
         <DialogHeader>
-          <DialogTitle>{isAr ? "إضافة مستخدم جديد" : "Add New User"}</DialogTitle>
+          <DialogTitle>{tAuto('auto.addNewUser')}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 pt-2">
           <div className="space-y-1.5">
-            <Label className="text-xs font-medium">{isAr ? "الاسم" : "Name"}</Label>
+            <Label className="text-xs font-medium">{tAuto('auto.name')}</Label>
             <Input
               value={newUser.name}
               onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
-              placeholder={isAr ? "أحمد محمد" : "Ahmed Mohamed"}
+              placeholder={tAuto('auto.ahmedMohamed')}
               className="h-10 rounded-lg"
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs font-medium">{isAr ? "البريد الإلكتروني" : "Email"}</Label>
+            <Label className="text-xs font-medium">{tAuto('auto.email')}</Label>
             <Input
               type="email"
               dir="ltr"
@@ -100,7 +103,7 @@ export function UserForm({
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium">{isAr ? "الدور" : "Role"}</Label>
+              <Label className="text-xs font-medium">{tAuto('auto.role')}</Label>
               <Select
                 value={newUser.role}
                 onValueChange={(v) => setNewUser({ ...newUser, role: v })}
@@ -118,21 +121,21 @@ export function UserForm({
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium">{isAr ? "القسم" : "Department"}</Label>
+              <Label className="text-xs font-medium">{tAuto('auto.department')}</Label>
               <Input
                 value={newUser.department}
                 onChange={(e) => setNewUser({ ...newUser, department: e.target.value })}
-                placeholder={isAr ? "الهندسة" : "Engineering"}
+                placeholder={tAuto('auto.engineering')}
                 className="h-10 rounded-lg"
               />
             </div>
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs font-medium">{isAr ? "المنصب" : "Position"}</Label>
+            <Label className="text-xs font-medium">{tAuto('auto.position')}</Label>
             <Input
               value={newUser.position}
               onChange={(e) => setNewUser({ ...newUser, position: e.target.value })}
-              placeholder={isAr ? "مهندس أول" : "Senior Engineer"}
+              placeholder={tAuto('auto.seniorEngineer')}
               className="h-10 rounded-lg"
             />
           </div>
@@ -141,7 +144,7 @@ export function UserForm({
             disabled={createUserMutation.isPending || !newUser.name || !newUser.email}
             className="w-full bg-teal-600 hover:bg-teal-700 text-white h-10 rounded-lg shadow-sm shadow-teal-500/20"
           >
-            {isAr ? "إضافة المستخدم" : "Add User"}
+            {tAuto('auto.addUser')}
           </Button>
         </div>
       </DialogContent>

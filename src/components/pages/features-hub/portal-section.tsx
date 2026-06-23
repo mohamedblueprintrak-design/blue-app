@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -17,12 +19,13 @@ interface PortalSectionProps {
 }
 
 export default function PortalSection({ language }: PortalSectionProps) {
+  const tAuto = useTranslations();
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white">{language === 'ar' ? 'بوابة العميل' : 'Client Portal'}</h2>
-          <p className="text-sm text-slate-500">{language === 'ar' ? 'عرض حالة المشاريع والمعالم الرئيسية' : 'View project status and milestones'}</p>
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white">{tAuto('auto.clientPortal')}</h2>
+          <p className="text-sm text-slate-500">{tAuto('auto.viewProjectStatusAndMilestones')}</p>
         </div>
         <Select defaultValue="1">
           <SelectTrigger className="w-[200px]">
@@ -45,7 +48,7 @@ export default function PortalSection({ language }: PortalSectionProps) {
             </div>
             <div className="mt-2">
               <div className="flex items-center justify-between text-xs mb-1">
-                <span className="text-slate-600">{language === 'ar' ? 'التقدم الكلي' : 'Overall Progress'}</span>
+                <span className="text-slate-600">{tAuto('auto.overallProgress')}</span>
                 <span className="font-bold">{project.progress}%</span>
               </div>
               <Progress value={project.progress} className="h-3" />
@@ -56,7 +59,7 @@ export default function PortalSection({ language }: PortalSectionProps) {
             <div className="mb-6">
               <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
                 <ClipboardList className="h-4 w-4 text-teal-600" />
-                {language === 'ar' ? 'المعالم الرئيسية' : 'Milestones'}
+                {tAuto('auto.milestones')}
               </h3>
               <div className="space-y-3">
                 {project.milestones.map((ms, i) => (
@@ -70,8 +73,8 @@ export default function PortalSection({ language }: PortalSectionProps) {
                     </div>
                     <Badge variant="outline" className={cn('text-[10px]', ms.completed ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-slate-50 text-slate-500')}>
                       {ms.completed
-                        ? (language === 'ar' ? 'مكتمل' : 'Completed')
-                        : (language === 'ar' ? 'قيد الانتظار' : 'Pending')}
+                        ? (tAuto('auto.completed'))
+                        : (tAuto('auto.pending'))}
                     </Badge>
                   </div>
                 ))}
@@ -82,7 +85,7 @@ export default function PortalSection({ language }: PortalSectionProps) {
             <div>
               <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
                 <Archive className="h-4 w-4 text-teal-600" />
-                {language === 'ar' ? 'المستندات المشتركة' : 'Shared Documents'}
+                {tAuto('auto.sharedDocuments')}
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {project.documents.map((doc, i) => (

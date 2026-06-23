@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import {
   Select,
   SelectContent,
@@ -23,14 +25,15 @@ export function ProjectFilter({
   onFilterProjectChange,
   projects,
 }: ProjectFilterProps) {
+  const tAuto = useTranslations();
   return (
     <Select value={filterProject} onValueChange={onFilterProjectChange}>
       <SelectTrigger className="w-[160px] h-8 text-xs rounded-lg">
         <Filter className="h-3 w-3 me-1 text-slate-400" />
-        <SelectValue placeholder={ar ? "المشروع" : "Project"} />
+        <SelectValue placeholder={tAuto('auto.project')} />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="all">{ar ? "جميع المشاريع" : "All Projects"}</SelectItem>
+        <SelectItem value="all">{tAuto('auto.allProjects')}</SelectItem>
         {projects.map((p) => (
           <SelectItem key={p.id} value={p.id}>{ar ? p.name : p.nameEn || p.name}</SelectItem>
         ))}
@@ -47,6 +50,7 @@ interface StageSelectorProps {
 }
 
 export function StageSelector({ ar, selectedStage, onSelectedStageChange }: StageSelectorProps) {
+  const tAuto = useTranslations();
   return (
     <div className="flex items-center gap-2 overflow-x-auto pb-1">
       <button
@@ -57,7 +61,7 @@ export function StageSelector({ ar, selectedStage, onSelectedStageChange }: Stag
             : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700"
         }`}
       >
-        {ar ? "الكل" : "All"}
+        {tAuto('auto.all')}
       </button>
       {STAGES.map((stage) => (
         <button
@@ -92,31 +96,32 @@ export function ViolationFilters({
   onViolationFilterStatusChange,
   onViolationFilterSeverityChange,
 }: ViolationFiltersProps) {
+  const tAuto = useTranslations();
   return (
     <div className="flex items-center gap-2 flex-wrap">
       <Select value={violationFilterStatus} onValueChange={onViolationFilterStatusChange}>
         <SelectTrigger className="w-[140px] h-8 text-xs rounded-lg">
           <Filter className="h-3 w-3 me-1 text-slate-400" />
-          <SelectValue placeholder={ar ? "الحالة" : "Status"} />
+          <SelectValue placeholder={tAuto('auto.status1')} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">{ar ? "جميع الحالات" : "All Status"}</SelectItem>
-          <SelectItem value="OPEN">{ar ? "مفتوح" : "Open"}</SelectItem>
-          <SelectItem value="IN_PROGRESS">{ar ? "قيد المعالجة" : "In Progress"}</SelectItem>
-          <SelectItem value="RESOLVED">{ar ? "تم الحل" : "Resolved"}</SelectItem>
-          <SelectItem value="CLOSED">{ar ? "مغلق" : "Closed"}</SelectItem>
+          <SelectItem value="all">{tAuto('auto.allStatus')}</SelectItem>
+          <SelectItem value="OPEN">{tAuto('auto.open')}</SelectItem>
+          <SelectItem value="IN_PROGRESS">{tAuto('auto.inProgress')}</SelectItem>
+          <SelectItem value="RESOLVED">{tAuto('auto.resolved')}</SelectItem>
+          <SelectItem value="CLOSED">{tAuto('auto.closed')}</SelectItem>
         </SelectContent>
       </Select>
       <Select value={violationFilterSeverity} onValueChange={onViolationFilterSeverityChange}>
         <SelectTrigger className="w-[140px] h-8 text-xs rounded-lg">
-          <SelectValue placeholder={ar ? "الخطورة" : "Severity"} />
+          <SelectValue placeholder={tAuto('auto.severity')} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">{ar ? "جميع المستويات" : "All Severity"}</SelectItem>
-          <SelectItem value="LOW">{ar ? "منخفض" : "Low"}</SelectItem>
-          <SelectItem value="MEDIUM">{ar ? "متوسط" : "Medium"}</SelectItem>
-          <SelectItem value="HIGH">{ar ? "مرتفع" : "High"}</SelectItem>
-          <SelectItem value="CRITICAL">{ar ? "حرج" : "Critical"}</SelectItem>
+          <SelectItem value="all">{tAuto('auto.allSeverity')}</SelectItem>
+          <SelectItem value="LOW">{tAuto('auto.low')}</SelectItem>
+          <SelectItem value="MEDIUM">{tAuto('auto.medium')}</SelectItem>
+          <SelectItem value="HIGH">{tAuto('auto.high')}</SelectItem>
+          <SelectItem value="CRITICAL">{tAuto('auto.critical')}</SelectItem>
         </SelectContent>
       </Select>
     </div>

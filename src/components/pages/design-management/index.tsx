@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToastFeedback } from "@/hooks/use-toast-feedback";
@@ -23,6 +25,7 @@ interface DesignManagementProps {
 }
 
 export default function DesignManagement({ language }: DesignManagementProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const queryClient = useQueryClient();
   const toast = useToastFeedback({ ar });
@@ -75,9 +78,9 @@ export default function DesignManagement({ language }: DesignManagementProps) {
       queryClient.invalidateQueries({ queryKey: ["design-drawings"] });
       queryClient.invalidateQueries({ queryKey: ["design-phases"] });
       setShowDrawingDetail(null);
-      toast.deleted(ar ? "الرسم" : "Drawing");
+      toast.deleted(tAuto('auto.drawing'));
     },
-    onError: () => toast.error(ar ? "حذف الرسم" : "Delete drawing"),
+    onError: () => toast.error(tAuto('auto.deleteDrawing')),
   });
 
   // Statistics
@@ -88,7 +91,7 @@ export default function DesignManagement({ language }: DesignManagementProps) {
 
   // Handlers
   const handleDeleteDrawing = (drawing: DesignDrawingItem) => {
-    if (confirm(ar ? "هل أنت متأكد من الحذف؟" : "Delete this drawing?")) {
+    if (confirm(tAuto('auto.deleteThisDrawing'))) {
       deleteDrawingMutation.mutate(drawing.id);
     }
   };
@@ -123,12 +126,12 @@ export default function DesignManagement({ language }: DesignManagementProps) {
           <div className="flex items-center gap-2 mb-4">
             <BarChart3 className="h-4 w-4 text-slate-500" />
             <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
-              {ar ? "خط أنابيب مراحل التصميم" : "Design Phase Pipeline"}
+              {tAuto('auto.designPhasePipeline')}
             </h3>
           </div>
           {phasesLoading ? (
             <div className="flex items-center justify-center py-8 text-slate-400 text-sm">
-              {ar ? "جارٍ التحميل..." : "Loading..."}
+              {tAuto('auto.loading')}
             </div>
           ) : (
             <div className="relative">
@@ -176,12 +179,12 @@ export default function DesignManagement({ language }: DesignManagementProps) {
                                   </span>
                                   {drawingCount > 0 && (
                                     <span className="text-[10px] text-slate-500 dark:text-slate-400 tabular-nums">
-                                      {drawingCount} {ar ? "رسم" : "drw"}
+                                      {drawingCount} {tAuto('auto.drw')}
                                     </span>
                                   )}
                                   {phase.revisionCount > 0 && (
                                     <span className="text-[10px] text-amber-600 dark:text-amber-400 font-medium tabular-nums">
-                                      {phase.revisionCount}x {ar ? "تعديل" : "rev"}
+                                      {phase.revisionCount}x {tAuto('auto.rev')}
                                     </span>
                                   )}
                                 </>
@@ -195,7 +198,7 @@ export default function DesignManagement({ language }: DesignManagementProps) {
                             </p>
                             {phase?.dueDate && (
                               <p className="text-[10px] text-slate-400 mt-0.5">
-                                {ar ? "الاستحقاق" : "Due"}: {formatDate(phase.dueDate, ar)}
+                                {tAuto('auto.due')}: {formatDate(phase.dueDate, ar)}
                               </p>
                             )}
                           </TooltipContent>

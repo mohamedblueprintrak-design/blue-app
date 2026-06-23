@@ -1,16 +1,7 @@
-"use client";
+import { getLocale } from 'next-intl/server';
+import BillingPage from '@/components/pages/billing';
 
-import dynamic from "next/dynamic";
-import { useLang } from "@/hooks/use-lang";
-
-const BillingPage = dynamic(() => import("@/components/pages/billing"), {
-  loading: () => <div className="p-6 animate-pulse">Loading...</div>,
-  ssr: false,
-});
-
-/**
- * /dashboard/billing
- */
-export default function BillingPageRoute() {
-  return <BillingPage language={useLang()} />;
+export default async function BillingPageRoute() {
+  const locale = await getLocale();
+  return <BillingPage language={locale as "ar" | "en"} />;
 }

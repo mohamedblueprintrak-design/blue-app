@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -24,19 +26,20 @@ export function ContractorGrid({
   onSelectContractor,
   onAddContractor,
 }: ContractorGridProps) {
+  const tAuto = useTranslations();
   if (contractors.length === 0) {
     return (
       <div className="flex-1">
         <div className="text-center py-16 text-slate-400 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900">
           <Users className="h-12 w-12 mx-auto mb-3 opacity-30" />
-          <p className="text-sm">{ar ? "لا يوجد مقاولين" : "No contractors found"}</p>
+          <p className="text-sm">{tAuto('auto.noContractorsFound')}</p>
           <Button
             variant="outline"
             size="sm"
             className="mt-3 rounded-lg"
             onClick={onAddContractor}
           >
-            <Plus className="h-3.5 w-3.5 me-1" />{ar ? "إضافة مقاول" : "Add Contractor"}
+            <Plus className="h-3.5 w-3.5 me-1" />{tAuto('auto.addContractor')}
           </Button>
         </div>
       </div>

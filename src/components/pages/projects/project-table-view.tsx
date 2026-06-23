@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -60,6 +62,7 @@ export function ProjectTableView({
   PAGE_SIZE,
   onPageChange,
 }: ProjectTableViewProps) {
+  const tAuto = useTranslations();
   return (
     <div className="rounded-xl border border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900 overflow-hidden relative">
       {isLoading ? (
@@ -242,7 +245,7 @@ export function ProjectTableView({
               className="h-7 w-7"
               disabled={page <= 1}
               onClick={() => onPageChange(page - 1)}
-              aria-label={isAr ? "الصفحة السابقة" : "Previous page"}
+              aria-label={tAuto('auto.previousPage')}
             >
               <ChevronRight className="h-3.5 w-3.5" />
             </Button>
@@ -280,7 +283,7 @@ export function ProjectTableView({
               className="h-7 w-7"
               disabled={page >= totalPages}
               onClick={() => onPageChange(page + 1)}
-              aria-label={isAr ? "الصفحة التالية" : "Next page"}
+              aria-label={tAuto('auto.nextPage')}
             >
               <ChevronLeft className="h-3.5 w-3.5" />
             </Button>

@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState, useEffect } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -15,6 +17,7 @@ interface TwoFactorSetupProps {
 }
 
 export function TwoFactorSetup({ isAr }: TwoFactorSetupProps) {
+  const tAuto = useTranslations();
   const [isEnabled, setIsEnabled] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSettingUp, setIsSettingUp] = useState(false);
@@ -47,10 +50,10 @@ export function TwoFactorSetup({ isAr }: TwoFactorSetupProps) {
         setSetupData(data.data);
         setIsSettingUp(true);
       } else {
-        toast.showError(isAr ? "فشل إعداد المصادقة الثنائية" : "Failed to setup 2FA");
+        toast.showError(tAuto('auto.failedToSetup2FA'));
       }
     } catch {
-      toast.showError(isAr ? "خطأ في الاتصال" : "Connection error");
+      toast.showError(tAuto('auto.connectionError'));
     }
   };
 
@@ -66,17 +69,17 @@ export function TwoFactorSetup({ isAr }: TwoFactorSetupProps) {
         setIsEnabled(true);
         setIsSettingUp(false);
         setSetupData(null);
-        toast.showSuccess(isAr ? "تم تفعيل المصادقة الثنائية بنجاح" : "2FA enabled successfully");
+        toast.showSuccess(tAuto('auto.2FAEnabledSuccessfully'));
       } else {
-        toast.showError(data.error || (isAr ? "كود التحقق غير صحيح" : "Invalid verification code"));
+        toast.showError(data.error || (tAuto('auto.invalidVerificationCode')));
       }
     } catch {
-      toast.showError(isAr ? "خطأ في الاتصال" : "Connection error");
+      toast.showError(tAuto('auto.connectionError'));
     }
   };
 
   const handleDisable = async () => {
-    const password = prompt(isAr ? "يرجى إدخال كلمة المرور لتأكيد الإلغاء" : "Please enter your password to confirm");
+    const password = prompt(tAuto('auto.pleaseEnterYourPasswordToConfirm'));
     if (!password) return;
 
     try {
@@ -88,12 +91,12 @@ export function TwoFactorSetup({ isAr }: TwoFactorSetupProps) {
       const data = await res.json();
       if (data.success) {
         setIsEnabled(false);
-        toast.showSuccess(isAr ? "تم إلغاء المصادقة الثنائية" : "2FA disabled");
+        toast.showSuccess(tAuto('auto.2FADisabled'));
       } else {
-        toast.showError(data.error || (isAr ? "كلمة المرور غير صحيحة" : "Incorrect password"));
+        toast.showError(data.error || (tAuto('auto.incorrectPassword')));
       }
     } catch {
-      toast.showError(isAr ? "خطأ في الاتصال" : "Connection error");
+      toast.showError(tAuto('auto.connectionError'));
     }
   };
 
@@ -113,23 +116,23 @@ export function TwoFactorSetup({ isAr }: TwoFactorSetupProps) {
             </div>
             <div>
               <h3 className="text-base font-semibold text-slate-900 dark:text-white">
-                {isAr ? "المصادقة الثنائية (2FA)" : "Two-Factor Authentication (2FA)"}
+                {tAuto('auto.twoFactorAuthentication2FA')}
               </h3>
               <p className="text-sm text-slate-500">
                 {isEnabled
-                  ? isAr ? "حسابك محمي بمستوى أمان إضافي" : "Your account is protected with an extra layer of security"
-                  : isAr ? "أضف طبقة أمان إضافية لحسابك باستخدام تطبيق مصادقة" : "Add an extra layer of security using an authenticator app"}
+                  ? tAuto('auto.yourAccountIsProtectedWithAnExtraLayerOf')
+                  : tAuto('auto.addAnExtraLayerOfSecurityUsingAnAuthenti')}
               </p>
             </div>
           </div>
           <div>
             {isEnabled ? (
               <Button variant="outline" className="text-red-600 border-red-200 hover:bg-red-50" onClick={handleDisable}>
-                {isAr ? "إلغاء التفعيل" : "Disable"}
+                {tAuto('auto.disable')}
               </Button>
             ) : !isSettingUp ? (
               <Button onClick={handleSetup} className="bg-slate-900 text-white hover:bg-slate-800">
-                {isAr ? "إعداد الآن" : "Setup Now"}
+                {tAuto('auto.setupNow')}
               </Button>
             ) : null}
           </div>
@@ -138,7 +141,7 @@ export function TwoFactorSetup({ isAr }: TwoFactorSetupProps) {
         {isSettingUp && setupData && (
           <div className="mt-6 p-4 border rounded-xl bg-slate-50 space-y-4">
             <p className="text-sm font-medium">
-              {isAr ? "1. امسح رمز الاستجابة السريعة (QR Code) باستخدام تطبيق المصادقة (مثل Google Authenticator أو Authy)" : "1. Scan the QR code using your authenticator app (like Google Authenticator or Authy)"}
+              {tAuto('auto.1ScanTheQRCodeUsingYourAuthenticatorAppL')}
             </p>
             <div className="bg-white p-4 inline-block rounded-lg shadow-sm">
               <QRCodeSVG value={setupData.qrCodeUrl} size={150} />
@@ -146,7 +149,7 @@ export function TwoFactorSetup({ isAr }: TwoFactorSetupProps) {
 
             <div className="space-y-1">
               <p className="text-xs text-slate-500">
-                {isAr ? "أو أدخل هذا الرمز يدوياً:" : "Or enter this key manually:"}
+                {tAuto('auto.orEnterThisKeyManually')}
               </p>
               <div className="flex items-center gap-2">
                 <code className="bg-slate-200 px-2 py-1 rounded text-sm font-mono tracking-widest">{setupData.manualEntryKey}</code>
@@ -162,7 +165,7 @@ export function TwoFactorSetup({ isAr }: TwoFactorSetupProps) {
 
             <div className="space-y-2 pt-4 border-t">
               <Label className="text-sm font-medium">
-                {isAr ? "2. أدخل كود التحقق (6 أرقام) من التطبيق:" : "2. Enter the 6-digit verification code from the app:"}
+                {tAuto('auto.2EnterThe6DigitVerificationCodeFromTheAp')}
               </Label>
               <div className="flex gap-2">
                 <Input
@@ -173,10 +176,10 @@ export function TwoFactorSetup({ isAr }: TwoFactorSetupProps) {
                   onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, ''))}
                 />
                 <Button onClick={handleEnable} disabled={verificationCode.length !== 6}>
-                  {isAr ? "تأكيد وتفعيل" : "Verify & Enable"}
+                  {tAuto('auto.verifyEnable')}
                 </Button>
                 <Button variant="ghost" onClick={() => setIsSettingUp(false)}>
-                  {isAr ? "إلغاء" : "Cancel"}
+                  {tAuto('auto.cancel')}
                 </Button>
               </div>
             </div>

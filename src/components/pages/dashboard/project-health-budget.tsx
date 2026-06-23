@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import {
   Card,
   CardContent,
@@ -31,6 +33,7 @@ interface ProjectHealthBudgetProps {
 }
 
 export function ProjectHealthBudget({ budgetOverviewData, language }: ProjectHealthBudgetProps) {
+  const tAuto = useTranslations();
   const isAr = language === "ar";
 
   return (
@@ -46,10 +49,10 @@ export function ProjectHealthBudget({ budgetOverviewData, language }: ProjectHea
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="text-base font-semibold text-slate-900 dark:text-white">
-                {isAr ? "أعلى المشاريع من حيث الميزانية" : "Top Projects by Budget"}
+                {tAuto('auto.topProjectsByBudget')}
               </CardTitle>
               <CardDescription className="text-xs text-slate-500 dark:text-slate-400">
-                {isAr ? "أعلى 5 مشاريع من حيث الميزانية الإجمالية" : "Top 5 projects by total budget"}
+                {tAuto('auto.top5ProjectsByTotalBudget')}
               </CardDescription>
             </div>
           </div>
@@ -59,10 +62,10 @@ export function ProjectHealthBudget({ budgetOverviewData, language }: ProjectHea
             <div className="h-[260px] flex flex-col items-center justify-center text-center">
               <DollarSign className="h-8 w-8 text-slate-300 dark:text-slate-600 mb-2" />
               <p className="text-sm text-slate-500 dark:text-slate-400">
-                {isAr ? "لا تتوفر بيانات الميزانية" : "No budget data available"}
+                {tAuto('auto.noBudgetDataAvailable')}
               </p>
               <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1">
-                {isAr ? "ستظهر البيانات عند توفر ميزانيات المشاريع" : "Data will appear when project budgets are available"}
+                {tAuto('auto.dataWillAppearWhenProjectBudgetsAreAvail')}
               </p>
             </div>
           ) : (
@@ -107,7 +110,7 @@ export function ProjectHealthBudget({ budgetOverviewData, language }: ProjectHea
                 />
                 <Bar
                   dataKey="budget"
-                  name={isAr ? "الميزانية" : "Budget"}
+                  name={tAuto('auto.budget')}
                   fill="url(#budgetBar)"
                   radius={[0, 6, 6, 0]}
                   barSize={24}

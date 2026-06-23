@@ -1,16 +1,7 @@
-"use client";
+import { getLocale } from 'next-intl/server';
+import GuaranteeLettersPage from '@/components/pages/guarantee-letters';
 
-import dynamic from "next/dynamic";
-import { useLang } from "@/hooks/use-lang";
-
-const GuaranteeLettersPage = dynamic(() => import("@/components/pages/guarantee-letters"), {
-  loading: () => <div className="p-6 animate-pulse">Loading...</div>,
-  ssr: false,
-});
-
-/**
- * /dashboard/guarantee-letters
- */
-export default function GuaranteeLettersPageRoute() {
-  return <GuaranteeLettersPage language={useLang()} />;
+export default async function GuaranteeLettersPageRoute() {
+  const locale = await getLocale();
+  return <GuaranteeLettersPage language={locale as "ar" | "en"} />;
 }

@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { Button } from "@/components/ui/button";
 import { ClipboardCheck, Plus } from "lucide-react";
 import type { Approval } from "./types";
@@ -44,6 +46,7 @@ export function ApprovalCardList({
   onNewClick,
   onRequestInfoSubmit,
 }: ApprovalCardListProps) {
+  const tAuto = useTranslations();
   if (filteredApprovals.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
@@ -51,19 +54,17 @@ export function ApprovalCardList({
           <ClipboardCheck className="h-10 w-10 text-slate-300 dark:text-slate-600" />
         </div>
         <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
-          {ar ? "لا توجد طلبات موافقة" : "No approvals found"}
+          {tAuto('auto.noApprovalsFound')}
         </h3>
         <p className="text-sm text-slate-500 dark:text-slate-400 max-w-md mb-6">
-          {ar
-            ? "لا توجد طلبات تطابق الفلاتر المحددة. جرّب تغيير الفلاتر أو أنشئ طلب جديد."
-            : "No approval requests match the selected filters. Try changing filters or create a new request."}
+          {tAuto('auto.noApprovalRequestsMatchTheSelectedFilter')}
         </p>
         <Button
           onClick={onNewClick}
           className="gap-2 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white border-0 shadow-md shadow-teal-500/20"
         >
           <Plus className="h-4 w-4" />
-          {ar ? "إنشاء طلب جديد" : "Create New Request"}
+          {tAuto('auto.createNewRequest')}
         </Button>
       </div>
     );

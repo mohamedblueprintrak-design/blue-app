@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/lib/formatters";
 import { Button } from "@/components/ui/button";
@@ -22,6 +24,7 @@ interface CampaignDetailCardProps {
 }
 
 export function CampaignDetailCard({ language, campaign, onEdit, onStatusChange, onDelete }: CampaignDetailCardProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const sc = getCampaignStatusConfig(campaign.status);
   const tc = getCampaignTypeConfig(campaign.type);
@@ -46,20 +49,20 @@ export function CampaignDetailCard({ language, campaign, onEdit, onStatusChange,
               </DropdownMenuTrigger>
               <DropdownMenuContent align={ar ? "start" : "end"}>
                 <DropdownMenuItem onClick={() => onEdit(campaign)}>
-                  <Edit2 className="h-3.5 w-3.5 me-1.5" />{ar ? "تعديل" : "Edit"}
+                  <Edit2 className="h-3.5 w-3.5 me-1.5" />{tAuto('auto.edit')}
                 </DropdownMenuItem>
                 {campaign.status === "ACTIVE" && (
                   <DropdownMenuItem onClick={() => onStatusChange(campaign.id, "PAUSED")}>
-                    <Clock className="h-3.5 w-3.5 me-1.5" />{ar ? "إيقاف" : "Pause"}
+                    <Clock className="h-3.5 w-3.5 me-1.5" />{tAuto('auto.pause')}
                   </DropdownMenuItem>
                 )}
                 {campaign.status === "PAUSED" && (
                   <DropdownMenuItem onClick={() => onStatusChange(campaign.id, "ACTIVE")}>
-                    <ArrowUpRight className="h-3.5 w-3.5 me-1.5" />{ar ? "تفعيل" : "Activate"}
+                    <ArrowUpRight className="h-3.5 w-3.5 me-1.5" />{tAuto('auto.activate')}
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuItem className="text-red-500" onClick={() => onDelete(campaign.id)}>
-                  <Trash2 className="h-3.5 w-3.5 me-1.5" />{ar ? "حذف" : "Delete"}
+                  <Trash2 className="h-3.5 w-3.5 me-1.5" />{tAuto('auto.delete')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -69,7 +72,7 @@ export function CampaignDetailCard({ language, campaign, onEdit, onStatusChange,
         {/* Budget Progress */}
         <div className="space-y-1.5">
           <div className="flex justify-between text-[10px]">
-            <span className="text-slate-500">{ar ? "المصروف من الميزانية" : "Budget Spent"}</span>
+            <span className="text-slate-500">{tAuto('auto.budgetSpent')}</span>
             <span className="font-medium text-slate-700 dark:text-slate-300 tabular-nums">{budgetPercent.toFixed(0)}%</span>
           </div>
           <Progress value={budgetPercent} className="h-1.5" />
@@ -83,11 +86,11 @@ export function CampaignDetailCard({ language, campaign, onEdit, onStatusChange,
         <div className="grid grid-cols-3 gap-2">
           <div className="text-center p-2 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
             <p className="text-lg font-bold text-sky-600 dark:text-sky-400 tabular-nums">{campaign.leads}</p>
-            <p className="text-[9px] text-slate-500">{ar ? "محتملين" : "Leads"}</p>
+            <p className="text-[9px] text-slate-500">{tAuto('auto.leads')}</p>
           </div>
           <div className="text-center p-2 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
             <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">{campaign.conversions}</p>
-            <p className="text-[9px] text-slate-500">{ar ? "تحويلات" : "Conv."}</p>
+            <p className="text-[9px] text-slate-500">{tAuto('auto.conv')}</p>
           </div>
           <div className="text-center p-2 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
             <p className={cn("text-lg font-bold tabular-nums", roi >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-500")}>

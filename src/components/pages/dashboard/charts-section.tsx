@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import {
   Card,
   CardContent,
@@ -44,6 +46,7 @@ interface ChartsSectionProps {
 }
 
 export function ChartsSection({ projectStatusData, taskTrendData, stats, isAr, language: _language }: ChartsSectionProps) {
+  const tAuto = useTranslations();
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
       {/* Project Status Donut Chart */}
@@ -52,10 +55,10 @@ export function ChartsSection({ projectStatusData, taskTrendData, stats, isAr, l
           {/* Teal accent line */}
           <div className="absolute top-0 start-0 end-0 h-[3px] rounded-t-xl bg-gradient-to-l from-teal-500 to-teal-400" />
           <CardTitle className="text-base font-semibold text-slate-900 dark:text-white">
-            {isAr ? "حالة المشاريع" : "Project Status"}
+            {tAuto('auto.projectStatus')}
           </CardTitle>
           <CardDescription className="text-xs text-slate-500 dark:text-slate-400">
-            {isAr ? "توزيع المشاريع حسب الحالة" : "Project distribution by status"}
+            {tAuto('auto.projectDistributionByStatus')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -94,7 +97,7 @@ export function ChartsSection({ projectStatusData, taskTrendData, stats, isAr, l
               {/* Center text */}
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                 <span className="text-2xl font-bold text-slate-900 dark:text-white tabular-nums">{stats.totalProjects}</span>
-                <span className="text-[10px] text-slate-500 dark:text-slate-400">{isAr ? "مشروع" : "Projects"}</span>
+                <span className="text-[10px] text-slate-500 dark:text-slate-400">{tAuto('auto.projects')}</span>
               </div>
             </div>
             {/* Legend */}
@@ -117,10 +120,10 @@ export function ChartsSection({ projectStatusData, taskTrendData, stats, isAr, l
           {/* Teal accent line */}
           <div className="absolute top-0 start-0 end-0 h-[3px] rounded-t-xl bg-gradient-to-l from-teal-500 to-teal-400" />
           <CardTitle className="text-base font-semibold text-slate-900 dark:text-white">
-            {isAr ? "معدل إكمال المهام" : "Task Completion Trend"}
+            {tAuto('auto.taskCompletionTrend')}
           </CardTitle>
           <CardDescription className="text-xs text-slate-500 dark:text-slate-400">
-            {isAr ? "المهام المنشأة مقابل المكتملة (آخر 6 أشهر)" : "Created vs completed tasks (last 6 months)"}
+            {tAuto('auto.createdVsCompletedTasksLast6Months')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -128,10 +131,10 @@ export function ChartsSection({ projectStatusData, taskTrendData, stats, isAr, l
             <div className="h-[260px] flex flex-col items-center justify-center text-center">
               <BarChart3 className="h-8 w-8 text-slate-300 dark:text-slate-600 mb-2" />
               <p className="text-sm text-slate-500 dark:text-slate-400">
-                {isAr ? "لا تتوفر بيانات اتجاه المهام" : "No task trend data available"}
+                {tAuto('auto.noTaskTrendDataAvailable')}
               </p>
               <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1">
-                {isAr ? "ستظهر البيانات عند توفر سجل المهام" : "Data will appear when task history is available"}
+                {tAuto('auto.dataWillAppearWhenTaskHistoryIsAvailable')}
               </p>
             </div>
           ) : (
@@ -183,13 +186,13 @@ export function ChartsSection({ projectStatusData, taskTrendData, stats, isAr, l
                 />
                 <Bar
                   dataKey="created"
-                  name={isAr ? "منشأة" : "Created"}
+                  name={tAuto('auto.created')}
                   fill="url(#createdBar)"
                   radius={[6, 6, 0, 0]}
                 />
                 <Bar
                   dataKey="COMPLETED"
-                  name={isAr ? "مكتملة" : "Completed"}
+                  name={tAuto('auto.completed')}
                   fill="url(#completedBar)"
                   radius={[6, 6, 0, 0]}
                 />

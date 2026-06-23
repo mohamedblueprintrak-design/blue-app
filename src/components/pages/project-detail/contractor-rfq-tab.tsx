@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import React, { useState, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
@@ -25,6 +27,7 @@ import type { ContractorRFQBid } from "./types";
 
 // ===== CONTRACTOR RFQ TAB =====
 export default function ContractorRFQTab({ projectId, language }: { projectId: string; language: "ar" | "en" }) {
+  const tAuto = useTranslations();
   const isAr = language === "ar";
   const t = (ar: string, en: string) => (isAr ? ar : en);
   const [activeSub, setActiveSub] = useState("rfq");
@@ -261,7 +264,7 @@ export default function ContractorRFQTab({ projectId, language }: { projectId: s
                           "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"
                         )}>{bid.rfqStatus}</Badge>
                         {bid.quoteFile && <span className="text-emerald-500">✓ {t("عرض مرفوع", "Quote uploaded")}</span>}
-                        {bid.amount > 0 && <span>{bid.amount.toLocaleString()} {isAr ? "د.إ" : "AED"}</span>}
+                        {bid.amount > 0 && <span>{bid.amount.toLocaleString()} {tAuto('auto.aED')}</span>}
                       </div>
                     </div>
                     <div className="flex items-center gap-1">
@@ -365,7 +368,7 @@ export default function ContractorRFQTab({ projectId, language }: { projectId: s
                   <div key={bid.id} className="flex items-center gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
                     <div className="flex-1">
                       <p className="text-xs font-medium">{bid.contractorName}</p>
-                      {bid.amount > 0 && <p className="text-[10px] text-slate-400">{bid.amount.toLocaleString()} {isAr ? "د.إ" : "AED"}</p>}
+                      {bid.amount > 0 && <p className="text-[10px] text-slate-400">{bid.amount.toLocaleString()} {tAuto('auto.aED')}</p>}
                     </div>
                     <Button size="sm" className="h-8 gap-1 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px]"
                       onClick={() => awardMutation.mutate(bid.id)} disabled={awardMutation.isPending}>

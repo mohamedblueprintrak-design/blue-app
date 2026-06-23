@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -28,6 +30,7 @@ import { SupervisionForm } from "./supervision-form";
 import { SupervisionDetail } from "./supervision-detail";
 
 export default function Supervision({ language, projectId }: SupervisionProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const queryClient = useQueryClient();
 
@@ -173,9 +176,9 @@ export default function Supervision({ language, projectId }: SupervisionProps) {
             <ClipboardCheck className="h-4.5 w-4.5 text-teal-600 dark:text-teal-400" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white">{ar ? "الإشراف على التنفيذ" : "Site Supervision"}</h2>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">{tAuto('auto.siteSupervision')}</h2>
             <p className="text-[10px] text-slate-500 dark:text-slate-400">
-              {totalVisits} {ar ? "زيارة إشرافية" : "supervision visits"}
+              {totalVisits} {tAuto('auto.supervisionVisits')}
             </p>
           </div>
         </div>
@@ -184,7 +187,7 @@ export default function Supervision({ language, projectId }: SupervisionProps) {
             <ProjectFilter ar={ar} filterProject={filterProject} onFilterProjectChange={setFilterProject} projects={projects} />
           )}
           <Button size="sm" className="h-8 bg-teal-600 hover:bg-teal-700 text-white rounded-lg shadow-sm shadow-teal-600/20" onClick={() => { resetCreateForm(); setShowCreateDialog(true); }}>
-            <Plus className="h-3.5 w-3.5 me-1" />{ar ? "قائمة مراجعة جديدة" : "New Checklist"}
+            <Plus className="h-3.5 w-3.5 me-1" />{tAuto('auto.newChecklist')}
           </Button>
         </div>
       </div>
@@ -197,11 +200,11 @@ export default function Supervision({ language, projectId }: SupervisionProps) {
         <TabsList className="bg-slate-100 dark:bg-slate-800 h-9">
           <TabsTrigger value="checklists" className="text-xs h-7 px-3 gap-1.5">
             <ClipboardCheck className="h-3 w-3" />
-            {ar ? "قوائم المراجعة" : "Checklists"}
+            {tAuto('auto.checklists')}
           </TabsTrigger>
           <TabsTrigger value="violations" className="text-xs h-7 px-3 gap-1.5">
             <FileWarning className="h-3 w-3" />
-            {ar ? "المخالفات" : "Violations"}
+            {tAuto('auto.violations')}
             {openViolations > 0 && (
               <Badge className="h-4 w-4 p-0 text-[9px] bg-red-500 text-white border-0 rounded-full flex items-center justify-center">
                 {openViolations}

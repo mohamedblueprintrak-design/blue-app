@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -26,6 +28,7 @@ interface RisksProps {
 }
 
 export default function Risks({ language, projectId }: RisksProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const queryClient = useQueryClient();
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -168,7 +171,7 @@ export default function Risks({ language, projectId }: RisksProps) {
           </div>
           <div>
             <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-              {ar ? "إدارة المخاطر" : "Risk Management"}
+              {tAuto('auto.riskManagement')}
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400">
               {ar ? `إجمالي ${risks.length} خطر` : `${risks.length} total risks`}
@@ -181,10 +184,10 @@ export default function Risks({ language, projectId }: RisksProps) {
           <Select value={filterProject} onValueChange={setFilterProject}>
             <SelectTrigger className="w-[160px] h-8 text-xs">
               <Filter className="h-3 w-3 me-1 text-slate-400" />
-              <SelectValue placeholder={ar ? "المشروع" : "Project"} />
+              <SelectValue placeholder={tAuto('auto.project')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{ar ? "جميع المشاريع" : "All Projects"}</SelectItem>
+              <SelectItem value="all">{tAuto('auto.allProjects')}</SelectItem>
               {projects.map((p) => (
                 <SelectItem key={p.id} value={p.id}>
                   {ar ? p.name : p.nameEn || p.name}
@@ -196,10 +199,10 @@ export default function Risks({ language, projectId }: RisksProps) {
 
           <Select value={filterCategory} onValueChange={setFilterCategory}>
             <SelectTrigger className="w-[130px] h-8 text-xs">
-              <SelectValue placeholder={ar ? "التصنيف" : "Category"} />
+              <SelectValue placeholder={tAuto('auto.category')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{ar ? "الكل" : "All"}</SelectItem>
+              <SelectItem value="all">{tAuto('auto.all')}</SelectItem>
               {categories.map((c) => (
                 <SelectItem key={c.value} value={c.value}>{ar ? c.ar : c.en}</SelectItem>
               ))}
@@ -212,7 +215,7 @@ export default function Risks({ language, projectId }: RisksProps) {
             onClick={() => setShowAddDialog(true)}
           >
             <Plus className="h-3.5 w-3.5 me-1" />
-            {ar ? "خطر جديد" : "New Risk"}
+            {tAuto('auto.newRisk')}
           </Button>
         </div>
       </div>

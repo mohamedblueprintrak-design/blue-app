@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -131,6 +133,7 @@ function ProbabilityBar({ probability, ar: _ar }: { probability: number; ar: boo
 interface ProposalsPageProps { language: "ar" | "en"; projectId?: string; }
 
 export default function ProposalsPage({ language, projectId }: ProposalsPageProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
@@ -207,7 +210,7 @@ export default function ProposalsPage({ language, projectId }: ProposalsPageProp
         method: "POST", headers: getMutationHeaders(),
         body: JSON.stringify({
           number: `CTR-${proposal.number}`,
-          title: `${ar ? "عقد من عرض" : "Contract from"} ${proposal.number}`,
+          title: `${tAuto('auto.contractFrom')} ${proposal.number}`,
           clientId: proposal.clientId,
           projectId: proposal.projectId,
           value: proposal.total,
@@ -290,30 +293,30 @@ export default function ProposalsPage({ language, projectId }: ProposalsPageProp
             <FileText className="h-4.5 w-4.5 text-sky-600 dark:text-sky-400" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white">{ar ? "العروض المالية" : "Proposals"}</h2>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">{tAuto('auto.proposals')}</h2>
             <p className="text-[10px] text-slate-500 dark:text-slate-400">
-              {proposals.length} {ar ? "عرض" : "proposals"}
+              {proposals.length} {tAuto('auto.proposals1')}
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2 w-full sm:w-auto sm:ms-auto">
           <div className="relative flex-1 sm:w-64">
             <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-            <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={ar ? "بحث..." : "Search..."} className="ps-9 h-8 text-sm rounded-lg" />
+            <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={tAuto('auto.search1')} className="ps-9 h-8 text-sm rounded-lg" />
           </div>
           <Select value={filterStatus} onValueChange={setFilterStatus}>
             <SelectTrigger className="w-[130px] h-8 text-xs rounded-lg"><SelectValue /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{ar ? "الكل" : "All"}</SelectItem>
-              <SelectItem value="DRAFT">{ar ? "مسودة" : "Draft"}</SelectItem>
-              <SelectItem value="SENT">{ar ? "مرسلة" : "Sent"}</SelectItem>
-              <SelectItem value="ACCEPTED">{ar ? "مقبولة" : "Accepted"}</SelectItem>
-              <SelectItem value="REJECTED">{ar ? "مرفوضة" : "Rejected"}</SelectItem>
-              <SelectItem value="EXPIRED">{ar ? "منتهية" : "Expired"}</SelectItem>
+              <SelectItem value="all">{tAuto('auto.all')}</SelectItem>
+              <SelectItem value="DRAFT">{tAuto('auto.draft')}</SelectItem>
+              <SelectItem value="SENT">{tAuto('auto.sent')}</SelectItem>
+              <SelectItem value="ACCEPTED">{tAuto('auto.accepted')}</SelectItem>
+              <SelectItem value="REJECTED">{tAuto('auto.rejected')}</SelectItem>
+              <SelectItem value="EXPIRED">{tAuto('auto.expired')}</SelectItem>
             </SelectContent>
           </Select>
           <Button size="sm" className="h-8 bg-teal-600 hover:bg-teal-700 text-white rounded-lg shadow-sm shadow-teal-600/20" onClick={() => { setFormData(emptyForm); setShowDialog(true); }}>
-            <Plus className="h-3.5 w-3.5 me-1" />{ar ? "عرض جديد" : "New Proposal"}
+            <Plus className="h-3.5 w-3.5 me-1" />{tAuto('auto.newProposal')}
           </Button>
         </div>
       </div>
@@ -325,7 +328,7 @@ export default function ProposalsPage({ language, projectId }: ProposalsPageProp
           <div className="bg-gradient-to-br from-slate-600 to-slate-700 dark:from-slate-700 dark:to-slate-800 p-4">
             <div className="flex items-center gap-2 mb-2">
               <div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm"><FileText className="h-3.5 w-3.5 text-white" /></div>
-              <span className="text-xs text-slate-200">{ar ? "إجمالي العروض" : "Total Proposals"}</span>
+              <span className="text-xs text-slate-200">{tAuto('auto.totalProposals')}</span>
             </div>
             <div className="text-xl font-bold text-white tabular-nums">{totalProposals}</div>
             <p className="text-[10px] text-white/60 mt-1">
@@ -339,7 +342,7 @@ export default function ProposalsPage({ language, projectId }: ProposalsPageProp
           <div className="bg-gradient-to-br from-sky-500 to-sky-600 dark:from-sky-600 dark:to-sky-700 p-4">
             <div className="flex items-center gap-2 mb-2">
               <div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm"><Target className="h-3.5 w-3.5 text-white" /></div>
-              <span className="text-xs text-sky-100">{ar ? "نشطة" : "Active"}</span>
+              <span className="text-xs text-sky-100">{tAuto('auto.active')}</span>
             </div>
             <div className="text-xl font-bold text-white tabular-nums">{activeProposals}</div>
             <p className="text-[10px] text-white/60 mt-1">
@@ -353,7 +356,7 @@ export default function ProposalsPage({ language, projectId }: ProposalsPageProp
           <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 dark:from-emerald-600 dark:to-emerald-700 p-4">
             <div className="flex items-center gap-2 mb-2">
               <div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm"><Award className="h-3.5 w-3.5 text-white" /></div>
-              <span className="text-xs text-emerald-100">{ar ? "تم تحويلها لعقد" : "Converted"}</span>
+              <span className="text-xs text-emerald-100">{tAuto('auto.converted')}</span>
             </div>
             <div className="text-xl font-bold text-white tabular-nums">{convertedCount}</div>
             <p className="text-[10px] text-white/60 mt-1">
@@ -367,12 +370,12 @@ export default function ProposalsPage({ language, projectId }: ProposalsPageProp
           <CardContent className="p-4">
             <div className="flex items-center gap-2 mb-2">
               <div className="p-1.5 rounded-lg bg-teal-100 dark:bg-teal-900/50"><TrendingUp className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" /></div>
-              <span className="text-xs text-slate-500 dark:text-slate-400">{ar ? "نسبة التحويل" : "Conversion Rate"}</span>
+              <span className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.conversionRate')}</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-xl font-bold text-teal-600 dark:text-teal-400 tabular-nums">{conversionRate}%</span>
               <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-semibold bg-teal-100 text-teal-700 dark:bg-teal-900/50 dark:text-teal-300">
-                {parseFloat(conversionRate) >= 50 ? (ar ? "ممتاز" : "Excellent") : parseFloat(conversionRate) >= 30 ? (ar ? "جيد" : "Good") : (ar ? "يحتاج تحسين" : "Needs Work")}
+                {parseFloat(conversionRate) >= 50 ? (tAuto('auto.excellent')) : parseFloat(conversionRate) >= 30 ? (tAuto('auto.good')) : (tAuto('auto.needsWork'))}
               </span>
             </div>
           </CardContent>
@@ -385,14 +388,14 @@ export default function ProposalsPage({ language, projectId }: ProposalsPageProp
           <Table>
             <TableHeader>
               <TableRow className="hover:bg-transparent bg-slate-50/80 dark:bg-slate-800/50">
-                <TableHead className="text-xs font-semibold">{ar ? "الرقم" : "No."}</TableHead>
-                <TableHead className="text-xs font-semibold">{ar ? "العميل" : "Client"}</TableHead>
-                <TableHead className="text-xs font-semibold hidden md:table-cell">{ar ? "المشروع" : "Project"}</TableHead>
-                <TableHead className="text-xs font-semibold text-end">{ar ? "المجموع" : "Total (AED)"}</TableHead>
-                <TableHead className="text-xs font-semibold">{ar ? "الاحتمالية" : "Win Chance"}</TableHead>
-                <TableHead className="text-xs font-semibold">{ar ? "الحالة" : "Status"}</TableHead>
-                <TableHead className="text-xs font-semibold hidden sm:table-cell">{ar ? "التاريخ" : "Date"}</TableHead>
-                <TableHead className="text-xs font-semibold text-start">{ar ? "إجراءات" : "Actions"}</TableHead>
+                <TableHead className="text-xs font-semibold">{tAuto('auto.no')}</TableHead>
+                <TableHead className="text-xs font-semibold">{tAuto('auto.client')}</TableHead>
+                <TableHead className="text-xs font-semibold hidden md:table-cell">{tAuto('auto.project')}</TableHead>
+                <TableHead className="text-xs font-semibold text-end">{tAuto('auto.totalAED')}</TableHead>
+                <TableHead className="text-xs font-semibold">{tAuto('auto.winChance')}</TableHead>
+                <TableHead className="text-xs font-semibold">{tAuto('auto.status1')}</TableHead>
+                <TableHead className="text-xs font-semibold hidden sm:table-cell">{tAuto('auto.date')}</TableHead>
+                <TableHead className="text-xs font-semibold text-start">{tAuto('auto.actions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -441,15 +444,15 @@ export default function ProposalsPage({ language, projectId }: ProposalsPageProp
                         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(proposal)} aria-label="Edit"><Pencil className="h-3.5 w-3.5" /></Button>
                         {proposal.status === "ACCEPTED" && (
                           <Button variant="ghost" size="sm" className="h-7 text-xs text-teal-600 hover:text-teal-700" onClick={() => {
-                            if (confirm(ar ? "تحويل العرض إلى عقد؟" : "Convert proposal to contract?")) {
+                            if (confirm(tAuto('auto.convertProposalToContract'))) {
                               convertMutation.mutate(proposal);
                             }
                           }}>
-                            <Send className="h-3.5 w-3.5 me-1" />{ar ? "تحويل لعقد" : "To Contract"}
+                            <Send className="h-3.5 w-3.5 me-1" />{tAuto('auto.toContract')}
                           </Button>
                         )}
                         <Button variant="ghost" size="icon" className="h-7 w-7 text-red-500" onClick={() => {
-                          if (confirm(ar ? "حذف العرض؟" : "Delete proposal?")) deleteMutation.mutate(proposal.id);
+                          if (confirm(tAuto('auto.deleteProposal'))) deleteMutation.mutate(proposal.id);
                         }} aria-label="Delete"><Trash2 className="h-3.5 w-3.5" /></Button>
                       </div>
                     </TableCell>
@@ -459,7 +462,7 @@ export default function ProposalsPage({ language, projectId }: ProposalsPageProp
               {filtered.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={8} className="text-center py-12 text-slate-400">
-                    {ar ? "لا توجد عروض" : "No proposals found"}
+                    {tAuto('auto.noProposalsFound')}
                   </TableCell>
                 </TableRow>
               )}
@@ -472,67 +475,67 @@ export default function ProposalsPage({ language, projectId }: ProposalsPageProp
       <Dialog open={showDialog || !!editProposal} onOpenChange={(open) => { if (!open) { setShowDialog(false); setEditProposal(null); setFormData(emptyForm); } }}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{editProposal ? (ar ? "تعديل عرض" : "Edit Proposal") : (ar ? "عرض جديد" : "New Proposal")}</DialogTitle>
-            <DialogDescription>{editProposal ? (ar ? "تعديل بيانات العرض" : "Update proposal details") : (ar ? "إنشاء عرض مالي جديد" : "Create a new proposal")}</DialogDescription>
+            <DialogTitle>{editProposal ? (tAuto('auto.editProposal')) : (tAuto('auto.newProposal'))}</DialogTitle>
+            <DialogDescription>{editProposal ? (tAuto('auto.updateProposalDetails')) : (tAuto('auto.createANewProposal'))}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <div className="space-y-1">
-                <Label className="text-xs">{ar ? "رقم العرض" : "Proposal No."}</Label>
+                <Label className="text-xs">{tAuto('auto.proposalNo')}</Label>
                 <Input value={formData.number} onChange={(e) => setFormData({ ...formData, number: e.target.value })} placeholder="PRP-001" className="h-8 text-sm rounded-lg" />
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">{ar ? "العميل" : "Client"} *</Label>
+                <Label className="text-xs">{tAuto('auto.client')} *</Label>
                 <Select value={formData.clientId} onValueChange={(v) => setFormData({ ...formData, clientId: v })}>
-                  <SelectTrigger className="h-8 text-sm rounded-lg"><SelectValue placeholder={ar ? "اختر عميل" : "Select client"} /></SelectTrigger>
+                  <SelectTrigger className="h-8 text-sm rounded-lg"><SelectValue placeholder={tAuto('auto.selectClient')} /></SelectTrigger>
                   <SelectContent>
                     {clients.map((c) => (<SelectItem key={c.id} value={c.id}>{c.name}{c.company ? ` (${c.company})` : ""}</SelectItem>))}
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">{ar ? "المشروع" : "Project"}</Label>
+                <Label className="text-xs">{tAuto('auto.project')}</Label>
                 <Select value={formData.projectId} onValueChange={(v) => setFormData({ ...formData, projectId: v })}>
-                  <SelectTrigger className="h-8 text-sm rounded-lg"><SelectValue placeholder={ar ? "اختر مشروع" : "Select project"} /></SelectTrigger>
+                  <SelectTrigger className="h-8 text-sm rounded-lg"><SelectValue placeholder={tAuto('auto.selectProject')} /></SelectTrigger>
                   <SelectContent>
                     {projects.map((p) => (<SelectItem key={p.id} value={p.id}>{ar ? p.name : p.nameEn || p.name}</SelectItem>))}
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">{ar ? "الحالة" : "Status"}</Label>
+                <Label className="text-xs">{tAuto('auto.status1')}</Label>
                 <Select value={formData.status} onValueChange={(v) => setFormData({ ...formData, status: v })}>
                   <SelectTrigger className="h-8 text-sm rounded-lg"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="DRAFT">{ar ? "مسودة" : "Draft"}</SelectItem>
-                    <SelectItem value="SENT">{ar ? "مرسلة" : "Sent"}</SelectItem>
-                    <SelectItem value="ACCEPTED">{ar ? "مقبولة" : "Accepted"}</SelectItem>
-                    <SelectItem value="REJECTED">{ar ? "مرفوضة" : "Rejected"}</SelectItem>
-                    <SelectItem value="EXPIRED">{ar ? "منتهية" : "Expired"}</SelectItem>
+                    <SelectItem value="DRAFT">{tAuto('auto.draft')}</SelectItem>
+                    <SelectItem value="SENT">{tAuto('auto.sent')}</SelectItem>
+                    <SelectItem value="ACCEPTED">{tAuto('auto.accepted')}</SelectItem>
+                    <SelectItem value="REJECTED">{tAuto('auto.rejected')}</SelectItem>
+                    <SelectItem value="EXPIRED">{tAuto('auto.expired')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
 
             <div className="space-y-1">
-              <Label className="text-xs">{ar ? "ملاحظات" : "Notes"}</Label>
-              <Input value={formData.notes} onChange={(e) => setFormData({ ...formData, notes: e.target.value })} placeholder={ar ? "ملاحظات إضافية" : "Additional notes"} className="h-8 text-sm rounded-lg" />
+              <Label className="text-xs">{tAuto('auto.notes')}</Label>
+              <Input value={formData.notes} onChange={(e) => setFormData({ ...formData, notes: e.target.value })} placeholder={tAuto('auto.additionalNotes')} className="h-8 text-sm rounded-lg" />
             </div>
 
             {/* Line Items */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <Label className="text-sm font-semibold">{ar ? "بنود العرض" : "Line Items"}</Label>
-                <Button variant="outline" size="sm" className="h-7 text-xs rounded-lg" onClick={addLineItem}><Plus className="h-3 w-3 me-1" />{ar ? "إضافة بند" : "Add Item"}</Button>
+                <Label className="text-sm font-semibold">{tAuto('auto.lineItems')}</Label>
+                <Button variant="outline" size="sm" className="h-7 text-xs rounded-lg" onClick={addLineItem}><Plus className="h-3 w-3 me-1" />{tAuto('auto.addItem1')}</Button>
               </div>
               <div className="rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
                 <Table>
                   <TableHeader>
                     <TableRow className="hover:bg-transparent bg-slate-50 dark:bg-slate-800/50">
-                      <TableHead className="text-xs">{ar ? "الوصف" : "Description"}</TableHead>
-                      <TableHead className="text-xs w-24">{ar ? "الكمية" : "Qty"}</TableHead>
-                      <TableHead className="text-xs w-28">{ar ? "سعر الوحدة" : "Unit Price"}</TableHead>
-                      <TableHead className="text-xs w-28 text-end">{ar ? "الإجمالي" : "Total"}</TableHead>
+                      <TableHead className="text-xs">{tAuto('auto.description')}</TableHead>
+                      <TableHead className="text-xs w-24">{tAuto('auto.qty')}</TableHead>
+                      <TableHead className="text-xs w-28">{tAuto('auto.unitPrice')}</TableHead>
+                      <TableHead className="text-xs w-28 text-end">{tAuto('auto.total')}</TableHead>
                       <TableHead className="w-10"></TableHead>
                     </TableRow>
                   </TableHeader>
@@ -545,7 +548,7 @@ export default function ProposalsPage({ language, projectId }: ProposalsPageProp
                         <TableCell className="text-end text-sm font-medium tabular-nums font-mono">{formatCurrency(item.quantity * item.unitPrice, ar)}</TableCell>
                         <TableCell>
                           {formData.items.length > 1 && (
-                            <Button variant="ghost" size="icon" className="h-7 w-7 text-red-400" onClick={() => removeLineItem(idx)} aria-label={ar ? "حذف البند" : "Remove item"}><X className="h-3.5 w-3.5" /></Button>
+                            <Button variant="ghost" size="icon" className="h-7 w-7 text-red-400" onClick={() => removeLineItem(idx)} aria-label={tAuto('auto.removeItem')}><X className="h-3.5 w-3.5" /></Button>
                           )}
                         </TableCell>
                       </TableRow>
@@ -558,18 +561,18 @@ export default function ProposalsPage({ language, projectId }: ProposalsPageProp
             {/* Totals */}
             <div className="flex justify-end">
               <div className="w-72 rounded-xl border border-slate-200 dark:border-slate-700 p-4 bg-gradient-to-br from-slate-50 to-white dark:from-slate-800/50 dark:to-slate-900 space-y-2.5">
-                <div className="flex justify-between text-sm"><span className="text-slate-500">{ar ? "المجموع الفرعي" : "Subtotal"}</span><span className="tabular-nums font-mono text-slate-700 dark:text-slate-300">{formatCurrency(calcSubtotal, ar)}</span></div>
-                <div className="flex justify-between text-sm"><span className="text-slate-500">{ar ? "الضريبة (5%)" : "Tax (5%)"}</span><span className="tabular-nums font-mono text-slate-700 dark:text-slate-300">{formatCurrency(calcTax, ar)}</span></div>
+                <div className="flex justify-between text-sm"><span className="text-slate-500">{tAuto('auto.subtotal')}</span><span className="tabular-nums font-mono text-slate-700 dark:text-slate-300">{formatCurrency(calcSubtotal, ar)}</span></div>
+                <div className="flex justify-between text-sm"><span className="text-slate-500">{tAuto('auto.tax5')}</span><span className="tabular-nums font-mono text-slate-700 dark:text-slate-300">{formatCurrency(calcTax, ar)}</span></div>
                 <div className="border-t border-slate-200 dark:border-slate-700 pt-2.5">
-                  <div className="flex justify-between text-base font-bold"><span>{ar ? "الإجمالي" : "Total"}</span><span className="text-teal-600 dark:text-teal-400 tabular-nums font-mono">{formatCurrency(calcTotal, ar)}</span></div>
+                  <div className="flex justify-between text-base font-bold"><span>{tAuto('auto.total')}</span><span className="text-teal-600 dark:text-teal-400 tabular-nums font-mono">{formatCurrency(calcTotal, ar)}</span></div>
                 </div>
               </div>
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => { setShowDialog(false); setEditProposal(null); setFormData(emptyForm); }}>{ar ? "إلغاء" : "Cancel"}</Button>
+            <Button variant="outline" onClick={() => { setShowDialog(false); setEditProposal(null); setFormData(emptyForm); }}>{tAuto('auto.cancel')}</Button>
             <Button className="bg-teal-600 hover:bg-teal-700 text-white" onClick={handleSave} disabled={!formData.clientId || createMutation.isPending || updateMutation.isPending}>
-              {(createMutation.isPending || updateMutation.isPending) ? (ar ? "جارٍ الحفظ..." : "Saving...") : (ar ? "حفظ" : "Save")}
+              {(createMutation.isPending || updateMutation.isPending) ? (tAuto('auto.saving')) : (tAuto('auto.save'))}
             </Button>
           </DialogFooter>
         </DialogContent>

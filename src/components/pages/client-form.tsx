@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -52,6 +54,7 @@ interface ClientFormDialogProps {
 }
 
 export default function ClientFormDialog({ open, onOpenChange, editClient, onSave, isSaving, ar }: ClientFormDialogProps) {
+  const tAuto = useTranslations();
   // Form state for fields not in Zod schema (managed via local state)
   const [formClientType, setFormClientType] = useState<string>("INDIVIDUAL");
   const [formServices, setFormServices] = useState<string[]>([]);
@@ -152,12 +155,12 @@ export default function ClientFormDialog({ open, onOpenChange, editClient, onSav
       <DialogContent className="max-w-4xl max-h-[92vh] overflow-hidden flex flex-col">
         <DialogHeader className="shrink-0">
           <DialogTitle>
-            {editClient ? (ar ? "تعديل عميل" : "Edit Client") : (ar ? "عميل جديد" : "New Client")}
+            {editClient ? (tAuto('auto.editClient')) : (tAuto('auto.newClient'))}
           </DialogTitle>
           <DialogDescription>
             {editClient
-              ? (ar ? "تعديل بيانات العميل" : "Edit client information")
-              : (ar ? "إضافة عميل جديد" : "Add a new client")}
+              ? (tAuto('auto.editClientInformation'))
+              : (tAuto('auto.addANewClient'))}
           </DialogDescription>
         </DialogHeader>
 
@@ -165,19 +168,19 @@ export default function ClientFormDialog({ open, onOpenChange, editClient, onSav
           <Tabs defaultValue="basic" dir={ar ? "rtl" : "ltr"} className="flex-1 flex flex-col overflow-hidden">
             <TabsList className="w-full grid grid-cols-5 shrink-0 h-9 bg-slate-100 dark:bg-slate-800">
               <TabsTrigger value="basic" className="text-xs gap-1">
-                {ar ? "الأساسية" : "Basic"}
+                {tAuto('auto.basic')}
               </TabsTrigger>
               <TabsTrigger value="contact" className="text-xs gap-1">
-                {ar ? "الاتصال" : "Contact"}
+                {tAuto('auto.contact')}
               </TabsTrigger>
               <TabsTrigger value="SERVICES" className="text-xs gap-1">
-                {ar ? "الخدمات" : "Services"}
+                {tAuto('auto.services')}
               </TabsTrigger>
               <TabsTrigger value="land" className="text-xs gap-1">
-                {ar ? "الأرض" : "Land"}
+                {tAuto('auto.land')}
               </TabsTrigger>
               <TabsTrigger value="REFERRAL" className="text-xs gap-1">
-                {ar ? "المصدر" : "Referral"}
+                {tAuto('auto.referral')}
               </TabsTrigger>
             </TabsList>
 
@@ -186,7 +189,7 @@ export default function ClientFormDialog({ open, onOpenChange, editClient, onSav
               <TabsContent value="basic" className="space-y-4 px-1">
                 {/* Client Type */}
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">{ar ? "نوع العميل" : "Client Type"} *</Label>
+                  <Label className="text-sm font-medium">{tAuto('auto.clientType')} *</Label>
                   <RadioGroup
                     value={formClientType}
                     onValueChange={setFormClientType}
@@ -197,21 +200,21 @@ export default function ClientFormDialog({ open, onOpenChange, editClient, onSav
                       <RadioGroupItem value="INDIVIDUAL" id="type-individual" />
                       <Label htmlFor="type-individual" className="text-sm cursor-pointer flex items-center gap-1.5">
                         <User className="h-3.5 w-3.5 text-sky-500" />
-                        {ar ? "فرد" : "Individual"}
+                        {tAuto('auto.individual')}
                       </Label>
                     </div>
                     <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer">
                       <RadioGroupItem value="COMPANY" id="type-company" />
                       <Label htmlFor="type-company" className="text-sm cursor-pointer flex items-center gap-1.5">
                         <Briefcase className="h-3.5 w-3.5 text-violet-500" />
-                        {ar ? "شركة" : "Company"}
+                        {tAuto('auto.company')}
                       </Label>
                     </div>
                     <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer">
                       <RadioGroupItem value="GOVERNMENT" id="type-government" />
                       <Label htmlFor="type-government" className="text-sm cursor-pointer flex items-center gap-1.5">
                         <Landmark className="h-3.5 w-3.5 text-amber-500" />
-                        {ar ? "حكومة" : "Government"}
+                        {tAuto('auto.government')}
                       </Label>
                     </div>
                   </RadioGroup>
@@ -220,20 +223,20 @@ export default function ClientFormDialog({ open, onOpenChange, editClient, onSav
                 {/* Name Arabic + English */}
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-2">
-                    <Label className="text-sm">{ar ? "الاسم (عربي)" : "Name (Arabic)"} *</Label>
+                    <Label className="text-sm">{tAuto('auto.nameArabic')} *</Label>
                     <Input
                       {...register("name")}
-                      placeholder={ar ? "اسم العميل بالعربي" : "Client name in Arabic"}
+                      placeholder={tAuto('auto.clientNameInArabic')}
                       dir="rtl"
                       className={cn(errors.name && "border-red-500 focus:ring-red-500/20 focus:border-red-500")}
                     />
                     {errors.name && <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle className="h-3 w-3 shrink-0" />{getErrorMessage(errors.name.message || "", ar)}</p>}
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm">{ar ? "الاسم (إنجليزي)" : "Name (English)"}</Label>
+                    <Label className="text-sm">{tAuto('auto.nameEnglish')}</Label>
                     <Input
                       {...registerExtra("nameEn")}
-                      placeholder={ar ? "اسم العميل بالإنجليزي" : "Client name in English"}
+                      placeholder={tAuto('auto.clientNameInEnglish')}
                       dir="ltr"
                     />
                   </div>
@@ -243,18 +246,18 @@ export default function ClientFormDialog({ open, onOpenChange, editClient, onSav
                 {(formClientType === "COMPANY" || formClientType === "GOVERNMENT") && (
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-2">
-                      <Label className="text-sm">{ar ? "اسم الجهة (عربي)" : "Organization (Arabic)"}</Label>
+                      <Label className="text-sm">{tAuto('auto.organizationArabic')}</Label>
                       <Input
                         {...register("company")}
-                        placeholder={ar ? "اسم الشركة/الجهة" : "Company/Organization name"}
+                        placeholder={tAuto('auto.companyOrganizationName')}
                         dir="rtl"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-sm">{ar ? "اسم الجهة (إنجليزي)" : "Organization (English)"}</Label>
+                      <Label className="text-sm">{tAuto('auto.organizationEnglish')}</Label>
                       <Input
                         {...registerExtra("companyEn")}
-                        placeholder={ar ? "اسم الشركة بالإنجليزي" : "Organization in English"}
+                        placeholder={tAuto('auto.organizationInEnglish')}
                         dir="ltr"
                       />
                     </div>
@@ -266,8 +269,8 @@ export default function ClientFormDialog({ open, onOpenChange, editClient, onSav
                   <div className="space-y-2">
                     <Label className="text-sm">
                       {formClientType === "INDIVIDUAL"
-                        ? (ar ? "رقم الهوية الإماراتية" : "UAE ID Number")
-                        : (ar ? "السجل التجاري" : "Commercial Registration")}
+                        ? (tAuto('auto.uAEIDNumber'))
+                        : (tAuto('auto.commercialRegistration'))}
                     </Label>
                     <Input
                       {...registerExtra("idNumber")}
@@ -275,13 +278,13 @@ export default function ClientFormDialog({ open, onOpenChange, editClient, onSav
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm">{ar ? "الجنسية" : "Nationality"}</Label>
+                    <Label className="text-sm">{tAuto('auto.nationality1')}</Label>
                     <Select
                       value={watchField("nationality") || ""}
                       onValueChange={(v) => setValueExtra("nationality", v)}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder={ar ? "اختر الجنسية..." : "Select nationality..."} />
+                        <SelectValue placeholder={tAuto('auto.selectNationality')} />
                       </SelectTrigger>
                       <SelectContent>
                         {NATIONALITIES.map((n) => (
@@ -296,7 +299,7 @@ export default function ClientFormDialog({ open, onOpenChange, editClient, onSav
 
                 {/* ID Photo Upload */}
                 <div className="space-y-2">
-                  <Label className="text-sm">{ar ? "صورة الهوية" : "ID Photo"}</Label>
+                  <Label className="text-sm">{tAuto('auto.iDPhoto')}</Label>
                   <div className="flex items-center gap-3">
                     <div className="relative">
                       {watchField("idPhoto") ? (
@@ -325,7 +328,7 @@ export default function ClientFormDialog({ open, onOpenChange, editClient, onSav
                             if (input.files && input.files[0]) {
                               const file = input.files[0];
                               if (file.size > 5 * 1024 * 1024) {
-                                alert(ar ? "حجم الملف يجب أن يكون أقل من 5 ميجابايت" : "File size must be less than 5MB");
+                                alert(tAuto('auto.fileSizeMustBeLessThan5MB'));
                                 return;
                               }
                               setValueExtra("idPhoto", file.name);
@@ -335,7 +338,7 @@ export default function ClientFormDialog({ open, onOpenChange, editClient, onSav
                         }}
                       >
                         <Upload className="h-3.5 w-3.5" />
-                        {ar ? "اختيار ملف" : "Choose File"}
+                        {tAuto('auto.chooseFile')}
                       </Button>
                       {watchField("idPhoto") && (
                         <span className="text-xs text-slate-500 flex items-center gap-1">
@@ -344,7 +347,7 @@ export default function ClientFormDialog({ open, onOpenChange, editClient, onSav
                         </span>
                       )}
                       <p className="text-[10px] text-slate-400">
-                        {ar ? "JPG, PNG أو WebP - حد أقصى 5 ميجابايت" : "JPG, PNG or WebP - Max 5MB"}
+                        {tAuto('auto.jPGPNGOrWebPMax5MB')}
                       </p>
                     </div>
                   </div>
@@ -354,20 +357,20 @@ export default function ClientFormDialog({ open, onOpenChange, editClient, onSav
                 {/* Credit Limit & Payment Terms */}
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-2">
-                    <Label className="text-sm">{ar ? "حد الائتمان" : "Credit Limit"} ({ar ? "د.إ" : "AED"})</Label>
+                    <Label className="text-sm">{tAuto('auto.creditLimit')} ({tAuto('auto.aED')})</Label>
                     <Input type="number" {...register("creditLimit")} placeholder="0" />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm">{ar ? "شروط الدفع" : "Payment Terms"}</Label>
-                    <Input {...register("paymentTerms")} placeholder={ar ? "مثال: 30 يوم" : "e.g., Net 30"} />
+                    <Label className="text-sm">{tAuto('auto.paymentTerms')}</Label>
+                    <Input {...register("paymentTerms")} placeholder={tAuto('auto.eGNet30')} />
                   </div>
                 </div>
 
                 {/* Tax Number */}
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-2">
-                    <Label className="text-sm">{ar ? "الرقم الضريبي" : "Tax Number"}</Label>
-                    <Input {...register("taxNumber")} placeholder={ar ? "الرقم الضريبي" : "Tax number"} />
+                    <Label className="text-sm">{tAuto('auto.taxNumber')}</Label>
+                    <Input {...register("taxNumber")} placeholder={tAuto('auto.taxNumber1')} />
                   </div>
                 </div>
               </TabsContent>
@@ -376,7 +379,7 @@ export default function ClientFormDialog({ open, onOpenChange, editClient, onSav
               <TabsContent value="contact" className="space-y-4 px-1">
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-2">
-                    <Label className="text-sm">{ar ? "البريد الإلكتروني" : "Email"}</Label>
+                    <Label className="text-sm">{tAuto('auto.email')}</Label>
                     <Input
                       type="email"
                       {...register("email")}
@@ -386,7 +389,7 @@ export default function ClientFormDialog({ open, onOpenChange, editClient, onSav
                     {errors.email && <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle className="h-3 w-3 shrink-0" />{getErrorMessage(errors.email.message || "", ar)}</p>}
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm">{ar ? "رقم الهاتف" : "Mobile Phone"} *</Label>
+                    <Label className="text-sm">{tAuto('auto.mobilePhone')} *</Label>
                     <Input
                       {...register("phone")}
                       placeholder="+971 XX XXX XXXX"
@@ -398,7 +401,7 @@ export default function ClientFormDialog({ open, onOpenChange, editClient, onSav
                 <div className="grid grid-cols-2 gap-3">
 
                   <div className="space-y-2">
-                    <Label className="text-sm">{ar ? "هاتف إضافي" : "Extra Phone"}</Label>
+                    <Label className="text-sm">{tAuto('auto.extraPhone')}</Label>
                     <Input
                       {...registerExtra("extraPhone")}
                       placeholder="+971 XX XXX XXXX"
@@ -413,17 +416,17 @@ export default function ClientFormDialog({ open, onOpenChange, editClient, onSav
                 <div className="space-y-3">
                   <Label className="text-sm font-medium flex items-center gap-1.5">
                     <MapPin className="h-3.5 w-3.5 text-rose-500" />
-                    {ar ? "العنوان التفصيلي" : "Full Address"}
+                    {tAuto('auto.fullAddress')}
                   </Label>
                   <div className="grid grid-cols-3 gap-3">
                     <div className="space-y-2">
-                      <Label className="text-xs text-slate-500">{ar ? "الإمارة" : "Emirate"}</Label>
+                      <Label className="text-xs text-slate-500">{tAuto('auto.emirate')}</Label>
                       <Select
                         value={formAddress.emirate || ""}
                         onValueChange={(v) => setFormAddress((p) => ({ ...p, emirate: v }))}
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder={ar ? "اختر الإمارة..." : "Select emirate..."} />
+                          <SelectValue placeholder={tAuto('auto.selectEmirate')} />
                         </SelectTrigger>
                         <SelectContent>
                           {EMIRATES.map((e) => (
@@ -435,45 +438,45 @@ export default function ClientFormDialog({ open, onOpenChange, editClient, onSav
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-xs text-slate-500">{ar ? "المدينة" : "City"}</Label>
+                      <Label className="text-xs text-slate-500">{tAuto('auto.city')}</Label>
                       <Input
                         value={formAddress.city || ""}
                         onChange={(e) => setFormAddress((p) => ({ ...p, city: e.target.value }))}
-                        placeholder={ar ? "المدينة" : "City"}
+                        placeholder={tAuto('auto.city')}
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-xs text-slate-500">{ar ? "المنطقة" : "Area"}</Label>
+                      <Label className="text-xs text-slate-500">{tAuto('auto.area1')}</Label>
                       <Input
                         value={formAddress.area || ""}
                         onChange={(e) => setFormAddress((p) => ({ ...p, area: e.target.value }))}
-                        placeholder={ar ? "المنطقة" : "Area"}
+                        placeholder={tAuto('auto.area1')}
                       />
                     </div>
                   </div>
                   <div className="grid grid-cols-3 gap-3">
                     <div className="space-y-2">
-                      <Label className="text-xs text-slate-500">{ar ? "الشارع" : "Street"}</Label>
+                      <Label className="text-xs text-slate-500">{tAuto('auto.street')}</Label>
                       <Input
                         value={formAddress.street || ""}
                         onChange={(e) => setFormAddress((p) => ({ ...p, street: e.target.value }))}
-                        placeholder={ar ? "الشارع" : "Street"}
+                        placeholder={tAuto('auto.street')}
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-xs text-slate-500">{ar ? "المبنى" : "Building"}</Label>
+                      <Label className="text-xs text-slate-500">{tAuto('auto.building')}</Label>
                       <Input
                         value={formAddress.building || ""}
                         onChange={(e) => setFormAddress((p) => ({ ...p, BUILDING: e.target.value }))}
-                        placeholder={ar ? "رقم المبنى" : "Building No."}
+                        placeholder={tAuto('auto.buildingNo')}
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-xs text-slate-500">{ar ? "الوحدة / الشقة" : "Unit / Apt"}</Label>
+                      <Label className="text-xs text-slate-500">{tAuto('auto.unitApt')}</Label>
                       <Input
                         value={formAddress.unit || ""}
                         onChange={(e) => setFormAddress((p) => ({ ...p, unit: e.target.value }))}
-                        placeholder={ar ? "رقم الوحدة" : "Unit No."}
+                        placeholder={tAuto('auto.unitNo')}
                       />
                     </div>
                   </div>
@@ -481,8 +484,8 @@ export default function ClientFormDialog({ open, onOpenChange, editClient, onSav
 
                 {/* Simple address (legacy) */}
                 <div className="space-y-2">
-                  <Label className="text-xs text-slate-400">{ar ? "عنوان مبسط (اختياري)" : "Simple address (optional)"}</Label>
-                  <Input {...register("address")} placeholder={ar ? "عنوان العميل" : "Client address"} />
+                  <Label className="text-xs text-slate-400">{tAuto('auto.simpleAddressOptional')}</Label>
+                  <Input {...register("address")} placeholder={tAuto('auto.clientAddress')} />
                 </div>
               </TabsContent>
 
@@ -490,7 +493,7 @@ export default function ClientFormDialog({ open, onOpenChange, editClient, onSav
               <TabsContent value="SERVICES" className="space-y-4 px-1">
                 {/* Services Wanted as Checkboxes */}
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">{ar ? "الخدمات المطلوبة" : "Services Wanted"}</Label>
+                  <Label className="text-sm font-medium">{tAuto('auto.servicesWanted')}</Label>
                   <div className="grid grid-cols-2 gap-2">
                     {SERVICES.map((service) => (
                       <div
@@ -519,7 +522,7 @@ export default function ClientFormDialog({ open, onOpenChange, editClient, onSav
 
                 {/* Project Type */}
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">{ar ? "نوع المشروع" : "Project Type"}</Label>
+                  <Label className="text-sm font-medium">{tAuto('auto.projectType')}</Label>
                   <RadioGroup
                     value={formProjectType}
                     onValueChange={setFormProjectType}
@@ -549,10 +552,10 @@ export default function ClientFormDialog({ open, onOpenChange, editClient, onSav
 
                 {/* Notes */}
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">{ar ? "ملاحظات / تفاصيل" : "Notes / Details"}</Label>
+                  <Label className="text-sm font-medium">{tAuto('auto.notesDetails')}</Label>
                   <textarea
                     {...registerExtra("notes")}
-                    placeholder={ar ? "وصف تفصيلي لما يريد العميل..." : "Describe what the client needs..."}
+                    placeholder={tAuto('auto.describeWhatTheClientNeeds')}
                     rows={4}
                     className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 resize-none"
                   />
@@ -561,29 +564,29 @@ export default function ClientFormDialog({ open, onOpenChange, editClient, onSav
                 {/* Legacy fields: Service Type + Notes */}
                 <Separator />
                 <div className="space-y-2">
-                  <Label className="text-xs text-slate-400">{ar ? "الغرض من التواصل (قديم)" : "Purpose of Visit (legacy)"}</Label>
+                  <Label className="text-xs text-slate-400">{tAuto('auto.purposeOfVisitLegacy')}</Label>
                   <Select
                     value={watch("serviceType") || ""}
                     onValueChange={(v) => setValue("serviceType", v)}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder={ar ? "اختر الغرض..." : "Select purpose..."} />
+                      <SelectValue placeholder={tAuto('auto.selectPurpose')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="consultation">{ar ? "استشارة هندسية" : "Engineering Consultation"}</SelectItem>
-                      <SelectItem value="design">{ar ? "تصميم (معماري/إنشائي/MEP)" : "Design (Arch/Struct/MEP)"}</SelectItem>
-                      <SelectItem value="license">{ar ? "استخراج ترخيص بلدي" : "Municipality License"}</SelectItem>
-                      <SelectItem value="supervision">{ar ? "إشراف على التنفيذ" : "Construction Supervision"}</SelectItem>
-                      <SelectItem value="inspection">{ar ? "فحص هندسي" : "Engineering Inspection"}</SelectItem>
-                      <SelectItem value="other">{ar ? "أخرى" : "Other"}</SelectItem>
+                      <SelectItem value="consultation">{tAuto('auto.engineeringConsultation')}</SelectItem>
+                      <SelectItem value="design">{tAuto('auto.designArchStructMEP')}</SelectItem>
+                      <SelectItem value="license">{tAuto('auto.municipalityLicense')}</SelectItem>
+                      <SelectItem value="supervision">{tAuto('auto.constructionSupervision')}</SelectItem>
+                      <SelectItem value="inspection">{tAuto('auto.engineeringInspection')}</SelectItem>
+                      <SelectItem value="other">{tAuto('auto.other')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-xs text-slate-400">{ar ? "تفاصيل إضافية (قديم)" : "Additional Details (legacy)"}</Label>
+                  <Label className="text-xs text-slate-400">{tAuto('auto.additionalDetailsLegacy')}</Label>
                   <textarea
                     {...register("serviceNotes")}
-                    placeholder={ar ? "وصف تفصيلي..." : "Describe in detail..."}
+                    placeholder={tAuto('auto.describeInDetail')}
                     rows={2}
                     className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 resize-none"
                   />
@@ -595,20 +598,18 @@ export default function ClientFormDialog({ open, onOpenChange, editClient, onSav
                 {showLandSection ? (
                   <>
                     <div className="px-3 py-2 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 text-xs text-amber-700 dark:text-amber-300">
-                      {ar
-                        ? "تفاصيل الأرض مطلوبة لنوع المشروع المحدد (فيلا / تجاري / صناعي / عمارة سكنية)"
-                        : "Land details are needed for the selected project type (Villa / Commercial / Industrial / Residential Building)"}
+                      {tAuto('auto.landDetailsAreNeededForTheSelectedProjec')}
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-2">
-                        <Label className="text-sm">{ar ? "موقع الأرض" : "Land Location"}</Label>
-                        <Input {...registerExtra("landLocation")} placeholder={ar ? "وصف موقع الأرض" : "Land location description"} />
+                        <Label className="text-sm">{tAuto('auto.landLocation')}</Label>
+                        <Input {...registerExtra("landLocation")} placeholder={tAuto('auto.landLocationDescription')} />
                       </div>
                       <div className="space-y-2">
-                        <Label className="text-sm">{ar ? "مساحة الأرض" : "Land Area"}</Label>
+                        <Label className="text-sm">{tAuto('auto.landArea')}</Label>
                         <div className="flex gap-2">
-                          <Input {...registerExtra("landArea")} placeholder={ar ? "المساحة" : "Area"} className="flex-1" />
+                          <Input {...registerExtra("landArea")} placeholder={tAuto('auto.area1')} className="flex-1" />
                           <Select defaultValue="sqm">
                             <SelectTrigger className="w-24">
                               <SelectValue />
@@ -624,12 +625,12 @@ export default function ClientFormDialog({ open, onOpenChange, editClient, onSav
 
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-2">
-                        <Label className="text-sm">{ar ? "رقم القطعة" : "Plot Number"}</Label>
-                        <Input {...registerExtra("plotNumber")} placeholder={ar ? "رقم القطعة" : "Plot number"} />
+                        <Label className="text-sm">{tAuto('auto.plotNumber')}</Label>
+                        <Input {...registerExtra("plotNumber")} placeholder={tAuto('auto.plotNumber1')} />
                       </div>
                       <div className="space-y-2">
-                        <Label className="text-sm">{ar ? "رقم المخطط" : "Plan Number"}</Label>
-                        <Input {...registerExtra("planNumber")} placeholder={ar ? "رقم المخطط" : "Plan number"} />
+                        <Label className="text-sm">{tAuto('auto.planNumber')}</Label>
+                        <Input {...registerExtra("planNumber")} placeholder={tAuto('auto.planNumber1')} />
                       </div>
                     </div>
 
@@ -637,11 +638,9 @@ export default function ClientFormDialog({ open, onOpenChange, editClient, onSav
 
                     {/* Land Documents Upload Area */}
                     <div className="space-y-2">
-                      <Label className="text-sm font-medium">{ar ? "مستندات الأرض" : "Land Documents"}</Label>
+                      <Label className="text-sm font-medium">{tAuto('auto.landDocuments')}</Label>
                       <p className="text-xs text-slate-400">
-                        {ar
-                          ? "المسح، خريطة الموقع، صك الملكية، صور الموقع"
-                          : "Survey, site map, ownership deed, site photos"}
+                        {tAuto('auto.surveySiteMapOwnershipDeedSitePhotos')}
                       </p>
                       <div className="grid grid-cols-2 gap-2">
                         {[
@@ -677,12 +676,10 @@ export default function ClientFormDialog({ open, onOpenChange, editClient, onSav
                       <Home className="h-7 w-7 text-slate-400" />
                     </div>
                     <p className="text-sm text-slate-500 dark:text-slate-400 mb-1">
-                      {ar ? "تفاصيل الأرض غير مطلوبة" : "Land details not required"}
+                      {tAuto('auto.landDetailsNotRequired')}
                     </p>
                     <p className="text-xs text-slate-400">
-                      {ar
-                        ? "تفاصيل الأرض تظهر فقط لمشاريع الفلل، التجارية، الصناعية، والعمائر السكنية"
-                        : "Land details are shown only for Villa, Commercial, Industrial, and Residential Building projects"}
+                      {tAuto('auto.landDetailsAreShownOnlyForVillaCommercia')}
                     </p>
                     <Button
                       type="button"
@@ -694,7 +691,7 @@ export default function ClientFormDialog({ open, onOpenChange, editClient, onSav
                         if (servicesTab) (servicesTab as HTMLElement).click();
                       }}
                     >
-                      {ar ? "اختر نوع مشروع" : "Select a project type"}
+                      {tAuto('auto.selectAProjectType')}
                     </Button>
                   </div>
                 )}
@@ -703,7 +700,7 @@ export default function ClientFormDialog({ open, onOpenChange, editClient, onSav
               {/* ===== Section 5: Referral ===== */}
               <TabsContent value="REFERRAL" className="space-y-4 px-1">
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">{ar ? "مصدر العميل" : "Referral Source"}</Label>
+                  <Label className="text-sm font-medium">{tAuto('auto.referralSource')}</Label>
                   <RadioGroup
                     value={formReferralSource}
                     onValueChange={setFormReferralSource}
@@ -737,15 +734,15 @@ export default function ClientFormDialog({ open, onOpenChange, editClient, onSav
                   <div className="space-y-2">
                     <Label className="text-sm">
                       {formReferralSource === "other"
-                        ? (ar ? "تفاصيل أخرى" : "Other Details")
-                        : (ar ? "اسم العميل المُحيل" : "Referring Client Name")}
+                        ? (tAuto('auto.otherDetails'))
+                        : (tAuto('auto.referringClientName'))}
                     </Label>
                     <Input
                       {...registerExtra("referralDetail")}
                       placeholder={
                         formReferralSource === "other"
-                          ? (ar ? "اذكر المصدر..." : "Specify source...")
-                          : (ar ? "اسم العميل المحيل..." : "Referring client name...")
+                          ? (tAuto('auto.specifySource'))
+                          : (tAuto('auto.referringClientName1'))
                       }
                     />
                   </div>
@@ -761,7 +758,7 @@ export default function ClientFormDialog({ open, onOpenChange, editClient, onSav
               variant="outline"
               onClick={handleClose}
             >
-              {ar ? "إلغاء" : "Cancel"}
+              {tAuto('auto.cancel')}
             </Button>
             <Button
               type="submit"
@@ -769,8 +766,8 @@ export default function ClientFormDialog({ open, onOpenChange, editClient, onSav
               disabled={isSaving}
             >
               {isSaving
-                ? (ar ? "جارٍ الحفظ..." : "Saving...")
-                : (ar ? "حفظ" : "Save")}
+                ? (tAuto('auto.saving'))
+                : (tAuto('auto.save'))}
             </Button>
           </DialogFooter>
         </form>

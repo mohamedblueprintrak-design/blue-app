@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useNavStore } from "@/store/nav-store";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -69,6 +71,7 @@ function getParentPage(page: string): string | null {
 }
 
 export default function Breadcrumbs({ language }: BreadcrumbsProps) {
+  const tAuto = useTranslations();
   const { currentPage, currentProjectId, setCurrentPage, setCurrentProjectId } = useNavStore();
   const isAr = language === "ar";
 
@@ -164,7 +167,7 @@ export default function Breadcrumbs({ language }: BreadcrumbsProps) {
                 </BreadcrumbItem>
                 {!isLast && (
                   <BreadcrumbSeparator>
-                    <ChevronLeft className={cn("h-3 w-3", isAr ? "rotate-0" : "rotate-180")} />
+                    <ChevronLeft className={cn("h-3 w-3", tAuto('auto.rotate180'))} />
                   </BreadcrumbSeparator>
                 )}
               </span>

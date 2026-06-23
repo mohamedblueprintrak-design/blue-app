@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { TableVirtuoso } from "react-virtuoso";
 import { forwardRef, type ComponentPropsWithoutRef } from "react";
 import { Receipt, Pencil, Trash2, Printer, FileText, CheckCircle2, ChevronLeft, ChevronRight } from "lucide-react";
@@ -70,6 +72,7 @@ export function InvoiceTable({
   selectedIds,
   setSelectedIds,
 }: InvoiceTableProps) {
+  const tAuto = useTranslations();
   const toggleSelectAll = () => {
     if (selectedIds.size === paginatedFiltered.length && paginatedFiltered.length > 0) {
       setSelectedIds(new Set());
@@ -89,7 +92,7 @@ export function InvoiceTable({
     <div className="rounded-xl border border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900 overflow-hidden shadow-sm relative">
       {filtered.length === 0 ? (
          <div className="text-center py-12 text-slate-400">
-           {ar ? "لا توجد فواتير" : "No invoices found"}
+           {tAuto('auto.noInvoicesFound')}
          </div>
       ) : (
       <TableVirtuoso
@@ -104,18 +107,18 @@ export function InvoiceTable({
                   aria-label="Select all"
                 />
               </TableHead>
-              <TableHead className="text-xs font-semibold">{ar ? "الرقم" : "No."}</TableHead>
-              <TableHead className="text-xs font-semibold">{ar ? "العميل" : "Client"}</TableHead>
-              <TableHead className="text-xs font-semibold hidden md:table-cell">{ar ? "المشروع" : "Project"}</TableHead>
-              <TableHead className="text-xs font-semibold hidden lg:table-cell">{ar ? "تاريخ الإصدار" : "Issue"}</TableHead>
-              <TableHead className="text-xs font-semibold hidden lg:table-cell">{ar ? "تاريخ الاستحقاق" : "Due"}</TableHead>
-              <TableHead className="text-xs font-semibold text-start">{ar ? "المجموع" : "Total"}</TableHead>
-              <TableHead className="text-xs font-semibold text-start hidden sm:table-cell">{ar ? "الضريبة 5%" : "Tax 5%"}</TableHead>
-              <TableHead className="text-xs font-semibold text-start">{ar ? "الإجمالي" : "Grand Total"}</TableHead>
-              <TableHead className="text-xs font-semibold text-start hidden sm:table-cell">{ar ? "المدفوع" : "Paid"}</TableHead>
-              <TableHead className="text-xs font-semibold text-start">{ar ? "المتبقي" : "Remaining"}</TableHead>
-              <TableHead className="text-xs font-semibold">{ar ? "الحالة" : "Status"}</TableHead>
-              <TableHead className="text-xs font-semibold text-end">{ar ? "إجراءات" : "Actions"}</TableHead>
+              <TableHead className="text-xs font-semibold">{tAuto('auto.no')}</TableHead>
+              <TableHead className="text-xs font-semibold">{tAuto('auto.client')}</TableHead>
+              <TableHead className="text-xs font-semibold hidden md:table-cell">{tAuto('auto.project')}</TableHead>
+              <TableHead className="text-xs font-semibold hidden lg:table-cell">{tAuto('auto.issue')}</TableHead>
+              <TableHead className="text-xs font-semibold hidden lg:table-cell">{tAuto('auto.due')}</TableHead>
+              <TableHead className="text-xs font-semibold text-start">{tAuto('auto.total')}</TableHead>
+              <TableHead className="text-xs font-semibold text-start hidden sm:table-cell">{tAuto('auto.tax51')}</TableHead>
+              <TableHead className="text-xs font-semibold text-start">{tAuto('auto.grandTotal')}</TableHead>
+              <TableHead className="text-xs font-semibold text-start hidden sm:table-cell">{tAuto('auto.paid')}</TableHead>
+              <TableHead className="text-xs font-semibold text-start">{tAuto('auto.remaining')}</TableHead>
+              <TableHead className="text-xs font-semibold">{tAuto('auto.status1')}</TableHead>
+              <TableHead className="text-xs font-semibold text-end">{tAuto('auto.actions')}</TableHead>
             </TableRow>
         )}
         itemContent={(idx, inv) => {
@@ -151,26 +154,26 @@ export function InvoiceTable({
                         <TooltipTrigger asChild>
                           <Button variant="ghost" size="icon" className="h-7 w-7 text-slate-500 hover:text-slate-700 dark:text-slate-400" onClick={() => onPrint(inv)} aria-label="Print"><Printer className="h-3.5 w-3.5" /></Button>
                         </TooltipTrigger>
-                        <TooltipContent side="top" className="text-xs">{ar ? "طباعة" : "Print"}</TooltipContent>
+                        <TooltipContent side="top" className="text-xs">{tAuto('auto.print')}</TooltipContent>
                       </Tooltip>
 
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Button variant="ghost" size="icon" className="h-7 w-7 text-slate-500 hover:text-slate-700 dark:text-slate-400" onClick={() => onExportPDF(inv)} aria-label="Export PDF"><FileText className="h-3.5 w-3.5" /></Button>
                         </TooltipTrigger>
-                        <TooltipContent side="top" className="text-xs">{ar ? "تصدير PDF" : "Export PDF"}</TooltipContent>
+                        <TooltipContent side="top" className="text-xs">{tAuto('auto.exportPDF')}</TooltipContent>
                       </Tooltip>
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onEdit(inv)} aria-label="Edit"><Pencil className="h-3.5 w-3.5" /></Button>
                         </TooltipTrigger>
-                        <TooltipContent side="top" className="text-xs">{ar ? "تعديل" : "Edit"}</TooltipContent>
+                        <TooltipContent side="top" className="text-xs">{tAuto('auto.edit')}</TooltipContent>
                       </Tooltip>
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Button variant="ghost" size="icon" className="h-7 w-7 text-red-500 hover:text-red-600" onClick={() => onDelete(inv.id)} aria-label="Delete"><Trash2 className="h-3.5 w-3.5" /></Button>
                         </TooltipTrigger>
-                        <TooltipContent side="top" className="text-xs">{ar ? "حذف" : "Delete"}</TooltipContent>
+                        <TooltipContent side="top" className="text-xs">{tAuto('auto.delete')}</TooltipContent>
                       </Tooltip>
                       {inv.status === "DRAFT" && (
                         <Tooltip>
@@ -185,7 +188,7 @@ export function InvoiceTable({
                               <CheckCircle2 className="h-3.5 w-3.5" />
                             </Button>
                           </TooltipTrigger>
-                          <TooltipContent side="top" className="text-xs">{ar ? "طلب موافقة" : "Request Approval"}</TooltipContent>
+                          <TooltipContent side="top" className="text-xs">{tAuto('auto.requestApproval')}</TooltipContent>
                         </Tooltip>
                       )}
                     </div>
@@ -200,7 +203,7 @@ export function InvoiceTable({
         <div className="flex items-center justify-between px-4 py-3 border-t border-slate-100 dark:border-slate-800">
           <div className="text-xs text-slate-500 dark:text-slate-400">
             {ar ? `صفحة ${currentPage} من ${totalPages}` : `Page ${currentPage} of ${totalPages}`}
-            <span className="ms-2">({filtered.length} {ar ? "فاتورة" : "invoices"})</span>
+            <span className="ms-2">({filtered.length} {tAuto('auto.invoices')})</span>
           </div>
           <div className="flex items-center gap-1">
             <Button
@@ -209,7 +212,7 @@ export function InvoiceTable({
               className="h-7 w-7"
               disabled={currentPage <= 1}
               onClick={() => setCurrentPage(currentPage - 1)}
-              aria-label={ar ? "الصفحة السابقة" : "Previous page"}
+              aria-label={tAuto('auto.previousPage')}
             >
               <ChevronRight className="h-3.5 w-3.5" />
             </Button>
@@ -247,7 +250,7 @@ export function InvoiceTable({
               className="h-7 w-7"
               disabled={currentPage >= totalPages}
               onClick={() => setCurrentPage(currentPage + 1)}
-              aria-label={ar ? "الصفحة التالية" : "Next page"}
+              aria-label={tAuto('auto.nextPage')}
             >
               <ChevronLeft className="h-3.5 w-3.5" />
             </Button>
@@ -258,7 +261,7 @@ export function InvoiceTable({
       {filtered.length > 5 && (
         <div className="absolute bottom-3 end-3 z-10 bg-gradient-to-r from-teal-600 to-cyan-600 text-white px-4 py-2 rounded-xl shadow-lg shadow-teal-600/30 flex items-center gap-2">
           <Receipt className="h-3.5 w-3.5" />
-          <span className="text-[11px] font-medium">{ar ? "الإجمالي" : "Total"}</span>
+          <span className="text-[11px] font-medium">{tAuto('auto.total')}</span>
           <span className="text-sm font-bold tabular-nums font-mono">{formatCurrency(totalInvoices, ar)}</span>
         </div>
       )}

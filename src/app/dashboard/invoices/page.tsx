@@ -1,16 +1,7 @@
-"use client";
+import { getLocale } from 'next-intl/server';
+import InvoicesPage from '@/components/pages/invoices';
 
-import dynamic from "next/dynamic";
-import { useLang } from "@/hooks/use-lang";
-
-const InvoicesPage = dynamic(() => import("@/components/pages/invoices"), {
-  loading: () => <div className="p-6 animate-pulse">Loading...</div>,
-  ssr: false,
-});
-
-/**
- * /dashboard/invoices
- */
-export default function InvoicesPageRoute() {
-  return <InvoicesPage language={useLang()} />;
+export default async function InvoicesPageRoute() {
+  const locale = await getLocale();
+  return <InvoicesPage language={locale as "ar" | "en"} />;
 }

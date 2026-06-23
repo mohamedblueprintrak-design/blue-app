@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToastFeedback } from "@/hooks/use-toast-feedback";
@@ -125,6 +127,7 @@ interface SuppliersPageProps {
 }
 
 export default function SuppliersPage({ language }: SuppliersPageProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const queryClient = useQueryClient();
   const toast = useToastFeedback({ ar });
@@ -166,21 +169,21 @@ export default function SuppliersPage({ language }: SuppliersPageProps) {
 
   const statCards = [
     {
-      label: ar ? "إجمالي الموردين" : "Total Suppliers",
+      label: tAuto('auto.totalSuppliers'),
       value: stats.total,
       icon: Users,
       color: "text-slate-600 dark:text-slate-400",
       bg: "bg-slate-100 dark:bg-slate-800",
     },
     {
-      label: ar ? "نشط" : "Active",
+      label: tAuto('auto.active'),
       value: stats.ACTIVE,
       icon: TrendingUp,
       color: "text-teal-600 dark:text-teal-400",
       bg: "bg-teal-100 dark:bg-teal-900/30",
     },
     {
-      label: ar ? "ذو تقييم عالي" : "Top Rated",
+      label: tAuto('auto.topRated'),
       value: stats.topRated,
       icon: Award,
       color: "text-amber-600 dark:text-amber-400",
@@ -203,10 +206,10 @@ export default function SuppliersPage({ language }: SuppliersPageProps) {
       queryClient.invalidateQueries({ queryKey: ["suppliers"] });
       setShowAddDialog(false);
       setFormData(emptyForm);
-      toast.created(ar ? "المورد" : "Supplier");
+      toast.created(tAuto('auto.supplier'));
     },
     onError: () => {
-      toast.error(ar ? "إنشاء المورد" : "Create supplier");
+      toast.error(tAuto('auto.createSupplier'));
     },
   });
 
@@ -225,10 +228,10 @@ export default function SuppliersPage({ language }: SuppliersPageProps) {
       queryClient.invalidateQueries({ queryKey: ["suppliers"] });
       setEditSupplier(null);
       setFormData(emptyForm);
-      toast.updated(ar ? "المورد" : "Supplier");
+      toast.updated(tAuto('auto.supplier'));
     },
     onError: () => {
-      toast.error(ar ? "تحديث المورد" : "Update supplier");
+      toast.error(tAuto('auto.updateSupplier'));
     },
   });
 
@@ -243,10 +246,10 @@ export default function SuppliersPage({ language }: SuppliersPageProps) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["suppliers"] });
-      toast.deleted(ar ? "المورد" : "Supplier");
+      toast.deleted(tAuto('auto.supplier'));
     },
     onError: () => {
-      toast.error(ar ? "حذف المورد" : "Delete supplier");
+      toast.error(tAuto('auto.deleteSupplier'));
     },
   });
 
@@ -305,7 +308,7 @@ export default function SuppliersPage({ language }: SuppliersPageProps) {
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
         <div className="flex items-center gap-2 flex-1">
           <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-            {ar ? "الموردين" : "Suppliers"}
+            {tAuto('auto.suppliers')}
           </h2>
           <Badge variant="secondary" className="text-xs">{suppliers.length}</Badge>
         </div>
@@ -315,16 +318,16 @@ export default function SuppliersPage({ language }: SuppliersPageProps) {
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder={ar ? "بحث..." : "Search..."}
+              placeholder={tAuto('auto.search1')}
               className="ps-9 h-8 text-sm"
             />
           </div>
           <Select value={categoryFilter} onValueChange={setCategoryFilter}>
             <SelectTrigger className="w-[130px] h-8 text-sm">
-              <SelectValue placeholder={ar ? "التصنيف" : "Category"} />
+              <SelectValue placeholder={tAuto('auto.category')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{ar ? "الكل" : "All"}</SelectItem>
+              <SelectItem value="all">{tAuto('auto.all')}</SelectItem>
               {Object.entries(categoryLabels).map(([key, label]) => (
                 <SelectItem key={key} value={key}>{ar ? label.ar : label.en}</SelectItem>
               ))}
@@ -336,7 +339,7 @@ export default function SuppliersPage({ language }: SuppliersPageProps) {
             onClick={() => { setFormData(emptyForm); setShowAddDialog(true); }}
           >
             <Plus className="h-3.5 w-3.5 me-1" />
-            {ar ? "مورد جديد" : "New Supplier"}
+            {tAuto('auto.newSupplier')}
           </Button>
         </div>
       </div>
@@ -347,14 +350,14 @@ export default function SuppliersPage({ language }: SuppliersPageProps) {
           <Table>
             <TableHeader>
               <TableRow className="hover:bg-transparent">
-                <TableHead>{ar ? "الاسم" : "Name"}</TableHead>
-                <TableHead>{ar ? "التصنيف" : "Category"}</TableHead>
-                <TableHead className="hidden md:table-cell">{ar ? "البريد" : "Email"}</TableHead>
-                <TableHead className="hidden sm:table-cell">{ar ? "الهاتف" : "Phone"}</TableHead>
-                <TableHead>{ar ? "التقييم" : "Rating"}</TableHead>
-                <TableHead className="hidden sm:table-cell">{ar ? "حد الائتمان" : "Credit Limit"}</TableHead>
-                <TableHead className="hidden lg:table-cell">{ar ? "الأداء" : "Performance"}</TableHead>
-                <TableHead className="text-start">{ar ? "الإجراءات" : "Actions"}</TableHead>
+                <TableHead>{tAuto('auto.name')}</TableHead>
+                <TableHead>{tAuto('auto.category')}</TableHead>
+                <TableHead className="hidden md:table-cell">{tAuto('auto.email')}</TableHead>
+                <TableHead className="hidden sm:table-cell">{tAuto('auto.phone')}</TableHead>
+                <TableHead>{tAuto('auto.rating')}</TableHead>
+                <TableHead className="hidden sm:table-cell">{tAuto('auto.creditLimit')}</TableHead>
+                <TableHead className="hidden lg:table-cell">{tAuto('auto.performance')}</TableHead>
+                <TableHead className="text-start">{tAuto('auto.actions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -372,7 +375,7 @@ export default function SuppliersPage({ language }: SuppliersPageProps) {
                 <TableRow>
                   <TableCell colSpan={8} className="text-center py-12 text-slate-400">
                     <Package className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                    {ar ? "لا يوجد موردين" : "No suppliers found"}
+                    {tAuto('auto.noSuppliersFound')}
                   </TableCell>
                 </TableRow>
               ) : (
@@ -431,7 +434,7 @@ export default function SuppliersPage({ language }: SuppliersPageProps) {
                           <DropdownMenuContent align={ar ? "start" : "end"}>
                             <DropdownMenuItem onClick={() => openEditDialog(supplier)}>
                               <Pencil className="me-2 h-3.5 w-3.5" />
-                              {ar ? "تعديل" : "Edit"}
+                              {tAuto('auto.edit')}
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               className="text-red-600 dark:text-red-400"
@@ -442,7 +445,7 @@ export default function SuppliersPage({ language }: SuppliersPageProps) {
                               }}
                             >
                               <Trash2 className="me-2 h-3.5 w-3.5" />
-                              {ar ? "حذف" : "Delete"}
+                              {tAuto('auto.delete')}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -466,28 +469,28 @@ export default function SuppliersPage({ language }: SuppliersPageProps) {
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {editSupplier ? (ar ? "تعديل مورد" : "Edit Supplier") : (ar ? "مورد جديد" : "New Supplier")}
+              {editSupplier ? (tAuto('auto.editSupplier')) : (tAuto('auto.newSupplier'))}
             </DialogTitle>
             <DialogDescription>
               {editSupplier
-                ? (ar ? "تعديل بيانات المورد" : "Edit supplier information")
-                : (ar ? "إضافة مورد جديد" : "Add a new supplier")}
+                ? (tAuto('auto.editSupplierInformation'))
+                : (tAuto('auto.addANewSupplier'))}
             </DialogDescription>
           </DialogHeader>
 
           <form onSubmit={rhfHandleSubmit(handleSave as (data: unknown) => void)} className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "الاسم" : "Name"} *</Label>
+                <Label className="text-sm">{tAuto('auto.name')} *</Label>
                 <Input
                   {...register("name")}
-                  placeholder={ar ? "اسم المورد" : "Supplier name"}
+                  placeholder={tAuto('auto.supplierName')}
                   className={cn(errors.name && "border-red-500")}
                 />
                 {errors.name && <p className="text-red-500 text-xs mt-1">{getErrorMessage(errors.name.message || "", ar)}</p>}
               </div>
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "التصنيف" : "Category"}</Label>
+                <Label className="text-sm">{tAuto('auto.category')}</Label>
                 <Select
                   // eslint-disable-next-line react-hooks/incompatible-library
                   value={watch("category")}
@@ -506,7 +509,7 @@ export default function SuppliersPage({ language }: SuppliersPageProps) {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "البريد" : "Email"}</Label>
+                <Label className="text-sm">{tAuto('auto.email')}</Label>
                 <Input
                   type="email"
                   {...register("email")}
@@ -516,7 +519,7 @@ export default function SuppliersPage({ language }: SuppliersPageProps) {
                 {errors.email && <p className="text-red-500 text-xs mt-1">{getErrorMessage(errors.email.message || "", ar)}</p>}
               </div>
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "الهاتف" : "Phone"}</Label>
+                <Label className="text-sm">{tAuto('auto.phone')}</Label>
                 <Input
                   {...register("phone")}
                   placeholder="+971 XX XXX XXXX"
@@ -524,15 +527,15 @@ export default function SuppliersPage({ language }: SuppliersPageProps) {
               </div>
             </div>
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "العنوان" : "Address"}</Label>
+              <Label className="text-sm">{tAuto('auto.address')}</Label>
               <Input
                 {...register("address")}
-                placeholder={ar ? "عنوان المورد" : "Supplier address"}
+                placeholder={tAuto('auto.supplierAddress')}
               />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "التقييم" : "Rating"}</Label>
+                <Label className="text-sm">{tAuto('auto.rating')}</Label>
                 <Select
                   value={watch("rating")}
                   onValueChange={(v) => setValue("rating", v)}
@@ -541,7 +544,7 @@ export default function SuppliersPage({ language }: SuppliersPageProps) {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="0">{ar ? "بدون تقييم" : "No rating"}</SelectItem>
+                    <SelectItem value="0">{tAuto('auto.noRating')}</SelectItem>
                     {[1, 2, 3, 4, 5].map((r) => (
                       <SelectItem key={r} value={String(r)} className="flex items-center gap-1">
                         <div className="flex items-center gap-0.5">
@@ -564,7 +567,7 @@ export default function SuppliersPage({ language }: SuppliersPageProps) {
                 )}
               </div>
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "حد الائتمان" : "Credit Limit"} ({ar ? "د.إ" : "AED"})</Label>
+                <Label className="text-sm">{tAuto('auto.creditLimit')} ({tAuto('auto.aED')})</Label>
                 <Input
                   type="number"
                   {...register("creditLimit")}
@@ -578,7 +581,7 @@ export default function SuppliersPage({ language }: SuppliersPageProps) {
               variant="outline"
               onClick={() => { setShowAddDialog(false); setEditSupplier(null); setFormData(emptyForm); reset(); }}
             >
-              {ar ? "إلغاء" : "Cancel"}
+              {tAuto('auto.cancel')}
             </Button>
             <Button
               type="submit"
@@ -586,8 +589,8 @@ export default function SuppliersPage({ language }: SuppliersPageProps) {
               disabled={createMutation.isPending || updateMutation.isPending}
             >
               {(createMutation.isPending || updateMutation.isPending)
-                ? (ar ? "جارٍ الحفظ..." : "Saving...")
-                : (ar ? "حفظ" : "Save")}
+                ? (tAuto('auto.saving'))
+                : (tAuto('auto.save'))}
             </Button>
           </DialogFooter>
           </form>

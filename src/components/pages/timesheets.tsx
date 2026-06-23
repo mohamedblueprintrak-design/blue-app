@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToastFeedback } from "@/hooks/use-toast-feedback";
@@ -26,6 +28,7 @@ interface TimesheetsProps {
 }
 
 export function TimesheetsPage({ language, projectId: _projectId }: TimesheetsProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const queryClient = useQueryClient();
   const toast = useToastFeedback({ ar });
@@ -116,10 +119,10 @@ export function TimesheetsPage({ language, projectId: _projectId }: TimesheetsPr
       queryClient.invalidateQueries({ queryKey: ["timesheets"] });
       setShowFormDialog(false);
       resetForm();
-      toast[editingId ? "updated" : "created"](ar ? "سجل الدوام" : "Timesheet");
+      toast[editingId ? "updated" : "created"](tAuto('auto.timesheet'));
     },
     onError: (err: Error) => {
-      toast.error(err.message || (ar ? "حفظ سجل الدوام" : "Save timesheet"));
+      toast.error(err.message || (tAuto('auto.saveTimesheet')));
     },
   });
 
@@ -141,10 +144,10 @@ export function TimesheetsPage({ language, projectId: _projectId }: TimesheetsPr
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["timesheets"] });
-      toast.updated(ar ? "حالة سجل الدوام" : "Timesheet status");
+      toast.updated(tAuto('auto.timesheetStatus'));
     },
     onError: (err: Error) => {
-      toast.error(err.message || (ar ? "تحديث الحالة" : "Update status"));
+      toast.error(err.message || (tAuto('auto.updateStatus')));
     },
   });
 
@@ -155,10 +158,10 @@ export function TimesheetsPage({ language, projectId: _projectId }: TimesheetsPr
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["timesheets"] });
-      toast.deleted(ar ? "سجل الدوام" : "Timesheet");
+      toast.deleted(tAuto('auto.timesheet'));
     },
     onError: () => {
-      toast.error(ar ? "حذف سجل الدوام" : "Delete timesheet");
+      toast.error(tAuto('auto.deleteTimesheet'));
     },
   });
 
@@ -196,12 +199,12 @@ export function TimesheetsPage({ language, projectId: _projectId }: TimesheetsPr
 
   const handleSubmit = () => {
     if (!formEmployeeId) {
-      toast.error(ar ? "اختر الموظف" : "Select an employee");
+      toast.error(tAuto('auto.selectAnEmployee'));
       return;
     }
     const validEntries = formEntries.filter((e) => e.hours > 0);
     if (validEntries.length === 0) {
-      toast.error(ar ? "أضف ساعات عمل واحدة على الأقل" : "Add at least one work hour entry");
+      toast.error(tAuto('auto.addAtLeastOneWorkHourEntry'));
       return;
     }
 
@@ -242,10 +245,10 @@ export function TimesheetsPage({ language, projectId: _projectId }: TimesheetsPr
           </div>
           <div>
             <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-              {ar ? "سجلات الدوام" : "Timesheets"}
+              {tAuto('auto.timesheets')}
             </h2>
             <p className="text-[10px] text-slate-500 dark:text-slate-400">
-              {timesheets.length} {ar ? "سجل" : "records"}
+              {timesheets.length} {tAuto('auto.records')}
             </p>
           </div>
         </div>
@@ -253,22 +256,22 @@ export function TimesheetsPage({ language, projectId: _projectId }: TimesheetsPr
           <Select value={filterStatus} onValueChange={setFilterStatus}>
             <SelectTrigger className="w-[130px] h-8 text-xs rounded-lg">
               <Filter className="h-3 w-3 me-1 text-slate-400" />
-              <SelectValue placeholder={ar ? "الحالة" : "Status"} />
+              <SelectValue placeholder={tAuto('auto.status1')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{ar ? "جميع الحالات" : "All Status"}</SelectItem>
-              <SelectItem value="DRAFT">{ar ? "مسودة" : "Draft"}</SelectItem>
-              <SelectItem value="SUBMITTED">{ar ? "مقدمة" : "Submitted"}</SelectItem>
-              <SelectItem value="APPROVED">{ar ? "معتمدة" : "Approved"}</SelectItem>
-              <SelectItem value="REJECTED">{ar ? "مرفوضة" : "Rejected"}</SelectItem>
+              <SelectItem value="all">{tAuto('auto.allStatus')}</SelectItem>
+              <SelectItem value="DRAFT">{tAuto('auto.draft')}</SelectItem>
+              <SelectItem value="SUBMITTED">{tAuto('auto.submitted')}</SelectItem>
+              <SelectItem value="APPROVED">{tAuto('auto.approved')}</SelectItem>
+              <SelectItem value="REJECTED">{tAuto('auto.rejected')}</SelectItem>
             </SelectContent>
           </Select>
           <Select value={filterEmployee} onValueChange={setFilterEmployee}>
             <SelectTrigger className="w-[150px] h-8 text-xs rounded-lg">
-              <SelectValue placeholder={ar ? "الموظف" : "Employee"} />
+              <SelectValue placeholder={tAuto('auto.employee')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{ar ? "جميع الموظفين" : "All Employees"}</SelectItem>
+              <SelectItem value="all">{tAuto('auto.allEmployees')}</SelectItem>
               {employees.map((emp) => (
                 <SelectItem key={emp.id} value={emp.id}>
                   {emp.user?.name || emp.user?.email}
@@ -282,7 +285,7 @@ export function TimesheetsPage({ language, projectId: _projectId }: TimesheetsPr
             onClick={handleNewTimesheet}
           >
             <Plus className="h-3.5 w-3.5 me-1" />
-            {ar ? "سجل جديد" : "New Timesheet"}
+            {tAuto('auto.newTimesheet')}
           </Button>
         </div>
       </div>

@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import React, { useRef, useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,6 +24,7 @@ export default function SignaturePad({
   height = 200,
   language = "ar",
 }: SignaturePadProps) {
+  const tAuto = useTranslations();
   const isAr = language === "ar";
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -204,7 +207,7 @@ export default function SignaturePad({
     <div className="space-y-3" dir={isAr ? "rtl" : "ltr"}>
       {/* Label */}
       <Label className="text-sm font-medium text-foreground">
-        {isAr ? "التوقيع / Signature" : "التوقيع / Signature"}
+        {tAuto('auto.Signature')}
       </Label>
 
       {/* Mode tabs */}
@@ -212,11 +215,11 @@ export default function SignaturePad({
         <TabsList className="grid grid-cols-2 w-48">
           <TabsTrigger value="draw" className="gap-1.5 text-xs">
             <PenTool className="h-3.5 w-3.5" />
-            {isAr ? "رسم" : "Draw"}
+            {tAuto('auto.draw')}
           </TabsTrigger>
           <TabsTrigger value="type" className="gap-1.5 text-xs">
             <Type className="h-3.5 w-3.5" />
-            {isAr ? "كتابة" : "Type"}
+            {tAuto('auto.type')}
           </TabsTrigger>
         </TabsList>
       </Tabs>
@@ -243,7 +246,7 @@ export default function SignaturePad({
           {!hasDrawn && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <span className="text-muted-foreground/40 text-sm select-none">
-                {isAr ? "وقّع هنا" : "Sign here"}
+                {tAuto('auto.signHere')}
               </span>
             </div>
           )}
@@ -259,7 +262,7 @@ export default function SignaturePad({
           <Input
             value={typedName}
             onChange={(e) => setTypedName(e.target.value)}
-            placeholder={isAr ? "اكتب اسمك هنا" : "Type your name here"}
+            placeholder={tAuto('auto.typeYourNameHere')}
             className="text-center text-2xl font-serif italic border-none shadow-none focus-visible:ring-0 bg-transparent"
             style={{ color: strokeColor }}
           />
@@ -278,7 +281,7 @@ export default function SignaturePad({
               disabled={!hasDrawn}
             >
               <Eraser className="h-3.5 w-3.5" />
-              {isAr ? "مسح" : "Clear"}
+              {tAuto('auto.clear')}
             </Button>
           )}
         </div>
@@ -290,7 +293,7 @@ export default function SignaturePad({
             className="gap-1.5"
           >
             <X className="h-3.5 w-3.5" />
-            {isAr ? "إلغاء" : "Cancel"}
+            {tAuto('auto.cancel')}
           </Button>
           <Button
             size="sm"
@@ -299,7 +302,7 @@ export default function SignaturePad({
             className="gap-1.5 bg-[#133371] hover:bg-[#0f2855] text-white"
           >
             <Check className="h-3.5 w-3.5" />
-            {isAr ? "تأكيد" : "Confirm"}
+            {tAuto('auto.confirm')}
           </Button>
         </div>
       </div>

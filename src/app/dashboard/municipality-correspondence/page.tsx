@@ -1,16 +1,7 @@
-"use client";
+import { getLocale } from 'next-intl/server';
+import MunicipalityCorrespondencePage from '@/components/pages/municipality-correspondence';
 
-import dynamic from "next/dynamic";
-import { useLang } from "@/hooks/use-lang";
-
-const MunicipalityCorrespondencePage = dynamic(() => import("@/components/pages/municipality-correspondence"), {
-  loading: () => <div className="p-6 animate-pulse">Loading...</div>,
-  ssr: false,
-});
-
-/**
- * /dashboard/municipality-correspondence
- */
-export default function MunicipalityCorrespondencePageRoute() {
-  return <MunicipalityCorrespondencePage language={useLang()} />;
+export default async function MunicipalityCorrespondencePageRoute() {
+  const locale = await getLocale();
+  return <MunicipalityCorrespondencePage language={locale as "ar" | "en"} />;
 }

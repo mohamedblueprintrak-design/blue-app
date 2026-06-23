@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -45,6 +47,7 @@ export function ChatMessages({
   handleRetry,
   handleSpeak,
 }: ChatMessagesProps) {
+  const tAuto = useTranslations();
   return (
     <Card className="flex-1 flex flex-col overflow-hidden">
       <div className="flex-1 overflow-y-auto p-4 custom-scrollbar" style={{ scrollbarGutter: "stable" }}>
@@ -54,12 +57,10 @@ export function ChatMessages({
               <Sparkles className="h-10 w-10 text-teal-500" />
             </div>
             <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
-              {isAr ? "مرحباً بك في مساعد بلوبرنت الذكي 👋" : "Welcome to BluePrint AI Assistant 👋"}
+              {tAuto('auto.welcomeToBluePrintAIAssistant')}
             </h3>
             <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 max-w-md leading-relaxed">
-              {isAr
-                ? "يمكنني مساعدتك في إدارة المشاريع، متابعة المهام، مراجعة الفواتير، وتحليل البيانات. اطرح سؤالاً أو اختر من الاقتراحات أدناه للبدء."
-                : "I can help you manage projects, track tasks, review invoices, and analyze data. Ask a question or choose from the suggestions below to get started."}
+              {tAuto('auto.iCanHelpYouManageProjectsTrackTasksRevie')}
             </p>
 
             {/* Initial Quick Suggestions - Enhanced Grid */}
@@ -120,7 +121,7 @@ export function ChatMessages({
                           <button
                             onClick={() => handleCopyMessage(msg)}
                             className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 rounded hover:bg-white/10"
-                            title={isAr ? "نسخ" : "Copy"}
+                            title={tAuto('auto.copy')}
                           >
                             {copiedMsgId === msg.id ? (
                               <Check className="h-3 w-3 text-teal-200" />
@@ -151,7 +152,7 @@ export function ChatMessages({
                               className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-900/60 transition-colors disabled:opacity-50 disabled:pointer-events-none"
                             >
                               <RefreshCw className={cn("h-3 w-3", isLoading && "animate-spin")} />
-                              {isAr ? "إعادة المحاولة" : "Retry"}
+                              {tAuto('auto.retry')}
                             </button>
                           </div>
                         </div>
@@ -206,12 +207,8 @@ export function ChatMessages({
                                   </TooltipTrigger>
                                   <TooltipContent side="top" className="text-xs">
                                     {speakingMsgId === msg.id
-                                      ? isAr
-                                        ? "إيقاف القراءة"
-                                        : "Stop reading"
-                                      : isAr
-                                        ? "قراءة بصوت عالٍ"
-                                        : "Read aloud"}
+                                      ? tAuto('auto.stopReading')
+                                      : tAuto('auto.readAloud')}
                                   </TooltipContent>
                                 </Tooltip>
                               )}
@@ -219,7 +216,7 @@ export function ChatMessages({
                               <button
                                 onClick={() => handleCopyMessage(msg)}
                                 className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 rounded hover:bg-slate-200/50 dark:hover:bg-slate-700/50"
-                                title={isAr ? "نسخ" : "Copy"}
+                                title={tAuto('auto.copy')}
                               >
                                 {copiedMsgId === msg.id ? (
                                   <Check className="h-3 w-3 text-emerald-500" />
@@ -293,7 +290,7 @@ export function ChatMessages({
                       />
                     </div>
                     <span className="text-xs text-slate-500 dark:text-slate-400">
-                      {isAr ? "جاري التفكير..." : "Thinking..."}
+                      {tAuto('auto.thinking')}
                     </span>
                   </div>
                 </div>

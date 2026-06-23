@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
@@ -153,6 +155,7 @@ interface RecurringInvoicesPageProps {
 }
 
 export default function RecurringInvoicesPage({ language }: RecurringInvoicesPageProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const queryClient = useQueryClient();
   const toast = useToastFeedback({ ar });
@@ -227,7 +230,7 @@ export default function RecurringInvoicesPage({ language }: RecurringInvoicesPag
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["recurring-invoices"] });
       handleCloseDialog();
-      toast.created(ar ? "الفاتورة المتكررة" : "Recurring invoice");
+      toast.created(tAuto('auto.recurringInvoice'));
     },
     onError: (error: Error) => {
       toast.showError(
@@ -252,7 +255,7 @@ export default function RecurringInvoicesPage({ language }: RecurringInvoicesPag
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["recurring-invoices"] });
       handleCloseDialog();
-      toast.updated(ar ? "الفاتورة المتكررة" : "Recurring invoice");
+      toast.updated(tAuto('auto.recurringInvoice'));
     },
     onError: (error: Error) => {
       toast.showError(
@@ -276,7 +279,7 @@ export default function RecurringInvoicesPage({ language }: RecurringInvoicesPag
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["recurring-invoices"] });
       setDeleteId(null);
-      toast.deleted(ar ? "الفاتورة المتكررة" : "Recurring invoice");
+      toast.deleted(tAuto('auto.recurringInvoice'));
     },
     onError: (error: Error) => {
       toast.showError(
@@ -348,7 +351,7 @@ export default function RecurringInvoicesPage({ language }: RecurringInvoicesPag
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.clientId || formData.items.length === 0) {
-      toast.showError(ar ? "يرجى ملء جميع الحقول المطلوبة" : "Please fill all required fields");
+      toast.showError(tAuto('auto.pleaseFillAllRequiredFields'));
       return;
     }
 
@@ -437,10 +440,10 @@ export default function RecurringInvoicesPage({ language }: RecurringInvoicesPag
           </div>
           <div>
             <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-              {ar ? "الفواتير المتكررة" : "Recurring Invoices"}
+              {tAuto('auto.recurringInvoices')}
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              {ar ? "إدارة الفواتير التلقائية المجدولة" : "Manage scheduled automatic invoices"}
+              {tAuto('auto.manageScheduledAutomaticInvoices')}
             </p>
           </div>
         </div>
@@ -449,7 +452,7 @@ export default function RecurringInvoicesPage({ language }: RecurringInvoicesPag
           className="bg-teal-600 hover:bg-teal-700 text-white h-9 rounded-lg"
         >
           <Plus className="h-4 w-4 me-2" />
-          {ar ? "فاتورة متكررة جديدة" : "New Recurring Invoice"}
+          {tAuto('auto.newRecurringInvoice')}
         </Button>
       </div>
 
@@ -462,7 +465,7 @@ export default function RecurringInvoicesPage({ language }: RecurringInvoicesPag
                 <Play className="h-5 w-5 text-emerald-600" />
               </div>
               <div>
-                <p className="text-xs text-slate-500">{ar ? "نشطة" : "Active"}</p>
+                <p className="text-xs text-slate-500">{tAuto('auto.active')}</p>
                 <p className="text-xl font-bold text-slate-900 dark:text-white">{activeCount}</p>
               </div>
             </div>
@@ -475,7 +478,7 @@ export default function RecurringInvoicesPage({ language }: RecurringInvoicesPag
                 <Pause className="h-5 w-5 text-amber-600" />
               </div>
               <div>
-                <p className="text-xs text-slate-500">{ar ? "متوقفة" : "Paused"}</p>
+                <p className="text-xs text-slate-500">{tAuto('auto.paused')}</p>
                 <p className="text-xl font-bold text-slate-900 dark:text-white">{pausedCount}</p>
               </div>
             </div>
@@ -488,7 +491,7 @@ export default function RecurringInvoicesPage({ language }: RecurringInvoicesPag
                 <DollarSign className="h-5 w-5 text-teal-600" />
               </div>
               <div>
-                <p className="text-xs text-slate-500">{ar ? "القيمة الشهرية المقدرة" : "Est. Monthly Value"}</p>
+                <p className="text-xs text-slate-500">{tAuto('auto.estMonthlyValue')}</p>
                 <p className="text-xl font-bold text-slate-900 dark:text-white">{formatCurrency(totalMonthlyValue, ar)}</p>
               </div>
             </div>
@@ -502,21 +505,21 @@ export default function RecurringInvoicesPage({ language }: RecurringInvoicesPag
           {recurringInvoices.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-slate-400">
               <RefreshCw className="h-12 w-12 mb-3 opacity-30" />
-              <p className="text-sm">{ar ? "لا توجد فواتير متكررة" : "No recurring invoices yet"}</p>
-              <p className="text-xs mt-1">{ar ? "أنشئ فاتورة متكررة لإنشاء فواتير تلقائياً" : "Create a recurring invoice to auto-generate invoices"}</p>
+              <p className="text-sm">{tAuto('auto.noRecurringInvoicesYet')}</p>
+              <p className="text-xs mt-1">{tAuto('auto.createARecurringInvoiceToAutoGenerateInv')}</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow className="hover:bg-transparent bg-slate-50 dark:bg-slate-800/50">
-                    <TableHead className="text-xs">{ar ? "الاسم" : "Name"}</TableHead>
-                    <TableHead className="text-xs">{ar ? "العميل" : "Client"}</TableHead>
-                    <TableHead className="text-xs">{ar ? "التكرار" : "Frequency"}</TableHead>
-                    <TableHead className="text-xs">{ar ? "المبلغ" : "Amount"}</TableHead>
-                    <TableHead className="text-xs">{ar ? "التنفيذ التالي" : "Next Date"}</TableHead>
-                    <TableHead className="text-xs">{ar ? "الحالة" : "Status"}</TableHead>
-                    <TableHead className="text-xs">{ar ? "الإنشاءات" : "Generated"}</TableHead>
+                    <TableHead className="text-xs">{tAuto('auto.name')}</TableHead>
+                    <TableHead className="text-xs">{tAuto('auto.client')}</TableHead>
+                    <TableHead className="text-xs">{tAuto('auto.frequency')}</TableHead>
+                    <TableHead className="text-xs">{tAuto('auto.amount')}</TableHead>
+                    <TableHead className="text-xs">{tAuto('auto.nextDate')}</TableHead>
+                    <TableHead className="text-xs">{tAuto('auto.status1')}</TableHead>
+                    <TableHead className="text-xs">{tAuto('auto.generated')}</TableHead>
                     <TableHead className="text-xs w-24" />
                   </TableRow>
                 </TableHeader>
@@ -573,8 +576,8 @@ export default function RecurringInvoicesPage({ language }: RecurringInvoicesPag
                           )}
                         >
                           {ri.isActive
-                            ? (ar ? "نشطة" : "Active")
-                            : (ar ? "متوقفة" : "Paused")}
+                            ? (tAuto('auto.active'))
+                            : (tAuto('auto.paused'))}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-sm text-slate-600 dark:text-slate-300">
@@ -587,7 +590,7 @@ export default function RecurringInvoicesPage({ language }: RecurringInvoicesPag
                             size="icon"
                             className="h-7 w-7"
                             onClick={() => toggleActiveMutation.mutate({ id: ri.id, isActive: !ri.isActive })}
-                            title={ri.isActive ? (ar ? "إيقاف" : "Pause") : (ar ? "تفعيل" : "Activate")}
+                            title={ri.isActive ? (tAuto('auto.pause')) : (tAuto('auto.activate'))}
                           >
                             {ri.isActive
                               ? <Pause className="h-3.5 w-3.5 text-amber-500" />
@@ -598,7 +601,7 @@ export default function RecurringInvoicesPage({ language }: RecurringInvoicesPag
                             size="icon"
                             className="h-7 w-7 text-red-400"
                             onClick={() => setDeleteId(ri.id)}
-                            title={ar ? "حذف" : "Delete"}
+                            title={tAuto('auto.delete')}
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                           </Button>
@@ -619,13 +622,13 @@ export default function RecurringInvoicesPage({ language }: RecurringInvoicesPag
           <DialogHeader>
             <DialogTitle>
               {editId
-                ? (ar ? "تعديل الفاتورة المتكررة" : "Edit Recurring Invoice")
-                : (ar ? "فاتورة متكررة جديدة" : "New Recurring Invoice")}
+                ? (tAuto('auto.editRecurringInvoice'))
+                : (tAuto('auto.newRecurringInvoice'))}
             </DialogTitle>
             <DialogDescription>
               {editId
-                ? (ar ? "تحديث إعدادات الفاتورة المتكررة" : "Update recurring invoice settings")
-                : (ar ? "إنشاء فاتورة تتكرر تلقائياً" : "Create an automatically recurring invoice")}
+                ? (tAuto('auto.updateRecurringInvoiceSettings'))
+                : (tAuto('auto.createAnAutomaticallyRecurringInvoice'))}
             </DialogDescription>
           </DialogHeader>
 
@@ -633,17 +636,17 @@ export default function RecurringInvoicesPage({ language }: RecurringInvoicesPag
             {/* Name fields */}
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <Label className="text-xs">{ar ? "الاسم (إنجليزي)" : "Name (English)"} *</Label>
+                <Label className="text-xs">{tAuto('auto.nameEnglish')} *</Label>
                 <Input
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder={ar ? "رسوم الإشراف الشهرية" : "Monthly Supervision Fee"}
+                  placeholder={tAuto('auto.monthlySupervisionFee')}
                   className="h-8 text-sm rounded-lg"
                   required
                 />
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">{ar ? "الاسم (عربي)" : "Name (Arabic)"}</Label>
+                <Label className="text-xs">{tAuto('auto.nameArabic')}</Label>
                 <Input
                   value={formData.nameAr}
                   onChange={(e) => setFormData({ ...formData, nameAr: e.target.value })}
@@ -657,13 +660,13 @@ export default function RecurringInvoicesPage({ language }: RecurringInvoicesPag
             {/* Client & Project */}
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <Label className="text-xs">{ar ? "العميل" : "Client"} *</Label>
+                <Label className="text-xs">{tAuto('auto.client')} *</Label>
                 <Select
                   value={formData.clientId}
                   onValueChange={(v) => setFormData({ ...formData, clientId: v })}
                 >
                   <SelectTrigger className="h-8 text-sm rounded-lg">
-                    <SelectValue placeholder={ar ? "اختر عميل" : "Select client"} />
+                    <SelectValue placeholder={tAuto('auto.selectClient')} />
                   </SelectTrigger>
                   <SelectContent>
                     {clients.map((c) => (
@@ -675,13 +678,13 @@ export default function RecurringInvoicesPage({ language }: RecurringInvoicesPag
                 </Select>
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">{ar ? "المشروع" : "Project"}</Label>
+                <Label className="text-xs">{tAuto('auto.project')}</Label>
                 <Select
                   value={formData.projectId}
                   onValueChange={(v) => setFormData({ ...formData, projectId: v })}
                 >
                   <SelectTrigger className="h-8 text-sm rounded-lg">
-                    <SelectValue placeholder={ar ? "اختر مشروع (اختياري)" : "Select project (optional)"} />
+                    <SelectValue placeholder={tAuto('auto.selectProjectOptional')} />
                   </SelectTrigger>
                   <SelectContent>
                     {projects.map((p) => (
@@ -697,20 +700,20 @@ export default function RecurringInvoicesPage({ language }: RecurringInvoicesPag
             {/* Line Items */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <Label className="text-sm font-semibold">{ar ? "بنود الفاتورة" : "Line Items"}</Label>
+                <Label className="text-sm font-semibold">{tAuto('auto.lineItems')}</Label>
                 <Button variant="outline" size="sm" className="h-7 text-xs rounded-lg" onClick={addItem}>
                   <Plus className="h-3 w-3 me-1" />
-                  {ar ? "إضافة بند" : "Add Item"}
+                  {tAuto('auto.addItem1')}
                 </Button>
               </div>
               <div className="rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
                 <Table>
                   <TableHeader>
                     <TableRow className="hover:bg-transparent bg-slate-50 dark:bg-slate-800/50">
-                      <TableHead className="text-xs">{ar ? "الوصف" : "Description"}</TableHead>
-                      <TableHead className="text-xs w-24">{ar ? "الكمية" : "Qty"}</TableHead>
-                      <TableHead className="text-xs w-28">{ar ? "سعر الوحدة" : "Unit Price"}</TableHead>
-                      <TableHead className="text-xs w-28 text-start">{ar ? "الإجمالي" : "Total"}</TableHead>
+                      <TableHead className="text-xs">{tAuto('auto.description')}</TableHead>
+                      <TableHead className="text-xs w-24">{tAuto('auto.qty')}</TableHead>
+                      <TableHead className="text-xs w-28">{tAuto('auto.unitPrice')}</TableHead>
+                      <TableHead className="text-xs w-28 text-start">{tAuto('auto.total')}</TableHead>
                       <TableHead className="w-10" />
                     </TableRow>
                   </TableHeader>
@@ -726,7 +729,7 @@ export default function RecurringInvoicesPage({ language }: RecurringInvoicesPag
                           <Input
                             value={item.description}
                             onChange={(e) => updateItem(idx, "description", e.target.value)}
-                            placeholder={ar ? "وصف البند" : "Item description"}
+                            placeholder={tAuto('auto.itemDescription')}
                             className="h-8 text-xs rounded-lg"
                           />
                         </TableCell>
@@ -756,7 +759,7 @@ export default function RecurringInvoicesPage({ language }: RecurringInvoicesPag
                               size="icon"
                               className="h-7 w-7 text-red-400"
                               onClick={() => removeItem(idx)}
-                              aria-label={ar ? "حذف البند" : "Remove item"}
+                              aria-label={tAuto('auto.removeItem')}
                             >
                               <X className="h-3.5 w-3.5" />
                             </Button>
@@ -773,16 +776,16 @@ export default function RecurringInvoicesPage({ language }: RecurringInvoicesPag
             <div className="flex justify-end">
               <div className="w-72 rounded-xl border border-slate-200 dark:border-slate-700 p-4 bg-gradient-to-br from-slate-50 to-white dark:from-slate-800/50 dark:to-slate-900 space-y-2.5">
                 <div className="flex justify-between text-sm">
-                  <span className="text-slate-500">{ar ? "المجموع الفرعي" : "Subtotal"}</span>
+                  <span className="text-slate-500">{tAuto('auto.subtotal')}</span>
                   <span className="tabular-nums font-mono text-slate-700 dark:text-slate-300">{formatCurrency(calcSubtotal, ar)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-slate-500">{ar ? "الضريبة (5%)" : "Tax (5%)"}</span>
+                  <span className="text-slate-500">{tAuto('auto.tax5')}</span>
                   <span className="tabular-nums font-mono text-slate-700 dark:text-slate-300">{formatCurrency(calcTax, ar)}</span>
                 </div>
                 <div className="border-t border-slate-200 dark:border-slate-700 pt-2.5">
                   <div className="flex justify-between text-base font-bold">
-                    <span>{ar ? "الإجمالي" : "Total"}</span>
+                    <span>{tAuto('auto.total')}</span>
                     <span className="text-teal-600 dark:text-teal-400 tabular-nums font-mono">{formatCurrency(calcTotal, ar)}</span>
                   </div>
                 </div>
@@ -792,7 +795,7 @@ export default function RecurringInvoicesPage({ language }: RecurringInvoicesPag
             {/* Schedule */}
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               <div className="space-y-1">
-                <Label className="text-xs">{ar ? "التكرار" : "Frequency"} *</Label>
+                <Label className="text-xs">{tAuto('auto.frequency')} *</Label>
                 <Select
                   value={formData.frequency}
                   onValueChange={(v) => setFormData({ ...formData, frequency: v })}
@@ -801,17 +804,17 @@ export default function RecurringInvoicesPage({ language }: RecurringInvoicesPag
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="WEEKLY">{ar ? "أسبوعي" : "Weekly"}</SelectItem>
-                    <SelectItem value="MONTHLY">{ar ? "شهري" : "Monthly"}</SelectItem>
-                    <SelectItem value="QUARTERLY">{ar ? "ربع سنوي" : "Quarterly"}</SelectItem>
-                    <SelectItem value="ANNUALLY">{ar ? "سنوي" : "Annually"}</SelectItem>
-                    <SelectItem value="CUSTOM">{ar ? "مخصص" : "Custom"}</SelectItem>
+                    <SelectItem value="WEEKLY">{tAuto('auto.weekly')}</SelectItem>
+                    <SelectItem value="MONTHLY">{tAuto('auto.monthly')}</SelectItem>
+                    <SelectItem value="QUARTERLY">{tAuto('auto.quarterly')}</SelectItem>
+                    <SelectItem value="ANNUALLY">{tAuto('auto.annually')}</SelectItem>
+                    <SelectItem value="CUSTOM">{tAuto('auto.custom')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               {formData.frequency === "CUSTOM" && (
                 <div className="space-y-1">
-                  <Label className="text-xs">{ar ? "كل (أيام)" : "Every (days)"}</Label>
+                  <Label className="text-xs">{tAuto('auto.everyDays')}</Label>
                   <Input
                     type="number"
                     value={formData.customDays}
@@ -824,7 +827,7 @@ export default function RecurringInvoicesPage({ language }: RecurringInvoicesPag
                 </div>
               )}
               <div className="space-y-1">
-                <Label className="text-xs">{ar ? "تاريخ البدء" : "Start Date"} *</Label>
+                <Label className="text-xs">{tAuto('auto.startDate')} *</Label>
                 <Input
                   type="date"
                   value={formData.startDate}
@@ -834,13 +837,13 @@ export default function RecurringInvoicesPage({ language }: RecurringInvoicesPag
                 />
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">{ar ? "تاريخ الانتهاء" : "End Date"}</Label>
+                <Label className="text-xs">{tAuto('auto.endDate')}</Label>
                 <Input
                   type="date"
                   value={formData.endDate}
                   onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
                   className="h-8 text-sm rounded-lg"
-                  placeholder={ar ? "غير محدد" : "No end date"}
+                  placeholder={tAuto('auto.noEndDate')}
                 />
               </div>
             </div>
@@ -848,16 +851,16 @@ export default function RecurringInvoicesPage({ language }: RecurringInvoicesPag
             {/* Notes */}
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <Label className="text-xs">{ar ? "ملاحظات (إنجليزي)" : "Notes (English)"}</Label>
+                <Label className="text-xs">{tAuto('auto.notesEnglish')}</Label>
                 <Input
                   value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  placeholder={ar ? "ملاحظات إضافية" : "Additional notes"}
+                  placeholder={tAuto('auto.additionalNotes')}
                   className="h-8 text-sm rounded-lg"
                 />
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">{ar ? "ملاحظات (عربي)" : "Notes (Arabic)"}</Label>
+                <Label className="text-xs">{tAuto('auto.notesArabic')}</Label>
                 <Input
                   value={formData.notesAr}
                   onChange={(e) => setFormData({ ...formData, notesAr: e.target.value })}
@@ -870,7 +873,7 @@ export default function RecurringInvoicesPage({ language }: RecurringInvoicesPag
 
             <DialogFooter>
               <Button type="button" variant="outline" onClick={handleCloseDialog}>
-                {ar ? "إلغاء" : "Cancel"}
+                {tAuto('auto.cancel')}
               </Button>
               <Button
                 type="submit"
@@ -878,8 +881,8 @@ export default function RecurringInvoicesPage({ language }: RecurringInvoicesPag
                 disabled={createMutation.isPending || updateMutation.isPending}
               >
                 {createMutation.isPending || updateMutation.isPending
-                  ? (ar ? "جارٍ الحفظ..." : "Saving...")
-                  : (ar ? "حفظ" : "Save")}
+                  ? (tAuto('auto.saving'))
+                  : (tAuto('auto.save'))}
               </Button>
             </DialogFooter>
           </form>
@@ -890,20 +893,18 @@ export default function RecurringInvoicesPage({ language }: RecurringInvoicesPag
       <AlertDialog open={!!deleteId} onOpenChange={(open) => { if (!open) setDeleteId(null); }}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{ar ? "حذف الفاتورة المتكررة؟" : "Delete Recurring Invoice?"}</AlertDialogTitle>
+            <AlertDialogTitle>{tAuto('auto.deleteRecurringInvoice')}</AlertDialogTitle>
             <AlertDialogDescription>
-              {ar
-                ? "سيتم إيقاف الفاتورة المتكررة. لن يتم حذف الفواتير التي تم إنشاؤها مسبقاً."
-                : "The recurring invoice will be deactivated. Previously generated invoices will not be deleted."}
+              {tAuto('auto.theRecurringInvoiceWillBeDeactivatedPrev')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>{ar ? "إلغاء" : "Cancel"}</AlertDialogCancel>
+            <AlertDialogCancel>{tAuto('auto.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => deleteId && deleteMutation.mutate(deleteId)}
               className="bg-red-600 hover:bg-red-700 text-white"
             >
-              {ar ? "حذف" : "Delete"}
+              {tAuto('auto.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

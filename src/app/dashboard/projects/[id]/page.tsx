@@ -1,19 +1,12 @@
-"use client";
+import { getLocale } from 'next-intl/server';
+import ProjectDetail from '@/components/pages/project-detail';
 
-import dynamic from "next/dynamic";
-import { use } from "react";
-import { useLang } from "@/hooks/use-lang";
-
-const ProjectDetail = dynamic(() => import("@/components/pages/project-detail"), {
-  loading: () => <div className="p-6 animate-pulse">Loading...</div>,
-  ssr: false,
-});
-
-export default function ProjectDetailRoute({
+export default async function ProjectDetailRoute({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id } = use(params);
-  return <ProjectDetail language={useLang()} key={id} />;
+  const { id } = await params;
+  const locale = await getLocale();
+  return <ProjectDetail language={locale as "ar" | "en"} key={id} />;
 }

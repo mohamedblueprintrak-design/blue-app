@@ -1,16 +1,7 @@
-"use client";
+import { getLocale } from 'next-intl/server';
+import LeavePage from '@/components/pages/leave';
 
-import dynamic from "next/dynamic";
-import { useLang } from "@/hooks/use-lang";
-
-const LeavePage = dynamic(() => import("@/components/pages/leave"), {
-  loading: () => <div className="p-6 animate-pulse">Loading...</div>,
-  ssr: false,
-});
-
-/**
- * /dashboard/leave
- */
-export default function LeavePageRoute() {
-  return <LeavePage language={useLang()} />;
+export default async function LeavePageRoute() {
+  const locale = await getLocale();
+  return <LeavePage language={locale as "ar" | "en"} />;
 }

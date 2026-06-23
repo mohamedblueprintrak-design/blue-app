@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -30,6 +32,7 @@ interface ProjectsListProps {
 }
 
 export default function ProjectsList({ language }: ProjectsListProps) {
+  const tAuto = useTranslations();
   const isAr = language === "ar";
   const t = (ar: string, en: string) => (isAr ? ar : en);
   const { user } = useAuthStore();
@@ -131,7 +134,7 @@ export default function ProjectsList({ language }: ProjectsListProps) {
       queryClient.invalidateQueries({ queryKey: ["projects"] });
       setShowAddDialog(false);
       localStorage.removeItem("draft_project_form");
-      toast.showSuccess(isAr ? "تم إضافة المشروع بنجاح" : "Project added successfully");
+      toast.showSuccess(tAuto('auto.projectAddedSuccessfully'));
       form.reset();
     },
     onError: (error: Error) => {
@@ -224,7 +227,7 @@ export default function ProjectsList({ language }: ProjectsListProps) {
     let isUndone = false;
     
     toast.toast({
-      title: isAr ? "تم الحذف مؤقتاً" : "Deleted temporarily",
+      title: tAuto('auto.deletedTemporarily'),
       description: isAr ? `تم إخفاء ${idsToDelete.length > 1 ? idsToDelete.length + ' مشاريع' : 'المشروع'}` : `Hidden ${idsToDelete.length} item(s)`,
       action: (
         <ToastAction altText="Undo" onClick={() => {
@@ -235,7 +238,7 @@ export default function ProjectsList({ language }: ProjectsListProps) {
              return next;
            });
         }}>
-          {isAr ? "تراجع" : "Undo"}
+          {tAuto('auto.undo')}
         </ToastAction>
       ),
       duration: 5000,
@@ -268,7 +271,7 @@ export default function ProjectsList({ language }: ProjectsListProps) {
               Object.keys(parsed).forEach(k => {
                 form.setValue(k as keyof ProjectFormData, parsed[k]);
               });
-              toast.showSuccess(isAr ? "تم استعادة المسودة بنجاح" : "Draft restored successfully");
+              toast.showSuccess(tAuto('auto.draftRestoredSuccessfully'));
             } catch (_e) { /* intentional */ }
           }
           setShowAddDialog(true);

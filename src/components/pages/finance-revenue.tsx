@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -83,6 +85,7 @@ interface Props {
 }
 
 export default function FinanceRevenuePage({ }: Props) {
+  const tAuto = useTranslations();
   const lang = useLang();
   const ar = lang === "ar";
   const toastFeedback = useToastFeedback({ ar });
@@ -260,24 +263,24 @@ export default function FinanceRevenuePage({ }: Props) {
             <TrendingUp className="h-4.5 w-4.5 text-emerald-600 dark:text-emerald-400" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white">{ar ? "الإيرادات" : "Revenue"}</h2>
-            <p className="text-[10px] text-slate-500 dark:text-slate-400">{ar ? "متابعة الإيرادات والتحصيلات" : "Revenue & collection tracking"}</p>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">{tAuto('auto.revenue')}</h2>
+            <p className="text-[10px] text-slate-500 dark:text-slate-400">{tAuto('auto.revenueCollectionTracking')}</p>
           </div>
         </div>
         <div className="flex items-center gap-2 sm:ms-auto">
           <Button size="sm" variant="outline" className="h-8 gap-1.5 text-xs border-slate-200 dark:border-slate-700 hover:bg-emerald-50 dark:hover:bg-emerald-900/20" onClick={() => {
             const exportData = revenueByProject.map((p) => ({
-              [ar ? "المشروع" : "Project"]: p.name,
-              [ar ? "الإيرادات" : "Revenue"]: p.revenue,
-              [ar ? "المحصل" : "Collected"]: p.collected,
-              [ar ? "المتبقي" : "Outstanding"]: p.revenue - p.collected,
+              [tAuto('auto.project')]: p.name,
+              [tAuto('auto.revenue')]: p.revenue,
+              [tAuto('auto.collected')]: p.collected,
+              [tAuto('auto.outstanding')]: p.revenue - p.collected,
             }));
             if (exportData.length > 0) {
-              exportToCSV(exportData, ar ? "إيرادات_المشاريع" : "project_revenue");
-              toastFeedback.showSuccess(ar ? "تم التصدير" : "Exported");
+              exportToCSV(exportData, tAuto('auto.projectrevenue'));
+              toastFeedback.showSuccess(tAuto('auto.exported'));
             }
           }}>
-            <Download className="h-3.5 w-3.5" />{ar ? "تصدير CSV" : "Export CSV"}
+            <Download className="h-3.5 w-3.5" />{tAuto('auto.exportCSV')}
           </Button>
         </div>
       </div>
@@ -289,7 +292,7 @@ export default function FinanceRevenuePage({ }: Props) {
             <div className="absolute top-0 start-0 w-16 h-16 bg-white/5 rounded-full -translate-x-4 -translate-y-4" />
             <div className="flex items-center gap-2 mb-2 relative">
               <div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm"><DollarSign className="h-3.5 w-3.5 text-white" /></div>
-              <span className="text-[11px] text-emerald-100">{ar ? "إيرادات هذا الشهر" : "This Month"}</span>
+              <span className="text-[11px] text-emerald-100">{tAuto('auto.thisMonth1')}</span>
             </div>
             <div className="text-lg font-bold text-white tabular-nums relative">{formatCurrency(thisMonthRevenue, ar)}</div>
             <div className="mt-1.5"><TrendIndicator value={revenueGrowth} ar={ar} /></div>
@@ -300,7 +303,7 @@ export default function FinanceRevenuePage({ }: Props) {
           <div className="bg-gradient-to-br from-sky-500 to-sky-600 dark:from-sky-600 dark:to-sky-700 p-4">
             <div className="flex items-center gap-2 mb-2">
               <div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm"><TrendingDown className="h-3.5 w-3.5 text-white" /></div>
-              <span className="text-[11px] text-sky-100">{ar ? "الشهر الماضي" : "Last Month"}</span>
+              <span className="text-[11px] text-sky-100">{tAuto('auto.lastMonth')}</span>
             </div>
             <div className="text-lg font-bold text-white tabular-nums">{formatCurrency(lastMonthRevenue, ar)}</div>
           </div>
@@ -310,7 +313,7 @@ export default function FinanceRevenuePage({ }: Props) {
           <div className="bg-gradient-to-br from-teal-500 to-teal-600 dark:from-teal-600 dark:to-teal-700 p-4">
             <div className="flex items-center gap-2 mb-2">
               <div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm"><Wallet className="h-3.5 w-3.5 text-white" /></div>
-              <span className="text-[11px] text-teal-100">{ar ? "إجمالي الإيرادات" : "Total Revenue"}</span>
+              <span className="text-[11px] text-teal-100">{tAuto('auto.totalRevenue')}</span>
             </div>
             <div className="text-lg font-bold text-white tabular-nums">{formatCurrency(totalRevenue, ar)}</div>
           </div>
@@ -320,28 +323,28 @@ export default function FinanceRevenuePage({ }: Props) {
           <div className="bg-gradient-to-br from-amber-500 to-amber-600 dark:from-amber-600 dark:to-amber-700 p-4">
             <div className="flex items-center gap-2 mb-2">
               <div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm"><AlertTriangle className="h-3.5 w-3.5 text-white" /></div>
-              <span className="text-[11px] text-amber-100">{ar ? "إجمالي المتبقي" : "Total Outstanding"}</span>
+              <span className="text-[11px] text-amber-100">{tAuto('auto.totalOutstanding')}</span>
             </div>
             <div className="text-lg font-bold text-white tabular-nums">{formatCurrency(totalOutstanding, ar)}</div>
-            <p className="text-[10px] text-white/60 mt-1">{outstandingInvoices.length} {ar ? "فاتورة" : "invoices"}</p>
+            <p className="text-[10px] text-white/60 mt-1">{outstandingInvoices.length} {tAuto('auto.invoices')}</p>
           </div>
         </Card>
       </div>
 
       {/* Revenue Chart */}
       <Card className="border-slate-200 dark:border-slate-700/50 shadow-sm"><CardContent className="p-4">
-        <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-1">{ar ? "الإيرادات الشهرية" : "Monthly Revenue"}</h3>
-        <p className="text-[10px] text-slate-400 mb-4">{ar ? "مقارنة الإيرادات والتحصيلات الشهرية" : "Monthly revenue vs collections"}</p>
+        <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-1">{tAuto('auto.monthlyRevenue')}</h3>
+        <p className="text-[10px] text-slate-400 mb-4">{tAuto('auto.monthlyRevenueVsCollections')}</p>
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={monthlyRevenueData} barGap={4}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridStroke} />
-              <XAxis dataKey={ar ? "monthAr" : "monthEn"} tick={{ fontSize: 11, fill: tickColor }} tickLine={false} />
+              <XAxis dataKey={tAuto('auto.monthEn')} tick={{ fontSize: 11, fill: tickColor }} tickLine={false} />
               <YAxis tickFormatter={formatK} tick={{ fontSize: 11, fill: tickColor }} tickLine={false} axisLine={false} />
               <Tooltip content={<ChartTooltip ar={ar} />} />
               <Legend wrapperStyle={{ fontSize: 12, color: legendColor }} />
-              <Bar dataKey="revenue" name={ar ? "الإيرادات" : "Revenue"} fill="#10b981" radius={[6, 6, 0, 0]} />
-              <Bar dataKey="collected" name={ar ? "المحصل" : "Collected"} fill="#0ea5e9" radius={[6, 6, 0, 0]} />
+              <Bar dataKey="revenue" name={tAuto('auto.revenue')} fill="#10b981" radius={[6, 6, 0, 0]} />
+              <Bar dataKey="collected" name={tAuto('auto.collected')} fill="#0ea5e9" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -349,8 +352,8 @@ export default function FinanceRevenuePage({ }: Props) {
 
       {/* Revenue by Project */}
       <Card className="border-slate-200 dark:border-slate-700/50 shadow-sm"><CardContent className="p-4">
-        <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-1">{ar ? "الإيرادات حسب المشروع" : "Revenue by Project"}</h3>
-        <p className="text-[10px] text-slate-400 mb-4">{ar ? "توزيع الإيرادات على المشاريع" : "Revenue distribution across projects"}</p>
+        <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-1">{tAuto('auto.revenueByProject')}</h3>
+        <p className="text-[10px] text-slate-400 mb-4">{tAuto('auto.revenueDistributionAcrossProjects')}</p>
         <div className="space-y-3">
           {revenueByProject.slice(0, 8).map((p, idx) => (
             <div key={idx} className="flex items-center gap-3">
@@ -366,7 +369,7 @@ export default function FinanceRevenuePage({ }: Props) {
             </div>
           ))}
           {revenueByProject.length === 0 && (
-            <p className="text-center py-6 text-xs text-slate-400">{ar ? "لا توجد بيانات" : "No data"}</p>
+            <p className="text-center py-6 text-xs text-slate-400">{tAuto('auto.noData')}</p>
           )}
         </div>
       </CardContent></Card>
@@ -376,8 +379,8 @@ export default function FinanceRevenuePage({ }: Props) {
         <CardContent className="p-4">
           <div className="flex items-center justify-between mb-3">
             <div>
-              <h3 className="text-sm font-semibold text-slate-900 dark:text-white">{ar ? "الفواتير غير المحصلة" : "Outstanding Invoices"}</h3>
-              <p className="text-[10px] text-slate-400">{outstandingInvoices.length} {ar ? "فاتورة معلقة" : "pending invoices"}</p>
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-white">{tAuto('auto.outstandingInvoices')}</h3>
+              <p className="text-[10px] text-slate-400">{outstandingInvoices.length} {tAuto('auto.pendingInvoices1')}</p>
             </div>
             <Badge variant="outline" className="text-[10px] text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-800">
               {formatCurrency(totalOutstanding, ar)}
@@ -388,30 +391,30 @@ export default function FinanceRevenuePage({ }: Props) {
           <div className="flex items-center gap-2 mb-3 flex-wrap">
             <div className="relative flex-1 min-w-[180px]">
               <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-              <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={ar ? "بحث..." : "Search..."} className="ps-9 h-8 text-sm rounded-lg" />
+              <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={tAuto('auto.search1')} className="ps-9 h-8 text-sm rounded-lg" />
             </div>
             <Select value={filterProject} onValueChange={setFilterProject}>
-              <SelectTrigger className="w-[140px] h-8 text-xs rounded-lg"><SelectValue placeholder={ar ? "المشروع" : "Project"} /></SelectTrigger>
+              <SelectTrigger className="w-[140px] h-8 text-xs rounded-lg"><SelectValue placeholder={tAuto('auto.project')} /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">{ar ? "كل المشاريع" : "All Projects"}</SelectItem>
+                <SelectItem value="all">{tAuto('auto.allProjects')}</SelectItem>
                 {projects.map((p) => <SelectItem key={p.id} value={p.id}>{ar ? p.name : p.nameEn || p.name}</SelectItem>)}
               </SelectContent>
             </Select>
             <Select value={filterClient} onValueChange={setFilterClient}>
-              <SelectTrigger className="w-[140px] h-8 text-xs rounded-lg"><SelectValue placeholder={ar ? "العميل" : "Client"} /></SelectTrigger>
+              <SelectTrigger className="w-[140px] h-8 text-xs rounded-lg"><SelectValue placeholder={tAuto('auto.client')} /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">{ar ? "كل العملاء" : "All Clients"}</SelectItem>
+                <SelectItem value="all">{tAuto('auto.allClients')}</SelectItem>
                 {clients.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}{c.company ? ` (${c.company})` : ""}</SelectItem>)}
               </SelectContent>
             </Select>
             <Select value={filterStatus} onValueChange={setFilterStatus}>
               <SelectTrigger className="w-[120px] h-8 text-xs rounded-lg"><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">{ar ? "الكل" : "All"}</SelectItem>
-                <SelectItem value="SENT">{ar ? "مرسلة" : "Sent"}</SelectItem>
-                <SelectItem value="PARTIALLY_PAID">{ar ? "جزئية" : "Partial"}</SelectItem>
-                <SelectItem value="OVERDUE">{ar ? "متأخرة" : "Overdue"}</SelectItem>
-                <SelectItem value="PAID">{ar ? "مدفوعة" : "Paid"}</SelectItem>
+                <SelectItem value="all">{tAuto('auto.all')}</SelectItem>
+                <SelectItem value="SENT">{tAuto('auto.sent')}</SelectItem>
+                <SelectItem value="PARTIALLY_PAID">{tAuto('auto.partial')}</SelectItem>
+                <SelectItem value="OVERDUE">{tAuto('auto.overdue')}</SelectItem>
+                <SelectItem value="PAID">{tAuto('auto.paid')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -421,13 +424,13 @@ export default function FinanceRevenuePage({ }: Props) {
               <Table>
                 <TableHeader>
                   <TableRow className="hover:bg-transparent bg-slate-50/80 dark:bg-slate-800/50">
-                    <TableHead className="text-xs font-semibold">{ar ? "الرقم" : "No."}</TableHead>
-                    <TableHead className="text-xs font-semibold">{ar ? "العميل" : "Client"}</TableHead>
-                    <TableHead className="text-xs font-semibold hidden md:table-cell">{ar ? "المشروع" : "Project"}</TableHead>
-                    <TableHead className="text-xs font-semibold text-start">{ar ? "الإجمالي" : "Total"}</TableHead>
-                    <TableHead className="text-xs font-semibold text-start">{ar ? "المدفوع" : "Paid"}</TableHead>
-                    <TableHead className="text-xs font-semibold text-start">{ar ? "المتبقي" : "Remaining"}</TableHead>
-                    <TableHead className="text-xs font-semibold">{ar ? "الحالة" : "Status"}</TableHead>
+                    <TableHead className="text-xs font-semibold">{tAuto('auto.no')}</TableHead>
+                    <TableHead className="text-xs font-semibold">{tAuto('auto.client')}</TableHead>
+                    <TableHead className="text-xs font-semibold hidden md:table-cell">{tAuto('auto.project')}</TableHead>
+                    <TableHead className="text-xs font-semibold text-start">{tAuto('auto.total')}</TableHead>
+                    <TableHead className="text-xs font-semibold text-start">{tAuto('auto.paid')}</TableHead>
+                    <TableHead className="text-xs font-semibold text-start">{tAuto('auto.remaining')}</TableHead>
+                    <TableHead className="text-xs font-semibold">{tAuto('auto.status1')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -447,7 +450,7 @@ export default function FinanceRevenuePage({ }: Props) {
                   })}
                   {outstandingInvoices.length === 0 && (
                     <TableRow><TableCell colSpan={7} className="text-center py-8 text-xs text-slate-400">
-                      {ar ? "لا توجد فواتير معلقة" : "No outstanding invoices"}
+                      {tAuto('auto.noOutstandingInvoices')}
                     </TableCell></TableRow>
                   )}
                 </TableBody>
@@ -457,7 +460,7 @@ export default function FinanceRevenuePage({ }: Props) {
 
           {/* Quick Total */}
           <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100 dark:border-slate-800">
-            <span className="text-xs text-slate-500 dark:text-slate-400">{ar ? "الإجمالي المعروض" : "Total Shown"}</span>
+            <span className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.totalShown')}</span>
             <span className="text-sm font-bold font-mono tabular-nums text-slate-900 dark:text-white">{formatCurrency(filtered.reduce((s, i) => s + i.total, 0), ar)}</span>
           </div>
         </CardContent>

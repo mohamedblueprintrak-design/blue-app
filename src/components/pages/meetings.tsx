@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState, useEffect } from "react";
 import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -153,6 +155,7 @@ interface MeetingsProps {
 }
 
 export default function Meetings({ language, projectId }: MeetingsProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const queryClient = useQueryClient();
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -325,10 +328,10 @@ export default function Meetings({ language, projectId }: MeetingsProps) {
             </div>
             <div>
               <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-                {ar ? "الاجتماعات" : "Meetings"}
+                {tAuto('auto.meetings')}
               </h2>
               <p className="text-[10px] text-slate-500 dark:text-slate-400">
-                {meetings.length} {ar ? "اجتماع" : "meetings"}
+                {meetings.length} {tAuto('auto.meetings1')}
               </p>
             </div>
           </div>
@@ -338,10 +341,10 @@ export default function Meetings({ language, projectId }: MeetingsProps) {
             <Select value={filterProject} onValueChange={setFilterProject}>
               <SelectTrigger className="w-[160px] h-8 text-xs rounded-lg">
                 <Filter className="h-3 w-3 me-1 text-slate-400" />
-                <SelectValue placeholder={ar ? "المشروع" : "Project"} />
+                <SelectValue placeholder={tAuto('auto.project')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">{ar ? "جميع المشاريع" : "All Projects"}</SelectItem>
+                <SelectItem value="all">{tAuto('auto.allProjects')}</SelectItem>
                 {projects.map((p) => (
                   <SelectItem key={p.id} value={p.id}>
                     {ar ? p.name : p.nameEn || p.name}
@@ -353,12 +356,12 @@ export default function Meetings({ language, projectId }: MeetingsProps) {
 
             <Select value={filterType} onValueChange={setFilterType}>
               <SelectTrigger className="w-[130px] h-8 text-xs rounded-lg">
-                <SelectValue placeholder={ar ? "النوع" : "Type"} />
+                <SelectValue placeholder={tAuto('auto.type')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">{ar ? "الكل" : "All"}</SelectItem>
-                <SelectItem value="ONSITE">{ar ? "حضوري" : "On-site"}</SelectItem>
-                <SelectItem value="ONLINE">{ar ? "عن بُعد" : "Online"}</SelectItem>
+                <SelectItem value="all">{tAuto('auto.all')}</SelectItem>
+                <SelectItem value="ONSITE">{tAuto('auto.onSite')}</SelectItem>
+                <SelectItem value="ONLINE">{tAuto('auto.online')}</SelectItem>
               </SelectContent>
             </Select>
 
@@ -368,7 +371,7 @@ export default function Meetings({ language, projectId }: MeetingsProps) {
               onClick={() => setShowAddDialog(true)}
             >
               <Plus className="h-3.5 w-3.5 me-1" />
-              {ar ? "اجتماع جديد" : "New Meeting"}
+              {tAuto('auto.newMeeting')}
             </Button>
           </div>
         </div>
@@ -424,7 +427,7 @@ export default function Meetings({ language, projectId }: MeetingsProps) {
               </div>
               <div>
                 <div className="text-lg font-bold text-slate-900 dark:text-white">{totalThisWeek}</div>
-                <div className="text-[10px] text-slate-500">{ar ? "هذا الأسبوع" : "This Week"}</div>
+                <div className="text-[10px] text-slate-500">{tAuto('auto.thisWeek')}</div>
               </div>
             </div>
           </Card>
@@ -435,7 +438,7 @@ export default function Meetings({ language, projectId }: MeetingsProps) {
               </div>
               <div>
                 <div className="text-lg font-bold text-teal-600 dark:text-teal-400">{upcoming24h}</div>
-                <div className="text-[10px] text-slate-500">{ar ? "خلال 24 ساعة" : "Next 24h"}</div>
+                <div className="text-[10px] text-slate-500">{tAuto('auto.next24h')}</div>
               </div>
             </div>
           </Card>
@@ -446,7 +449,7 @@ export default function Meetings({ language, projectId }: MeetingsProps) {
               </div>
               <div>
                 <div className="text-lg font-bold text-emerald-600 dark:text-emerald-400">{completedThisWeek}</div>
-                <div className="text-[10px] text-slate-500">{ar ? "مكتملة" : "Completed"}</div>
+                <div className="text-[10px] text-slate-500">{tAuto('auto.completed')}</div>
               </div>
             </div>
           </Card>
@@ -469,10 +472,10 @@ export default function Meetings({ language, projectId }: MeetingsProps) {
               <Video className="h-7 w-7 text-slate-400" />
             </div>
             <h3 className="text-base font-semibold text-slate-900 dark:text-white mb-1">
-              {ar ? "لا توجد اجتماعات" : "No meetings"}
+              {tAuto('auto.noMeetings')}
             </h3>
             <p className="text-sm text-slate-500">
-              {ar ? "ابدأ بجدولة اجتماع جديد" : "Start by scheduling a new meeting"}
+              {tAuto('auto.startBySchedulingANewMeeting')}
             </p>
           </div>
         ) : (
@@ -520,12 +523,12 @@ export default function Meetings({ language, projectId }: MeetingsProps) {
                         {isWithin24h && !isPast && !isWithin1h && (
                           <Badge className="text-[9px] h-5 px-1.5 bg-teal-100 text-teal-700 dark:bg-teal-900/50 dark:text-teal-300 border-0 animate-pulse gap-0.5">
                             <Zap className="h-2.5 w-2.5" />
-                            {ar ? "موعد قريب" : "Coming Up"}
+                            {tAuto('auto.comingUp')}
                           </Badge>
                         )}
                         {isToday && !isWithin24h && (
                           <Badge className="text-[8px] h-5 px-1 bg-teal-100 text-teal-700 dark:bg-teal-900/50 dark:text-teal-300 border-0">
-                            {ar ? "اليوم" : "Today"}
+                            {tAuto('auto.today')}
                           </Badge>
                         )}
                       </div>
@@ -538,19 +541,19 @@ export default function Meetings({ language, projectId }: MeetingsProps) {
                         <DropdownMenuContent align={ar ? "start" : "end"} className="w-36">
                           <DropdownMenuItem onClick={(e) => { e.stopPropagation(); setSelectedMeeting(meeting); setShowDetailDialog(true); }}>
                             <Eye className="h-3.5 w-3.5 me-2" />
-                            {ar ? "عرض" : "View"}
+                            {tAuto('auto.view')}
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             className="text-red-600 dark:text-red-400"
                             onClick={(e) => {
                               e.stopPropagation();
-                              if (confirm(ar ? "هل أنت متأكد من الحذف؟" : "Delete this meeting?")) {
+                              if (confirm(tAuto('auto.deleteThisMeeting'))) {
                                 deleteMutation.mutate(meeting.id);
                               }
                             }}
                           >
                             <Trash2 className="h-3.5 w-3.5 me-2" />
-                            {ar ? "حذف" : "Delete"}
+                            {tAuto('auto.delete')}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -585,7 +588,7 @@ export default function Meetings({ language, projectId }: MeetingsProps) {
                     {meeting.agenda.length > 0 && (
                       <div className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 mb-3">
                         <ListChecks className="h-3 w-3" />
-                        <span>{meeting.agenda.length} {ar ? "بنود جدول أعمال" : "agenda items"}</span>
+                        <span>{meeting.agenda.length} {tAuto('auto.agendaItems')}</span>
                       </div>
                     )}
 
@@ -640,37 +643,37 @@ export default function Meetings({ language, projectId }: MeetingsProps) {
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <Video className="h-5 w-5 text-teal-500" />
-                {ar ? "اجتماع جديد" : "New Meeting"}
+                {tAuto('auto.newMeeting')}
               </DialogTitle>
               <DialogDescription>
-                {ar ? "جدولة اجتماع جديد مع الفريق" : "Schedule a new meeting with the team"}
+                {tAuto('auto.scheduleANewMeetingWithTheTeam')}
               </DialogDescription>
             </DialogHeader>
 
             <form onSubmit={rhfHandleSubmit(onSubmit as (data: unknown) => void)} className="space-y-4">
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "عنوان الاجتماع *" : "Meeting Title *"}</Label>
-                <Input {...register("title")} placeholder={ar ? "عنوان الاجتماع" : "Meeting title"} />
+                <Label className="text-sm">{tAuto('auto.meetingTitle')}</Label>
+                <Input {...register("title")} placeholder={tAuto('auto.meetingTitle1')} />
                 {errors.title && <p className="text-red-500 text-xs mt-1">{getErrorMessage(errors.title.message || "", ar)}</p>}
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div className="space-y-2">
-                  <Label className="text-sm">{ar ? "التاريخ *" : "Date *"}</Label>
+                  <Label className="text-sm">{tAuto('auto.date1')}</Label>
                   <Input
                     type="date"
                     {...register("date")}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-sm">{ar ? "الوقت" : "Time"}</Label>
+                  <Label className="text-sm">{tAuto('auto.time')}</Label>
                   <Input
                     type="time"
                     {...register("time")}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-sm">{ar ? "المدة (دقيقة)" : "Duration (min)"}</Label>
+                  <Label className="text-sm">{tAuto('auto.durationMin')}</Label>
                   <Input
                     type="number"
                     {...register("duration", { valueAsNumber: true })}
@@ -682,10 +685,10 @@ export default function Meetings({ language, projectId }: MeetingsProps) {
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div className="space-y-2">
-                  <Label className="text-sm">{ar ? "المشروع" : "Project"}</Label>
+                  <Label className="text-sm">{tAuto('auto.project')}</Label>
                   {/* eslint-disable-next-line react-hooks/incompatible-library */}
                   <Select value={watch("projectId")} onValueChange={(v) => setValue("projectId", v)}>
-                    <SelectTrigger><SelectValue placeholder={ar ? "اختياري" : "Optional"} /></SelectTrigger>
+                    <SelectTrigger><SelectValue placeholder={tAuto('auto.optional')} /></SelectTrigger>
                     <SelectContent>
                       {projects.map((p) => (
                         <SelectItem key={p.id} value={p.id}>{ar ? p.name : p.nameEn || p.name}</SelectItem>
@@ -694,20 +697,20 @@ export default function Meetings({ language, projectId }: MeetingsProps) {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-sm">{ar ? "النوع" : "Type"}</Label>
+                  <Label className="text-sm">{tAuto('auto.type')}</Label>
                   <Select value={watch("type")} onValueChange={(v) => setValue("type", v as MeetingFormData["type"])}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="ONSITE">{ar ? "حضوري" : "On-site"}</SelectItem>
-                      <SelectItem value="ONLINE">{ar ? "عن بُعد" : "Online"}</SelectItem>
+                      <SelectItem value="ONSITE">{tAuto('auto.onSite')}</SelectItem>
+                      <SelectItem value="ONLINE">{tAuto('auto.online')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-sm">{ar ? "المكان" : "Location"}</Label>
+                  <Label className="text-sm">{tAuto('auto.location')}</Label>
                   <Input
                     {...register("location")}
-                    placeholder={watch("type") === "ONLINE" ? "Zoom/Teams link" : (ar ? "قاعة الاجتماعات" : "Meeting room")}
+                    placeholder={watch("type") === "ONLINE" ? "Zoom/Teams link" : (tAuto('auto.meetingRoom'))}
                   />
                 </div>
               </div>
@@ -718,7 +721,7 @@ export default function Meetings({ language, projectId }: MeetingsProps) {
               <div className="space-y-2">
                 <Label className="text-sm font-medium flex items-center gap-1.5">
                   <Users className="h-4 w-4" />
-                  {ar ? "الحضور" : "Attendees"} ({selectedAttendeeIds.length})
+                  {tAuto('auto.attendees')} ({selectedAttendeeIds.length})
                 </Label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-40 overflow-y-auto scrollbar-thin">
                   {users.map((user) => {
@@ -757,7 +760,7 @@ export default function Meetings({ language, projectId }: MeetingsProps) {
                 <div className="flex items-center justify-between">
                   <Label className="text-sm font-medium flex items-center gap-1.5">
                     <ListChecks className="h-4 w-4" />
-                    {ar ? "جدول الأعمال" : "Agenda"}
+                    {tAuto('auto.agenda')}
                     {totalAgendaDuration > 0 && (
                       <span className="text-[10px] text-slate-400 ms-1">
                         ({formatDuration(totalAgendaDuration, ar)})
@@ -766,13 +769,13 @@ export default function Meetings({ language, projectId }: MeetingsProps) {
                   </Label>
                   <Button variant="outline" size="sm" className="h-7 text-xs rounded-lg" onClick={addAgendaItem}>
                     <Plus className="h-3 w-3 me-1" />
-                    {ar ? "إضافة بند" : "Add Item"}
+                    {tAuto('auto.addItem1')}
                   </Button>
                 </div>
 
                 {agendaItems.length === 0 ? (
                   <div className="text-center py-3 border border-dashed border-slate-200 dark:border-slate-700 rounded-lg">
-                    <p className="text-xs text-slate-400">{ar ? "لم يتم إضافة بنود" : "No agenda items"}</p>
+                    <p className="text-xs text-slate-400">{tAuto('auto.noAgendaItems')}</p>
                   </div>
                 ) : (
                   <div className="space-y-2">
@@ -783,7 +786,7 @@ export default function Meetings({ language, projectId }: MeetingsProps) {
                           className="h-7 text-xs flex-1 rounded-lg"
                           value={item.topic}
                           onChange={(e) => updateAgendaItem(index, "topic", e.target.value)}
-                          placeholder={ar ? "الموضوع" : "Topic"}
+                          placeholder={tAuto('auto.topic')}
                         />
                         <Input
                           className="h-7 text-xs w-20 rounded-lg"
@@ -804,10 +807,10 @@ export default function Meetings({ language, projectId }: MeetingsProps) {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "ملاحظات" : "Notes"}</Label>
+                <Label className="text-sm">{tAuto('auto.notes')}</Label>
                 <Textarea
                   {...register("notes")}
-                  placeholder={ar ? "ملاحظات إضافية" : "Additional notes"}
+                  placeholder={tAuto('auto.additionalNotes')}
                   rows={2}
                 />
               </div>
@@ -815,14 +818,14 @@ export default function Meetings({ language, projectId }: MeetingsProps) {
 
             <DialogFooter>
               <Button variant="outline" onClick={() => { setShowAddDialog(false); resetForm(); }}>
-                {ar ? "إلغاء" : "Cancel"}
+                {tAuto('auto.cancel')}
               </Button>
               <Button
                 className="bg-teal-600 hover:bg-teal-700 text-white"
                 type="submit"
                 disabled={createMutation.isPending}
               >
-                {createMutation.isPending ? (ar ? "جارٍ الإنشاء..." : "Creating...") : (ar ? "إنشاء" : "Create")}
+                {createMutation.isPending ? (tAuto('auto.creating')) : (tAuto('auto.create'))}
               </Button>
             </DialogFooter>
         </DialogContent>
@@ -858,19 +861,19 @@ export default function Meetings({ language, projectId }: MeetingsProps) {
                     </div>
                     <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-3 text-center">
                       {getTypeBadge(selectedMeeting.type, ar)}
-                      <div className="text-[10px] text-slate-500 mt-1">{ar ? "النوع" : "Type"}</div>
+                      <div className="text-[10px] text-slate-500 mt-1">{tAuto('auto.type')}</div>
                     </div>
                     <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-3 text-center">
                       <MapPin className="h-4 w-4 mx-auto mb-1 text-slate-400" />
                       <div className="text-xs font-medium text-slate-900 dark:text-white truncate">
-                        {selectedMeeting.location || (ar ? "غير محدد" : "Not set")}
+                        {selectedMeeting.location || (tAuto('auto.notSet'))}
                       </div>
-                      <div className="text-[10px] text-slate-500">{ar ? "المكان" : "Location"}</div>
+                      <div className="text-[10px] text-slate-500">{tAuto('auto.location')}</div>
                     </div>
                     <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-3 text-center">
                       <Users className="h-4 w-4 mx-auto mb-1 text-slate-400" />
                       <div className="text-sm font-bold text-slate-900 dark:text-white">{selectedMeeting.attendees.length}</div>
-                      <div className="text-[10px] text-slate-500">{ar ? "حضور" : "Attendees"}</div>
+                      <div className="text-[10px] text-slate-500">{tAuto('auto.attendees')}</div>
                     </div>
                   </div>
 
@@ -879,7 +882,7 @@ export default function Meetings({ language, projectId }: MeetingsProps) {
                     <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800/50 rounded-xl p-3">
                       <Building2 className="h-4 w-4 text-teal-500" />
                       <div>
-                        <div className="text-[10px] text-slate-500">{ar ? "المشروع" : "Project"}</div>
+                        <div className="text-[10px] text-slate-500">{tAuto('auto.project')}</div>
                         <div className="text-xs font-medium text-slate-900 dark:text-white">
                           {ar ? selectedMeeting.project.name : selectedMeeting.project.nameEn || selectedMeeting.project.name}
                         </div>
@@ -891,7 +894,7 @@ export default function Meetings({ language, projectId }: MeetingsProps) {
                   {selectedMeeting.attendees.length > 0 && (
                     <div className="space-y-2">
                       <Label className="text-sm font-medium">
-                        {ar ? "قائمة الحضور" : "Attendees"}
+                        {tAuto('auto.attendees')}
                       </Label>
                       <div className="flex flex-wrap gap-2">
                         {selectedMeeting.attendees.map((att) => (
@@ -914,7 +917,7 @@ export default function Meetings({ language, projectId }: MeetingsProps) {
                     <div className="space-y-2">
                       <Label className="text-sm font-medium flex items-center gap-1.5">
                         <ListChecks className="h-4 w-4" />
-                        {ar ? "جدول الأعمال" : "Agenda"} ({selectedMeeting.agenda.length})
+                        {tAuto('auto.agenda')} ({selectedMeeting.agenda.length})
                       </Label>
                       <div className="space-y-1.5">
                         {selectedMeeting.agenda.map((item, idx) => (
@@ -935,7 +938,7 @@ export default function Meetings({ language, projectId }: MeetingsProps) {
                     <div className="space-y-1.5">
                       <div className="text-xs font-medium text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
                         <FileText className="h-3.5 w-3.5" />
-                        {ar ? "ملاحظات" : "Notes"}
+                        {tAuto('auto.notes')}
                       </div>
                       <p className="text-sm text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3 whitespace-pre-wrap">
                         {selectedMeeting.notes}

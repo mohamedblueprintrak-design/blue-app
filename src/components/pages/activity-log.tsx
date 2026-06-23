@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
@@ -335,6 +337,7 @@ const loadMoreVariants = {
 
 // ===== Main Component =====
 export default function ActivityLog({ language: lang, projectId }: Props) {
+  const tAuto = useTranslations();
   const isAr = lang === "ar";
   const [entityFilter, setEntityFilter] = useState<string>("all");
   const [periodFilter, setPeriodFilter] = useState<string>("all");
@@ -382,12 +385,12 @@ export default function ActivityLog({ language: lang, projectId }: Props) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["activity-log"] });
       toastFeedback.showSuccess(
-        isAr ? "تم محاكاة نشاط جديد" : "Activity simulated",
-        isAr ? "تمت إضافة نشاط عشوائي للسجل" : "Random activity added to the log"
+        tAuto('auto.activitySimulated'),
+        tAuto('auto.randomActivityAddedToTheLog')
       );
     },
     onError: () => {
-      toastFeedback.error(isAr ? "محاكاة النشاط" : "Simulate activity");
+      toastFeedback.error(tAuto('auto.simulateActivity'));
     },
   });
 
@@ -428,7 +431,7 @@ export default function ActivityLog({ language: lang, projectId }: Props) {
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
 
-    if (diffMin < 1) return isAr ? "الآن" : "Just now";
+    if (diffMin < 1) return tAuto('auto.justNow');
     if (diffMin < 60) return isAr ? `منذ ${diffMin} دقيقة` : `${diffMin} min ago`;
     if (diffHours < 24) return isAr ? `منذ ${diffHours} ساعة` : `${diffHours}h ago`;
     if (diffDays < 7) return isAr ? `منذ ${diffDays} يوم` : `${diffDays}d ago`;
@@ -482,10 +485,10 @@ export default function ActivityLog({ language: lang, projectId }: Props) {
           </div>
           <div>
             <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-              {isAr ? "سجل النشاط" : "Activity Log"}
+              {tAuto('auto.activityLog')}
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              {totalActivities} {isAr ? "نشاط مسجل" : "activities recorded"}
+              {totalActivities} {tAuto('auto.activitiesRecorded')}
             </p>
           </div>
         </div>
@@ -503,7 +506,7 @@ export default function ActivityLog({ language: lang, projectId }: Props) {
             ) : (
               <Zap className="h-3.5 w-3.5" />
             )}
-            {isAr ? "محاكاة نشاط" : "Simulate"}
+            {tAuto('auto.simulate')}
           </Button>
 
           <Badge
@@ -511,7 +514,7 @@ export default function ActivityLog({ language: lang, projectId }: Props) {
             className="w-fit gap-1.5 border-teal-200 dark:border-teal-800 text-teal-600 dark:text-teal-400 text-xs px-2.5 py-0.5"
           >
             <RefreshCw className="h-3 w-3" />
-            {isAr ? "تحديث تلقائي" : "Live updates"}
+            {tAuto('auto.liveUpdates')}
           </Badge>
         </div>
       </div>
@@ -531,7 +534,7 @@ export default function ActivityLog({ language: lang, projectId }: Props) {
                 <BarChart3 className="h-4 w-4 text-slate-600 dark:text-slate-300" />
               </div>
               <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
-                {isAr ? "إجمالي النشاط" : "Total Activities"}
+                {tAuto('auto.totalActivities')}
               </span>
             </div>
             <p className="text-2xl font-bold text-slate-900 dark:text-white tabular-nums">{totalActivities}</p>
@@ -551,7 +554,7 @@ export default function ActivityLog({ language: lang, projectId }: Props) {
                 <Clock className="h-4 w-4 text-teal-600 dark:text-teal-400" />
               </div>
               <span className="text-[11px] font-medium text-teal-600 dark:text-teal-400">
-                {isAr ? "اليوم" : "Today"}
+                {tAuto('auto.today')}
               </span>
             </div>
             <p className="text-2xl font-bold text-teal-700 dark:text-teal-300 tabular-nums">{todayActivities}</p>
@@ -571,7 +574,7 @@ export default function ActivityLog({ language: lang, projectId }: Props) {
                 <CalendarDays className="h-4 w-4 text-sky-600 dark:text-sky-400" />
               </div>
               <span className="text-[11px] font-medium text-sky-600 dark:text-sky-400">
-                {isAr ? "هذا الأسبوع" : "This Week"}
+                {tAuto('auto.thisWeek')}
               </span>
             </div>
             <p className="text-2xl font-bold text-sky-700 dark:text-sky-300 tabular-nums">{weekActivities}</p>
@@ -591,7 +594,7 @@ export default function ActivityLog({ language: lang, projectId }: Props) {
                 <Users className="h-4 w-4 text-violet-600 dark:text-violet-400" />
               </div>
               <span className="text-[11px] font-medium text-violet-600 dark:text-violet-400">
-                {isAr ? "المستخدمين النشطين" : "Active Users"}
+                {tAuto('auto.activeUsers')}
               </span>
             </div>
             <p className="text-2xl font-bold text-violet-700 dark:text-violet-300 tabular-nums">{uniqueUsers}</p>
@@ -668,29 +671,27 @@ export default function ActivityLog({ language: lang, projectId }: Props) {
             <Inbox className="h-10 w-10 text-slate-300 dark:text-slate-600" />
           </div>
           <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
-            {isAr ? "لا توجد أنشطة" : "No activities found"}
+            {tAuto('auto.noActivitiesFound')}
           </h3>
           <p className="text-sm text-slate-500 dark:text-slate-400 max-w-sm mx-auto mb-6">
-            {isAr
-              ? "لا توجد أنشطة مطابقة لمعايير البحث المحددة. حاول تغيير الفلتر أو الفترة الزمنية."
-              : "No activities match the selected filters. Try changing the filter or time period."}
+            {tAuto('auto.noActivitiesMatchTheSelectedFiltersTryCh')}
           </p>
           <div className="flex items-center justify-center gap-6 text-xs text-slate-400 dark:text-slate-500">
             <div className="flex items-center gap-1.5">
               <div className="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-teal-400 to-cyan-500" />
-              {isAr ? "إنشاء" : "Create"}
+              {tAuto('auto.create')}
             </div>
             <div className="flex items-center gap-1.5">
               <div className="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-amber-400 to-orange-500" />
-              {isAr ? "تحديث" : "Update"}
+              {tAuto('auto.update')}
             </div>
             <div className="flex items-center gap-1.5">
               <div className="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-red-400 to-rose-500" />
-              {isAr ? "حذف" : "Delete"}
+              {tAuto('auto.delete')}
             </div>
             <div className="flex items-center gap-1.5">
               <div className="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-violet-400 to-purple-500" />
-              {isAr ? "تغيير حالة" : "Status"}
+              {tAuto('auto.status1')}
             </div>
           </div>
         </Card>
@@ -715,7 +716,7 @@ export default function ActivityLog({ language: lang, projectId }: Props) {
                     <span className="text-xs font-medium text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 px-3 py-1 rounded-full group-hover:bg-slate-100 dark:group-hover:bg-slate-800 transition-colors">
                       {dateKey}
                       <span className="ms-1.5 text-[10px] text-slate-400 dark:text-slate-500">
-                        ({items.length} {isAr ? "نشاط" : "activities"})
+                        ({items.length} {tAuto('auto.activities')})
                       </span>
                     </span>
                     <div className="h-px flex-1 bg-gradient-to-r from-transparent via-slate-200 dark:via-slate-700 to-transparent" />
@@ -742,7 +743,7 @@ export default function ActivityLog({ language: lang, projectId }: Props) {
                           const entity = entityConfig[item.entityType] || { icon: AlertCircle, ar: item.entityType, en: item.entityType };
                           const ActionIcon = action.icon;
                           const EntityIcon = entity.icon;
-                          const userName = item.user?.name || (isAr ? "مستخدم" : "User");
+                          const userName = item.user?.name || (tAuto('auto.user'));
                           const avatarColor = getAvatarColor(userName);
                           const avatarInitial = userName.charAt(0);
 
@@ -844,7 +845,7 @@ export default function ActivityLog({ language: lang, projectId }: Props) {
                   className="gap-2 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-teal-50 dark:hover:bg-teal-900/20 hover:text-teal-600 dark:hover:text-teal-400 hover:border-teal-200 dark:hover:border-teal-800"
                 >
                   <ChevronDown className="h-4 w-4" />
-                  {isAr ? "عرض المزيد" : "Load More"}
+                  {tAuto('auto.loadMore')}
                   <Badge variant="secondary" className="h-4 min-w-[20px] px-1 text-[9px]">
                     {periodFiltered.length - visibleCount}
                   </Badge>
@@ -861,7 +862,7 @@ export default function ActivityLog({ language: lang, projectId }: Props) {
           <div className="flex items-center gap-2 mb-3">
             <Search className="h-3.5 w-3.5 text-slate-400" />
             <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
-              {isAr ? "دليل أنواع النشاط" : "Activity Types Legend"}
+              {tAuto('auto.activityTypesLegend')}
             </span>
           </div>
           <div className="flex flex-wrap gap-3">

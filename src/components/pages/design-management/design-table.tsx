@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -36,6 +38,7 @@ export function DesignTable({
   onDeleteDrawing,
   onUploadDrawing,
 }: DesignTableProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
 
   return (
@@ -46,7 +49,7 @@ export function DesignTable({
           <div className="flex items-center gap-2">
             <FileText className="h-4 w-4 text-teal-600 dark:text-teal-400" />
             <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
-              {ar ? "رسومات المرحلة" : "Phase Drawings"}
+              {tAuto('auto.phaseDrawings')}
             </h3>
             <Badge variant="secondary" className="text-[10px] tabular-nums">
               {drawings.length}
@@ -59,13 +62,13 @@ export function DesignTable({
             onClick={onUploadDrawing}
           >
             <Upload className="h-3 w-3 me-1" />
-            {ar ? "رفع رسم" : "Upload Drawing"}
+            {tAuto('auto.uploadDrawing')}
           </Button>
         </div>
 
         {drawingsLoading ? (
           <div className="flex items-center justify-center py-8 text-slate-400 text-sm">
-            {ar ? "جارٍ التحميل..." : "Loading..."}
+            {tAuto('auto.loading')}
           </div>
         ) : drawings.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-center">
@@ -73,10 +76,10 @@ export function DesignTable({
               <Layers className="h-6 w-6 text-slate-400" />
             </div>
             <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-1">
-              {ar ? "لا توجد رسومات" : "No drawings"}
+              {tAuto('auto.noDrawings')}
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              {ar ? "ابدأ برفع أول رسم لهذه المرحلة" : "Upload the first drawing for this phase"}
+              {tAuto('auto.uploadTheFirstDrawingForThisPhase')}
             </p>
           </div>
         ) : (
@@ -84,13 +87,13 @@ export function DesignTable({
             <Table>
               <TableHeader>
                 <TableRow className="hover:bg-transparent bg-slate-50/80 dark:bg-slate-800/50">
-                  <TableHead className="text-xs font-semibold">{ar ? "رقم الرسم" : "Drawing #"}</TableHead>
-                  <TableHead className="text-xs font-semibold">{ar ? "العنوان" : "Title"}</TableHead>
-                  <TableHead className="text-xs font-semibold">{ar ? "التخصص" : "Discipline"}</TableHead>
-                  <TableHead className="text-xs font-semibold text-center">{ar ? "الإصدار" : "Version"}</TableHead>
-                  <TableHead className="text-xs font-semibold">{ar ? "الحالة" : "Status"}</TableHead>
-                  <TableHead className="text-xs font-semibold">{ar ? "التعارض" : "Clash"}</TableHead>
-                  <TableHead className="text-xs font-semibold">{ar ? "المراجعة" : "Review"}</TableHead>
+                  <TableHead className="text-xs font-semibold">{tAuto('auto.drawing1')}</TableHead>
+                  <TableHead className="text-xs font-semibold">{tAuto('auto.title')}</TableHead>
+                  <TableHead className="text-xs font-semibold">{tAuto('auto.discipline')}</TableHead>
+                  <TableHead className="text-xs font-semibold text-center">{tAuto('auto.version')}</TableHead>
+                  <TableHead className="text-xs font-semibold">{tAuto('auto.status1')}</TableHead>
+                  <TableHead className="text-xs font-semibold">{tAuto('auto.clash')}</TableHead>
+                  <TableHead className="text-xs font-semibold">{tAuto('auto.review')}</TableHead>
                   <TableHead className="w-10"></TableHead>
                 </TableRow>
               </TableHeader>
@@ -144,11 +147,11 @@ export function DesignTable({
                               <TooltipTrigger asChild>
                                 <Badge variant="destructive" className="text-[9px] px-1.5 py-0 gap-0.5">
                                   <AlertTriangle className="h-2.5 w-2.5" />
-                                  {ar ? "تعارض" : "Clash"}
+                                  {tAuto('auto.clash')}
                                 </Badge>
                               </TooltipTrigger>
                               <TooltipContent>
-                                <p className="text-[10px] max-w-[200px]">{drawing.clashNotes || (ar ? "يوجد تعارض" : "Clash detected")}</p>
+                                <p className="text-[10px] max-w-[200px]">{drawing.clashNotes || (tAuto('auto.clashDetected'))}</p>
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>
@@ -169,11 +172,11 @@ export function DesignTable({
                           <DropdownMenuContent align={ar ? "start" : "end"} className="w-40">
                             <DropdownMenuItem onClick={() => onShowDetail(drawing)}>
                               <Eye className="h-3.5 w-3.5 me-2" />
-                              {ar ? "التفاصيل" : "Details"}
+                              {tAuto('auto.details')}
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => onOpenReview(drawing)}>
                               <ClipboardCheck className="h-3.5 w-3.5 me-2" />
-                              {ar ? "مراجعة" : "Review"}
+                              {tAuto('auto.review')}
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
@@ -181,7 +184,7 @@ export function DesignTable({
                               onClick={() => onDeleteDrawing(drawing)}
                             >
                               <Trash2 className="h-3.5 w-3.5 me-2" />
-                              {ar ? "حذف" : "Delete"}
+                              {tAuto('auto.delete')}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>

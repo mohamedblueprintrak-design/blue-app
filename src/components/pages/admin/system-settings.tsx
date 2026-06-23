@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TabsContent } from "@/components/ui/tabs";
@@ -45,6 +47,7 @@ export function BackupRestoreTab({
   restoreTarget,
   setRestoreTarget,
 }: BackupRestoreTabProps) {
+  const tAuto = useTranslations();
   const { toast } = useToast();
 
   const { data: backupData, isLoading: backupsLoading, refetch } = useQuery<{
@@ -63,14 +66,14 @@ export function BackupRestoreTab({
     onSuccess: (data) => {
       if (data.success) {
         toast({
-          title: isAr ? "تم بنجاح" : "Success",
-          description: isAr ? "تم إنشاء النسخة الاحتياطية بنجاح" : "Backup created successfully",
+          title: tAuto('auto.success'),
+          description: tAuto('auto.backupCreatedSuccessfully'),
         });
         refetch();
       } else {
         toast({
-          title: isAr ? "خطأ" : "Error",
-          description: extractErrorMessage(data.error, isAr ? "فشل في إنشاء النسخة الاحتياطية" : "Failed to create backup"),
+          title: tAuto('auto.error'),
+          description: extractErrorMessage(data.error, tAuto('auto.failedToCreateBackup')),
           variant: "destructive",
         });
       }
@@ -89,13 +92,13 @@ export function BackupRestoreTab({
       setRestoreTarget(null);
       if (data.success) {
         toast({
-          title: isAr ? "تم بنجاح" : "Success",
-          description: isAr ? "تم استعادة النسخة الاحتياطية بنجاح. قد تحتاج لتحديث الصفحة." : "Backup restored successfully. You may need to refresh the page.",
+          title: tAuto('auto.success'),
+          description: tAuto('auto.backupRestoredSuccessfullyYouMayNeedToRe'),
         });
       } else {
         toast({
-          title: isAr ? "خطأ" : "Error",
-          description: extractErrorMessage(data.error, isAr ? "فشل في استعادة النسخة الاحتياطية" : "Failed to restore backup"),
+          title: tAuto('auto.error'),
+          description: extractErrorMessage(data.error, tAuto('auto.failedToRestoreBackup')),
           variant: "destructive",
         });
       }
@@ -127,7 +130,7 @@ export function BackupRestoreTab({
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg flex items-center gap-2">
                 <DatabaseBackup className="h-5 w-5 text-teal-600" />
-                {isAr ? "النسخ الاحتياطي والاستعادة" : "Backup & Restore"}
+                {tAuto('auto.backupRestore')}
               </CardTitle>
               <Button
                 onClick={() => createBackupMutation.mutate()}
@@ -139,7 +142,7 @@ export function BackupRestoreTab({
                 ) : (
                   <Download className="h-4 w-4" />
                 )}
-                {isAr ? "إنشاء نسخة احتياطية" : "Create Backup"}
+                {tAuto('auto.createBackup')}
               </Button>
             </div>
           </CardHeader>
@@ -147,21 +150,21 @@ export function BackupRestoreTab({
             {stats && (
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
                 <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50">
-                  <p className="text-xs text-slate-500 dark:text-slate-400">{isAr ? "إجمالي النسخ" : "Total Backups"}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.totalBackups')}</p>
                   <p className="text-lg font-bold text-slate-900 dark:text-white tabular-nums">{stats.totalBackups}</p>
                 </div>
                 <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50">
-                  <p className="text-xs text-slate-500 dark:text-slate-400">{isAr ? "الحجم الإجمالي" : "Total Size"}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.totalSize')}</p>
                   <p className="text-lg font-bold text-slate-900 dark:text-white tabular-nums">{formatSize(stats.totalSize)}</p>
                 </div>
                 <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50">
-                  <p className="text-xs text-slate-500 dark:text-slate-400">{isAr ? "أحدث نسخة" : "Newest"}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.newest')}</p>
                   <p className="text-sm font-medium text-slate-900 dark:text-white">
                     {stats.newestBackup ? formatDate(stats.newestBackup) : "—"}
                   </p>
                 </div>
                 <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50">
-                  <p className="text-xs text-slate-500 dark:text-slate-400">{isAr ? "أقدم نسخة" : "Oldest"}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.oldest')}</p>
                   <p className="text-sm font-medium text-slate-900 dark:text-white">
                     {stats.oldestBackup ? formatDate(stats.oldestBackup) : "—"}
                   </p>
@@ -179,10 +182,10 @@ export function BackupRestoreTab({
               <div className="flex flex-col items-center justify-center py-12 text-center">
                 <DatabaseBackup className="h-10 w-10 text-slate-300 dark:text-slate-600 mb-3" />
                 <p className="text-sm text-slate-500 dark:text-slate-400">
-                  {isAr ? "لا توجد نسخ احتياطية" : "No backups yet"}
+                  {tAuto('auto.noBackupsYet')}
                 </p>
                 <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
-                  {isAr ? "أنشئ أول نسخة احتياطية لحماية بياناتك" : "Create your first backup to protect your data"}
+                  {tAuto('auto.createYourFirstBackupToProtectYourData')}
                 </p>
               </div>
             ) : (
@@ -220,7 +223,7 @@ export function BackupRestoreTab({
                       }}
                     >
                       <RotateCcw className="h-3.5 w-3.5" />
-                      {isAr ? "استعادة" : "Restore"}
+                      {tAuto('auto.restore')}
                     </Button>
                   </div>
                 ))}
@@ -236,20 +239,18 @@ export function BackupRestoreTab({
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-red-600 dark:text-red-400">
               <AlertTriangle className="h-5 w-5" />
-              {isAr ? "تأكيد الاستعادة" : "Confirm Restore"}
+              {tAuto('auto.confirmRestore')}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-2">
             <div className="p-4 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800">
               <p className="text-sm text-red-800 dark:text-red-300 font-medium">
-                {isAr
-                  ? "تحذير: سيتم استبدال قاعدة البيانات الحالية بالنسخة الاحتياطية المحددة. هذا الإجراء لا يمكن التراجع عنه."
-                  : "Warning: The current database will be replaced with the selected backup. This action cannot be undone."}
+                {tAuto('auto.warningTheCurrentDatabaseWillBeReplacedW')}
               </p>
             </div>
             {restoreTarget && (
               <div className="text-sm text-slate-600 dark:text-slate-400">
-                <span className="font-medium">{isAr ? "الملف:" : "File:"}</span>{" "}
+                <span className="font-medium">{tAuto('auto.file')}</span>{" "}
                 <span className="font-mono" dir="ltr">{restoreTarget}</span>
               </div>
             )}
@@ -264,14 +265,14 @@ export function BackupRestoreTab({
                 ) : (
                   <RotateCcw className="h-4 w-4 me-2" />
                 )}
-                {isAr ? "نعم، استعادة النسخة" : "Yes, Restore"}
+                {tAuto('auto.yesRestore')}
               </Button>
               <Button
                 variant="outline"
                 onClick={() => { setRestoreDialogOpen(false); setRestoreTarget(null); }}
                 className="flex-1 h-10 rounded-lg"
               >
-                {isAr ? "إلغاء" : "Cancel"}
+                {tAuto('auto.cancel')}
               </Button>
             </div>
           </div>
@@ -283,35 +284,36 @@ export function BackupRestoreTab({
 
 // ===== Automation Tab =====
 export function AutomationTab({ isAr }: { isAr: boolean }) {
+  const tAuto = useTranslations();
   const automations = [
     {
       id: "1",
-      trigger: isAr ? "عند إنشاء مهمة جديدة" : "When a new task is created",
-      action: isAr ? "إرسال إشعار لفريق المشروع" : "Send notification to project team",
+      trigger: tAuto('auto.whenANewTaskIsCreated'),
+      action: tAuto('auto.sendNotificationToProjectTeam'),
       enabled: true,
     },
     {
       id: "2",
-      trigger: isAr ? "عند اقتراب موعد استحقاق الفاتورة" : "When invoice due date is approaching",
-      action: isAr ? "إرسال تذكير للعميل" : "Send reminder to client",
+      trigger: tAuto('auto.whenInvoiceDueDateIsApproaching'),
+      action: tAuto('auto.sendReminderToClient'),
       enabled: true,
     },
     {
       id: "3",
-      trigger: isAr ? "عند تغيير حالة المهمة إلى مكتملة" : "When task status changes to Done",
-      action: isAr ? "تحديث نسبة تقدم المشروع" : "Update project progress percentage",
+      trigger: tAuto('auto.whenTaskStatusChangesToDone'),
+      action: tAuto('auto.updateProjectProgressPercentage'),
       enabled: true,
     },
     {
       id: "4",
-      trigger: isAr ? "عند تقديم طلب إجازة" : "When a leave request is submitted",
-      action: isAr ? "إرسال إشعار للمدير المباشر" : "Notify direct manager",
+      trigger: tAuto('auto.whenALeaveRequestIsSubmitted'),
+      action: tAuto('auto.notifyDirectManager'),
       enabled: false,
     },
     {
       id: "5",
-      trigger: isAr ? "عند تسجيل حضور متأخر" : "When late attendance is recorded",
-      action: isAr ? "تسجيل خصم تلقائي" : "Auto-record deduction",
+      trigger: tAuto('auto.whenLateAttendanceIsRecorded'),
+      action: tAuto('auto.autoRecordDeduction'),
       enabled: false,
     },
   ];
@@ -326,10 +328,10 @@ export function AutomationTab({ isAr }: { isAr: boolean }) {
             </div>
             <div>
               <h3 className="text-base font-semibold text-slate-900 dark:text-white">
-                {isAr ? "قواعد الأتمتة" : "Automation Rules"}
+                {tAuto('auto.automationRules')}
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                {isAr ? "تكوين الإجراءات التلقائية" : "Configure automatic actions"}
+                {tAuto('auto.configureAutomaticActions')}
               </p>
             </div>
             <div className="h-0.5 flex-1 bg-gradient-to-r from-amber-400 to-orange-400 rounded-full ms-3" />
@@ -367,11 +369,12 @@ export function AutomationTab({ isAr }: { isAr: boolean }) {
 
 // ===== System Health Sidebar =====
 export function SystemHealthSidebar({ isAr }: { isAr: boolean }) {
+  const tAuto = useTranslations();
   const systemHealth = [
-    { label: isAr ? "وحدة المعالجة" : "CPU", value: 23, color: "bg-emerald-500" },
-    { label: isAr ? "الذاكرة" : "Memory", value: 61, color: "bg-amber-500" },
-    { label: isAr ? "التخزين" : "Disk", value: 45, color: "bg-blue-500" },
-    { label: isAr ? "الشبكة" : "Network", value: 12, color: "bg-emerald-500" },
+    { label: tAuto('auto.cPU'), value: 23, color: "bg-emerald-500" },
+    { label: tAuto('auto.memory'), value: 61, color: "bg-amber-500" },
+    { label: tAuto('auto.disk'), value: 45, color: "bg-blue-500" },
+    { label: tAuto('auto.network'), value: 12, color: "bg-emerald-500" },
   ];
 
   return (
@@ -382,7 +385,7 @@ export function SystemHealthSidebar({ isAr }: { isAr: boolean }) {
             <Server className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
           </div>
           <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
-            {isAr ? "صحة النظام" : "System Health"}
+            {tAuto('auto.systemHealth')}
           </h3>
         </div>
         <div className="space-y-3">
@@ -413,6 +416,7 @@ interface MiniActivityTimelineProps {
 }
 
 export function MiniActivityTimeline({ isAr, activities }: MiniActivityTimelineProps) {
+  const tAuto = useTranslations();
   return (
     <Card className="border-slate-200 dark:border-slate-700/50">
       <CardContent className="p-4">
@@ -421,7 +425,7 @@ export function MiniActivityTimeline({ isAr, activities }: MiniActivityTimelineP
             <Clock className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
           </div>
           <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
-            {isAr ? "آخر النشاطات" : "Recent Activity"}
+            {tAuto('auto.recentActivity')}
           </h3>
         </div>
         <div className="space-y-3 max-h-80 overflow-y-auto">
@@ -445,7 +449,7 @@ export function MiniActivityTimeline({ isAr, activities }: MiniActivityTimelineP
                   </div>
                   <div className="min-w-0 flex-1 pb-3">
                     <p className="text-xs text-slate-900 dark:text-white font-medium truncate">
-                      {act.user?.name || (isAr ? "مستخدم" : "User")}
+                      {act.user?.name || (tAuto('auto.user'))}
                     </p>
                     <p className="text-[10px] text-slate-500 dark:text-slate-400">
                       {isAr ? actionInfo.ar : actionInfo.en} {act.entityType ? `— ${isAr ? entityLabels[act.entityType]?.ar || act.entityType : entityLabels[act.entityType]?.en || act.entityType}` : ""}
@@ -461,7 +465,7 @@ export function MiniActivityTimeline({ isAr, activities }: MiniActivityTimelineP
             <div className="flex flex-col items-center justify-center py-6">
               <Activity className="h-8 w-8 text-slate-300 dark:text-slate-600 mb-2" />
               <p className="text-xs text-slate-500">
-                {isAr ? "لا توجد أنشطة" : "No activities"}
+                {tAuto('auto.noActivities')}
               </p>
             </div>
           )}

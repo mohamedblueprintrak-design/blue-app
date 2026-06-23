@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/store/auth-store";
 import { useNavStore } from "@/store/nav-store";
@@ -19,6 +21,7 @@ import { getMutationHeaders } from "@/lib/csrf-client";
 import type { MyTaskItem } from "./types";
 
 export function MyTasksWidget({ language }: { language: "ar" | "en" }) {
+  const tAuto = useTranslations();
   const isAr = language === "ar";
   const { user } = useAuthStore();
   const { setCurrentPage } = useNavStore();
@@ -87,10 +90,10 @@ export function MyTasksWidget({ language }: { language: "ar" | "en" }) {
       label = isAr ? `متأخر ${Math.abs(days)} يوم` : `${Math.abs(days)}d overdue`;
       badgeClass = "bg-red-100 dark:bg-red-950/50 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800";
     } else if (days === 0) {
-      label = isAr ? "اليوم" : "Today";
+      label = tAuto('auto.today');
       badgeClass = "bg-amber-100 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800";
     } else if (days === 1) {
-      label = isAr ? "غداً" : "Tomorrow";
+      label = tAuto('auto.tomorrow');
       badgeClass = "bg-amber-100 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800";
     } else if (days <= 3) {
       label = isAr ? `${days} أيام` : `${days}d`;
@@ -115,7 +118,7 @@ export function MyTasksWidget({ language }: { language: "ar" | "en" }) {
             </div>
             <div>
               <h3 className="text-sm font-semibold text-white">
-                {isAr ? "مهامي" : "My Tasks"}
+                {tAuto('auto.myTasks')}
               </h3>
               <p className="text-[11px] text-white/70">
                 {isAr ? `${pendingCount} مهمة معلقة` : `${pendingCount} tasks pending`}
@@ -126,7 +129,7 @@ export function MyTasksWidget({ language }: { language: "ar" | "en" }) {
             onClick={() => setCurrentPage("tasks")}
             className="text-xs text-white/80 hover:text-white transition-colors flex items-center gap-1"
           >
-            {isAr ? "عرض الكل" : "View All"}
+            {tAuto('auto.viewAll')}
             <ArrowUpRight className="h-3 w-3" />
           </button>
         </div>
@@ -175,7 +178,7 @@ export function MyTasksWidget({ language }: { language: "ar" | "en" }) {
                 <button
                   onClick={() => completeMutation.mutate(task.id)}
                   className="h-6 w-6 rounded-full border-2 border-slate-300 dark:border-slate-600 flex items-center justify-center shrink-0 hover:bg-teal-50 hover:border-teal-500 dark:hover:bg-teal-950/30 dark:hover:border-teal-500 transition-colors group"
-                  title={isAr ? "تمت المهمة" : "Mark done"}
+                  title={tAuto('auto.markDone')}
                 >
                   <CheckCheck className="h-3 w-3 text-slate-400 group-hover:text-teal-500 transition-colors" />
                 </button>
@@ -188,7 +191,7 @@ export function MyTasksWidget({ language }: { language: "ar" | "en" }) {
           <div className="flex flex-col items-center justify-center py-8 text-center">
             <CheckCircle2 className="h-8 w-8 text-emerald-400 mb-2" />
             <p className="text-sm text-slate-500 dark:text-slate-400">
-              {isAr ? "لا توجد مهام معلقة!" : "No pending tasks!"}
+              {tAuto('auto.noPendingTasks')}
             </p>
           </div>
         )}

@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl';
 import {
   Card,
   CardContent,
@@ -20,6 +21,7 @@ interface DeadlinesTeamProps {
 }
 
 export function DeadlinesTeam({ upcomingTasks, teamPerformance, isAr, onProjectClick }: DeadlinesTeamProps) {
+  const tAuto = useTranslations();
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
       {/* Upcoming Deadlines Widget */}
@@ -34,10 +36,10 @@ export function DeadlinesTeam({ upcomingTasks, teamPerformance, isAr, onProjectC
               </div>
               <div>
                 <CardTitle className="text-base font-semibold text-slate-900 dark:text-white">
-                  {isAr ? "المواعيد النهائية القادمة" : "Upcoming Deadlines"}
+                  {tAuto('auto.upcomingDeadlines')}
                 </CardTitle>
                 <CardDescription className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  {isAr ? "أقرب المهام المستحقة" : "Nearest task deadlines"}
+                  {tAuto('auto.nearestTaskDeadlines')}
                 </CardDescription>
               </div>
             </div>
@@ -51,7 +53,7 @@ export function DeadlinesTeam({ upcomingTasks, teamPerformance, isAr, onProjectC
             <div className="flex flex-col items-center justify-center py-8 text-center">
               <CheckCircle2 className="h-8 w-8 text-emerald-400 mb-2" />
               <p className="text-sm text-slate-500 dark:text-slate-400">
-                {isAr ? "لا توجد مواعيد نهائية قادمة" : "No upcoming deadlines"}
+                {tAuto('auto.noUpcomingDeadlines')}
               </p>
             </div>
           ) : (
@@ -73,9 +75,9 @@ export function DeadlinesTeam({ upcomingTasks, teamPerformance, isAr, onProjectC
                 const daysLabel = isOverdue
                   ? isAr ? `متأخر ${Math.abs(days)} يوم` : `${Math.abs(days)}d overdue`
                   : days === 0
-                  ? isAr ? "اليوم" : "Today"
+                  ? tAuto('auto.today')
                   : days === 1
-                  ? isAr ? "غداً" : "Tomorrow"
+                  ? tAuto('auto.tomorrow')
                   : isAr ? `${days} يوم` : `${days}d`;
 
                 return (
@@ -138,10 +140,10 @@ export function DeadlinesTeam({ upcomingTasks, teamPerformance, isAr, onProjectC
               </div>
               <div>
                 <CardTitle className="text-base font-semibold text-slate-900 dark:text-white">
-                  {isAr ? "أداء الفريق" : "Team Performance"}
+                  {tAuto('auto.teamPerformance')}
                 </CardTitle>
                 <CardDescription className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  {isAr ? "معدل إتمام المهام لكل عضو" : "Task completion rate per member"}
+                  {tAuto('auto.taskCompletionRatePerMember')}
                 </CardDescription>
               </div>
             </div>
@@ -152,10 +154,10 @@ export function DeadlinesTeam({ upcomingTasks, teamPerformance, isAr, onProjectC
             <div className="flex flex-col items-center justify-center py-8 text-center">
               <Users className="h-8 w-8 text-slate-300 dark:text-slate-600 mb-2" />
               <p className="text-sm text-slate-500 dark:text-slate-400">
-                {isAr ? "لا توجد بيانات أداء متاحة" : "No performance data available"}
+                {tAuto('auto.noPerformanceDataAvailable')}
               </p>
               <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1">
-                {isAr ? "ستظهر البيانات عند توفر مراحل المشاريع النشطة" : "Data will appear when active project stages are available"}
+                {tAuto('auto.dataWillAppearWhenActiveProjectStagesAre')}
               </p>
             </div>
           ) : (
@@ -180,7 +182,7 @@ export function DeadlinesTeam({ upcomingTasks, teamPerformance, isAr, onProjectC
                     {member.name}
                   </span>
                   <span className="text-[10px] text-slate-400 dark:text-slate-500 tabular-nums shrink-0 ms-2 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">
-                    {member.tasksDone}/{member.tasksTotal} {isAr ? "مهمة" : "tasks"}
+                    {member.tasksDone}/{member.tasksTotal} {tAuto('auto.tasks')}
                   </span>
                 </div>
 

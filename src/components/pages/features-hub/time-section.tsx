@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -31,7 +33,8 @@ export default function TimeSection({
   projectTimeAllocation,
   onToggleTimer,
 }: TimeSectionProps) {
-  const hrs = language === 'ar' ? 'ساعة' : 'hrs'
+  const tAuto = useTranslations();
+  const hrs = tAuto('auto.hrs')
   const dayLabels = language === 'ar'
     ? ['السبت', 'الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة']
     : ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri']
@@ -40,8 +43,8 @@ export default function TimeSection({
     <div className="space-y-4">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white">{language === 'ar' ? 'إدارة الوقت' : 'Time Tracking'}</h2>
-          <p className="text-sm text-slate-500">{language === 'ar' ? 'تتبع ساعات العمل على المشاريع' : 'Track work hours across projects'}</p>
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white">{tAuto('auto.timeTracking')}</h2>
+          <p className="text-sm text-slate-500">{tAuto('auto.trackWorkHoursAcrossProjects')}</p>
         </div>
         {activeTimer && (
           <div className="flex items-center gap-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg px-4 py-2">
@@ -63,7 +66,7 @@ export default function TimeSection({
                 <Clock className="h-5 w-5 text-teal-600 dark:text-teal-400" />
               </div>
               <div>
-                <p className="text-xs text-slate-500">{language === 'ar' ? 'إجمالي الساعات' : 'Total Hours'}</p>
+                <p className="text-xs text-slate-500">{tAuto('auto.totalHours')}</p>
                 <p className="text-xl font-bold text-slate-900 dark:text-white">{stats.totalBillableHours + stats.totalNonBillableHours} {hrs}</p>
               </div>
             </div>
@@ -76,7 +79,7 @@ export default function TimeSection({
                 <DollarSign className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
               </div>
               <div>
-                <p className="text-xs text-slate-500">{language === 'ar' ? 'ساعات قابلة للفوترة' : 'Billable Hours'}</p>
+                <p className="text-xs text-slate-500">{tAuto('auto.billableHours')}</p>
                 <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400">{stats.totalBillableHours} {hrs}</p>
               </div>
             </div>
@@ -89,7 +92,7 @@ export default function TimeSection({
                 <BarChart3 className="h-5 w-5 text-slate-600 dark:text-slate-400" />
               </div>
               <div>
-                <p className="text-xs text-slate-500">{language === 'ar' ? 'غير قابلة للفوترة' : 'Non-Billable'}</p>
+                <p className="text-xs text-slate-500">{tAuto('auto.nonBillable')}</p>
                 <p className="text-xl font-bold text-slate-600 dark:text-slate-400">{stats.totalNonBillableHours} {hrs}</p>
               </div>
             </div>
@@ -102,7 +105,7 @@ export default function TimeSection({
                 <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
               </div>
               <div>
-                <p className="text-xs text-slate-500">{language === 'ar' ? 'مهام متأخرة' : 'Overdue Tasks'}</p>
+                <p className="text-xs text-slate-500">{tAuto('auto.overdueTasks')}</p>
                 <p className="text-xl font-bold text-amber-600 dark:text-amber-400">2</p>
               </div>
             </div>
@@ -113,7 +116,7 @@ export default function TimeSection({
       {/* Pie Chart - Project Time Allocation */}
       <Card className="border-slate-200 dark:border-slate-700/50">
         <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-semibold">{language === 'ar' ? 'توزيع الوقت حسب المشروع' : 'Time Allocation by Project'}</CardTitle>
+          <CardTitle className="text-sm font-semibold">{tAuto('auto.timeAllocationByProject')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap items-center gap-4">
@@ -148,20 +151,20 @@ export default function TimeSection({
       {/* Time Entries Table */}
       <Card className="border-slate-200 dark:border-slate-700/50">
         <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-semibold">{language === 'ar' ? 'سجل الوقت اليومي' : 'Daily Time Log'}</CardTitle>
+          <CardTitle className="text-sm font-semibold">{tAuto('auto.dailyTimeLog')}</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           <div className="max-h-[400px] overflow-y-auto">
             <Table>
               <TableHeader>
                 <TableRow className="bg-slate-50 dark:bg-slate-800/50">
-                  <TableHead className="text-xs">{language === 'ar' ? 'المشروع' : 'Project'}</TableHead>
-                  <TableHead className="text-xs">{language === 'ar' ? 'المهمة' : 'Task'}</TableHead>
-                  <TableHead className="text-xs">{language === 'ar' ? 'التاريخ' : 'Date'}</TableHead>
-                  <TableHead className="text-xs">{language === 'ar' ? 'الوقت' : 'Time'}</TableHead>
-                  <TableHead className="text-xs text-center">{language === 'ar' ? 'المدة' : 'Duration'}</TableHead>
-                  <TableHead className="text-xs">{language === 'ar' ? 'النوع' : 'Type'}</TableHead>
-                  <TableHead className="text-xs text-center">{language === 'ar' ? 'تحكم' : 'Control'}</TableHead>
+                  <TableHead className="text-xs">{tAuto('auto.project')}</TableHead>
+                  <TableHead className="text-xs">{tAuto('auto.task')}</TableHead>
+                  <TableHead className="text-xs">{tAuto('auto.date')}</TableHead>
+                  <TableHead className="text-xs">{tAuto('auto.time')}</TableHead>
+                  <TableHead className="text-xs text-center">{tAuto('auto.duration')}</TableHead>
+                  <TableHead className="text-xs">{tAuto('auto.type')}</TableHead>
+                  <TableHead className="text-xs text-center">{tAuto('auto.control')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -175,8 +178,8 @@ export default function TimeSection({
                     <TableCell>
                       <Badge variant="outline" className={cn('text-[10px]', entry.isBillable ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-slate-50 text-slate-600 border-slate-200')}>
                         {entry.isBillable
-                          ? (language === 'ar' ? 'قابل للفوترة' : 'Billable')
-                          : (language === 'ar' ? 'غير قابل' : 'Non-Billable')}
+                          ? (tAuto('auto.billable'))
+                          : (tAuto('auto.nonBillable'))}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-center">
@@ -201,7 +204,7 @@ export default function TimeSection({
       {/* Weekly Summary */}
       <Card className="border-slate-200 dark:border-slate-700/50">
         <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-semibold">{language === 'ar' ? 'ملخص الأسبوع' : 'Weekly Summary'}</CardTitle>
+          <CardTitle className="text-sm font-semibold">{tAuto('auto.weeklySummary')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-7 gap-2">

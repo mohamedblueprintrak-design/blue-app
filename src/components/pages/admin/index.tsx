@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -18,6 +20,7 @@ import {
 } from "./system-settings";
 
 export default function AdminPanel({ language: lang }: Props) {
+  const tAuto = useTranslations();
   const isAr = lang === "ar";
   const queryClient = useQueryClient();
 
@@ -89,19 +92,19 @@ export default function AdminPanel({ language: lang }: Props) {
               <TabsList className="grid grid-cols-4 w-fit gap-1 p-1 bg-slate-100 dark:bg-slate-800">
                 <TabsTrigger value="users" className="gap-1.5 px-4">
                   <Users className="h-4 w-4" />
-                  {isAr ? "المستخدمون" : "Users"}
+                  {tAuto('auto.users')}
                 </TabsTrigger>
                 <TabsTrigger value="activity" className="gap-1.5 px-4">
                   <Activity className="h-4 w-4" />
-                  {isAr ? "سجل النشاط" : "Activity"}
+                  {tAuto('auto.activity')}
                 </TabsTrigger>
                 <TabsTrigger value="automation" className="gap-1.5 px-4">
                   <Zap className="h-4 w-4" />
-                  {isAr ? "الأتمتة" : "Autom."}
+                  {tAuto('auto.autom')}
                 </TabsTrigger>
                 <TabsTrigger value="backup" className="gap-1.5 px-4">
                   <DatabaseBackup className="h-4 w-4" />
-                  {isAr ? "النسخ الاحتياطي" : "Backup"}
+                  {tAuto('auto.backup')}
                 </TabsTrigger>
               </TabsList>
 
@@ -109,11 +112,11 @@ export default function AdminPanel({ language: lang }: Props) {
               <div className="flex items-center gap-2">
                 <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs rounded-lg">
                   <DatabaseBackup className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline">{isAr ? "نسخ احتياطي" : "Backup"}</span>
+                  <span className="hidden sm:inline">{tAuto('auto.backup')}</span>
                 </Button>
                 <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs rounded-lg">
                   <RefreshCw className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline">{isAr ? "مسح ذاكرة" : "Clear Cache"}</span>
+                  <span className="hidden sm:inline">{tAuto('auto.clearCache')}</span>
                 </Button>
               </div>
             </div>

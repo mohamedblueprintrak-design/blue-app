@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -24,19 +26,20 @@ export default function VisitsSection({
   stats,
   onAddVisit,
 }: VisitsSectionProps) {
+  const tAuto = useTranslations();
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-            {language === 'ar' ? 'تتبع زيارات المهندسين' : 'Engineer Site Visit Tracking'}
+            {tAuto('auto.engineerSiteVisitTracking')}
           </h2>
           <p className="text-sm text-slate-500">
-            {language === 'ar' ? 'إدارة ومتابعة زيارات المواقع الميدانية' : 'Manage & track field site visits'}
+            {tAuto('auto.manageTrackFieldSiteVisits')}
           </p>
         </div>
         <Button onClick={onAddVisit} className="bg-teal-600 hover:bg-teal-700 text-white">
-          <Plus className="h-4 w-4 me-2" /> {language === 'ar' ? 'زيارة جديدة' : 'New Visit'}
+          <Plus className="h-4 w-4 me-2" /> {tAuto('auto.newVisit')}
         </Button>
       </div>
 
@@ -49,7 +52,7 @@ export default function VisitsSection({
                 <MapPinned className="h-5 w-5 text-teal-600 dark:text-teal-400" />
               </div>
               <div>
-                <p className="text-xs text-slate-500">{language === 'ar' ? 'إجمالي الزيارات' : 'Total Visits'}</p>
+                <p className="text-xs text-slate-500">{tAuto('auto.totalVisits')}</p>
                 <p className="text-xl font-bold text-slate-900 dark:text-white">{stats.totalVisitsThisMonth}</p>
               </div>
             </div>
@@ -62,9 +65,9 @@ export default function VisitsSection({
                 <Timer className="h-5 w-5 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
-                <p className="text-xs text-slate-500">{language === 'ar' ? 'متوسط المدة' : 'Avg Duration'}</p>
+                <p className="text-xs text-slate-500">{tAuto('auto.avgDuration')}</p>
                 <p className="text-xl font-bold text-slate-900 dark:text-white">
-                  {stats.avgVisitDuration} {language === 'ar' ? 'ساعة' : 'hrs'}
+                  {stats.avgVisitDuration} {tAuto('auto.hrs')}
                 </p>
               </div>
             </div>
@@ -77,7 +80,7 @@ export default function VisitsSection({
                 <Navigation className="h-5 w-5 text-amber-600 dark:text-amber-400" />
               </div>
               <div>
-                <p className="text-xs text-slate-500">{language === 'ar' ? 'زيارات اليوم' : "Today's Visits"}</p>
+                <p className="text-xs text-slate-500">{tAuto('auto.todaySVisits')}</p>
                 <p className="text-xl font-bold text-slate-900 dark:text-white">{visits.filter(v => v.date === '2025-04-08').length}</p>
               </div>
             </div>
@@ -90,7 +93,7 @@ export default function VisitsSection({
                 <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
               </div>
               <div>
-                <p className="text-xs text-slate-500">{language === 'ar' ? 'مكتملة' : 'Completed'}</p>
+                <p className="text-xs text-slate-500">{tAuto('auto.completed')}</p>
                 <p className="text-xl font-bold text-slate-900 dark:text-white">{visits.filter(v => v.status === 'COMPLETED').length}</p>
               </div>
             </div>
@@ -105,7 +108,7 @@ export default function VisitsSection({
             <iframe
               src={`https://www.openstreetmap.org/export/embed.html?bbox=55.90,25.76,56.00,25.82&layer=mapnik&${visits.map(v => `marker=${v.lat},${v.lng}`).join('&')}`}
               className="w-full h-full border-0"
-              title={language === 'ar' ? 'خريطة الزيارات' : 'Visits Map'}
+              title={tAuto('auto.visitsMap')}
               loading="lazy"
             />
           </div>
@@ -116,7 +119,7 @@ export default function VisitsSection({
       <Card className="border-slate-200 dark:border-slate-700/50">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-semibold">
-            {language === 'ar' ? 'الزيارات حسب المهندس' : 'Visits by Engineer'}
+            {tAuto('auto.visitsByEngineer')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -130,7 +133,7 @@ export default function VisitsSection({
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-sm font-medium truncate">{eng.name}</span>
                       <span className="text-xs text-slate-500">
-                        {engVisits.length} {language === 'ar' ? 'زيارة' : 'visits'}
+                        {engVisits.length} {tAuto('auto.visits')}
                       </span>
                     </div>
                     <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5">
@@ -148,7 +151,7 @@ export default function VisitsSection({
       <Card className="border-slate-200 dark:border-slate-700/50">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-semibold">
-            {language === 'ar' ? 'سجل الزيارات' : 'Visit Log'}
+            {tAuto('auto.visitLog')}
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
@@ -156,12 +159,12 @@ export default function VisitsSection({
             <Table>
               <TableHeader>
                 <TableRow className="bg-slate-50 dark:bg-slate-800/50">
-                  <TableHead className="text-xs">{language === 'ar' ? 'المهندس' : 'Engineer'}</TableHead>
-                  <TableHead className="text-xs">{language === 'ar' ? 'المشروع' : 'Project'}</TableHead>
-                  <TableHead className="text-xs">{language === 'ar' ? 'التاريخ' : 'Date'}</TableHead>
-                  <TableHead className="text-xs">{language === 'ar' ? 'الوقت' : 'Time'}</TableHead>
-                  <TableHead className="text-xs">{language === 'ar' ? 'الحالة' : 'Status'}</TableHead>
-                  <TableHead className="text-xs">{language === 'ar' ? 'ملاحظات' : 'Notes'}</TableHead>
+                  <TableHead className="text-xs">{tAuto('auto.engineer')}</TableHead>
+                  <TableHead className="text-xs">{tAuto('auto.project')}</TableHead>
+                  <TableHead className="text-xs">{tAuto('auto.date')}</TableHead>
+                  <TableHead className="text-xs">{tAuto('auto.time')}</TableHead>
+                  <TableHead className="text-xs">{tAuto('auto.status1')}</TableHead>
+                  <TableHead className="text-xs">{tAuto('auto.notes')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

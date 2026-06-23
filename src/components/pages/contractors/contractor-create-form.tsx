@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -33,6 +35,7 @@ function ContractorCreateForm({
   saveMutation: { isPending: boolean; mutate: (data: typeof emptyForm) => void };
   onCancel: () => void;
 }) {
+  const tAuto = useTranslations();
   const update = (field: string, value: string) => setFormData({ ...formData, [field]: value });
 
   const inputCls = "h-9 text-sm rounded-lg border-slate-200 dark:border-slate-700 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20";
@@ -48,56 +51,56 @@ function ContractorCreateForm({
           </div>
           <div>
             <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-              {ar ? "إضافة مقاول جديد" : "Add New Contractor"}
+              {tAuto('auto.addNewContractor')}
             </h2>
             <p className="text-[10px] text-slate-500 dark:text-slate-400">
-              {ar ? "أدخل بيانات المقاول بالكامل" : "Enter the complete contractor profile"}
+              {tAuto('auto.enterTheCompleteContractorProfile')}
             </p>
           </div>
         </div>
         <Button variant="ghost" size="sm" className="h-8 text-slate-500" onClick={onCancel}>
-          <X className="h-4 w-4 me-1" />{ar ? "إلغاء" : "Cancel"}
+          <X className="h-4 w-4 me-1" />{tAuto('auto.cancel')}
         </Button>
       </div>
 
       {/* Section 1: Basic Info */}
       <Card className="border-slate-200 dark:border-slate-700/50">
         <CardContent className="p-5 space-y-4">
-          <SectionHeader icon={Building2} title={ar ? "المعلومات الأساسية" : "Basic Information"} />
+          <SectionHeader icon={Building2} title={tAuto('auto.basicInformation')} />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <div className="space-y-1.5">
-              <Label className={labelCls}>{ar ? "اسم الشركة (عربي)" : "Company Name (Ar)"} <span className="text-red-500">*</span></Label>
+              <Label className={labelCls}>{tAuto('auto.companyNameAr')} <span className="text-red-500">*</span></Label>
               <Input value={formData.name} onChange={(e) => update("name", e.target.value)} className={inputCls} />
             </div>
             <div className="space-y-1.5">
-              <Label className={labelCls}>{ar ? "اسم الشركة (إنجليزي)" : "Company Name (En)"}</Label>
+              <Label className={labelCls}>{tAuto('auto.companyNameEn')}</Label>
               <Input value={formData.nameEn} onChange={(e) => update("nameEn", e.target.value)} className={inputCls} dir="ltr" />
             </div>
             <div className="space-y-1.5">
-              <Label className={labelCls}>{ar ? "التخصص" : "Category"} <span className="text-red-500">*</span></Label>
+              <Label className={labelCls}>{tAuto('auto.category')} <span className="text-red-500">*</span></Label>
               <Select value={formData.category} onValueChange={(v) => update("category", v)}>
                 <SelectTrigger className={cn(inputCls)}><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="CIVIL">{ar ? "أشغال مدنية" : "Civil"}</SelectItem>
-                  <SelectItem value="ELECTRICAL">{ar ? "كهرباء" : "Electrical"}</SelectItem>
+                  <SelectItem value="CIVIL">{tAuto('auto.civil')}</SelectItem>
+                  <SelectItem value="ELECTRICAL">{tAuto('auto.electrical')}</SelectItem>
                   <SelectItem value="MEP">MEP</SelectItem>
-                  <SelectItem value="FINISHING">{ar ? "تشطيبات" : "Finishing"}</SelectItem>
-                  <SelectItem value="PLUMBING">{ar ? "سباكة" : "Plumbing"}</SelectItem>
-                  <SelectItem value="HVAC">{ar ? "تكييف" : "HVAC"}</SelectItem>
-                  <SelectItem value="general">{ar ? "عام" : "General"}</SelectItem>
+                  <SelectItem value="FINISHING">{tAuto('auto.finishing')}</SelectItem>
+                  <SelectItem value="PLUMBING">{tAuto('auto.plumbing')}</SelectItem>
+                  <SelectItem value="HVAC">{tAuto('auto.hVAC')}</SelectItem>
+                  <SelectItem value="general">{tAuto('auto.general')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className={labelCls}>{ar ? "جهة الاتصال" : "Contact Person"}</Label>
+              <Label className={labelCls}>{tAuto('auto.contactPerson')}</Label>
               <Input value={formData.contactPerson} onChange={(e) => update("contactPerson", e.target.value)} className={inputCls} />
             </div>
             <div className="space-y-1.5">
-              <Label className={labelCls}>{ar ? "الهاتف" : "Phone"}</Label>
+              <Label className={labelCls}>{tAuto('auto.phone')}</Label>
               <Input value={formData.phone} onChange={(e) => update("phone", e.target.value)} className={inputCls} dir="ltr" />
             </div>
             <div className="space-y-1.5">
-              <Label className={labelCls}>{ar ? "البريد الإلكتروني" : "Email"}</Label>
+              <Label className={labelCls}>{tAuto('auto.email')}</Label>
               <Input value={formData.email} onChange={(e) => update("email", e.target.value)} className={inputCls} dir="ltr" type="email" />
             </div>
           </div>
@@ -107,52 +110,52 @@ function ContractorCreateForm({
       {/* Section 2: Company Details */}
       <Card className="border-slate-200 dark:border-slate-700/50">
         <CardContent className="p-5 space-y-4">
-          <SectionHeader icon={Award} title={ar ? "تفاصيل الشركة" : "Company Details"} />
+          <SectionHeader icon={Award} title={tAuto('auto.companyDetails')} />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <div className="space-y-1.5">
-              <Label className={labelCls}>{ar ? "رقم السجل التجاري" : "CR Number"}</Label>
+              <Label className={labelCls}>{tAuto('auto.cRNumber')}</Label>
               <Input value={formData.crNumber} onChange={(e) => update("crNumber", e.target.value)} className={inputCls} dir="ltr" />
             </div>
             <div className="space-y-1.5">
-              <Label className={labelCls}>{ar ? "رقم الترخيص" : "License Number"}</Label>
+              <Label className={labelCls}>{tAuto('auto.licenseNumber')}</Label>
               <Input value={formData.licenseNumber} onChange={(e) => update("licenseNumber", e.target.value)} className={inputCls} dir="ltr" />
             </div>
             <div className="space-y-1.5">
-              <Label className={labelCls}>{ar ? "انتهاء الترخيص" : "License Expiry"}</Label>
+              <Label className={labelCls}>{tAuto('auto.licenseExpiry')}</Label>
               <Input type="date" value={formData.licenseExpiry} onChange={(e) => update("licenseExpiry", e.target.value)} className={inputCls} />
             </div>
             <div className="space-y-1.5">
-              <Label className={labelCls}>{ar ? "تصنيف المقاول" : "Classification"}</Label>
+              <Label className={labelCls}>{tAuto('auto.classification')}</Label>
               <Select value={formData.classification} onValueChange={(v) => update("classification", v)}>
-                <SelectTrigger className={cn(inputCls)}><SelectValue placeholder={ar ? "اختر التصنيف" : "Select classification"} /></SelectTrigger>
+                <SelectTrigger className={cn(inputCls)}><SelectValue placeholder={tAuto('auto.selectClassification')} /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="first">{ar ? "الدرجة الأولى" : "1st Class"}</SelectItem>
-                  <SelectItem value="second">{ar ? "الدرجة الثانية" : "2nd Class"}</SelectItem>
-                  <SelectItem value="third">{ar ? "الدرجة الثالثة" : "3rd Class"}</SelectItem>
-                  <SelectItem value="fourth">{ar ? "الدرجة الرابعة" : "4th Class"}</SelectItem>
-                  <SelectItem value="fifth">{ar ? "الدرجة الخامسة" : "5th Class"}</SelectItem>
-                  <SelectItem value="special">{ar ? "فئة خاصة" : "Special Category"}</SelectItem>
+                  <SelectItem value="first">{tAuto('auto.1stClass')}</SelectItem>
+                  <SelectItem value="second">{tAuto('auto.2ndClass')}</SelectItem>
+                  <SelectItem value="third">{tAuto('auto.3rdClass')}</SelectItem>
+                  <SelectItem value="fourth">{tAuto('auto.4thClass')}</SelectItem>
+                  <SelectItem value="fifth">{tAuto('auto.5thClass')}</SelectItem>
+                  <SelectItem value="special">{tAuto('auto.specialCategory')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className={labelCls}>{ar ? "تاريخ التأسيس" : "Establishment Date"}</Label>
+              <Label className={labelCls}>{tAuto('auto.establishmentDate')}</Label>
               <Input type="date" value={formData.establishmentDate} onChange={(e) => update("establishmentDate", e.target.value)} className={inputCls} />
             </div>
             <div className="space-y-1.5">
-              <Label className={labelCls}>{ar ? "عدد العمال" : "Number of Workers"}</Label>
+              <Label className={labelCls}>{tAuto('auto.numberOfWorkers')}</Label>
               <Input type="number" value={formData.workerCount} onChange={(e) => update("workerCount", e.target.value)} className={inputCls} min="0" />
             </div>
             <div className="space-y-1.5">
-              <Label className={labelCls}>{ar ? "عدد المهندسين" : "Number of Engineers"}</Label>
+              <Label className={labelCls}>{tAuto('auto.numberOfEngineers')}</Label>
               <Input type="number" value={formData.engineerCount} onChange={(e) => update("engineerCount", e.target.value)} className={inputCls} min="0" />
             </div>
             <div className="space-y-1.5">
-              <Label className={labelCls}>{ar ? "رقم السجل التجاري" : "Trade License Number"}</Label>
+              <Label className={labelCls}>{tAuto('auto.tradeLicenseNumber')}</Label>
               <Input value={formData.tradeLicense} onChange={(e) => update("tradeLicense", e.target.value)} className={inputCls} dir="ltr" />
             </div>
             <div className="space-y-1.5">
-              <Label className={labelCls}>{ar ? "انتهاء السجل التجاري" : "Trade License Expiry"}</Label>
+              <Label className={labelCls}>{tAuto('auto.tradeLicenseExpiry')}</Label>
               <Input type="date" value={formData.tradeLicenseExpiry} onChange={(e) => update("tradeLicenseExpiry", e.target.value)} className={inputCls} />
             </div>
           </div>
@@ -162,14 +165,14 @@ function ContractorCreateForm({
       {/* Section 3: Financial */}
       <Card className="border-slate-200 dark:border-slate-700/50">
         <CardContent className="p-5 space-y-4">
-          <SectionHeader icon={Banknote} title={ar ? "المعلومات المالية" : "Financial Information"} />
+          <SectionHeader icon={Banknote} title={tAuto('auto.financialInformation')} />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <div className="space-y-1.5">
-              <Label className={labelCls}>{ar ? "الرقم الضريبي (VAT)" : "VAT Registration No."}</Label>
+              <Label className={labelCls}>{tAuto('auto.vATRegistrationNo')}</Label>
               <Input value={formData.vatNumber} onChange={(e) => update("vatNumber", e.target.value)} className={inputCls} dir="ltr" />
             </div>
             <div className="space-y-1.5">
-              <Label className={labelCls}>{ar ? "اسم البنك" : "Bank Name"}</Label>
+              <Label className={labelCls}>{tAuto('auto.bankName')}</Label>
               <Input value={formData.bankName} onChange={(e) => update("bankName", e.target.value)} className={inputCls} />
             </div>
             <div className="space-y-1.5">
@@ -183,11 +186,11 @@ function ContractorCreateForm({
       {/* Section 4: Additional */}
       <Card className="border-slate-200 dark:border-slate-700/50">
         <CardContent className="p-5 space-y-4">
-          <SectionHeader icon={Sparkles} title={ar ? "معلومات إضافية" : "Additional Information"} />
+          <SectionHeader icon={Sparkles} title={tAuto('auto.additionalInformation')} />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Rating - Interactive Stars */}
             <div className="space-y-1.5">
-              <Label className={labelCls}>{ar ? "التقييم" : "Rating"}</Label>
+              <Label className={labelCls}>{tAuto('auto.rating')}</Label>
               <div className="flex items-center gap-3">
                 <RatingStars
                   rating={Number(formData.rating)}
@@ -199,12 +202,12 @@ function ContractorCreateForm({
               </div>
             </div>
             <div className="space-y-1.5">
-              <Label className={labelCls}>{ar ? "التخصصات" : "Specialties"}</Label>
+              <Label className={labelCls}>{tAuto('auto.specialties')}</Label>
               <Input
                 value={formData.specialties}
                 onChange={(e) => update("specialties", e.target.value)}
                 className={inputCls}
-                placeholder={ar ? "مفصولة بفواصل (مثال: فيلات، مباني)" : "Comma-separated (e.g., Villas, Buildings)"}
+                placeholder={tAuto('auto.commaSeparatedEGVillasBuildings')}
               />
               {formData.specialties && (
                 <div className="flex flex-wrap gap-1 mt-1.5">
@@ -215,21 +218,21 @@ function ContractorCreateForm({
               )}
             </div>
             <div className="space-y-1.5 sm:col-span-2">
-              <Label className={labelCls}>{ar ? "وصف الخبرة" : "Experience Description"}</Label>
+              <Label className={labelCls}>{tAuto('auto.experienceDescription')}</Label>
               <Textarea
                 value={formData.experience}
                 onChange={(e) => update("experience", e.target.value)}
                 className={cn(inputCls, "min-h-[80px]")}
-                placeholder={ar ? "نبذة عن خبرة المقاول ومشاريعه السابقة..." : "Brief about the contractor's experience and past projects..."}
+                placeholder={tAuto('auto.briefAboutTheContractorSExperienceAndPas')}
               />
             </div>
             <div className="space-y-1.5 sm:col-span-2">
-              <Label className={labelCls}>{ar ? "ملاحظات" : "Notes"}</Label>
+              <Label className={labelCls}>{tAuto('auto.notes')}</Label>
               <Textarea
                 value={formData.notes}
                 onChange={(e) => update("notes", e.target.value)}
                 className={cn(inputCls, "min-h-[60px]")}
-                placeholder={ar ? "أي ملاحظات إضافية..." : "Any additional notes..."}
+                placeholder={tAuto('auto.anyAdditionalNotes')}
               />
             </div>
           </div>
@@ -239,7 +242,7 @@ function ContractorCreateForm({
       {/* Actions */}
       <div className="flex items-center justify-end gap-3 pt-2 pb-6">
         <Button variant="outline" className="h-9 rounded-lg" onClick={onCancel}>
-          {ar ? "إلغاء" : "Cancel"}
+          {tAuto('auto.cancel')}
         </Button>
         <Button
           className="h-9 bg-teal-600 hover:bg-teal-700 text-white rounded-lg shadow-sm shadow-teal-600/20 min-w-[120px]"
@@ -249,12 +252,12 @@ function ContractorCreateForm({
           {saveMutation.isPending ? (
             <span className="flex items-center gap-1.5">
               <span className="h-3.5 w-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              {ar ? "جارٍ الحفظ..." : "Saving..."}
+              {tAuto('auto.saving')}
             </span>
           ) : (
             <span className="flex items-center gap-1.5">
               <Plus className="h-3.5 w-3.5" />
-              {ar ? "إضافة المقاول" : "Add Contractor"}
+              {tAuto('auto.addContractor')}
             </span>
           )}
         </Button>

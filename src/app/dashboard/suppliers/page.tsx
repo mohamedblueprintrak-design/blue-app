@@ -1,16 +1,7 @@
-"use client";
+import { getLocale } from 'next-intl/server';
+import SuppliersPage from '@/components/pages/suppliers';
 
-import dynamic from "next/dynamic";
-import { useLang } from "@/hooks/use-lang";
-
-const SuppliersPage = dynamic(() => import("@/components/pages/suppliers"), {
-  loading: () => <div className="p-6 animate-pulse">Loading...</div>,
-  ssr: false,
-});
-
-/**
- * /dashboard/suppliers
- */
-export default function SuppliersPageRoute() {
-  return <SuppliersPage language={useLang()} />;
+export default async function SuppliersPageRoute() {
+  const locale = await getLocale();
+  return <SuppliersPage language={locale as "ar" | "en"} />;
 }

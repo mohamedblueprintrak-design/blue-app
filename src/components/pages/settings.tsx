@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -25,6 +27,7 @@ interface Props {
 }
 
 export default function SettingsPage({ language: lang }: Props) {
+  const tAuto = useTranslations();
   const isAr = lang === "ar";
   const queryClient = useQueryClient();
 
@@ -197,23 +200,23 @@ export default function SettingsPage({ language: lang }: Props) {
         <TabsList className="grid grid-cols-3 lg:grid-cols-6 gap-1 h-auto p-1 bg-slate-100 dark:bg-slate-800">
           <TabsTrigger value="COMPANY" className="text-xs px-2 py-2.5 gap-1.5">
             <Building2 className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">{isAr ? "الشركة" : "Company"}</span>
+            <span className="hidden sm:inline">{tAuto('auto.company')}</span>
           </TabsTrigger>
           <TabsTrigger value="appearance" className="text-xs px-2 py-2.5 gap-1.5">
             <Palette className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">{isAr ? "المظهر" : "Theme"}</span>
+            <span className="hidden sm:inline">{tAuto('auto.theme')}</span>
           </TabsTrigger>
           <TabsTrigger value="notifications" className="text-xs px-2 py-2.5 gap-1.5">
             <Bell className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">{isAr ? "الإشعارات" : "Alerts"}</span>
+            <span className="hidden sm:inline">{tAuto('auto.alerts')}</span>
           </TabsTrigger>
           <TabsTrigger value="security" className="text-xs px-2 py-2.5 gap-1.5">
             <Shield className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">{isAr ? "الأمان" : "Security"}</span>
+            <span className="hidden sm:inline">{tAuto('auto.security')}</span>
           </TabsTrigger>
           <TabsTrigger value="billing" className="text-xs px-2 py-2.5 gap-1.5">
             <CreditCard className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">{isAr ? "الفواتير" : "Billing"}</span>
+            <span className="hidden sm:inline">{tAuto('auto.billing')}</span>
           </TabsTrigger>
         </TabsList>
 

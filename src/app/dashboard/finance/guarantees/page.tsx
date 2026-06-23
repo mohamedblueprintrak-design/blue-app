@@ -1,8 +1,7 @@
-"use client";
-
+import { getLocale } from 'next-intl/server';
 import GuaranteeLettersPage from "@/components/pages/guarantee-letters";
-import { useLang } from "@/hooks/use-lang";
 
-export default function GuaranteeLettersPageRoute() {
-  return <GuaranteeLettersPage language={useLang()} />;
+export default async function GuaranteeLettersPageRoute() {
+  const locale = await getLocale();
+  return <GuaranteeLettersPage language={locale as "ar" | "en"} />;
 }

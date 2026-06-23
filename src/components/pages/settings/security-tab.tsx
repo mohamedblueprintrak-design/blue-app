@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useEffect, useRef } from "react";
 
 import { Card, CardContent } from "@/components/ui/card";
@@ -61,6 +63,7 @@ export function SecurityTab({
   setDangerSuccess,
   sessionData,
 }: SecurityTabProps) {
+  const tAuto = useTranslations();
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -74,8 +77,8 @@ export function SecurityTab({
         <CardContent className="p-6">
           <SectionHeader
             icon={Key}
-            title={isAr ? "تغيير كلمة المرور" : "Change Password"}
-            subtitle={isAr ? "تأكد من استخدام كلمة مرور قوية" : "Make sure to use a strong password"}
+            title={tAuto('auto.changePassword')}
+            subtitle={tAuto('auto.makeSureToUseAStrongPassword')}
           />
           <div className="space-y-4 max-w-md">
             {passwordError && (
@@ -85,12 +88,12 @@ export function SecurityTab({
             )}
             {passwordSuccess && (
               <div className="bg-green-50 dark:bg-green-950/50 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-400 rounded-lg px-4 py-3 text-sm">
-                {isAr ? "تم تحديث كلمة المرور بنجاح" : "Password updated successfully"}
+                {tAuto('auto.passwordUpdatedSuccessfully')}
               </div>
             )}
             <div className="space-y-1.5">
               <Label className="text-xs font-medium text-slate-700 dark:text-slate-300">
-                {isAr ? "كلمة المرور الحالية" : "Current Password"}
+                {tAuto('auto.currentPassword')}
               </Label>
               <div className="relative">
                 <Key className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -105,7 +108,7 @@ export function SecurityTab({
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs font-medium text-slate-700 dark:text-slate-300">
-                {isAr ? "كلمة المرور الجديدة" : "New Password"}
+                {tAuto('auto.newPassword')}
               </Label>
               <div className="relative">
                 <Shield className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -120,7 +123,7 @@ export function SecurityTab({
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs font-medium text-slate-700 dark:text-slate-300">
-                {isAr ? "تأكيد كلمة المرور الجديدة" : "Confirm New Password"}
+                {tAuto('auto.confirmNewPassword')}
               </Label>
               <div className="relative">
                 <Check className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -138,15 +141,15 @@ export function SecurityTab({
                 setPasswordError("");
                 setPasswordSuccess(false);
                 if (!passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword) {
-                  setPasswordError(isAr ? "يرجى ملء جميع الحقول" : "Please fill in all fields");
+                  setPasswordError(tAuto('auto.pleaseFillInAllFields'));
                   return;
                 }
                 if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-                  setPasswordError(isAr ? "كلمة المرور الجديدة غير متطابقة" : "New passwords do not match");
+                  setPasswordError(tAuto('auto.newPasswordsDoNotMatch'));
                   return;
                 }
                 if (passwordForm.newPassword.length < 8) {
-                  setPasswordError(isAr ? "كلمة المرور يجب أن تكون 8 أحرف على الأقل" : "Password must be at least 8 characters");
+                  setPasswordError(tAuto('auto.passwordMustBeAtLeast8Characters'));
                   return;
                 }
                 setPasswordSaving(true);
@@ -161,7 +164,7 @@ export function SecurityTab({
                   });
                   const data = await res.json();
                   if (!res.ok) {
-                    setPasswordError(extractErrorMessage(data.error, isAr ? "حدث خطأ" : "An error occurred"));
+                    setPasswordError(extractErrorMessage(data.error, tAuto('auto.anErrorOccurred')));
                   } else {
                     setPasswordSuccess(true);
                     setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
@@ -169,7 +172,7 @@ export function SecurityTab({
                     timeoutRef.current = setTimeout(() => setPasswordSuccess(false), 3000);
                   }
                 } catch {
-                  setPasswordError(isAr ? "حدث خطأ في الاتصال" : "Connection error");
+                  setPasswordError(tAuto('auto.connectionError'));
                 } finally {
                   setPasswordSaving(false);
                 }
@@ -180,10 +183,10 @@ export function SecurityTab({
               {passwordSaving ? (
                 <span className="flex items-center gap-2">
                   <span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  {isAr ? "جاري التحديث..." : "Updating..."}
+                  {tAuto('auto.updating')}
                 </span>
               ) : (
-                isAr ? "تحديث كلمة المرور" : "Update Password"
+                tAuto('auto.updatePassword')
               )}
             </Button>
           </div>
@@ -197,8 +200,8 @@ export function SecurityTab({
         <CardContent className="p-6">
           <SectionHeader
             icon={Smartphone}
-            title={isAr ? "الجلسات النشطة" : "Active Sessions"}
-            subtitle={isAr ? "إدارة الأجهزة المسجلة الدخول" : "Manage logged-in devices"}
+            title={tAuto('auto.activeSessions')}
+            subtitle={tAuto('auto.manageLoggedInDevices')}
           />
           {/* Current session from auth API */}
           {sessionData?.isAuthenticated && sessionData?.user && (
@@ -211,13 +214,13 @@ export function SecurityTab({
                   <p className="text-sm font-medium text-slate-900 dark:text-white flex items-center gap-2">
                     {sessionData.user.name || sessionData.user.email}
                     <Badge className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 text-[10px] h-5 px-1.5 border-0">
-                      {isAr ? "الحالي" : "Current"}
+                      {tAuto('auto.current')}
                     </Badge>
                   </p>
                   <p className="text-xs text-slate-500 dark:text-slate-400">
                     {sessionData.user.email}
                     {sessionData.user.lastLogin && (
-                      <> · {isAr ? "آخر دخول" : "Last login"}: {new Date(sessionData.user.lastLogin).toLocaleDateString(isAr ? "ar-SA" : "en-US")}</>
+                      <> · {tAuto('auto.lastLogin1')}: {new Date(sessionData.user.lastLogin).toLocaleDateString(isAr ? "ar-SA" : "en-US")}</>
                     )}
                   </p>
                 </div>
@@ -230,12 +233,10 @@ export function SecurityTab({
               <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" />
               <div>
                 <p className="text-sm font-medium text-blue-800 dark:text-blue-300">
-                  {isAr ? "إدارة الجلسات" : "Session Management"}
+                  {tAuto('auto.sessionManagement')}
                 </p>
                 <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
-                  {isAr
-                    ? "إدارة الجلسات النشطة والأجهزة المتصلة يتم بواسطة مدير النظام. إذا كنت ترى نشاطاً مشبوهاً، يرجى تغيير كلمة المرور الخاصة بك والتواصل مع المدير فوراً."
-                    : "Active session and device management is handled by your system administrator. If you notice suspicious activity, please change your password immediately and contact your administrator."}
+                  {tAuto('auto.activeSessionAndDeviceManagementIsHandle')}
                 </p>
               </div>
             </div>
@@ -253,10 +254,10 @@ export function SecurityTab({
               </div>
               <div>
                 <h3 className="text-base font-semibold text-red-700 dark:text-red-400">
-                  {isAr ? "منطقة الخطر" : "Danger Zone"}
+                  {tAuto('auto.dangerZone')}
                 </h3>
                 <p className="text-xs text-red-500 dark:text-red-400/70">
-                  {isAr ? "إجراءات لا يمكن التراجع عنها" : "Irreversible and destructive actions"}
+                  {tAuto('auto.irreversibleAndDestructiveActions')}
                 </p>
               </div>
             </div>
@@ -279,10 +280,10 @@ export function SecurityTab({
           {dangerConfirm === "clearData" && (
             <div className="p-4 rounded-xl bg-red-50 dark:bg-red-950/20 border-2 border-red-300 dark:border-red-800 mb-3">
               <p className="text-sm font-semibold text-red-700 dark:text-red-400 mb-2">
-                {isAr ? "تأكيد مسح البيانات" : "Confirm Data Clearing"}
+                {tAuto('auto.confirmDataClearing')}
               </p>
               <p className="text-xs text-red-600 dark:text-red-400/80 mb-3">
-                {isAr ? "هذا الإجراء لا يمكن التراجع عنه. سيتم حذف جميع المشاريع والمهام والسجلات نهائياً." : "This action cannot be undone. All projects, tasks, and records will be permanently deleted."}
+                {tAuto('auto.thisActionCannotBeUndoneAllProjectsTasks')}
               </p>
               <div className="flex gap-2">
                 <Button
@@ -295,7 +296,7 @@ export function SecurityTab({
                     setDangerConfirm("");
                   }}
                 >
-                  {isAr ? "تأكيد المسح" : "Confirm Clear"}
+                  {tAuto('auto.confirmClear')}
                 </Button>
                 <Button
                   variant="outline"
@@ -303,7 +304,7 @@ export function SecurityTab({
                   className="h-8 rounded-lg"
                   onClick={() => setDangerConfirm("")}
                 >
-                  {isAr ? "إلغاء" : "Cancel"}
+                  {tAuto('auto.cancel')}
                 </Button>
               </div>
             </div>
@@ -313,10 +314,10 @@ export function SecurityTab({
             <div className="flex items-center justify-between p-4 rounded-xl bg-red-50/50 dark:bg-red-950/10 border border-red-200 dark:border-red-900/30">
               <div>
                 <p className="text-sm font-medium text-slate-900 dark:text-white">
-                  {isAr ? "مسح جميع البيانات" : "Clear All Data"}
+                  {tAuto('auto.clearAllData')}
                 </p>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
-                  {isAr ? "حذف جميع المشاريع والمهام والسجلات" : "Remove all projects, tasks, and records"}
+                  {tAuto('auto.removeAllProjectsTasksAndRecords')}
                 </p>
               </div>
               <Button
@@ -326,7 +327,7 @@ export function SecurityTab({
                 onClick={() => { setDangerConfirm(dangerConfirm === "clearData" ? "" : "clearData"); setDangerError(""); setDangerSuccess(""); }}
               >
                 <Trash2 className="h-3.5 w-3.5 me-1.5" />
-                {isAr ? "مسح الكل" : "Clear All"}
+                {tAuto('auto.clearAll')}
               </Button>
             </div>
           </div>

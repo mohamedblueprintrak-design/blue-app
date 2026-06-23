@@ -1,16 +1,7 @@
-"use client";
+import { getLocale } from 'next-intl/server';
+import CalendarPage from '@/components/pages/calendar';
 
-import dynamic from "next/dynamic";
-import { useLang } from "@/hooks/use-lang";
-
-const CalendarPage = dynamic(() => import("@/components/pages/calendar"), {
-  loading: () => <div className="p-6 animate-pulse">Loading...</div>,
-  ssr: false,
-});
-
-/**
- * /dashboard/calendar
- */
-export default function CalendarPageRoute() {
-  return <CalendarPage language={useLang()} />;
+export default async function CalendarPageRoute() {
+  const locale = await getLocale();
+  return <CalendarPage language={locale as "ar" | "en"} />;
 }

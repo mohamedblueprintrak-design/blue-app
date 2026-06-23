@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl';
 import {
   Card,
   CardContent,
@@ -20,6 +21,7 @@ interface DeptWorkloadProps {
 }
 
 export function DeptWorkload({ departmentProgress, stats, activeTasksCount, overdueTasksCount, invoices, isAr }: DeptWorkloadProps) {
+  const tAuto = useTranslations();
   return (
     <Card className="rounded-xl border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900 hover:shadow-md transition-shadow">
       <CardHeader className="pb-3 border-b border-slate-100 dark:border-slate-800/50 relative">
@@ -31,10 +33,10 @@ export function DeptWorkload({ departmentProgress, stats, activeTasksCount, over
             </div>
             <div>
               <CardTitle className="text-base font-semibold text-slate-900 dark:text-white">
-                {isAr ? "حمل الأقسام" : "Department Workload"}
+                {tAuto('auto.departmentWorkload')}
               </CardTitle>
               <CardDescription className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                {isAr ? "نظرة عامة على حمل العمل لكل قسم" : "Overview of task load per department"}
+                {tAuto('auto.overviewOfTaskLoadPerDepartment')}
               </CardDescription>
             </div>
           </div>

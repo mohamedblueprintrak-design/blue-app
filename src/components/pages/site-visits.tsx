@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -137,6 +139,7 @@ interface SiteVisitsProps {
 }
 
 export default function SiteVisits({ language, projectId }: SiteVisitsProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const queryClient = useQueryClient();
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -234,10 +237,10 @@ export default function SiteVisits({ language, projectId }: SiteVisitsProps) {
           </div>
           <div>
             <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-              {ar ? "زيارات الموقع" : "Site Visits"}
+              {tAuto('auto.siteVisits')}
             </h2>
             <p className="text-[10px] text-slate-500 dark:text-slate-400">
-              {siteVisits.length} {ar ? "زيارة" : "visits"}
+              {siteVisits.length} {tAuto('auto.visits')}
             </p>
           </div>
         </div>
@@ -247,10 +250,10 @@ export default function SiteVisits({ language, projectId }: SiteVisitsProps) {
           <Select value={filterProject} onValueChange={setFilterProject}>
             <SelectTrigger className="w-[160px] h-8 text-xs">
               <Filter className="h-3 w-3 me-1 text-slate-400" />
-              <SelectValue placeholder={ar ? "المشروع" : "Project"} />
+              <SelectValue placeholder={tAuto('auto.project')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{ar ? "جميع المشاريع" : "All Projects"}</SelectItem>
+              <SelectItem value="all">{tAuto('auto.allProjects')}</SelectItem>
               {projects.map((p) => (
                 <SelectItem key={p.id} value={p.id}>
                   {ar ? p.name : p.nameEn || p.name}
@@ -262,13 +265,13 @@ export default function SiteVisits({ language, projectId }: SiteVisitsProps) {
 
           <Select value={filterStatus} onValueChange={setFilterStatus}>
             <SelectTrigger className="w-[130px] h-8 text-xs">
-              <SelectValue placeholder={ar ? "الحالة" : "Status"} />
+              <SelectValue placeholder={tAuto('auto.status1')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{ar ? "الكل" : "All"}</SelectItem>
-              <SelectItem value="DRAFT">{ar ? "مسودة" : "Draft"}</SelectItem>
-              <SelectItem value="SUBMITTED">{ar ? "مرسل" : "Submitted"}</SelectItem>
-              <SelectItem value="APPROVED">{ar ? "معتمد" : "Approved"}</SelectItem>
+              <SelectItem value="all">{tAuto('auto.all')}</SelectItem>
+              <SelectItem value="DRAFT">{tAuto('auto.draft')}</SelectItem>
+              <SelectItem value="SUBMITTED">{tAuto('auto.submitted')}</SelectItem>
+              <SelectItem value="APPROVED">{tAuto('auto.approved')}</SelectItem>
             </SelectContent>
           </Select>
 
@@ -278,7 +281,7 @@ export default function SiteVisits({ language, projectId }: SiteVisitsProps) {
             onClick={() => setShowAddDialog(true)}
           >
             <Plus className="h-3.5 w-3.5 me-1" />
-            {ar ? "زيارة جديدة" : "New Visit"}
+            {tAuto('auto.newVisit')}
           </Button>
         </div>
       </div>
@@ -300,10 +303,10 @@ export default function SiteVisits({ language, projectId }: SiteVisitsProps) {
             <MapPin className="h-7 w-7 text-slate-400" />
           </div>
           <h3 className="text-base font-semibold text-slate-900 dark:text-white mb-1">
-            {ar ? "لا توجد زيارات" : "No site visits"}
+            {tAuto('auto.noSiteVisits')}
           </h3>
           <p className="text-sm text-slate-500">
-            {ar ? "ابدأ بإضافة زيارة موقع جديدة" : "Start by adding a new site visit"}
+            {tAuto('auto.startByAddingANewSiteVisit')}
           </p>
         </div>
       ) : (
@@ -326,9 +329,9 @@ export default function SiteVisits({ language, projectId }: SiteVisitsProps) {
                     </div>
                     {/* Visit frequency indicator */}
                     <span className="inline-flex items-center gap-1 text-[9px] text-slate-500 dark:text-slate-400">
-                      <span className={cn("w-1.5 h-1.5 rounded-full", getFrequencyDot("weekly").color)} title={ar ? "أسبوعي" : "Weekly"} />
-                      <span className={cn("w-1.5 h-1.5 rounded-full", getFrequencyDot("biweekly").color)} title={ar ? "نصف شهري" : "Bi-weekly"} />
-                      <span className={cn("w-1.5 h-1.5 rounded-full", getFrequencyDot("monthly").color)} title={ar ? "شهري" : "Monthly"} />
+                      <span className={cn("w-1.5 h-1.5 rounded-full", getFrequencyDot("weekly").color)} title={tAuto('auto.weekly')} />
+                      <span className={cn("w-1.5 h-1.5 rounded-full", getFrequencyDot("biweekly").color)} title={tAuto('auto.biWeekly')} />
+                      <span className={cn("w-1.5 h-1.5 rounded-full", getFrequencyDot("monthly").color)} title={tAuto('auto.monthly')} />
                     </span>
                     {/* Weather badge - deterministic from date */}
                     {getWeatherBadge(weatherOptions[visit.id.charCodeAt(visit.id.length - 1) % weatherOptions.length].value, ar)}
@@ -347,19 +350,19 @@ export default function SiteVisits({ language, projectId }: SiteVisitsProps) {
                       <DropdownMenuContent align={ar ? "start" : "end"} className="w-36">
                         <DropdownMenuItem onClick={(e) => { e.stopPropagation(); setSelectedVisit(visit); setShowDetailDialog(true); }}>
                           <Eye className="h-3.5 w-3.5 me-2" />
-                          {ar ? "عرض" : "View"}
+                          {tAuto('auto.view')}
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           className="text-red-600 dark:text-red-400 focus:text-red-600"
                           onClick={(e) => {
                             e.stopPropagation();
-                            if (confirm(ar ? "هل أنت متأكد من الحذف؟" : "Delete this visit?")) {
+                            if (confirm(tAuto('auto.deleteThisVisit'))) {
                               deleteMutation.mutate(visit.id);
                             }
                           }}
                         >
                           <Trash2 className="h-3.5 w-3.5 me-2" />
-                          {ar ? "حذف" : "Delete"}
+                          {tAuto('auto.delete')}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -401,11 +404,11 @@ export default function SiteVisits({ language, projectId }: SiteVisitsProps) {
                 <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800">
                   <div className="flex items-center gap-1.5 text-[10px] text-slate-400 dark:text-slate-500">
                     <MapPin className="h-3 w-3" />
-                    <span>{ar ? "خريطة الموقع" : "Location Map"}</span>
+                    <span>{tAuto('auto.locationMap')}</span>
                   </div>
                   <div className="mt-1.5 h-32 rounded-lg overflow-hidden border border-slate-200/50 dark:border-slate-700/30">
                     <iframe
-                      title={ar ? "خريطة الموقع" : "Location Map"}
+                      title={tAuto('auto.locationMap')}
                       width="100%"
                       height="100%"
                       style={{ border: 0 }}
@@ -419,7 +422,7 @@ export default function SiteVisits({ language, projectId }: SiteVisitsProps) {
                     rel="noopener noreferrer"
                     className="text-[9px] text-teal-500 hover:text-teal-600 mt-1 inline-block"
                   >
-                    {ar ? "فتح الخريطة بحجم كبير" : "Open larger map"}
+                    {tAuto('auto.openLargerMap')}
                   </a>
                 </div>
               </Card>
@@ -432,18 +435,18 @@ export default function SiteVisits({ language, projectId }: SiteVisitsProps) {
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{ar ? "زيارة موقع جديدة" : "New Site Visit"}</DialogTitle>
+            <DialogTitle>{tAuto('auto.newSiteVisit')}</DialogTitle>
             <DialogDescription>
-              {ar ? "إضافة زيارة موقع جديدة" : "Add a new site visit record"}
+              {tAuto('auto.addANewSiteVisitRecord')}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "المشروع *" : "Project *"}</Label>
+                <Label className="text-sm">{tAuto('auto.project2')}</Label>
                 <Select value={formData.projectId} onValueChange={(v) => setFormData({ ...formData, projectId: v })}>
-                  <SelectTrigger><SelectValue placeholder={ar ? "اختر مشروع" : "Select project"} /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder={tAuto('auto.selectProject')} /></SelectTrigger>
                   <SelectContent>
                     {projects.map((p) => (
                       <SelectItem key={p.id} value={p.id}>{ar ? p.name : p.nameEn || p.name}</SelectItem>
@@ -452,7 +455,7 @@ export default function SiteVisits({ language, projectId }: SiteVisitsProps) {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "التاريخ *" : "Date *"}</Label>
+                <Label className="text-sm">{tAuto('auto.date1')}</Label>
                 <Input
                   type="date"
                   value={formData.date}
@@ -463,17 +466,17 @@ export default function SiteVisits({ language, projectId }: SiteVisitsProps) {
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "رقم القطعة" : "Plot Number"}</Label>
+                <Label className="text-sm">{tAuto('auto.plotNumber')}</Label>
                 <Input
                   value={formData.plotNumber}
                   onChange={(e) => setFormData({ ...formData, plotNumber: e.target.value })}
-                  placeholder={ar ? "رقم القطعة" : "Plot number"}
+                  placeholder={tAuto('auto.plotNumber1')}
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "البلدية" : "Municipality"}</Label>
+                <Label className="text-sm">{tAuto('auto.municipality')}</Label>
                 <Select value={formData.municipality} onValueChange={(v) => setFormData({ ...formData, municipality: v })}>
-                  <SelectTrigger><SelectValue placeholder={ar ? "اختر البلدية" : "Select municipality"} /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder={tAuto('auto.selectMunicipality')} /></SelectTrigger>
                   <SelectContent>
                     {municipalities.map((m) => (
                       <SelectItem key={m.value} value={m.value}>{ar ? m.ar : m.en}</SelectItem>
@@ -488,12 +491,12 @@ export default function SiteVisits({ language, projectId }: SiteVisitsProps) {
             <div className="space-y-2">
               <Label className="text-sm flex items-center gap-1.5">
                 <DoorOpen className="h-3.5 w-3.5" />
-                {ar ? "وصف البوابة" : "Gate Description"}
+                {tAuto('auto.gateDescription')}
               </Label>
               <Textarea
                 value={formData.gateDescription}
                 onChange={(e) => setFormData({ ...formData, gateDescription: e.target.value })}
-                placeholder={ar ? "وصف البوابة والموقع" : "DoorOpen and site description"}
+                placeholder={tAuto('auto.doorOpenAndSiteDescription')}
                 rows={2}
               />
             </div>
@@ -501,12 +504,12 @@ export default function SiteVisits({ language, projectId }: SiteVisitsProps) {
             <div className="space-y-2">
               <Label className="text-sm flex items-center gap-1.5">
                 <Home className="h-3.5 w-3.5" />
-                {ar ? "وصف الجيران" : "Neighbor Description"}
+                {tAuto('auto.neighborDescription')}
               </Label>
               <Textarea
                 value={formData.neighborDesc}
                 onChange={(e) => setFormData({ ...formData, neighborDesc: e.target.value })}
-                placeholder={ar ? "وصف المباني المجاورة" : "Description of neighboring buildings"}
+                placeholder={tAuto('auto.descriptionOfNeighboringBuildings')}
                 rows={2}
               />
             </div>
@@ -514,12 +517,12 @@ export default function SiteVisits({ language, projectId }: SiteVisitsProps) {
             <div className="space-y-2">
               <Label className="text-sm flex items-center gap-1.5">
                 <Building2 className="h-3.5 w-3.5" />
-                {ar ? "وصف المبنى" : "Building Description"}
+                {tAuto('auto.buildingDescription')}
               </Label>
               <Textarea
                 value={formData.buildingDesc}
                 onChange={(e) => setFormData({ ...formData, buildingDesc: e.target.value })}
-                placeholder={ar ? "وصف المبنى والإنشاءات" : "Building and construction description"}
+                placeholder={tAuto('auto.buildingAndConstructionDescription')}
                 rows={2}
               />
             </div>
@@ -527,25 +530,25 @@ export default function SiteVisits({ language, projectId }: SiteVisitsProps) {
             <Separator />
 
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "الحالة" : "Status"}</Label>
+              <Label className="text-sm">{tAuto('auto.status1')}</Label>
               <Select value={formData.status} onValueChange={(v) => setFormData({ ...formData, status: v })}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="DRAFT">{ar ? "مسودة" : "Draft"}</SelectItem>
-                  <SelectItem value="SUBMITTED">{ar ? "مرسل" : "Submitted"}</SelectItem>
-                  <SelectItem value="APPROVED">{ar ? "معتمد" : "Approved"}</SelectItem>
+                  <SelectItem value="DRAFT">{tAuto('auto.draft')}</SelectItem>
+                  <SelectItem value="SUBMITTED">{tAuto('auto.submitted')}</SelectItem>
+                  <SelectItem value="APPROVED">{tAuto('auto.approved')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "ملاحظات" : "Notes"}</Label>
+              <Label className="text-sm">{tAuto('auto.notes')}</Label>
               <Textarea
                 value={formData.notes}
                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                placeholder={ar ? "ملاحظات إضافية" : "Additional notes"}
+                placeholder={tAuto('auto.additionalNotes')}
                 rows={2}
               />
             </div>
@@ -553,14 +556,14 @@ export default function SiteVisits({ language, projectId }: SiteVisitsProps) {
 
           <DialogFooter>
             <Button variant="outline" onClick={() => { setShowAddDialog(false); resetForm(); }}>
-              {ar ? "إلغاء" : "Cancel"}
+              {tAuto('auto.cancel')}
             </Button>
             <Button
               className="bg-teal-600 hover:bg-teal-700 text-white"
               onClick={() => createMutation.mutate(formData)}
               disabled={!formData.projectId || !formData.date || createMutation.isPending}
             >
-              {createMutation.isPending ? (ar ? "جارٍ الإنشاء..." : "Creating...") : (ar ? "إنشاء" : "Create")}
+              {createMutation.isPending ? (tAuto('auto.creating')) : (tAuto('auto.create'))}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -574,7 +577,7 @@ export default function SiteVisits({ language, projectId }: SiteVisitsProps) {
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
                   <MapPin className="h-5 w-5 text-teal-500" />
-                  {selectedVisit.plotNumber || (ar ? "زيارة موقع" : "Site Visit")}
+                  {selectedVisit.plotNumber || (tAuto('auto.siteVisit'))}
                 </DialogTitle>
                 <DialogDescription>
                   {new Date(selectedVisit.date).toLocaleDateString(ar ? "ar-AE" : "en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
@@ -593,7 +596,7 @@ export default function SiteVisits({ language, projectId }: SiteVisitsProps) {
 
                 {selectedVisit.project && (
                   <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3 space-y-1">
-                    <div className="text-xs text-slate-500">{ar ? "المشروع" : "Project"}</div>
+                    <div className="text-xs text-slate-500">{tAuto('auto.project')}</div>
                     <div className="text-sm font-medium text-slate-900 dark:text-white">
                       {ar ? selectedVisit.project.name : selectedVisit.project.nameEn || selectedVisit.project.name}
                     </div>
@@ -609,7 +612,7 @@ export default function SiteVisits({ language, projectId }: SiteVisitsProps) {
                   <div className="space-y-1.5">
                     <div className="flex items-center gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-300">
                       <DoorOpen className="h-4 w-4" />
-                      {ar ? "وصف البوابة" : "Gate Description"}
+                      {tAuto('auto.gateDescription')}
                     </div>
                     <p className="text-sm text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3">
                       {selectedVisit.gateDescription}
@@ -621,7 +624,7 @@ export default function SiteVisits({ language, projectId }: SiteVisitsProps) {
                   <div className="space-y-1.5">
                     <div className="flex items-center gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-300">
                       <Home className="h-4 w-4" />
-                      {ar ? "وصف الجيران" : "Neighbor Description"}
+                      {tAuto('auto.neighborDescription')}
                     </div>
                     <p className="text-sm text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3">
                       {selectedVisit.neighborDesc}
@@ -633,7 +636,7 @@ export default function SiteVisits({ language, projectId }: SiteVisitsProps) {
                   <div className="space-y-1.5">
                     <div className="flex items-center gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-300">
                       <Building2 className="h-4 w-4" />
-                      {ar ? "وصف المبنى" : "Building Description"}
+                      {tAuto('auto.buildingDescription')}
                     </div>
                     <p className="text-sm text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3">
                       {selectedVisit.buildingDesc}
@@ -644,7 +647,7 @@ export default function SiteVisits({ language, projectId }: SiteVisitsProps) {
                 {selectedVisit.notes && (
                   <div className="space-y-1.5">
                     <div className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                      {ar ? "ملاحظات" : "Notes"}
+                      {tAuto('auto.notes')}
                     </div>
                     <p className="text-sm text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3">
                       {selectedVisit.notes}

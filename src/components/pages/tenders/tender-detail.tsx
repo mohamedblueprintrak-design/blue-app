@@ -2,6 +2,8 @@
  
 
 
+
+import { useTranslations } from 'next-intl';
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -26,6 +28,7 @@ import { getStatusConfig, getAuthorityConfig, getProjectTypeLabel } from "./type
 
 // ===== Countdown Component (used in detail panel) =====
 function ClosingCountdown({ closingDate, ar }: { closingDate: string | null; ar: boolean }) {
+  const tAuto = useTranslations();
   const [now, setNow] = useState<number | null>(null);
 
   useEffect(() => {
@@ -53,7 +56,7 @@ function ClosingCountdown({ closingDate, ar }: { closingDate: string | null; ar:
     return (
       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300 animate-pulse">
         <AlertCircle className="h-3 w-3" />
-        {ar ? "ينتهي اليوم" : "Ends today"}
+        {tAuto('auto.endsToday')}
       </span>
     );
   }
@@ -98,6 +101,7 @@ export function TenderDetailPanel({
   onClose,
   onEdit,
 }: TenderDetailPanelProps) {
+  const tAuto = useTranslations();
   const statusCfg = getStatusConfig(tender.status);
   const authCfg = getAuthorityConfig(tender.authority);
 
@@ -107,7 +111,7 @@ export function TenderDetailPanel({
       <div className="bg-gradient-to-r from-teal-600 to-teal-700 dark:from-teal-700 dark:to-teal-800 px-4 py-3">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold text-white">
-            {ar ? "تفاصيل المناقصة" : "Tender Details"}
+            {tAuto('auto.tenderDetails')}
           </h3>
           <div className="flex items-center gap-1">
             <Button variant="ghost" size="icon" className="h-7 w-7 text-white/80 hover:text-white hover:bg-white/10" onClick={onEdit} aria-label="Edit">
@@ -140,7 +144,7 @@ export function TenderDetailPanel({
             <div className="flex items-center gap-2 mb-1">
               <TrendingUp className="h-4 w-4 text-teal-500 dark:text-teal-400" />
               <span className="text-xs text-teal-600 dark:text-teal-400">
-                {ar ? "الميزانية التقديرية" : "Estimated Budget"}
+                {tAuto('auto.estimatedBudget')}
               </span>
             </div>
             <div className="text-2xl font-bold text-teal-700 dark:text-teal-300 font-mono tabular-nums">
@@ -156,7 +160,7 @@ export function TenderDetailPanel({
                   <FileText className="h-3.5 w-3.5 text-slate-400" />
                 </div>
                 <div>
-                  <span className="text-[10px] text-slate-400 block">{ar ? "رقم المناقصة" : "No."}</span>
+                  <span className="text-[10px] text-slate-400 block">{tAuto('auto.no')}</span>
                   <span className="font-mono text-xs">{tender.tenderNumber}</span>
                 </div>
               </div>
@@ -168,7 +172,7 @@ export function TenderDetailPanel({
                   <Building2 className="h-3.5 w-3.5 text-slate-400" />
                 </div>
                 <div>
-                  <span className="text-[10px] text-slate-400 block">{ar ? "الجهة" : "Authority"}</span>
+                  <span className="text-[10px] text-slate-400 block">{tAuto('auto.authority')}</span>
                   <span className="text-xs">{ar ? authCfg.ar : authCfg.en}</span>
                 </div>
               </div>
@@ -180,7 +184,7 @@ export function TenderDetailPanel({
                   <MapPin className="h-3.5 w-3.5 text-slate-400" />
                 </div>
                 <div>
-                  <span className="text-[10px] text-slate-400 block">{ar ? "نوع المشروع" : "Project Type"}</span>
+                  <span className="text-[10px] text-slate-400 block">{tAuto('auto.projectType')}</span>
                   <span className="text-xs">{getProjectTypeLabel(tender.projectType, ar)}</span>
                 </div>
               </div>
@@ -192,7 +196,7 @@ export function TenderDetailPanel({
                 <Calendar className="h-3.5 w-3.5 text-slate-400" />
               </div>
               <div className="flex-1 min-w-0">
-                <span className="text-[10px] text-slate-400 block">{ar ? "تاريخ الإغلاق" : "Closing Date"}</span>
+                <span className="text-[10px] text-slate-400 block">{tAuto('auto.closingDate')}</span>
                 {tender.closingDate ? (
                   <div className="flex items-center gap-2">
                     <span className="text-xs">
@@ -201,7 +205,7 @@ export function TenderDetailPanel({
                     <ClosingCountdown closingDate={tender.closingDate} ar={ar} />
                   </div>
                 ) : (
-                  <span className="text-xs text-slate-400">{ar ? "غير محدد" : "Not specified"}</span>
+                  <span className="text-xs text-slate-400">{tAuto('auto.notSpecified')}</span>
                 )}
               </div>
             </div>
@@ -213,7 +217,7 @@ export function TenderDetailPanel({
                   <Calendar className="h-3.5 w-3.5 text-slate-400" />
                 </div>
                 <div>
-                  <span className="text-[10px] text-slate-400 block">{ar ? "تاريخ التقديم" : "Submission Date"}</span>
+                  <span className="text-[10px] text-slate-400 block">{tAuto('auto.submissionDate')}</span>
                   <span className="text-xs">
                     {new Date(tender.submissionDate).toLocaleDateString(ar ? "ar-AE" : "en-US", { year: "numeric", month: "short", day: "numeric" })}
                   </span>
@@ -228,11 +232,11 @@ export function TenderDetailPanel({
                   <Globe className="h-3.5 w-3.5 text-slate-400" />
                 </div>
                 <div>
-                  <span className="text-[10px] text-slate-400 block">{ar ? "المصدر" : "Source"}</span>
+                  <span className="text-[10px] text-slate-400 block">{tAuto('auto.source')}</span>
                   <span className="text-xs">
-                    {tender.source === "WEBSITE" ? (ar ? "موقع إلكتروني" : "Website") :
-                     tender.source === "REFERRAL" ? (ar ? "إحالة" : "Referral") :
-                     tender.source === "DIRECT" ? (ar ? "مباشر" : "Direct") : tender.source}
+                    {tender.source === "WEBSITE" ? (tAuto('auto.website')) :
+                     tender.source === "REFERRAL" ? (tAuto('auto.referral')) :
+                     tender.source === "DIRECT" ? (tAuto('auto.direct')) : tender.source}
                   </span>
                 </div>
               </div>
@@ -245,7 +249,7 @@ export function TenderDetailPanel({
                   <User className="h-3.5 w-3.5 text-slate-400" />
                 </div>
                 <div>
-                  <span className="text-[10px] text-slate-400 block">{ar ? "المسؤول" : "Assigned To"}</span>
+                  <span className="text-[10px] text-slate-400 block">{tAuto('auto.assignedTo')}</span>
                   <span className="text-xs">{tender.assignedUser.name}</span>
                 </div>
               </div>
@@ -256,7 +260,7 @@ export function TenderDetailPanel({
         {/* Description */}
         {tender.description && (
           <div className="space-y-2">
-            <h5 className="text-xs font-semibold text-slate-500 dark:text-slate-400">{ar ? "الوصف" : "Description"}</h5>
+            <h5 className="text-xs font-semibold text-slate-500 dark:text-slate-400">{tAuto('auto.description')}</h5>
             <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">
               {tender.description}
             </p>
@@ -266,7 +270,7 @@ export function TenderDetailPanel({
         {/* Qualifications */}
         {tender.qualifications && (
           <div className="space-y-2">
-            <h5 className="text-xs font-semibold text-slate-500 dark:text-slate-400">{ar ? "المؤهلات المطلوبة" : "Required Qualifications"}</h5>
+            <h5 className="text-xs font-semibold text-slate-500 dark:text-slate-400">{tAuto('auto.requiredQualifications')}</h5>
             <div className="flex flex-wrap gap-1">
               {tender.qualifications.split(",").map((q, i) => (
                 <Badge key={i} variant="secondary" className="text-[9px] px-1.5 py-0">
@@ -280,7 +284,7 @@ export function TenderDetailPanel({
         {/* Required Documents */}
         {tender.requiredDocs && (
           <div className="space-y-2">
-            <h5 className="text-xs font-semibold text-slate-500 dark:text-slate-400">{ar ? "المستندات المطلوبة" : "Required Documents"}</h5>
+            <h5 className="text-xs font-semibold text-slate-500 dark:text-slate-400">{tAuto('auto.requiredDocuments')}</h5>
             <div className="flex flex-wrap gap-1">
               {tender.requiredDocs.split(",").map((d, i) => (
                 <Badge key={i} variant="outline" className="text-[9px] px-1.5 py-0">
@@ -296,7 +300,7 @@ export function TenderDetailPanel({
           <div className="rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 p-3 space-y-1">
             <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400">
               <Trophy className="h-3.5 w-3.5" />
-              <span className="text-xs font-semibold">{ar ? "فائز" : "Winner"}</span>
+              <span className="text-xs font-semibold">{tAuto('auto.winner')}</span>
             </div>
             <p className="text-sm text-emerald-600 dark:text-emerald-300">{tender.winnerName}</p>
           </div>
@@ -307,7 +311,7 @@ export function TenderDetailPanel({
           <div className="rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-3 space-y-1">
             <div className="flex items-center gap-1.5 text-red-700 dark:text-red-400">
               <XCircle className="h-3.5 w-3.5" />
-              <span className="text-xs font-semibold">{ar ? "سبب الخسارة" : "Lost Reason"}</span>
+              <span className="text-xs font-semibold">{tAuto('auto.lostReason')}</span>
             </div>
             <p className="text-xs text-red-600 dark:text-red-300">{tender.lostReason}</p>
           </div>
@@ -316,7 +320,7 @@ export function TenderDetailPanel({
         {/* Notes */}
         {tender.notes && (
           <div className="space-y-2">
-            <h5 className="text-xs font-semibold text-slate-500 dark:text-slate-400">{ar ? "ملاحظات" : "Notes"}</h5>
+            <h5 className="text-xs font-semibold text-slate-500 dark:text-slate-400">{tAuto('auto.notes')}</h5>
             <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">
               {tender.notes}
             </p>

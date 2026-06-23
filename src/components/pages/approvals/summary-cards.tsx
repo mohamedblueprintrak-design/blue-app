@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { Card } from "@/components/ui/card";
 import { ClipboardCheck, Clock, CheckCircle2, XCircle, TrendingUp, TrendingDown, Minus } from "lucide-react";
 
@@ -12,6 +14,7 @@ interface SummaryCardsProps {
 }
 
 export function SummaryCards({ ar, totalCount, pendingCount, approvedThisMonthCount, rejectedCount }: SummaryCardsProps) {
+  const tAuto = useTranslations();
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
       {/* Total Approvals */}
@@ -23,11 +26,11 @@ export function SummaryCards({ ar, totalCount, pendingCount, approvedThisMonthCo
             </div>
             <span className="flex items-center gap-0.5 text-[10px] text-slate-200">
               <Minus className="h-2.5 w-2.5" />
-              {ar ? "ثابت" : "Stable"}
+              {tAuto('auto.stable')}
             </span>
           </div>
           <div className="text-2xl font-bold text-white tabular-nums">{totalCount}</div>
-          <p className="text-[11px] text-slate-200 mt-0.5">{ar ? "إجمالي الموافقات" : "Total Approvals"}</p>
+          <p className="text-[11px] text-slate-200 mt-0.5">{tAuto('auto.totalApprovals')}</p>
         </div>
       </Card>
 
@@ -49,12 +52,12 @@ export function SummaryCards({ ar, totalCount, pendingCount, approvedThisMonthCo
             {pendingCount > 0 && (
               <span className="flex items-center gap-0.5 text-[10px] text-amber-100">
                 <TrendingUp className="h-2.5 w-2.5" />
-                {ar ? "بحاجة إجراء" : "Needs action"}
+                {tAuto('auto.needsAction')}
               </span>
             )}
           </div>
           <div className="text-2xl font-bold text-white tabular-nums">{pendingCount}</div>
-          <p className="text-[11px] text-amber-100 mt-0.5">{ar ? "بانتظار الموافقة" : "Pending"}</p>
+          <p className="text-[11px] text-amber-100 mt-0.5">{tAuto('auto.pending')}</p>
         </div>
       </Card>
 
@@ -67,11 +70,11 @@ export function SummaryCards({ ar, totalCount, pendingCount, approvedThisMonthCo
             </div>
             <span className="flex items-center gap-0.5 text-[10px] text-emerald-100">
               <TrendingUp className="h-2.5 w-2.5" />
-              {ar ? "هذا الشهر" : "This month"}
+              {tAuto('auto.thisMonth')}
             </span>
           </div>
           <div className="text-2xl font-bold text-white tabular-nums">{approvedThisMonthCount}</div>
-          <p className="text-[11px] text-emerald-100 mt-0.5">{ar ? "معتمدة هذا الشهر" : "Approved This Month"}</p>
+          <p className="text-[11px] text-emerald-100 mt-0.5">{tAuto('auto.approvedThisMonth')}</p>
         </div>
       </Card>
 
@@ -88,11 +91,11 @@ export function SummaryCards({ ar, totalCount, pendingCount, approvedThisMonthCo
                 {rejectedCount}
               </span>
             ) : (
-              <span className="text-[10px] text-red-100">{ar ? "لا يوجد" : "None"}</span>
+              <span className="text-[10px] text-red-100">{tAuto('auto.none')}</span>
             )}
           </div>
           <div className="text-2xl font-bold text-white tabular-nums">{rejectedCount}</div>
-          <p className="text-[11px] text-red-100 mt-0.5">{ar ? "مرفوضة" : "Rejected"}</p>
+          <p className="text-[11px] text-red-100 mt-0.5">{tAuto('auto.rejected')}</p>
         </div>
       </Card>
     </div>

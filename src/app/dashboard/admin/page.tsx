@@ -1,16 +1,7 @@
-"use client";
+import { getLocale } from 'next-intl/server';
+import AdminPage from '@/components/pages/admin';
 
-import dynamic from "next/dynamic";
-import { useLang } from "@/hooks/use-lang";
-
-const AdminPage = dynamic(() => import("@/components/pages/admin"), {
-  loading: () => <div className="p-6 animate-pulse">Loading...</div>,
-  ssr: false,
-});
-
-/**
- * /dashboard/admin
- */
-export default function AdminPageRoute() {
-  return <AdminPage language={useLang()} />;
+export default async function AdminPageRoute() {
+  const locale = await getLocale();
+  return <AdminPage language={locale as "ar" | "en"} />;
 }

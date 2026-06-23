@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -35,6 +37,7 @@ export function TenderFilters({
   isAr,
   onAddClick,
 }: TenderFiltersProps) {
+  const tAuto = useTranslations();
   return (
     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
       <div className="flex items-center gap-2.5">
@@ -44,14 +47,14 @@ export function TenderFilters({
         <div>
           <div className="flex items-center gap-2">
             <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-              {isAr ? "المناقصات" : "Tenders"}
+              {tAuto('auto.tenders')}
             </h2>
             <Badge variant="secondary" className="text-[10px] font-medium h-5 px-1.5">
               {total}
             </Badge>
           </div>
           <p className="text-[10px] text-slate-500 dark:text-slate-400">
-            {isAr ? "إدارة وتتبع المناقصات" : "Manage and track tenders"}
+            {tAuto('auto.manageAndTrackTenders')}
           </p>
         </div>
       </div>
@@ -61,36 +64,36 @@ export function TenderFilters({
           <Input
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder={isAr ? "بحث في المناقصات..." : "Search tenders..."}
+            placeholder={tAuto('auto.searchTenders')}
             className="ps-9 h-8 text-sm rounded-lg"
           />
         </div>
         <Select value={filterStatus} onValueChange={onFilterStatusChange}>
           <SelectTrigger className="w-[130px] h-8 text-xs rounded-lg">
-            <SelectValue placeholder={isAr ? "الحالة" : "Status"} />
+            <SelectValue placeholder={tAuto('auto.status1')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">{isAr ? "جميع الحالات" : "All Status"}</SelectItem>
-            <SelectItem value="IDENTIFIED">{isAr ? "مُحدّدة" : "Identified"}</SelectItem>
-            <SelectItem value="PREPARING">{isAr ? "قيد التحضير" : "Preparing"}</SelectItem>
-            <SelectItem value="SUBMITTED">{isAr ? "مقدّمة" : "Submitted"}</SelectItem>
-            <SelectItem value="QUALIFIED">{isAr ? "مؤهّلة" : "Qualified"}</SelectItem>
-            <SelectItem value="WON">{isAr ? "فُزنا" : "Won"}</SelectItem>
-            <SelectItem value="LOST">{isAr ? "خسرنا" : "Lost"}</SelectItem>
+            <SelectItem value="all">{tAuto('auto.allStatus')}</SelectItem>
+            <SelectItem value="IDENTIFIED">{tAuto('auto.identified')}</SelectItem>
+            <SelectItem value="PREPARING">{tAuto('auto.preparing')}</SelectItem>
+            <SelectItem value="SUBMITTED">{tAuto('auto.submitted')}</SelectItem>
+            <SelectItem value="QUALIFIED">{tAuto('auto.qualified')}</SelectItem>
+            <SelectItem value="WON">{tAuto('auto.won')}</SelectItem>
+            <SelectItem value="LOST">{tAuto('auto.lost')}</SelectItem>
           </SelectContent>
         </Select>
         <Select value={filterAuthority} onValueChange={onFilterAuthorityChange}>
           <SelectTrigger className="w-[130px] h-8 text-xs rounded-lg">
-            <SelectValue placeholder={isAr ? "الجهة" : "Authority"} />
+            <SelectValue placeholder={tAuto('auto.authority')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">{isAr ? "جميع الجهات" : "All Authorities"}</SelectItem>
-            <SelectItem value="rak_municipality">{isAr ? "البلدية" : "Municipality"}</SelectItem>
+            <SelectItem value="all">{tAuto('auto.allAuthorities')}</SelectItem>
+            <SelectItem value="rak_municipality">{tAuto('auto.municipality')}</SelectItem>
             <SelectItem value="rak_properties">RAK Properties</SelectItem>
-            <SelectItem value="al_hamra">{isAr ? "الحمراء" : "Al Hamra"}</SelectItem>
-            <SelectItem value="marjan">{isAr ? "مرجان" : "Marjan"}</SelectItem>
+            <SelectItem value="al_hamra">{tAuto('auto.alHamra')}</SelectItem>
+            <SelectItem value="marjan">{tAuto('auto.marjan')}</SelectItem>
             <SelectItem value="rakez">RAKEZ</SelectItem>
-            <SelectItem value="private">{isAr ? "خاصة" : "Private"}</SelectItem>
+            <SelectItem value="private">{tAuto('auto.private')}</SelectItem>
           </SelectContent>
         </Select>
         <Button
@@ -99,7 +102,7 @@ export function TenderFilters({
           onClick={onAddClick}
         >
           <Plus className="h-3.5 w-3.5 me-1" />
-          {isAr ? "مناقصة جديدة" : "New Tender"}
+          {tAuto('auto.newTender')}
         </Button>
       </div>
     </div>

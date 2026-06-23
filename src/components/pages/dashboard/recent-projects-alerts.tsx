@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import {
   Card,
   CardContent,
@@ -30,6 +32,7 @@ interface RecentProjectsAlertsProps {
 }
 
 export function RecentProjectsAlerts({ recentProjects, alerts, isAr, onProjectClick }: RecentProjectsAlertsProps) {
+  const tAuto = useTranslations();
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
       {/* Recent Projects */}
@@ -38,10 +41,10 @@ export function RecentProjectsAlerts({ recentProjects, alerts, isAr, onProjectCl
           {/* Teal accent line */}
           <div className="absolute top-0 start-0 end-0 h-[3px] rounded-t-xl bg-gradient-to-l from-teal-500 to-teal-400" />
           <CardTitle className="text-base font-semibold text-slate-900 dark:text-white">
-            {isAr ? "المشاريع الأخيرة" : "Recent Projects"}
+            {tAuto('auto.recentProjects')}
           </CardTitle>
           <CardDescription className="text-xs text-slate-500 dark:text-slate-400">
-            {isAr ? "آخر المشاريع المحدّثة" : "Last updated projects"}
+            {tAuto('auto.lastUpdatedProjects')}
           </CardDescription>
         </CardHeader>
         <CardContent className="px-2 pb-4">
@@ -49,19 +52,19 @@ export function RecentProjectsAlerts({ recentProjects, alerts, isAr, onProjectCl
             <TableHeader>
               <TableRow className="border-slate-100 dark:border-slate-800 hover:bg-transparent">
                 <TableHead className="text-xs font-semibold text-slate-500 dark:text-slate-400 px-4">
-                  {isAr ? "الرقم" : "Number"}
+                  {tAuto('auto.number')}
                 </TableHead>
                 <TableHead className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-                  {isAr ? "المشروع" : "Project"}
+                  {tAuto('auto.project')}
                 </TableHead>
                 <TableHead className="text-xs font-semibold text-slate-500 dark:text-slate-400 hidden md:table-cell">
-                  {isAr ? "العميل" : "Client"}
+                  {tAuto('auto.client')}
                 </TableHead>
                 <TableHead className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-                  {isAr ? "الحالة" : "Status"}
+                  {tAuto('auto.status1')}
                 </TableHead>
                 <TableHead className="text-xs font-semibold text-slate-500 dark:text-slate-400 text-center">
-                  {isAr ? "التقدم" : "Progress"}
+                  {tAuto('auto.progress')}
                 </TableHead>
                 <TableHead className="text-xs font-semibold text-slate-500 dark:text-slate-400 w-12" />
               </TableRow>
@@ -143,10 +146,10 @@ export function RecentProjectsAlerts({ recentProjects, alerts, isAr, onProjectCl
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="text-base font-semibold text-slate-900 dark:text-white">
-                {isAr ? "التنبيهات المهمة" : "Important Alerts"}
+                {tAuto('auto.importantAlerts')}
               </CardTitle>
               <CardDescription className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                {isAr ? "تحتاج اهتمامك فوراً" : "Requires your immediate attention"}
+                {tAuto('auto.requiresYourImmediateAttention')}
               </CardDescription>
             </div>
             {alerts.length > 0 && (
@@ -161,7 +164,7 @@ export function RecentProjectsAlerts({ recentProjects, alerts, isAr, onProjectCl
             <div className="flex flex-col items-center justify-center py-8 text-center">
               <ShieldCheck className="h-8 w-8 text-emerald-400 mb-2" />
               <p className="text-sm text-slate-500 dark:text-slate-400">
-                {isAr ? "لا توجد تنبيهات حالياً" : "No alerts at this time"}
+                {tAuto('auto.noAlertsAtThisTime')}
               </p>
             </div>
           ) : (
@@ -202,7 +205,7 @@ export function RecentProjectsAlerts({ recentProjects, alerts, isAr, onProjectCl
               })}
               {/* View All Link */}
               <Button variant="ghost" className="w-full text-xs text-slate-500 hover:text-teal-600 dark:hover:text-teal-400 mt-1">
-                {isAr ? "عرض الكل" : "View All"}
+                {tAuto('auto.viewAll')}
                 <ArrowUpRight className="h-3 w-3 ms-1" />
               </Button>
             </div>

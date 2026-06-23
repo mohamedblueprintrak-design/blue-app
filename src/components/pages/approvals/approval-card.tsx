@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -58,6 +60,7 @@ export function ApprovalCard({
   setSelectedApprovalId,
   onRequestInfoSubmit,
 }: ApprovalCardProps) {
+  const tAuto = useTranslations();
   const sc = getStatusConfig(approval.status);
   const isPending = approval.status === "PENDING";
   const showRejectForm = rejectingId === approval.id;
@@ -146,7 +149,7 @@ export function ApprovalCard({
                   {approval.requestedBy.charAt(0).toUpperCase()}
                 </div>
                 <span className="text-[11px] text-slate-500 dark:text-slate-400">
-                  {ar ? "الطالب" : "From"}: {approval.requestedBy}
+                  {tAuto('auto.from')}: {approval.requestedBy}
                 </span>
               </div>
 
@@ -156,7 +159,7 @@ export function ApprovalCard({
                   {approval.assignedTo.charAt(0).toUpperCase()}
                 </div>
                 <span className="text-[11px] text-slate-500 dark:text-slate-400">
-                  {ar ? "المسند إليه" : "To"}: {approval.assignedTo}
+                  {tAuto('auto.to')}: {approval.assignedTo}
                 </span>
               </div>
 
@@ -211,7 +214,7 @@ export function ApprovalCard({
             {/* Notes (non-pending) */}
             {approval.notes && !isPending && (
               <div className="text-[11px] text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 rounded-lg px-3 py-2 mb-2.5 border border-slate-100 dark:border-slate-800">
-                <span className="font-semibold">{ar ? "ملاحظات" : "Notes"}: </span>
+                <span className="font-semibold">{tAuto('auto.notes')}: </span>
                 {approval.notes}
               </div>
             )}
@@ -222,7 +225,7 @@ export function ApprovalCard({
                 <Textarea
                   value={rejectReason}
                   onChange={(e) => setRejectReason(e.target.value)}
-                  placeholder={ar ? "سبب الرفض..." : "Reason for rejection..."}
+                  placeholder={tAuto('auto.reasonForRejection')}
                   className="text-xs h-20 resize-none rounded-lg border-red-200 dark:border-red-800/40 focus-visible:ring-red-300"
                   autoFocus
                 />
@@ -237,7 +240,7 @@ export function ApprovalCard({
                     }}
                   >
                     {rejectMutationIsPending ? <Loader2 className="h-3 w-3 me-1 animate-spin" /> : <XCircle className="h-3 w-3 me-1" />}
-                    {ar ? "تأكيد الرفض" : "Confirm Reject"}
+                    {tAuto('auto.confirmReject')}
                   </Button>
                   <Button
                     size="sm"
@@ -249,7 +252,7 @@ export function ApprovalCard({
                       setRejectReason("");
                     }}
                   >
-                    {ar ? "إلغاء" : "Cancel"}
+                    {tAuto('auto.cancel')}
                   </Button>
                 </div>
               </div>
@@ -261,7 +264,7 @@ export function ApprovalCard({
                 <Textarea
                   value={requestInfoText}
                   onChange={(e) => setRequestInfoText(e.target.value)}
-                  placeholder={ar ? "المعلومات المطلوبة..." : "Information requested..."}
+                  placeholder={tAuto('auto.informationRequested')}
                   className="text-xs h-20 resize-none rounded-lg border-sky-200 dark:border-sky-800/40 focus-visible:ring-sky-300"
                   autoFocus
                 />
@@ -276,7 +279,7 @@ export function ApprovalCard({
                     }}
                   >
                     <MessageSquare className="h-3 w-3 me-1" />
-                    {ar ? "إرسال" : "Send"}
+                    {tAuto('auto.send')}
                   </Button>
                   <Button
                     size="sm"
@@ -288,7 +291,7 @@ export function ApprovalCard({
                       setRequestInfoText("");
                     }}
                   >
-                    {ar ? "إلغاء" : "Cancel"}
+                    {tAuto('auto.cancel')}
                   </Button>
                 </div>
               </div>
@@ -305,7 +308,7 @@ export function ApprovalCard({
                     onClick={() => onApprove(approval.id)}
                   >
                     {approveMutationIsPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <CheckCircle2 className="h-3 w-3" />}
-                    {ar ? "موافقة" : "Approve"}
+                    {tAuto('auto.approve')}
                   </Button>
                   <Button
                     size="sm"
@@ -313,7 +316,7 @@ export function ApprovalCard({
                     onClick={() => setRejectingId(approval.id)}
                   >
                     <XCircle className="h-3 w-3" />
-                    {ar ? "رفض" : "Reject"}
+                    {tAuto('auto.reject')}
                   </Button>
                   <Button
                     size="sm"
@@ -321,7 +324,7 @@ export function ApprovalCard({
                     onClick={() => setRequestInfoId(approval.id)}
                   >
                     <MessageSquare className="h-3 w-3" />
-                    {ar ? "طلب معلومات" : "Request Info"}
+                    {tAuto('auto.requestInfo')}
                   </Button>
                 </>
               )}
@@ -333,7 +336,7 @@ export function ApprovalCard({
                   onClick={() => setSelectedApprovalId(approval.id)}
                 >
                   <Eye className="h-3 w-3" />
-                  {ar ? "عرض التفاصيل" : "View Details"}
+                  {tAuto('auto.viewDetails')}
                 </Button>
               )}
             </div>

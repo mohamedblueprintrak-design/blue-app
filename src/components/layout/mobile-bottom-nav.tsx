@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -55,6 +57,7 @@ const moreMenuItems: MoreMenuItem[] = [
 ];
 
 export default function MobileBottomNav({ language }: { language: "ar" | "en" }) {
+  const tAuto = useTranslations();
   const isAr = language === "ar";
   const { currentPage, setCurrentPage } = useNavStore();
   const [moreSheetOpen, setMoreSheetOpen] = useState(false);
@@ -250,7 +253,7 @@ export default function MobileBottomNav({ language }: { language: "ar" | "en" })
                   <div className="w-1.5 h-1.5 rounded-full bg-current" />
                 </div>
                 <span className="text-[10px] font-medium leading-tight">
-                  {isAr ? "المزيد" : "More"}
+                  {tAuto('auto.more')}
                 </span>
               </button>
             </SheetTrigger>
@@ -259,11 +262,11 @@ export default function MobileBottomNav({ language }: { language: "ar" | "en" })
               className="w-72 p-0 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700"
             >
               <SheetTitle className="sr-only">
-                {isAr ? "المزيد من الخيارات" : "More Options"}
+                {tAuto('auto.moreOptions1')}
               </SheetTitle>
               <div className="flex items-center h-14 px-4 border-b border-slate-200 dark:border-slate-700">
                 <h3 className="text-base font-semibold text-slate-900 dark:text-white">
-                  {isAr ? "المزيد" : "More"}
+                  {tAuto('auto.more')}
                 </h3>
               </div>
               <ScrollArea className="h-[calc(100vh-3.5rem)]">

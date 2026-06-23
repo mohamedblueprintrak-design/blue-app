@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useEffect, useMemo, useState } from "react";
 import {
   MapContainer,
@@ -278,6 +280,7 @@ function ProjectPopup({
 
 // ===== Empty Map State =====
 function EmptyMapState({ isAr }: { isAr: boolean }) {
+  const tAuto = useTranslations();
   return (
     <div className="absolute inset-0 flex items-center justify-center bg-slate-50/80 dark:bg-slate-900/80 z-[500]">
       <div className="text-center space-y-3 p-6">
@@ -286,12 +289,10 @@ function EmptyMapState({ isAr }: { isAr: boolean }) {
         </div>
         <div>
           <h3 className="font-semibold text-slate-700 dark:text-slate-300">
-            {isAr ? "لا توجد مشاريع على الخريطة" : "No Projects on Map"}
+            {tAuto('auto.noProjectsOnMap')}
           </h3>
           <p className="text-sm text-slate-500 mt-1">
-            {isAr
-              ? "أنشئ مشروعاً وحدد موقعه على الخريطة لتظهره هنا"
-              : "Create a project and set its location on the map to see it here"}
+            {tAuto('auto.createAProjectAndSetItsLocationOnTheMapT')}
           </p>
         </div>
       </div>
@@ -307,6 +308,7 @@ export default function ProjectMap({
   height = "500px",
   language = "ar",
 }: ProjectMapProps) {
+  const tAuto = useTranslations();
   const [showSidebar, setShowSidebar] = useState(false);
 
   const isAr = language === "ar";
@@ -395,7 +397,7 @@ export default function ProjectMap({
       {/* Status Legend */}
       <div className="absolute top-3 left-3 z-[400] bg-white/90 backdrop-blur-sm rounded-lg shadow-md p-2.5 space-y-1.5">
         <p className="text-[10px] font-semibold text-slate-500 mb-1 px-0.5">
-          {isAr ? "الحالة" : "Status"}
+          {tAuto('auto.status1')}
         </p>
         {["ACTIVE", "DELAYED", "COMPLETED", "ON_HOLD"].map((status) => (
           <div
@@ -421,12 +423,12 @@ export default function ProjectMap({
         <div className="flex items-center gap-2">
           <Navigation className="h-3.5 w-3.5 text-teal-500" />
           <span className="font-semibold text-slate-600">
-            {isAr ? "مشاريع" : "Projects"}: {mappedProjects.length}
+            {tAuto('auto.projects')}: {mappedProjects.length}
           </span>
         </div>
         {totalBudget > 0 && (
           <div className="text-[11px] text-slate-500">
-            {isAr ? "الميزانية" : "Budget"}: {formatBudget(totalBudget)}
+            {tAuto('auto.budget')}: {formatBudget(totalBudget)}
           </div>
         )}
       </div>
@@ -442,12 +444,12 @@ export default function ProjectMap({
           {showSidebar ? (
             <>
               <Layers className="h-4 w-4 me-1.5" />
-              {isAr ? "خريطة" : "Map"}
+              {tAuto('auto.map')}
             </>
           ) : (
             <>
               <List className="h-4 w-4 me-1.5" />
-              {isAr ? "القائمة" : "List"}
+              {tAuto('auto.list')}
             </>
           )}
         </Button>
@@ -533,7 +535,7 @@ export default function ProjectMap({
             onClick={() => onSelectProject(null)}
           >
             <MapPin className="h-4 w-4 me-1.5" />
-            {isAr ? "عرض الكل" : "Show All"}
+            {tAuto('auto.showAll')}
           </Button>
         </div>
       )}

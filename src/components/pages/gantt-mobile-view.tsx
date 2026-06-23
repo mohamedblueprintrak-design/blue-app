@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 /**
  * Gantt Mobile View - List fallback for small screens
  * عرض جانت للموبايل - قائمة بديلة للشاشات الصغيرة
@@ -112,16 +114,17 @@ interface GanttMobileViewProps {
 }
 
 export function GanttMobileView({ tasks, ar, onTaskClick }: GanttMobileViewProps) {
+  const tAuto = useTranslations();
   if (tasks.length === 0) {
     return (
       <div className="p-6 text-center text-sm text-slate-500 dark:text-slate-400">
-        {ar ? "لا توجد مهام" : "No tasks found"}
+        {tAuto('auto.noTasksFound')}
       </div>
     );
   }
 
   return (
-    <div className="space-y-2" role="list" aria-label={ar ? "قائمة المهام" : "Task list"}>
+    <div className="space-y-2" role="list" aria-label={tAuto('auto.taskList')}>
       {tasks.map((task) => {
         const statusLabel = STATUS_LABELS[task.status] || STATUS_LABELS.TODO;
         const badgeStyle = STATUS_BADGE_STYLES[task.status] || STATUS_BADGE_STYLES.TODO;
@@ -191,7 +194,7 @@ export function GanttMobileView({ tasks, ar, onTaskClick }: GanttMobileViewProps
               <span>{formatDate(task.endDate, ar)}</span>
               {task.type === "phase" && (
                 <Badge variant="outline" className="text-[9px] px-1 py-0 h-4 ml-1 border-violet-300 dark:border-violet-600 text-violet-600 dark:text-violet-400">
-                  {ar ? "مرحلة" : "Phase"}
+                  {tAuto('auto.phase')}
                 </Badge>
               )}
             </div>

@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -40,6 +42,7 @@ export function ContractorsTab({
   projectId?: string;
   onSelectContractor: (c: ContractorFull) => void;
 }) {
+  const tAuto = useTranslations();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
@@ -107,20 +110,20 @@ export function ContractorsTab({
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder={ar ? "بحث بالمقاولين..." : "Search contractors..."}
+            placeholder={tAuto('auto.searchContractors')}
             className="ps-9 h-8 text-sm rounded-lg"
           />
         </div>
         <Select value={categoryFilter} onValueChange={setCategoryFilter}>
           <SelectTrigger className="w-[160px] h-8 text-xs rounded-lg"><SelectValue /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">{ar ? "جميع التخصصات" : "All Categories"}</SelectItem>
-            <SelectItem value="CIVIL">{ar ? "أشغال مدنية" : "Civil"}</SelectItem>
-            <SelectItem value="ELECTRICAL">{ar ? "كهرباء" : "Electrical"}</SelectItem>
-            <SelectItem value="MEP">{ar ? "MEP" : "MEP"}</SelectItem>
-            <SelectItem value="FINISHING">{ar ? "تشطيبات" : "Finishing"}</SelectItem>
-            <SelectItem value="PLUMBING">{ar ? "سباكة" : "Plumbing"}</SelectItem>
-            <SelectItem value="HVAC">{ar ? "تكييف" : "HVAC"}</SelectItem>
+            <SelectItem value="all">{tAuto('auto.allCategories')}</SelectItem>
+            <SelectItem value="CIVIL">{tAuto('auto.civil')}</SelectItem>
+            <SelectItem value="ELECTRICAL">{tAuto('auto.electrical')}</SelectItem>
+            <SelectItem value="MEP">{tAuto('auto.mEP')}</SelectItem>
+            <SelectItem value="FINISHING">{tAuto('auto.finishing')}</SelectItem>
+            <SelectItem value="PLUMBING">{tAuto('auto.plumbing')}</SelectItem>
+            <SelectItem value="HVAC">{tAuto('auto.hVAC')}</SelectItem>
           </SelectContent>
         </Select>
         <Button
@@ -128,7 +131,7 @@ export function ContractorsTab({
           className="h-8 bg-teal-600 hover:bg-teal-700 text-white rounded-lg shadow-sm"
           onClick={() => { setFormData(emptyForm); setShowDialog(true); }}
         >
-          <Plus className="h-3.5 w-3.5 me-1" />{ar ? "إضافة مقاول" : "Add Contractor"}
+          <Plus className="h-3.5 w-3.5 me-1" />{tAuto('auto.addContractor')}
         </Button>
       </div>
 
@@ -136,7 +139,7 @@ export function ContractorsTab({
       {contractors.length === 0 ? (
         <div className="text-center py-12 text-slate-400">
           <Users className="h-12 w-12 mx-auto mb-3 opacity-30" />
-          <p className="text-sm">{ar ? "لا يوجد مقاولين" : "No contractors found"}</p>
+          <p className="text-sm">{tAuto('auto.noContractorsFound')}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -196,43 +199,43 @@ export function ContractorsTab({
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Users className="h-5 w-5 text-teal-600" />
-              {ar ? "إضافة مقاول جديد" : "Add New Contractor"}
+              {tAuto('auto.addNewContractor')}
             </DialogTitle>
-            <DialogDescription>{ar ? "ملف المقاول الكامل" : "Complete contractor profile"}</DialogDescription>
+            <DialogDescription>{tAuto('auto.completeContractorProfile')}</DialogDescription>
           </DialogHeader>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1 col-span-2 sm:col-span-1">
-              <Label className="text-xs">{ar ? "الاسم (عربي)" : "Name (Ar)"} *</Label>
+              <Label className="text-xs">{tAuto('auto.nameAr')} *</Label>
               <Input value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="h-8 text-sm rounded-lg" />
             </div>
             <div className="space-y-1 col-span-2 sm:col-span-1">
-              <Label className="text-xs">{ar ? "الاسم (إنجليزي)" : "Name (En)"}</Label>
+              <Label className="text-xs">{tAuto('auto.nameEn')}</Label>
               <Input value={formData.nameEn} onChange={(e) => setFormData({ ...formData, nameEn: e.target.value })} className="h-8 text-sm rounded-lg" dir="ltr" />
             </div>
             <div className="space-y-1 col-span-2 sm:col-span-1">
-              <Label className="text-xs">{ar ? "اسم الشركة (عربي)" : "Company (Ar)"}</Label>
+              <Label className="text-xs">{tAuto('auto.companyAr')}</Label>
               <Input value={formData.companyName} onChange={(e) => setFormData({ ...formData, companyName: e.target.value })} className="h-8 text-sm rounded-lg" />
             </div>
             <div className="space-y-1 col-span-2 sm:col-span-1">
-              <Label className="text-xs">{ar ? "اسم الشركة (إنجليزي)" : "Company (En)"}</Label>
+              <Label className="text-xs">{tAuto('auto.companyEn')}</Label>
               <Input value={formData.companyEn} onChange={(e) => setFormData({ ...formData, companyEn: e.target.value })} className="h-8 text-sm rounded-lg" dir="ltr" />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">{ar ? "التخصص" : "Category"}</Label>
+              <Label className="text-xs">{tAuto('auto.category')}</Label>
               <Select value={formData.category} onValueChange={(v) => setFormData({ ...formData, category: v })}>
                 <SelectTrigger className="h-8 text-sm rounded-lg"><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="CIVIL">{ar ? "أشغال مدنية" : "Civil"}</SelectItem>
-                  <SelectItem value="ELECTRICAL">{ar ? "كهرباء" : "Electrical"}</SelectItem>
+                  <SelectItem value="CIVIL">{tAuto('auto.civil')}</SelectItem>
+                  <SelectItem value="ELECTRICAL">{tAuto('auto.electrical')}</SelectItem>
                   <SelectItem value="MEP">MEP</SelectItem>
-                  <SelectItem value="FINISHING">{ar ? "تشطيبات" : "Finishing"}</SelectItem>
-                  <SelectItem value="PLUMBING">{ar ? "سباكة" : "Plumbing"}</SelectItem>
-                  <SelectItem value="HVAC">{ar ? "تكييف" : "HVAC"}</SelectItem>
+                  <SelectItem value="FINISHING">{tAuto('auto.finishing')}</SelectItem>
+                  <SelectItem value="PLUMBING">{tAuto('auto.plumbing')}</SelectItem>
+                  <SelectItem value="HVAC">{tAuto('auto.hVAC')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">{ar ? "التقييم (1-5)" : "Rating (1-5)"}</Label>
+              <Label className="text-xs">{tAuto('auto.rating15')}</Label>
               <Select value={formData.rating} onValueChange={(v) => setFormData({ ...formData, rating: v })}>
                 <SelectTrigger className="h-8 text-sm rounded-lg"><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -243,43 +246,43 @@ export function ContractorsTab({
               </Select>
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">{ar ? "جهة الاتصال" : "Contact Person"}</Label>
+              <Label className="text-xs">{tAuto('auto.contactPerson')}</Label>
               <Input value={formData.contactPerson} onChange={(e) => setFormData({ ...formData, contactPerson: e.target.value })} className="h-8 text-sm rounded-lg" />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">{ar ? "الهاتف" : "Phone"}</Label>
+              <Label className="text-xs">{tAuto('auto.phone')}</Label>
               <Input value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} className="h-8 text-sm rounded-lg" dir="ltr" />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">{ar ? "البريد الإلكتروني" : "Email"}</Label>
+              <Label className="text-xs">{tAuto('auto.email')}</Label>
               <Input value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="h-8 text-sm rounded-lg" dir="ltr" />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">{ar ? "العنوان" : "Address"}</Label>
+              <Label className="text-xs">{tAuto('auto.address')}</Label>
               <Input value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} className="h-8 text-sm rounded-lg" />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">{ar ? "رقم السجل التجاري" : "CR Number"}</Label>
+              <Label className="text-xs">{tAuto('auto.cRNumber')}</Label>
               <Input value={formData.crNumber} onChange={(e) => setFormData({ ...formData, crNumber: e.target.value })} className="h-8 text-sm rounded-lg" dir="ltr" />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">{ar ? "رقم الترخيص" : "License Number"}</Label>
+              <Label className="text-xs">{tAuto('auto.licenseNumber')}</Label>
               <Input value={formData.licenseNumber} onChange={(e) => setFormData({ ...formData, licenseNumber: e.target.value })} className="h-8 text-sm rounded-lg" dir="ltr" />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">{ar ? "انتهاء الترخيص" : "License Expiry"}</Label>
+              <Label className="text-xs">{tAuto('auto.licenseExpiry')}</Label>
               <Input type="date" value={formData.licenseExpiry} onChange={(e) => setFormData({ ...formData, licenseExpiry: e.target.value })} className="h-8 text-sm rounded-lg" />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">{ar ? "الخبرة" : "Experience"}</Label>
-              <Input value={formData.experience} onChange={(e) => setFormData({ ...formData, experience: e.target.value })} placeholder={ar ? "سنوات الخبرة" : "Years of experience"} className="h-8 text-sm rounded-lg" />
+              <Label className="text-xs">{tAuto('auto.experience')}</Label>
+              <Input value={formData.experience} onChange={(e) => setFormData({ ...formData, experience: e.target.value })} placeholder={tAuto('auto.yearsOfExperience')} className="h-8 text-sm rounded-lg" />
             </div>
             <div className="space-y-1 col-span-2">
-              <Label className="text-xs">{ar ? "التخصصات" : "Specialties"}</Label>
-              <Input value={formData.specialties} onChange={(e) => setFormData({ ...formData, specialties: e.target.value })} placeholder={ar ? "مفصولة بفواصل" : "Comma-separated"} className="h-8 text-sm rounded-lg" />
+              <Label className="text-xs">{tAuto('auto.specialties')}</Label>
+              <Input value={formData.specialties} onChange={(e) => setFormData({ ...formData, specialties: e.target.value })} placeholder={tAuto('auto.commaSeparated')} className="h-8 text-sm rounded-lg" />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">{ar ? "البنك" : "Bank Name"}</Label>
+              <Label className="text-xs">{tAuto('auto.bankName')}</Label>
               <Input value={formData.bankName} onChange={(e) => setFormData({ ...formData, bankName: e.target.value })} className="h-8 text-sm rounded-lg" />
             </div>
             <div className="space-y-1">
@@ -287,18 +290,18 @@ export function ContractorsTab({
               <Input value={formData.iban} onChange={(e) => setFormData({ ...formData, iban: e.target.value })} className="h-8 text-sm rounded-lg font-mono" dir="ltr" />
             </div>
             <div className="space-y-1 col-span-2">
-              <Label className="text-xs">{ar ? "ملاحظات" : "Notes"}</Label>
+              <Label className="text-xs">{tAuto('auto.notes')}</Label>
               <Textarea value={formData.notes} onChange={(e) => setFormData({ ...formData, notes: e.target.value })} className="text-sm min-h-[50px] rounded-lg" />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => { setShowDialog(false); setFormData(emptyForm); }}>{ar ? "إلغاء" : "Cancel"}</Button>
+            <Button variant="outline" onClick={() => { setShowDialog(false); setFormData(emptyForm); }}>{tAuto('auto.cancel')}</Button>
             <Button
               className="bg-teal-600 hover:bg-teal-700 text-white rounded-lg"
               onClick={() => createMutation.mutate(formData)}
               disabled={!formData.name || createMutation.isPending}
             >
-              {createMutation.isPending ? (ar ? "جارٍ الحفظ..." : "Saving...") : (ar ? "حفظ" : "Save")}
+              {createMutation.isPending ? (tAuto('auto.saving')) : (tAuto('auto.save'))}
             </Button>
           </DialogFooter>
         </DialogContent>

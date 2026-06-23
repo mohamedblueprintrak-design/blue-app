@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToastFeedback } from "@/hooks/use-toast-feedback";
@@ -33,6 +35,7 @@ interface AddPhaseDialogProps {
 export function AddPhaseDialog({
   language, open, onOpenChange, filterProject, onFilterProjectChange, projects, phases,
 }: AddPhaseDialogProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const queryClient = useQueryClient();
   const toast = useToastFeedback({ ar });
@@ -50,27 +53,27 @@ export function AddPhaseDialog({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["design-phases"] });
       onOpenChange(false);
-      toast.created(ar ? "المرحلة" : "Phase");
+      toast.created(tAuto('auto.phase'));
     },
-    onError: () => toast.error(ar ? "إنشاء المرحلة" : "Create phase"),
+    onError: () => toast.error(tAuto('auto.createPhase')),
   });
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>{ar ? "إضافة مرحلة تصميمية" : "Add Design Phase"}</DialogTitle>
-          <DialogDescription>{ar ? "اختر المرحلة والمشروع" : "Select phase and project"}</DialogDescription>
+          <DialogTitle>{tAuto('auto.addDesignPhase')}</DialogTitle>
+          <DialogDescription>{tAuto('auto.selectPhaseAndProject')}</DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label className="text-sm">{ar ? "المشروع" : "Project"} *</Label>
+            <Label className="text-sm">{tAuto('auto.project')} *</Label>
             <Select
               value={filterProject !== "all" ? filterProject : ""}
               onValueChange={(v) => onFilterProjectChange(v)}
             >
               <SelectTrigger>
-                <SelectValue placeholder={ar ? "اختر مشروع" : "Select project"} />
+                <SelectValue placeholder={tAuto('auto.selectProject')} />
               </SelectTrigger>
               <SelectContent>
                 {projects.map((p) => (
@@ -82,13 +85,13 @@ export function AddPhaseDialog({
             </Select>
           </div>
           <div className="space-y-2">
-            <Label className="text-sm">{ar ? "المرحلة" : "Phase"} *</Label>
+            <Label className="text-sm">{tAuto('auto.phase')} *</Label>
             <Select
               value=""
               onValueChange={(v) => {
                 const existing = phases.find((p) => p.phase === v);
                 if (existing) {
-                  toast.error(ar ? "هذه المرحلة موجودة بالفعل" : "Phase already exists");
+                  toast.error(tAuto('auto.phaseAlreadyExists'));
                   return;
                 }
                 const config = PHASE_CONFIG[v];
@@ -101,7 +104,7 @@ export function AddPhaseDialog({
               }}
             >
               <SelectTrigger>
-                <SelectValue placeholder={ar ? "اختر المرحلة" : "Select phase"} />
+                <SelectValue placeholder={tAuto('auto.selectPhase')} />
               </SelectTrigger>
               <SelectContent>
                 {PHASE_ORDER.filter((pk) => !phases.some((p) => p.phase === pk)).map((pk) => {
@@ -121,7 +124,7 @@ export function AddPhaseDialog({
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            {ar ? "إلغاء" : "Cancel"}
+            {tAuto('auto.cancel')}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -138,6 +141,7 @@ interface AddDrawingDialogProps {
 }
 
 export function AddDrawingDialog({ language, open, onOpenChange, selectedPhaseId }: AddDrawingDialogProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const queryClient = useQueryClient();
   const toast = useToastFeedback({ ar });
@@ -158,46 +162,46 @@ export function AddDrawingDialog({ language, open, onOpenChange, selectedPhaseId
       queryClient.invalidateQueries({ queryKey: ["design-phases"] });
       onOpenChange(false);
       setNewDrawing({ title: "", drawingNumber: "", discipline: "" });
-      toast.created(ar ? "الرسم" : "Drawing");
+      toast.created(tAuto('auto.drawing'));
     },
-    onError: () => toast.error(ar ? "إنشاء الرسم" : "Create drawing"),
+    onError: () => toast.error(tAuto('auto.createDrawing')),
   });
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) setNewDrawing({ title: "", drawingNumber: "", discipline: "" }); onOpenChange(v); }}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>{ar ? "رفع رسم جديد" : "Upload New Drawing"}</DialogTitle>
-          <DialogDescription>{ar ? "أدخل بيانات الرسم الجديد" : "Enter new drawing details"}</DialogDescription>
+          <DialogTitle>{tAuto('auto.uploadNewDrawing')}</DialogTitle>
+          <DialogDescription>{tAuto('auto.enterNewDrawingDetails')}</DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label className="text-sm">{ar ? "العنوان" : "Title"} *</Label>
+            <Label className="text-sm">{tAuto('auto.title')} *</Label>
             <Input
               value={newDrawing.title}
               onChange={(e) => setNewDrawing({ ...newDrawing, title: e.target.value })}
-              placeholder={ar ? "مثال: مخطط الطابق الأرضي" : "e.g., Ground Floor Plan"}
+              placeholder={tAuto('auto.eGGroundFloorPlan')}
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "رقم الرسم" : "Drawing #"}</Label>
+              <Label className="text-sm">{tAuto('auto.drawing1')}</Label>
               <Input
                 value={newDrawing.drawingNumber}
                 onChange={(e) => setNewDrawing({ ...newDrawing, drawingNumber: e.target.value })}
-                placeholder={ar ? "A-001" : "A-001"}
+                placeholder={tAuto('auto.a001')}
                 dir="ltr"
                 className="text-left"
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "التخصص" : "Discipline"}</Label>
+              <Label className="text-sm">{tAuto('auto.discipline')}</Label>
               <Select
                 value={newDrawing.discipline}
                 onValueChange={(v) => setNewDrawing({ ...newDrawing, discipline: v })}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder={ar ? "اختر" : "Select"} />
+                  <SelectValue placeholder={tAuto('auto.select1')} />
                 </SelectTrigger>
                 <SelectContent>
                   {Object.entries(DISCIPLINE_CONFIG).map(([key, val]) => (
@@ -212,7 +216,7 @@ export function AddDrawingDialog({ language, open, onOpenChange, selectedPhaseId
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => { onOpenChange(false); setNewDrawing({ title: "", drawingNumber: "", discipline: "" }); }}>
-            {ar ? "إلغاء" : "Cancel"}
+            {tAuto('auto.cancel')}
           </Button>
           <Button
             className="bg-teal-600 hover:bg-teal-700 text-white"
@@ -228,8 +232,8 @@ export function AddDrawingDialog({ language, open, onOpenChange, selectedPhaseId
             }}
           >
             {createDrawingMutation.isPending
-              ? (ar ? "جارٍ الإنشاء..." : "Creating...")
-              : (ar ? "إنشاء" : "Create")}
+              ? (tAuto('auto.creating'))
+              : (tAuto('auto.create'))}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -245,6 +249,7 @@ interface ReviewDialogProps {
 }
 
 export function ReviewDialog({ language, drawing, onClose }: ReviewDialogProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const queryClient = useQueryClient();
   const toast = useToastFeedback({ ar });
@@ -266,9 +271,9 @@ export function ReviewDialog({ language, drawing, onClose }: ReviewDialogProps) 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["design-drawings"] });
       queryClient.invalidateQueries({ queryKey: ["design-phases"] });
-      toast.updated(ar ? "الرسم" : "Drawing");
+      toast.updated(tAuto('auto.drawing'));
     },
-    onError: () => toast.error(ar ? "تحديث الرسم" : "Update drawing"),
+    onError: () => toast.error(tAuto('auto.updateDrawing')),
   });
 
   const handleOpen = (open: boolean) => {
@@ -321,7 +326,7 @@ export function ReviewDialog({ language, drawing, onClose }: ReviewDialogProps) 
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <ClipboardCheck className="h-5 w-5 text-teal-600 dark:text-teal-400" />
-                {ar ? "مراجعة الرسم" : "Review Drawing"}
+                {tAuto('auto.reviewDrawing')}
               </DialogTitle>
               <DialogDescription>
                 {drawing.title}
@@ -333,7 +338,7 @@ export function ReviewDialog({ language, drawing, onClose }: ReviewDialogProps) 
             <div>
               <h4 className="text-sm font-semibold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-amber-500" />
-                {ar ? "قائمة فحص المراجعة" : "Review Checklist"}
+                {tAuto('auto.reviewChecklist')}
               </h4>
               <div className="space-y-2">
                 {REVIEW_CHECKLIST.map((item) => (
@@ -366,7 +371,7 @@ export function ReviewDialog({ language, drawing, onClose }: ReviewDialogProps) 
             <div>
               <h4 className="text-sm font-semibold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
                 <GitCompareArrows className="h-4 w-4 text-red-500" />
-                {ar ? "كشف التعارضات" : "Clash Detection"}
+                {tAuto('auto.clashDetection')}
               </h4>
               <label className="flex items-center gap-3 p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 cursor-pointer mb-3">
                 <Checkbox
@@ -374,14 +379,14 @@ export function ReviewDialog({ language, drawing, onClose }: ReviewDialogProps) 
                   onCheckedChange={(checked) => setClashFlag(!!checked)}
                 />
                 <span className="text-sm text-slate-700 dark:text-slate-300">
-                  {ar ? "يوجد تعارض" : "Clash detected"}
+                  {tAuto('auto.clashDetected')}
                 </span>
               </label>
               {clashFlag && (
                 <Textarea
                   value={clashNotesText}
                   onChange={(e) => setClashNotesText(e.target.value)}
-                  placeholder={ar ? "صف التعارض المكتشف..." : "Describe the detected clash..."}
+                  placeholder={tAuto('auto.describeTheDetectedClash')}
                   className="min-h-[60px] text-sm"
                 />
               )}
@@ -391,18 +396,18 @@ export function ReviewDialog({ language, drawing, onClose }: ReviewDialogProps) 
 
             {/* Review Notes */}
             <div>
-              <Label className="text-sm mb-2 block">{ar ? "ملاحظات المراجعة" : "Review Notes"}</Label>
+              <Label className="text-sm mb-2 block">{tAuto('auto.reviewNotes')}</Label>
               <Textarea
                 value={reviewNotesText}
                 onChange={(e) => setReviewNotesText(e.target.value)}
-                placeholder={ar ? "أضف ملاحظاتك هنا..." : "Add your review notes..."}
+                placeholder={tAuto('auto.addYourReviewNotes')}
                 className="min-h-[80px] text-sm"
               />
             </div>
 
             <DialogFooter className="gap-2">
               <Button variant="outline" onClick={() => handleOpen(false)}>
-                {ar ? "إلغاء" : "Cancel"}
+                {tAuto('auto.cancel')}
               </Button>
               <Button
                 variant="outline"
@@ -424,7 +429,7 @@ export function ReviewDialog({ language, drawing, onClose }: ReviewDialogProps) 
                 disabled={updateDrawingMutation.isPending}
               >
                 <XCircle className="h-3.5 w-3.5 me-1" />
-                {ar ? "رفض" : "Reject"}
+                {tAuto('auto.reject')}
               </Button>
               <Button
                 className="bg-emerald-600 hover:bg-emerald-700 text-white"
@@ -432,7 +437,7 @@ export function ReviewDialog({ language, drawing, onClose }: ReviewDialogProps) 
                 disabled={updateDrawingMutation.isPending}
               >
                 <CheckCircle2 className="h-3.5 w-3.5 me-1" />
-                {ar ? "اعتماد" : "Approve"}
+                {tAuto('auto.approve')}
               </Button>
             </DialogFooter>
           </>

@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState } from "react";
 import { useNavStore } from "@/store/nav-store";
 import { Button } from "@/components/ui/button";
@@ -64,6 +66,7 @@ const actions: QuickAction[] = [
 ];
 
 export default function QuickActions({ language }: QuickActionsProps) {
+  const tAuto = useTranslations();
   const isAr = language === "ar";
   const [open, setOpen] = useState(false);
   const { setCurrentPage } = useNavStore();
@@ -109,7 +112,7 @@ export default function QuickActions({ language }: QuickActionsProps) {
                 className="flex flex-col gap-1"
               >
                 <p className="text-xs font-medium text-slate-500 dark:text-slate-400 px-3 py-1.5">
-                  {isAr ? "إجراءات سريعة" : "Quick Actions"}
+                  {tAuto('auto.quickActions')}
                 </p>
                 <Separator />
                 {actions.map((action, idx) => {

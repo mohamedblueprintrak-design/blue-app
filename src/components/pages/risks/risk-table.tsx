@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -40,6 +42,7 @@ export function RiskTable({
   onDeleteRisk,
   onUpdateStatus,
 }: RiskTableProps) {
+  const tAuto = useTranslations();
   if (isLoading) {
     return (
       <Card className="p-6">
@@ -59,10 +62,10 @@ export function RiskTable({
           <ShieldAlert className="h-7 w-7 text-slate-400" />
         </div>
         <h3 className="text-base font-semibold text-slate-900 dark:text-white mb-1">
-          {ar ? "لا توجد مخاطر" : "No risks"}
+          {tAuto('auto.noRisks')}
         </h3>
         <p className="text-sm text-slate-500">
-          {ar ? "ابدأ بإضافة خطر جديد" : "Start by adding a new risk"}
+          {tAuto('auto.startByAddingANewRisk')}
         </p>
       </div>
     );
@@ -74,14 +77,14 @@ export function RiskTable({
         <Table>
           <TableHeader>
             <TableRow className="bg-slate-50/80 dark:bg-slate-800/50">
-              <TableHead className="text-xs font-semibold py-2.5 px-3">{ar ? "العنوان" : "Title"}</TableHead>
-              <TableHead className="text-xs font-semibold py-2.5 px-3 hidden lg:table-cell">{ar ? "المشروع" : "Project"}</TableHead>
-              <TableHead className="text-xs font-semibold py-2.5 px-3">{ar ? "التصنيف" : "Category"}</TableHead>
-              <TableHead className="text-xs font-semibold py-2.5 px-3 text-center">{ar ? "احتمالية" : "Prob"}</TableHead>
-              <TableHead className="text-xs font-semibold py-2.5 px-3 text-center">{ar ? "تأثير" : "Impact"}</TableHead>
-              <TableHead className="text-xs font-semibold py-2.5 px-3 text-center">{ar ? "الدرجة" : "Score"}</TableHead>
-              <TableHead className="text-xs font-semibold py-2.5 px-3">{ar ? "الاستراتيجية" : "Strategy"}</TableHead>
-              <TableHead className="text-xs font-semibold py-2.5 px-3">{ar ? "الحالة" : "Status"}</TableHead>
+              <TableHead className="text-xs font-semibold py-2.5 px-3">{tAuto('auto.title')}</TableHead>
+              <TableHead className="text-xs font-semibold py-2.5 px-3 hidden lg:table-cell">{tAuto('auto.project')}</TableHead>
+              <TableHead className="text-xs font-semibold py-2.5 px-3">{tAuto('auto.category')}</TableHead>
+              <TableHead className="text-xs font-semibold py-2.5 px-3 text-center">{tAuto('auto.prob')}</TableHead>
+              <TableHead className="text-xs font-semibold py-2.5 px-3 text-center">{tAuto('auto.impact')}</TableHead>
+              <TableHead className="text-xs font-semibold py-2.5 px-3 text-center">{tAuto('auto.score')}</TableHead>
+              <TableHead className="text-xs font-semibold py-2.5 px-3">{tAuto('auto.strategy')}</TableHead>
+              <TableHead className="text-xs font-semibold py-2.5 px-3">{tAuto('auto.status1')}</TableHead>
               <TableHead className="text-xs font-semibold py-2.5 px-3 w-10"></TableHead>
             </TableRow>
           </TableHeader>
@@ -138,31 +141,31 @@ export function RiskTable({
                     <DropdownMenuContent align={ar ? "start" : "end"} className="w-36">
                       <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onSelectRisk(risk); }}>
                         <Eye className="h-3.5 w-3.5 me-2" />
-                        {ar ? "عرض" : "View"}
+                        {tAuto('auto.view')}
                       </DropdownMenuItem>
                       {risk.status === "OPEN" && (
                         <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onUpdateStatus({ id: risk.id, status: "mitigating" }); }}>
                           <ShieldAlert className="h-3.5 w-3.5 me-2" />
-                          {ar ? "بدء التخفيف" : "Mitigate"}
+                          {tAuto('auto.mitigate')}
                         </DropdownMenuItem>
                       )}
                       {(risk.status === "OPEN" || risk.status === "mitigating") && (
                         <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onUpdateStatus({ id: risk.id, status: "RESOLVED" }); }}>
                           <TrendingDown className="h-3.5 w-3.5 me-2" />
-                          {ar ? "حل" : "Resolve"}
+                          {tAuto('auto.resolve')}
                         </DropdownMenuItem>
                       )}
                       <DropdownMenuItem
                         className="text-red-600 dark:text-red-400"
                         onClick={(e) => {
                           e.stopPropagation();
-                          if (confirm(ar ? "هل أنت متأكد من الحذف؟" : "Delete this risk?")) {
+                          if (confirm(tAuto('auto.deleteThisRisk'))) {
                             onDeleteRisk(risk.id);
                           }
                         }}
                       >
                         <Trash2 className="h-3.5 w-3.5 me-2" />
-                        {ar ? "حذف" : "Delete"}
+                        {tAuto('auto.delete')}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>

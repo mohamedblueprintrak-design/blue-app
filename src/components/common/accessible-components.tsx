@@ -21,6 +21,8 @@
 
 'use client';
 
+
+import { useTranslations } from 'next-intl';
 import React, { useCallback, useEffect } from 'react';
 
 import {
@@ -108,11 +110,12 @@ export function SkipNavLink({
   /** Language for default text: 'ar' or 'en' (default: 'ar') */
   lang?: 'ar' | 'en';
 }) {
-  const defaultText = lang === 'ar' ? 'تخطي إلى المحتوى الرئيسي' : 'Skip to main content';
+  const tAuto = useTranslations();
+  const defaultText = tAuto('auto.skipToMainContent');
   return (
     <a
       href={`#${contentId}`}
-      aria-label={lang === 'ar' ? 'تخطي إلى المحتوى الرئيسي' : 'Skip to main content'}
+      aria-label={tAuto('auto.skipToMainContent')}
       className={cn(
         'fixed z-[9999] -translate-y-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-md transition-transform focus:translate-y-0 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
         // Position: right side in RTL, left side in LTR

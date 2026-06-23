@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
@@ -99,6 +101,7 @@ function getStatusConfig(status: string) {
 interface ChangeOrdersProps { language: "ar" | "en"; projectId?: string; }
 
 export default function ChangeOrders({ language, projectId }: ChangeOrdersProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const queryClient = useQueryClient();
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -187,9 +190,9 @@ export default function ChangeOrders({ language, projectId }: ChangeOrdersProps)
             <FileEdit className="h-4.5 w-4.5 text-teal-600 dark:text-teal-400" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white">{ar ? "أوامر التغيير" : "Change Orders"}</h2>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">{tAuto('auto.changeOrders')}</h2>
             <p className="text-[10px] text-slate-500 dark:text-slate-400">
-              {changeOrders.length} {ar ? "أمر تغيير" : "orders"}
+              {changeOrders.length} {tAuto('auto.orders')}
             </p>
           </div>
         </div>
@@ -198,27 +201,27 @@ export default function ChangeOrders({ language, projectId }: ChangeOrdersProps)
           <Select value={filterProject} onValueChange={setFilterProject}>
             <SelectTrigger className="w-[160px] h-8 text-xs rounded-lg">
               <Filter className="h-3 w-3 me-1 text-slate-400" />
-              <SelectValue placeholder={ar ? "المشروع" : "Project"} />
+              <SelectValue placeholder={tAuto('auto.project')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{ar ? "جميع المشاريع" : "All Projects"}</SelectItem>
+              <SelectItem value="all">{tAuto('auto.allProjects')}</SelectItem>
               {projects.map((p) => (<SelectItem key={p.id} value={p.id}>{ar ? p.name : p.nameEn || p.name}</SelectItem>))}
             </SelectContent>
           </Select>
           )}
           <Select value={filterStatus} onValueChange={setFilterStatus}>
             <SelectTrigger className="w-[130px] h-8 text-xs rounded-lg">
-              <SelectValue placeholder={ar ? "الحالة" : "Status"} />
+              <SelectValue placeholder={tAuto('auto.status1')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{ar ? "الكل" : "All"}</SelectItem>
-              <SelectItem value="PENDING">{ar ? "معلق" : "Pending"}</SelectItem>
-              <SelectItem value="APPROVED">{ar ? "معتمد" : "Approved"}</SelectItem>
-              <SelectItem value="REJECTED">{ar ? "مرفوض" : "Rejected"}</SelectItem>
+              <SelectItem value="all">{tAuto('auto.all')}</SelectItem>
+              <SelectItem value="PENDING">{tAuto('auto.pending')}</SelectItem>
+              <SelectItem value="APPROVED">{tAuto('auto.approved')}</SelectItem>
+              <SelectItem value="REJECTED">{tAuto('auto.rejected')}</SelectItem>
             </SelectContent>
           </Select>
           <Button size="sm" className="h-8 bg-teal-600 hover:bg-teal-700 text-white rounded-lg shadow-sm shadow-teal-600/20" onClick={() => setShowAddDialog(true)}>
-            <Plus className="h-3.5 w-3.5 me-1" />{ar ? "أمر جديد" : "New Order"}
+            <Plus className="h-3.5 w-3.5 me-1" />{tAuto('auto.newOrder')}
           </Button>
         </div>
       </div>
@@ -232,7 +235,7 @@ export default function ChangeOrders({ language, projectId }: ChangeOrdersProps)
                 <FileEdit className="h-5 w-5 text-slate-600 dark:text-slate-400" />
               </div>
               <div>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{ar ? "إجمالي الأوامر" : "Total Orders"}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.totalOrders')}</p>
                 <p className="text-xl font-bold text-slate-900 dark:text-white tabular-nums">{totalCount}</p>
                 <p className={cn("text-[10px] tabular-nums font-medium", totalCost > 0 ? "text-emerald-600 dark:text-emerald-400" : totalCost < 0 ? "text-red-600 dark:text-red-400" : "text-slate-400")}>
                   {totalCost !== 0 ? formatCurrency(totalCost, ar) : "—"}
@@ -248,7 +251,7 @@ export default function ChangeOrders({ language, projectId }: ChangeOrdersProps)
                 <Clock className="h-5 w-5 text-amber-600 dark:text-amber-400" />
               </div>
               <div>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{ar ? "معلق" : "Pending"}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.pending')}</p>
                 <p className="text-xl font-bold text-amber-600 dark:text-amber-400 tabular-nums">{pendingCount}</p>
                 <p className="text-[10px] tabular-nums font-medium text-amber-500 dark:text-amber-400">
                   {pendingCost !== 0 ? formatCurrency(pendingCost, ar) : "—"}
@@ -264,7 +267,7 @@ export default function ChangeOrders({ language, projectId }: ChangeOrdersProps)
                 <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
               </div>
               <div>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{ar ? "معتمد" : "Approved"}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.approved')}</p>
                 <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">{approvedCount}</p>
                 <p className="text-[10px] tabular-nums font-medium text-emerald-500 dark:text-emerald-400">
                   {approvedCost !== 0 ? formatCurrency(approvedCost, ar) : "—"}
@@ -281,25 +284,25 @@ export default function ChangeOrders({ language, projectId }: ChangeOrdersProps)
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
             <div className="flex items-center gap-2">
               <Wallet className="h-4 w-4 text-teal-600 dark:text-teal-400" />
-              <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">{ar ? "التأثير المالي الإجمالي" : "Total Financial Impact"}</span>
+              <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">{tAuto('auto.totalFinancialImpact')}</span>
             </div>
             <div className="flex items-center gap-6 sm:ms-auto">
               <div className="text-center">
-                <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wide">{ar ? "المعلق" : "Pending"}</p>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wide">{tAuto('auto.pending')}</p>
                 <p className={cn("text-sm font-bold tabular-nums font-mono", pendingCost >= 0 ? "text-amber-600 dark:text-amber-400" : "text-red-600 dark:text-red-400")}>
                   {formatCurrency(pendingCost, ar)}
                 </p>
               </div>
               <div className="w-px h-8 bg-slate-200 dark:bg-slate-700" />
               <div className="text-center">
-                <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wide">{ar ? "المعتمد" : "Approved"}</p>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wide">{tAuto('auto.approved')}</p>
                 <p className={cn("text-sm font-bold tabular-nums font-mono", approvedCost >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400")}>
                   {formatCurrency(approvedCost, ar)}
                 </p>
               </div>
               <div className="w-px h-8 bg-slate-200 dark:bg-slate-700" />
               <div className="text-center">
-                <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wide">{ar ? "الصافي" : "Net"}</p>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wide">{tAuto('auto.net')}</p>
                 <p className={cn("text-sm font-bold tabular-nums font-mono", totalCost >= 0 ? "text-teal-600 dark:text-teal-400" : "text-red-600 dark:text-red-400")}>
                   {formatCurrency(totalCost, ar)}
                 </p>
@@ -313,7 +316,7 @@ export default function ChangeOrders({ language, projectId }: ChangeOrdersProps)
                       <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
                     </span>
                     <Zap className="h-3 w-3" />
-                    {urgentOrders.length} {ar ? "عاجل" : "URGENT"}
+                    {urgentOrders.length} {tAuto('auto.uRGENT')}
                   </div>
                 </>
               )}
@@ -325,25 +328,25 @@ export default function ChangeOrders({ language, projectId }: ChangeOrdersProps)
       {/* Table */}
       <div className="rounded-xl border border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900 overflow-hidden shadow-sm">
         {isLoading ? (
-          <div className="p-8 text-center text-slate-400">{ar ? "جارٍ التحميل..." : "Loading..."}</div>
+          <div className="p-8 text-center text-slate-400">{tAuto('auto.loading')}</div>
         ) : changeOrders.length === 0 ? (
           <div className="flex flex-col items-center justify-center min-h-[30vh] text-center p-8">
             <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-3">
               <FileEdit className="h-6 w-6 text-slate-400" />
             </div>
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-1">{ar ? "لا توجد أوامر تغيير" : "No change orders"}</h3>
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-1">{tAuto('auto.noChangeOrders')}</h3>
           </div>
         ) : (
           <div className="overflow-x-auto max-h-[calc(100vh-380px)] overflow-y-auto">
             <Table>
               <TableHeader>
                 <TableRow className="hover:bg-transparent bg-slate-50/80 dark:bg-slate-800/50">
-                  <TableHead className="text-xs font-semibold">{ar ? "الرقم" : "Number"}</TableHead>
-                  <TableHead className="text-xs font-semibold">{ar ? "المشروع" : "Project"}</TableHead>
-                  <TableHead className="text-xs font-semibold">{ar ? "النوع" : "Type"}</TableHead>
-                  <TableHead className="text-xs font-semibold">{ar ? "التأثير المالي" : "Cost Impact"}</TableHead>
-                  <TableHead className="text-xs font-semibold">{ar ? "التأثير الزمني" : "Time Impact"}</TableHead>
-                  <TableHead className="text-xs font-semibold">{ar ? "الحالة" : "Status"}</TableHead>
+                  <TableHead className="text-xs font-semibold">{tAuto('auto.number')}</TableHead>
+                  <TableHead className="text-xs font-semibold">{tAuto('auto.project')}</TableHead>
+                  <TableHead className="text-xs font-semibold">{tAuto('auto.type')}</TableHead>
+                  <TableHead className="text-xs font-semibold">{tAuto('auto.costImpact')}</TableHead>
+                  <TableHead className="text-xs font-semibold">{tAuto('auto.timeImpact')}</TableHead>
+                  <TableHead className="text-xs font-semibold">{tAuto('auto.status1')}</TableHead>
                   <TableHead className="w-10"></TableHead>
                 </TableRow>
               </TableHeader>
@@ -407,8 +410,8 @@ export default function ChangeOrders({ language, projectId }: ChangeOrdersProps)
                             </button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align={ar ? "start" : "end"} className="w-36">
-                            <DropdownMenuItem className="text-red-600 dark:text-red-400" onClick={() => { if (confirm(ar ? "هل أنت متأكد من الحذف؟" : "Delete this change order?")) deleteMutation.mutate(co.id); }}>
-                              <Trash2 className="h-3.5 w-3.5 me-2" />{ar ? "حذف" : "Delete"}
+                            <DropdownMenuItem className="text-red-600 dark:text-red-400" onClick={() => { if (confirm(tAuto('auto.deleteThisChangeOrder'))) deleteMutation.mutate(co.id); }}>
+                              <Trash2 className="h-3.5 w-3.5 me-2" />{tAuto('auto.delete')}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -426,15 +429,15 @@ export default function ChangeOrders({ language, projectId }: ChangeOrdersProps)
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{ar ? "أمر تغيير جديد" : "New Change Order"}</DialogTitle>
-            <DialogDescription>{ar ? "إضافة أمر تغيير جديد" : "Add a new change order"}</DialogDescription>
+            <DialogTitle>{tAuto('auto.newChangeOrder')}</DialogTitle>
+            <DialogDescription>{tAuto('auto.addANewChangeOrder')}</DialogDescription>
           </DialogHeader>
           <form onSubmit={rhfHandleSubmit((data) => createMutation.mutate(data))} className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "المشروع" : "Project"} *</Label>
+                <Label className="text-sm">{tAuto('auto.project')} *</Label>
                 <Select value={watchProjectId} onValueChange={(v) => setValue("projectId", v)}>
-                  <SelectTrigger className={cn(errors.projectId && "border-red-500")}><SelectValue placeholder={ar ? "اختر مشروع" : "Select project"} /></SelectTrigger>
+                  <SelectTrigger className={cn(errors.projectId && "border-red-500")}><SelectValue placeholder={tAuto('auto.selectProject')} /></SelectTrigger>
                   <SelectContent>
                     {projects.map((p) => (<SelectItem key={p.id} value={p.id}>{ar ? p.name : p.nameEn || p.name}</SelectItem>))}
                   </SelectContent>
@@ -442,53 +445,53 @@ export default function ChangeOrders({ language, projectId }: ChangeOrdersProps)
                 {errors.projectId && <p className="text-red-500 text-xs mt-1">{getErrorMessage(errors.projectId.message || "", ar)}</p>}
               </div>
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "الرقم" : "Number"} *</Label>
+                <Label className="text-sm">{tAuto('auto.number')} *</Label>
                 <Input {...register("number")} placeholder="CO-001" className={cn(errors.number && "border-red-500")} />
                 {errors.number && <p className="text-red-500 text-xs mt-1">{getErrorMessage(errors.number.message || "", ar)}</p>}
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "النوع" : "Type"}</Label>
+                <Label className="text-sm">{tAuto('auto.type')}</Label>
                 <Select value={watchType} onValueChange={(v) => setValue("type", v as ChangeOrderFormData["type"])}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="ADDITION">{ar ? "إضافة" : "Addition"}</SelectItem>
-                    <SelectItem value="CHANGE">{ar ? "تغيير" : "Change"}</SelectItem>
-                    <SelectItem value="DELETION">{ar ? "حذف" : "Deletion"}</SelectItem>
+                    <SelectItem value="ADDITION">{tAuto('auto.addition')}</SelectItem>
+                    <SelectItem value="CHANGE">{tAuto('auto.change')}</SelectItem>
+                    <SelectItem value="DELETION">{tAuto('auto.deletion')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "الحالة" : "Status"}</Label>
+                <Label className="text-sm">{tAuto('auto.status1')}</Label>
                 <Select value={watchStatus} onValueChange={(v) => setValue("status", v as ChangeOrderFormData["status"])}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="PENDING">{ar ? "معلق" : "Pending"}</SelectItem>
-                    <SelectItem value="APPROVED">{ar ? "معتمد" : "Approved"}</SelectItem>
-                    <SelectItem value="REJECTED">{ar ? "مرفوض" : "Rejected"}</SelectItem>
+                    <SelectItem value="PENDING">{tAuto('auto.pending')}</SelectItem>
+                    <SelectItem value="APPROVED">{tAuto('auto.approved')}</SelectItem>
+                    <SelectItem value="REJECTED">{tAuto('auto.rejected')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "التأثير المالي (درهم)" : "Cost Impact (AED)"}</Label>
+                <Label className="text-sm">{tAuto('auto.costImpactAED')}</Label>
                 <Input type="number" {...register("costImpact")} placeholder="0" />
               </div>
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "التأثير الزمني" : "Time Impact"}</Label>
+                <Label className="text-sm">{tAuto('auto.timeImpact')}</Label>
                 <Input {...register("timeImpact")} placeholder={ar ? "مثال: +7 أيام" : "e.g. +7 days"} />
               </div>
             </div>
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "الوصف" : "Description"}</Label>
-              <Textarea {...register("description")} placeholder={ar ? "وصف أمر التغيير" : "Change order description"} rows={3} />
+              <Label className="text-sm">{tAuto('auto.description')}</Label>
+              <Textarea {...register("description")} placeholder={tAuto('auto.changeOrderDescription')} rows={3} />
             </div>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => { setShowAddDialog(false); resetForm(); }}>{ar ? "إلغاء" : "Cancel"}</Button>
+            <Button type="button" variant="outline" onClick={() => { setShowAddDialog(false); resetForm(); }}>{tAuto('auto.cancel')}</Button>
             <Button type="submit" className="bg-teal-600 hover:bg-teal-700 text-white" disabled={createMutation.isPending}>
-              {createMutation.isPending ? (ar ? "جارٍ الإنشاء..." : "Creating...") : (ar ? "إنشاء" : "Create")}
+              {createMutation.isPending ? (tAuto('auto.creating')) : (tAuto('auto.create'))}
             </Button>
           </DialogFooter>
           </form>

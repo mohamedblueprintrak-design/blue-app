@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from '@/components/ui/card'
@@ -140,6 +142,7 @@ function getInitials(name: string) {
 }
 
 export default function CalendarPage({ language: lang, projectId }: Props) {
+  const tAuto = useTranslations();
   const isAr = lang === "ar";
   const locale = isAr ? ar : enUS;
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -210,7 +213,7 @@ export default function CalendarPage({ language: lang, projectId }: Props) {
           type: "meeting",
           status: "",
           projectId: m.projectId as string,
-          subtitle: (m.time as string) ? `${m.time} - ${m.duration || 60}${isAr ? "دقيقة" : "min"}` : undefined,
+          subtitle: (m.time as string) ? `${m.time} - ${m.duration || 60}${tAuto('auto.min')}` : undefined,
           location: m.location as string,
           attendees: (m.attendees as string[]) || undefined,
         });
@@ -221,7 +224,7 @@ export default function CalendarPage({ language: lang, projectId }: Props) {
       if (inv.dueDate) {
         evts.push({
           id: inv.id as string,
-          title: `${isAr ? "فاتورة" : "Invoice"} ${inv.number || ""}`,
+          title: `${tAuto('auto.invoice')} ${inv.number || ""}`,
           date: inv.dueDate as string,
           type: "deadline",
           status: inv.status as string,
@@ -233,7 +236,7 @@ export default function CalendarPage({ language: lang, projectId }: Props) {
       if (sv.date) {
         evts.push({
           id: sv.id as string,
-          title: `${isAr ? "زيارة موقع" : "Site Visit"} - ${sv.municipality || ""}`,
+          title: `${tAuto('auto.siteVisit')} - ${sv.municipality || ""}`,
           date: sv.date as string,
           type: "site_visit",
           status: sv.status as string,
@@ -244,7 +247,7 @@ export default function CalendarPage({ language: lang, projectId }: Props) {
     });
 
     return evts;
-  }, [tasks, meetings, invoices, siteVisits, isAr]);
+  }, [tasks, meetings, invoices, siteVisits, isAr, tAuto]);
 
   // Stat calculations
   const todayEvents = useMemo(() => {
@@ -324,7 +327,7 @@ export default function CalendarPage({ language: lang, projectId }: Props) {
               </div>
               <div>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
-                  {isAr ? "أحداث اليوم" : "Today's Events"}
+                  {tAuto('auto.todaySEvents')}
                 </p>
                 <p className="text-xl font-bold text-slate-900 dark:text-white tabular-nums">
                   {todayEvents.length}
@@ -342,7 +345,7 @@ export default function CalendarPage({ language: lang, projectId }: Props) {
               </div>
               <div>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
-                  {isAr ? "مهام هذا الأسبوع" : "This Week Tasks"}
+                  {tAuto('auto.thisWeekTasks')}
                 </p>
                 <p className="text-xl font-bold text-slate-900 dark:text-white tabular-nums">
                   {weekTasks.length}
@@ -360,7 +363,7 @@ export default function CalendarPage({ language: lang, projectId }: Props) {
               </div>
               <div>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
-                  {isAr ? "مواعيد متأخرة" : "Overdue Deadlines"}
+                  {tAuto('auto.overdueDeadlines')}
                 </p>
                 <p className="text-xl font-bold text-slate-900 dark:text-white tabular-nums">
                   {overdueDeadlines.length}
@@ -380,7 +383,7 @@ export default function CalendarPage({ language: lang, projectId }: Props) {
             </div>
             <div>
               <h2 className="text-xl font-bold text-white">
-                {format(currentMonth, isAr ? "MMMM yyyy" : "MMMM yyyy", { locale })}
+                {format(currentMonth, tAuto('auto.mMMMYyyy'), { locale })}
               </h2>
               <p className="text-sm text-teal-100">
                 {isAr ? `${events.length} حدث مسجل` : `${events.length} events scheduled`}
@@ -393,7 +396,7 @@ export default function CalendarPage({ language: lang, projectId }: Props) {
               size="icon"
               className="h-9 w-9 bg-white/20 text-white border-0 hover:bg-white/30 backdrop-blur-sm"
               onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
-              aria-label={isAr ? "الشهر السابق" : "Previous month"}
+              aria-label={tAuto('auto.previousMonth')}
             >
               {isAr ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
             </Button>
@@ -406,14 +409,14 @@ export default function CalendarPage({ language: lang, projectId }: Props) {
               }}
               className="h-9 bg-white/20 text-white border-0 hover:bg-white/30 backdrop-blur-sm"
             >
-              {isAr ? "اليوم" : "Today"}
+              {tAuto('auto.today')}
             </Button>
             <Button
               variant="secondary"
               size="icon"
               className="h-9 w-9 bg-white/20 text-white border-0 hover:bg-white/30 backdrop-blur-sm"
               onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
-              aria-label={isAr ? "الشهر التالي" : "Next month"}
+              aria-label={tAuto('auto.nextMonth')}
             >
               {isAr ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
             </Button>
@@ -528,10 +531,8 @@ export default function CalendarPage({ language: lang, projectId }: Props) {
                 <h3 className="text-sm font-semibold text-slate-900 dark:text-white flex items-center gap-2">
                   <CalendarIcon className="h-4 w-4 text-teal-600" />
                   {selectedDate
-                    ? format(selectedDate, isAr ? "EEEE d MMMM" : "EEEE, MMMM d", { locale })
-                    : isAr
-                      ? "اختر يومًا"
-                      : "Select a day"}
+                    ? format(selectedDate, tAuto('auto.eEEEMMMMD'), { locale })
+                    : tAuto('auto.selectADay')}
                 </h3>
               </div>
               <div className="p-3 max-h-64 overflow-y-auto">
@@ -620,7 +621,7 @@ export default function CalendarPage({ language: lang, projectId }: Props) {
                     <div className="flex flex-col items-center justify-center py-6 text-center">
                       <CalendarIcon className="h-8 w-8 text-slate-300 dark:text-slate-600 mb-2" />
                       <p className="text-xs text-slate-500">
-                        {isAr ? "لا توجد أحداث" : "No events"}
+                        {tAuto('auto.noEvents')}
                       </p>
                     </div>
                   )
@@ -628,7 +629,7 @@ export default function CalendarPage({ language: lang, projectId }: Props) {
                   <div className="flex flex-col items-center justify-center py-6 text-center">
                     <List className="h-8 w-8 text-slate-300 dark:text-slate-600 mb-2" />
                     <p className="text-xs text-slate-500">
-                      {isAr ? "انقر على يوم" : "Click a day"}
+                      {tAuto('auto.clickADay')}
                     </p>
                   </div>
                 )}
@@ -640,7 +641,7 @@ export default function CalendarPage({ language: lang, projectId }: Props) {
               <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800">
                 <h3 className="text-sm font-semibold text-slate-900 dark:text-white flex items-center gap-2">
                   <Clock className="h-4 w-4 text-amber-500" />
-                  {isAr ? "القادمة" : "Upcoming"}
+                  {tAuto('auto.upcoming')}
                 </h3>
               </div>
               <div className="p-3 max-h-64 overflow-y-auto">
@@ -672,11 +673,11 @@ export default function CalendarPage({ language: lang, projectId }: Props) {
                               {evt.title}
                             </p>
                             <p className="text-[10px] text-slate-500">
-                              {format(evtDate, isAr ? "d MMM" : "MMM d", { locale })}
+                              {format(evtDate, tAuto('auto.mMMD'), { locale })}
                               {daysUntil === 0
-                                ? isAr ? " — اليوم" : " — Today"
+                                ? tAuto('auto.Today')
                                 : daysUntil === 1
-                                  ? isAr ? " — غداً" : " — Tomorrow"
+                                  ? tAuto('auto.Tomorrow')
                                   : ` — ${daysUntil}${isAr ? " يوم" : "d"}`}
                             </p>
                           </div>
@@ -688,7 +689,7 @@ export default function CalendarPage({ language: lang, projectId }: Props) {
                   <div className="flex flex-col items-center justify-center py-6 text-center">
                     <Clock className="h-8 w-8 text-slate-300 dark:text-slate-600 mb-2" />
                     <p className="text-xs text-slate-500">
-                      {isAr ? "لا توجد أحداث قادمة" : "No upcoming events"}
+                      {tAuto('auto.noUpcomingEvents')}
                     </p>
                   </div>
                 )}

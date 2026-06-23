@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { Card, CardContent } from "@/components/ui/card";
 import { Layers, CheckCircle2, AlertTriangle, GitCompareArrows } from "lucide-react";
 
@@ -12,6 +14,7 @@ interface DesignStatsProps {
 }
 
 export function DesignStats({ language, totalDrawings, reviewedCount, needsRevisionCount, clashCount }: DesignStatsProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
 
   return (
@@ -23,7 +26,7 @@ export function DesignStats({ language, totalDrawings, reviewedCount, needsRevis
               <Layers className="h-5 w-5 text-slate-600 dark:text-slate-400" />
             </div>
             <div>
-              <p className="text-xs text-slate-500 dark:text-slate-400">{ar ? "إجمالي الرسومات" : "Total Drawings"}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.totalDrawings')}</p>
               <p className="text-xl font-bold text-slate-900 dark:text-white tabular-nums">{totalDrawings}</p>
             </div>
           </div>
@@ -36,7 +39,7 @@ export function DesignStats({ language, totalDrawings, reviewedCount, needsRevis
               <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
             </div>
             <div>
-              <p className="text-xs text-slate-500 dark:text-slate-400">{ar ? "تمت المراجعة" : "Reviewed"}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.reviewed')}</p>
               <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">{reviewedCount}</p>
             </div>
           </div>
@@ -49,7 +52,7 @@ export function DesignStats({ language, totalDrawings, reviewedCount, needsRevis
               <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
             </div>
             <div>
-              <p className="text-xs text-slate-500 dark:text-slate-400">{ar ? "محتاجة تعديل" : "Needs Revision"}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.needsRevision')}</p>
               <p className="text-xl font-bold text-amber-600 dark:text-amber-400 tabular-nums">{needsRevisionCount}</p>
             </div>
           </div>
@@ -62,7 +65,7 @@ export function DesignStats({ language, totalDrawings, reviewedCount, needsRevis
               <GitCompareArrows className="h-5 w-5 text-red-600 dark:text-red-400" />
             </div>
             <div>
-              <p className="text-xs text-slate-500 dark:text-slate-400">{ar ? "تعارضات" : "Clashes"}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.clashes')}</p>
               <p className="text-xl font-bold text-red-600 dark:text-red-400 tabular-nums">{clashCount}</p>
             </div>
           </div>

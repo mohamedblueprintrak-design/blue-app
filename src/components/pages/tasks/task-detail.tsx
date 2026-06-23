@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import {
   Sheet,
   SheetContent,
@@ -21,6 +23,7 @@ interface TaskDetailProps {
 }
 
 export function TaskDetail({ ar, language, commentTask, onClose }: TaskDetailProps) {
+  const tAuto = useTranslations();
   return (
     <Sheet open={!!commentTask} onOpenChange={(open) => { if (!open) onClose(); }}>
       <SheetContent side="left" className={cn(
@@ -59,7 +62,7 @@ export function TaskDetail({ ar, language, commentTask, onClose }: TaskDetailPro
               <div className="mb-3">
                 <h4 className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-1.5">
                   <MessageSquare className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" />
-                  {ar ? "التعليقات" : "Comments"}
+                  {tAuto('auto.comments')}
                 </h4>
               </div>
               <TaskComments taskId={commentTask.id} language={language} />

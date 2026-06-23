@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm, type Resolver } from "react-hook-form";
@@ -91,6 +93,7 @@ function getRevisionColor(rev: number) {
 interface SubmittalsProps { language: "ar" | "en"; projectId?: string; }
 
 export default function Submittals({ language, projectId }: SubmittalsProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const queryClient = useQueryClient();
   const toast = useToastFeedback({ ar });
@@ -133,10 +136,10 @@ export default function Submittals({ language, projectId }: SubmittalsProps) {
       queryClient.invalidateQueries({ queryKey: ["submittals"] });
       setShowAddDialog(false);
       resetForm();
-      toast.created(ar ? "المستند" : "Submittal");
+      toast.created(tAuto('auto.submittal'));
     },
     onError: () => {
-      toast.error(ar ? "إنشاء المستند" : "Create submittal");
+      toast.error(tAuto('auto.createSubmittal'));
     },
   });
 
@@ -146,10 +149,10 @@ export default function Submittals({ language, projectId }: SubmittalsProps) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["submittals"] });
-      toast.deleted(ar ? "المستند" : "Submittal");
+      toast.deleted(tAuto('auto.submittal'));
     },
     onError: () => {
-      toast.error(ar ? "حذف المستند" : "Delete submittal");
+      toast.error(tAuto('auto.deleteSubmittal'));
     },
   });
 
@@ -185,9 +188,9 @@ export default function Submittals({ language, projectId }: SubmittalsProps) {
             <FileText className="h-4.5 w-4.5 text-teal-600 dark:text-teal-400" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white">{ar ? "المستندات المقدمة" : "Submittals"}</h2>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">{tAuto('auto.submittals')}</h2>
             <p className="text-[10px] text-slate-500 dark:text-slate-400">
-              {submittals.length} {ar ? "مستند" : "submittals"}
+              {submittals.length} {tAuto('auto.submittals1')}
             </p>
           </div>
         </div>
@@ -196,28 +199,28 @@ export default function Submittals({ language, projectId }: SubmittalsProps) {
           <Select value={filterProject} onValueChange={setFilterProject}>
             <SelectTrigger className="w-[160px] h-8 text-xs rounded-lg">
               <Filter className="h-3 w-3 me-1 text-slate-400" />
-              <SelectValue placeholder={ar ? "المشروع" : "Project"} />
+              <SelectValue placeholder={tAuto('auto.project')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{ar ? "جميع المشاريع" : "All Projects"}</SelectItem>
+              <SelectItem value="all">{tAuto('auto.allProjects')}</SelectItem>
               {projects.map((p) => (<SelectItem key={p.id} value={p.id}>{ar ? p.name : p.nameEn || p.name}</SelectItem>))}
             </SelectContent>
           </Select>
           )}
           <Select value={filterStatus} onValueChange={setFilterStatus}>
             <SelectTrigger className="w-[140px] h-8 text-xs rounded-lg">
-              <SelectValue placeholder={ar ? "الحالة" : "Status"} />
+              <SelectValue placeholder={tAuto('auto.status1')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{ar ? "الكل" : "All"}</SelectItem>
-              <SelectItem value="UNDER_REVIEW">{ar ? "قيد المراجعة" : "Under Review"}</SelectItem>
-              <SelectItem value="APPROVED">{ar ? "معتمد" : "Approved"}</SelectItem>
-              <SelectItem value="REJECTED">{ar ? "مرفوض" : "Rejected"}</SelectItem>
-              <SelectItem value="RESUBMIT">{ar ? "إعادة تقديم" : "Resubmit"}</SelectItem>
+              <SelectItem value="all">{tAuto('auto.all')}</SelectItem>
+              <SelectItem value="UNDER_REVIEW">{tAuto('auto.underReview')}</SelectItem>
+              <SelectItem value="APPROVED">{tAuto('auto.approved')}</SelectItem>
+              <SelectItem value="REJECTED">{tAuto('auto.rejected')}</SelectItem>
+              <SelectItem value="RESUBMIT">{tAuto('auto.resubmit')}</SelectItem>
             </SelectContent>
           </Select>
           <Button size="sm" className="h-8 bg-teal-600 hover:bg-teal-700 text-white rounded-lg shadow-sm shadow-teal-600/20" onClick={() => setShowAddDialog(true)}>
-            <Plus className="h-3.5 w-3.5 me-1" />{ar ? "تقديم جديد" : "New Submittal"}
+            <Plus className="h-3.5 w-3.5 me-1" />{tAuto('auto.newSubmittal')}
           </Button>
         </div>
       </div>
@@ -231,7 +234,7 @@ export default function Submittals({ language, projectId }: SubmittalsProps) {
                 <FileText className="h-5 w-5 text-slate-600 dark:text-slate-400" />
               </div>
               <div>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{ar ? "إجمالي المقدم" : "Total Submittals"}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.totalSubmittals')}</p>
                 <p className="text-xl font-bold text-slate-900 dark:text-white tabular-nums">{totalSubmittals}</p>
               </div>
             </div>
@@ -244,7 +247,7 @@ export default function Submittals({ language, projectId }: SubmittalsProps) {
                 <Eye className="h-5 w-5 text-amber-600 dark:text-amber-400" />
               </div>
               <div>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{ar ? "قيد المراجعة" : "Under Review"}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.underReview')}</p>
                 <p className="text-xl font-bold text-amber-600 dark:text-amber-400 tabular-nums">{underReviewCount}</p>
               </div>
             </div>
@@ -257,7 +260,7 @@ export default function Submittals({ language, projectId }: SubmittalsProps) {
                 <ClipboardCheck className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
               </div>
               <div>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{ar ? "معتمد" : "Approved"}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.approved')}</p>
                 <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">{approvedCount}</p>
               </div>
             </div>
@@ -270,7 +273,7 @@ export default function Submittals({ language, projectId }: SubmittalsProps) {
                 <XCircle className="h-5 w-5 text-red-600 dark:text-red-400" />
               </div>
               <div>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{ar ? "مرفوض" : "Rejected"}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.rejected')}</p>
                 <p className="text-xl font-bold text-red-600 dark:text-red-400 tabular-nums">{rejectedCount}</p>
               </div>
             </div>
@@ -283,12 +286,12 @@ export default function Submittals({ language, projectId }: SubmittalsProps) {
         <div className="rounded-xl border border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900 p-3">
           <div className="flex items-center justify-between mb-2">
             <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
-              {ar ? "توزيع الحالة" : "Status Distribution"}
+              {tAuto('auto.statusDistribution')}
             </span>
             {resubmitCount > 0 && (
               <span className="flex items-center gap-1 text-[10px] font-medium text-blue-600 dark:text-blue-400">
                 <RotateCcw className="h-3 w-3" />
-                {resubmitCount} {ar ? "إعادة تقديم" : "RESUBMIT"}
+                {resubmitCount} {tAuto('auto.rESUBMIT')}
               </span>
             )}
           </div>
@@ -312,26 +315,26 @@ export default function Submittals({ language, projectId }: SubmittalsProps) {
       {/* Table */}
       <div className="rounded-xl border border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900 overflow-hidden shadow-sm">
         {isLoading ? (
-          <div className="p-8 text-center text-slate-400">{ar ? "جارٍ التحميل..." : "Loading..."}</div>
+          <div className="p-8 text-center text-slate-400">{tAuto('auto.loading')}</div>
         ) : submittals.length === 0 ? (
           <div className="flex flex-col items-center justify-center min-h-[30vh] text-center p-8">
             <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-3">
               <FileText className="h-6 w-6 text-slate-400" />
             </div>
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-1">{ar ? "لا توجد مستندات" : "No submittals"}</h3>
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-1">{tAuto('auto.noSubmittals')}</h3>
           </div>
         ) : (
           <div className="overflow-x-auto max-h-[calc(100vh-380px)] overflow-y-auto">
             <Table>
               <TableHeader>
                 <TableRow className="hover:bg-transparent bg-slate-50/80 dark:bg-slate-800/50">
-                  <TableHead className="text-xs font-semibold">{ar ? "الرقم" : "Number"}</TableHead>
-                  <TableHead className="text-xs font-semibold">{ar ? "المشروع" : "Project"}</TableHead>
-                  <TableHead className="text-xs font-semibold">{ar ? "العنوان" : "Title"}</TableHead>
-                  <TableHead className="text-xs font-semibold">{ar ? "النوع" : "Type"}</TableHead>
-                  <TableHead className="text-xs font-semibold">{ar ? "المقاول" : "Contractor"}</TableHead>
-                  <TableHead className="text-xs font-semibold">{ar ? "المراجعة" : "Rev #"}</TableHead>
-                  <TableHead className="text-xs font-semibold">{ar ? "الحالة" : "Status"}</TableHead>
+                  <TableHead className="text-xs font-semibold">{tAuto('auto.number')}</TableHead>
+                  <TableHead className="text-xs font-semibold">{tAuto('auto.project')}</TableHead>
+                  <TableHead className="text-xs font-semibold">{tAuto('auto.title')}</TableHead>
+                  <TableHead className="text-xs font-semibold">{tAuto('auto.type')}</TableHead>
+                  <TableHead className="text-xs font-semibold">{tAuto('auto.contractor')}</TableHead>
+                  <TableHead className="text-xs font-semibold">{tAuto('auto.rev1')}</TableHead>
+                  <TableHead className="text-xs font-semibold">{tAuto('auto.status1')}</TableHead>
                   <TableHead className="w-10"></TableHead>
                 </TableRow>
               </TableHeader>
@@ -378,8 +381,8 @@ export default function Submittals({ language, projectId }: SubmittalsProps) {
                             </button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align={ar ? "start" : "end"} className="w-36">
-                            <DropdownMenuItem className="text-red-600 dark:text-red-400" onClick={() => { if (confirm(ar ? "هل أنت متأكد من الحذف؟" : "Delete this submittal?")) deleteMutation.mutate(sub.id); }}>
-                              <Trash2 className="h-3.5 w-3.5 me-2" />{ar ? "حذف" : "Delete"}
+                            <DropdownMenuItem className="text-red-600 dark:text-red-400" onClick={() => { if (confirm(tAuto('auto.deleteThisSubmittal'))) deleteMutation.mutate(sub.id); }}>
+                              <Trash2 className="h-3.5 w-3.5 me-2" />{tAuto('auto.delete')}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -397,16 +400,16 @@ export default function Submittals({ language, projectId }: SubmittalsProps) {
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{ar ? "تقديم مستند جديد" : "New Submittal"}</DialogTitle>
-            <DialogDescription>{ar ? "إضافة مستند مقدم جديد" : "Add a new submittal"}</DialogDescription>
+            <DialogTitle>{tAuto('auto.newSubmittal')}</DialogTitle>
+            <DialogDescription>{tAuto('auto.addANewSubmittal')}</DialogDescription>
           </DialogHeader>
           <form onSubmit={rhfHandleSubmit((data) => createMutation.mutate(data))} className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "المشروع" : "Project"} *</Label>
+                <Label className="text-sm">{tAuto('auto.project')} *</Label>
                 {/* eslint-disable-next-line react-hooks/incompatible-library */}
                 <Select value={watch("projectId")} onValueChange={(v) => setValue("projectId", v)}>
-                  <SelectTrigger className={cn(errors.projectId && "border-red-500")}><SelectValue placeholder={ar ? "اختر مشروع" : "Select project"} /></SelectTrigger>
+                  <SelectTrigger className={cn(errors.projectId && "border-red-500")}><SelectValue placeholder={tAuto('auto.selectProject')} /></SelectTrigger>
                   <SelectContent>
                     {projects.map((p) => (<SelectItem key={p.id} value={p.id}>{ar ? p.name : p.nameEn || p.name}</SelectItem>))}
                   </SelectContent>
@@ -414,47 +417,47 @@ export default function Submittals({ language, projectId }: SubmittalsProps) {
                 {errors.projectId && <p className="text-red-500 text-xs mt-1">{getErrorMessage(errors.projectId.message || "", ar)}</p>}
               </div>
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "الرقم" : "Number"}</Label>
+                <Label className="text-sm">{tAuto('auto.number')}</Label>
                 <Input {...register("number")} placeholder="SUB-001" />
               </div>
             </div>
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "العنوان" : "Title"} *</Label>
-              <Input {...register("title")} placeholder={ar ? "عنوان المستند" : "Submittal title"} className={cn(errors.title && "border-red-500")} />
+              <Label className="text-sm">{tAuto('auto.title')} *</Label>
+              <Input {...register("title")} placeholder={tAuto('auto.submittalTitle')} className={cn(errors.title && "border-red-500")} />
               {errors.title && <p className="text-red-500 text-xs mt-1">{getErrorMessage(errors.title.message || "", ar)}</p>}
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "النوع" : "Type"}</Label>
-                <Input {...register("type")} placeholder={ar ? "مخططات، مواصفات..." : "Drawings, specs..."} />
+                <Label className="text-sm">{tAuto('auto.type')}</Label>
+                <Input {...register("type")} placeholder={tAuto('auto.drawingsSpecs')} />
               </div>
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "المقاول" : "Contractor"}</Label>
-                <Input {...register("contractor")} placeholder={ar ? "اسم المقاول" : "Contractor name"} />
+                <Label className="text-sm">{tAuto('auto.contractor')}</Label>
+                <Input {...register("contractor")} placeholder={tAuto('auto.contractorName1')} />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "رقم المراجعة" : "Revision #"}</Label>
+                <Label className="text-sm">{tAuto('auto.revision')}</Label>
                 <Input type="number" min={1} {...register("revisionNumber")} />
               </div>
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "الحالة" : "Status"}</Label>
+                <Label className="text-sm">{tAuto('auto.status1')}</Label>
                 <Select value={watch("status")} onValueChange={(v) => setValue("status", v as SubmittalFormData["status"])}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="UNDER_REVIEW">{ar ? "قيد المراجعة" : "Under Review"}</SelectItem>
-                    <SelectItem value="APPROVED">{ar ? "معتمد" : "Approved"}</SelectItem>
-                    <SelectItem value="REJECTED">{ar ? "مرفوض" : "Rejected"}</SelectItem>
-                    <SelectItem value="RESUBMIT">{ar ? "إعادة تقديم" : "Resubmit"}</SelectItem>
+                    <SelectItem value="UNDER_REVIEW">{tAuto('auto.underReview')}</SelectItem>
+                    <SelectItem value="APPROVED">{tAuto('auto.approved')}</SelectItem>
+                    <SelectItem value="REJECTED">{tAuto('auto.rejected')}</SelectItem>
+                    <SelectItem value="RESUBMIT">{tAuto('auto.resubmit')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => { setShowAddDialog(false); resetForm(); }}>{ar ? "إلغاء" : "Cancel"}</Button>
+            <Button type="button" variant="outline" onClick={() => { setShowAddDialog(false); resetForm(); }}>{tAuto('auto.cancel')}</Button>
             <Button type="submit" className="bg-teal-600 hover:bg-teal-700 text-white" disabled={createMutation.isPending}>
-              {createMutation.isPending ? (ar ? "جارٍ الإنشاء..." : "Creating...") : (ar ? "إنشاء" : "Create")}
+              {createMutation.isPending ? (tAuto('auto.creating')) : (tAuto('auto.create'))}
             </Button>
           </DialogFooter>
           </form>

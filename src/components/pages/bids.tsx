@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -32,6 +34,7 @@ import { AddBidDialog, type BidFormData } from "./bids/add-bid-dialog";
 interface BidsPageProps { language: "ar" | "en"; projectId?: string; }
 
 export default function BidsPage({ language, projectId }: BidsPageProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
@@ -138,15 +141,15 @@ export default function BidsPage({ language, projectId }: BidsPageProps) {
             <Gavel className="h-4.5 w-4.5 text-amber-600 dark:text-amber-400" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white">{ar ? "العطاءات والمقاولين" : "Bids & Contractors"}</h2>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">{tAuto('auto.bidsContractors')}</h2>
             <p className="text-[10px] text-slate-500 dark:text-slate-400">
-              {bids.length} {ar ? "عطاء" : "bids"} • {contractorsList.length} {ar ? "مقاول" : "contractors"}
+              {bids.length} {tAuto('auto.bids')} • {contractorsList.length} {tAuto('auto.contractors1')}
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2 w-full sm:w-auto sm:ms-auto">
           <Button size="sm" className="h-8 bg-teal-600 hover:bg-teal-700 text-white rounded-lg shadow-sm shadow-teal-600/20" onClick={() => { setFormData(emptyForm); setShowDialog(true); }}>
-            <Plus className="h-3.5 w-3.5 me-1" />{ar ? "عطاء جديد" : "New Bid"}
+            <Plus className="h-3.5 w-3.5 me-1" />{tAuto('auto.newBid')}
           </Button>
         </div>
       </div>
@@ -171,7 +174,7 @@ export default function BidsPage({ language, projectId }: BidsPageProps) {
             )}
           >
             <Gavel className="h-3.5 w-3.5 me-1.5" />
-            {ar ? "العطاءات" : "Bids"}
+            {tAuto('auto.bids1')}
           </TabsTrigger>
           <TabsTrigger
             value="contractors"
@@ -181,7 +184,7 @@ export default function BidsPage({ language, projectId }: BidsPageProps) {
             )}
           >
             <Users className="h-3.5 w-3.5 me-1.5" />
-            {ar ? "المقاولين" : "Contractors"}
+            {tAuto('auto.contractors')}
           </TabsTrigger>
           <TabsTrigger
             value="matrix"
@@ -191,7 +194,7 @@ export default function BidsPage({ language, projectId }: BidsPageProps) {
             )}
           >
             <BarChart3 className="h-3.5 w-3.5 me-1.5" />
-            {ar ? "مصفوفة المقارنة" : "Comparison Matrix"}
+            {tAuto('auto.comparisonMatrix')}
           </TabsTrigger>
         </TabsList>
 
@@ -200,16 +203,16 @@ export default function BidsPage({ language, projectId }: BidsPageProps) {
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-4">
             <div className="relative flex-1 sm:w-64">
               <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-              <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={ar ? "بحث..." : "Search..."} className="ps-9 h-8 text-sm rounded-lg" />
+              <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={tAuto('auto.search1')} className="ps-9 h-8 text-sm rounded-lg" />
             </div>
             <Select value={filterStatus} onValueChange={setFilterStatus}>
               <SelectTrigger className="w-[140px] h-8 text-xs rounded-lg"><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">{ar ? "الكل" : "All"}</SelectItem>
-                <SelectItem value="SUBMITTED">{ar ? "مقدم" : "Submitted"}</SelectItem>
-                <SelectItem value="UNDER_REVIEW">{ar ? "قيد المراجعة" : "Under Review"}</SelectItem>
-                <SelectItem value="ACCEPTED">{ar ? "مقبول" : "Accepted"}</SelectItem>
-                <SelectItem value="REJECTED">{ar ? "مرفوض" : "Rejected"}</SelectItem>
+                <SelectItem value="all">{tAuto('auto.all')}</SelectItem>
+                <SelectItem value="SUBMITTED">{tAuto('auto.submitted')}</SelectItem>
+                <SelectItem value="UNDER_REVIEW">{tAuto('auto.underReview')}</SelectItem>
+                <SelectItem value="ACCEPTED">{tAuto('auto.accepted')}</SelectItem>
+                <SelectItem value="REJECTED">{tAuto('auto.rejected')}</SelectItem>
               </SelectContent>
             </Select>
           </div>

@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -124,6 +126,7 @@ function formatTimeAgo(dateStr: string, isAr: boolean): string {
 
 // ===== Main Component =====
 export default function NotificationDropdown() {
+  const tAuto = useTranslations();
   const lang = useLang();
   const isAr = lang === "ar";
   const queryClient = useQueryClient();
@@ -231,7 +234,7 @@ export default function NotificationDropdown() {
           variant="ghost"
           size="icon"
           className="relative h-9 w-9 text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800/60 transition-all duration-200"
-          aria-label={isAr ? "الإشعارات" : "Notifications"}
+          aria-label={tAuto('auto.notifications')}
         >
           <Bell className="h-4 w-4" />
           {liveUnreadCount > 0 && (
@@ -271,11 +274,11 @@ export default function NotificationDropdown() {
             </div>
             <div>
               <h3 className="text-sm font-bold text-slate-900 dark:text-white leading-tight">
-                {isAr ? "الإشعارات" : "Notifications"}
+                {tAuto('auto.notifications')}
               </h3>
               {liveUnreadCount > 0 && (
                 <p className="text-[10px] text-teal-600 dark:text-teal-400 font-medium">
-                  {liveUnreadCount} {isAr ? "جديد" : "NEW"}
+                  {liveUnreadCount} {tAuto('auto.nEW')}
                 </p>
               )}
             </div>
@@ -293,7 +296,7 @@ export default function NotificationDropdown() {
               ) : (
                 <CheckCheck className="h-3 w-3 me-1" />
               )}
-              {isAr ? "قراءة الكل" : "Read all"}
+              {tAuto('auto.readAll')}
             </Button>
           )}
         </div>
@@ -318,10 +321,10 @@ export default function NotificationDropdown() {
                 <BellOff className="h-7 w-7 text-slate-300 dark:text-slate-600" />
               </div>
               <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                {isAr ? "لا توجد إشعارات" : "No notifications"}
+                {tAuto('auto.noNotifications')}
               </p>
               <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1">
-                {isAr ? "أنت محدّث بالكامل" : "You&apos;re all caught up"}
+                {tAuto('auto.youAposReAllCaughtUp')}
               </p>
             </div>
           ) : (
@@ -399,7 +402,7 @@ export default function NotificationDropdown() {
               className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-semibold text-teal-600 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-950/30 transition-colors"
             >
               <Inbox className="h-3.5 w-3.5" />
-              {isAr ? "عرض الكل" : "View all notifications"}
+              {tAuto('auto.viewAllNotifications')}
             </button>
           </>
         )}

@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState, useRef, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToastFeedback } from "@/hooks/use-toast-feedback";
@@ -32,6 +34,7 @@ interface InvoicesPageProps {
 }
 
 export default function InvoicesPage({ language, projectId }: InvoicesPageProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const queryClient = useQueryClient();
   const toast = useToastFeedback({ ar });
@@ -133,7 +136,7 @@ export default function InvoicesPage({ language, projectId }: InvoicesPageProps)
       setShowDialog(false);
       setFormData(emptyForm);
       localStorage.removeItem("draft_invoice_form");
-      toast.created(ar ? "الفاتورة" : "Invoice");
+      toast.created(tAuto('auto.invoice'));
     },
     onError: (error: Error) => {
       toast.showError(ar ? `فشل في إنشاء الفاتورة: ${error.message}` : `Failed to create invoice: ${error.message}`);
@@ -162,7 +165,7 @@ export default function InvoicesPage({ language, projectId }: InvoicesPageProps)
       queryClient.invalidateQueries({ queryKey: ["invoices", projectId] });
       setEditInvoice(null);
       setFormData(emptyForm);
-      toast.updated(ar ? "الفاتورة" : "Invoice");
+      toast.updated(tAuto('auto.invoice'));
     },
     onError: (error: Error) => {
       toast.showError(ar ? `فشل في تحديث الفاتورة: ${error.message}` : `Failed to update invoice: ${error.message}`);
@@ -184,7 +187,7 @@ export default function InvoicesPage({ language, projectId }: InvoicesPageProps)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["invoices", projectId] });
-      toast.deleted(ar ? "الفاتورة" : "Invoice");
+      toast.deleted(tAuto('auto.invoice'));
     },
     onError: (error: Error) => {
       toast.showError(ar ? `فشل في حذف الفاتورة: ${error.message}` : `Failed to delete invoice: ${error.message}`);
@@ -222,9 +225,9 @@ export default function InvoicesPage({ language, projectId }: InvoicesPageProps)
         items: inv.items,
         status: inv.status,
       }, language);
-      toast.showSuccess(ar ? "تم تصدير الفاتورة PDF" : "Invoice PDF exported");
+      toast.showSuccess(tAuto('auto.invoicePDFExported'));
     } catch (_e) {
-      toast.showError(ar ? "فشل تصدير الفاتورة" : "Failed to export PDF");
+      toast.showError(tAuto('auto.failedToExportPDF'));
     }
   };
 
@@ -310,7 +313,7 @@ export default function InvoicesPage({ language, projectId }: InvoicesPageProps)
     let isUndone = false;
     
     toast.toast({
-      title: ar ? "تم الحذف مؤقتاً" : "Deleted temporarily",
+      title: tAuto('auto.deletedTemporarily'),
       description: ar ? `تم إخفاء ${idsToDelete.length > 1 ? idsToDelete.length + ' فواتير' : 'الفاتورة'}` : `Hidden ${idsToDelete.length} item(s)`,
       action: (
         <ToastAction altText="Undo" onClick={() => {
@@ -321,7 +324,7 @@ export default function InvoicesPage({ language, projectId }: InvoicesPageProps)
              return next;
            });
         }}>
-          {ar ? "تراجع" : "Undo"}
+          {tAuto('auto.undo')}
         </ToastAction>
       ),
       duration: 5000,
@@ -350,7 +353,7 @@ export default function InvoicesPage({ language, projectId }: InvoicesPageProps)
       body: JSON.stringify({
         entityType: "invoice",
         entityId: inv.id,
-        title: `${ar ? "موافقة فاتورة" : "Invoice approval"} - ${inv.number}`,
+        title: `${tAuto('auto.invoiceApproval')} - ${inv.number}`,
         description: inv.client.name,
         requestedBy: "المستخدم الحالي",
         assignedTo: "المدير",
@@ -362,10 +365,10 @@ export default function InvoicesPage({ language, projectId }: InvoicesPageProps)
       return res.json();
     })
     .then(() => {
-      toast.showSuccess(ar ? "تم إرسال طلب الموافقة" : "Approval request sent");
+      toast.showSuccess(tAuto('auto.approvalRequestSent'));
     })
     .catch(() => {
-      toast.showError(ar ? "فشل في إرسال طلب الموافقة" : "Failed to send approval request");
+      toast.showError(tAuto('auto.failedToSendApprovalRequest'));
     });
   };
 
@@ -409,7 +412,7 @@ export default function InvoicesPage({ language, projectId }: InvoicesPageProps)
                 Object.keys(parsed).forEach(k => {
                   setValue(k as keyof InvoiceFormData, parsed[k as keyof InvoiceFormData]);
                 });
-                toast.showSuccess(ar ? "تم استعادة المسودة بنجاح" : "Draft restored successfully");
+                toast.showSuccess(tAuto('auto.draftRestoredSuccessfully'));
               } catch (_e) {
                 setFormData(emptyForm);
               }

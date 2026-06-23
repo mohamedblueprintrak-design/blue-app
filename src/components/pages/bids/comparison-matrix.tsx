@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -37,6 +39,7 @@ export function ComparisonMatrix({
   bids: BidItem[];
   ar: boolean;
 }) {
+  const tAuto = useTranslations();
   const [sortBy, setSortBy] = useState<"totalScore" | "amount" | "technicalScore">("totalScore");
 
   const sorted = useMemo(() => {
@@ -51,17 +54,17 @@ export function ComparisonMatrix({
   const chartData = useMemo(() => {
     return sorted.map((b) => ({
       name: b.contractorName.substring(0, 15),
-      [ar ? "فني" : "Tech"]: b.technicalScore,
-      [ar ? "مالي" : "Fin"]: b.financialScore,
-      [ar ? "إجمالي" : "Total"]: Math.round(b.totalScore),
+      [tAuto('auto.tech')]: b.technicalScore,
+      [tAuto('auto.fin')]: b.financialScore,
+      [tAuto('auto.total')]: Math.round(b.totalScore),
     }));
-  }, [sorted, ar]);
+  }, [sorted, ar, tAuto]);
 
   return (
     <div className="space-y-4">
       {/* Controls */}
       <div className="flex items-center gap-3">
-        <span className="text-xs text-slate-500">{ar ? "ترتيب حسب:" : "Sort by:"}</span>
+        <span className="text-xs text-slate-500">{tAuto('auto.sortBy')}</span>
         <div className="flex gap-1.5">
           {[
             { key: "totalScore" as const, ar: "المجموع", en: "Total" },
@@ -88,7 +91,7 @@ export function ComparisonMatrix({
       {/* Criteria Legend */}
       <div className="flex flex-wrap gap-2 p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50">
         <span className="text-xs font-medium text-slate-600 dark:text-slate-300">
-          {ar ? "معايير التقييم:" : "Evaluation Criteria:"}
+          {tAuto('auto.evaluationCriteria')}
         </span>
         {EVALUATION_CRITERIA.map((c) => (
           <Badge key={c.key} variant="secondary" className="text-[10px]">
@@ -102,7 +105,7 @@ export function ComparisonMatrix({
         <Card className="overflow-hidden border-slate-200 dark:border-slate-700/50">
           <CardContent className="p-4">
             <h4 className="text-xs font-semibold text-slate-500 mb-3">
-              {ar ? "مقارنة بصرية" : "Visual Comparison"}
+              {tAuto('auto.visualComparison')}
             </h4>
             <div className="h-[250px]">
               <ResponsiveContainer width="100%" height="100%">
@@ -115,9 +118,9 @@ export function ComparisonMatrix({
                     formatter={(value: number) => [`${value}`, ""]}
                   />
                   <Legend wrapperStyle={{ fontSize: 10 }} />
-                  <Bar dataKey={ar ? "فني" : "Tech"} fill="var(--color-amber-500)" radius={[0, 2, 2, 0]} barSize={12} />
-                  <Bar dataKey={ar ? "مالي" : "Fin"} fill="var(--color-cyan-500)" radius={[0, 2, 2, 0]} barSize={12} />
-                  <Bar dataKey={ar ? "إجمالي" : "Total"} fill="var(--color-teal-600)" radius={[0, 2, 2, 0]} barSize={12} />
+                  <Bar dataKey={tAuto('auto.tech')} fill="var(--color-amber-500)" radius={[0, 2, 2, 0]} barSize={12} />
+                  <Bar dataKey={tAuto('auto.fin')} fill="var(--color-cyan-500)" radius={[0, 2, 2, 0]} barSize={12} />
+                  <Bar dataKey={tAuto('auto.total')} fill="var(--color-teal-600)" radius={[0, 2, 2, 0]} barSize={12} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -132,13 +135,13 @@ export function ComparisonMatrix({
             <TableHeader>
               <TableRow className="hover:bg-transparent bg-slate-50/80 dark:bg-slate-800/50">
                 <TableHead className="text-xs font-semibold w-8">#</TableHead>
-                <TableHead className="text-xs font-semibold">{ar ? "المقاول" : "Contractor"}</TableHead>
-                <TableHead className="text-xs font-semibold text-end">{ar ? "المبلغ" : "Amount"}</TableHead>
-                <TableHead className="text-xs font-semibold text-end">{ar ? "فني" : "Technical"}</TableHead>
-                <TableHead className="text-xs font-semibold text-end">{ar ? "مالي" : "Financial"}</TableHead>
-                <TableHead className="text-xs font-semibold text-end">{ar ? "المجموع" : "Total"}</TableHead>
-                <TableHead className="text-xs font-semibold">{ar ? "الحالة" : "Status"}</TableHead>
-                <TableHead className="text-xs font-semibold">{ar ? "التوصية" : "Recommend"}</TableHead>
+                <TableHead className="text-xs font-semibold">{tAuto('auto.contractor')}</TableHead>
+                <TableHead className="text-xs font-semibold text-end">{tAuto('auto.amount')}</TableHead>
+                <TableHead className="text-xs font-semibold text-end">{tAuto('auto.technical')}</TableHead>
+                <TableHead className="text-xs font-semibold text-end">{tAuto('auto.financial')}</TableHead>
+                <TableHead className="text-xs font-semibold text-end">{tAuto('auto.total')}</TableHead>
+                <TableHead className="text-xs font-semibold">{tAuto('auto.status1')}</TableHead>
+                <TableHead className="text-xs font-semibold">{tAuto('auto.recommend')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -204,7 +207,7 @@ export function ComparisonMatrix({
                       {isTop && (
                         <Badge className="bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300 text-[10px]">
                           <Award className="h-3 w-3 me-1" />
-                          {ar ? "مُوصى به" : "Recommended"}
+                          {tAuto('auto.recommended')}
                         </Badge>
                       )}
                     </TableCell>
@@ -214,7 +217,7 @@ export function ComparisonMatrix({
               {sorted.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={8} className="text-center py-12 text-slate-400">
-                    {ar ? "لا توجد عطاءات للمقارنة" : "No bids to compare"}
+                    {tAuto('auto.noBidsToCompare')}
                   </TableCell>
                 </TableRow>
               )}

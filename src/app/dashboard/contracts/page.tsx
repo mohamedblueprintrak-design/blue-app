@@ -1,16 +1,7 @@
-"use client";
+import { getLocale } from 'next-intl/server';
+import ContractsPage from '@/components/pages/contracts';
 
-import dynamic from "next/dynamic";
-import { useLang } from "@/hooks/use-lang";
-
-const ContractsPage = dynamic(() => import("@/components/pages/contracts"), {
-  loading: () => <div className="p-6 animate-pulse">Loading...</div>,
-  ssr: false,
-});
-
-/**
- * /dashboard/contracts
- */
-export default function ContractsPageRoute() {
-  return <ContractsPage language={useLang()} />;
+export default async function ContractsPageRoute() {
+  const locale = await getLocale();
+  return <ContractsPage language={locale as "ar" | "en"} />;
 }

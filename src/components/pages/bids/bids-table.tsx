@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -35,19 +37,20 @@ export function BidsTable({
   onEvaluateBid,
   onStatusChange,
 }: BidsTableProps) {
+  const tAuto = useTranslations();
   return (
     <div className={`flex-1 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900 overflow-hidden shadow-sm ${showDetailId ? "hidden lg:block" : ""}`}>
       <ScrollArea className="max-h-[calc(100vh-420px)]">
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent bg-slate-50/80 dark:bg-slate-800/50">
-              <TableHead className="text-xs font-semibold">{ar ? "المشروع" : "Project"}</TableHead>
-              <TableHead className="text-xs font-semibold">{ar ? "المقاول" : "Contractor"}</TableHead>
-              <TableHead className="text-xs font-semibold text-end">{ar ? "المبلغ" : "Amount"}</TableHead>
-              <TableHead className="text-xs font-semibold text-end">{ar ? "التقييم" : "Score"}</TableHead>
-              <TableHead className="text-xs font-semibold">{ar ? "الموعد" : "Deadline"}</TableHead>
-              <TableHead className="text-xs font-semibold">{ar ? "الحالة" : "Status"}</TableHead>
-              <TableHead className="text-xs font-semibold text-start">{ar ? "إجراءات" : "Actions"}</TableHead>
+              <TableHead className="text-xs font-semibold">{tAuto('auto.project')}</TableHead>
+              <TableHead className="text-xs font-semibold">{tAuto('auto.contractor')}</TableHead>
+              <TableHead className="text-xs font-semibold text-end">{tAuto('auto.amount')}</TableHead>
+              <TableHead className="text-xs font-semibold text-end">{tAuto('auto.score')}</TableHead>
+              <TableHead className="text-xs font-semibold">{tAuto('auto.deadline')}</TableHead>
+              <TableHead className="text-xs font-semibold">{tAuto('auto.status1')}</TableHead>
+              <TableHead className="text-xs font-semibold text-start">{tAuto('auto.actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -104,7 +107,7 @@ export function BidsTable({
                   <TableCell className="text-start">
                     <div className="flex items-center gap-1">
                       <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => { e.stopPropagation(); onShowDetail(bid); }} aria-label="View"><Eye className="h-3.5 w-3.5" /></Button>
-                      <Button variant="ghost" size="icon" className="h-7 w-7 text-amber-600" onClick={(e) => { e.stopPropagation(); onEvaluateBid(bid); }} title={ar ? "تقييم" : "Evaluate"} aria-label="Evaluate">
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-amber-600" onClick={(e) => { e.stopPropagation(); onEvaluateBid(bid); }} title={tAuto('auto.evaluate')} aria-label="Evaluate">
                         <ClipboardCheck className="h-3.5 w-3.5" />
                       </Button>
                       {(bid.status === "SUBMITTED" || bid.status === "UNDER_REVIEW") && (
@@ -120,7 +123,7 @@ export function BidsTable({
             })}
             {filtered.length === 0 && (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-12 text-slate-400">{ar ? "لا توجد عطاءات" : "No bids found"}</TableCell>
+                <TableCell colSpan={7} className="text-center py-12 text-slate-400">{tAuto('auto.noBidsFound')}</TableCell>
               </TableRow>
             )}
           </TableBody>

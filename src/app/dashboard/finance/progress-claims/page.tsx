@@ -1,8 +1,7 @@
-"use client";
-
+import { getLocale } from 'next-intl/server';
 import ProgressClaimsPage from "@/components/pages/progress-claims";
-import { useLang } from "@/hooks/use-lang";
 
-export default function ProgressClaimsPageRoute() {
-  return <ProgressClaimsPage language={useLang()} />;
+export default async function ProgressClaimsPageRoute() {
+  const locale = await getLocale();
+  return <ProgressClaimsPage language={locale as "ar" | "en"} />;
 }

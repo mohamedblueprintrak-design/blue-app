@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -51,6 +53,7 @@ export function CreateTransmittalDialog({
   onSubmit,
   isPending,
 }: CreateTransmittalDialogProps) {
+  const tAuto = useTranslations();
   const [formData, setFormData] = useState({
     projectId: projectId || "",
     subject: "",
@@ -107,19 +110,19 @@ export function CreateTransmittalDialog({
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Send className="h-5 w-5 text-teal-500" />
-              {ar ? "إحالة جديدة" : "New Transmittal"}
+              {tAuto('auto.newTransmittal')}
             </DialogTitle>
             <DialogDescription>
-              {ar ? "إنشاء إحالة مستندات جديدة وإرسالها" : "Create and send a new document transmittal"}
+              {tAuto('auto.createAndSendANewDocumentTransmittal')}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "المشروع *" : "Project *"}</Label>
+                <Label className="text-sm">{tAuto('auto.project2')}</Label>
                 <Select value={formData.projectId} onValueChange={(v) => setFormData({ ...formData, projectId: v })}>
-                  <SelectTrigger><SelectValue placeholder={ar ? "اختر مشروع" : "Select project"} /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder={tAuto('auto.selectProject')} /></SelectTrigger>
                   <SelectContent>
                     {projects.map((p) => (
                       <SelectItem key={p.id} value={p.id}>{ar ? p.name : p.nameEn || p.name}</SelectItem>
@@ -128,26 +131,26 @@ export function CreateTransmittalDialog({
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "طريقة التسليم" : "Delivery Method"}</Label>
+                <Label className="text-sm">{tAuto('auto.deliveryMethod')}</Label>
                 <Select value={formData.deliveryMethod} onValueChange={(v) => setFormData({ ...formData, deliveryMethod: v })}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="EMAIL">{ar ? "بريد إلكتروني" : "Email"}</SelectItem>
-                    <SelectItem value="MANUAL">{ar ? "يدوي" : "Manual"}</SelectItem>
-                    <SelectItem value="COURIER">{ar ? "ساعي" : "Courier"}</SelectItem>
+                    <SelectItem value="EMAIL">{tAuto('auto.email')}</SelectItem>
+                    <SelectItem value="MANUAL">{tAuto('auto.manual')}</SelectItem>
+                    <SelectItem value="COURIER">{tAuto('auto.courier')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "الموضوع *" : "Subject *"}</Label>
+              <Label className="text-sm">{tAuto('auto.subject1')}</Label>
               <Input
                 value={formData.subject}
                 onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                placeholder={ar ? "موضوع الإحالة" : "Transmittal subject"}
+                placeholder={tAuto('auto.transmittalSubject')}
               />
             </div>
 
@@ -155,9 +158,9 @@ export function CreateTransmittalDialog({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "من (المرسل) *" : "From *"}</Label>
+                <Label className="text-sm">{tAuto('auto.from1')}</Label>
                 <Select value={formData.fromId} onValueChange={(v) => setFormData({ ...formData, fromId: v })}>
-                  <SelectTrigger><SelectValue placeholder={ar ? "اختر المرسل" : "Select sender"} /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder={tAuto('auto.selectSender')} /></SelectTrigger>
                   <SelectContent>
                     {users.map((u) => (
                       <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
@@ -166,18 +169,18 @@ export function CreateTransmittalDialog({
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "إلى (الاسم)" : "To (Name)"}</Label>
+                <Label className="text-sm">{tAuto('auto.toName')}</Label>
                 <Input
                   value={formData.toName}
                   onChange={(e) => setFormData({ ...formData, toName: e.target.value })}
-                  placeholder={ar ? "اسم المستلم" : "Recipient name"}
+                  placeholder={tAuto('auto.recipientName')}
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "البريد الإلكتروني" : "Email"}</Label>
+                <Label className="text-sm">{tAuto('auto.email')}</Label>
                 <Input
                   value={formData.toEmail}
                   onChange={(e) => setFormData({ ...formData, toEmail: e.target.value })}
@@ -186,19 +189,19 @@ export function CreateTransmittalDialog({
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "الشركة" : "Company"}</Label>
+                <Label className="text-sm">{tAuto('auto.company')}</Label>
                 <Input
                   value={formData.toCompany}
                   onChange={(e) => setFormData({ ...formData, toCompany: e.target.value })}
-                  placeholder={ar ? "اسم الشركة" : "Company name"}
+                  placeholder={tAuto('auto.companyName')}
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "الهاتف" : "Phone"}</Label>
+                <Label className="text-sm">{tAuto('auto.phone')}</Label>
                 <Input
                   value={formData.toPhone}
                   onChange={(e) => setFormData({ ...formData, toPhone: e.target.value })}
-                  placeholder={ar ? "رقم الهاتف" : "Phone number"}
+                  placeholder={tAuto('auto.phoneNumber')}
                 />
               </div>
             </div>
@@ -210,18 +213,18 @@ export function CreateTransmittalDialog({
               <div className="flex items-center justify-between">
                 <Label className="text-sm font-medium flex items-center gap-1.5">
                   <Package className="h-4 w-4" />
-                  {ar ? "بنود الإحالة" : "Transmittal Items"}
+                  {tAuto('auto.transmittalItems')}
                 </Label>
                 <Button variant="outline" size="sm" className="h-7 text-xs" onClick={addNewItem}>
                   <Plus className="h-3 w-3 me-1" />
-                  {ar ? "إضافة بند" : "Add Item"}
+                  {tAuto('auto.addItem1')}
                 </Button>
               </div>
 
               {newItems.length === 0 ? (
                 <div className="text-center py-4 border border-dashed border-slate-200 dark:border-slate-700 rounded-lg">
                   <p className="text-xs text-slate-400">
-                    {ar ? "لم يتم إضافة بنود بعد" : "No items added yet"}
+                    {tAuto('auto.noItemsAddedYet')}
                   </p>
                 </div>
               ) : (
@@ -230,7 +233,7 @@ export function CreateTransmittalDialog({
                     <div key={index} className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg space-y-2">
                       <div className="flex items-center justify-between">
                         <span className="text-xs font-medium text-slate-600 dark:text-slate-400">
-                          {ar ? "بند" : "Item"} {index + 1}
+                          {tAuto('auto.item')} {index + 1}
                         </span>
                         <button
                           onClick={() => removeNewItem(index)}
@@ -244,29 +247,29 @@ export function CreateTransmittalDialog({
                           className="h-7 text-xs"
                           value={item.documentNumber}
                           onChange={(e) => updateNewItem(index, "documentNumber", e.target.value)}
-                          placeholder={ar ? "رقم المستند" : "Doc Number"}
+                          placeholder={tAuto('auto.docNumber')}
                         />
                         <Input
                           className="h-7 text-xs"
                           value={item.title}
                           onChange={(e) => updateNewItem(index, "title", e.target.value)}
-                          placeholder={ar ? "العنوان" : "Title"}
+                          placeholder={tAuto('auto.title')}
                         />
                         <Input
                           className="h-7 text-xs"
                           value={item.revision}
                           onChange={(e) => updateNewItem(index, "revision", e.target.value)}
-                          placeholder={ar ? "المراجعة" : "Rev"}
+                          placeholder={tAuto('auto.rev2')}
                         />
                         <Select value={item.purpose} onValueChange={(v) => updateNewItem(index, "purpose", v)}>
                           <SelectTrigger className="h-7 text-xs">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="REVIEW">{ar ? "مراجعة" : "Review"}</SelectItem>
-                            <SelectItem value="APPROVAL">{ar ? "اعتماد" : "Approval"}</SelectItem>
-                            <SelectItem value="INFORMATION">{ar ? "معلومات" : "Information"}</SelectItem>
-                            <SelectItem value="EXECUTION">{ar ? "تنفيذ" : "Execution"}</SelectItem>
+                            <SelectItem value="REVIEW">{tAuto('auto.review')}</SelectItem>
+                            <SelectItem value="APPROVAL">{tAuto('auto.approval')}</SelectItem>
+                            <SelectItem value="INFORMATION">{tAuto('auto.information')}</SelectItem>
+                            <SelectItem value="EXECUTION">{tAuto('auto.execution')}</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -279,14 +282,14 @@ export function CreateTransmittalDialog({
 
           <DialogFooter>
             <Button variant="outline" onClick={() => { onOpenChange(false); resetForm(); }}>
-              {ar ? "إلغاء" : "Cancel"}
+              {tAuto('auto.cancel')}
             </Button>
             <Button
               className="bg-teal-600 hover:bg-teal-700 text-white"
               onClick={handleSubmit}
               disabled={!formData.projectId || !formData.subject || !formData.fromId || isPending}
             >
-              {isPending ? (ar ? "جارٍ الإنشاء..." : "Creating...") : (ar ? "إنشاء وإرسال" : "Create & Send")}
+              {isPending ? (tAuto('auto.creating')) : (tAuto('auto.createSend'))}
             </Button>
           </DialogFooter>
         </DialogContent>

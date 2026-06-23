@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -115,6 +117,7 @@ interface ProgressClaimsPageProps {
 }
 
 export default function ProgressClaimsPage({ language, projectId }: ProgressClaimsPageProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
@@ -266,15 +269,15 @@ export default function ProgressClaimsPage({ language, projectId }: ProgressClai
             <ClipboardCheck className="h-4.5 w-4.5 text-teal-600 dark:text-teal-400" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white">{ar ? "مطالبات التقدم" : "Progress Claims"}</h2>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">{tAuto('auto.progressClaims')}</h2>
             <p className="text-[10px] text-slate-500 dark:text-slate-400">
-              {ar ? "تطبيقات الدفع المؤقتة الشهرية" : "Monthly interim payment applications"}
+              {tAuto('auto.monthlyInterimPaymentApplications')}
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2 w-full sm:w-auto sm:ms-auto">
           <Button size="sm" className="h-8 bg-teal-600 hover:bg-teal-700 text-white rounded-lg shadow-sm shadow-teal-600/20" onClick={() => { setFormData(emptyForm); setEditItem(null); setShowDialog(true); }}>
-            <Plus className="h-3.5 w-3.5 me-1" />{ar ? "مطالبة جديدة" : "New Claim"}
+            <Plus className="h-3.5 w-3.5 me-1" />{tAuto('auto.newClaim')}
           </Button>
         </div>
       </div>
@@ -285,17 +288,17 @@ export default function ProgressClaimsPage({ language, projectId }: ProgressClai
           <div className="bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20 p-4">
             <div className="flex items-center gap-2 mb-2">
               <div className="p-1.5 rounded-lg bg-white/20"><FileText className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" /></div>
-              <span className="text-xs text-teal-600 dark:text-teal-400">{ar ? "إجمالي المطالبات" : "Total Claims"}</span>
+              <span className="text-xs text-teal-600 dark:text-teal-400">{tAuto('auto.totalClaims')}</span>
             </div>
             <div className="text-xl font-bold text-slate-900 dark:text-white font-mono tabular-nums">{formatCurrency(totalClaims, ar)}</div>
-            <p className="text-[10px] text-teal-500/60 mt-1">{filtered.length} {ar ? "مطالبة" : "claims"}</p>
+            <p className="text-[10px] text-teal-500/60 mt-1">{filtered.length} {tAuto('auto.claims')}</p>
           </div>
         </Card>
         <Card className="py-0 gap-0 border-0 shadow-sm overflow-hidden">
           <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 p-4">
             <div className="flex items-center gap-2 mb-2">
               <div className="p-1.5 rounded-lg bg-white/20"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" /></div>
-              <span className="text-xs text-emerald-600 dark:text-emerald-400">{ar ? "المعتمد" : "Approved"}</span>
+              <span className="text-xs text-emerald-600 dark:text-emerald-400">{tAuto('auto.approved')}</span>
             </div>
             <div className="text-xl font-bold text-slate-900 dark:text-white font-mono tabular-nums">{formatCurrency(approvedAmount, ar)}</div>
           </div>
@@ -304,7 +307,7 @@ export default function ProgressClaimsPage({ language, projectId }: ProgressClai
           <div className="bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20 p-4">
             <div className="flex items-center gap-2 mb-2">
               <div className="p-1.5 rounded-lg bg-white/20"><ClipboardCheck className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" /></div>
-              <span className="text-xs text-amber-600 dark:text-amber-400">{ar ? "قيد المعالجة" : "Pending"}</span>
+              <span className="text-xs text-amber-600 dark:text-amber-400">{tAuto('auto.pending')}</span>
             </div>
             <div className="text-xl font-bold text-slate-900 dark:text-white tabular-nums">{pendingCount}</div>
           </div>
@@ -313,7 +316,7 @@ export default function ProgressClaimsPage({ language, projectId }: ProgressClai
           <div className="bg-gradient-to-br from-rose-50 to-rose-100 dark:from-rose-900/20 dark:to-rose-800/20 p-4">
             <div className="flex items-center gap-2 mb-2">
               <div className="p-1.5 rounded-lg bg-white/20"><XCircle className="h-3.5 w-3.5 text-rose-600 dark:text-rose-400" /></div>
-              <span className="text-xs text-rose-600 dark:text-rose-400">{ar ? "الاحتجاز" : "Retained"}</span>
+              <span className="text-xs text-rose-600 dark:text-rose-400">{tAuto('auto.retained')}</span>
             </div>
             <div className="text-xl font-bold text-slate-900 dark:text-white font-mono tabular-nums">{formatCurrency(totalRetained, ar)}</div>
           </div>
@@ -324,26 +327,26 @@ export default function ProgressClaimsPage({ language, projectId }: ProgressClai
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
         <div className="relative flex-1 sm:w-64">
           <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={ar ? "بحث..." : "Search..."} className="ps-9 h-8 text-sm rounded-lg" />
+          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={tAuto('auto.search1')} className="ps-9 h-8 text-sm rounded-lg" />
         </div>
         {!projectId && (
           <Select value={filterProject} onValueChange={setFilterProject}>
-            <SelectTrigger className="w-[160px] h-8 text-xs rounded-lg"><SelectValue placeholder={ar ? "المشروع" : "Project"} /></SelectTrigger>
+            <SelectTrigger className="w-[160px] h-8 text-xs rounded-lg"><SelectValue placeholder={tAuto('auto.project')} /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{ar ? "جميع المشاريع" : "All Projects"}</SelectItem>
+              <SelectItem value="all">{tAuto('auto.allProjects')}</SelectItem>
               {projects.map((p) => (<SelectItem key={p.id} value={p.id}>{ar ? p.name : p.nameEn || p.name}</SelectItem>))}
             </SelectContent>
           </Select>
         )}
         <Select value={filterStatus} onValueChange={setFilterStatus}>
-          <SelectTrigger className="w-[150px] h-8 text-xs rounded-lg"><SelectValue placeholder={ar ? "الحالة" : "Status"} /></SelectTrigger>
+          <SelectTrigger className="w-[150px] h-8 text-xs rounded-lg"><SelectValue placeholder={tAuto('auto.status1')} /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">{ar ? "الكل" : "All"}</SelectItem>
-            <SelectItem value="DRAFT">{ar ? "مسودة" : "Draft"}</SelectItem>
-            <SelectItem value="SUBMITTED">{ar ? "مقدم" : "Submitted"}</SelectItem>
-            <SelectItem value="UNDER_REVIEW">{ar ? "قيد المراجعة" : "Under Review"}</SelectItem>
-            <SelectItem value="APPROVED">{ar ? "معتمد" : "Approved"}</SelectItem>
-            <SelectItem value="REJECTED">{ar ? "مرفوض" : "Rejected"}</SelectItem>
+            <SelectItem value="all">{tAuto('auto.all')}</SelectItem>
+            <SelectItem value="DRAFT">{tAuto('auto.draft')}</SelectItem>
+            <SelectItem value="SUBMITTED">{tAuto('auto.submitted')}</SelectItem>
+            <SelectItem value="UNDER_REVIEW">{tAuto('auto.underReview')}</SelectItem>
+            <SelectItem value="APPROVED">{tAuto('auto.approved')}</SelectItem>
+            <SelectItem value="REJECTED">{tAuto('auto.rejected')}</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -353,13 +356,13 @@ export default function ProgressClaimsPage({ language, projectId }: ProgressClai
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent bg-slate-50/80 dark:bg-slate-800/50">
-              <TableHead className="text-xs font-semibold">{ar ? "رقم المطالبة" : "Claim #"}</TableHead>
-              <TableHead className="text-xs font-semibold">{ar ? "الفترة" : "Period"}</TableHead>
-              <TableHead className="text-xs font-semibold hidden md:table-cell">{ar ? "المشروع" : "Project"}</TableHead>
-              <TableHead className="text-xs font-semibold">{ar ? "المبلغ" : "Amount"}</TableHead>
-              <TableHead className="text-xs font-semibold hidden md:table-cell">{ar ? "صافي الدفع" : "Net Payment"}</TableHead>
-              <TableHead className="text-xs font-semibold hidden sm:table-cell">{ar ? "الحالة" : "Status"}</TableHead>
-              <TableHead className="text-xs font-semibold text-start">{ar ? "الإجراءات" : "Actions"}</TableHead>
+              <TableHead className="text-xs font-semibold">{tAuto('auto.claim')}</TableHead>
+              <TableHead className="text-xs font-semibold">{tAuto('auto.period')}</TableHead>
+              <TableHead className="text-xs font-semibold hidden md:table-cell">{tAuto('auto.project')}</TableHead>
+              <TableHead className="text-xs font-semibold">{tAuto('auto.amount')}</TableHead>
+              <TableHead className="text-xs font-semibold hidden md:table-cell">{tAuto('auto.netPayment')}</TableHead>
+              <TableHead className="text-xs font-semibold hidden sm:table-cell">{tAuto('auto.status1')}</TableHead>
+              <TableHead className="text-xs font-semibold text-start">{tAuto('auto.actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -418,7 +421,7 @@ export default function ProgressClaimsPage({ language, projectId }: ProgressClai
                     <div className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
                       <Inbox className="h-7 w-7 text-slate-300 dark:text-slate-600" />
                     </div>
-                    <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{ar ? "لا توجد مطالبات" : "No progress claims found"}</p>
+                    <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{tAuto('auto.noProgressClaimsFound')}</p>
                   </div>
                 </TableCell>
               </TableRow>
@@ -431,66 +434,66 @@ export default function ProgressClaimsPage({ language, projectId }: ProgressClai
       <Dialog open={showDialog} onOpenChange={(open) => { if (!open) { setShowDialog(false); setEditItem(null); setFormData(emptyForm); } }}>
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{editItem ? (ar ? "تعديل مطالبة" : "Edit Claim") : (ar ? "مطالبة جديدة" : "New Claim")}</DialogTitle>
-            <DialogDescription>{editItem ? (ar ? "تعديل بيانات المطالبة" : "Edit claim details") : (ar ? "إضافة مطالبة تقدم جديدة" : "Add a new progress claim")}</DialogDescription>
+            <DialogTitle>{editItem ? (tAuto('auto.editClaim')) : (tAuto('auto.newClaim'))}</DialogTitle>
+            <DialogDescription>{editItem ? (tAuto('auto.editClaimDetails')) : (tAuto('auto.addANewProgressClaim'))}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "رقم المطالبة" : "Claim #"}</Label>
+                <Label className="text-sm">{tAuto('auto.claim')}</Label>
                 <Input value={formData.claimNumber} onChange={(e) => setFormData({ ...formData, claimNumber: e.target.value })} className="h-8 text-sm rounded-lg" placeholder="IPC-001" />
               </div>
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "الفترة" : "Period"}</Label>
-                <Input value={formData.period} onChange={(e) => setFormData({ ...formData, period: e.target.value })} className="h-8 text-sm rounded-lg" placeholder={ar ? "مارس 2025" : "March 2025"} />
+                <Label className="text-sm">{tAuto('auto.period')}</Label>
+                <Input value={formData.period} onChange={(e) => setFormData({ ...formData, period: e.target.value })} className="h-8 text-sm rounded-lg" placeholder={tAuto('auto.march2025')} />
               </div>
             </div>
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "المشروع" : "Project"} *</Label>
+              <Label className="text-sm">{tAuto('auto.project')} *</Label>
               <Select value={formData.projectId} onValueChange={(v) => setFormData({ ...formData, projectId: v })}>
-                <SelectTrigger className="h-8 text-sm rounded-lg"><SelectValue placeholder={ar ? "اختر مشروع" : "Select project"} /></SelectTrigger>
+                <SelectTrigger className="h-8 text-sm rounded-lg"><SelectValue placeholder={tAuto('auto.selectProject')} /></SelectTrigger>
                 <SelectContent>
                   {projects.map((p) => (<SelectItem key={p.id} value={p.id}>{ar ? p.name : p.nameEn || p.name}</SelectItem>))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "تاريخ المطالبة" : "Claim Date"}</Label>
+              <Label className="text-sm">{tAuto('auto.claimDate')}</Label>
               <Input type="date" value={formData.claimDate} onChange={(e) => setFormData({ ...formData, claimDate: e.target.value })} className="h-8 text-sm rounded-lg" />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "إجمالي المطالبة" : "Total Claim"}</Label>
+                <Label className="text-sm">{tAuto('auto.totalClaim')}</Label>
                 <Input type="number" value={formData.totalClaimAmount} onChange={(e) => setFormData({ ...formData, totalClaimAmount: e.target.value })} className="h-8 text-sm font-mono rounded-lg" />
               </div>
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "المعتمد سابقاً" : "Previous Certified"}</Label>
+                <Label className="text-sm">{tAuto('auto.previousCertified')}</Label>
                 <Input type="number" value={formData.previousCertified} onChange={(e) => setFormData({ ...formData, previousCertified: e.target.value })} className="h-8 text-sm font-mono rounded-lg" />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "المعتمد حالياً" : "Current Certified"}</Label>
+                <Label className="text-sm">{tAuto('auto.currentCertified')}</Label>
                 <Input type="number" value={formData.currentCertified} onChange={(e) => setFormData({ ...formData, currentCertified: e.target.value })} className="h-8 text-sm font-mono rounded-lg" />
               </div>
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "مبلغ الاحتجاز" : "Retention"}</Label>
+                <Label className="text-sm">{tAuto('auto.retention')}</Label>
                 <Input type="number" value={formData.retentionAmount} onChange={(e) => setFormData({ ...formData, retentionAmount: e.target.value })} className="h-8 text-sm font-mono rounded-lg" />
               </div>
             </div>
             {/* Auto-calculated Net Payment */}
             <div className="p-3 rounded-lg bg-teal-50 dark:bg-teal-900/20 border border-teal-200 dark:border-teal-800/50">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-teal-700 dark:text-teal-300">{ar ? "صافي الدفع" : "Net Payment"}</span>
+                <span className="text-sm font-medium text-teal-700 dark:text-teal-300">{tAuto('auto.netPayment')}</span>
                 <span className="text-sm font-bold font-mono text-teal-700 dark:text-teal-300 tabular-nums">{formatCurrency(netPayment, ar)}</span>
               </div>
-              <p className="text-[10px] text-teal-500/60 mt-1">{ar ? "المعتمد حالياً - مبلغ الاحتجاز" : "Current Certified − Retention"}</p>
+              <p className="text-[10px] text-teal-500/60 mt-1">{tAuto('auto.currentCertifiedRetention')}</p>
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" className="rounded-lg" onClick={() => { setShowDialog(false); setEditItem(null); setFormData(emptyForm); }}>{ar ? "إلغاء" : "Cancel"}</Button>
+            <Button variant="outline" className="rounded-lg" onClick={() => { setShowDialog(false); setEditItem(null); setFormData(emptyForm); }}>{tAuto('auto.cancel')}</Button>
             <Button className="bg-teal-600 hover:bg-teal-700 text-white rounded-lg" disabled={createMutation.isPending || updateMutation.isPending} onClick={handleSave}>
-              {(createMutation.isPending || updateMutation.isPending) ? (ar ? "جارٍ الحفظ..." : "Saving...") : (ar ? "حفظ" : "Save")}
+              {(createMutation.isPending || updateMutation.isPending) ? (tAuto('auto.saving')) : (tAuto('auto.save'))}
             </Button>
           </DialogFooter>
         </DialogContent>

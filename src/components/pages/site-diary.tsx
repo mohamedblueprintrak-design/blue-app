@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -112,6 +114,7 @@ function getEntryTypeIcon(hasWork: boolean, hasIssues: boolean, hasSafety: boole
 interface SiteDiaryProps { language: "ar" | "en"; projectId?: string; }
 
 export default function SiteDiary({ language, projectId }: SiteDiaryProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const queryClient = useQueryClient();
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -199,9 +202,9 @@ export default function SiteDiary({ language, projectId }: SiteDiaryProps) {
             <BookOpen className="h-4.5 w-4.5 text-teal-600 dark:text-teal-400" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white">{ar ? "يومية الموقع" : "Site Diary"}</h2>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">{tAuto('auto.siteDiary')}</h2>
             <p className="text-[10px] text-slate-500 dark:text-slate-400">
-              {diaries.length} {ar ? "إدخال" : "entries"}
+              {diaries.length} {tAuto('auto.entries')}
             </p>
           </div>
         </div>
@@ -210,10 +213,10 @@ export default function SiteDiary({ language, projectId }: SiteDiaryProps) {
           <Select value={filterProject} onValueChange={setFilterProject}>
             <SelectTrigger className="w-[160px] h-8 text-xs rounded-lg">
               <Filter className="h-3 w-3 me-1 text-slate-400" />
-              <SelectValue placeholder={ar ? "المشروع" : "Project"} />
+              <SelectValue placeholder={tAuto('auto.project')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{ar ? "جميع المشاريع" : "All Projects"}</SelectItem>
+              <SelectItem value="all">{tAuto('auto.allProjects')}</SelectItem>
               {projects.map((p) => (
                 <SelectItem key={p.id} value={p.id}>{ar ? p.name : p.nameEn || p.name}</SelectItem>
               ))}
@@ -221,7 +224,7 @@ export default function SiteDiary({ language, projectId }: SiteDiaryProps) {
           </Select>
           )}
           <Button size="sm" className="h-8 bg-teal-600 hover:bg-teal-700 text-white rounded-lg shadow-sm shadow-teal-600/20" onClick={() => setShowAddDialog(true)}>
-            <Plus className="h-3.5 w-3.5 me-1" />{ar ? "إدخال جديد" : "New Entry"}
+            <Plus className="h-3.5 w-3.5 me-1" />{tAuto('auto.newEntry')}
           </Button>
         </div>
       </div>
@@ -244,22 +247,22 @@ export default function SiteDiary({ language, projectId }: SiteDiaryProps) {
               <Plus className="h-4 w-4 text-teal-600 dark:text-teal-400" />
             </div>
           </div>
-          <h3 className="text-base font-semibold text-slate-900 dark:text-white mb-1">{ar ? "لا توجد إدخالات" : "No diary entries"}</h3>
+          <h3 className="text-base font-semibold text-slate-900 dark:text-white mb-1">{tAuto('auto.noDiaryEntries')}</h3>
           <p className="text-sm text-slate-500 mb-4 max-w-xs">
-            {ar ? "ابدأ بتسجيل يومية موقع جديدة لتوثيق تقدم العمل اليومي" : "Start by adding a new site diary entry to track daily work progress"}
+            {tAuto('auto.startByAddingANewSiteDiaryEntryToTrackDa')}
           </p>
           <div className="flex items-center gap-6 justify-center text-xs text-slate-400 mb-6">
             <div className="flex items-center gap-1.5">
               <Sun className="h-3.5 w-3.5 text-amber-400" />
-              <span>{ar ? "الطقس" : "Weather"}</span>
+              <span>{tAuto('auto.weather')}</span>
             </div>
             <div className="flex items-center gap-1.5">
               <HardHat className="h-3.5 w-3.5 text-teal-400" />
-              <span>{ar ? "العمل" : "Work"}</span>
+              <span>{tAuto('auto.work')}</span>
             </div>
             <div className="flex items-center gap-1.5">
               <ShieldCheck className="h-3.5 w-3.5 text-amber-400" />
-              <span>{ar ? "السلامة" : "Safety"}</span>
+              <span>{tAuto('auto.safety')}</span>
             </div>
           </div>
           <Button
@@ -267,7 +270,7 @@ export default function SiteDiary({ language, projectId }: SiteDiaryProps) {
             onClick={() => setShowAddDialog(true)}
           >
             <Plus className="h-4 w-4 me-1.5" />
-            {ar ? "إدخال يومية جديد" : "New Diary Entry"}
+            {tAuto('auto.newDiaryEntry')}
           </Button>
         </div>
       ) : (
@@ -310,16 +313,16 @@ export default function SiteDiary({ language, projectId }: SiteDiaryProps) {
                   </span>
                   {isToday && (
                     <Badge className="bg-teal-100 text-teal-700 dark:bg-teal-900/50 dark:text-teal-300 text-[10px] h-5 border-0">
-                      {ar ? "اليوم" : "Today"}
+                      {tAuto('auto.today')}
                     </Badge>
                   )}
                   {isYesterday && !isToday && (
                     <Badge className="bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 text-[10px] h-5 border-0">
-                      {ar ? "أمس" : "Yesterday"}
+                      {tAuto('auto.yesterday1')}
                     </Badge>
                   )}
                   <Badge variant="secondary" className="text-[10px] h-5 ms-auto">
-                    {entries.length} {ar ? "إدخال" : "entries"}
+                    {entries.length} {tAuto('auto.entries')}
                   </Badge>
                 </div>
 
@@ -353,7 +356,7 @@ export default function SiteDiary({ language, projectId }: SiteDiaryProps) {
                             </Badge>
                             {contentCount > 1 && (
                               <Badge variant="secondary" className="text-[9px] h-5 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400">
-                                {contentCount} {ar ? "بنود" : "items"}
+                                {contentCount} {tAuto('auto.items')}
                               </Badge>
                             )}
                           </div>
@@ -367,8 +370,8 @@ export default function SiteDiary({ language, projectId }: SiteDiaryProps) {
                                   </button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align={ar ? "start" : "end"} className="w-36">
-                                  <DropdownMenuItem className="text-red-600 dark:text-red-400" onClick={() => { if (confirm(ar ? "هل أنت متأكد من الحذف؟" : "Delete this entry?")) deleteMutation.mutate(entry.id); }}>
-                                    <Trash2 className="h-3.5 w-3.5 me-2" />{ar ? "حذف" : "Delete"}
+                                  <DropdownMenuItem className="text-red-600 dark:text-red-400" onClick={() => { if (confirm(tAuto('auto.deleteThisEntry'))) deleteMutation.mutate(entry.id); }}>
+                                    <Trash2 className="h-3.5 w-3.5 me-2" />{tAuto('auto.delete')}
                                   </DropdownMenuItem>
                                 </DropdownMenuContent>
                               </DropdownMenu>
@@ -389,7 +392,7 @@ export default function SiteDiary({ language, projectId }: SiteDiaryProps) {
                           )}
                           <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 px-2 py-1 rounded-md">
                             <Users className="h-3.5 w-3.5" />
-                            <span className="font-medium">{entry.workerCount} {ar ? "عامل" : "workers"}</span>
+                            <span className="font-medium">{entry.workerCount} {tAuto('auto.workers')}</span>
                           </div>
                         </div>
 
@@ -399,7 +402,7 @@ export default function SiteDiary({ language, projectId }: SiteDiaryProps) {
                             <div className="rounded-lg p-2.5 border border-teal-100 dark:border-teal-900/30 bg-teal-50/50 dark:bg-teal-950/10">
                               <div className="flex items-center gap-1 text-[10px] font-semibold text-teal-600 dark:text-teal-400 mb-1.5 uppercase tracking-wide">
                                 <HardHat className="h-3 w-3" />
-                                {ar ? "العمل المنجز" : "Work Done"}
+                                {tAuto('auto.workDone')}
                               </div>
                               <p className="text-xs text-slate-700 dark:text-slate-300 line-clamp-3 leading-relaxed">{entry.workDescription}</p>
                             </div>
@@ -409,7 +412,7 @@ export default function SiteDiary({ language, projectId }: SiteDiaryProps) {
                             <div className="rounded-lg p-2.5 border border-red-100 dark:border-red-900/30 bg-red-50/50 dark:bg-red-950/10">
                               <div className="flex items-center gap-1 text-[10px] font-semibold text-red-600 dark:text-red-400 mb-1.5 uppercase tracking-wide">
                                 <AlertCircle className="h-3 w-3" />
-                                {ar ? "المشاكل" : "Issues"}
+                                {tAuto('auto.issues')}
                               </div>
                               <p className="text-xs text-red-700 dark:text-red-300 line-clamp-3 leading-relaxed">{entry.issues}</p>
                             </div>
@@ -419,7 +422,7 @@ export default function SiteDiary({ language, projectId }: SiteDiaryProps) {
                             <div className="rounded-lg p-2.5 border border-amber-100 dark:border-amber-900/30 bg-amber-50/50 dark:bg-amber-950/10">
                               <div className="flex items-center gap-1 text-[10px] font-semibold text-amber-600 dark:text-amber-400 mb-1.5 uppercase tracking-wide">
                                 <ShieldCheck className="h-3 w-3" />
-                                {ar ? "السلامة" : "Safety"}
+                                {tAuto('auto.safety')}
                               </div>
                               <p className="text-xs text-amber-700 dark:text-amber-300 line-clamp-3 leading-relaxed">{entry.safetyNotes}</p>
                             </div>
@@ -429,7 +432,7 @@ export default function SiteDiary({ language, projectId }: SiteDiaryProps) {
                             <div className="rounded-lg p-2.5 border border-blue-100 dark:border-blue-900/30 bg-blue-50/50 dark:bg-blue-950/10">
                               <div className="flex items-center gap-1 text-[10px] font-semibold text-blue-600 dark:text-blue-400 mb-1.5 uppercase tracking-wide">
                                 <Wrench className="h-3 w-3" />
-                                {ar ? "المعدات" : "Equipment"}
+                                {tAuto('auto.equipment')}
                               </div>
                               <p className="text-xs text-blue-700 dark:text-blue-300 line-clamp-3 leading-relaxed">{entry.equipment}</p>
                             </div>
@@ -439,7 +442,7 @@ export default function SiteDiary({ language, projectId }: SiteDiaryProps) {
                             <div className="rounded-lg p-2.5 border border-emerald-100 dark:border-emerald-900/30 bg-emerald-50/50 dark:bg-emerald-950/10 md:col-span-2">
                               <div className="flex items-center gap-1 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 mb-1.5 uppercase tracking-wide">
                                 <Package className="h-3 w-3" />
-                                {ar ? "المواد" : "Materials"}
+                                {tAuto('auto.materials')}
                               </div>
                               <p className="text-xs text-emerald-700 dark:text-emerald-300 line-clamp-2 leading-relaxed">{entry.materials}</p>
                             </div>
@@ -450,7 +453,7 @@ export default function SiteDiary({ language, projectId }: SiteDiaryProps) {
                         {!hasContent && (
                           <div className="flex items-center gap-1.5 mt-2 text-[10px] text-slate-400">
                             <Camera className="h-3 w-3" />
-                            <span>{ar ? "إدخال سريع - لا تفاصيل مضافة" : "Quick entry - no details added"}</span>
+                            <span>{tAuto('auto.quickEntryNoDetailsAdded')}</span>
                           </div>
                         )}
                       </Card>
@@ -467,15 +470,15 @@ export default function SiteDiary({ language, projectId }: SiteDiaryProps) {
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{ar ? "إدخال يومية جديد" : "New Diary Entry"}</DialogTitle>
-            <DialogDescription>{ar ? "تسجيل يومية موقع جديدة" : "Record a new site diary entry"}</DialogDescription>
+            <DialogTitle>{tAuto('auto.newDiaryEntry')}</DialogTitle>
+            <DialogDescription>{tAuto('auto.recordANewSiteDiaryEntry')}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "المشروع *" : "Project *"}</Label>
+                <Label className="text-sm">{tAuto('auto.project2')}</Label>
                 <Select value={formData.projectId} onValueChange={(v) => setFormData({ ...formData, projectId: v })}>
-                  <SelectTrigger><SelectValue placeholder={ar ? "اختر مشروع" : "Select project"} /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder={tAuto('auto.selectProject')} /></SelectTrigger>
                   <SelectContent>
                     {projects.map((p) => (
                       <SelectItem key={p.id} value={p.id}>{ar ? p.name : p.nameEn || p.name}</SelectItem>
@@ -484,48 +487,48 @@ export default function SiteDiary({ language, projectId }: SiteDiaryProps) {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "التاريخ *" : "Date *"}</Label>
+                <Label className="text-sm">{tAuto('auto.date1')}</Label>
                 <Input type="date" value={formData.date} onChange={(e) => setFormData({ ...formData, date: e.target.value })} />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "الطقس" : "Weather"}</Label>
-                <Input value={formData.weather} onChange={(e) => setFormData({ ...formData, weather: e.target.value })} placeholder={ar ? "مشمس، غائم، ممطر..." : "Sunny, cloudy, rainy..."} />
+                <Label className="text-sm">{tAuto('auto.weather')}</Label>
+                <Input value={formData.weather} onChange={(e) => setFormData({ ...formData, weather: e.target.value })} placeholder={tAuto('auto.sunnyCloudyRainy')} />
               </div>
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "عدد العمال" : "Worker Count"}</Label>
+                <Label className="text-sm">{tAuto('auto.workerCount')}</Label>
                 <Input type="number" min={0} value={formData.workerCount} onChange={(e) => setFormData({ ...formData, workerCount: e.target.value })} placeholder="0" />
               </div>
             </div>
             <Separator />
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "العمل المنجز" : "Work Description"}</Label>
-              <Textarea value={formData.workDescription} onChange={(e) => setFormData({ ...formData, workDescription: e.target.value })} placeholder={ar ? "وصف العمل المنجز اليوم" : "Description of work done today"} rows={3} />
+              <Label className="text-sm">{tAuto('auto.workDescription')}</Label>
+              <Textarea value={formData.workDescription} onChange={(e) => setFormData({ ...formData, workDescription: e.target.value })} placeholder={tAuto('auto.descriptionOfWorkDoneToday')} rows={3} />
             </div>
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "المشاكل" : "Issues"}</Label>
-              <Textarea value={formData.issues} onChange={(e) => setFormData({ ...formData, issues: e.target.value })} placeholder={ar ? "أي مشاكل واجهتها" : "Any issues encountered"} rows={2} />
+              <Label className="text-sm">{tAuto('auto.issues')}</Label>
+              <Textarea value={formData.issues} onChange={(e) => setFormData({ ...formData, issues: e.target.value })} placeholder={tAuto('auto.anyIssuesEncountered')} rows={2} />
             </div>
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "ملاحظات السلامة" : "Safety Notes"}</Label>
-              <Textarea value={formData.safetyNotes} onChange={(e) => setFormData({ ...formData, safetyNotes: e.target.value })} placeholder={ar ? "ملاحظات السلامة" : "Safety observations"} rows={2} />
+              <Label className="text-sm">{tAuto('auto.safetyNotes')}</Label>
+              <Textarea value={formData.safetyNotes} onChange={(e) => setFormData({ ...formData, safetyNotes: e.target.value })} placeholder={tAuto('auto.safetyObservations')} rows={2} />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "المعدات" : "Equipment"}</Label>
-                <Textarea value={formData.equipment} onChange={(e) => setFormData({ ...formData, equipment: e.target.value })} placeholder={ar ? "المعدات المستخدمة" : "Equipment used"} rows={2} />
+                <Label className="text-sm">{tAuto('auto.equipment')}</Label>
+                <Textarea value={formData.equipment} onChange={(e) => setFormData({ ...formData, equipment: e.target.value })} placeholder={tAuto('auto.equipmentUsed')} rows={2} />
               </div>
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "المواد" : "Materials"}</Label>
-                <Textarea value={formData.materials} onChange={(e) => setFormData({ ...formData, materials: e.target.value })} placeholder={ar ? "المواد الواردة" : "Materials arrived"} rows={2} />
+                <Label className="text-sm">{tAuto('auto.materials')}</Label>
+                <Textarea value={formData.materials} onChange={(e) => setFormData({ ...formData, materials: e.target.value })} placeholder={tAuto('auto.materialsArrived')} rows={2} />
               </div>
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => { setShowAddDialog(false); resetForm(); }}>{ar ? "إلغاء" : "Cancel"}</Button>
+            <Button variant="outline" onClick={() => { setShowAddDialog(false); resetForm(); }}>{tAuto('auto.cancel')}</Button>
             <Button className="bg-teal-600 hover:bg-teal-700 text-white" onClick={() => createMutation.mutate(formData)} disabled={!formData.projectId || !formData.date || createMutation.isPending}>
-              {createMutation.isPending ? (ar ? "جارٍ الإنشاء..." : "Creating...") : (ar ? "إنشاء" : "Create")}
+              {createMutation.isPending ? (tAuto('auto.creating')) : (tAuto('auto.create'))}
             </Button>
           </DialogFooter>
         </DialogContent>

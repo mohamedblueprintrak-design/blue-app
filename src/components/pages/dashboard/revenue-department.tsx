@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import {
   Card,
   CardContent,
@@ -30,6 +32,7 @@ interface RevenueDepartmentProps {
 }
 
 export function RevenueDepartment({ revenue, departmentProgress, isAr, deptAccents }: RevenueDepartmentProps) {
+  const tAuto = useTranslations();
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
       {/* Revenue Chart */}
@@ -40,14 +43,14 @@ export function RevenueDepartment({ revenue, departmentProgress, isAr, deptAccen
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="text-base font-semibold text-slate-900 dark:text-white">
-                {isAr ? "الإيرادات الشهرية" : "Monthly Revenue"}
+                {tAuto('auto.monthlyRevenue')}
               </CardTitle>
               <CardDescription className="text-xs text-slate-500 dark:text-slate-400">
-                {isAr ? "إجمالي المدفوعات المحصلة خلال آخر 6 أشهر" : "Total collected payments over the last 6 months"}
+                {tAuto('auto.totalCollectedPaymentsOverTheLast6Months')}
               </CardDescription>
             </div>
             <Button variant="ghost" size="sm" className="text-xs text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 hover:bg-teal-50 dark:hover:bg-teal-950/30 gap-1">
-              {isAr ? "عرض المزيد" : "View More"}
+              {tAuto('auto.viewMore')}
               <ArrowUpRight className="h-3 w-3" />
             </Button>
           </div>
@@ -64,7 +67,7 @@ export function RevenueDepartment({ revenue, departmentProgress, isAr, deptAccen
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" opacity={0.5} />
                 <XAxis
-                  dataKey={isAr ? "labelAr" : "labelEn"}
+                  dataKey={tAuto('auto.labelEn')}
                   axisLine={false}
                   tickLine={false}
                   tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
@@ -97,10 +100,10 @@ export function RevenueDepartment({ revenue, departmentProgress, isAr, deptAccen
           {/* Teal accent line */}
           <div className="absolute top-0 start-0 end-0 h-[3px] rounded-t-xl bg-gradient-to-l from-teal-500 to-teal-400" />
           <CardTitle className="text-base font-semibold text-slate-900 dark:text-white">
-            {isAr ? "تقدّم الأقسام" : "Department Progress"}
+            {tAuto('auto.departmentProgress')}
           </CardTitle>
           <CardDescription className="text-xs text-slate-500 dark:text-slate-400">
-            {isAr ? "مراحل المشاريع النشطة لكل قسم" : "Active project stages per department"}
+            {tAuto('auto.activeProjectStagesPerDepartment')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-1 pt-2">
@@ -145,12 +148,8 @@ export function RevenueDepartment({ revenue, departmentProgress, isAr, deptAccen
                           ? isAr
                             ? `${dept.total - dept.completed} مرحلة متبقية`
                             : `${dept.total - dept.completed} stages left`
-                          : isAr
-                            ? "مكتمل"
-                            : "Complete"
-                        : isAr
-                          ? "لا توجد مراحل"
-                          : "No stages"}
+                          : tAuto('auto.complete')
+                        : tAuto('auto.noStages')}
                     </span>
                   </div>
                 </div>

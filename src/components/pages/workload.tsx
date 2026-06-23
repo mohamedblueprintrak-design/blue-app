@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
@@ -111,12 +113,13 @@ function getAvailabilityConfig(status: "AVAILABLE" | "occupied" | "overloaded", 
 
 // ===== Task Distribution Bar =====
 function TaskDistributionBar({ stats, ar }: { stats: WorkloadEmployee["taskStats"]; ar: boolean }) {
+  const tAuto = useTranslations();
   const total = stats.total || 1;
   const segments = [
-    { count: stats.completed, color: "bg-green-500", label: ar ? "مكتمل" : "Done" },
-    { count: stats.inProgress, color: "bg-amber-500", label: ar ? "قيد التنفيذ" : "In Progress" },
-    { count: stats.overdue, color: "bg-red-500", label: ar ? "متأخر" : "Overdue" },
-    { count: stats.todo + stats.review, color: "bg-slate-300 dark:bg-slate-600", label: ar ? "أخرى" : "Other" },
+    { count: stats.completed, color: "bg-green-500", label: tAuto('auto.done') },
+    { count: stats.inProgress, color: "bg-amber-500", label: tAuto('auto.inProgress') },
+    { count: stats.overdue, color: "bg-red-500", label: tAuto('auto.overdue') },
+    { count: stats.todo + stats.review, color: "bg-slate-300 dark:bg-slate-600", label: tAuto('auto.other') },
   ].filter((s) => s.count > 0);
 
   return (
@@ -147,6 +150,7 @@ function TaskDistributionBar({ stats, ar }: { stats: WorkloadEmployee["taskStats
 
 // ===== Employee Workload Card =====
 function EmployeeWorkloadCard({ employee, ar }: { employee: WorkloadEmployee; ar: boolean }) {
+  const tAuto = useTranslations();
   const availability = getAvailability(employee);
   const config = getAvailabilityConfig(availability, ar);
 
@@ -185,7 +189,7 @@ function EmployeeWorkloadCard({ employee, ar }: { employee: WorkloadEmployee; ar
               {employee.taskStats.completed}
             </p>
             <p className="text-[9px] text-green-600/60 dark:text-green-500/60">
-              {ar ? "مكتمل" : "Done"}
+              {tAuto('auto.done')}
             </p>
           </div>
         </div>
@@ -196,7 +200,7 @@ function EmployeeWorkloadCard({ employee, ar }: { employee: WorkloadEmployee; ar
               {employee.taskStats.inProgress}
             </p>
             <p className="text-[9px] text-amber-600/60 dark:text-amber-500/60">
-              {ar ? "قيد التنفيذ" : "Active"}
+              {tAuto('auto.active')}
             </p>
           </div>
         </div>
@@ -207,7 +211,7 @@ function EmployeeWorkloadCard({ employee, ar }: { employee: WorkloadEmployee; ar
               {employee.taskStats.overdue}
             </p>
             <p className="text-[9px] text-red-600/60 dark:text-red-500/60">
-              {ar ? "متأخر" : "Overdue"}
+              {tAuto('auto.overdue')}
             </p>
           </div>
         </div>
@@ -225,6 +229,7 @@ interface WorkloadPageProps {
 }
 
 export default function WorkloadPage({ language }: WorkloadPageProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const [filterDept, setFilterDept] = useState("all");
 
@@ -303,10 +308,10 @@ export default function WorkloadPage({ language }: WorkloadPageProps) {
           </div>
           <div>
             <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-              {ar ? "أعباء العمل" : "Team Workload"}
+              {tAuto('auto.teamWorkload')}
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              {summary.avgTasksPerPerson} {ar ? "مهمة/شخص" : "tasks/person"}
+              {summary.avgTasksPerPerson} {tAuto('auto.tasksPerson')}
             </p>
           </div>
         </div>
@@ -314,10 +319,10 @@ export default function WorkloadPage({ language }: WorkloadPageProps) {
           <Select value={filterDept} onValueChange={setFilterDept}>
             <SelectTrigger className="w-[160px] h-8 text-xs">
               <Filter className="h-3 w-3 me-1 text-slate-400" />
-              <SelectValue placeholder={ar ? "القسم" : "Department"} />
+              <SelectValue placeholder={tAuto('auto.department')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{ar ? "جميع الأقسام" : "All Departments"}</SelectItem>
+              <SelectItem value="all">{tAuto('auto.allDepartments')}</SelectItem>
               {departments.map((d) => (
                 <SelectItem key={d} value={d}>{d}</SelectItem>
               ))}
@@ -334,7 +339,7 @@ export default function WorkloadPage({ language }: WorkloadPageProps) {
               <Users className="h-5 w-5 text-teal-600 dark:text-teal-400" />
             </div>
             <div>
-              <p className="text-xs text-slate-500 dark:text-slate-400">{ar ? "إجمالي الفريق" : "Team Total"}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.teamTotal')}</p>
               <p className="text-xl font-bold text-slate-900 dark:text-white tabular-nums">{summary.totalEmployees}</p>
             </div>
           </div>
@@ -345,7 +350,7 @@ export default function WorkloadPage({ language }: WorkloadPageProps) {
               <UserPlus className="h-5 w-5 text-green-600 dark:text-green-400" />
             </div>
             <div>
-              <p className="text-xs text-slate-500 dark:text-slate-400">{ar ? "متاحون" : "Available"}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.available')}</p>
               <p className="text-xl font-bold text-green-600 dark:text-green-400 tabular-nums">{summary.available}</p>
             </div>
           </div>
@@ -356,7 +361,7 @@ export default function WorkloadPage({ language }: WorkloadPageProps) {
               <Flame className="h-5 w-5 text-red-600 dark:text-red-400" />
             </div>
             <div>
-              <p className="text-xs text-slate-500 dark:text-slate-400">{ar ? "مثقلون" : "Overloaded"}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.overloaded')}</p>
               <p className="text-xl font-bold text-red-600 dark:text-red-400 tabular-nums">{summary.overloaded}</p>
             </div>
           </div>
@@ -366,16 +371,16 @@ export default function WorkloadPage({ language }: WorkloadPageProps) {
       {/* Team Grid with Department Grouping */}
       {isLoading ? (
         <div className="flex items-center justify-center h-64 text-slate-400">
-          {ar ? "جارٍ التحميل..." : "Loading..."}
+          {tAuto('auto.loading')}
         </div>
       ) : employees.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-64 text-center text-slate-400">
           <Users className="h-10 w-10 mb-3 opacity-50" />
-          <p>{ar ? "لا يوجد موظفون" : "No employees found"}</p>
+          <p>{tAuto('auto.noEmployeesFound')}</p>
         </div>
       ) : (() => {
         const groupedByDept = employees.reduce<Record<string, WorkloadEmployee[]>>((acc, emp) => {
-          const dept = emp.department || (ar ? "أخرى" : "Other");
+          const dept = emp.department || (tAuto('auto.other'));
           if (!acc[dept]) acc[dept] = [];
           acc[dept].push(emp);
           return acc;

@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -29,6 +31,7 @@ import { ContractorEditDialog } from "./contractor-edit-dialog";
 interface ContractorsPageProps { language: "ar" | "en"; projectId?: string; initialTab?: "list" | "create" | "rfqs"; }
 
 export default function ContractorsPage({ language, projectId, initialTab }: ContractorsPageProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
@@ -155,9 +158,9 @@ export default function ContractorsPage({ language, projectId, initialTab }: Con
             <Users className="h-4.5 w-4.5 text-slate-600 dark:text-slate-400" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white">{ar ? "المقاولين" : "Contractors"}</h2>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">{tAuto('auto.contractors')}</h2>
             <p className="text-[10px] text-slate-500 dark:text-slate-400">
-              {contractors.length} {ar ? "مقاول" : "contractors"}
+              {contractors.length} {tAuto('auto.contractors1')}
             </p>
           </div>
         </div>
@@ -167,20 +170,20 @@ export default function ContractorsPage({ language, projectId, initialTab }: Con
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder={ar ? "بحث..." : "Search..."}
+              placeholder={tAuto('auto.search1')}
               className="ps-9 h-8 text-sm rounded-lg"
             />
           </div>
           <Select value={categoryFilter} onValueChange={setCategoryFilter}>
             <SelectTrigger className="w-[140px] h-8 text-xs rounded-lg"><SelectValue /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{ar ? "الكل" : "All"}</SelectItem>
-              <SelectItem value="CIVIL">{ar ? "أشغال مدنية" : "Civil"}</SelectItem>
-              <SelectItem value="ELECTRICAL">{ar ? "كهرباء" : "Electrical"}</SelectItem>
+              <SelectItem value="all">{tAuto('auto.all')}</SelectItem>
+              <SelectItem value="CIVIL">{tAuto('auto.civil')}</SelectItem>
+              <SelectItem value="ELECTRICAL">{tAuto('auto.electrical')}</SelectItem>
               <SelectItem value="MEP">MEP</SelectItem>
-              <SelectItem value="FINISHING">{ar ? "تشطيبات" : "Finishing"}</SelectItem>
-              <SelectItem value="PLUMBING">{ar ? "سباكة" : "Plumbing"}</SelectItem>
-              <SelectItem value="HVAC">{ar ? "تكييف" : "HVAC"}</SelectItem>
+              <SelectItem value="FINISHING">{tAuto('auto.finishing')}</SelectItem>
+              <SelectItem value="PLUMBING">{tAuto('auto.plumbing')}</SelectItem>
+              <SelectItem value="HVAC">{tAuto('auto.hVAC')}</SelectItem>
             </SelectContent>
           </Select>
           <Button
@@ -188,7 +191,7 @@ export default function ContractorsPage({ language, projectId, initialTab }: Con
             className="h-8 bg-teal-600 hover:bg-teal-700 text-white rounded-lg shadow-sm"
             onClick={() => { setFormData(emptyForm); setEditingId(null); setShowDialog(true); }}
           >
-            <Plus className="h-3.5 w-3.5 me-1" />{ar ? "إضافة مقاول" : "Add Contractor"}
+            <Plus className="h-3.5 w-3.5 me-1" />{tAuto('auto.addContractor')}
           </Button>
         </div>
       </div>

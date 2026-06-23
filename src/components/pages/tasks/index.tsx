@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState, useCallback, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToastFeedback } from "@/hooks/use-toast-feedback";
@@ -17,6 +19,7 @@ import { TaskDetail } from "./task-detail";
 import { BulkActionBar } from "./task-stats";
 
 export default function TasksKanban({ language, projectId }: TasksKanbanProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const queryClient = useQueryClient();
   const toast = useToastFeedback({ ar });
@@ -105,7 +108,7 @@ export default function TasksKanban({ language, projectId }: TasksKanbanProps) {
       const failed = results.find((r) => !r.ok);
       if (failed) { const data = await failed.json().catch(() => ({})); throw new Error(extractErrorMessage(data.error, 'Failed to change status of some tasks')); }
     },
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["tasks"] }); setSelectedIds(new Set()); toast.showSuccess(ar ? "تم تغيير حالة المهام" : "Task status changed"); },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["tasks"] }); setSelectedIds(new Set()); toast.showSuccess(tAuto('auto.taskStatusChanged')); },
     onError: (error: Error) => { toast.showError(ar ? `فشل في تغيير الحالة: ${error.message}` : `Failed to change status: ${error.message}`); },
   });
 
@@ -115,7 +118,7 @@ export default function TasksKanban({ language, projectId }: TasksKanbanProps) {
       const failed = results.find((r) => !r.ok);
       if (failed) { const data = await failed.json().catch(() => ({})); throw new Error(extractErrorMessage(data.error, 'Failed to change priority of some tasks')); }
     },
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["tasks"] }); setSelectedIds(new Set()); toast.showSuccess(ar ? "تم تغيير أولوية المهام" : "Task priority changed"); },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["tasks"] }); setSelectedIds(new Set()); toast.showSuccess(tAuto('auto.taskPriorityChanged')); },
     onError: (error: Error) => { toast.showError(ar ? `فشل في تغيير الأولوية: ${error.message}` : `Failed to change priority: ${error.message}`); },
   });
 
@@ -220,7 +223,7 @@ export default function TasksKanban({ language, projectId }: TasksKanbanProps) {
         {/* Kanban Board */}
         {isLoading ? (
           <div className="flex items-center justify-center h-64 text-slate-400">
-            {ar ? "جارٍ التحميل..." : "Loading..."}
+            {tAuto('auto.loading')}
           </div>
         ) : (
           <DndContext
@@ -262,7 +265,7 @@ export default function TasksKanban({ language, projectId }: TasksKanbanProps) {
                   let isUndone = false;
                   
                   toast.toast({
-                    title: ar ? "تم الحذف مؤقتاً" : "Deleted temporarily",
+                    title: tAuto('auto.deletedTemporarily'),
                     description: ar ? `تم إخفاء ${idsToDelete.length} مهام` : `Hidden ${idsToDelete.length} task(s)`,
                     action: (
                       <ToastAction altText="Undo" onClick={() => {
@@ -273,7 +276,7 @@ export default function TasksKanban({ language, projectId }: TasksKanbanProps) {
                            return next;
                          });
                       }}>
-                        {ar ? "تراجع" : "Undo"}
+                        {tAuto('auto.undo')}
                       </ToastAction>
                     ),
                     duration: 5000,

@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavStore } from "@/store/nav-store";
@@ -152,6 +154,7 @@ function getCategoryConfig(cat: string) {
 }
 
 export default function HelpPage({ language, projectId }: { language: "ar" | "en"; projectId?: string }) {
+  const tAuto = useTranslations();
   const isAr = language === "ar";
   const [searchQuery, setSearchQuery] = useState("");
   const { setCurrentProjectTab, setCurrentProjectSubTab } = useNavStore();
@@ -208,10 +211,10 @@ export default function HelpPage({ language, projectId }: { language: "ar" | "en
           <Headphones className="w-7 h-7" />
         </div>
         <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
-          {isAr ? "مركز المساعدة" : "Help Center"}
+          {tAuto('auto.helpCenter')}
         </h1>
         <p className="text-slate-500 dark:text-slate-400">
-          {isAr ? "كيف يمكننا مساعدتك اليوم؟" : "How can we help you today?"}
+          {tAuto('auto.howCanWeHelpYouToday')}
         </p>
       </div>
 
@@ -224,12 +227,12 @@ export default function HelpPage({ language, projectId }: { language: "ar" | "en
               isAr ? "right-3" : "left-3"
             )} />
             <Input
-              placeholder={isAr ? "ابحث في مركز المساعدة..." : "Search help center..."}
+              placeholder={tAuto('auto.searchHelpCenter')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className={cn(
                 "py-6 text-lg bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white",
-                isAr ? "ps-4 pe-12" : "ps-12 pe-4"
+                tAuto('auto.ps12Pe4')
               )}
             />
           </div>
@@ -269,7 +272,7 @@ export default function HelpPage({ language, projectId }: { language: "ar" | "en
                 <div className="w-8 h-8 rounded-lg bg-teal-50 dark:bg-teal-500/10 flex items-center justify-center">
                   <BookMarked className="w-4 h-4 text-teal-500" />
                 </div>
-                {isAr ? "مقالات قاعدة المعرفة" : "Knowledge Base Articles"}
+                {tAuto('auto.knowledgeBaseArticles')}
                 <Badge variant="secondary" className="text-[10px]">{kbArticles.length}</Badge>
               </CardTitle>
               <Button
@@ -278,7 +281,7 @@ export default function HelpPage({ language, projectId }: { language: "ar" | "en
                 className="text-xs text-teal-600 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-900/20 gap-1"
                 onClick={navigateToKnowledge}
               >
-                {isAr ? "عرض الكل" : "View All"}
+                {tAuto('auto.viewAll')}
                 <ChevronRight className={cn("h-3.5 w-3.5", isAr ? "rotate-180" : "")} />
               </Button>
             </div>
@@ -328,7 +331,7 @@ export default function HelpPage({ language, projectId }: { language: "ar" | "en
           <CardContent className="p-8 text-center">
             <BookMarked className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
             <p className="text-sm text-slate-500 dark:text-slate-400">
-              {isAr ? "لا توجد مقالات بعد" : "No articles yet"}
+              {tAuto('auto.noArticlesYet')}
             </p>
           </CardContent>
         </Card>
@@ -377,7 +380,7 @@ export default function HelpPage({ language, projectId }: { language: "ar" | "en
             <div className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-500/10 flex items-center justify-center">
               <HelpCircle className="w-4 h-4 text-amber-500" />
             </div>
-            {isAr ? "الأسئلة الشائعة" : "Frequently Asked Questions"}
+            {tAuto('auto.frequentlyAskedQuestions')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -402,7 +405,7 @@ export default function HelpPage({ language, projectId }: { language: "ar" | "en
             <div className="text-center py-8">
               <Search className="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto mb-2" />
               <p className="text-slate-500 dark:text-slate-400 text-sm">
-                {isAr ? "لا توجد نتائج لبحثك" : "No results found for your search"}
+                {tAuto('auto.noResultsFoundForYourSearch')}
               </p>
             </div>
           )}
@@ -416,7 +419,7 @@ export default function HelpPage({ language, projectId }: { language: "ar" | "en
             <div className="w-8 h-8 rounded-lg bg-sky-50 dark:bg-sky-500/10 flex items-center justify-center">
               <Keyboard className="w-4 h-4 text-sky-500" />
             </div>
-            {isAr ? "اختصارات لوحة المفاتيح" : "Keyboard Shortcuts"}
+            {tAuto('auto.keyboardShortcuts')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -454,12 +457,10 @@ export default function HelpPage({ language, projectId }: { language: "ar" | "en
             </div>
             <div>
               <h3 className="text-base font-semibold text-slate-900 dark:text-white mb-1">
-                {isAr ? "نصيحة مفيدة" : "Pro Tip"}
+                {tAuto('auto.proTip')}
               </h3>
               <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                {isAr
-                  ? "استخدم الاختصارات لوحة المفاتيح لتسريع عملك. اضغط على مفتاح (?) لعرض جميع الاختصارات المتاحة في أي وقت."
-                  : "Use keyboard shortcuts to speed up your workflow. Press (?) to view all available shortcuts at any time."}
+                {tAuto('auto.useKeyboardShortcutsToSpeedUpYourWorkflo')}
               </p>
             </div>
           </div>
@@ -471,10 +472,10 @@ export default function HelpPage({ language, projectId }: { language: "ar" | "en
         <CardContent className="p-6">
           <div className="text-center">
             <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
-              {isAr ? "لم تجد ما تبحث عنه؟" : "Didn't find what you're looking for?"}
+              {tAuto('auto.didnTFindWhatYouReLookingFor')}
             </h3>
             <p className="text-slate-500 dark:text-slate-400 mb-4 text-sm">
-              {isAr ? "فريق الدعم الفني جاهز لمساعدتك" : "Our support team is ready to help"}
+              {tAuto('auto.ourSupportTeamIsReadyToHelp')}
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Button className="bg-teal-500 hover:bg-teal-600 text-white shadow-md shadow-teal-500/20">

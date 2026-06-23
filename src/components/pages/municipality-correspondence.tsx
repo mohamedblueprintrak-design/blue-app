@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 /**
  * Municipality Correspondence Page
  * صفحة المراسلات البلدية
@@ -129,6 +131,7 @@ interface MunicipalityPageProps {
 }
 
 export default function MunicipalityCorrespondencePage({ language, projectId }: MunicipalityPageProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const queryClient = useQueryClient();
   const toast = useToastFeedback({ ar });
@@ -203,9 +206,9 @@ export default function MunicipalityCorrespondencePage({ language, projectId }: 
       queryClient.invalidateQueries({ queryKey: ["municipality-correspondence"] });
       setShowCreateDialog(false);
       resetFormData();
-      toast.created(ar ? "مراسلة بلدية" : "Municipality correspondence");
+      toast.created(tAuto('auto.municipalityCorrespondence'));
     },
-    onError: () => toast.error(ar ? "إنشاء المراسلة" : "Create correspondence"),
+    onError: () => toast.error(tAuto('auto.createCorrespondence')),
   });
 
   // Update mutation
@@ -223,9 +226,9 @@ export default function MunicipalityCorrespondencePage({ language, projectId }: 
       queryClient.invalidateQueries({ queryKey: ["municipality-correspondence"] });
       setShowEditDialog(false);
       setSelectedRecord(null);
-      toast.updated(ar ? "المراسلة" : "Correspondence");
+      toast.updated(tAuto('auto.correspondence'));
     },
-    onError: () => toast.error(ar ? "تحديث المراسلة" : "Update correspondence"),
+    onError: () => toast.error(tAuto('auto.updateCorrespondence')),
   });
 
   // Delete mutation
@@ -239,9 +242,9 @@ export default function MunicipalityCorrespondencePage({ language, projectId }: 
       queryClient.invalidateQueries({ queryKey: ["municipality-correspondence"] });
       setShowDeleteDialog(false);
       setSelectedRecord(null);
-      toast.deleted(ar ? "المراسلة" : "Correspondence");
+      toast.deleted(tAuto('auto.correspondence'));
     },
-    onError: () => toast.error(ar ? "حذف المراسلة" : "Delete correspondence"),
+    onError: () => toast.error(tAuto('auto.deleteCorrespondence')),
   });
 
   // Filtered records
@@ -320,10 +323,10 @@ export default function MunicipalityCorrespondencePage({ language, projectId }: 
           </div>
           <div>
             <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-              {ar ? "المراسلات البلدية" : "Municipality Correspondence"}
+              {tAuto('auto.municipalityCorrespondence1')}
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              {ar ? "تتبع التفاعلات مع البلديات والجهات الحكومية" : "Track municipality and government correspondence"}
+              {tAuto('auto.trackMunicipalityAndGovernmentCorrespond')}
             </p>
           </div>
         </div>
@@ -332,7 +335,7 @@ export default function MunicipalityCorrespondencePage({ language, projectId }: 
           className="gap-2 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white text-sm shadow-md shadow-teal-500/20 border-0 h-9 px-4"
         >
           <Plus className="h-4 w-4" />
-          {ar ? "مراسلة جديدة" : "New Correspondence"}
+          {tAuto('auto.newCorrespondence')}
         </Button>
       </div>
 
@@ -346,7 +349,7 @@ export default function MunicipalityCorrespondencePage({ language, projectId }: 
               </div>
             </div>
             <div className="text-2xl font-bold text-white tabular-nums">{totalCount}</div>
-            <p className="text-[11px] text-slate-200 mt-0.5">{ar ? "إجمالي المراسلات" : "Total"}</p>
+            <p className="text-[11px] text-slate-200 mt-0.5">{tAuto('auto.total')}</p>
           </div>
         </Card>
 
@@ -366,7 +369,7 @@ export default function MunicipalityCorrespondencePage({ language, projectId }: 
               </div>
             </div>
             <div className="text-2xl font-bold text-white tabular-nums">{pendingCount}</div>
-            <p className="text-[11px] text-amber-100 mt-0.5">{ar ? "قيد الانتظار" : "Pending"}</p>
+            <p className="text-[11px] text-amber-100 mt-0.5">{tAuto('auto.pending')}</p>
           </div>
         </Card>
 
@@ -378,7 +381,7 @@ export default function MunicipalityCorrespondencePage({ language, projectId }: 
               </div>
             </div>
             <div className="text-2xl font-bold text-white tabular-nums">{approvedCount}</div>
-            <p className="text-[11px] text-emerald-100 mt-0.5">{ar ? "تمت الموافقة" : "Approved"}</p>
+            <p className="text-[11px] text-emerald-100 mt-0.5">{tAuto('auto.approved')}</p>
           </div>
         </Card>
 
@@ -390,7 +393,7 @@ export default function MunicipalityCorrespondencePage({ language, projectId }: 
               </div>
             </div>
             <div className="text-2xl font-bold text-white tabular-nums">{rejectedCount}</div>
-            <p className="text-[11px] text-red-100 mt-0.5">{ar ? "مرفوض" : "Rejected"}</p>
+            <p className="text-[11px] text-red-100 mt-0.5">{tAuto('auto.rejected')}</p>
           </div>
         </Card>
       </div>
@@ -401,7 +404,7 @@ export default function MunicipalityCorrespondencePage({ language, projectId }: 
           <div className="relative flex-1 min-w-[200px]">
             <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <Input
-              placeholder={ar ? "بحث بالرقم المرجعي أو الموضوع..." : "Search by reference or subject..."}
+              placeholder={tAuto('auto.searchByReferenceOrSubject')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="ps-9 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 h-9 text-sm"
@@ -410,10 +413,10 @@ export default function MunicipalityCorrespondencePage({ language, projectId }: 
           {!projectId && (
           <Select value={projectFilter} onValueChange={setProjectFilter}>
             <SelectTrigger className="w-[180px] bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 h-9 text-sm">
-              <SelectValue placeholder={ar ? "المشروع" : "Project"} />
+              <SelectValue placeholder={tAuto('auto.project')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{ar ? "جميع المشاريع" : "All Projects"}</SelectItem>
+              <SelectItem value="all">{tAuto('auto.allProjects')}</SelectItem>
               {projects.map((p) => (
                 <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
               ))}
@@ -422,10 +425,10 @@ export default function MunicipalityCorrespondencePage({ language, projectId }: 
           )}
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className="w-[160px] bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 h-9 text-sm">
-              <SelectValue placeholder={ar ? "الحالة" : "Status"} />
+              <SelectValue placeholder={tAuto('auto.status1')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{ar ? "كل الحالات" : "All Statuses"}</SelectItem>
+              <SelectItem value="all">{tAuto('auto.allStatuses')}</SelectItem>
               {Object.entries(STATUS_CONFIG).map(([key, cfg]) => (
                 <SelectItem key={key} value={key}>{ar ? cfg.ar : cfg.en}</SelectItem>
               ))}
@@ -433,10 +436,10 @@ export default function MunicipalityCorrespondencePage({ language, projectId }: 
           </Select>
           <Select value={typeFilter} onValueChange={setTypeFilter}>
             <SelectTrigger className="w-[160px] bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 h-9 text-sm">
-              <SelectValue placeholder={ar ? "النوع" : "Type"} />
+              <SelectValue placeholder={tAuto('auto.type')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{ar ? "كل الأنواع" : "All Types"}</SelectItem>
+              <SelectItem value="all">{tAuto('auto.allTypes')}</SelectItem>
               {CORRESPONDENCE_TYPES.map((t) => (
                 <SelectItem key={t.value} value={t.value}>{ar ? t.label : t.labelEn}</SelectItem>
               ))}
@@ -454,10 +457,10 @@ export default function MunicipalityCorrespondencePage({ language, projectId }: 
                 <Building className="h-10 w-10 text-slate-300 dark:text-slate-600" />
               </div>
               <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
-                {ar ? "لا توجد مراسلات" : "No Correspondence Found"}
+                {tAuto('auto.noCorrespondenceFound')}
               </h3>
               <p className="text-sm text-slate-500 dark:text-slate-400 max-w-md">
-                {ar ? "لم يتم العثور على مراسلات بلدية. أنشئ مراسلة جديدة للبدء." : "No municipality correspondence found. Create a new one to get started."}
+                {tAuto('auto.noMunicipalityCorrespondenceFoundCreateA')}
               </p>
             </div>
           ) : (
@@ -465,14 +468,14 @@ export default function MunicipalityCorrespondencePage({ language, projectId }: 
               <Table>
                 <TableHeader>
                   <TableRow className="bg-slate-50 dark:bg-slate-800/30 hover:bg-slate-50 dark:hover:bg-slate-800/30 border-slate-200 dark:border-slate-700/50">
-                    <TableHead className="text-xs font-semibold text-slate-500 dark:text-slate-400 w-28">{ar ? "الرقم المرجعي" : "Ref No."}</TableHead>
-                    <TableHead className="text-xs font-semibold text-slate-500 dark:text-slate-400 w-32">{ar ? "البلدية" : "Municipality"}</TableHead>
-                    <TableHead className="text-xs font-semibold text-slate-500 dark:text-slate-400 w-28">{ar ? "النوع" : "Type"}</TableHead>
-                    <TableHead className="text-xs font-semibold text-slate-500 dark:text-slate-400">{ar ? "الموضوع" : "Subject"}</TableHead>
-                    <TableHead className="text-xs font-semibold text-slate-500 dark:text-slate-400 w-28">{ar ? "تاريخ التقديم" : "Submitted"}</TableHead>
-                    <TableHead className="text-xs font-semibold text-slate-500 dark:text-slate-400 w-28">{ar ? "تاريخ الرد" : "Response"}</TableHead>
-                    <TableHead className="text-xs font-semibold text-slate-500 dark:text-slate-400 w-28">{ar ? "الحالة" : "Status"}</TableHead>
-                    <TableHead className="text-xs font-semibold text-slate-500 dark:text-slate-400 w-20 text-center">{ar ? "إجراءات" : "Actions"}</TableHead>
+                    <TableHead className="text-xs font-semibold text-slate-500 dark:text-slate-400 w-28">{tAuto('auto.refNo')}</TableHead>
+                    <TableHead className="text-xs font-semibold text-slate-500 dark:text-slate-400 w-32">{tAuto('auto.municipality')}</TableHead>
+                    <TableHead className="text-xs font-semibold text-slate-500 dark:text-slate-400 w-28">{tAuto('auto.type')}</TableHead>
+                    <TableHead className="text-xs font-semibold text-slate-500 dark:text-slate-400">{tAuto('auto.subject')}</TableHead>
+                    <TableHead className="text-xs font-semibold text-slate-500 dark:text-slate-400 w-28">{tAuto('auto.submitted')}</TableHead>
+                    <TableHead className="text-xs font-semibold text-slate-500 dark:text-slate-400 w-28">{tAuto('auto.response')}</TableHead>
+                    <TableHead className="text-xs font-semibold text-slate-500 dark:text-slate-400 w-28">{tAuto('auto.status1')}</TableHead>
+                    <TableHead className="text-xs font-semibold text-slate-500 dark:text-slate-400 w-20 text-center">{tAuto('auto.actions')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -534,7 +537,7 @@ export default function MunicipalityCorrespondencePage({ language, projectId }: 
                     {STATUS_CONFIG[selectedRecord.status]?.icon}
                   </div>
                   <div>
-                    <DialogTitle>{selectedRecord.subject || (ar ? "بدون موضوع" : "No Subject")}</DialogTitle>
+                    <DialogTitle>{selectedRecord.subject || (tAuto('auto.noSubject'))}</DialogTitle>
                     <DialogDescription>{selectedRecord.referenceNumber}</DialogDescription>
                   </div>
                 </div>
@@ -542,37 +545,37 @@ export default function MunicipalityCorrespondencePage({ language, projectId }: 
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <span className="text-[10px] text-slate-400 uppercase font-medium">{ar ? "البلدية" : "Municipality"}</span>
+                    <span className="text-[10px] text-slate-400 uppercase font-medium">{tAuto('auto.municipality')}</span>
                     <p className="text-sm text-slate-700 dark:text-slate-300">{getMunicipalityLabel(selectedRecord.municipality, ar)}</p>
                   </div>
                   <div className="space-y-1">
-                    <span className="text-[10px] text-slate-400 uppercase font-medium">{ar ? "النوع" : "Type"}</span>
+                    <span className="text-[10px] text-slate-400 uppercase font-medium">{tAuto('auto.type')}</span>
                     <p className="text-sm text-slate-700 dark:text-slate-300">{getTypeLabel(selectedRecord.correspondenceType, ar)}</p>
                   </div>
                   <div className="space-y-1">
-                    <span className="text-[10px] text-slate-400 uppercase font-medium">{ar ? "تاريخ التقديم" : "Submission Date"}</span>
+                    <span className="text-[10px] text-slate-400 uppercase font-medium">{tAuto('auto.submissionDate')}</span>
                     <p className="text-sm text-slate-700 dark:text-slate-300">{formatDate(selectedRecord.submissionDate, ar)}</p>
                   </div>
                   <div className="space-y-1">
-                    <span className="text-[10px] text-slate-400 uppercase font-medium">{ar ? "تاريخ الرد" : "Response Date"}</span>
+                    <span className="text-[10px] text-slate-400 uppercase font-medium">{tAuto('auto.responseDate')}</span>
                     <p className="text-sm text-slate-700 dark:text-slate-300">{formatDate(selectedRecord.responseDate, ar)}</p>
                   </div>
                 </div>
                 {selectedRecord.content && (
                   <div className="space-y-1">
-                    <span className="text-[10px] text-slate-400 uppercase font-medium">{ar ? "المحتوى" : "Content"}</span>
+                    <span className="text-[10px] text-slate-400 uppercase font-medium">{tAuto('auto.content')}</span>
                     <p className="text-sm text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 rounded-lg p-3">{selectedRecord.content}</p>
                   </div>
                 )}
                 {selectedRecord.notes && (
                   <div className="space-y-1">
-                    <span className="text-[10px] text-slate-400 uppercase font-medium">{ar ? "ملاحظات" : "Notes"}</span>
+                    <span className="text-[10px] text-slate-400 uppercase font-medium">{tAuto('auto.notes')}</span>
                     <p className="text-sm text-slate-600 dark:text-slate-400">{selectedRecord.notes}</p>
                   </div>
                 )}
                 {selectedRecord.responseNotes && (
                   <div className="space-y-1">
-                    <span className="text-[10px] text-slate-400 uppercase font-medium">{ar ? "ملاحظات الرد" : "Response Notes"}</span>
+                    <span className="text-[10px] text-slate-400 uppercase font-medium">{tAuto('auto.responseNotes')}</span>
                     <p className="text-sm text-slate-600 dark:text-slate-400 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800/30 rounded-lg p-3">{selectedRecord.responseNotes}</p>
                   </div>
                 )}
@@ -586,16 +589,16 @@ export default function MunicipalityCorrespondencePage({ language, projectId }: 
       <Dialog open={showCreateDialog || showEditDialog} onOpenChange={(open) => { if (!open) { setShowCreateDialog(false); setShowEditDialog(false); } }}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>{showEditDialog ? (ar ? "تعديل المراسلة" : "Edit Correspondence") : (ar ? "مراسلة بلدية جديدة" : "New Municipality Correspondence")}</DialogTitle>
-            <DialogDescription>{showEditDialog ? (ar ? "تعديل تفاصيل المراسلة" : "Edit correspondence details") : (ar ? "أدخل تفاصيل المراسلة البلدية" : "Enter municipality correspondence details")}</DialogDescription>
+            <DialogTitle>{showEditDialog ? (tAuto('auto.editCorrespondence')) : (tAuto('auto.newMunicipalityCorrespondence'))}</DialogTitle>
+            <DialogDescription>{showEditDialog ? (tAuto('auto.editCorrespondenceDetails')) : (tAuto('auto.enterMunicipalityCorrespondenceDetails'))}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             {!showEditDialog && (
               <div className="space-y-2">
-                <Label className="text-xs">{ar ? "المشروع" : "Project"} *</Label>
+                <Label className="text-xs">{tAuto('auto.project')} *</Label>
                 <Select value={formData.projectId} onValueChange={(v) => setFormData({ ...formData, projectId: v })}>
                   <SelectTrigger className="bg-slate-50 dark:bg-slate-800 text-sm">
-                    <SelectValue placeholder={ar ? "اختر المشروع" : "Select project"} />
+                    <SelectValue placeholder={tAuto('auto.selectProject')} />
                   </SelectTrigger>
                   <SelectContent>
                     {projects.map((p) => (
@@ -607,14 +610,14 @@ export default function MunicipalityCorrespondencePage({ language, projectId }: 
             )}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-xs">{ar ? "الرقم المرجعي" : "Reference No."}</Label>
-                <Input value={formData.referenceNumber} onChange={(e) => setFormData({ ...formData, referenceNumber: e.target.value })} placeholder={ar ? "رقم المرجع" : "Reference number"} className="bg-slate-50 dark:bg-slate-800 text-sm" />
+                <Label className="text-xs">{tAuto('auto.referenceNo')}</Label>
+                <Input value={formData.referenceNumber} onChange={(e) => setFormData({ ...formData, referenceNumber: e.target.value })} placeholder={tAuto('auto.referenceNumber')} className="bg-slate-50 dark:bg-slate-800 text-sm" />
               </div>
               <div className="space-y-2">
-                <Label className="text-xs">{ar ? "البلدية" : "Municipality"}</Label>
+                <Label className="text-xs">{tAuto('auto.municipality')}</Label>
                 <Select value={formData.municipality} onValueChange={(v) => setFormData({ ...formData, municipality: v })}>
                   <SelectTrigger className="bg-slate-50 dark:bg-slate-800 text-sm">
-                    <SelectValue placeholder={ar ? "اختر البلدية" : "Select municipality"} />
+                    <SelectValue placeholder={tAuto('auto.selectMunicipality')} />
                   </SelectTrigger>
                   <SelectContent>
                     {MUNICIPALITIES.map((m) => (
@@ -626,7 +629,7 @@ export default function MunicipalityCorrespondencePage({ language, projectId }: 
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-xs">{ar ? "النوع" : "Type"} *</Label>
+                <Label className="text-xs">{tAuto('auto.type')} *</Label>
                 <Select value={formData.correspondenceType} onValueChange={(v) => setFormData({ ...formData, correspondenceType: v })}>
                   <SelectTrigger className="bg-slate-50 dark:bg-slate-800 text-sm">
                     <SelectValue />
@@ -639,7 +642,7 @@ export default function MunicipalityCorrespondencePage({ language, projectId }: 
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label className="text-xs">{ar ? "الحالة" : "Status"}</Label>
+                <Label className="text-xs">{tAuto('auto.status1')}</Label>
                 <Select value={formData.status} onValueChange={(v) => setFormData({ ...formData, status: v })}>
                   <SelectTrigger className="bg-slate-50 dark:bg-slate-800 text-sm">
                     <SelectValue />
@@ -653,37 +656,37 @@ export default function MunicipalityCorrespondencePage({ language, projectId }: 
               </div>
             </div>
             <div className="space-y-2">
-              <Label className="text-xs">{ar ? "الموضوع" : "Subject"} *</Label>
-              <Input value={formData.subject} onChange={(e) => setFormData({ ...formData, subject: e.target.value })} placeholder={ar ? "موضوع المراسلة" : "Correspondence subject"} className="bg-slate-50 dark:bg-slate-800 text-sm" />
+              <Label className="text-xs">{tAuto('auto.subject')} *</Label>
+              <Input value={formData.subject} onChange={(e) => setFormData({ ...formData, subject: e.target.value })} placeholder={tAuto('auto.correspondenceSubject')} className="bg-slate-50 dark:bg-slate-800 text-sm" />
             </div>
             <div className="space-y-2">
-              <Label className="text-xs">{ar ? "المحتوى" : "Content"}</Label>
-              <Textarea value={formData.content} onChange={(e) => setFormData({ ...formData, content: e.target.value })} placeholder={ar ? "تفاصيل المراسلة..." : "Correspondence details..."} className="bg-slate-50 dark:bg-slate-800 text-sm min-h-[80px]" />
+              <Label className="text-xs">{tAuto('auto.content')}</Label>
+              <Textarea value={formData.content} onChange={(e) => setFormData({ ...formData, content: e.target.value })} placeholder={tAuto('auto.correspondenceDetails')} className="bg-slate-50 dark:bg-slate-800 text-sm min-h-[80px]" />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-xs">{ar ? "تاريخ التقديم" : "Submission Date"}</Label>
+                <Label className="text-xs">{tAuto('auto.submissionDate')}</Label>
                 <Input type="date" value={formData.submissionDate} onChange={(e) => setFormData({ ...formData, submissionDate: e.target.value })} className="bg-slate-50 dark:bg-slate-800 text-sm" />
               </div>
               <div className="space-y-2">
-                <Label className="text-xs">{ar ? "تاريخ الرد" : "Response Date"}</Label>
+                <Label className="text-xs">{tAuto('auto.responseDate')}</Label>
                 <Input type="date" value={formData.responseDate} onChange={(e) => setFormData({ ...formData, responseDate: e.target.value })} className="bg-slate-50 dark:bg-slate-800 text-sm" />
               </div>
             </div>
             {(formData.status === "APPROVED" || formData.status === "REJECTED" || formData.status === "AMENDMENT_REQUIRED") && (
               <div className="space-y-2">
-                <Label className="text-xs">{ar ? "ملاحظات الرد" : "Response Notes"}</Label>
-                <Textarea value={formData.responseNotes} onChange={(e) => setFormData({ ...formData, responseNotes: e.target.value })} placeholder={ar ? "ملاحظات على الرد..." : "Notes on response..."} className="bg-slate-50 dark:bg-slate-800 text-sm min-h-[60px]" />
+                <Label className="text-xs">{tAuto('auto.responseNotes')}</Label>
+                <Textarea value={formData.responseNotes} onChange={(e) => setFormData({ ...formData, responseNotes: e.target.value })} placeholder={tAuto('auto.notesOnResponse')} className="bg-slate-50 dark:bg-slate-800 text-sm min-h-[60px]" />
               </div>
             )}
             <div className="space-y-2">
-              <Label className="text-xs">{ar ? "ملاحظات" : "Notes"}</Label>
-              <Textarea value={formData.notes} onChange={(e) => setFormData({ ...formData, notes: e.target.value })} placeholder={ar ? "ملاحظات إضافية..." : "Additional notes..."} className="bg-slate-50 dark:bg-slate-800 text-sm min-h-[60px]" />
+              <Label className="text-xs">{tAuto('auto.notes')}</Label>
+              <Textarea value={formData.notes} onChange={(e) => setFormData({ ...formData, notes: e.target.value })} placeholder={tAuto('auto.additionalNotes1')} className="bg-slate-50 dark:bg-slate-800 text-sm min-h-[60px]" />
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => { setShowCreateDialog(false); setShowEditDialog(false); }} className="text-xs">
-              {ar ? "إلغاء" : "Cancel"}
+              {tAuto('auto.cancel')}
             </Button>
             <Button
               onClick={() => {
@@ -697,7 +700,7 @@ export default function MunicipalityCorrespondencePage({ language, projectId }: 
               className="bg-teal-600 hover:bg-teal-700 text-white border-0 text-xs"
             >
               {(createMutation.isPending || updateMutation.isPending) ? <Loader2 className="w-4 h-4 me-1 animate-spin" /> : <Save className="w-4 h-4 me-1" />}
-              {ar ? "حفظ" : "Save"}
+              {tAuto('auto.save')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -707,16 +710,16 @@ export default function MunicipalityCorrespondencePage({ language, projectId }: 
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle className="text-red-600 dark:text-red-400">{ar ? "حذف المراسلة" : "Delete Correspondence"}</DialogTitle>
+            <DialogTitle className="text-red-600 dark:text-red-400">{tAuto('auto.deleteCorrespondence1')}</DialogTitle>
             <DialogDescription>
               {ar ? `هل أنت متأكد من حذف "${selectedRecord?.subject || selectedRecord?.referenceNumber}"؟` : `Delete "${selectedRecord?.subject || selectedRecord?.referenceNumber}"?`}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => setShowDeleteDialog(false)} className="text-xs">{ar ? "إلغاء" : "Cancel"}</Button>
+            <Button variant="outline" onClick={() => setShowDeleteDialog(false)} className="text-xs">{tAuto('auto.cancel')}</Button>
             <Button onClick={() => selectedRecord && deleteMutation.mutate(selectedRecord.id)} disabled={deleteMutation.isPending} className="bg-red-600 hover:bg-red-700 text-white border-0 text-xs">
               {deleteMutation.isPending ? <Loader2 className="w-3.5 h-3.5 me-1 animate-spin" /> : <Trash2 className="w-3.5 h-3.5 me-1" />}
-              {ar ? "حذف" : "Delete"}
+              {tAuto('auto.delete')}
             </Button>
           </DialogFooter>
         </DialogContent>

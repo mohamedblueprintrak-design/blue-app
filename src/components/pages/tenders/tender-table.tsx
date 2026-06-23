@@ -2,6 +2,8 @@
  
 
 
+
+import { useTranslations } from 'next-intl';
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -29,6 +31,7 @@ import { getStatusConfig, getAuthorityConfig } from "./types";
 
 // ===== Countdown Component =====
 function ClosingCountdown({ closingDate, ar }: { closingDate: string | null; ar: boolean }) {
+  const tAuto = useTranslations();
   const [now, setNow] = useState<number | null>(null);
 
   useEffect(() => {
@@ -56,7 +59,7 @@ function ClosingCountdown({ closingDate, ar }: { closingDate: string | null; ar:
     return (
       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300 animate-pulse">
         <AlertCircle className="h-3 w-3" />
-        {ar ? "ينتهي اليوم" : "Ends today"}
+        {tAuto('auto.endsToday')}
       </span>
     );
   }
@@ -111,6 +114,7 @@ export function TenderTable({
   onAddClick,
   hasSelectedTender,
 }: TenderTableProps) {
+  const tAuto = useTranslations();
   return (
     <div className={cn(
       "flex-1 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900 overflow-hidden shadow-sm",
@@ -119,13 +123,13 @@ export function TenderTable({
       <Table>
         <TableHeader>
           <TableRow className="hover:bg-transparent bg-slate-50/80 dark:bg-slate-800/50">
-            <TableHead className="text-xs font-semibold">{isAr ? "الرقم" : "No."}</TableHead>
-            <TableHead className="text-xs font-semibold">{isAr ? "العنوان" : "Title"}</TableHead>
-            <TableHead className="text-xs font-semibold hidden md:table-cell">{isAr ? "الجهة" : "Authority"}</TableHead>
-            <TableHead className="text-xs font-semibold hidden sm:table-cell">{isAr ? "الميزانية" : "Budget"}</TableHead>
-            <TableHead className="text-xs font-semibold hidden sm:table-cell">{isAr ? "الإغلاق" : "Closing"}</TableHead>
-            <TableHead className="text-xs font-semibold hidden lg:table-cell">{isAr ? "الحالة" : "Status"}</TableHead>
-            <TableHead className="text-xs font-semibold text-start">{isAr ? "الإجراءات" : "Actions"}</TableHead>
+            <TableHead className="text-xs font-semibold">{tAuto('auto.no')}</TableHead>
+            <TableHead className="text-xs font-semibold">{tAuto('auto.title')}</TableHead>
+            <TableHead className="text-xs font-semibold hidden md:table-cell">{tAuto('auto.authority')}</TableHead>
+            <TableHead className="text-xs font-semibold hidden sm:table-cell">{tAuto('auto.budget')}</TableHead>
+            <TableHead className="text-xs font-semibold hidden sm:table-cell">{tAuto('auto.closing1')}</TableHead>
+            <TableHead className="text-xs font-semibold hidden lg:table-cell">{tAuto('auto.status1')}</TableHead>
+            <TableHead className="text-xs font-semibold text-start">{tAuto('auto.actions')}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -232,10 +236,10 @@ export function TenderTable({
                   </div>
                   <div>
                     <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
-                      {isAr ? "لا توجد مناقصات" : "No tenders found"}
+                      {tAuto('auto.noTendersFound')}
                     </p>
                     <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
-                      {isAr ? "أضف مناقصة جديدة للبدء" : "Add a new tender to get started"}
+                      {tAuto('auto.addANewTenderToGetStarted')}
                     </p>
                   </div>
                   <Button
@@ -244,7 +248,7 @@ export function TenderTable({
                     onClick={onAddClick}
                   >
                     <Plus className="h-3.5 w-3.5 me-1" />
-                    {isAr ? "مناقصة جديدة" : "New Tender"}
+                    {tAuto('auto.newTender')}
                   </Button>
                 </div>
               </TableCell>

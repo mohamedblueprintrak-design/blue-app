@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -29,19 +31,20 @@ export function EmployeeTable({
   onEditEmployee,
   onDeleteEmployee,
 }: EmployeeTableProps) {
+  const tAuto = useTranslations();
   return (
     <div className={`flex-1 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900 overflow-hidden ${selectedEmployee ? "hidden lg:block" : ""}`}>
       <Table>
         <TableHeader>
           <TableRow className="hover:bg-transparent">
-            <TableHead>{ar ? "الاسم" : "Name"}</TableHead>
-            <TableHead className="hidden md:table-cell">{ar ? "البريد" : "Email"}</TableHead>
-            <TableHead className="hidden lg:table-cell">{ar ? "القسم" : "Department"}</TableHead>
-            <TableHead className="hidden sm:table-cell">{ar ? "المنصب" : "Position"}</TableHead>
-            <TableHead className="hidden md:table-cell">{ar ? "الراتب" : "Salary"}</TableHead>
-            <TableHead>{ar ? "الحالة" : "Status"}</TableHead>
-            <TableHead className="hidden lg:table-cell">{ar ? "تاريخ التعيين" : "Hire Date"}</TableHead>
-            <TableHead className="text-start">{ar ? "إجراءات" : "Actions"}</TableHead>
+            <TableHead>{tAuto('auto.name')}</TableHead>
+            <TableHead className="hidden md:table-cell">{tAuto('auto.email')}</TableHead>
+            <TableHead className="hidden lg:table-cell">{tAuto('auto.department')}</TableHead>
+            <TableHead className="hidden sm:table-cell">{tAuto('auto.position')}</TableHead>
+            <TableHead className="hidden md:table-cell">{tAuto('auto.salary')}</TableHead>
+            <TableHead>{tAuto('auto.status1')}</TableHead>
+            <TableHead className="hidden lg:table-cell">{tAuto('auto.hireDate')}</TableHead>
+            <TableHead className="text-start">{tAuto('auto.actions')}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -133,14 +136,14 @@ export function EmployeeTable({
             <TableRow>
               <TableCell colSpan={8} className="text-center py-12 text-slate-400">
                 <Users className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                {ar ? "لا يوجد موظفون" : "No employees found"}
+                {tAuto('auto.noEmployeesFound')}
               </TableCell>
             </TableRow>
           )}
           {isLoading && (
             <TableRow>
               <TableCell colSpan={8} className="text-center py-12 text-slate-400">
-                {ar ? "جارٍ التحميل..." : "Loading..."}
+                {tAuto('auto.loading')}
               </TableCell>
             </TableRow>
           )}

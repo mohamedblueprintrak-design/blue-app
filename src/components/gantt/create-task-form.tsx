@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl';
 import React, { useState } from "react";
 import { Plus, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -31,6 +32,7 @@ export function CreateTaskForm({
   onCancel: () => void;
   isLoading: boolean;
 }) {
+  const tAuto = useTranslations();
   const [title, setTitle] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -48,45 +50,45 @@ export function CreateTaskForm({
   return (
     <div className="space-y-4">
       <div>
-        <Label>{ar ? "العنوان" : "Title"} *</Label>
+        <Label>{tAuto('auto.title')} *</Label>
         <Input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder={ar ? "عنوان المهمة" : "Task title"}
+          placeholder={tAuto('auto.taskTitle')}
           className="bg-slate-50 dark:bg-slate-800"
         />
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <Label>{ar ? "تاريخ البداية" : "Start Date"}</Label>
+          <Label>{tAuto('auto.startDate')}</Label>
           <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="bg-slate-50 dark:bg-slate-800" />
         </div>
         <div>
-          <Label>{ar ? "تاريخ النهاية" : "End Date"}</Label>
+          <Label>{tAuto('auto.endDate')}</Label>
           <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="bg-slate-50 dark:bg-slate-800" />
         </div>
       </div>
       <div>
-        <Label>{ar ? "الأولوية" : "Priority"}</Label>
+        <Label>{tAuto('auto.priority')}</Label>
         <Select value={priority} onValueChange={setPriority}>
           <SelectTrigger className="bg-slate-50 dark:bg-slate-800">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="LOW">{ar ? "منخفضة" : "Low"}</SelectItem>
-            <SelectItem value="NORMAL">{ar ? "عادية" : "Normal"}</SelectItem>
-            <SelectItem value="HIGH">{ar ? "عالية" : "High"}</SelectItem>
-            <SelectItem value="URGENT">{ar ? "حرجة" : "Urgent"}</SelectItem>
+            <SelectItem value="LOW">{tAuto('auto.low')}</SelectItem>
+            <SelectItem value="NORMAL">{tAuto('auto.normal')}</SelectItem>
+            <SelectItem value="HIGH">{tAuto('auto.high')}</SelectItem>
+            <SelectItem value="URGENT">{tAuto('auto.urgent')}</SelectItem>
           </SelectContent>
         </Select>
       </div>
       <DialogFooter>
         <Button variant="outline" onClick={onCancel}>
-          {ar ? "إلغاء" : "Cancel"}
+          {tAuto('auto.cancel')}
         </Button>
         <Button onClick={handleSubmit} disabled={!title || isLoading} className="bg-teal-600 hover:bg-teal-700 text-white border-0">
           {isLoading ? <Loader2 className="w-4 h-4 me-1 animate-spin" /> : <Plus className="w-4 h-4 me-1" />}
-          {ar ? "إضافة" : "Add"}
+          {tAuto('auto.add')}
         </Button>
       </DialogFooter>
     </div>

@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl';
 import {
   Card,
   CardContent,
@@ -15,6 +16,7 @@ interface GanttTimelineProps {
 }
 
 export function GanttTimeline({ recentProjects, isAr }: GanttTimelineProps) {
+  const tAuto = useTranslations();
   return (
     <Card className="rounded-xl border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900 hover:shadow-md transition-shadow">
       <CardHeader className="pb-3 border-b border-slate-100 dark:border-slate-800/50 relative">
@@ -27,10 +29,10 @@ export function GanttTimeline({ recentProjects, isAr }: GanttTimelineProps) {
             </div>
             <div>
               <CardTitle className="text-base font-semibold text-slate-900 dark:text-white">
-                {isAr ? "الجدول الزمني للمشاريع" : "Project Timeline"}
+                {tAuto('auto.projectTimeline')}
               </CardTitle>
               <CardDescription className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                {isAr ? "نظرة عامة على تقدم المشاريع النشطة" : "Active projects progress overview"}
+                {tAuto('auto.activeProjectsProgressOverview')}
               </CardDescription>
             </div>
           </div>
@@ -38,19 +40,19 @@ export function GanttTimeline({ recentProjects, isAr }: GanttTimelineProps) {
             <div className="flex items-center gap-3 text-[10px]">
               <span className="flex items-center gap-1">
                 <span className="w-2 h-2 rounded-full bg-gradient-to-r from-teal-500 to-cyan-500" />
-                <span className="text-slate-500 dark:text-slate-400">{isAr ? "نشط" : "Active"}</span>
+                <span className="text-slate-500 dark:text-slate-400">{tAuto('auto.active')}</span>
               </span>
               <span className="flex items-center gap-1">
                 <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                <span className="text-slate-500 dark:text-slate-400">{isAr ? "مكتمل" : "Done"}</span>
+                <span className="text-slate-500 dark:text-slate-400">{tAuto('auto.done')}</span>
               </span>
               <span className="flex items-center gap-1">
                 <span className="w-2 h-2 rounded-full bg-red-500" />
-                <span className="text-slate-500 dark:text-slate-400">{isAr ? "متأخر" : "Delayed"}</span>
+                <span className="text-slate-500 dark:text-slate-400">{tAuto('auto.delayed')}</span>
               </span>
               <span className="flex items-center gap-1">
                 <span className="w-2 h-2 rotate-45 bg-amber-400 rounded-sm" />
-                <span className="text-slate-500 dark:text-slate-400">{isAr ? "معلم" : "Milestone"}</span>
+                <span className="text-slate-500 dark:text-slate-400">{tAuto('auto.milestone')}</span>
               </span>
             </div>
           </div>
@@ -154,7 +156,7 @@ export function GanttTimeline({ recentProjects, isAr }: GanttTimelineProps) {
             <div className="flex flex-col items-center justify-center py-8 text-center">
               <FolderKanban className="h-8 w-8 text-slate-300 dark:text-slate-600 mb-2" />
               <p className="text-sm text-slate-500 dark:text-slate-400">
-                {isAr ? "لا توجد مشاريع حالياً" : "No projects yet"}
+                {tAuto('auto.noProjectsYet')}
               </p>
             </div>
           )}

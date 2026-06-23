@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -19,6 +21,7 @@ interface DeleteAccountTabProps {
 }
 
 export function DeleteAccountTab({ isAr }: DeleteAccountTabProps) {
+  const tAuto = useTranslations();
   const [password, setPassword] = useState("");
   const [confirmText, setConfirmText] = useState("");
   const [loading, setLoading] = useState(false);
@@ -50,20 +53,18 @@ export function DeleteAccountTab({ isAr }: DeleteAccountTabProps) {
       if (!res.ok) {
         const errMsg =
           data?.error?.message ||
-          extractErrorMessage(data.error, isAr ? "حدث خطأ" : "An error occurred");
+          extractErrorMessage(data.error, tAuto('auto.anErrorOccurred'));
 
         // Handle specific error codes with localized messages
         const code = data?.error?.code;
         if (code === "SOLE_ADMIN") {
           setError(
-            isAr
-              ? "أنت المسؤول الوحيد في المؤسسة. يرجى نقل صلاحية الإدارة إلى مستخدم آخر قبل حذف حسابك"
-              : "You are the only admin in your organization. Please transfer admin rights to another user before deleting your account."
+            tAuto('auto.youAreTheOnlyAdminInYourOrganizationPlea')
           );
         } else if (code === "RATE_LIMITED") {
           setError(errMsg);
         } else if (code === "INVALID_PASSWORD") {
-          setError(isAr ? "كلمة المرور غير صحيحة" : "Incorrect password");
+          setError(tAuto('auto.incorrectPassword'));
         } else {
           setError(errMsg);
         }
@@ -71,9 +72,7 @@ export function DeleteAccountTab({ isAr }: DeleteAccountTabProps) {
       }
 
       setSuccess(
-        isAr
-          ? "تم حذف حسابك بنجاح. سيتم تسجيل خروجك..."
-          : "Your account has been successfully deleted. You will be logged out..."
+        tAuto('auto.yourAccountHasBeenSuccessfullyDeletedYou')
       );
 
       // Redirect to login after a short delay
@@ -81,7 +80,7 @@ export function DeleteAccountTab({ isAr }: DeleteAccountTabProps) {
         window.location.href = "/login";
       }, 2000);
     } catch {
-      setError(isAr ? "حدث خطأ في الاتصال" : "Connection error occurred");
+      setError(tAuto('auto.connectionErrorOccurred'));
     } finally {
       setLoading(false);
     }
@@ -98,12 +97,10 @@ export function DeleteAccountTab({ isAr }: DeleteAccountTabProps) {
             </div>
             <div>
               <h3 className="text-base font-semibold text-red-700 dark:text-red-400">
-                {isAr ? "حذف الحساب" : "Delete Account"}
+                {tAuto('auto.deleteAccount')}
               </h3>
               <p className="text-xs text-red-500 dark:text-red-400/70">
-                {isAr
-                  ? "هذا الإجراء لا يمكن التراجع عنه"
-                  : "This action cannot be undone"}
+                {tAuto('auto.thisActionCannotBeUndone')}
               </p>
             </div>
           </div>
@@ -116,33 +113,23 @@ export function DeleteAccountTab({ isAr }: DeleteAccountTabProps) {
             <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400 mt-0.5 shrink-0" />
             <div>
               <p className="text-sm font-medium text-red-800 dark:text-red-300">
-                {isAr ? "تحذير: ماذا سيحدث عند حذف حسابك" : "Warning: What happens when you delete your account"}
+                {tAuto('auto.warningWhatHappensWhenYouDeleteYourAccou')}
               </p>
               <ul className="mt-2 space-y-1.5 text-xs text-red-600 dark:text-red-400/80 list-disc list-inside">
                 <li>
-                  {isAr
-                    ? "سيتم إخفاء حسابك ووضع علامة محذوف عليه"
-                    : "Your account will be hidden and marked as deleted"}
+                  {tAuto('auto.yourAccountWillBeHiddenAndMarkedAsDelete')}
                 </li>
                 <li>
-                  {isAr
-                    ? "سيتم إخفاء بياناتك الشخصية (البريد الإلكتروني، الاسم، الهاتف)"
-                    : "Your personal data (email, name, phone) will be anonymized"}
+                  {tAuto('auto.yourPersonalDataEmailNamePhoneWillBeAnon')}
                 </li>
                 <li>
-                  {isAr
-                    ? "سيتم تسجيل خروجك من جميع الأجهزة فوراً"
-                    : "You will be logged out of all devices immediately"}
+                  {tAuto('auto.youWillBeLoggedOutOfAllDevicesImmediatel')}
                 </li>
                 <li>
-                  {isAr
-                    ? "لن تتمكن من تسجيل الدخول بهذا الحساب مرة أخرى"
-                    : "You will not be able to log in with this account again"}
+                  {tAuto('auto.youWillNotBeAbleToLogInWithThisAccountAg')}
                 </li>
                 <li>
-                  {isAr
-                    ? "إذا كنت المسؤول الوحيد في المؤسسة، يجب نقل الصلاحية أولاً"
-                    : "If you are the sole admin, you must transfer admin rights first"}
+                  {tAuto('auto.ifYouAreTheSoleAdminYouMustTransferAdmin')}
                 </li>
               </ul>
             </div>
@@ -168,7 +155,7 @@ export function DeleteAccountTab({ isAr }: DeleteAccountTabProps) {
           {/* Password input */}
           <div className="space-y-1.5">
             <Label className="text-xs font-medium text-slate-700 dark:text-slate-300">
-              {isAr ? "كلمة المرور" : "Password"}
+              {tAuto('auto.password')}
             </Label>
             <div className="relative">
               <Key className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -186,16 +173,14 @@ export function DeleteAccountTab({ isAr }: DeleteAccountTabProps) {
               />
             </div>
             <p className="text-[11px] text-slate-400 dark:text-slate-500">
-              {isAr
-                ? "أدخل كلمة مرورك لتأكيد هويتك"
-                : "Enter your password to confirm your identity"}
+              {tAuto('auto.enterYourPasswordToConfirmYourIdentity')}
             </p>
           </div>
 
           {/* Confirmation text input */}
           <div className="space-y-1.5">
             <Label className="text-xs font-medium text-slate-700 dark:text-slate-300">
-              {isAr ? "تأكيد الحذف" : "Confirm Deletion"}
+              {tAuto('auto.confirmDeletion')}
             </Label>
             <div className="relative">
               <Type className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -213,9 +198,7 @@ export function DeleteAccountTab({ isAr }: DeleteAccountTabProps) {
               />
             </div>
             <p className="text-[11px] text-slate-400 dark:text-slate-500">
-              {isAr
-                ? 'اكتب كلمة DELETE لتأكيد حذف حسابك'
-                : 'Type DELETE to confirm account deletion'}
+              {tAuto('auto.typeDELETEToConfirmAccountDeletion')}
             </p>
           </div>
 
@@ -232,12 +215,12 @@ export function DeleteAccountTab({ isAr }: DeleteAccountTabProps) {
             {loading ? (
               <span className="flex items-center gap-2">
                 <span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                {isAr ? "جاري حذف الحساب..." : "Deleting account..."}
+                {tAuto('auto.deletingAccount')}
               </span>
             ) : (
               <span className="flex items-center gap-2">
                 <AlertTriangle className="h-4 w-4" />
-                {isAr ? "حذف حسابي نهائياً" : "Permanently Delete My Account"}
+                {tAuto('auto.permanentlyDeleteMyAccount')}
               </span>
             )}
           </Button>

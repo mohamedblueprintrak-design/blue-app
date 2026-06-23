@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { getMutationHeaders } from "@/lib/csrf-client";
@@ -23,6 +25,7 @@ interface CommissionFormProps {
 }
 
 export function CommissionFormDialog({ language, open, onOpenChange, users, projects }: CommissionFormProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const queryClient = useQueryClient();
   const emptyForm = { userId: "", projectId: "", type: "project_referral", amount: "", percentage: "", baseAmount: "", description: "" };
@@ -41,37 +44,37 @@ export function CommissionFormDialog({ language, open, onOpenChange, users, proj
     <Dialog open={open} onOpenChange={(o) => { if (!o) { onOpenChange(false); setFormData(emptyForm); } }}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>{ar ? "عمولة جديدة" : "New Commission"}</DialogTitle>
-          <DialogDescription>{ar ? "إضافة عمولة جديدة للموظف" : "Add a new commission for employee"}</DialogDescription>
+          <DialogTitle>{tAuto('auto.newCommission')}</DialogTitle>
+          <DialogDescription>{tAuto('auto.addANewCommissionForEmployee')}</DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
-              <Label className="text-xs">{ar ? "الموظف" : "Employee"} *</Label>
+              <Label className="text-xs">{tAuto('auto.employee')} *</Label>
               <Select value={formData.userId} onValueChange={(v) => setFormData({ ...formData, userId: v })}>
-                <SelectTrigger className="h-8 text-sm rounded-lg"><SelectValue placeholder={ar ? "اختر موظف" : "Select employee"} /></SelectTrigger>
+                <SelectTrigger className="h-8 text-sm rounded-lg"><SelectValue placeholder={tAuto('auto.selectEmployee')} /></SelectTrigger>
                 <SelectContent>
                   {users.map((u) => (<SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">{ar ? "النوع" : "Type"}</Label>
+              <Label className="text-xs">{tAuto('auto.type')}</Label>
               <Select value={formData.type} onValueChange={(v) => setFormData({ ...formData, type: v })}>
                 <SelectTrigger className="h-8 text-sm rounded-lg"><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="project_referral">{ar ? "إحالة مشروع" : "Project Referral"}</SelectItem>
-                  <SelectItem value="completion_bonus">{ar ? "مكافأة إنجاز" : "Completion Bonus"}</SelectItem>
-                  <SelectItem value="client_satisfaction">{ar ? "رضا العميل" : "Client Satisfaction"}</SelectItem>
-                  <SelectItem value="performance">{ar ? "أداء مميز" : "Performance"}</SelectItem>
+                  <SelectItem value="project_referral">{tAuto('auto.projectReferral')}</SelectItem>
+                  <SelectItem value="completion_bonus">{tAuto('auto.completionBonus')}</SelectItem>
+                  <SelectItem value="client_satisfaction">{tAuto('auto.clientSatisfaction')}</SelectItem>
+                  <SelectItem value="performance">{tAuto('auto.performance')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
           <div className="space-y-1">
-            <Label className="text-xs">{ar ? "المشروع" : "Project"}</Label>
+            <Label className="text-xs">{tAuto('auto.project')}</Label>
             <Select value={formData.projectId} onValueChange={(v) => setFormData({ ...formData, projectId: v })}>
-              <SelectTrigger className="h-8 text-sm rounded-lg"><SelectValue placeholder={ar ? "اختر مشروع" : "Select project"} /></SelectTrigger>
+              <SelectTrigger className="h-8 text-sm rounded-lg"><SelectValue placeholder={tAuto('auto.selectProject')} /></SelectTrigger>
               <SelectContent>
                 {projects.map((p) => (<SelectItem key={p.id} value={p.id}>{ar ? p.name : p.nameEn || p.name}</SelectItem>))}
               </SelectContent>
@@ -79,27 +82,27 @@ export function CommissionFormDialog({ language, open, onOpenChange, users, proj
           </div>
           <div className="grid grid-cols-3 gap-3">
             <div className="space-y-1">
-              <Label className="text-xs">{ar ? "المبلغ (د.إ)" : "Amount (AED)"}</Label>
+              <Label className="text-xs">{tAuto('auto.amountAED')}</Label>
               <Input type="number" value={formData.amount} onChange={(e) => setFormData({ ...formData, amount: e.target.value })} placeholder="0" className="h-8 text-sm tabular-nums font-mono rounded-lg" />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">{ar ? "النسبة %" : "Percentage %"}</Label>
+              <Label className="text-xs">{tAuto('auto.percentage')}</Label>
               <Input type="number" value={formData.percentage} onChange={(e) => setFormData({ ...formData, percentage: e.target.value })} placeholder="0" className="h-8 text-sm tabular-nums font-mono rounded-lg" />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">{ar ? "المبلغ الأساسي" : "Base Amount"}</Label>
+              <Label className="text-xs">{tAuto('auto.baseAmount')}</Label>
               <Input type="number" value={formData.baseAmount} onChange={(e) => setFormData({ ...formData, baseAmount: e.target.value })} placeholder="0" className="h-8 text-sm tabular-nums font-mono rounded-lg" />
             </div>
           </div>
           <div className="space-y-1">
-            <Label className="text-xs">{ar ? "الوصف" : "Description"}</Label>
-            <Textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} placeholder={ar ? "وصف العمولة" : "Commission description"} className="text-sm min-h-[60px] rounded-lg" />
+            <Label className="text-xs">{tAuto('auto.description')}</Label>
+            <Textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} placeholder={tAuto('auto.commissionDescription')} className="text-sm min-h-[60px] rounded-lg" />
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => { onOpenChange(false); setFormData(emptyForm); }}>{ar ? "إلغاء" : "Cancel"}</Button>
+          <Button variant="outline" onClick={() => { onOpenChange(false); setFormData(emptyForm); }}>{tAuto('auto.cancel')}</Button>
           <Button className="bg-teal-600 hover:bg-teal-700 text-white" onClick={() => createMutation.mutate(formData)} disabled={!formData.userId || !formData.amount || createMutation.isPending}>
-            {createMutation.isPending ? (ar ? "جارٍ الحفظ..." : "Saving...") : (ar ? "حفظ" : "Save")}
+            {createMutation.isPending ? (tAuto('auto.saving')) : (tAuto('auto.save'))}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -117,6 +120,7 @@ interface ReferralFormProps {
 }
 
 export function ReferralFormDialog({ language, open, onOpenChange, users, projects }: ReferralFormProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const queryClient = useQueryClient();
   const emptyForm = { referrerId: "", referredName: "", referredPhone: "", referredEmail: "", projectId: "", notes: "" };
@@ -135,14 +139,14 @@ export function ReferralFormDialog({ language, open, onOpenChange, users, projec
     <Dialog open={open} onOpenChange={(o) => { if (!o) { onOpenChange(false); setFormData(emptyForm); } }}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>{ar ? "إحالة جديدة" : "New Referral"}</DialogTitle>
-          <DialogDescription>{ar ? "إضافة إحالة عميل جديد" : "Add a new client referral"}</DialogDescription>
+          <DialogTitle>{tAuto('auto.newReferral')}</DialogTitle>
+          <DialogDescription>{tAuto('auto.addANewClientReferral')}</DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div className="space-y-1">
-            <Label className="text-xs">{ar ? "المحيل" : "Referrer"} *</Label>
+            <Label className="text-xs">{tAuto('auto.referrer')} *</Label>
             <Select value={formData.referrerId} onValueChange={(v) => setFormData({ ...formData, referrerId: v })}>
-              <SelectTrigger className="h-8 text-sm rounded-lg"><SelectValue placeholder={ar ? "اختر المحيل" : "Select referrer"} /></SelectTrigger>
+              <SelectTrigger className="h-8 text-sm rounded-lg"><SelectValue placeholder={tAuto('auto.selectReferrer')} /></SelectTrigger>
               <SelectContent>
                 {users.map((u) => (<SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>))}
               </SelectContent>
@@ -150,23 +154,23 @@ export function ReferralFormDialog({ language, open, onOpenChange, users, projec
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
-              <Label className="text-xs">{ar ? "اسم المُحال" : "Referred Name"} *</Label>
-              <Input value={formData.referredName} onChange={(e) => setFormData({ ...formData, referredName: e.target.value })} placeholder={ar ? "اسم العميل المحال" : "Referred client name"} className="h-8 text-sm rounded-lg" />
+              <Label className="text-xs">{tAuto('auto.referredName')} *</Label>
+              <Input value={formData.referredName} onChange={(e) => setFormData({ ...formData, referredName: e.target.value })} placeholder={tAuto('auto.referredClientName')} className="h-8 text-sm rounded-lg" />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">{ar ? "الهاتف" : "Phone"}</Label>
+              <Label className="text-xs">{tAuto('auto.phone')}</Label>
               <Input value={formData.referredPhone} onChange={(e) => setFormData({ ...formData, referredPhone: e.target.value })} placeholder="+971 XX XXX XXXX" dir="ltr" className="h-8 text-sm rounded-lg text-left" />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
-              <Label className="text-xs">{ar ? "البريد الإلكتروني" : "Email"}</Label>
+              <Label className="text-xs">{tAuto('auto.email')}</Label>
               <Input type="email" value={formData.referredEmail} onChange={(e) => setFormData({ ...formData, referredEmail: e.target.value })} placeholder="email@example.com" dir="ltr" className="h-8 text-sm rounded-lg text-left" />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">{ar ? "المشروع" : "Project"}</Label>
+              <Label className="text-xs">{tAuto('auto.project')}</Label>
               <Select value={formData.projectId} onValueChange={(v) => setFormData({ ...formData, projectId: v })}>
-                <SelectTrigger className="h-8 text-sm rounded-lg"><SelectValue placeholder={ar ? "اختر مشروع" : "Select project"} /></SelectTrigger>
+                <SelectTrigger className="h-8 text-sm rounded-lg"><SelectValue placeholder={tAuto('auto.selectProject')} /></SelectTrigger>
                 <SelectContent>
                   {projects.map((p) => (<SelectItem key={p.id} value={p.id}>{ar ? p.name : p.nameEn || p.name}</SelectItem>))}
                 </SelectContent>
@@ -174,14 +178,14 @@ export function ReferralFormDialog({ language, open, onOpenChange, users, projec
             </div>
           </div>
           <div className="space-y-1">
-            <Label className="text-xs">{ar ? "ملاحظات" : "Notes"}</Label>
-            <Textarea value={formData.notes} onChange={(e) => setFormData({ ...formData, notes: e.target.value })} placeholder={ar ? "ملاحظات إضافية" : "Additional notes"} className="text-sm min-h-[60px] rounded-lg" />
+            <Label className="text-xs">{tAuto('auto.notes')}</Label>
+            <Textarea value={formData.notes} onChange={(e) => setFormData({ ...formData, notes: e.target.value })} placeholder={tAuto('auto.additionalNotes')} className="text-sm min-h-[60px] rounded-lg" />
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => { onOpenChange(false); setFormData(emptyForm); }}>{ar ? "إلغاء" : "Cancel"}</Button>
+          <Button variant="outline" onClick={() => { onOpenChange(false); setFormData(emptyForm); }}>{tAuto('auto.cancel')}</Button>
           <Button className="bg-teal-600 hover:bg-teal-700 text-white" onClick={() => createMutation.mutate(formData)} disabled={!formData.referrerId || !formData.referredName || createMutation.isPending}>
-            {createMutation.isPending ? (ar ? "جارٍ الحفظ..." : "Saving...") : (ar ? "حفظ" : "Save")}
+            {createMutation.isPending ? (tAuto('auto.saving')) : (tAuto('auto.save'))}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -199,6 +203,7 @@ interface CampaignFormProps {
 }
 
 export function CampaignFormDialog({ language, open, onOpenChange, editId, onEditIdChange }: CampaignFormProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const queryClient = useQueryClient();
   const emptyForm = { name: "", type: "SOCIAL_MEDIA", budget: "", startDate: "", endDate: "", notes: "" };
@@ -240,52 +245,52 @@ export function CampaignFormDialog({ language, open, onOpenChange, editId, onEdi
     <Dialog open={open} onOpenChange={(o) => { if (!o) { onOpenChange(false); setFormData(emptyForm); onEditIdChange(null); } }}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>{editId ? (ar ? "تعديل حملة" : "Edit Campaign") : (ar ? "حملة جديدة" : "New Campaign")}</DialogTitle>
-          <DialogDescription>{editId ? (ar ? "تعديل بيانات الحملة" : "Update campaign details") : (ar ? "إضافة حملة تسويقية جديدة" : "Add a new marketing campaign")}</DialogDescription>
+          <DialogTitle>{editId ? (tAuto('auto.editCampaign')) : (tAuto('auto.newCampaign'))}</DialogTitle>
+          <DialogDescription>{editId ? (tAuto('auto.updateCampaignDetails')) : (tAuto('auto.addANewMarketingCampaign'))}</DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div className="space-y-1">
-            <Label className="text-xs">{ar ? "اسم الحملة" : "Campaign Name"} *</Label>
-            <Input value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} placeholder={ar ? "اسم الحملة" : "Campaign name"} className="h-8 text-sm rounded-lg" />
+            <Label className="text-xs">{tAuto('auto.campaignName')} *</Label>
+            <Input value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} placeholder={tAuto('auto.campaignName1')} className="h-8 text-sm rounded-lg" />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
-              <Label className="text-xs">{ar ? "النوع" : "Type"}</Label>
+              <Label className="text-xs">{tAuto('auto.type')}</Label>
               <Select value={formData.type} onValueChange={(v) => setFormData({ ...formData, type: v })}>
                 <SelectTrigger className="h-8 text-sm rounded-lg"><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="SOCIAL_MEDIA">{ar ? "وسائل التواصل" : "Social Media"}</SelectItem>
-                  <SelectItem value="google_ads">{ar ? "إعلانات جوجل" : "Google Ads"}</SelectItem>
-                  <SelectItem value="REFERRAL">{ar ? "إحالات" : "Referral"}</SelectItem>
-                  <SelectItem value="DIRECT">{ar ? "مباشر" : "Direct"}</SelectItem>
-                  <SelectItem value="exhibition">{ar ? "معارض" : "Exhibition"}</SelectItem>
+                  <SelectItem value="SOCIAL_MEDIA">{tAuto('auto.socialMedia')}</SelectItem>
+                  <SelectItem value="google_ads">{tAuto('auto.googleAds')}</SelectItem>
+                  <SelectItem value="REFERRAL">{tAuto('auto.referral')}</SelectItem>
+                  <SelectItem value="DIRECT">{tAuto('auto.direct')}</SelectItem>
+                  <SelectItem value="exhibition">{tAuto('auto.exhibition')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">{ar ? "الميزانية (د.إ)" : "Budget (AED)"}</Label>
+              <Label className="text-xs">{tAuto('auto.budgetAED')}</Label>
               <Input type="number" value={formData.budget} onChange={(e) => setFormData({ ...formData, budget: e.target.value })} placeholder="0" className="h-8 text-sm tabular-nums font-mono rounded-lg" />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
-              <Label className="text-xs">{ar ? "تاريخ البداية" : "Start Date"}</Label>
+              <Label className="text-xs">{tAuto('auto.startDate')}</Label>
               <Input type="date" value={formData.startDate} onChange={(e) => setFormData({ ...formData, startDate: e.target.value })} className="h-8 text-sm rounded-lg" />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">{ar ? "تاريخ النهاية" : "End Date"}</Label>
+              <Label className="text-xs">{tAuto('auto.endDate')}</Label>
               <Input type="date" value={formData.endDate} onChange={(e) => setFormData({ ...formData, endDate: e.target.value })} className="h-8 text-sm rounded-lg" />
             </div>
           </div>
           <div className="space-y-1">
-            <Label className="text-xs">{ar ? "ملاحظات" : "Notes"}</Label>
-            <Textarea value={formData.notes} onChange={(e) => setFormData({ ...formData, notes: e.target.value })} placeholder={ar ? "ملاحظات" : "Notes"} className="text-sm min-h-[60px] rounded-lg" />
+            <Label className="text-xs">{tAuto('auto.notes')}</Label>
+            <Textarea value={formData.notes} onChange={(e) => setFormData({ ...formData, notes: e.target.value })} placeholder={tAuto('auto.notes')} className="text-sm min-h-[60px] rounded-lg" />
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => { onOpenChange(false); setFormData(emptyForm); onEditIdChange(null); }}>{ar ? "إلغاء" : "Cancel"}</Button>
+          <Button variant="outline" onClick={() => { onOpenChange(false); setFormData(emptyForm); onEditIdChange(null); }}>{tAuto('auto.cancel')}</Button>
           <Button className="bg-teal-600 hover:bg-teal-700 text-white" onClick={handleSave} disabled={!formData.name || createMutation.isPending || updateMutation.isPending}>
-            {(createMutation.isPending || updateMutation.isPending) ? (ar ? "جارٍ الحفظ..." : "Saving...") : (ar ? "حفظ" : "Save")}
+            {(createMutation.isPending || updateMutation.isPending) ? (tAuto('auto.saving')) : (tAuto('auto.save'))}
           </Button>
         </DialogFooter>
       </DialogContent>

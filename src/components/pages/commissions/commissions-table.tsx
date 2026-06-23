@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/lib/formatters";
@@ -24,6 +26,7 @@ interface CommissionsTableProps {
 }
 
 export function CommissionsTable({ language, commissions, isLoading }: CommissionsTableProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const queryClient = useQueryClient();
 
@@ -65,13 +68,13 @@ export function CommissionsTable({ language, commissions, isLoading }: Commissio
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent bg-slate-50/80 dark:bg-slate-800/50">
-              <TableHead className="text-xs font-semibold">{ar ? "الموظف" : "Employee"}</TableHead>
-              <TableHead className="text-xs font-semibold">{ar ? "النوع" : "Type"}</TableHead>
-              <TableHead className="text-xs font-semibold text-end">{ar ? "المبلغ" : "Amount"}</TableHead>
+              <TableHead className="text-xs font-semibold">{tAuto('auto.employee')}</TableHead>
+              <TableHead className="text-xs font-semibold">{tAuto('auto.type')}</TableHead>
+              <TableHead className="text-xs font-semibold text-end">{tAuto('auto.amount')}</TableHead>
               <TableHead className="text-xs font-semibold text-end">{ar ? "النسبة" : "%"}</TableHead>
-              <TableHead className="text-xs font-semibold">{ar ? "الحالة" : "Status"}</TableHead>
-              <TableHead className="text-xs font-semibold hidden lg:table-cell">{ar ? "التاريخ" : "Date"}</TableHead>
-              <TableHead className="text-xs font-semibold text-start">{ar ? "إجراءات" : "Actions"}</TableHead>
+              <TableHead className="text-xs font-semibold">{tAuto('auto.status1')}</TableHead>
+              <TableHead className="text-xs font-semibold hidden lg:table-cell">{tAuto('auto.date')}</TableHead>
+              <TableHead className="text-xs font-semibold text-start">{tAuto('auto.actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -94,12 +97,12 @@ export function CommissionsTable({ language, commissions, isLoading }: Commissio
                     <div className="flex items-center gap-1">
                       {c.status === "PENDING" && (
                         <Button variant="ghost" size="sm" className="h-7 text-xs text-sky-600 hover:text-sky-700 hover:bg-sky-50 dark:hover:bg-sky-950/30" onClick={() => statusMutation.mutate({ id: c.id, status: "APPROVED" })}>
-                          <CheckCircle className="h-3 w-3 me-0.5" />{ar ? "اعتماد" : "Approve"}
+                          <CheckCircle className="h-3 w-3 me-0.5" />{tAuto('auto.approve')}
                         </Button>
                       )}
                       {c.status === "APPROVED" && (
                         <Button variant="ghost" size="sm" className="h-7 text-xs text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/30" onClick={() => statusMutation.mutate({ id: c.id, status: "PAID" })}>
-                          <Wallet className="h-3 w-3 me-0.5" />{ar ? "دفع" : "Pay"}
+                          <Wallet className="h-3 w-3 me-0.5" />{tAuto('auto.pay')}
                         </Button>
                       )}
                       {(c.status === "PENDING" || c.status === "APPROVED") && (
@@ -109,7 +112,7 @@ export function CommissionsTable({ language, commissions, isLoading }: Commissio
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align={ar ? "start" : "end"}>
                             <DropdownMenuItem className="text-red-500" onClick={() => deleteMutation.mutate(c.id)}>
-                              <Trash2 className="h-3.5 w-3.5 me-1.5" />{ar ? "حذف" : "Delete"}
+                              <Trash2 className="h-3.5 w-3.5 me-1.5" />{tAuto('auto.delete')}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -122,7 +125,7 @@ export function CommissionsTable({ language, commissions, isLoading }: Commissio
             {commissions.length === 0 && (
               <TableRow>
                 <TableCell colSpan={7} className="text-center py-12 text-slate-400">
-                  {ar ? "لا توجد عمولات" : "No commissions found"}
+                  {tAuto('auto.noCommissionsFound')}
                 </TableCell>
               </TableRow>
             )}
@@ -141,6 +144,7 @@ interface ReferralsTableProps {
 }
 
 export function ReferralsTable({ language, referrals, isLoading }: ReferralsTableProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const queryClient = useQueryClient();
 
@@ -182,12 +186,12 @@ export function ReferralsTable({ language, referrals, isLoading }: ReferralsTabl
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent bg-slate-50/80 dark:bg-slate-800/50">
-              <TableHead className="text-xs font-semibold">{ar ? "المحيل" : "Referrer"}</TableHead>
-              <TableHead className="text-xs font-semibold">{ar ? "اسم المُحال" : "Referred"}</TableHead>
-              <TableHead className="text-xs font-semibold hidden md:table-cell">{ar ? "المشروع" : "Project"}</TableHead>
-              <TableHead className="text-xs font-semibold">{ar ? "الحالة" : "Status"}</TableHead>
-              <TableHead className="text-xs font-semibold text-end">{ar ? "المكافأة" : "Reward"}</TableHead>
-              <TableHead className="text-xs font-semibold text-start">{ar ? "إجراءات" : "Actions"}</TableHead>
+              <TableHead className="text-xs font-semibold">{tAuto('auto.referrer')}</TableHead>
+              <TableHead className="text-xs font-semibold">{tAuto('auto.referred')}</TableHead>
+              <TableHead className="text-xs font-semibold hidden md:table-cell">{tAuto('auto.project')}</TableHead>
+              <TableHead className="text-xs font-semibold">{tAuto('auto.status1')}</TableHead>
+              <TableHead className="text-xs font-semibold text-end">{tAuto('auto.reward')}</TableHead>
+              <TableHead className="text-xs font-semibold text-start">{tAuto('auto.actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -215,12 +219,12 @@ export function ReferralsTable({ language, referrals, isLoading }: ReferralsTabl
                     <div className="flex items-center gap-1">
                       {r.status === "PENDING" && (
                         <Button variant="ghost" size="sm" className="h-7 text-xs text-sky-600 hover:bg-sky-50 dark:hover:bg-sky-950/30" onClick={() => statusMutation.mutate({ id: r.id, status: "CONVERTED" })}>
-                          <ArrowUpRight className="h-3 w-3 me-0.5" />{ar ? "تحويل" : "Convert"}
+                          <ArrowUpRight className="h-3 w-3 me-0.5" />{tAuto('auto.convert')}
                         </Button>
                       )}
                       {r.status === "CONVERTED" && (
                         <Button variant="ghost" size="sm" className="h-7 text-xs text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30" onClick={() => statusMutation.mutate({ id: r.id, status: "rewarded" })}>
-                          <Gift className="h-3 w-3 me-0.5" />{ar ? "مكافأة" : "Reward"}
+                          <Gift className="h-3 w-3 me-0.5" />{tAuto('auto.reward')}
                         </Button>
                       )}
                       <DropdownMenu>
@@ -230,11 +234,11 @@ export function ReferralsTable({ language, referrals, isLoading }: ReferralsTabl
                         <DropdownMenuContent align={ar ? "start" : "end"}>
                           {r.status === "PENDING" && (
                             <DropdownMenuItem onClick={() => statusMutation.mutate({ id: r.id, status: "EXPIRED" })}>
-                              <XCircle className="h-3.5 w-3.5 me-1.5 text-slate-400" />{ar ? "انتهاء" : "Expire"}
+                              <XCircle className="h-3.5 w-3.5 me-1.5 text-slate-400" />{tAuto('auto.expire')}
                             </DropdownMenuItem>
                           )}
                           <DropdownMenuItem className="text-red-500" onClick={() => deleteMutation.mutate(r.id)}>
-                            <Trash2 className="h-3.5 w-3.5 me-1.5" />{ar ? "حذف" : "Delete"}
+                            <Trash2 className="h-3.5 w-3.5 me-1.5" />{tAuto('auto.delete')}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -246,7 +250,7 @@ export function ReferralsTable({ language, referrals, isLoading }: ReferralsTabl
             {referrals.length === 0 && (
               <TableRow>
                 <TableCell colSpan={6} className="text-center py-12 text-slate-400">
-                  {ar ? "لا توجد إحالات" : "No referrals found"}
+                  {tAuto('auto.noReferralsFound')}
                 </TableCell>
               </TableRow>
             )}

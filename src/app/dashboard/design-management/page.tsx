@@ -1,16 +1,7 @@
-"use client";
+import { getLocale } from 'next-intl/server';
+import DesignManagementPage from '@/components/pages/design-management';
 
-import dynamic from "next/dynamic";
-import { useLang } from "@/hooks/use-lang";
-
-const DesignManagementPage = dynamic(() => import("@/components/pages/design-management"), {
-  loading: () => <div className="p-6 animate-pulse">Loading...</div>,
-  ssr: false,
-});
-
-/**
- * /dashboard/design-management
- */
-export default function DesignManagementPageRoute() {
-  return <DesignManagementPage language={useLang()} />;
+export default async function DesignManagementPageRoute() {
+  const locale = await getLocale();
+  return <DesignManagementPage language={locale as "ar" | "en"} />;
 }

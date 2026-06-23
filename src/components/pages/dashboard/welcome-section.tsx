@@ -2,6 +2,8 @@
  
 
 
+
+import { useTranslations } from 'next-intl';
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Bell, Plus, UserRoundPlus } from "lucide-react";
@@ -14,6 +16,7 @@ interface WelcomeSectionProps {
 }
 
 export function WelcomeSection({ userName, alertsCount, isAr, onNavigate }: WelcomeSectionProps) {
+  const tAuto = useTranslations();
   // Defer date rendering to client to avoid hydration mismatch
   const [dateStr, setDateStr] = useState("");
   useEffect(() => {
@@ -36,7 +39,7 @@ export function WelcomeSection({ userName, alertsCount, isAr, onNavigate }: Welc
           <button
             onClick={() => onNavigate("notifications")}
             className="relative h-9 w-9 rounded-xl bg-gradient-to-br from-amber-400 to-amber-500 dark:from-amber-500 dark:to-amber-600 flex items-center justify-center shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200 group"
-            title={isAr ? "الإشعارات" : "Notifications"}
+            title={tAuto('auto.notifications')}
           >
             <Bell className="h-4 w-4 text-white" />
             <span className="absolute -top-1 -end-1 h-5 min-w-[20px] rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center px-1 ring-2 ring-white dark:ring-slate-900 shadow-sm">
@@ -45,9 +48,7 @@ export function WelcomeSection({ userName, alertsCount, isAr, onNavigate }: Welc
           </button>
         </div>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-          {isAr
-            ? "إليك ملخص نشاطك اليوم ومؤشرات الأداء"
-            : "Here's your activity summary and key performance indicators"}
+          {tAuto('auto.hereSYourActivitySummaryAndKeyPerformanc')}
         </p>
         {/* Quick Create Buttons */}
         <div className="flex items-center gap-2 mt-3">
@@ -57,7 +58,7 @@ export function WelcomeSection({ userName, alertsCount, isAr, onNavigate }: Welc
             className="h-8 px-3 text-xs gap-1.5 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white shadow-sm rounded-lg"
           >
             <UserRoundPlus className="h-3.5 w-3.5" />
-            {isAr ? "عميل جديد" : "New Client"}
+            {tAuto('auto.newClient')}
           </Button>
           <Button
             onClick={() => onNavigate("projects")}
@@ -66,7 +67,7 @@ export function WelcomeSection({ userName, alertsCount, isAr, onNavigate }: Welc
             className="h-8 px-3 text-xs gap-1.5 border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-950/30 rounded-lg"
           >
             <Plus className="h-3.5 w-3.5" />
-            {isAr ? "مشروع جديد" : "New Project"}
+            {tAuto('auto.newProject')}
           </Button>
         </div>
       </div>

@@ -1,5 +1,7 @@
 'use client';
 
+
+import { useTranslations } from 'next-intl';
 import {
   Card,
   CardContent,
@@ -56,6 +58,7 @@ function mapHealthToServices(health: HealthData, isAr: boolean) {
 }
 
 export function SystemStatus({ isAr }: SystemStatusProps) {
+  const tAuto = useTranslations();
   const { data: healthData } = useQuery<HealthData | null>({
     queryKey: ['system-health'],
     queryFn: async () => {
@@ -89,12 +92,12 @@ export function SystemStatus({ isAr }: SystemStatusProps) {
           </div>
           <div>
             <CardTitle className="text-base font-semibold text-slate-900 dark:text-white">
-              {isAr ? "حالة النظام" : "System Status"}
+              {tAuto('auto.systemStatus')}
             </CardTitle>
             <CardDescription className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               {isLive
-                ? (isAr ? "مباشر من الخادم" : "Live from server")
-                : (isAr ? "لا تتوفر بيانات" : "No data available")}
+                ? (tAuto('auto.liveFromServer'))
+                : (tAuto('auto.noDataAvailable'))}
             </CardDescription>
           </div>
         </div>
@@ -104,10 +107,10 @@ export function SystemStatus({ isAr }: SystemStatusProps) {
           <div className="flex flex-col items-center justify-center py-8 text-center">
             <Server className="h-8 w-8 text-slate-300 dark:text-slate-600 mb-2" />
             <p className="text-sm text-slate-500 dark:text-slate-400">
-              {isAr ? "لا تتوفر بيانات حالة النظام" : "No system status data available"}
+              {tAuto('auto.noSystemStatusDataAvailable')}
             </p>
             <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1">
-              {isAr ? "ستظهر البيانات عند الاتصال بالخادم" : "Data will appear when connected to the server"}
+              {tAuto('auto.dataWillAppearWhenConnectedToTheServer')}
             </p>
           </div>
         ) : (
@@ -145,14 +148,14 @@ export function SystemStatus({ isAr }: SystemStatusProps) {
                           ? "bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400"
                           : "bg-amber-100 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400"
                       )}>
-                        {isOk ? (isAr ? "يعمل" : "Operational") : (isAr ? "تحذير" : "Warning")}
+                        {isOk ? (tAuto('auto.operational')) : (tAuto('auto.warning'))}
                       </span>
                     </span>
                   </div>
                   <div className="flex items-center gap-3 mt-0.5">
                     <span className="text-[10px] text-slate-400 dark:text-slate-500">{service.latency}</span>
                     <span className="text-[10px] text-slate-400 dark:text-slate-500">
-                      {isAr ? "متاح" : "Uptime"}: {service.uptime}
+                      {tAuto('auto.uptime')}: {service.uptime}
                     </span>
                   </div>
                 </div>

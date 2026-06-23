@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToastFeedback } from "@/hooks/use-toast-feedback";
@@ -98,6 +100,7 @@ function getStatusConfig(status: string) {
 interface DefectsProps { language: "ar" | "en"; projectId?: string; }
 
 export default function Defects({ language, projectId }: DefectsProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const queryClient = useQueryClient();
   const toast = useToastFeedback({ ar });
@@ -149,10 +152,10 @@ export default function Defects({ language, projectId }: DefectsProps) {
       queryClient.invalidateQueries({ queryKey: ["defects"] });
       setShowAddDialog(false);
       resetForm();
-      toast.created(ar ? "العيب" : "Defect");
+      toast.created(tAuto('auto.defect'));
     },
     onError: () => {
-      toast.error(ar ? "إنشاء العيب" : "Create defect");
+      toast.error(tAuto('auto.createDefect'));
     },
   });
 
@@ -162,10 +165,10 @@ export default function Defects({ language, projectId }: DefectsProps) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["defects"] });
-      toast.deleted(ar ? "العيب" : "Defect");
+      toast.deleted(tAuto('auto.defect'));
     },
     onError: () => {
-      toast.error(ar ? "حذف العيب" : "Delete defect");
+      toast.error(tAuto('auto.deleteDefect'));
     },
   });
 
@@ -210,9 +213,9 @@ export default function Defects({ language, projectId }: DefectsProps) {
             <ShieldAlert className="h-4.5 w-4.5 text-teal-600 dark:text-teal-400" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white">{ar ? "العيوب" : "Defects"}</h2>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">{tAuto('auto.defects')}</h2>
             <p className="text-[10px] text-slate-500 dark:text-slate-400">
-              {defects.length} {ar ? "عيب" : "defects"}
+              {defects.length} {tAuto('auto.defects1')}
             </p>
           </div>
         </div>
@@ -221,10 +224,10 @@ export default function Defects({ language, projectId }: DefectsProps) {
           <Select value={filterProject} onValueChange={setFilterProject}>
             <SelectTrigger className="w-[160px] h-8 text-xs rounded-lg">
               <Filter className="h-3 w-3 me-1 text-slate-400" />
-              <SelectValue placeholder={ar ? "المشروع" : "Project"} />
+              <SelectValue placeholder={tAuto('auto.project')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{ar ? "جميع المشاريع" : "All Projects"}</SelectItem>
+              <SelectItem value="all">{tAuto('auto.allProjects')}</SelectItem>
               {projects.map((p) => (
                 <SelectItem key={p.id} value={p.id}>{ar ? p.name : p.nameEn || p.name}</SelectItem>
               ))}
@@ -233,18 +236,18 @@ export default function Defects({ language, projectId }: DefectsProps) {
           )}
           <Select value={filterSeverity} onValueChange={setFilterSeverity}>
             <SelectTrigger className="w-[130px] h-8 text-xs rounded-lg">
-              <SelectValue placeholder={ar ? "الخطورة" : "Severity"} />
+              <SelectValue placeholder={tAuto('auto.severity')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{ar ? "الكل" : "All"}</SelectItem>
-              <SelectItem value="NORMAL">{ar ? "عادي" : "Normal"}</SelectItem>
-              <SelectItem value="MEDIUM">{ar ? "متوسط" : "Medium"}</SelectItem>
-              <SelectItem value="HIGH">{ar ? "عالي" : "High"}</SelectItem>
-              <SelectItem value="CRITICAL">{ar ? "حرج" : "Critical"}</SelectItem>
+              <SelectItem value="all">{tAuto('auto.all')}</SelectItem>
+              <SelectItem value="NORMAL">{tAuto('auto.normal')}</SelectItem>
+              <SelectItem value="MEDIUM">{tAuto('auto.medium')}</SelectItem>
+              <SelectItem value="HIGH">{tAuto('auto.high')}</SelectItem>
+              <SelectItem value="CRITICAL">{tAuto('auto.critical')}</SelectItem>
             </SelectContent>
           </Select>
           <Button size="sm" className="h-8 bg-teal-600 hover:bg-teal-700 text-white rounded-lg shadow-sm shadow-teal-600/20" onClick={() => setShowAddDialog(true)}>
-            <Plus className="h-3.5 w-3.5 me-1" />{ar ? "عيب جديد" : "New Defect"}
+            <Plus className="h-3.5 w-3.5 me-1" />{tAuto('auto.newDefect')}
           </Button>
         </div>
       </div>
@@ -258,7 +261,7 @@ export default function Defects({ language, projectId }: DefectsProps) {
                 <Activity className="h-5 w-5 text-slate-600 dark:text-slate-400" />
               </div>
               <div>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{ar ? "إجمالي العيوب" : "Total Defects"}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.totalDefects')}</p>
                 <p className="text-xl font-bold text-slate-900 dark:text-white tabular-nums">{totalDefects}</p>
               </div>
             </div>
@@ -271,7 +274,7 @@ export default function Defects({ language, projectId }: DefectsProps) {
                 <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
               </div>
               <div>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{ar ? "مفتوح" : "Open"}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.open')}</p>
                 <p className="text-xl font-bold text-amber-600 dark:text-amber-400 tabular-nums">{openCount}</p>
               </div>
             </div>
@@ -284,7 +287,7 @@ export default function Defects({ language, projectId }: DefectsProps) {
                 <Clock className="h-5 w-5 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{ar ? "قيد التنفيذ" : "In Progress"}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.inProgress')}</p>
                 <p className="text-xl font-bold text-blue-600 dark:text-blue-400 tabular-nums">{inProgressCount}</p>
               </div>
             </div>
@@ -297,7 +300,7 @@ export default function Defects({ language, projectId }: DefectsProps) {
                 <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
               </div>
               <div>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{ar ? "تم الحل" : "Resolved"}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.resolved')}</p>
                 <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">{resolvedCount}</p>
               </div>
             </div>
@@ -310,7 +313,7 @@ export default function Defects({ language, projectId }: DefectsProps) {
         <div className="rounded-xl border border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900 p-3">
           <div className="flex items-center justify-between mb-2">
             <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
-              {ar ? "توزيع الخطورة" : "Severity Distribution"}
+              {tAuto('auto.severityDistribution')}
             </span>
             {criticalCount > 0 && (
               <span className="flex items-center gap-1 text-[10px] font-medium text-red-600 dark:text-red-400">
@@ -318,7 +321,7 @@ export default function Defects({ language, projectId }: DefectsProps) {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
                 </span>
-                {criticalCount} {ar ? "حرج نشط" : "active critical"}
+                {criticalCount} {tAuto('auto.activeCritical')}
               </span>
             )}
           </div>
@@ -337,10 +340,10 @@ export default function Defects({ language, projectId }: DefectsProps) {
             )}
           </div>
           <div className="flex items-center gap-4 mt-2">
-            <span className="flex items-center gap-1 text-[10px] text-slate-500"><span className="w-2 h-2 rounded-full bg-slate-400" />{ar ? "عادي" : "Normal"} ({normalCount})</span>
-            <span className="flex items-center gap-1 text-[10px] text-slate-500"><span className="w-2 h-2 rounded-full bg-amber-400" />{ar ? "متوسط" : "Medium"} ({mediumCount})</span>
-            <span className="flex items-center gap-1 text-[10px] text-slate-500"><span className="w-2 h-2 rounded-full bg-orange-500" />{ar ? "عالي" : "High"} ({highCount})</span>
-            <span className="flex items-center gap-1 text-[10px] text-slate-500"><span className="w-2 h-2 rounded-full bg-red-500" />{ar ? "حرج" : "Critical"} ({criticalTotal})</span>
+            <span className="flex items-center gap-1 text-[10px] text-slate-500"><span className="w-2 h-2 rounded-full bg-slate-400" />{tAuto('auto.normal')} ({normalCount})</span>
+            <span className="flex items-center gap-1 text-[10px] text-slate-500"><span className="w-2 h-2 rounded-full bg-amber-400" />{tAuto('auto.medium')} ({mediumCount})</span>
+            <span className="flex items-center gap-1 text-[10px] text-slate-500"><span className="w-2 h-2 rounded-full bg-orange-500" />{tAuto('auto.high')} ({highCount})</span>
+            <span className="flex items-center gap-1 text-[10px] text-slate-500"><span className="w-2 h-2 rounded-full bg-red-500" />{tAuto('auto.critical')} ({criticalTotal})</span>
           </div>
         </div>
       )}
@@ -348,26 +351,26 @@ export default function Defects({ language, projectId }: DefectsProps) {
       {/* Table */}
       <div className="rounded-xl border border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900 overflow-hidden shadow-sm">
         {isLoading ? (
-          <div className="p-8 text-center text-slate-400">{ar ? "جارٍ التحميل..." : "Loading..."}</div>
+          <div className="p-8 text-center text-slate-400">{tAuto('auto.loading')}</div>
         ) : defects.length === 0 ? (
           <div className="flex flex-col items-center justify-center min-h-[30vh] text-center p-8">
             <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-3">
               <AlertTriangle className="h-6 w-6 text-slate-400" />
             </div>
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-1">{ar ? "لا توجد عيوب" : "No defects"}</h3>
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-1">{tAuto('auto.noDefects')}</h3>
           </div>
         ) : (
           <div className="overflow-x-auto max-h-[calc(100vh-380px)] overflow-y-auto">
             <Table>
               <TableHeader>
                 <TableRow className="hover:bg-transparent bg-slate-50/80 dark:bg-slate-800/50">
-                  <TableHead className="text-xs font-semibold">{ar ? "العنوان" : "Title"}</TableHead>
-                  <TableHead className="text-xs font-semibold">{ar ? "المشروع" : "Project"}</TableHead>
-                  <TableHead className="text-xs font-semibold">{ar ? "الخطورة" : "Severity"}</TableHead>
-                  <TableHead className="text-xs font-semibold">{ar ? "الموقع" : "Location"}</TableHead>
-                  <TableHead className="text-xs font-semibold">{ar ? "المسؤول" : "Assignee"}</TableHead>
-                  <TableHead className="text-xs font-semibold">{ar ? "الحالة" : "Status"}</TableHead>
-                  <TableHead className="text-xs font-semibold">{ar ? "التاريخ" : "Date"}</TableHead>
+                  <TableHead className="text-xs font-semibold">{tAuto('auto.title')}</TableHead>
+                  <TableHead className="text-xs font-semibold">{tAuto('auto.project')}</TableHead>
+                  <TableHead className="text-xs font-semibold">{tAuto('auto.severity')}</TableHead>
+                  <TableHead className="text-xs font-semibold">{tAuto('auto.location')}</TableHead>
+                  <TableHead className="text-xs font-semibold">{tAuto('auto.assignee')}</TableHead>
+                  <TableHead className="text-xs font-semibold">{tAuto('auto.status1')}</TableHead>
+                  <TableHead className="text-xs font-semibold">{tAuto('auto.date')}</TableHead>
                   <TableHead className="w-10"></TableHead>
                 </TableRow>
               </TableHeader>
@@ -425,9 +428,9 @@ export default function Defects({ language, projectId }: DefectsProps) {
                           <DropdownMenuContent align={ar ? "start" : "end"} className="w-36">
                             <DropdownMenuItem
                               className="text-red-600 dark:text-red-400 focus:text-red-600"
-                              onClick={() => { if (confirm(ar ? "هل أنت متأكد من الحذف؟" : "Delete this defect?")) deleteMutation.mutate(defect.id); }}
+                              onClick={() => { if (confirm(tAuto('auto.deleteThisDefect'))) deleteMutation.mutate(defect.id); }}
                             >
-                              <Trash2 className="h-3.5 w-3.5 me-2" />{ar ? "حذف" : "Delete"}
+                              <Trash2 className="h-3.5 w-3.5 me-2" />{tAuto('auto.delete')}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -445,21 +448,21 @@ export default function Defects({ language, projectId }: DefectsProps) {
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{ar ? "عيب جديد" : "New Defect"}</DialogTitle>
-            <DialogDescription>{ar ? "تسجيل عيب جديد في الموقع" : "Record a new site defect"}</DialogDescription>
+            <DialogTitle>{tAuto('auto.newDefect')}</DialogTitle>
+            <DialogDescription>{tAuto('auto.recordANewSiteDefect')}</DialogDescription>
           </DialogHeader>
           <form onSubmit={rhfHandleSubmit((data) => createMutation.mutate(data))} className="space-y-4">
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "العنوان" : "Title"} *</Label>
-              <Input {...register("title")} placeholder={ar ? "عنوان العيب" : "Defect title"} className={cn(errors.title && "border-red-500")} />
+              <Label className="text-sm">{tAuto('auto.title')} *</Label>
+              <Input {...register("title")} placeholder={tAuto('auto.defectTitle')} className={cn(errors.title && "border-red-500")} />
               {errors.title && <p className="text-red-500 text-xs mt-1">{getErrorMessage(errors.title.message || "", ar)}</p>}
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "المشروع" : "Project"} *</Label>
+                <Label className="text-sm">{tAuto('auto.project')} *</Label>
                 {/* eslint-disable-next-line react-hooks/incompatible-library */}
                 <Select value={watch("projectId")} onValueChange={(v) => setValue("projectId", v)}>
-                  <SelectTrigger className={cn(errors.projectId && "border-red-500")}><SelectValue placeholder={ar ? "اختر مشروع" : "Select project"} /></SelectTrigger>
+                  <SelectTrigger className={cn(errors.projectId && "border-red-500")}><SelectValue placeholder={tAuto('auto.selectProject')} /></SelectTrigger>
                   <SelectContent>
                     {projects.map((p) => (
                       <SelectItem key={p.id} value={p.id}>{ar ? p.name : p.nameEn || p.name}</SelectItem>
@@ -469,27 +472,27 @@ export default function Defects({ language, projectId }: DefectsProps) {
                 {errors.projectId && <p className="text-red-500 text-xs mt-1">{getErrorMessage(errors.projectId.message || "", ar)}</p>}
               </div>
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "الخطورة" : "Severity"}</Label>
+                <Label className="text-sm">{tAuto('auto.severity')}</Label>
                 <Select value={watch("severity")} onValueChange={(v) => setValue("severity", v as DefectFormData["severity"])}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="NORMAL">{ar ? "عادي" : "Normal"}</SelectItem>
-                    <SelectItem value="MEDIUM">{ar ? "متوسط" : "Medium"}</SelectItem>
-                    <SelectItem value="HIGH">{ar ? "عالي" : "High"}</SelectItem>
-                    <SelectItem value="CRITICAL">{ar ? "حرج" : "Critical"}</SelectItem>
+                    <SelectItem value="NORMAL">{tAuto('auto.normal')}</SelectItem>
+                    <SelectItem value="MEDIUM">{tAuto('auto.medium')}</SelectItem>
+                    <SelectItem value="HIGH">{tAuto('auto.high')}</SelectItem>
+                    <SelectItem value="CRITICAL">{tAuto('auto.critical')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "الموقع" : "Location"}</Label>
-                <Input {...register("location")} placeholder={ar ? "موقع العيب" : "Defect location"} />
+                <Label className="text-sm">{tAuto('auto.location')}</Label>
+                <Input {...register("location")} placeholder={tAuto('auto.defectLocation')} />
               </div>
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "المسؤول" : "Assignee"}</Label>
+                <Label className="text-sm">{tAuto('auto.assignee')}</Label>
                 <Select value={watch("assigneeId")} onValueChange={(v) => setValue("assigneeId", v)}>
-                  <SelectTrigger><SelectValue placeholder={ar ? "اختر مسؤول" : "Select assignee"} /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder={tAuto('auto.selectAssignee')} /></SelectTrigger>
                   <SelectContent>
                     {users.map((u) => (
                       <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
@@ -499,17 +502,17 @@ export default function Defects({ language, projectId }: DefectsProps) {
               </div>
             </div>
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "الصور (روابط)" : "Photos (URLs)"}</Label>
-              <Input {...register("photos")} placeholder={ar ? "روابط الصور مفصولة بفاصلة" : "Comma-separated photo URLs"} />
+              <Label className="text-sm">{tAuto('auto.photosURLs')}</Label>
+              <Input {...register("photos")} placeholder={tAuto('auto.commaSeparatedPhotoURLs')} />
             </div>
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "ملاحظات" : "Notes"}</Label>
-              <Textarea {...register("notes")} placeholder={ar ? "ملاحظات إضافية" : "Additional notes"} rows={3} />
+              <Label className="text-sm">{tAuto('auto.notes')}</Label>
+              <Textarea {...register("notes")} placeholder={tAuto('auto.additionalNotes')} rows={3} />
             </div>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => { setShowAddDialog(false); resetForm(); }}>{ar ? "إلغاء" : "Cancel"}</Button>
+            <Button type="button" variant="outline" onClick={() => { setShowAddDialog(false); resetForm(); }}>{tAuto('auto.cancel')}</Button>
             <Button type="submit" className="bg-teal-600 hover:bg-teal-700 text-white" disabled={createMutation.isPending}>
-              {createMutation.isPending ? (ar ? "جارٍ الإنشاء..." : "Creating...") : (ar ? "إنشاء" : "Create")}
+              {createMutation.isPending ? (tAuto('auto.creating')) : (tAuto('auto.create'))}
             </Button>
           </DialogFooter>
           </form>

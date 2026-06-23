@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -49,6 +51,7 @@ export function ContractFormDialog({
   isPending,
   onCancel,
 }: ContractFormDialogProps) {
+  const tAuto = useTranslations();
   const { register, handleSubmit, formState: { errors }, setValue, watch } = form;
 
   return (
@@ -59,31 +62,31 @@ export function ContractFormDialog({
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            {editContract ? (ar ? "تعديل عقد" : "Edit Contract") : (ar ? "عقد جديد" : "New Contract")}
+            {editContract ? (tAuto('auto.editContract')) : (tAuto('auto.newContract'))}
           </DialogTitle>
           <DialogDescription>
             {editContract
-              ? (ar ? "تعديل بيانات العقد" : "Edit contract information")
-              : (ar ? "إضافة عقد جديد" : "Add a new contract")}
+              ? (tAuto('auto.editContractInformation'))
+              : (tAuto('auto.addANewContract'))}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSave as (data: unknown) => void)} className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "رقم العقد" : "Contract No."} *</Label>
+              <Label className="text-sm">{tAuto('auto.contractNo')} *</Label>
               <Input
                 {...register("number")}
-                placeholder={ar ? "رقم العقد" : "Contract number"}
+                placeholder={tAuto('auto.contractNumber')}
                 className={cn("h-8 text-sm rounded-lg", errors.number && "border-red-500")}
               />
               {errors.number && <p className="text-red-500 text-xs mt-1">{getErrorMessage(errors.number.message || "", ar)}</p>}
             </div>
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "العنوان" : "Title"} *</Label>
+              <Label className="text-sm">{tAuto('auto.title')} *</Label>
               <Input
                 {...register("title")}
-                placeholder={ar ? "عنوان العقد" : "Contract title"}
+                placeholder={tAuto('auto.contractTitle')}
                 className={cn("h-8 text-sm rounded-lg", errors.title && "border-red-500")}
               />
               {errors.title && <p className="text-red-500 text-xs mt-1">{getErrorMessage(errors.title.message || "", ar)}</p>}
@@ -91,14 +94,14 @@ export function ContractFormDialog({
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "العميل" : "Client"} *</Label>
+              <Label className="text-sm">{tAuto('auto.client')} *</Label>
               <Select
                  
                 value={watch("clientId")}
                 onValueChange={(v) => setValue("clientId", v)}
               >
                 <SelectTrigger className={cn("h-8 text-sm rounded-lg", errors.clientId && "border-red-500")}>
-                  <SelectValue placeholder={ar ? "اختر عميل" : "Select client"} />
+                  <SelectValue placeholder={tAuto('auto.selectClient')} />
                 </SelectTrigger>
                 <SelectContent>
                   {clients.map((c) => (
@@ -111,13 +114,13 @@ export function ContractFormDialog({
               {errors.clientId && <p className="text-red-500 text-xs mt-1">{getErrorMessage(errors.clientId.message || "", ar)}</p>}
             </div>
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "المشروع" : "Project"} *</Label>
+              <Label className="text-sm">{tAuto('auto.project')} *</Label>
               <Select
                 value={watch("projectId")}
                 onValueChange={(v) => setValue("projectId", v)}
               >
                 <SelectTrigger className={cn("h-8 text-sm rounded-lg", errors.projectId && "border-red-500")}>
-                  <SelectValue placeholder={ar ? "اختر مشروع" : "Select project"} />
+                  <SelectValue placeholder={tAuto('auto.selectProject')} />
                 </SelectTrigger>
                 <SelectContent>
                   {projects.map((p) => (
@@ -132,7 +135,7 @@ export function ContractFormDialog({
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "القيمة (د.إ)" : "Value (AED)"} *</Label>
+              <Label className="text-sm">{tAuto('auto.valueAED')} *</Label>
               <Input
                 type="number"
                 {...register("value")}
@@ -142,7 +145,7 @@ export function ContractFormDialog({
               {errors.value && <p className="text-red-500 text-xs mt-1">{getErrorMessage(errors.value.message || "", ar)}</p>}
             </div>
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "النوع" : "Type"}</Label>
+              <Label className="text-sm">{tAuto('auto.type')}</Label>
               <Select
                 value={watch("type")}
                 onValueChange={(v) => setValue("type", v as ContractFormData["type"])}
@@ -151,17 +154,17 @@ export function ContractFormDialog({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ENGINEERING_SERVICES">{ar ? "خدمات هندسية" : "Engineering Services"}</SelectItem>
-                  <SelectItem value="CONSTRUCTION">{ar ? "بناء" : "Construction"}</SelectItem>
-                  <SelectItem value="CONSULTING">{ar ? "استشارات" : "Consulting"}</SelectItem>
-                  <SelectItem value="MAINTENANCE">{ar ? "صيانة" : "Maintenance"}</SelectItem>
+                  <SelectItem value="ENGINEERING_SERVICES">{tAuto('auto.engineeringServices')}</SelectItem>
+                  <SelectItem value="CONSTRUCTION">{tAuto('auto.construction')}</SelectItem>
+                  <SelectItem value="CONSULTING">{tAuto('auto.consulting')}</SelectItem>
+                  <SelectItem value="MAINTENANCE">{tAuto('auto.maintenance')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "تاريخ البدء" : "Start Date"}</Label>
+              <Label className="text-sm">{tAuto('auto.startDate')}</Label>
               <Input
                 type="date"
                 {...register("startDate")}
@@ -169,7 +172,7 @@ export function ContractFormDialog({
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "تاريخ الانتهاء" : "End Date"}</Label>
+              <Label className="text-sm">{tAuto('auto.endDate')}</Label>
               <Input
                 type="date"
                 {...register("endDate")}
@@ -184,7 +187,7 @@ export function ContractFormDialog({
               className="rounded-lg"
               onClick={onCancel}
             >
-              {ar ? "إلغاء" : "Cancel"}
+              {tAuto('auto.cancel')}
             </Button>
             <Button
               type="submit"
@@ -192,8 +195,8 @@ export function ContractFormDialog({
               disabled={isPending}
             >
               {isPending
-                ? (ar ? "جارٍ الحفظ..." : "Saving...")
-                : (ar ? "حفظ" : "Save")}
+                ? (tAuto('auto.saving'))
+                : (tAuto('auto.save'))}
             </Button>
           </DialogFooter>
         </form>

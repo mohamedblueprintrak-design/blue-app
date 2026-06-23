@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { Card, CardContent } from "@/components/ui/card";
 import { ShieldAlert, Target, CheckCircle2, BarChart3 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -12,6 +14,7 @@ interface RiskStatsProps {
 }
 
 export function RiskStats({ ar, risks }: RiskStatsProps) {
+  const tAuto = useTranslations();
   const totalRisks = risks.length;
   const criticalRisks = risks.filter((r) => r.score >= 16).length;
   const highRisks = risks.filter((r) => r.score >= 10 && r.score < 16).length;
@@ -27,7 +30,7 @@ export function RiskStats({ ar, risks }: RiskStatsProps) {
                 <ShieldAlert className="h-5 w-5 text-teal-600 dark:text-teal-400" />
               </div>
               <div>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{ar ? "إجمالي المخاطر" : "Total Risks"}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.totalRisks')}</p>
                 <p className="text-xl font-bold text-slate-900 dark:text-white tabular-nums">{totalRisks}</p>
               </div>
             </div>
@@ -40,7 +43,7 @@ export function RiskStats({ ar, risks }: RiskStatsProps) {
                 <Target className="h-5 w-5 text-red-600 dark:text-red-400" />
               </div>
               <div>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{ar ? "عالي / حرج" : "High / Critical"}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.highCritical')}</p>
                 <p className="text-xl font-bold text-red-600 dark:text-red-400 tabular-nums">{criticalRisks + highRisks}</p>
               </div>
             </div>
@@ -53,7 +56,7 @@ export function RiskStats({ ar, risks }: RiskStatsProps) {
                 <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
               </div>
               <div>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{ar ? "تم التخفيف" : "Mitigated"}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.mitigated')}</p>
                 <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">{risks.filter(r => r.status === "RESOLVED" || r.status === "CLOSED").length}</p>
               </div>
             </div>
@@ -82,7 +85,7 @@ export function RiskStats({ ar, risks }: RiskStatsProps) {
             })()}
           </div>
           <div className="flex items-center gap-2">
-            {[{color: "bg-green-500", label: ar ? "منخفض" : "Low"}, {color: "bg-yellow-500", label: ar ? "متوسط" : "Medium"}, {color: "bg-orange-500", label: ar ? "عالي" : "High"}, {color: "bg-red-500", label: ar ? "حرج" : "Critical"}].map(item => (
+            {[{color: "bg-green-500", label: tAuto('auto.low')}, {color: "bg-yellow-500", label: tAuto('auto.medium')}, {color: "bg-orange-500", label: tAuto('auto.high')}, {color: "bg-red-500", label: tAuto('auto.critical')}].map(item => (
               <div key={item.label} className="flex items-center gap-1">
                 <div className={`w-2 h-2 rounded-full ${item.color}`} />
                 <span className="text-[10px] text-slate-500">{item.label}</span>
@@ -99,7 +102,7 @@ export function RiskStats({ ar, risks }: RiskStatsProps) {
             <div className="flex items-center gap-2 mb-3">
               <BarChart3 className="h-4 w-4 text-teal-500" />
               <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
-                {ar ? "توزيع المخاطر" : "Risk Distribution"}
+                {tAuto('auto.riskDistribution')}
               </h3>
             </div>
             <div className="flex items-end gap-2 h-20">

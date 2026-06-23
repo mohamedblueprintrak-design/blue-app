@@ -1,4 +1,6 @@
 "use client";
+
+import { useTranslations } from 'next-intl';
 /* eslint-disable */
 
 
@@ -22,6 +24,7 @@ import { ChatInput } from "./ai-assistant/chat-input";
 // and does not support model switching. Keeping selectedModel for API compatibility.
 
 export default function AIAssistant({ language: lang, projectId }: Props) {
+  const tAuto = useTranslations();
   const isAr = lang === "ar";
   const { user: _user } = useAuthStore();
   const [messages, setMessages] = useState<Message[]>([]);
@@ -129,18 +132,14 @@ export default function AIAssistant({ language: lang, projectId }: Props) {
         const clientName = project.client?.name || project.client?.company || "N/A";
         const budgetFormatted = project.budget
           ? `${project.budget.toLocaleString("en-AE")} AED`
-          : isAr
-            ? "غير محدد"
-            : "Not set";
+          : tAuto('auto.notSet');
         const endDateFormatted = project.endDate
           ? new Date(project.endDate).toLocaleDateString(isAr ? "ar-AE" : "en-US", {
               year: "numeric",
               month: "long",
               day: "numeric",
             })
-          : isAr
-            ? "غير محدد"
-            : "Not set";
+          : tAuto('auto.notSet');
 
         const taskStats = project.taskStats || {};
         const totalTasks = taskStats.total || 0;
@@ -209,9 +208,7 @@ export default function AIAssistant({ language: lang, projectId }: Props) {
     const firstUserMsg = messages.find((m) => m.role === "user");
     const title = firstUserMsg
       ? firstUserMsg.content.slice(0, 50) + (firstUserMsg.content.length > 50 ? "..." : "")
-      : isAr
-        ? "محادثة جديدة"
-        : "New Chat";
+      : tAuto('auto.newChat');
 
     const meta: ConversationMeta = {
       id: conversationId,
@@ -380,12 +377,8 @@ export default function AIAssistant({ language: lang, projectId }: Props) {
       });
       const role =
         msg.role === "user"
-          ? isAr
-            ? "أنت"
-            : "You"
-          : isAr
-            ? "المساعد"
-            : "AI";
+          ? tAuto('auto.you')
+          : tAuto('auto.aI');
       return `[${time}] ${role}: ${msg.content}`;
     });
     const text = lines.join("\n\n---\n\n");
@@ -539,7 +532,7 @@ export default function AIAssistant({ language: lang, projectId }: Props) {
       const diffHour = Math.floor(diffMs / 3600000);
       const diffDay = Math.floor(diffMs / 86400000);
 
-      if (diffMin < 1) return isAr ? "الآن" : "Now";
+      if (diffMin < 1) return tAuto('auto.now');
       if (diffMin < 60) return isAr ? `منذ ${diffMin} د` : `${diffMin}m ago`;
       if (diffHour < 24) return isAr ? `منذ ${diffHour} س` : `${diffHour}h ago`;
       if (diffDay < 7) return isAr ? `منذ ${diffDay} ي` : `${diffDay}d ago`;
@@ -548,7 +541,7 @@ export default function AIAssistant({ language: lang, projectId }: Props) {
         day: "numeric",
       });
     },
-    [isAr]
+    [isAr, tAuto]
   );
 
   return (

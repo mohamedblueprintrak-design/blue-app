@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl';
 import React from "react";
 import { Trash2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -43,17 +44,18 @@ export function TaskDetailPanel({
   isDeleting,
   isSaving,
 }: TaskDetailPanelProps) {
+  const tAuto = useTranslations();
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>{ar ? "تعديل المهمة" : "Edit Task"}</DialogTitle>
-          <DialogDescription>{ar ? "تعديل تفاصيل المهمة في الجدول الزمني" : "Edit task details in the timeline"}</DialogDescription>
+          <DialogTitle>{tAuto('auto.editTask')}</DialogTitle>
+          <DialogDescription>{tAuto('auto.editTaskDetailsInTheTimeline')}</DialogDescription>
         </DialogHeader>
         {selectedTask && (
           <div className="space-y-4">
             <div>
-              <Label>{ar ? "العنوان" : "Title"}</Label>
+              <Label>{tAuto('auto.title')}</Label>
               <Input
                 value={selectedTask.title}
                 onChange={(e) => onSelectedTaskChange({ ...selectedTask, title: e.target.value })}
@@ -62,7 +64,7 @@ export function TaskDetailPanel({
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label>{ar ? "تاريخ البداية" : "Start Date"}</Label>
+                <Label>{tAuto('auto.startDate')}</Label>
                 <Input
                   type="date"
                   value={selectedTask.startDate?.split("T")[0] || ""}
@@ -71,7 +73,7 @@ export function TaskDetailPanel({
                 />
               </div>
               <div>
-                <Label>{ar ? "تاريخ النهاية" : "End Date"}</Label>
+                <Label>{tAuto('auto.endDate')}</Label>
                 <Input
                   type="date"
                   value={selectedTask.endDate?.split("T")[0] || ""}
@@ -82,7 +84,7 @@ export function TaskDetailPanel({
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label>{ar ? "التقدم" : "Progress"} (%)</Label>
+                <Label>{tAuto('auto.progress')} (%)</Label>
                 <Input
                   type="number"
                   min="0"
@@ -93,7 +95,7 @@ export function TaskDetailPanel({
                 />
               </div>
               <div>
-                <Label>{ar ? "الحالة" : "Status"}</Label>
+                <Label>{tAuto('auto.status1')}</Label>
                 <Select
                   value={selectedTask.status}
                   onValueChange={(value) => onSelectedTaskChange({ ...selectedTask, status: value })}
@@ -116,7 +118,7 @@ export function TaskDetailPanel({
         <DialogFooter>
           <Button variant="destructive" onClick={() => selectedTask && onDelete(selectedTask.id)} disabled={isDeleting}>
             {isDeleting ? <Loader2 className="w-4 h-4 me-1 animate-spin" /> : <Trash2 className="w-4 h-4 me-1" />}
-            {ar ? "حذف" : "Delete"}
+            {tAuto('auto.delete')}
           </Button>
           <Button
             onClick={() => {
@@ -128,7 +130,7 @@ export function TaskDetailPanel({
             className="bg-teal-600 hover:bg-teal-700 text-white border-0"
           >
             {isSaving ? <Loader2 className="w-4 h-4 me-1 animate-spin" /> : null}
-            {ar ? "حفظ" : "Save"}
+            {tAuto('auto.save')}
           </Button>
         </DialogFooter>
       </DialogContent>

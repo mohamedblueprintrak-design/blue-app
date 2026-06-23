@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -45,6 +47,7 @@ interface FeatureFlagsTabProps {
 }
 
 export default function FeatureFlagsTab({ isAr }: FeatureFlagsTabProps) {
+  const tAuto = useTranslations();
   const queryClient = useQueryClient();
   const [editOpen, setEditOpen] = useState(false);
   const [editingFlag, setEditingFlag] = useState<FeatureFlagRecord | null>(null);
@@ -152,12 +155,12 @@ export default function FeatureFlagsTab({ isAr }: FeatureFlagsTabProps) {
         <div className="flex items-center gap-2">
           <Flag className="h-5 w-5 text-[#133371]" />
           <h3 className="text-lg font-semibold">
-            {isAr ? "علامات الميزات" : "Feature Flags"}
+            {tAuto('auto.featureFlags')}
           </h3>
         </div>
         <Button onClick={openCreate} size="sm" className="gap-1.5 bg-[#133371] hover:bg-[#0f2855] text-white">
           <Plus className="h-3.5 w-3.5" />
-          {isAr ? "إضافة علامة" : "Add Flag"}
+          {tAuto('auto.addFlag')}
         </Button>
       </div>
 
@@ -169,9 +172,9 @@ export default function FeatureFlagsTab({ isAr }: FeatureFlagsTabProps) {
       ) : flagsData.length === 0 ? (
         <div className="text-center py-12 text-muted-foreground">
           <Flag className="h-10 w-10 mx-auto mb-3 opacity-30" />
-          <p>{isAr ? "لا توجد علامات ميزات بعد" : "No feature flags yet"}</p>
+          <p>{tAuto('auto.noFeatureFlagsYet')}</p>
           <p className="text-sm">
-            {isAr ? "أنشئ علامة ميزة للتحكم في توفر الميزات" : "Create a feature flag to control feature availability"}
+            {tAuto('auto.createAFeatureFlagToControlFeatureAvaila')}
           </p>
         </div>
       ) : (
@@ -179,11 +182,11 @@ export default function FeatureFlagsTab({ isAr }: FeatureFlagsTabProps) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>{isAr ? "المفتاح" : "Key"}</TableHead>
-                <TableHead>{isAr ? "الاسم" : "Name"}</TableHead>
-                <TableHead className="text-center">{isAr ? "مفعّل" : "Enabled"}</TableHead>
+                <TableHead>{tAuto('auto.key')}</TableHead>
+                <TableHead>{tAuto('auto.name')}</TableHead>
+                <TableHead className="text-center">{tAuto('auto.enabled')}</TableHead>
                 <TableHead className="text-center">{isAr ? "النسبة" : "%"}</TableHead>
-                <TableHead>{isAr ? "الاستهداف" : "Targeting"}</TableHead>
+                <TableHead>{tAuto('auto.targeting')}</TableHead>
                 <TableHead className="w-12"></TableHead>
               </TableRow>
             </TableHeader>
@@ -235,7 +238,7 @@ export default function FeatureFlagsTab({ isAr }: FeatureFlagsTabProps) {
                         )}
                         {orgs.length === 0 && roles.length === 0 && (
                           <span className="text-xs text-muted-foreground">
-                            {isAr ? "الكل" : "All"}
+                            {tAuto('auto.all')}
                           </span>
                         )}
                       </div>
@@ -264,8 +267,8 @@ export default function FeatureFlagsTab({ isAr }: FeatureFlagsTabProps) {
           <DialogHeader>
             <DialogTitle>
               {editingFlag
-                ? isAr ? "تعديل علامة الميزة" : "Edit Feature Flag"
-                : isAr ? "إنشاء علامة ميزة" : "Create Feature Flag"}
+                ? tAuto('auto.editFeatureFlag')
+                : tAuto('auto.createFeatureFlag')}
             </DialogTitle>
           </DialogHeader>
 
@@ -273,7 +276,7 @@ export default function FeatureFlagsTab({ isAr }: FeatureFlagsTabProps) {
             {/* Key */}
             <div className="space-y-1.5">
               <Label className="text-sm">
-                {isAr ? "المفتاح" : "Key"}
+                {tAuto('auto.key')}
               </Label>
               <Input
                 value={form.key}
@@ -282,7 +285,7 @@ export default function FeatureFlagsTab({ isAr }: FeatureFlagsTabProps) {
                 disabled={!!editingFlag}
               />
               <p className="text-xs text-muted-foreground">
-                {isAr ? "أحرف صغيرة، شرطات سفلية، واصلات فقط" : "Lowercase, underscores, hyphens only"}
+                {tAuto('auto.lowercaseUnderscoresHyphensOnly')}
               </p>
             </div>
 
@@ -290,17 +293,17 @@ export default function FeatureFlagsTab({ isAr }: FeatureFlagsTabProps) {
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label className="text-sm">
-                  {isAr ? "الاسم (إنجليزي)" : "Name (English)"} *
+                  {tAuto('auto.nameEnglish')} *
                 </Label>
                 <Input
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  placeholder={isAr ? "تسجيل دخول جوجل" : "Google Login"}
+                  placeholder={tAuto('auto.googleLogin')}
                 />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-sm">
-                  {isAr ? "الاسم (عربي)" : "Name (Arabic)"}
+                  {tAuto('auto.nameArabic')}
                 </Label>
                 <Input
                   value={form.nameAr}
@@ -315,17 +318,17 @@ export default function FeatureFlagsTab({ isAr }: FeatureFlagsTabProps) {
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label className="text-sm">
-                  {isAr ? "الوصف (إنجليزي)" : "Description (English)"}
+                  {tAuto('auto.descriptionEnglish')}
                 </Label>
                 <Input
                   value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
-                  placeholder={isAr ? "تفعيل تسجيل الدخول عبر جوجل" : "Enable Google OAuth login"}
+                  placeholder={tAuto('auto.enableGoogleOAuthLogin')}
                 />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-sm">
-                  {isAr ? "الوصف (عربي)" : "Description (Arabic)"}
+                  {tAuto('auto.descriptionArabic')}
                 </Label>
                 <Input
                   value={form.descriptionAr}
@@ -339,7 +342,7 @@ export default function FeatureFlagsTab({ isAr }: FeatureFlagsTabProps) {
             {/* Enabled toggle */}
             <div className="flex items-center justify-between">
               <Label className="text-sm">
-                {isAr ? "مفعّل" : "Enabled"}
+                {tAuto('auto.enabled')}
               </Label>
               <Switch
                 checked={form.enabled}
@@ -350,7 +353,7 @@ export default function FeatureFlagsTab({ isAr }: FeatureFlagsTabProps) {
             {/* Percentage */}
             <div className="space-y-1.5">
               <Label className="text-sm">
-                {isAr ? "نسبة التفعيل" : "Rollout Percentage"} ({form.percentage}%)
+                {tAuto('auto.rolloutPercentage')} ({form.percentage}%)
               </Label>
               <Input
                 type="number"
@@ -360,14 +363,14 @@ export default function FeatureFlagsTab({ isAr }: FeatureFlagsTabProps) {
                 onChange={(e) => setForm({ ...form, percentage: parseInt(e.target.value) || 100 })}
               />
               <p className="text-xs text-muted-foreground">
-                {isAr ? "نسبة المستخدمين الذين ستكون الميزة مفعّلة لهم" : "Percentage of users to enable this feature for"}
+                {tAuto('auto.percentageOfUsersToEnableThisFeatureFor')}
               </p>
             </div>
 
             {/* Enabled for Orgs */}
             <div className="space-y-1.5">
               <Label className="text-sm">
-                {isAr ? "مفعّل للمؤسسات (JSON)" : "Enabled for Orgs (JSON)"}
+                {tAuto('auto.enabledForOrgsJSON')}
               </Label>
               <Input
                 value={form.enabledForOrgs}
@@ -375,14 +378,14 @@ export default function FeatureFlagsTab({ isAr }: FeatureFlagsTabProps) {
                 placeholder='["org_id_1", "org_id_2"]'
               />
               <p className="text-xs text-muted-foreground">
-                {isAr ? "اتركه فارغاً لتفعيله لجميع المؤسسات" : "Leave empty for all organizations"}
+                {tAuto('auto.leaveEmptyForAllOrganizations')}
               </p>
             </div>
 
             {/* Enabled for Roles */}
             <div className="space-y-1.5">
               <Label className="text-sm">
-                {isAr ? "مفعّل للأدوار (JSON)" : "Enabled for Roles (JSON)"}
+                {tAuto('auto.enabledForRolesJSON')}
               </Label>
               <Input
                 value={form.enabledForRoles}
@@ -390,14 +393,14 @@ export default function FeatureFlagsTab({ isAr }: FeatureFlagsTabProps) {
                 placeholder='["ADMIN", "MANAGER"]'
               />
               <p className="text-xs text-muted-foreground">
-                {isAr ? "اتركه فارغاً لتفعيله لجميع الأدوار" : "Leave empty for all roles"}
+                {tAuto('auto.leaveEmptyForAllRoles')}
               </p>
             </div>
           </div>
 
           <DialogFooter>
             <Button variant="ghost" onClick={() => setEditOpen(false)}>
-              {isAr ? "إلغاء" : "Cancel"}
+              {tAuto('auto.cancel')}
             </Button>
             <Button
               onClick={handleSave}
@@ -405,7 +408,7 @@ export default function FeatureFlagsTab({ isAr }: FeatureFlagsTabProps) {
               className="bg-[#133371] hover:bg-[#0f2855] text-white"
             >
               {saveMutation.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />}
-              {editingFlag ? (isAr ? "تحديث" : "Update") : (isAr ? "إنشاء" : "Create")}
+              {editingFlag ? (tAuto('auto.update')) : (tAuto('auto.create'))}
             </Button>
           </DialogFooter>
         </DialogContent>

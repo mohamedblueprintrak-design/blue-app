@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { Card, CardContent } from "@/components/ui/card";
 import { Users, CircleDot, Server, HardDrive } from "lucide-react";
 
@@ -10,6 +12,7 @@ interface AdminStatsProps {
 }
 
 export function AdminStats({ isAr, totalUsers, activeUsers }: AdminStatsProps) {
+  const tAuto = useTranslations();
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <Card className="border-slate-200 dark:border-slate-700/50">
@@ -20,7 +23,7 @@ export function AdminStats({ isAr, totalUsers, activeUsers }: AdminStatsProps) {
             </div>
             <div>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                {isAr ? "إجمالي المستخدمين" : "Total Users"}
+                {tAuto('auto.totalUsers')}
               </p>
               <p className="text-xl font-bold text-slate-900 dark:text-white tabular-nums">
                 {totalUsers}
@@ -38,7 +41,7 @@ export function AdminStats({ isAr, totalUsers, activeUsers }: AdminStatsProps) {
             </div>
             <div>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                {isAr ? "الجلسات النشطة" : "Active Sessions"}
+                {tAuto('auto.activeSessions')}
               </p>
               <p className="text-xl font-bold text-slate-900 dark:text-white tabular-nums">
                 {activeUsers}
@@ -56,10 +59,10 @@ export function AdminStats({ isAr, totalUsers, activeUsers }: AdminStatsProps) {
             </div>
             <div>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                {isAr ? "صحة النظام" : "System Health"}
+                {tAuto('auto.systemHealth')}
               </p>
               <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">
-                {isAr ? "ممتاز" : "Excellent"}
+                {tAuto('auto.excellent')}
               </p>
             </div>
           </div>
@@ -74,7 +77,7 @@ export function AdminStats({ isAr, totalUsers, activeUsers }: AdminStatsProps) {
             </div>
             <div>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                {isAr ? "التخزين المستخدم" : "Storage Used"}
+                {tAuto('auto.storageUsed')}
               </p>
               <p className="text-xl font-bold text-slate-900 dark:text-white tabular-nums">
                 2.4 GB

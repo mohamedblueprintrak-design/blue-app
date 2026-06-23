@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToastFeedback } from "@/hooks/use-toast-feedback";
@@ -40,6 +42,7 @@ interface ClientsPageProps {
 }
 
 export default function ClientsPage({ language, projectId, initialTab }: ClientsPageProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const queryClient = useQueryClient();
   const toast = useToastFeedback({ ar });
@@ -88,7 +91,7 @@ export default function ClientsPage({ language, projectId, initialTab }: Clients
           toast.showError(ar ? `فشل الاستيراد: ${json.error || "خطأ غير معروف"}` : `Import failed: ${json.error || "Unknown error"}`);
         }
       } catch (_err) {
-        toast.showError(ar ? "حدث خطأ أثناء الاستيراد" : "An error occurred during import");
+        toast.showError(tAuto('auto.anErrorOccurredDuringImport'));
       } finally {
         setImporting(false);
       }
@@ -151,10 +154,10 @@ export default function ClientsPage({ language, projectId, initialTab }: Clients
       queryClient.invalidateQueries({ queryKey: ["clients"] });
       setShowAddDialog(false);
       setEditClient(null);
-      toast.created(ar ? "العميل" : "Client");
+      toast.created(tAuto('auto.client'));
     },
     onError: () => {
-      toast.error(ar ? "إنشاء العميل" : "Create client");
+      toast.error(tAuto('auto.createClient'));
     },
   });
 
@@ -174,10 +177,10 @@ export default function ClientsPage({ language, projectId, initialTab }: Clients
       queryClient.invalidateQueries({ queryKey: ["client-detail"] });
       setEditClient(null);
       setShowAddDialog(false);
-      toast.updated(ar ? "العميل" : "Client");
+      toast.updated(tAuto('auto.client'));
     },
     onError: () => {
-      toast.error(ar ? "تحديث العميل" : "Update client");
+      toast.error(tAuto('auto.updateClient'));
     },
   });
 
@@ -190,10 +193,10 @@ export default function ClientsPage({ language, projectId, initialTab }: Clients
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["clients"] });
       setSelectedClient(null);
-      toast.deleted(ar ? "العميل" : "Client");
+      toast.deleted(tAuto('auto.client'));
     },
     onError: () => {
-      toast.error(ar ? "حذف العميل" : "Delete client");
+      toast.error(tAuto('auto.deleteClient'));
     },
   });
 
@@ -237,10 +240,10 @@ export default function ClientsPage({ language, projectId, initialTab }: Clients
             </div>
             <div>
               <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-                {ar ? "العملاء" : "Clients"}
+                {tAuto('auto.clients')}
               </h2>
               <p className="text-[10px] text-slate-500 dark:text-slate-400">
-                {clientList.length} {ar ? "عميل" : "clients"}
+                {clientList.length} {tAuto('auto.clients1')}
               </p>
             </div>
           </div>
@@ -250,7 +253,7 @@ export default function ClientsPage({ language, projectId, initialTab }: Clients
               <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder={ar ? "بحث عن عميل..." : "Search clients..."}
+                placeholder={tAuto('auto.searchClients')}
                 className="ps-9 h-8 text-sm rounded-lg"
               />
             </div>
@@ -262,7 +265,7 @@ export default function ClientsPage({ language, projectId, initialTab }: Clients
               disabled={importing}
             >
               <Upload className="h-3.5 w-3.5 me-1" />
-              {importing ? (ar ? "جاري الاستيراد..." : "Importing...") : (ar ? "استيراد" : "Import")}
+              {importing ? (tAuto('auto.importing')) : (tAuto('auto.import'))}
             </Button>
             <Button
               size="sm"
@@ -270,7 +273,7 @@ export default function ClientsPage({ language, projectId, initialTab }: Clients
               onClick={openAddDialog}
             >
               <Plus className="h-3.5 w-3.5 me-1" />
-              {ar ? "عميل جديد" : "New Client"}
+              {tAuto('auto.newClient')}
             </Button>
 
           </div>
@@ -282,13 +285,13 @@ export default function ClientsPage({ language, projectId, initialTab }: Clients
             <Table>
               <TableHeader>
                 <TableRow className="hover:bg-transparent bg-slate-50/80 dark:bg-slate-800/50">
-                  <TableHead className="text-xs font-semibold">{ar ? "الاسم" : "Name"}</TableHead>
-                  <TableHead className="text-xs font-semibold">{ar ? "الشركة" : "Company"}</TableHead>
-                  <TableHead className="text-xs font-semibold hidden md:table-cell">{ar ? "البريد" : "Email"}</TableHead>
-                  <TableHead className="text-xs font-semibold hidden md:table-cell">{ar ? "الهاتف" : "Phone"}</TableHead>
-                  <TableHead className="text-xs font-semibold hidden sm:table-cell">{ar ? "المشاريع" : "Projects"}</TableHead>
-                  <TableHead className="text-xs font-semibold hidden sm:table-cell">{ar ? "حد الائتمان" : "Credit"}</TableHead>
-                  <TableHead className="text-xs font-semibold text-end">{ar ? "الإجراءات" : "Actions"}</TableHead>
+                  <TableHead className="text-xs font-semibold">{tAuto('auto.name')}</TableHead>
+                  <TableHead className="text-xs font-semibold">{tAuto('auto.company')}</TableHead>
+                  <TableHead className="text-xs font-semibold hidden md:table-cell">{tAuto('auto.email')}</TableHead>
+                  <TableHead className="text-xs font-semibold hidden md:table-cell">{tAuto('auto.phone')}</TableHead>
+                  <TableHead className="text-xs font-semibold hidden sm:table-cell">{tAuto('auto.projects')}</TableHead>
+                  <TableHead className="text-xs font-semibold hidden sm:table-cell">{tAuto('auto.credit')}</TableHead>
+                  <TableHead className="text-xs font-semibold text-end">{tAuto('auto.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -382,7 +385,7 @@ export default function ClientsPage({ language, projectId, initialTab }: Clients
                                 <Eye className="h-3.5 w-3.5" />
                               </Button>
                             </TooltipTrigger>
-                            <TooltipContent side="top" className="text-xs">{ar ? "عرض" : "View"}</TooltipContent>
+                            <TooltipContent side="top" className="text-xs">{tAuto('auto.view')}</TooltipContent>
                           </Tooltip>
                           <Tooltip>
                             <TooltipTrigger asChild>
@@ -396,7 +399,7 @@ export default function ClientsPage({ language, projectId, initialTab }: Clients
                                 <Pencil className="h-3.5 w-3.5" />
                               </Button>
                             </TooltipTrigger>
-                            <TooltipContent side="top" className="text-xs">{ar ? "تعديل" : "Edit"}</TooltipContent>
+                            <TooltipContent side="top" className="text-xs">{tAuto('auto.edit')}</TooltipContent>
                           </Tooltip>
                           <Tooltip>
                             <TooltipTrigger asChild>
@@ -415,7 +418,7 @@ export default function ClientsPage({ language, projectId, initialTab }: Clients
                                 <Trash2 className="h-3.5 w-3.5" />
                               </Button>
                             </TooltipTrigger>
-                            <TooltipContent side="top" className="text-xs">{ar ? "حذف" : "Delete"}</TooltipContent>
+                            <TooltipContent side="top" className="text-xs">{tAuto('auto.delete')}</TooltipContent>
                           </Tooltip>
                         </div>
                       </TableCell>
@@ -425,7 +428,7 @@ export default function ClientsPage({ language, projectId, initialTab }: Clients
                 {filteredClients.length === 0 && !isLoading && (
                   <TableRow>
                     <TableCell colSpan={7} className="text-center py-12 text-slate-400">
-                      {ar ? "لا يوجد عملاء" : "No clients found"}
+                      {tAuto('auto.noClientsFound')}
                     </TableCell>
                   </TableRow>
                 )}

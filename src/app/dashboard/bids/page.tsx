@@ -1,16 +1,7 @@
-"use client";
+import { getLocale } from 'next-intl/server';
+import BidsPage from '@/components/pages/bids';
 
-import dynamic from "next/dynamic";
-import { useLang } from "@/hooks/use-lang";
-
-const BidsPage = dynamic(() => import("@/components/pages/bids"), {
-  loading: () => <div className="p-6 animate-pulse">Loading...</div>,
-  ssr: false,
-});
-
-/**
- * /dashboard/bids
- */
-export default function BidsPageRoute() {
-  return <BidsPage language={useLang()} />;
+export default async function BidsPageRoute() {
+  const locale = await getLocale();
+  return <BidsPage language={locale as "ar" | "en"} />;
 }

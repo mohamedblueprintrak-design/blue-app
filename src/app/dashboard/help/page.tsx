@@ -1,16 +1,7 @@
-"use client";
+import { getLocale } from 'next-intl/server';
+import HelpPage from '@/components/pages/help';
 
-import dynamic from "next/dynamic";
-import { useLang } from "@/hooks/use-lang";
-
-const HelpPage = dynamic(() => import("@/components/pages/help"), {
-  loading: () => <div className="p-6 animate-pulse">Loading...</div>,
-  ssr: false,
-});
-
-/**
- * /dashboard/help
- */
-export default function HelpPageRoute() {
-  return <HelpPage language={useLang()} />;
+export default async function HelpPageRoute() {
+  const locale = await getLocale();
+  return <HelpPage language={locale as "ar" | "en"} />;
 }

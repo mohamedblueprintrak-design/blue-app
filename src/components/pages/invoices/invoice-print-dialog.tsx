@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,6 +25,7 @@ export function InvoicePrintDialog({
   printInvoice,
   onClose,
 }: InvoicePrintDialogProps) {
+  const tAuto = useTranslations();
   if (!printInvoice) return null;
 
   return (
@@ -33,7 +36,7 @@ export function InvoicePrintDialog({
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Printer className="h-5 w-5 text-teal-500" />
-              {ar ? "طباعة الفاتورة" : "Print Invoice"} — {printInvoice.number}
+              {tAuto('auto.printInvoice')} — {printInvoice.number}
             </DialogTitle>
           </DialogHeader>
           <div className="border border-slate-200 dark:border-slate-700 rounded-xl p-1">
@@ -41,14 +44,14 @@ export function InvoicePrintDialog({
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={onClose}>
-              {ar ? "إغلاق" : "Close"}
+              {tAuto('auto.close')}
             </Button>
             <Button
               className="bg-teal-600 hover:bg-teal-700 text-white gap-2"
               onClick={() => window.print()}
             >
               <Printer className="h-4 w-4" />
-              {ar ? "طباعة" : "Print"}
+              {tAuto('auto.print')}
             </Button>
           </DialogFooter>
         </DialogContent>

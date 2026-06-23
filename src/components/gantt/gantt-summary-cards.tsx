@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl';
 import React from "react";
 import { Play, CheckCircle, CalendarDays, TrendingUp, BarChart3 } from "lucide-react";
 import { Card } from "@/components/ui/card";
@@ -17,6 +18,7 @@ export function GanttSummaryCards({
   completedTasks,
   avgProgress,
 }: GanttSummaryCardsProps) {
+  const tAuto = useTranslations();
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
       <Card className="py-0 gap-0 border-0 shadow-sm overflow-hidden rounded-xl hover:scale-[1.02] hover:-translate-y-0.5 transition-all duration-200 cursor-default">
@@ -27,7 +29,7 @@ export function GanttSummaryCards({
             </div>
           </div>
           <div className="text-2xl font-bold text-white tabular-nums">{totalTasks}</div>
-          <p className="text-[11px] text-slate-200 mt-0.5">{ar ? "إجمالي المهام" : "Total Tasks"}</p>
+          <p className="text-[11px] text-slate-200 mt-0.5">{tAuto('auto.totalTasks')}</p>
         </div>
       </Card>
 
@@ -42,7 +44,7 @@ export function GanttSummaryCards({
             </span>
           </div>
           <div className="text-2xl font-bold text-white tabular-nums">{activeTasks}</div>
-          <p className="text-[11px] text-teal-100 mt-0.5">{ar ? "قيد التنفيذ" : "In Progress"}</p>
+          <p className="text-[11px] text-teal-100 mt-0.5">{tAuto('auto.inProgress')}</p>
         </div>
       </Card>
 
@@ -54,7 +56,7 @@ export function GanttSummaryCards({
             </div>
           </div>
           <div className="text-2xl font-bold text-white tabular-nums">{completedTasks}</div>
-          <p className="text-[11px] text-emerald-100 mt-0.5">{ar ? "مكتملة" : "Completed"}</p>
+          <p className="text-[11px] text-emerald-100 mt-0.5">{tAuto('auto.completed')}</p>
         </div>
       </Card>
 
@@ -66,7 +68,7 @@ export function GanttSummaryCards({
             </div>
           </div>
           <div className="text-2xl font-bold text-white tabular-nums">{avgProgress}%</div>
-          <p className="text-[11px] text-violet-100 mt-0.5">{ar ? "متوسط التقدم" : "Avg Progress"}</p>
+          <p className="text-[11px] text-violet-100 mt-0.5">{tAuto('auto.avgProgress')}</p>
         </div>
       </Card>
     </div>

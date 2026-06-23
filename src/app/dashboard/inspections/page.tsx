@@ -1,16 +1,7 @@
-"use client";
+import { getLocale } from 'next-intl/server';
+import InspectionsPage from '@/components/pages/inspections';
 
-import dynamic from "next/dynamic";
-import { useLang } from "@/hooks/use-lang";
-
-const InspectionsPage = dynamic(() => import("@/components/pages/inspections"), {
-  loading: () => <div className="p-6 animate-pulse">Loading...</div>,
-  ssr: false,
-});
-
-/**
- * /dashboard/inspections
- */
-export default function InspectionsPageRoute() {
-  return <InspectionsPage language={useLang()} />;
+export default async function InspectionsPageRoute() {
+  const locale = await getLocale();
+  return <InspectionsPage language={locale as "ar" | "en"} />;
 }

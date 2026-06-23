@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -117,6 +119,7 @@ interface GuaranteeLettersPageProps {
 }
 
 export default function GuaranteeLettersPage({ language, projectId }: GuaranteeLettersPageProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
@@ -267,15 +270,15 @@ export default function GuaranteeLettersPage({ language, projectId }: GuaranteeL
             <Shield className="h-4.5 w-4.5 text-violet-600 dark:text-violet-400" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white">{ar ? "خطابات الضمان" : "Guarantee Letters"}</h2>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">{tAuto('auto.guaranteeLetters')}</h2>
             <p className="text-[10px] text-slate-500 dark:text-slate-400">
-              {ar ? "ضمانات بنكية للأداء والدفع المقدم والاحتجاز" : "Bank guarantees for performance, advance payment & retention"}
+              {tAuto('auto.bankGuaranteesForPerformanceAdvancePayme')}
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2 w-full sm:w-auto sm:ms-auto">
           <Button size="sm" className="h-8 bg-teal-600 hover:bg-teal-700 text-white rounded-lg shadow-sm shadow-teal-600/20" onClick={() => { setFormData(emptyForm); setEditItem(null); setShowDialog(true); }}>
-            <Plus className="h-3.5 w-3.5 me-1" />{ar ? "ضمان جديد" : "New Guarantee"}
+            <Plus className="h-3.5 w-3.5 me-1" />{tAuto('auto.newGuarantee')}
           </Button>
         </div>
       </div>
@@ -298,27 +301,27 @@ export default function GuaranteeLettersPage({ language, projectId }: GuaranteeL
           <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 p-4">
             <div className="flex items-center gap-2 mb-2">
               <div className="p-1.5 rounded-lg bg-white/20"><Shield className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" /></div>
-              <span className="text-xs text-emerald-600 dark:text-emerald-400">{ar ? "النشطة" : "Active"}</span>
+              <span className="text-xs text-emerald-600 dark:text-emerald-400">{tAuto('auto.active')}</span>
             </div>
             <div className="text-xl font-bold text-slate-900 dark:text-white font-mono tabular-nums">{formatCurrency(activeTotal, ar)}</div>
-            <p className="text-[10px] text-emerald-500/60 mt-1">{activeGuarantees.length} {ar ? "ضمان" : "guarantees"}</p>
+            <p className="text-[10px] text-emerald-500/60 mt-1">{activeGuarantees.length} {tAuto('auto.guarantees')}</p>
           </div>
         </Card>
         <Card className="py-0 gap-0 border-0 shadow-sm overflow-hidden">
           <div className="bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20 p-4">
             <div className="flex items-center gap-2 mb-2">
               <div className="p-1.5 rounded-lg bg-white/20"><AlertTriangle className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" /></div>
-              <span className="text-xs text-amber-600 dark:text-amber-400">{ar ? "تنتهي قريباً" : "Expiring Soon"}</span>
+              <span className="text-xs text-amber-600 dark:text-amber-400">{tAuto('auto.expiringSoon')}</span>
             </div>
             <div className="text-xl font-bold text-slate-900 dark:text-white tabular-nums">{expiringSoon.length}</div>
-            <p className="text-[10px] text-amber-500/60 mt-1">{ar ? "خلال 30 يوم" : "Within 30 days"}</p>
+            <p className="text-[10px] text-amber-500/60 mt-1">{tAuto('auto.within30Days')}</p>
           </div>
         </Card>
         <Card className="py-0 gap-0 border-0 shadow-sm overflow-hidden">
           <div className="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 p-4">
             <div className="flex items-center gap-2 mb-2">
               <div className="p-1.5 rounded-lg bg-white/20"><FileText className="h-3.5 w-3.5 text-red-600 dark:text-red-400" /></div>
-              <span className="text-xs text-red-600 dark:text-red-400">{ar ? "منتهية" : "Expired"}</span>
+              <span className="text-xs text-red-600 dark:text-red-400">{tAuto('auto.expired')}</span>
             </div>
             <div className="text-xl font-bold text-slate-900 dark:text-white tabular-nums">{expiredCount}</div>
           </div>
@@ -327,7 +330,7 @@ export default function GuaranteeLettersPage({ language, projectId }: GuaranteeL
           <div className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 p-4">
             <div className="flex items-center gap-2 mb-2">
               <div className="p-1.5 rounded-lg bg-white/20"><Building2 className="h-3.5 w-3.5 text-slate-600 dark:text-slate-400" /></div>
-              <span className="text-xs text-slate-600 dark:text-slate-400">{ar ? "مُفرج عنها" : "Released"}</span>
+              <span className="text-xs text-slate-600 dark:text-slate-400">{tAuto('auto.released')}</span>
             </div>
             <div className="text-xl font-bold text-slate-900 dark:text-white tabular-nums">{releasedCount}</div>
           </div>
@@ -338,35 +341,35 @@ export default function GuaranteeLettersPage({ language, projectId }: GuaranteeL
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
         <div className="relative flex-1 sm:w-64">
           <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={ar ? "بحث..." : "Search..."} className="ps-9 h-8 text-sm rounded-lg" />
+          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={tAuto('auto.search1')} className="ps-9 h-8 text-sm rounded-lg" />
         </div>
         {!projectId && (
           <Select value={filterProject} onValueChange={setFilterProject}>
-            <SelectTrigger className="w-[160px] h-8 text-xs rounded-lg"><SelectValue placeholder={ar ? "المشروع" : "Project"} /></SelectTrigger>
+            <SelectTrigger className="w-[160px] h-8 text-xs rounded-lg"><SelectValue placeholder={tAuto('auto.project')} /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{ar ? "جميع المشاريع" : "All Projects"}</SelectItem>
+              <SelectItem value="all">{tAuto('auto.allProjects')}</SelectItem>
               {projects.map((p) => (<SelectItem key={p.id} value={p.id}>{ar ? p.name : p.nameEn || p.name}</SelectItem>))}
             </SelectContent>
           </Select>
         )}
         <Select value={filterType} onValueChange={setFilterType}>
-          <SelectTrigger className="w-[150px] h-8 text-xs rounded-lg"><SelectValue placeholder={ar ? "النوع" : "Type"} /></SelectTrigger>
+          <SelectTrigger className="w-[150px] h-8 text-xs rounded-lg"><SelectValue placeholder={tAuto('auto.type')} /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">{ar ? "الكل" : "All"}</SelectItem>
-            <SelectItem value="PERFORMANCE">{ar ? "ضمان أداء" : "Performance"}</SelectItem>
-            <SelectItem value="ADVANCE_PAYMENT">{ar ? "دفعة مقدمة" : "Advance Payment"}</SelectItem>
-            <SelectItem value="RETENTION">{ar ? "احتجاز" : "Retention"}</SelectItem>
-            <SelectItem value="BID_BOND">{ar ? "مناقصة" : "Bid Bond"}</SelectItem>
+            <SelectItem value="all">{tAuto('auto.all')}</SelectItem>
+            <SelectItem value="PERFORMANCE">{tAuto('auto.performance')}</SelectItem>
+            <SelectItem value="ADVANCE_PAYMENT">{tAuto('auto.advancePayment')}</SelectItem>
+            <SelectItem value="RETENTION">{tAuto('auto.retention')}</SelectItem>
+            <SelectItem value="BID_BOND">{tAuto('auto.bidBond')}</SelectItem>
           </SelectContent>
         </Select>
         <Select value={filterStatus} onValueChange={setFilterStatus}>
-          <SelectTrigger className="w-[130px] h-8 text-xs rounded-lg"><SelectValue placeholder={ar ? "الحالة" : "Status"} /></SelectTrigger>
+          <SelectTrigger className="w-[130px] h-8 text-xs rounded-lg"><SelectValue placeholder={tAuto('auto.status1')} /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">{ar ? "الكل" : "All"}</SelectItem>
-            <SelectItem value="ACTIVE">{ar ? "نشط" : "Active"}</SelectItem>
-            <SelectItem value="EXPIRED">{ar ? "منتهي" : "Expired"}</SelectItem>
-            <SelectItem value="RELEASED">{ar ? "مُفرج" : "Released"}</SelectItem>
-            <SelectItem value="CLAIMED">{ar ? "مطالب" : "Claimed"}</SelectItem>
+            <SelectItem value="all">{tAuto('auto.all')}</SelectItem>
+            <SelectItem value="ACTIVE">{tAuto('auto.active')}</SelectItem>
+            <SelectItem value="EXPIRED">{tAuto('auto.expired')}</SelectItem>
+            <SelectItem value="RELEASED">{tAuto('auto.released')}</SelectItem>
+            <SelectItem value="CLAIMED">{tAuto('auto.claimed')}</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -376,13 +379,13 @@ export default function GuaranteeLettersPage({ language, projectId }: GuaranteeL
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent bg-slate-50/80 dark:bg-slate-800/50">
-              <TableHead className="text-xs font-semibold">{ar ? "النوع" : "Type"}</TableHead>
-              <TableHead className="text-xs font-semibold">{ar ? "رقم الضمان" : "Guarantee #"}</TableHead>
-              <TableHead className="text-xs font-semibold hidden md:table-cell">{ar ? "البنك" : "Bank"}</TableHead>
-              <TableHead className="text-xs font-semibold">{ar ? "المبلغ" : "Amount"}</TableHead>
-              <TableHead className="text-xs font-semibold hidden sm:table-cell">{ar ? "الانتهاء" : "Expiry"}</TableHead>
-              <TableHead className="text-xs font-semibold hidden sm:table-cell">{ar ? "الحالة" : "Status"}</TableHead>
-              <TableHead className="text-xs font-semibold text-start">{ar ? "الإجراءات" : "Actions"}</TableHead>
+              <TableHead className="text-xs font-semibold">{tAuto('auto.type')}</TableHead>
+              <TableHead className="text-xs font-semibold">{tAuto('auto.guarantee')}</TableHead>
+              <TableHead className="text-xs font-semibold hidden md:table-cell">{tAuto('auto.bank')}</TableHead>
+              <TableHead className="text-xs font-semibold">{tAuto('auto.amount')}</TableHead>
+              <TableHead className="text-xs font-semibold hidden sm:table-cell">{tAuto('auto.expiry')}</TableHead>
+              <TableHead className="text-xs font-semibold hidden sm:table-cell">{tAuto('auto.status1')}</TableHead>
+              <TableHead className="text-xs font-semibold text-start">{tAuto('auto.actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -425,7 +428,7 @@ export default function GuaranteeLettersPage({ language, projectId }: GuaranteeL
                         <FileText className="h-3.5 w-3.5" />
                       </Button>
                       <Button variant="ghost" size="icon" className="h-7 w-7 text-red-500 hover:text-red-600" onClick={() => {
-                        if (confirm(ar ? "حذف هذا الضمان؟" : "Delete this guarantee?")) deleteMutation.mutate(item.id);
+                        if (confirm(tAuto('auto.deleteThisGuarantee'))) deleteMutation.mutate(item.id);
                       }} aria-label="Delete">
                         <Inbox className="h-3.5 w-3.5" />
                       </Button>
@@ -441,7 +444,7 @@ export default function GuaranteeLettersPage({ language, projectId }: GuaranteeL
                     <div className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
                       <Inbox className="h-7 w-7 text-slate-300 dark:text-slate-600" />
                     </div>
-                    <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{ar ? "لا توجد خطابات ضمان" : "No guarantee letters found"}</p>
+                    <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{tAuto('auto.noGuaranteeLettersFound')}</p>
                   </div>
                 </TableCell>
               </TableRow>
@@ -454,14 +457,14 @@ export default function GuaranteeLettersPage({ language, projectId }: GuaranteeL
       <Dialog open={showDialog} onOpenChange={(open) => { if (!open) { setShowDialog(false); setEditItem(null); setFormData(emptyForm); } }}>
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{editItem ? (ar ? "تعديل ضمان" : "Edit Guarantee") : (ar ? "ضمان جديد" : "New Guarantee")}</DialogTitle>
-            <DialogDescription>{editItem ? (ar ? "تعديل بيانات الضمان" : "Edit guarantee details") : (ar ? "إضافة ضمان بنكي جديد" : "Add a new bank guarantee")}</DialogDescription>
+            <DialogTitle>{editItem ? (tAuto('auto.editGuarantee')) : (tAuto('auto.newGuarantee'))}</DialogTitle>
+            <DialogDescription>{editItem ? (tAuto('auto.editGuaranteeDetails')) : (tAuto('auto.addANewBankGuarantee'))}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "المشروع" : "Project"} *</Label>
+              <Label className="text-sm">{tAuto('auto.project')} *</Label>
               <Select value={formData.projectId} onValueChange={(v) => setFormData(prev => ({ ...prev, projectId: v }))}>
-                <SelectTrigger className="h-8 text-sm rounded-lg"><SelectValue placeholder={ar ? "اختر مشروع" : "Select project"} /></SelectTrigger>
+                <SelectTrigger className="h-8 text-sm rounded-lg"><SelectValue placeholder={tAuto('auto.selectProject')} /></SelectTrigger>
                 <SelectContent>
                   {projects.map((p) => (<SelectItem key={p.id} value={p.id}>{ar ? p.name : p.nameEn || p.name}</SelectItem>))}
                 </SelectContent>
@@ -469,65 +472,65 @@ export default function GuaranteeLettersPage({ language, projectId }: GuaranteeL
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "النوع" : "Type"}</Label>
+                <Label className="text-sm">{tAuto('auto.type')}</Label>
                 <Select value={formData.type} onValueChange={(v) => setFormData(prev => ({ ...prev, type: v }))}>
                   <SelectTrigger className="h-8 text-sm rounded-lg"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="PERFORMANCE">{ar ? "ضمان أداء" : "Performance"}</SelectItem>
-                    <SelectItem value="ADVANCE_PAYMENT">{ar ? "دفعة مقدمة" : "Advance Payment"}</SelectItem>
-                    <SelectItem value="RETENTION">{ar ? "احتجاز" : "Retention"}</SelectItem>
-                    <SelectItem value="BID_BOND">{ar ? "مناقصة" : "Bid Bond"}</SelectItem>
+                    <SelectItem value="PERFORMANCE">{tAuto('auto.performance')}</SelectItem>
+                    <SelectItem value="ADVANCE_PAYMENT">{tAuto('auto.advancePayment')}</SelectItem>
+                    <SelectItem value="RETENTION">{tAuto('auto.retention')}</SelectItem>
+                    <SelectItem value="BID_BOND">{tAuto('auto.bidBond')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "رقم الضمان" : "Guarantee #"}</Label>
+                <Label className="text-sm">{tAuto('auto.guarantee')}</Label>
                 <Input value={formData.guaranteeNumber} onChange={(e) => setFormData(prev => ({ ...prev, guaranteeNumber: e.target.value }))} className="h-8 text-sm rounded-lg" />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "البنك" : "Bank"}</Label>
+                <Label className="text-sm">{tAuto('auto.bank')}</Label>
                 <Input value={formData.bankName} onChange={(e) => setFormData(prev => ({ ...prev, bankName: e.target.value }))} className="h-8 text-sm rounded-lg" />
               </div>
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "المبلغ" : "Amount"}</Label>
+                <Label className="text-sm">{tAuto('auto.amount')}</Label>
                 <Input type="number" value={formData.amount} onChange={(e) => setFormData(prev => ({ ...prev, amount: e.target.value }))} className="h-8 text-sm font-mono rounded-lg" />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "تاريخ الإصدار" : "Issue Date"}</Label>
+                <Label className="text-sm">{tAuto('auto.issueDate')}</Label>
                 <Input type="date" value={formData.issueDate} onChange={(e) => setFormData(prev => ({ ...prev, issueDate: e.target.value }))} className="h-8 text-sm rounded-lg" />
               </div>
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "تاريخ الانتهاء" : "Expiry Date"}</Label>
+                <Label className="text-sm">{tAuto('auto.expiryDate')}</Label>
                 <Input type="date" value={formData.expiryDate} onChange={(e) => setFormData(prev => ({ ...prev, expiryDate: e.target.value }))} className="h-8 text-sm rounded-lg" />
               </div>
             </div>
             <div className="space-y-2">
-              <Label className="text-sm">{ar ? "اسم المستفيد" : "Beneficiary"}</Label>
+              <Label className="text-sm">{tAuto('auto.beneficiary')}</Label>
               <Input value={formData.beneficiaryName} onChange={(e) => setFormData(prev => ({ ...prev, beneficiaryName: e.target.value }))} className="h-8 text-sm rounded-lg" />
             </div>
             {editItem && (
               <div className="space-y-2">
-                <Label className="text-sm">{ar ? "الحالة" : "Status"}</Label>
+                <Label className="text-sm">{tAuto('auto.status1')}</Label>
                 <Select value={formData.currency} onValueChange={(v) => setFormData(prev => ({ ...prev, currency: v }))}>
                   <SelectTrigger className="h-8 text-sm rounded-lg"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="ACTIVE">{ar ? "نشط" : "Active"}</SelectItem>
-                    <SelectItem value="EXPIRED">{ar ? "منتهي" : "Expired"}</SelectItem>
-                    <SelectItem value="RELEASED">{ar ? "مُفرج" : "Released"}</SelectItem>
-                    <SelectItem value="CLAIMED">{ar ? "مطالب" : "Claimed"}</SelectItem>
+                    <SelectItem value="ACTIVE">{tAuto('auto.active')}</SelectItem>
+                    <SelectItem value="EXPIRED">{tAuto('auto.expired')}</SelectItem>
+                    <SelectItem value="RELEASED">{tAuto('auto.released')}</SelectItem>
+                    <SelectItem value="CLAIMED">{tAuto('auto.claimed')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             )}
           </div>
           <DialogFooter>
-            <Button variant="outline" className="rounded-lg" onClick={() => { setShowDialog(false); setEditItem(null); setFormData(emptyForm); }}>{ar ? "إلغاء" : "Cancel"}</Button>
+            <Button variant="outline" className="rounded-lg" onClick={() => { setShowDialog(false); setEditItem(null); setFormData(emptyForm); }}>{tAuto('auto.cancel')}</Button>
             <Button className="bg-teal-600 hover:bg-teal-700 text-white rounded-lg" disabled={createMutation.isPending || updateMutation.isPending} onClick={handleSave}>
-              {(createMutation.isPending || updateMutation.isPending) ? (ar ? "جارٍ الحفظ..." : "Saving...") : (ar ? "حفظ" : "Save")}
+              {(createMutation.isPending || updateMutation.isPending) ? (tAuto('auto.saving')) : (tAuto('auto.save'))}
             </Button>
           </DialogFooter>
         </DialogContent>

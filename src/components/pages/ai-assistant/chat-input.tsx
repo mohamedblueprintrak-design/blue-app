@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -40,6 +42,7 @@ export function ChatInput({
   handleMicClick,
   handleSend,
 }: ChatInputProps) {
+  const tAuto = useTranslations();
   return (
     <div className="border-t border-slate-200 dark:border-slate-700 p-3">
       {/* Compact suggestion chips */}
@@ -65,7 +68,7 @@ export function ChatInput({
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder={isAr ? "اكتب رسالتك هنا..." : "Type your message here..."}
+            placeholder={tAuto('auto.typeYourMessageHere')}
             disabled={isLoading}
             className={cn(
               "flex-1 h-11 rounded-xl bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 ps-4 text-sm",
@@ -82,7 +85,7 @@ export function ChatInput({
                 <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500" />
               </span>
               <span className="text-xs text-red-500 font-medium animate-pulse">
-                {isAr ? "جاري الاستماع..." : "Listening..."}
+                {tAuto('auto.listening')}
               </span>
             </div>
           )}
@@ -124,12 +127,8 @@ export function ChatInput({
             </TooltipTrigger>
             <TooltipContent side="top" className="text-xs">
               {isListening
-                ? isAr
-                  ? "إيقاف التسجيل"
-                  : "Stop recording"
-                : isAr
-                  ? "إدخال صوتي"
-                  : "Voice input"}
+                ? tAuto('auto.stopRecording')
+                : tAuto('auto.voiceInput')}
             </TooltipContent>
           </Tooltip>
         ) : (
@@ -146,7 +145,7 @@ export function ChatInput({
               </Button>
             </TooltipTrigger>
             <TooltipContent side="top" className="text-xs">
-              {isAr ? "الإدخال الصوتي غير مدعوم في هذا المتصفح" : "Voice input not supported in this browser"}
+              {tAuto('auto.voiceInputNotSupportedInThisBrowser')}
             </TooltipContent>
           </Tooltip>
         )}
@@ -162,9 +161,7 @@ export function ChatInput({
       </div>
       <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-2 text-center flex items-center justify-center gap-1.5">
         <Sparkles className="h-3 w-3" />
-        {isAr
-          ? "مساعد بلوبرنت الذكي يستخدم الذكاء الاصطناعي لتقديم المساعدة. تأكد من مراجعة المعلومات الهامة."
-          : "BluePrint AI uses artificial intelligence for assistance. Please verify important information."}
+        {tAuto('auto.bluePrintAIUsesArtificialIntelligenceFor')}
       </p>
     </div>
   );

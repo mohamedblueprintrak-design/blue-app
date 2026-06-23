@@ -1,5 +1,7 @@
 "use client";
 
+
+import { useTranslations } from 'next-intl';
 import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToastFeedback } from "@/hooks/use-toast-feedback";
@@ -27,6 +29,7 @@ interface ApprovalsPageProps {
 }
 
 export default function ApprovalsPage({ language, projectId }: ApprovalsPageProps) {
+  const tAuto = useTranslations();
   const ar = language === "ar";
   const queryClient = useQueryClient();
   const toast = useToastFeedback({ ar });
@@ -201,9 +204,9 @@ export default function ApprovalsPage({ language, projectId }: ApprovalsPageProp
       queryClient.invalidateQueries({ queryKey: ["approvals"] });
       queryClient.invalidateQueries({ queryKey: ["approvals-pending-count"] });
       queryClient.invalidateQueries({ queryKey: ["approval-detail"] });
-      toast.showSuccess(ar ? "تمت الموافقة" : "Approved");
+      toast.showSuccess(tAuto('auto.approved'));
     },
-    onError: () => toast.error(ar ? "الموافقة" : "Approve"),
+    onError: () => toast.error(tAuto('auto.approve')),
   });
 
   // Reject mutation
@@ -223,9 +226,9 @@ export default function ApprovalsPage({ language, projectId }: ApprovalsPageProp
       queryClient.invalidateQueries({ queryKey: ["approval-detail"] });
       setRejectingId(null);
       setRejectReason("");
-      toast.showSuccess(ar ? "تم الرفض" : "Rejected");
+      toast.showSuccess(tAuto('auto.rejected'));
     },
-    onError: () => toast.error(ar ? "الرفض" : "Reject"),
+    onError: () => toast.error(tAuto('auto.reject')),
   });
 
   // Create mutation
@@ -239,7 +242,7 @@ export default function ApprovalsPage({ language, projectId }: ApprovalsPageProp
           entityId: data.entityId || "new",
           title: data.title,
           description: data.description,
-          requestedBy: useAuthStore.getState()?.user?.name || (ar ? "المستخدم الحالي" : "Current User"),
+          requestedBy: useAuthStore.getState()?.user?.name || (tAuto('auto.currentUser')),
           assignedTo: data.assignedTo,
           totalSteps: parseInt(data.totalSteps) || 1,
           step: 1,
@@ -263,9 +266,9 @@ export default function ApprovalsPage({ language, projectId }: ApprovalsPageProp
         amount: "",
         priority: "NORMAL",
       });
-      toast.created(ar ? "طلب موافقة" : "Approval request");
+      toast.created(tAuto('auto.approvalRequest'));
     },
-    onError: () => toast.error(ar ? "إنشاء طلب الموافقة" : "Create approval request"),
+    onError: () => toast.error(tAuto('auto.createApprovalRequest')),
   });
 
   // ===== Computed values =====
