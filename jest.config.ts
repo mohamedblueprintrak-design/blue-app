@@ -4,6 +4,7 @@ const jestConfig = {
   testEnvironment: 'node',
   roots: ['<rootDir>/__tests__'],
   setupFiles: ['<rootDir>/jest.setup.ts'],
+  globalTeardown: '<rootDir>/jest.globalTeardown.ts',
   extensionsToTreatAsEsm: ['.ts'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
@@ -32,8 +33,14 @@ const jestConfig = {
     '!src/**/*.d.ts',
     '!src/**/types.ts',
   ],
-  forceExit: true,
-  detectOpenHandles: false,
+  // SECURITY/QUALITY: forceExit:false + detectOpenHandles:true surfaces real
+  // resource leaks (Prisma/Redis/BullMQ connections, dangling timers) as
+  // warnings instead of silently killing them. The jest.globalTeardown.ts
+  // file disconnects Prisma/Redis after all suites finish, so the process
+  // can exit naturally. If a leak is introduced, Jest will report it and
+  // the test run will hang — which is the desired behavior (forces a fix).
+  forceExit: false,
+  detectOpenHandles: true,
   coverageThreshold: {
     // Global thresholds (m10).
     // CI coverage: 67% branches, 75% functions, 71% lines, 70% statements.

@@ -397,9 +397,12 @@ function getRoomName(type: RoomType, id: string): string {
 // Helper to post events to the standalone chat-service on port 3003
 async function postToChatService(body: Record<string, any>): Promise<void> {
   const chatServiceUrl = process.env.CHAT_SERVICE_URL || 'http://localhost:3003';
-  const internalSecret = process.env.INTERNAL_API_SECRET || process.env.JWT_SECRET;
+  // SECURITY: INTERNAL_API_SECRET is required INDEPENDENTLY of JWT_SECRET.
+  // If missing, broadcast is skipped (notifications won't reach real-time clients)
+  // and a warning is logged so the operator knows to set it.
+  const internalSecret = process.env.INTERNAL_API_SECRET;
   if (!internalSecret) {
-    log.error('[WebSocket Service] INTERNAL_API_SECRET/JWT_SECRET is not configured.');
+    log.warn('[WebSocket Service] INTERNAL_API_SECRET is not configured — real-time broadcast disabled. Set INTERNAL_API_SECRET to enable chat-service event forwarding.');
     return;
   }
   try {
