@@ -12,22 +12,26 @@ test.describe('Session Management', () => {
 
   test('session endpoint should return unauthenticated without cookie', async ({ request }) => {
     const response = await request.get('/api/auth/session');
-    expect([200, 401, 403, 429]).toContain(response.status());
-    if (response.ok()) {
-      const body = await response.json();
-      expect(body.isAuthenticated).toBe(false);
-      expect(body.user).toBeNull();
-    }
+    // SECURITY FIX: Assert specific status, not "if ok".
+    // 200 = unauthenticated session (isAuthenticated=false) — expected.
+    // 429 = rate-limited from prior tests — acceptable.
+    // 401/403 should NOT happen for this endpoint (it's public).
+    expect([200, 429]).toContain(response.status());
+    if (response.status() === 429) return;
+
+    const body = await response.json();
+    expect(body.isAuthenticated).toBe(false);
+    expect(body.user).toBeNull();
   });
 
   test('logout endpoint should clear cookies', async ({ request }) => {
     const response = await request.post('/api/auth/logout');
     // May be rate limited from previous tests
-    expect([200, 403, 429]).toContain(response.status());
-    if (response.ok()) {
-      const body = await response.json();
-      expect(body.success).toBe(true);
-    }
+    expect([200, 429]).toContain(response.status());
+    if (response.status() === 429) return;
+
+    const body = await response.json();
+    expect(body.success).toBe(true);
   });
 
   test('CSRF protection should block mutation without token', async ({ request }) => {

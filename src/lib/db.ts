@@ -92,10 +92,16 @@ export const db = _dbInstance.$extends({
       await _dbInitPromise
 
       // Apply soft-delete filtering dynamically for models that support it
+      // SECURITY FIX: Added 'findUnique', 'findUniqueOrThrow', 'findFirstOrThrow',
+      // and 'upsert' to the operation list. Previously only 'findFirst'/'findMany'/
+      // 'count'/'aggregate'/'groupBy'/'update*'/'delete*' were covered, which left
+      // 100+ routes using findUnique({ where: { id } }) returning soft-deleted records.
       if (
         model &&
         softDeleteModels.has(model) &&
-        ['findFirst', 'findMany', 'count', 'aggregate', 'groupBy', 'update', 'updateMany', 'delete', 'deleteMany'].includes(operation)
+        ['findFirst', 'findFirstOrThrow', 'findMany', 'findUnique', 'findUniqueOrThrow',
+         'count', 'aggregate', 'groupBy',
+         'update', 'updateMany', 'delete', 'deleteMany', 'upsert'].includes(operation)
       ) {
         args.where = args.where || {};
         

@@ -188,7 +188,7 @@ export async function POST(request: NextRequest) {
     });
 
     // ── Step 8.5: Clear step-up session (one-shot — can't reuse it) ──
-    clearStepUpSession(ctx.userId);
+    await clearStepUpSession(ctx.userId);
 
     // ── Step 9: Return success with cookie-clearing headers ──
     const response = NextResponse.json(
