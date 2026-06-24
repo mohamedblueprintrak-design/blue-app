@@ -107,7 +107,7 @@ function getInitials(name: string) {
 }
 
 const avatarColors = [
-  "bg-teal-100 dark:bg-teal-900 text-teal-700 dark:text-teal-300",
+  "bg-brand-navy-100 dark:bg-brand-navy-900 text-brand-navy-700 dark:text-brand-navy-300",
   "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300",
   "bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300",
   "bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300",
@@ -317,8 +317,8 @@ export default function AttendancePage({ language }: AttendancePageProps) {
       </div>
 
       {/* Today's Date Header */}
-      <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-l from-teal-50 to-sky-50 dark:from-teal-950/20 dark:to-sky-950/20 border border-teal-100 dark:border-teal-900/30">
-        <Calendar className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+      <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-l from-brand-navy-50 to-sky-50 dark:from-brand-navy-950/20 dark:to-sky-950/20 border border-brand-navy-100 dark:border-brand-navy-900/30">
+        <Calendar className="h-5 w-5 text-brand-navy-600 dark:text-brand-navy-400" />
         <div>
           <p className="text-sm font-semibold text-slate-900 dark:text-white">{today.display}</p>
           <p className="text-[11px] text-slate-500 dark:text-slate-400">
@@ -394,7 +394,7 @@ export default function AttendancePage({ language }: AttendancePageProps) {
         <Card className="border-slate-200 dark:border-slate-700/50">
           <CardContent className="p-4">
             <div className="flex items-center gap-2 mb-3">
-              <Timer className="h-4 w-4 text-teal-500" />
+              <Timer className="h-4 w-4 text-brand-navy-500" />
               <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                 {tAuto('auto.todaySTimeline')}
               </h3>
@@ -489,7 +489,7 @@ export default function AttendancePage({ language }: AttendancePageProps) {
           )}
           <Button
             size="sm"
-            className="h-8 bg-teal-600 hover:bg-teal-700 text-white"
+            className="h-8 bg-brand-navy-600 hover:bg-brand-navy-700 text-white"
             onClick={() => { setFormData(emptyForm); setShowAddDialog(true); }}
           >
             <Plus className="h-3.5 w-3.5 me-1" />
@@ -686,7 +686,7 @@ export default function AttendancePage({ language }: AttendancePageProps) {
               {tAuto('auto.cancel')}
             </Button>
             <Button
-              className="bg-teal-600 hover:bg-teal-700 text-white"
+              className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white"
               onClick={() => createMutation.mutate(formData)}
               disabled={!formData.employeeId || !formData.date || createMutation.isPending}
             >

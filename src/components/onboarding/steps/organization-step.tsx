@@ -40,8 +40,8 @@ export default function OrganizationStep({ data, onChange, onNext, onBack, onSki
   return (
     <div className="flex flex-col items-center px-4 sm:px-8 py-6">
       <div className="text-center mb-6">
-        <div className="w-12 h-12 rounded-full bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center mx-auto mb-3">
-          <Building2 className="h-6 w-6 text-teal-600 dark:text-teal-400" />
+        <div className="w-12 h-12 rounded-full bg-brand-navy-100 dark:bg-brand-navy-900/30 flex items-center justify-center mx-auto mb-3">
+          <Building2 className="h-6 w-6 text-brand-navy-600 dark:text-brand-navy-400" />
         </div>
         <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-1">
           {t("إعداد المؤسسة", "Set Up Your Organization")}
@@ -128,7 +128,7 @@ export default function OrganizationStep({ data, onChange, onNext, onBack, onSki
         <Button
           onClick={onNext}
           disabled={!canContinue}
-          className="w-full h-11 bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white font-semibold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full h-11 bg-gradient-to-r from-brand-navy-500 to-cyan-600 hover:from-brand-navy-600 hover:to-cyan-700 text-white font-semibold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
           aria-label={t("التالي", "Next")}
         >
           {t("التالي", "Next")}

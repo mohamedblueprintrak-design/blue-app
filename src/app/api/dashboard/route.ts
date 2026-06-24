@@ -198,7 +198,7 @@ export async function GET(request: NextRequest) {
             progress: deptGroups.ARCHITECTURAL.total > 0
               ? Math.round((deptGroups.ARCHITECTURAL.completed / deptGroups.ARCHITECTURAL.total) * 100)
               : 0,
-            color: 'bg-teal-500',
+            color: 'bg-brand-navy-500',
           },
           {
             key: 'structural',

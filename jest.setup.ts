@@ -9,6 +9,9 @@ process.env.JWT_SECRET = 'test-secret-at-least-32-characters-long!';
 process.env.ENCRYPTION_KEY = 'a'.repeat(64);
 (process.env as Record<string, string>).NODE_ENV = 'test';
 
+// Internal API secret for tests (separate from JWT_SECRET to match production pattern)
+process.env.INTERNAL_API_SECRET = 'test-internal-secret-at-least-32-chars!';
+
 // Stripe test configuration — must be set before any module that reads isStripeConfigured at import time
 process.env.STRIPE_SECRET_KEY = 'sk_test_123';
 process.env.STRIPE_WEBHOOK_SECRET = 'whsec_test';

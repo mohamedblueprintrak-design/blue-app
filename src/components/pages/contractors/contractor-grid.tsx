@@ -57,7 +57,7 @@ export function ContractorGrid({
               key={c.id}
               className={cn(
                 "cursor-pointer hover:shadow-md transition-all overflow-hidden border-slate-200 dark:border-slate-700/50",
-                isSelected && "ring-2 ring-teal-500 border-teal-500"
+                isSelected && "ring-2 ring-brand-navy-500 border-brand-navy-500"
               )}
               onClick={() => onSelectContractor(c.id)}
             >

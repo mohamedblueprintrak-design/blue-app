@@ -121,7 +121,7 @@ export function EvaluationDialog({
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <ClipboardCheck className="h-5 w-5 text-teal-600" />
+            <ClipboardCheck className="h-5 w-5 text-brand-navy-600" />
             {ar ? `تقييم عطاء - ${bid.contractorName}` : `Evaluate Bid - ${bid.contractorName}`}
           </DialogTitle>
           <DialogDescription>
@@ -182,7 +182,7 @@ export function EvaluationDialog({
           </div>
 
           {/* Total Score */}
-          <div className="rounded-xl bg-gradient-to-r from-teal-500 to-emerald-600 p-4 text-white">
+          <div className="rounded-xl bg-gradient-to-r from-brand-navy-500 to-emerald-600 p-4 text-white">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs text-white/70">{tAuto('auto.weightedTotal')}</p>
@@ -200,7 +200,7 @@ export function EvaluationDialog({
                   <PolarGrid stroke="var(--color-slate-200)" />
                   <PolarAngleAxis dataKey="criteria" tick={{ fontSize: 10 }} />
                   <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fontSize: 9 }} />
-                  <Radar name={tAuto('auto.scores')} dataKey="score" stroke="var(--color-teal-500)" fill="var(--color-teal-500)" fillOpacity={0.3} />
+                  <Radar name={tAuto('auto.scores')} dataKey="score" stroke="var(--color-brand-navy-500)" fill="var(--color-brand-navy-500)" fillOpacity={0.3} />
                 </RadarChart>
               </ResponsiveContainer>
             </div>
@@ -227,7 +227,7 @@ export function EvaluationDialog({
               "rounded-lg text-white",
               saved
                 ? "bg-emerald-600 hover:bg-emerald-600"
-                : "bg-teal-600 hover:bg-teal-700"
+                : "bg-brand-navy-600 hover:bg-brand-navy-700"
             )}
             onClick={() => saveMutation.mutate()}
             disabled={saveMutation.isPending || saved}

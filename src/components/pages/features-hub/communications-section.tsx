@@ -50,7 +50,7 @@ export default function CommunicationsSection({
               <SelectItem value="email">{tAuto('auto.email')}</SelectItem>
             </SelectContent>
           </Select>
-          <Button onClick={onAddInteraction} className="bg-teal-600 hover:bg-teal-700 text-white">
+          <Button onClick={onAddInteraction} className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white">
             <Plus className="h-4 w-4 me-2" /> {tAuto('auto.logCommunication')}
           </Button>
         </div>

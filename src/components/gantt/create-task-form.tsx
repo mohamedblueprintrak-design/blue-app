@@ -86,7 +86,7 @@ export function CreateTaskForm({
         <Button variant="outline" onClick={onCancel}>
           {tAuto('auto.cancel')}
         </Button>
-        <Button onClick={handleSubmit} disabled={!title || isLoading} className="bg-teal-600 hover:bg-teal-700 text-white border-0">
+        <Button onClick={handleSubmit} disabled={!title || isLoading} className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white border-0">
           {isLoading ? <Loader2 className="w-4 h-4 me-1 animate-spin" /> : <Plus className="w-4 h-4 me-1" />}
           {tAuto('auto.add')}
         </Button>

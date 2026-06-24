@@ -216,7 +216,7 @@ export default function BillingPage({ language }: BillingPageProps) {
               <div className={cn(
                 "w-12 h-12 rounded-lg flex items-center justify-center",
                 currentPlan.highlighted
-                  ? "bg-gradient-to-br from-teal-500 to-cyan-600"
+                  ? "bg-gradient-to-br from-brand-navy-500 to-cyan-600"
                   : "bg-slate-100 dark:bg-slate-800"
               )}>
                 <Zap className={cn(
@@ -318,13 +318,13 @@ export default function BillingPage({ language }: BillingPageProps) {
               className={cn(
                 "relative overflow-hidden transition-all duration-300",
                 plan.highlighted
-                  ? "border-teal-500 dark:border-teal-400 shadow-lg shadow-teal-500/10"
+                  ? "border-brand-navy-500 dark:border-brand-navy-400 shadow-lg shadow-brand-navy-500/10"
                   : "border-slate-200 dark:border-slate-700/50",
-                subscription?.planId === plan.id && "ring-2 ring-teal-500"
+                subscription?.planId === plan.id && "ring-2 ring-brand-navy-500"
               )}
             >
               {plan.highlighted && (
-                <div className="absolute top-0 start-0 end-0 h-1 bg-gradient-to-r from-teal-500 to-cyan-500" />
+                <div className="absolute top-0 start-0 end-0 h-1 bg-gradient-to-r from-brand-navy-500 to-cyan-500" />
               )}
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg">{ar ? plan.nameAr : plan.nameEn}</CardTitle>
@@ -341,7 +341,7 @@ export default function BillingPage({ language }: BillingPageProps) {
                 <ul className="space-y-2">
                   {plan.features.map((feature, idx) => (
                     <li key={idx} className="flex items-center gap-2 text-sm">
-                      <Check className="h-4 w-4 text-teal-500 flex-shrink-0" />
+                      <Check className="h-4 w-4 text-brand-navy-500 flex-shrink-0" />
                       <span className="text-slate-600 dark:text-slate-300">
                         {ar ? feature.ar : feature.en}
                       </span>
@@ -352,7 +352,7 @@ export default function BillingPage({ language }: BillingPageProps) {
                   className={cn(
                     "w-full",
                     plan.highlighted
-                      ? "bg-teal-600 hover:bg-teal-700 text-white"
+                      ? "bg-brand-navy-600 hover:bg-brand-navy-700 text-white"
                       : "bg-slate-100 hover:bg-slate-200 text-slate-900 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-white"
                   )}
                   onClick={() => handleSubscribe(plan)}

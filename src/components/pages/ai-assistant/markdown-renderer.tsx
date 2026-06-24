@@ -113,13 +113,13 @@ export function MarkdownRenderer({ content }: { content: string }) {
         ),
         // Unordered list
         ul: ({ children }) => (
-          <ul className="my-2 space-y-1 text-sm text-slate-800 dark:text-slate-200 list-disc list-inside marker:text-teal-500 dark:marker:text-teal-400">
+          <ul className="my-2 space-y-1 text-sm text-slate-800 dark:text-slate-200 list-disc list-inside marker:text-brand-navy-500 dark:marker:text-brand-navy-400">
             {children}
           </ul>
         ),
         // Ordered list
         ol: ({ children }) => (
-          <ol className="my-2 space-y-1 text-sm text-slate-800 dark:text-slate-200 list-decimal list-inside marker:text-teal-500 dark:marker:text-teal-400">
+          <ol className="my-2 space-y-1 text-sm text-slate-800 dark:text-slate-200 list-decimal list-inside marker:text-brand-navy-500 dark:marker:text-brand-navy-400">
             {children}
           </ol>
         ),
@@ -144,7 +144,7 @@ export function MarkdownRenderer({ content }: { content: string }) {
         },
         // Blockquote
         blockquote: ({ children }) => (
-          <blockquote className="my-3 px-4 py-3 border-s-2 border-s-teal-400 dark:border-s-teal-600 bg-teal-50/50 dark:bg-teal-950/20 rounded-r-xl text-sm text-slate-700 dark:text-slate-300">
+          <blockquote className="my-3 px-4 py-3 border-s-2 border-s-brand-navy-400 dark:border-s-brand-navy-600 bg-brand-navy-50/50 dark:bg-brand-navy-950/20 rounded-r-xl text-sm text-slate-700 dark:text-slate-300">
             {children}
           </blockquote>
         ),
@@ -200,7 +200,7 @@ export function MarkdownRenderer({ content }: { content: string }) {
               href={safeHref}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-teal-600 dark:text-teal-400 underline underline-offset-2 hover:text-teal-700 dark:hover:text-teal-300 transition-colors font-medium"
+              className="text-brand-navy-600 dark:text-brand-navy-400 underline underline-offset-2 hover:text-brand-navy-700 dark:hover:text-brand-navy-300 transition-colors font-medium"
             >
               {children}
             </a>

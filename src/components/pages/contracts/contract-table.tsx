@@ -89,8 +89,8 @@ export function ContractTable({
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-lg bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-            <FileSignature className="h-4.5 w-4.5 text-teal-600 dark:text-teal-400" />
+          <div className="w-9 h-9 rounded-lg bg-brand-navy-100 dark:bg-brand-navy-900/30 flex items-center justify-center">
+            <FileSignature className="h-4.5 w-4.5 text-brand-navy-600 dark:text-brand-navy-400" />
           </div>
           <div>
             <div className="flex items-center gap-2">
@@ -131,7 +131,7 @@ export function ContractTable({
           </Select>
           <Button
             size="sm"
-            className="h-8 bg-teal-600 hover:bg-teal-700 text-white rounded-lg shadow-sm shadow-teal-600/20"
+            className="h-8 bg-brand-navy-600 hover:bg-brand-navy-700 text-white rounded-lg shadow-sm shadow-brand-navy-600/20"
             onClick={onAddClick}
           >
             <Plus className="h-3.5 w-3.5 me-1" />
@@ -160,17 +160,17 @@ export function ContractTable({
         </Card>
 
         <Card className="py-0 gap-0 border-0 shadow-sm overflow-hidden">
-          <div className="bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20 p-4">
+          <div className="bg-gradient-to-br from-brand-navy-50 to-cyan-50 dark:from-brand-navy-900/20 dark:to-cyan-900/20 p-4">
             <div className="flex items-center gap-2 mb-2">
               <div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm">
-                <DollarSign className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" />
+                <DollarSign className="h-3.5 w-3.5 text-brand-navy-600 dark:text-brand-navy-400" />
               </div>
-              <span className="text-xs text-teal-600 dark:text-teal-400">{tAuto('auto.totalValue')}</span>
+              <span className="text-xs text-brand-navy-600 dark:text-brand-navy-400">{tAuto('auto.totalValue')}</span>
             </div>
             <div className="text-xl font-bold text-slate-900 dark:text-white font-mono tabular-nums">
               {formatCurrency(totalValue, ar)}
             </div>
-            <p className="text-[10px] text-teal-500/60 dark:text-teal-400/60 mt-1">
+            <p className="text-[10px] text-brand-navy-500/60 dark:text-brand-navy-400/60 mt-1">
               {tAuto('auto.allContracts')}
             </p>
           </div>
@@ -240,7 +240,7 @@ export function ContractTable({
                       idx % 2 === 0
                         ? "bg-white dark:bg-slate-900"
                         : "even:bg-slate-50/50 dark:even:bg-slate-800/20",
-                      selectedContractId === contract.id && "bg-teal-50/50 dark:bg-teal-950/20"
+                      selectedContractId === contract.id && "bg-brand-navy-50/50 dark:bg-brand-navy-950/20"
                     )}
                     onClick={() => onSelectContract(contract)}
                   >
@@ -321,7 +321,7 @@ export function ContractTable({
                       </div>
                       <Button
                         size="sm"
-                        className="h-8 bg-teal-600 hover:bg-teal-700 text-white rounded-lg"
+                        className="h-8 bg-brand-navy-600 hover:bg-brand-navy-700 text-white rounded-lg"
                         onClick={onAddClick}
                       >
                         <Plus className="h-3.5 w-3.5 me-1" />

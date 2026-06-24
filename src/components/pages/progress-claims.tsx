@@ -265,8 +265,8 @@ export default function ProgressClaimsPage({ language, projectId }: ProgressClai
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-lg bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-            <ClipboardCheck className="h-4.5 w-4.5 text-teal-600 dark:text-teal-400" />
+          <div className="w-9 h-9 rounded-lg bg-brand-navy-100 dark:bg-brand-navy-900/30 flex items-center justify-center">
+            <ClipboardCheck className="h-4.5 w-4.5 text-brand-navy-600 dark:text-brand-navy-400" />
           </div>
           <div>
             <h2 className="text-lg font-bold text-slate-900 dark:text-white">{tAuto('auto.progressClaims')}</h2>
@@ -276,7 +276,7 @@ export default function ProgressClaimsPage({ language, projectId }: ProgressClai
           </div>
         </div>
         <div className="flex items-center gap-2 w-full sm:w-auto sm:ms-auto">
-          <Button size="sm" className="h-8 bg-teal-600 hover:bg-teal-700 text-white rounded-lg shadow-sm shadow-teal-600/20" onClick={() => { setFormData(emptyForm); setEditItem(null); setShowDialog(true); }}>
+          <Button size="sm" className="h-8 bg-brand-navy-600 hover:bg-brand-navy-700 text-white rounded-lg shadow-sm shadow-brand-navy-600/20" onClick={() => { setFormData(emptyForm); setEditItem(null); setShowDialog(true); }}>
             <Plus className="h-3.5 w-3.5 me-1" />{tAuto('auto.newClaim')}
           </Button>
         </div>
@@ -285,13 +285,13 @@ export default function ProgressClaimsPage({ language, projectId }: ProgressClai
       {/* Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <Card className="py-0 gap-0 border-0 shadow-sm overflow-hidden">
-          <div className="bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20 p-4">
+          <div className="bg-gradient-to-br from-brand-navy-50 to-cyan-50 dark:from-brand-navy-900/20 dark:to-cyan-900/20 p-4">
             <div className="flex items-center gap-2 mb-2">
-              <div className="p-1.5 rounded-lg bg-white/20"><FileText className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" /></div>
-              <span className="text-xs text-teal-600 dark:text-teal-400">{tAuto('auto.totalClaims')}</span>
+              <div className="p-1.5 rounded-lg bg-white/20"><FileText className="h-3.5 w-3.5 text-brand-navy-600 dark:text-brand-navy-400" /></div>
+              <span className="text-xs text-brand-navy-600 dark:text-brand-navy-400">{tAuto('auto.totalClaims')}</span>
             </div>
             <div className="text-xl font-bold text-slate-900 dark:text-white font-mono tabular-nums">{formatCurrency(totalClaims, ar)}</div>
-            <p className="text-[10px] text-teal-500/60 mt-1">{filtered.length} {tAuto('auto.claims')}</p>
+            <p className="text-[10px] text-brand-navy-500/60 mt-1">{filtered.length} {tAuto('auto.claims')}</p>
           </div>
         </Card>
         <Card className="py-0 gap-0 border-0 shadow-sm overflow-hidden">
@@ -380,7 +380,7 @@ export default function ProgressClaimsPage({ language, projectId }: ProgressClai
                     {ar ? item.project?.name : item.project?.nameEn || item.project?.name}
                   </TableCell>
                   <TableCell className="font-mono text-xs text-slate-900 dark:text-white tabular-nums">{formatCurrency(Number(item.totalClaimAmount), ar)}</TableCell>
-                  <TableCell className="hidden md:table-cell font-mono text-xs text-teal-600 dark:text-teal-400 tabular-nums">{formatCurrency(Number(item.netPayment), ar)}</TableCell>
+                  <TableCell className="hidden md:table-cell font-mono text-xs text-brand-navy-600 dark:text-brand-navy-400 tabular-nums">{formatCurrency(Number(item.netPayment), ar)}</TableCell>
                   <TableCell className="hidden sm:table-cell">
                     <span className={cn("inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-medium", statusCfg.color)}>
                       {ar ? statusCfg.ar : statusCfg.en}
@@ -482,17 +482,17 @@ export default function ProgressClaimsPage({ language, projectId }: ProgressClai
               </div>
             </div>
             {/* Auto-calculated Net Payment */}
-            <div className="p-3 rounded-lg bg-teal-50 dark:bg-teal-900/20 border border-teal-200 dark:border-teal-800/50">
+            <div className="p-3 rounded-lg bg-brand-navy-50 dark:bg-brand-navy-900/20 border border-brand-navy-200 dark:border-brand-navy-800/50">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-teal-700 dark:text-teal-300">{tAuto('auto.netPayment')}</span>
-                <span className="text-sm font-bold font-mono text-teal-700 dark:text-teal-300 tabular-nums">{formatCurrency(netPayment, ar)}</span>
+                <span className="text-sm font-medium text-brand-navy-700 dark:text-brand-navy-300">{tAuto('auto.netPayment')}</span>
+                <span className="text-sm font-bold font-mono text-brand-navy-700 dark:text-brand-navy-300 tabular-nums">{formatCurrency(netPayment, ar)}</span>
               </div>
-              <p className="text-[10px] text-teal-500/60 mt-1">{tAuto('auto.currentCertifiedRetention')}</p>
+              <p className="text-[10px] text-brand-navy-500/60 mt-1">{tAuto('auto.currentCertifiedRetention')}</p>
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" className="rounded-lg" onClick={() => { setShowDialog(false); setEditItem(null); setFormData(emptyForm); }}>{tAuto('auto.cancel')}</Button>
-            <Button className="bg-teal-600 hover:bg-teal-700 text-white rounded-lg" disabled={createMutation.isPending || updateMutation.isPending} onClick={handleSave}>
+            <Button className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white rounded-lg" disabled={createMutation.isPending || updateMutation.isPending} onClick={handleSave}>
               {(createMutation.isPending || updateMutation.isPending) ? (tAuto('auto.saving')) : (tAuto('auto.save'))}
             </Button>
           </DialogFooter>

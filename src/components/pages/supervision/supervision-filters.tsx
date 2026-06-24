@@ -57,7 +57,7 @@ export function StageSelector({ ar, selectedStage, onSelectedStageChange }: Stag
         onClick={() => onSelectedStageChange("all")}
         className={`shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
           selectedStage === "all"
-            ? "bg-teal-600 text-white shadow-sm"
+            ? "bg-brand-navy-600 text-white shadow-sm"
             : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700"
         }`}
       >
@@ -69,7 +69,7 @@ export function StageSelector({ ar, selectedStage, onSelectedStageChange }: Stag
           onClick={() => onSelectedStageChange(stage.key)}
           className={`shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors whitespace-nowrap ${
             selectedStage === stage.key
-              ? "bg-teal-600 text-white shadow-sm"
+              ? "bg-brand-navy-600 text-white shadow-sm"
               : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700"
           }`}
         >

@@ -55,7 +55,7 @@ export default function ClientDetailPanel({ client, ar, onClose, onEdit }: Clien
   return (
     <div className="w-full lg:w-[420px] flex-shrink-0 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900 overflow-hidden shadow-sm">
       {/* Header Card with avatar */}
-      <div className="bg-gradient-to-br from-teal-500 to-teal-600 dark:from-teal-700 dark:to-teal-800 p-4">
+      <div className="bg-gradient-to-br from-brand-navy-500 to-brand-navy-600 dark:from-brand-navy-700 dark:to-brand-navy-800 p-4">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon" className="h-7 w-7 text-white hover:bg-white/20" onClick={onEdit} aria-label="Edit">
@@ -71,7 +71,7 @@ export default function ClientDetailPanel({ client, ar, onClose, onEdit }: Clien
                 {ar ? clientTypeConfig.ar : clientTypeConfig.en}
               </Badge>
             )}
-            <span className="text-xs text-teal-100">
+            <span className="text-xs text-brand-navy-100">
               {tAuto('auto.clientDetails')}
             </span>
           </div>
@@ -84,7 +84,7 @@ export default function ClientDetailPanel({ client, ar, onClose, onEdit }: Clien
           <div className="min-w-0">
             <h3 className="text-base font-bold text-white truncate">{client.name}</h3>
             {(client.nameEn || client.company) && (
-              <p className="text-xs text-teal-100 truncate">{client.nameEn || client.company}</p>
+              <p className="text-xs text-brand-navy-100 truncate">{client.nameEn || client.company}</p>
             )}
             <div className="flex items-center gap-2 mt-1">
               <Badge className="text-[10px] h-5 bg-white/20 text-white border-0 hover:bg-white/30">
@@ -118,7 +118,7 @@ export default function ClientDetailPanel({ client, ar, onClose, onEdit }: Clien
             "h-1.5",
             creditPct >= 80 && "[&>div]:bg-red-500",
             creditPct >= 50 && creditPct < 80 && "[&>div]:bg-amber-500",
-            creditPct < 50 && "[&>div]:bg-teal-500"
+            creditPct < 50 && "[&>div]:bg-brand-navy-500"
           )}
         />
       </div>
@@ -132,7 +132,7 @@ export default function ClientDetailPanel({ client, ar, onClose, onEdit }: Clien
                 <div className="w-6 h-6 rounded-md bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0">
                   <Mail className="h-3 w-3 text-slate-500" />
                 </div>
-                <a href={`mailto:${client.email}`} className="truncate text-teal-600 dark:text-teal-400 hover:underline">
+                <a href={`mailto:${client.email}`} className="truncate text-brand-navy-600 dark:text-brand-navy-400 hover:underline">
                   {client.email}
                 </a>
               </div>
@@ -142,7 +142,7 @@ export default function ClientDetailPanel({ client, ar, onClose, onEdit }: Clien
                 <div className="w-6 h-6 rounded-md bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0">
                   <Phone className="h-3 w-3 text-slate-500" />
                 </div>
-                <a href={`tel:${client.phone}`} className="text-teal-600 dark:text-teal-400 hover:underline">
+                <a href={`tel:${client.phone}`} className="text-brand-navy-600 dark:text-brand-navy-400 hover:underline">
                   {client.phone}
                 </a>
               </div>
@@ -179,7 +179,7 @@ export default function ClientDetailPanel({ client, ar, onClose, onEdit }: Clien
                     </div>
                     <div className="min-w-0">
                       {emirateLabel && (
-                        <span className="text-teal-600 dark:text-teal-400 font-medium block">
+                        <span className="text-brand-navy-600 dark:text-brand-navy-400 font-medium block">
                           {ar ? emirateLabel.ar : emirateLabel.en}
                         </span>
                       )}
@@ -317,12 +317,12 @@ export default function ClientDetailPanel({ client, ar, onClose, onEdit }: Clien
           {client.serviceType && (
             <div className="px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border rounded-lg">
               <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-md bg-teal-100 dark:bg-teal-900 flex items-center justify-center shrink-0">
-                  <FileText className="h-3 w-3 text-teal-500" />
+                <div className="w-6 h-6 rounded-md bg-brand-navy-100 dark:bg-brand-navy-900 flex items-center justify-center shrink-0">
+                  <FileText className="h-3 w-3 text-brand-navy-500" />
                 </div>
                 <div className="min-w-0 flex-1">
                   <span className="text-[10px] text-slate-400 block">{tAuto('auto.purpose')}</span>
-                  <span className="text-xs text-teal-700 dark:text-teal-300 font-medium">
+                  <span className="text-xs text-brand-navy-700 dark:text-brand-navy-300 font-medium">
                     {ar
                       ? { consultation: "استشارة هندسية", DESIGN: "تصميم", license: "استخراج ترخيص", supervision: "إشراف على التنفيذ", inspection: "فحص هندسي", other: "أخرى" }[client.serviceType] || client.serviceType
                       : { consultation: "Engineering Consultation", DESIGN: "Design", license: "License", supervision: "Supervision", inspection: "Inspection", other: "Other" }[client.serviceType] || client.serviceType}

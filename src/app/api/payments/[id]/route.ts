@@ -113,6 +113,9 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     });
 
     // Create audit log entry in ActivityLog
+    // SECURITY: Use structured JSON instead of string concatenation to prevent
+    // log injection (if status/amount ever contain attacker-controlled chars)
+    // and to make the audit trail machine-queryable.
     await db.activityLog.create({
       data: {
         userId: ctx.userId,
@@ -120,7 +123,17 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         action: "UPDATE",
         entityType: "payment",
         entityId: id,
-        details: `Updated payment status to ${status || existing.status}, amount to ${amount || existing.amount}`,
+        details: JSON.stringify({
+          action: 'update',
+          previousStatus: existing.status,
+          newStatus: status ?? existing.status,
+          amountChanged: amount !== undefined,
+          previousAmount: existing.amount,
+          newAmount: amount ?? existing.amount,
+          fieldsUpdated: Object.keys(validation.data),
+          approverChanged: isApproving,
+          approverId: isApproving ? ctx.userId : undefined,
+        }),
         projectId: existing.projectId,
       }
     });

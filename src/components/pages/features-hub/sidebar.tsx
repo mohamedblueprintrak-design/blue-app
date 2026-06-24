@@ -26,7 +26,7 @@ export function MobileHeader({ mobileSidebarOpen, setMobileSidebarOpen, language
   return (
     <div className="lg:hidden sticky top-0 z-50 bg-white dark:bg-slate-900 border-b px-4 py-3 flex items-center justify-between">
       <div className="flex items-center gap-2">
-        <div className="w-8 h-8 rounded-lg bg-teal-600 flex items-center justify-center">
+        <div className="w-8 h-8 rounded-lg bg-brand-navy-600 flex items-center justify-center">
           <Building2 className="h-4 w-4 text-white" />
         </div>
         <span className="font-bold text-sm">{tAuto('auto.bluePrint')}</span>
@@ -50,7 +50,7 @@ export function Sidebar({ activeTab, setActiveTab, mobileSidebarOpen, setMobileS
       {/* Logo */}
       <div className="p-4 border-b border-slate-200 dark:border-slate-800">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-teal-600 flex items-center justify-center shadow-lg shadow-teal-600/20">
+          <div className="w-10 h-10 rounded-xl bg-brand-navy-600 flex items-center justify-center shadow-lg shadow-brand-navy-600/20">
             <Building2 className="h-5 w-5 text-white" />
           </div>
           <div>
@@ -70,13 +70,13 @@ export function Sidebar({ activeTab, setActiveTab, mobileSidebarOpen, setMobileS
               className={cn(
                 'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200',
                 activeTab === item.id
-                  ? 'bg-teal-50 dark:bg-teal-900/20 text-teal-700 dark:text-teal-400 font-semibold shadow-sm'
+                  ? 'bg-brand-navy-50 dark:bg-brand-navy-900/20 text-brand-navy-700 dark:text-brand-navy-400 font-semibold shadow-sm'
                   : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-white'
               )}
             >
               <span className={cn(
                 'transition-colors',
-                activeTab === item.id ? 'text-teal-600 dark:text-teal-400' : 'text-slate-400 dark:text-slate-500'
+                activeTab === item.id ? 'text-brand-navy-600 dark:text-brand-navy-400' : 'text-slate-400 dark:text-slate-500'
               )}>
                 {item.icon}
               </span>
@@ -89,8 +89,8 @@ export function Sidebar({ activeTab, setActiveTab, mobileSidebarOpen, setMobileS
       {/* Footer */}
       <div className="p-4 border-t border-slate-200 dark:border-slate-800">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-            <HardHat className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+          <div className="w-9 h-9 rounded-full bg-brand-navy-100 dark:bg-brand-navy-900/30 flex items-center justify-center">
+            <HardHat className="h-4 w-4 text-brand-navy-600 dark:text-brand-navy-400" />
           </div>
           <div>
             <p className="text-xs font-medium text-slate-900 dark:text-white">{tAuto('auto.engAbdullahAlMansoori')}</p>

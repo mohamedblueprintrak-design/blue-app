@@ -209,8 +209,8 @@ export default function Defects({ language, projectId }: DefectsProps) {
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-lg bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-            <ShieldAlert className="h-4.5 w-4.5 text-teal-600 dark:text-teal-400" />
+          <div className="w-9 h-9 rounded-lg bg-brand-navy-100 dark:bg-brand-navy-900/30 flex items-center justify-center">
+            <ShieldAlert className="h-4.5 w-4.5 text-brand-navy-600 dark:text-brand-navy-400" />
           </div>
           <div>
             <h2 className="text-lg font-bold text-slate-900 dark:text-white">{tAuto('auto.defects')}</h2>
@@ -246,7 +246,7 @@ export default function Defects({ language, projectId }: DefectsProps) {
               <SelectItem value="CRITICAL">{tAuto('auto.critical')}</SelectItem>
             </SelectContent>
           </Select>
-          <Button size="sm" className="h-8 bg-teal-600 hover:bg-teal-700 text-white rounded-lg shadow-sm shadow-teal-600/20" onClick={() => setShowAddDialog(true)}>
+          <Button size="sm" className="h-8 bg-brand-navy-600 hover:bg-brand-navy-700 text-white rounded-lg shadow-sm shadow-brand-navy-600/20" onClick={() => setShowAddDialog(true)}>
             <Plus className="h-3.5 w-3.5 me-1" />{tAuto('auto.newDefect')}
           </Button>
         </div>
@@ -511,7 +511,7 @@ export default function Defects({ language, projectId }: DefectsProps) {
             </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => { setShowAddDialog(false); resetForm(); }}>{tAuto('auto.cancel')}</Button>
-            <Button type="submit" className="bg-teal-600 hover:bg-teal-700 text-white" disabled={createMutation.isPending}>
+            <Button type="submit" className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white" disabled={createMutation.isPending}>
               {createMutation.isPending ? (tAuto('auto.creating')) : (tAuto('auto.create'))}
             </Button>
           </DialogFooter>

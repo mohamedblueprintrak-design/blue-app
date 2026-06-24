@@ -60,10 +60,10 @@ const eventTypeConfig: Record<string, {
   icon: typeof Clock;
 }> = {
   meeting: {
-    color: "bg-teal-500",
-    bg: "bg-teal-50 dark:bg-teal-950",
-    border: "border-teal-500",
-    dot: "bg-teal-500",
+    color: "bg-brand-navy-500",
+    bg: "bg-brand-navy-50 dark:bg-brand-navy-950",
+    border: "border-brand-navy-500",
+    dot: "bg-brand-navy-500",
     ar: "اجتماع",
     en: "Meeting",
     icon: Users,
@@ -116,7 +116,7 @@ const eventTypeConfig: Record<string, {
 };
 
 const avatarColors = [
-  "bg-teal-100 dark:bg-teal-900 text-teal-700 dark:text-teal-300",
+  "bg-brand-navy-100 dark:bg-brand-navy-900 text-brand-navy-700 dark:text-brand-navy-300",
   "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300",
   "bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300",
   "bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300",
@@ -322,8 +322,8 @@ export default function CalendarPage({ language: lang, projectId }: Props) {
         <Card className="border-slate-200 dark:border-slate-700/50">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-                <CalendarDays className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+              <div className="w-10 h-10 rounded-xl bg-brand-navy-100 dark:bg-brand-navy-900/30 flex items-center justify-center">
+                <CalendarDays className="h-5 w-5 text-brand-navy-600 dark:text-brand-navy-400" />
               </div>
               <div>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -376,7 +376,7 @@ export default function CalendarPage({ language: lang, projectId }: Props) {
 
       {/* Calendar Header with Gradient */}
       <Card className="overflow-hidden">
-        <div className="bg-gradient-to-r from-teal-600 to-cyan-600 px-6 py-4 flex items-center justify-between">
+        <div className="bg-gradient-to-r from-brand-navy-600 to-cyan-600 px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm">
               <CalendarIcon className="h-5 w-5 text-white" />
@@ -385,7 +385,7 @@ export default function CalendarPage({ language: lang, projectId }: Props) {
               <h2 className="text-xl font-bold text-white">
                 {format(currentMonth, tAuto('auto.mMMMYyyy'), { locale })}
               </h2>
-              <p className="text-sm text-teal-100">
+              <p className="text-sm text-brand-navy-100">
                 {isAr ? `${events.length} حدث مسجل` : `${events.length} events scheduled`}
               </p>
             </div>
@@ -470,8 +470,8 @@ export default function CalendarPage({ language: lang, projectId }: Props) {
                       inMonth
                         ? "bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/80"
                         : "bg-slate-50 dark:bg-slate-950",
-                      today && !isSelected && "ring-2 ring-teal-500 ring-inset bg-teal-50/50 dark:bg-teal-950/30",
-                      isSelected && "bg-teal-50 dark:bg-teal-950",
+                      today && !isSelected && "ring-2 ring-brand-navy-500 ring-inset bg-brand-navy-50/50 dark:bg-brand-navy-950/30",
+                      isSelected && "bg-brand-navy-50 dark:bg-brand-navy-950",
                       isWeekend && inMonth && !today && !isSelected && "bg-slate-50/50 dark:bg-slate-900/50"
                     )}
                   >
@@ -481,7 +481,7 @@ export default function CalendarPage({ language: lang, projectId }: Props) {
                         !inMonth
                           ? "text-slate-300 dark:text-slate-600"
                           : today
-                            ? "bg-teal-600 text-white shadow-sm shadow-teal-500/30"
+                            ? "bg-brand-navy-600 text-white shadow-sm shadow-brand-navy-500/30"
                             : "text-slate-700 dark:text-slate-300"
                       )}
                     >
@@ -512,7 +512,7 @@ export default function CalendarPage({ language: lang, projectId }: Props) {
                         );
                       })}
                       {dayEvents.length > 3 && (
-                        <span className="text-[10px] text-teal-600 dark:text-teal-400 font-medium px-1">
+                        <span className="text-[10px] text-brand-navy-600 dark:text-brand-navy-400 font-medium px-1">
                           +{dayEvents.length - 3}
                         </span>
                       )}
@@ -529,7 +529,7 @@ export default function CalendarPage({ language: lang, projectId }: Props) {
             <div className="flex-1 border-b border-slate-100 dark:border-slate-800">
               <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800">
                 <h3 className="text-sm font-semibold text-slate-900 dark:text-white flex items-center gap-2">
-                  <CalendarIcon className="h-4 w-4 text-teal-600" />
+                  <CalendarIcon className="h-4 w-4 text-brand-navy-600" />
                   {selectedDate
                     ? format(selectedDate, tAuto('auto.eEEEMMMMD'), { locale })
                     : tAuto('auto.selectADay')}

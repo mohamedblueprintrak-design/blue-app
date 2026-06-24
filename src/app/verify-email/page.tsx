@@ -86,7 +86,7 @@ function VerifyEmailContent() {
       <SkipNavContent />
       <Card className="w-full max-w-md border-slate-200 dark:border-slate-700/50 shadow-xl">
         <CardHeader className="text-center pb-2">
-          <div className="mx-auto w-16 h-16 rounded-full bg-gradient-to-br from-teal-500 to-cyan-600 flex items-center justify-center mb-4">
+          <div className="mx-auto w-16 h-16 rounded-full bg-gradient-to-br from-brand-navy-500 to-cyan-600 flex items-center justify-center mb-4">
             {status === "loading" ? (
               <Loader2 className="h-8 w-8 text-white animate-spin" />
             ) : status === "success" ? (
@@ -118,7 +118,7 @@ function VerifyEmailContent() {
             <div className="space-y-4">
               <p className="text-slate-600 dark:text-slate-400">{message}</p>
               <p className="text-sm text-slate-500">سيتم تحويلك للصفحة الرئيسية...</p>
-              <Button onClick={() => router.push("/dashboard")} className="bg-teal-600 hover:bg-teal-700">
+              <Button onClick={() => router.push("/dashboard")} className="bg-brand-navy-600 hover:bg-brand-navy-700">
                 الذهاب للصفحة الرئيسية
                 <ArrowRight className="h-4 w-4 ms-2" />
               </Button>
@@ -159,7 +159,7 @@ function VerifyEmailContent() {
               <Button
                 onClick={handleResend}
                 disabled={!email || resending}
-                className="w-full bg-teal-600 hover:bg-teal-700"
+                className="w-full bg-brand-navy-600 hover:bg-brand-navy-700"
               >
                 {resending ? (
                   <Loader2 className="h-4 w-4 animate-spin me-2" />
@@ -181,7 +181,7 @@ export default function VerifyEmailPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
-        <Loader2 className="h-8 w-8 text-teal-600 animate-spin" />
+        <Loader2 className="h-8 w-8 text-brand-navy-600 animate-spin" />
       </div>
     }>
       <VerifyEmailContent />

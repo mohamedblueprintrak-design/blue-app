@@ -108,7 +108,7 @@ export function TenderDetailPanel({
   return (
     <div className="w-full lg:w-[420px] flex-shrink-0 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900 overflow-hidden shadow-sm">
       {/* Gradient Header */}
-      <div className="bg-gradient-to-r from-teal-600 to-teal-700 dark:from-teal-700 dark:to-teal-800 px-4 py-3">
+      <div className="bg-gradient-to-r from-brand-navy-600 to-brand-navy-700 dark:from-brand-navy-700 dark:to-brand-navy-800 px-4 py-3">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold text-white">
             {tAuto('auto.tenderDetails')}
@@ -140,14 +140,14 @@ export function TenderDetailPanel({
           </div>
 
           {/* Budget Card */}
-          <div className="bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20 rounded-xl p-4">
+          <div className="bg-gradient-to-br from-brand-navy-50 to-cyan-50 dark:from-brand-navy-900/20 dark:to-cyan-900/20 rounded-xl p-4">
             <div className="flex items-center gap-2 mb-1">
-              <TrendingUp className="h-4 w-4 text-teal-500 dark:text-teal-400" />
-              <span className="text-xs text-teal-600 dark:text-teal-400">
+              <TrendingUp className="h-4 w-4 text-brand-navy-500 dark:text-brand-navy-400" />
+              <span className="text-xs text-brand-navy-600 dark:text-brand-navy-400">
                 {tAuto('auto.estimatedBudget')}
               </span>
             </div>
-            <div className="text-2xl font-bold text-teal-700 dark:text-teal-300 font-mono tabular-nums">
+            <div className="text-2xl font-bold text-brand-navy-700 dark:text-brand-navy-300 font-mono tabular-nums">
               {tender.estimatedBudget.toLocaleString(ar ? "ar-AE" : "en-US")} <span className="text-sm font-medium">{tender.currency}</span>
             </div>
           </div>

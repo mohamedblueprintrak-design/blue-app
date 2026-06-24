@@ -217,7 +217,7 @@ export default function ProjectDetail({ language }: ProjectDetailProps) {
                 className={cn(
                   "gap-1.5 px-3 py-2 rounded-lg text-xs sm:text-sm transition-all",
                   "data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:shadow-sm",
-                  "data-[state=active]:text-teal-600 dark:data-[state=active]:text-teal-400"
+                  "data-[state=active]:text-brand-navy-600 dark:data-[state=active]:text-brand-navy-400"
                 )}
               >
                 <tab.icon className="h-3.5 w-3.5 shrink-0" />
@@ -316,7 +316,7 @@ export default function ProjectDetail({ language }: ProjectDetailProps) {
           const { setCurrentPage } = useNavStore.getState();
           setCurrentPage("ai-assistant");
         }}
-        className="fixed bottom-6 start-6 z-50 w-12 h-12 rounded-full bg-gradient-to-br from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white shadow-xl shadow-teal-500/30 flex items-center justify-center transition-all hover:scale-110 group"
+        className="fixed bottom-6 start-6 z-50 w-12 h-12 rounded-full bg-gradient-to-br from-brand-navy-500 to-cyan-500 hover:from-brand-navy-600 hover:to-cyan-600 text-white shadow-xl shadow-brand-navy-500/30 flex items-center justify-center transition-all hover:scale-110 group"
         title={t("المساعد الذكي", "AI Assistant")}
       >
         <Sparkles className="h-5 w-5 group-hover:animate-pulse" />

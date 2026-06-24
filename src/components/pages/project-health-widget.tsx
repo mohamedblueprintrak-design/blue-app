@@ -192,7 +192,7 @@ export default function ProjectHealthWidget({
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center">
+            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-brand-navy-500 to-emerald-600 flex items-center justify-center">
               <Activity className="h-4 w-4 text-white" />
             </div>
             <div>
@@ -206,7 +206,7 @@ export default function ProjectHealthWidget({
           </div>
           <button
             onClick={() => setCurrentPage("projects")}
-            className="text-xs text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 flex items-center gap-1 transition-colors"
+            className="text-xs text-brand-navy-600 dark:text-brand-navy-400 hover:text-brand-navy-700 dark:hover:text-brand-navy-300 flex items-center gap-1 transition-colors"
           >
             {tAuto('auto.viewAll')}
             <ArrowUpRight className="h-3 w-3" />

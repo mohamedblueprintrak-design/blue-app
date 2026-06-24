@@ -47,7 +47,7 @@ export interface UserOption {
 // ===== Helpers =====
 export function getTypeBadge(type: string, ar: boolean) {
   const configs: Record<string, { label: string; labelEn: string; color: string; icon: typeof Monitor }> = {
-    ONSITE: { label: "حضوري", labelEn: "On-site", color: "bg-teal-100 text-teal-700 dark:bg-teal-900/50 dark:text-teal-300", icon: Building2 },
+    ONSITE: { label: "حضوري", labelEn: "On-site", color: "bg-brand-navy-100 text-brand-navy-700 dark:bg-brand-navy-900/50 dark:text-brand-navy-300", icon: Building2 },
     ONLINE: { label: "عن بُعد", labelEn: "Online", color: "bg-sky-100 text-sky-700 dark:bg-sky-900/50 dark:text-sky-300", icon: Monitor },
   };
   const cfg = configs[type] || configs.ONSITE;

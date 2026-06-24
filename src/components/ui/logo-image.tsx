@@ -30,7 +30,7 @@ export default function LogoImage({ className, size = 36, alt = "BluePrint" }: L
     // Fallback: Icon-based logo
     return (
       <div
-        className={cn("flex items-center justify-center bg-gradient-to-br from-teal-500 to-cyan-600 rounded-xl", className)}
+        className={cn("flex items-center justify-center bg-gradient-to-br from-brand-navy-500 to-cyan-600 rounded-xl", className)}
         style={{ width: size, height: size }}
       >
         <Building2 className="text-white" style={{ width: size * 0.55, height: size * 0.55 }} />

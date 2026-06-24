@@ -20,8 +20,8 @@ const ProjectMap = dynamic(() => import('@/components/ui/project-map'), {
   loading: () => (
     <div className="w-full h-[500px] md:h-[600px] bg-slate-50 dark:bg-slate-900 rounded-lg flex items-center justify-center">
       <div className="text-center space-y-2">
-        <div className="w-10 h-10 rounded-full bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center mx-auto animate-pulse">
-          <MapPin className="h-5 w-5 text-teal-500" />
+        <div className="w-10 h-10 rounded-full bg-brand-navy-100 dark:bg-brand-navy-900/30 flex items-center justify-center mx-auto animate-pulse">
+          <MapPin className="h-5 w-5 text-brand-navy-500" />
         </div>
         <p className="text-sm text-slate-400">Loading map...</p>
       </div>
@@ -85,8 +85,8 @@ export default function MapSection({
 
       {/* Data source indicator */}
       {hasRealData && (
-        <div className="flex items-center gap-2 text-xs text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/20 px-3 py-1.5 rounded-lg w-fit">
-          <div className="w-2 h-2 rounded-full bg-teal-500 animate-pulse" />
+        <div className="flex items-center gap-2 text-xs text-brand-navy-600 dark:text-brand-navy-400 bg-brand-navy-50 dark:bg-brand-navy-900/20 px-3 py-1.5 rounded-lg w-fit">
+          <div className="w-2 h-2 rounded-full bg-brand-navy-500 animate-pulse" />
           {tAuto('auto.liveDataFromDatabase')} — {realProjectsForMap.length} {tAuto('auto.projectsOnMap')}
         </div>
       )}
@@ -135,8 +135,8 @@ export default function MapSection({
         <Card className="border-slate-200 dark:border-slate-700/50">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-                <DollarSign className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+              <div className="w-10 h-10 rounded-xl bg-brand-navy-100 dark:bg-brand-navy-900/30 flex items-center justify-center">
+                <DollarSign className="h-5 w-5 text-brand-navy-600 dark:text-brand-navy-400" />
               </div>
               <div>
                 <p className="text-xs text-slate-500">{tAuto('auto.totalBudget')}</p>
@@ -237,7 +237,7 @@ export default function MapSection({
             >
               <Card className={cn(
                 'border-slate-200 dark:border-slate-700/50 hover:shadow-lg transition-shadow cursor-pointer',
-                isSelected && 'ring-2 ring-teal-500',
+                isSelected && 'ring-2 ring-brand-navy-500',
                 !hasCoords && 'opacity-60'
               )}
                 onClick={() => {
@@ -267,7 +267,7 @@ export default function MapSection({
                     </div>
                     <div className="flex items-center gap-1.5">
                       {hasCoords && (
-                        <MapPin className="h-3 w-3 text-teal-500" />
+                        <MapPin className="h-3 w-3 text-brand-navy-500" />
                       )}
                       <Badge variant="outline" className={cn('text-[10px]', getStatusBg(project.status))}>
                         {getStatusLabel(project.status, language)}
@@ -309,7 +309,7 @@ export default function MapSection({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: idx * 0.05 }}
           >
-            <Card className={cn('border-slate-200 dark:border-slate-700/50 hover:shadow-lg transition-shadow cursor-pointer', selectedProject?.id === project.id && 'ring-2 ring-teal-500')}
+            <Card className={cn('border-slate-200 dark:border-slate-700/50 hover:shadow-lg transition-shadow cursor-pointer', selectedProject?.id === project.id && 'ring-2 ring-brand-navy-500')}
               onClick={() => setSelectedProject(selectedProject?.id === project.id ? null : project)}>
               <CardContent className="p-4">
                 <div className="flex items-start justify-between mb-3">

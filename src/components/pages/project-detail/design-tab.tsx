@@ -56,14 +56,14 @@ export default function DesignTab({ project, language, activeSubTab, onSubTabCha
       <div className="space-y-4">
         {/* Approval Chain — shown on all design sub-tabs */}
         <Card className="border-slate-200 dark:border-slate-700/50 overflow-hidden">
-          <CardHeader className="pb-3"><CardTitle className="text-sm font-semibold flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-teal-500" />{t("سلسلة الاعتماد", "Approval Chain")}</CardTitle></CardHeader>
+          <CardHeader className="pb-3"><CardTitle className="text-sm font-semibold flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-brand-navy-500" />{t("سلسلة الاعتماد", "Approval Chain")}</CardTitle></CardHeader>
           <CardContent>
             <div className="flex items-center justify-center gap-2 flex-wrap">
               {APPROVAL_CHAIN.map((step, idx) => (
                 <React.Fragment key={step.key}>
                   <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
-                    <div className="w-8 h-8 rounded-full bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-                      <UserCheck className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                    <div className="w-8 h-8 rounded-full bg-brand-navy-100 dark:bg-brand-navy-900/30 flex items-center justify-center">
+                      <UserCheck className="h-4 w-4 text-brand-navy-600 dark:text-brand-navy-400" />
                     </div>
                     <span className="text-xs font-medium text-slate-700 dark:text-slate-300">{isAr ? step.labelAr : step.labelEn}</span>
                   </div>
@@ -80,7 +80,7 @@ export default function DesignTab({ project, language, activeSubTab, onSubTabCha
         <Card className="border-slate-200 dark:border-slate-700/50">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <PenTool className="h-4 w-4 text-teal-500" />
+              <PenTool className="h-4 w-4 text-brand-navy-500" />
               {t("جدول خطوات التخصصات", "Discipline Steps Table")}
             </CardTitle>
           </CardHeader>
@@ -159,7 +159,7 @@ export default function DesignTab({ project, language, activeSubTab, onSubTabCha
                             </td>
                             <td className="p-2.5 text-slate-400">{step.date || "—"}</td>
                             <td className="p-2.5">
-                              <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-slate-400 hover:text-teal-600" aria-label="Upload">
+                              <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-slate-400 hover:text-brand-navy-600" aria-label="Upload">
                                 <Upload className="h-3.5 w-3.5" />
                               </Button>
                             </td>
@@ -198,7 +198,7 @@ export default function DesignTab({ project, language, activeSubTab, onSubTabCha
             </Card>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
               <StatCard label={t("الإنجاز", "Progress")} value={`${Math.round(project.stages?.filter((s) => s.department === "ARCHITECTURAL" && s.status === "APPROVED").length / Math.max(project.stages?.filter((s) => s.department === "ARCHITECTURAL").length, 1) * 100 || 0)}%`} icon={TrendingUp} color="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400" />
-              <StatCard label={t("مكتمل", "Completed")} value={`${project.stages?.filter((s) => s.department === "ARCHITECTURAL" && s.status === "APPROVED").length || 0}/${project.stages?.filter((s) => s.department === "ARCHITECTURAL").length || 0}`} icon={CheckCircle2} color="bg-teal-100 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400" />
+              <StatCard label={t("مكتمل", "Completed")} value={`${project.stages?.filter((s) => s.department === "ARCHITECTURAL" && s.status === "APPROVED").length || 0}/${project.stages?.filter((s) => s.department === "ARCHITECTURAL").length || 0}`} icon={CheckCircle2} color="bg-brand-navy-100 dark:bg-brand-navy-900/30 text-brand-navy-600 dark:text-brand-navy-400" />
               <StatCard label={t("قيد التنفيذ", "In Progress")} value={project.stages?.filter((s) => s.department === "ARCHITECTURAL" && s.status === "IN_PROGRESS").length || 0} icon={Clock} color="bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400" />
               <StatCard label={t("عدد الرفوض", "Rejections")} value={0} icon={XCircle} color="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400" />
             </div>
@@ -224,7 +224,7 @@ export default function DesignTab({ project, language, activeSubTab, onSubTabCha
             </Card>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
               <StatCard label={t("الإنجاز", "Progress")} value={`${Math.round(project.stages?.filter((s) => s.department === "STRUCTURAL" && s.status === "APPROVED").length / Math.max(project.stages?.filter((s) => s.department === "STRUCTURAL").length, 1) * 100 || 0)}%`} icon={TrendingUp} color="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400" />
-              <StatCard label={t("مكتمل", "Completed")} value={`${project.stages?.filter((s) => s.department === "STRUCTURAL" && s.status === "APPROVED").length || 0}/${project.stages?.filter((s) => s.department === "STRUCTURAL").length || 0}`} icon={CheckCircle2} color="bg-teal-100 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400" />
+              <StatCard label={t("مكتمل", "Completed")} value={`${project.stages?.filter((s) => s.department === "STRUCTURAL" && s.status === "APPROVED").length || 0}/${project.stages?.filter((s) => s.department === "STRUCTURAL").length || 0}`} icon={CheckCircle2} color="bg-brand-navy-100 dark:bg-brand-navy-900/30 text-brand-navy-600 dark:text-brand-navy-400" />
               <StatCard label={t("قيد التنفيذ", "In Progress")} value={project.stages?.filter((s) => s.department === "STRUCTURAL" && s.status === "IN_PROGRESS").length || 0} icon={Clock} color="bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400" />
               <StatCard label={t("عدد الرفوض", "Rejections")} value={0} icon={XCircle} color="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400" />
             </div>
@@ -250,7 +250,7 @@ export default function DesignTab({ project, language, activeSubTab, onSubTabCha
             </Card>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
               <StatCard label={t("الإنجاز", "Progress")} value={`${Math.round(project.stages?.filter((s) => (s.department === "mep_electrical" || s.department === "mep_plumbing" || s.department === "mep_water") && s.status === "APPROVED").length / Math.max(project.stages?.filter((s) => s.department === "mep_electrical" || s.department === "mep_plumbing" || s.department === "mep_water").length, 1) * 100 || 0)}%`} icon={TrendingUp} color="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400" />
-              <StatCard label={t("مكتمل", "Completed")} value={`${project.stages?.filter((s) => (s.department === "mep_electrical" || s.department === "mep_plumbing" || s.department === "mep_water") && s.status === "APPROVED").length || 0}/${project.stages?.filter((s) => s.department === "mep_electrical" || s.department === "mep_plumbing" || s.department === "mep_water").length || 0}`} icon={CheckCircle2} color="bg-teal-100 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400" />
+              <StatCard label={t("مكتمل", "Completed")} value={`${project.stages?.filter((s) => (s.department === "mep_electrical" || s.department === "mep_plumbing" || s.department === "mep_water") && s.status === "APPROVED").length || 0}/${project.stages?.filter((s) => s.department === "mep_electrical" || s.department === "mep_plumbing" || s.department === "mep_water").length || 0}`} icon={CheckCircle2} color="bg-brand-navy-100 dark:bg-brand-navy-900/30 text-brand-navy-600 dark:text-brand-navy-400" />
               <StatCard label={t("قيد التنفيذ", "In Progress")} value={project.stages?.filter((s) => (s.department === "mep_electrical" || s.department === "mep_plumbing" || s.department === "mep_water") && s.status === "IN_PROGRESS").length || 0} icon={Clock} color="bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400" />
               <StatCard label={t("عدد الرفوض", "Rejections")} value={0} icon={XCircle} color="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400" />
             </div>
@@ -276,7 +276,7 @@ export default function DesignTab({ project, language, activeSubTab, onSubTabCha
             </Card>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
               <StatCard label={t("الإنجاز", "Progress")} value={`${Math.round(project.stages?.filter((s) => s.department === "mep_civil_defense" && s.status === "APPROVED").length / Math.max(project.stages?.filter((s) => s.department === "mep_civil_defense").length, 1) * 100 || 0)}%`} icon={TrendingUp} color="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400" />
-              <StatCard label={t("مكتمل", "Completed")} value={`${project.stages?.filter((s) => s.department === "mep_civil_defense" && s.status === "APPROVED").length || 0}/${project.stages?.filter((s) => s.department === "mep_civil_defense").length || 0}`} icon={CheckCircle2} color="bg-teal-100 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400" />
+              <StatCard label={t("مكتمل", "Completed")} value={`${project.stages?.filter((s) => s.department === "mep_civil_defense" && s.status === "APPROVED").length || 0}/${project.stages?.filter((s) => s.department === "mep_civil_defense").length || 0}`} icon={CheckCircle2} color="bg-brand-navy-100 dark:bg-brand-navy-900/30 text-brand-navy-600 dark:text-brand-navy-400" />
               <StatCard label={t("قيد التنفيذ", "In Progress")} value={project.stages?.filter((s) => s.department === "mep_civil_defense" && s.status === "IN_PROGRESS").length || 0} icon={Clock} color="bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400" />
               <StatCard label={t("عدد الرفوض", "Rejections")} value={0} icon={XCircle} color="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400" />
             </div>

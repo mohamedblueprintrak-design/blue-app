@@ -104,7 +104,7 @@ function getTypeLabel(type: string, ar: boolean) {
 
 function getTypeColor(type: string) {
   const colors: Record<string, string> = {
-    SUBMISSION: "bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300",
+    SUBMISSION: "bg-brand-navy-100 text-brand-navy-700 dark:bg-brand-navy-900/40 dark:text-brand-navy-300",
     RESPONSE: "bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300",
     REJECTION: "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300",
     APPROVAL: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300",
@@ -318,7 +318,7 @@ export default function MunicipalityCorrespondencePage({ language, projectId }: 
       {/* ===== HEADER SECTION ===== */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-600 flex items-center justify-center shadow-md shadow-teal-500/20">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-navy-500 to-cyan-600 flex items-center justify-center shadow-md shadow-brand-navy-500/20">
             <Landmark className="h-5 w-5 text-white" />
           </div>
           <div>
@@ -332,7 +332,7 @@ export default function MunicipalityCorrespondencePage({ language, projectId }: 
         </div>
         <Button
           onClick={() => { resetFormData(); setShowCreateDialog(true); }}
-          className="gap-2 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white text-sm shadow-md shadow-teal-500/20 border-0 h-9 px-4"
+          className="gap-2 bg-gradient-to-r from-brand-navy-600 to-cyan-600 hover:from-brand-navy-700 hover:to-cyan-700 text-white text-sm shadow-md shadow-brand-navy-500/20 border-0 h-9 px-4"
         >
           <Plus className="h-4 w-4" />
           {tAuto('auto.newCorrespondence')}
@@ -485,7 +485,7 @@ export default function MunicipalityCorrespondencePage({ language, projectId }: 
                       <TableRow
                         key={record.id}
                         className={cn(
-                          "border-slate-100 dark:border-slate-800/50 hover:bg-teal-50/30 dark:hover:bg-teal-900/10 transition-colors cursor-pointer",
+                          "border-slate-100 dark:border-slate-800/50 hover:bg-brand-navy-50/30 dark:hover:bg-brand-navy-900/10 transition-colors cursor-pointer",
                           idx % 2 === 1 && "bg-slate-50/50 dark:bg-slate-800/20"
                         )}
                         onClick={() => { setSelectedRecord(record); setShowDetailPanel(true); }}
@@ -508,7 +508,7 @@ export default function MunicipalityCorrespondencePage({ language, projectId }: 
                         </TableCell>
                         <TableCell className="text-center">
                           <div className="flex items-center justify-center gap-1">
-                            <Button variant="ghost" size="icon" className="h-7 w-7 text-slate-400 hover:text-teal-600 dark:hover:text-teal-400" onClick={(e) => { e.stopPropagation(); openEditDialog(record); }} aria-label="Edit">
+                            <Button variant="ghost" size="icon" className="h-7 w-7 text-slate-400 hover:text-brand-navy-600 dark:hover:text-brand-navy-400" onClick={(e) => { e.stopPropagation(); openEditDialog(record); }} aria-label="Edit">
                               <Edit className="w-3.5 h-3.5" />
                             </Button>
                             <Button variant="ghost" size="icon" className="h-7 w-7 text-slate-400 hover:text-red-600 dark:hover:text-red-400" onClick={(e) => { e.stopPropagation(); setSelectedRecord(record); setShowDeleteDialog(true); }} aria-label="Delete">
@@ -697,7 +697,7 @@ export default function MunicipalityCorrespondencePage({ language, projectId }: 
                 }
               }}
               disabled={(!formData.subject || !formData.correspondenceType) || createMutation.isPending || updateMutation.isPending}
-              className="bg-teal-600 hover:bg-teal-700 text-white border-0 text-xs"
+              className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white border-0 text-xs"
             >
               {(createMutation.isPending || updateMutation.isPending) ? <Loader2 className="w-4 h-4 me-1 animate-spin" /> : <Save className="w-4 h-4 me-1" />}
               {tAuto('auto.save')}

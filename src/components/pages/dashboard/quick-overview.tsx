@@ -24,7 +24,7 @@ export function QuickOverview({ stats, overdueTasksCount, invoices, upcomingTask
     <div className="overflow-x-auto -mx-1 px-1 pb-1">
       <div className="flex gap-3 min-w-max">
         {[
-          { icon: FolderKanban, count: stats.activeProjects, label: tAuto('auto.activeProjects'), bg: "bg-teal-50 dark:bg-teal-950/30", iconBg: "bg-teal-100 dark:bg-teal-900/50", iconColor: "text-teal-600 dark:text-teal-400" },
+          { icon: FolderKanban, count: stats.activeProjects, label: tAuto('auto.activeProjects'), bg: "bg-brand-navy-50 dark:bg-brand-navy-950/30", iconBg: "bg-brand-navy-100 dark:bg-brand-navy-900/50", iconColor: "text-brand-navy-600 dark:text-brand-navy-400" },
           { icon: AlertTriangle, count: overdueTasksCount, label: tAuto('auto.overdueTasks'), bg: "bg-red-50 dark:bg-red-950/20", iconBg: "bg-red-100 dark:bg-red-900/50", iconColor: "text-red-600 dark:text-red-400" },
           { icon: Receipt, count: invoices.outstandingCount, label: tAuto('auto.pendingInvoices'), bg: "bg-amber-50 dark:bg-amber-950/20", iconBg: "bg-amber-100 dark:bg-amber-900/50", iconColor: "text-amber-600 dark:text-amber-400" },
           { icon: Calendar, count: upcomingTasks.length, label: tAuto('auto.upcomingMeetings'), bg: "bg-sky-50 dark:bg-sky-950/20", iconBg: "bg-sky-100 dark:bg-sky-900/50", iconColor: "text-sky-600 dark:text-sky-400" },

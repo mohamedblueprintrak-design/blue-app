@@ -124,7 +124,7 @@ export function AddBidDialog({
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => { onOpenChange(false); onFormDataChange(emptyForm); }}>{tAuto('auto.cancel')}</Button>
-          <Button className="bg-teal-600 hover:bg-teal-700 text-white rounded-lg" onClick={onSubmit} disabled={!formData.projectId || !formData.contractorName || isPending}>
+          <Button className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white rounded-lg" onClick={onSubmit} disabled={!formData.projectId || !formData.contractorName || isPending}>
             {isPending ? (tAuto('auto.saving')) : (tAuto('auto.save'))}
           </Button>
         </DialogFooter>

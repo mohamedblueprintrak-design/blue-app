@@ -16,6 +16,7 @@ import {
   ArrowUpRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 // ===== Types =====
 interface CategoryComparison {
@@ -74,7 +75,7 @@ function getCategoryLabel(category: string, isAr: boolean): string {
   return category.charAt(0).toUpperCase() + category.slice(1).replace(/_/g, " ");
 }
 
-function getStatusConfig(status: string, isAr: boolean) {
+function getStatusConfig(status: string) {
   switch (status) {
     case "on_track":
       return {
@@ -82,7 +83,7 @@ function getStatusConfig(status: string, isAr: boolean) {
         bg: "bg-emerald-100 dark:bg-emerald-900/30",
         border: "border-emerald-200 dark:border-emerald-800/40",
         progressColor: "bg-emerald-500",
-        label: isAr ? "على المسار" : "On Track",
+        labelKey: "auto.budgetStatusOnTrack",
         icon: CheckCircle2,
       };
     case "at_risk":
@@ -91,7 +92,7 @@ function getStatusConfig(status: string, isAr: boolean) {
         bg: "bg-amber-100 dark:bg-amber-900/30",
         border: "border-amber-200 dark:border-amber-800/40",
         progressColor: "bg-amber-500",
-        label: isAr ? "في خطر" : "At Risk",
+        labelKey: "auto.budgetStatusAtRisk",
         icon: AlertTriangle,
       };
     case "over_budget":
@@ -100,7 +101,7 @@ function getStatusConfig(status: string, isAr: boolean) {
         bg: "bg-red-100 dark:bg-red-900/30",
         border: "border-red-200 dark:border-red-800/40",
         progressColor: "bg-red-500",
-        label: isAr ? "تجاوز الميزانية" : "Over Budget",
+        labelKey: "auto.budgetStatusOverBudget",
         icon: TrendingDown,
       };
     default:
@@ -109,7 +110,7 @@ function getStatusConfig(status: string, isAr: boolean) {
         bg: "bg-slate-100 dark:bg-slate-800",
         border: "border-slate-200 dark:border-slate-700",
         progressColor: "bg-slate-400",
-        label: status,
+        labelKey: "",
         icon: CheckCircle2,
       };
   }
@@ -128,6 +129,7 @@ interface BudgetComparisonTabProps {
 export default function BudgetComparisonTab({ projectId, language }: BudgetComparisonTabProps) {
   const isAr = language === "ar";
   const t = (ar: string, en: string) => (isAr ? ar : en);
+  const tAuto = useTranslations();
 
   const { data: comparison, isLoading } = useQuery<BudgetComparisonData>({
     queryKey: ["budget-comparison", projectId],
@@ -180,8 +182,8 @@ export default function BudgetComparisonTab({ projectId, language }: BudgetCompa
         <Card className="border-slate-200 dark:border-slate-700/50">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-                <Wallet className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+              <div className="w-10 h-10 rounded-xl bg-brand-navy-100 dark:bg-brand-navy-900/30 flex items-center justify-center">
+                <Wallet className="h-5 w-5 text-brand-navy-600 dark:text-brand-navy-400" />
               </div>
               <div>
                 <p className="text-xs text-slate-500 dark:text-slate-400">{t("إجمالي الميزانية", "Total Budget")}</p>
@@ -293,14 +295,14 @@ export default function BudgetComparisonTab({ projectId, language }: BudgetCompa
       <Card className="border-slate-200 dark:border-slate-700/50">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-semibold flex items-center gap-2">
-            <Wallet className="h-4 w-4 text-teal-500" />
+            <Wallet className="h-4 w-4 text-brand-navy-500" />
             {t("تفصيل الميزانية حسب الفئة", "Budget Breakdown by Category")}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             {comparison.categories.map((cat) => {
-              const statusConf = getStatusConfig(cat.status, isAr);
+              const statusConf = getStatusConfig(cat.status);
               const StatusIcon = statusConf.icon;
               const pct = cat.budgeted > 0 ? Math.min(Math.round((cat.spent / cat.budgeted) * 100), 100) : 0;
 
@@ -313,7 +315,7 @@ export default function BudgetComparisonTab({ projectId, language }: BudgetCompa
                       </span>
                       <Badge variant="outline" className={cn("text-[10px] h-5 border-0 px-2", statusConf.bg, statusConf.color)}>
                         <StatusIcon className="h-3 w-3 me-1" />
-                        {statusConf.label}
+                        {statusConf.labelKey ? tAuto(statusConf.labelKey) : status}
                       </Badge>
                     </div>
                     <div className="flex items-center gap-3 text-xs tabular-nums">
@@ -356,7 +358,7 @@ export default function BudgetComparisonTab({ projectId, language }: BudgetCompa
         <Card className="border-slate-200 dark:border-slate-700/50">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-teal-500" />
+              <TrendingUp className="h-4 w-4 text-brand-navy-500" />
               {t("الميزانية مقابل الفعلي - شهرياً", "Budget vs Actual — Monthly")}
             </CardTitle>
           </CardHeader>
@@ -372,7 +374,7 @@ export default function BudgetComparisonTab({ projectId, language }: BudgetCompa
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-mono text-slate-500 dark:text-slate-400">{m.month}</span>
                       <div className="flex items-center gap-3 text-[10px] tabular-nums">
-                        <span className="text-teal-600 dark:text-teal-400">
+                        <span className="text-brand-navy-600 dark:text-brand-navy-400">
                           {t("مخطط", "Plan")}: {formatCurrency(m.budgeted)}
                         </span>
                         <span className={isOver ? "text-red-600 dark:text-red-400" : "text-slate-700 dark:text-slate-300"}>
@@ -382,7 +384,7 @@ export default function BudgetComparisonTab({ projectId, language }: BudgetCompa
                     </div>
                     <div className="space-y-1">
                       <div className="w-full h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
-                        <div className="h-full rounded-full bg-teal-400/60 transition-all duration-500" style={{ width: `${budgetPct}%` }} />
+                        <div className="h-full rounded-full bg-brand-navy-400/60 transition-all duration-500" style={{ width: `${budgetPct}%` }} />
                       </div>
                       <div className="w-full h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
                         <div
@@ -399,7 +401,7 @@ export default function BudgetComparisonTab({ projectId, language }: BudgetCompa
             {/* Legend */}
             <div className="flex items-center gap-4 mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
               <div className="flex items-center gap-1.5">
-                <div className="w-3 h-3 rounded-sm bg-teal-400/60" />
+                <div className="w-3 h-3 rounded-sm bg-brand-navy-400/60" />
                 <span className="text-[10px] text-slate-500 dark:text-slate-400">{t("المخطط", "Budgeted")}</span>
               </div>
               <div className="flex items-center gap-1.5">

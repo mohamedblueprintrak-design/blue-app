@@ -142,9 +142,24 @@ const httpServer = createServer(async (req, res) => {
     try {
       // Auth check
       const authHeader = req.headers['authorization'];
-      const internalSecret = process.env.INTERNAL_API_SECRET || process.env.JWT_SECRET;
+      // SECURITY: INTERNAL_API_SECRET is required INDEPENDENTLY of JWT_SECRET.
+      const internalSecret = process.env.INTERNAL_API_SECRET;
       
-      if (!internalSecret || authHeader !== `Bearer ${internalSecret}`) {
+      if (!internalSecret) {
+        res.writeHead(503, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Broadcast API not configured (INTERNAL_API_SECRET missing)' }));
+        return;
+      }
+      
+      // timingSafeEqual would be ideal here, but this is a raw http server
+      // (not Next.js). We use a constant-time-ish comparison via Buffer.equals
+      // on equal-length strings to mitigate timing attacks.
+      const expected = `Bearer ${internalSecret}`;
+      const authOk = authHeader && typeof authHeader === 'string'
+        && authHeader.length === expected.length
+        && Buffer.from(authHeader).equals(Buffer.from(expected));
+      
+      if (!authOk) {
         res.writeHead(401, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ error: 'Unauthorized' }));
         return;

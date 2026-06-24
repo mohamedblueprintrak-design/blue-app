@@ -197,7 +197,7 @@ export function InvoiceFormDialog({
                 <TableBody>
                   {formData.items.map((item, idx) => (
                     <TableRow key={idx} className={cn(
-                      "transition-colors hover:bg-teal-50/50 dark:hover:bg-teal-950/10",
+                      "transition-colors hover:bg-brand-navy-50/50 dark:hover:bg-brand-navy-950/10",
                       idx % 2 === 0
                         ? "bg-white dark:bg-slate-900"
                         : "bg-slate-50/50 dark:bg-slate-800/20"
@@ -208,7 +208,7 @@ export function InvoiceFormDialog({
                             "w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-bold shrink-0",
                             idx % 2 === 0
                               ? "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
-                              : "bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300"
+                              : "bg-brand-navy-100 text-brand-navy-700 dark:bg-brand-navy-900/40 dark:text-brand-navy-300"
                           )}>
                             {idx + 1}
                           </span>
@@ -244,7 +244,7 @@ export function InvoiceFormDialog({
               <div className="border-t border-slate-200 dark:border-slate-700 pt-2.5">
                 <div className="flex justify-between text-base font-bold">
                   <span>{tAuto('auto.total')}</span>
-                  <span className="text-teal-600 dark:text-teal-400 tabular-nums font-mono">{formatCurrencyMulti(calcTotal, formData.currency || "AED", ar ? "ar" : "en")}</span>
+                  <span className="text-brand-navy-600 dark:text-brand-navy-400 tabular-nums font-mono">{formatCurrencyMulti(calcTotal, formData.currency || "AED", ar ? "ar" : "en")}</span>
                 </div>
               </div>
               {calcTotal > 0 && (
@@ -260,7 +260,7 @@ export function InvoiceFormDialog({
 
         <DialogFooter>
           <Button type="button" variant="outline" onClick={onClose}>{tAuto('auto.cancel')}</Button>
-          <Button type="submit" className="bg-teal-600 hover:bg-teal-700 text-white" disabled={isSaving}>
+          <Button type="submit" className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white" disabled={isSaving}>
             {isSaving ? (tAuto('auto.saving')) : (tAuto('auto.save'))}
           </Button>
         </DialogFooter>

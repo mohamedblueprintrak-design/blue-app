@@ -25,10 +25,10 @@ export function DeptWorkload({ departmentProgress, stats, activeTasksCount, over
   return (
     <Card className="rounded-xl border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900 hover:shadow-md transition-shadow">
       <CardHeader className="pb-3 border-b border-slate-100 dark:border-slate-800/50 relative">
-        <div className="absolute top-0 start-0 end-0 h-[3px] rounded-t-xl bg-gradient-to-l from-teal-500 to-teal-400" />
+        <div className="absolute top-0 start-0 end-0 h-[3px] rounded-t-xl bg-gradient-to-l from-brand-navy-500 to-brand-navy-400" />
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-teal-500 to-cyan-600 flex items-center justify-center shadow-md">
+            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-brand-navy-500 to-cyan-600 flex items-center justify-center shadow-md">
               <Briefcase className="h-4 w-4 text-white" />
             </div>
             <div>
@@ -45,7 +45,7 @@ export function DeptWorkload({ departmentProgress, stats, activeTasksCount, over
       <CardContent className="pt-4">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           {[
-            { key: "arch", labelAr: "القسم المعماري", labelEn: "Architecture", icon: Building, color: "from-teal-500 to-teal-600", bg: "bg-teal-50 dark:bg-teal-950/20", total: departmentProgress.find(d => d.key === "ARCHITECTURAL")?.total || 0, completed: departmentProgress.find(d => d.key === "ARCHITECTURAL")?.completed || 0, progress: departmentProgress.find(d => d.key === "ARCHITECTURAL")?.progress || 0 },
+            { key: "arch", labelAr: "القسم المعماري", labelEn: "Architecture", icon: Building, color: "from-brand-navy-500 to-brand-navy-600", bg: "bg-brand-navy-50 dark:bg-brand-navy-950/20", total: departmentProgress.find(d => d.key === "ARCHITECTURAL")?.total || 0, completed: departmentProgress.find(d => d.key === "ARCHITECTURAL")?.completed || 0, progress: departmentProgress.find(d => d.key === "ARCHITECTURAL")?.progress || 0 },
             { key: "struct", labelAr: "القسم الإنشائي", labelEn: "Structural", icon: Wrench, color: "from-amber-500 to-amber-600", bg: "bg-amber-50 dark:bg-amber-950/20", total: departmentProgress.find(d => d.key === "STRUCTURAL")?.total || 0, completed: departmentProgress.find(d => d.key === "STRUCTURAL")?.completed || 0, progress: departmentProgress.find(d => d.key === "STRUCTURAL")?.progress || 0 },
             { key: "MEP", labelAr: "الكهروميكانيك", labelEn: "MEP", icon: Zap, color: "from-violet-500 to-violet-600", bg: "bg-violet-50 dark:bg-violet-950/20", total: departmentProgress.find(d => d.key === "MEP")?.total || 0, completed: departmentProgress.find(d => d.key === "MEP")?.completed || 0, progress: departmentProgress.find(d => d.key === "MEP")?.progress || 0 },
             { key: "pm", labelAr: "إدارة المشاريع", labelEn: "Project Mgmt", icon: FolderKanban, color: "from-blue-500 to-blue-600", bg: "bg-blue-50 dark:bg-blue-950/20", total: stats.activeProjects, completed: stats.completedProjects, progress: stats.totalProjects > 0 ? Math.round((stats.completedProjects / stats.totalProjects) * 100) : 0 },

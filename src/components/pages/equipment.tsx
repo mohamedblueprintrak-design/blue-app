@@ -323,7 +323,7 @@ export default function EquipmentPage({ language }: EquipmentPageProps) {
           )}
           <Button
             size="sm"
-            className="h-8 bg-teal-600 hover:bg-teal-700 text-white"
+            className="h-8 bg-brand-navy-600 hover:bg-brand-navy-700 text-white"
             onClick={() => { setFormData(emptyForm); setShowAddDialog(true); }}
           >
             <Plus className="h-3.5 w-3.5 me-1" />
@@ -450,8 +450,8 @@ export default function EquipmentPage({ language }: EquipmentPageProps) {
                         </div>
                       ) : <span />}
                       <div className="flex items-center gap-1">
-                        <DollarSign className="h-3 w-3 text-teal-500" />
-                        <span className="text-xs font-semibold text-teal-700 dark:text-teal-400 tabular-nums font-mono">
+                        <DollarSign className="h-3 w-3 text-brand-navy-500" />
+                        <span className="text-xs font-semibold text-brand-navy-700 dark:text-brand-navy-400 tabular-nums font-mono">
                           {formatCurrency(equip.dailyRate, ar)}
                           <span className="text-[10px] text-slate-400 font-normal ms-0.5">/{tAuto('auto.day1')}</span>
                         </span>
@@ -621,7 +621,7 @@ export default function EquipmentPage({ language }: EquipmentPageProps) {
               {tAuto('auto.cancel')}
             </Button>
             <Button
-              className="bg-teal-600 hover:bg-teal-700 text-white"
+              className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white"
               onClick={handleSave}
               disabled={!formData.name || createMutation.isPending || updateMutation.isPending}
             >

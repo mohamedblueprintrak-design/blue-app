@@ -42,7 +42,7 @@ export function BulkActionBar({
     <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 animate-fade-in">
       <div className="flex items-center gap-2 bg-slate-900 dark:bg-slate-800 border border-slate-700 dark:border-slate-600 rounded-full px-3 py-2 shadow-xl">
         <div className="flex items-center gap-1.5 bg-white/10 rounded-full px-2.5 py-1">
-          <CheckCheck className="h-3.5 w-3.5 text-teal-400" />
+          <CheckCheck className="h-3.5 w-3.5 text-brand-navy-400" />
           <span className="text-xs font-bold text-white tabular-nums">{selectedCount}</span>
         </div>
 

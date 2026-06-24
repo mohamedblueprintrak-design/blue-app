@@ -178,7 +178,7 @@ export function SecurityTab({
                 }
               }}
               disabled={passwordSaving}
-              className="bg-teal-600 hover:bg-teal-700 text-white h-10 rounded-lg shadow-sm shadow-teal-500/20"
+              className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white h-10 rounded-lg shadow-sm shadow-brand-navy-500/20"
             >
               {passwordSaving ? (
                 <span className="flex items-center gap-2">

@@ -32,7 +32,7 @@ export function ProjectHeader({
   return (
     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center shadow-md shadow-teal-500/20">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-navy-500 to-cyan-500 flex items-center justify-center shadow-md shadow-brand-navy-500/20">
           <Building2 className="h-5 w-5 text-white" />
         </div>
         <div>
@@ -49,11 +49,11 @@ export function ProjectHeader({
           <Button
             variant="outline"
             onClick={onShowCompare}
-            className="text-teal-600 dark:text-teal-400 border-teal-300 dark:border-teal-700 gap-2 hover:bg-teal-50 dark:hover:bg-teal-950/30"
+            className="text-brand-navy-600 dark:text-brand-navy-400 border-brand-navy-300 dark:border-brand-navy-700 gap-2 hover:bg-brand-navy-50 dark:hover:bg-brand-navy-950/30"
           >
             <GitCompareArrows className="h-4 w-4" />
             {t("مقارنة", "Compare")}
-            <Badge className="bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400 border-0 text-[10px] h-5 min-w-[20px] px-1 justify-center rounded-full">
+            <Badge className="bg-brand-navy-100 text-brand-navy-700 dark:bg-brand-navy-900/30 dark:text-brand-navy-400 border-0 text-[10px] h-5 min-w-[20px] px-1 justify-center rounded-full">
               {selectedIdsSize}
             </Badge>
           </Button>
@@ -100,7 +100,7 @@ export function ProjectHeader({
         </Button>
         <Button
           onClick={onShowAddDialog}
-          className="bg-teal-600 hover:bg-teal-700 text-white gap-2"
+          className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white gap-2"
         >
           <Plus className="h-4 w-4" />
           {t("مشروع جديد", "New Project")}

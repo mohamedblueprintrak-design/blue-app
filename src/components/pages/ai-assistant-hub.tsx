@@ -138,7 +138,7 @@ const knowledgeArticles: KnowledgeArticle[] = [
 
 // ===== Category Helpers =====
 const categoryConfig: Record<string, { ar: string; en: string; color: string; icon: React.ElementType }> = {
-  projects: { ar: "المشاريع", en: "Projects", color: "bg-teal-100 text-teal-700 dark:bg-teal-900/50 dark:text-teal-300", icon: FolderOpen },
+  projects: { ar: "المشاريع", en: "Projects", color: "bg-brand-navy-100 text-brand-navy-700 dark:bg-brand-navy-900/50 dark:text-brand-navy-300", icon: FolderOpen },
   contractors: { ar: "المقاولون", en: "Contractors", color: "bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300", icon: TrendingUp },
   DESIGN: { ar: "التصميم", en: "Design", color: "bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300", icon: Sparkles },
   clients: { ar: "العملاء", en: "Clients", color: "bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300", icon: User },
@@ -258,7 +258,7 @@ export default function AIAssistantHub({ language }: AIAssistantHubProps) {
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-teal-500/20">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-navy-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-brand-navy-500/20">
           <Sparkles className="h-5 w-5 text-white" />
         </div>
         <div>
@@ -275,7 +275,7 @@ export default function AIAssistantHub({ language }: AIAssistantHubProps) {
       <Tabs defaultValue="chat" dir={ar ? "rtl" : "ltr"}>
         <TabsList className="grid w-full grid-cols-3 h-11 bg-slate-100 dark:bg-slate-800 rounded-xl p-1">
           <TabsTrigger value="chat" className="gap-2 rounded-lg text-sm font-medium data-[state=active]:bg-white data-[state=active]:dark:bg-slate-900 data-[state=active]:shadow-sm">
-            <Bot className="h-4 w-4 text-teal-500" />
+            <Bot className="h-4 w-4 text-brand-navy-500" />
             {tAuto('auto.aIChat')}
           </TabsTrigger>
           <TabsTrigger value="knowledge" className="gap-2 rounded-lg text-sm font-medium data-[state=active]:bg-white data-[state=active]:dark:bg-slate-900 data-[state=active]:shadow-sm">
@@ -299,7 +299,7 @@ export default function AIAssistantHub({ language }: AIAssistantHubProps) {
                     <div className={cn(
                       "w-8 h-8 rounded-full flex items-center justify-center shrink-0",
                       msg.role === "assistant"
-                        ? "bg-gradient-to-br from-teal-500 to-cyan-500"
+                        ? "bg-gradient-to-br from-brand-navy-500 to-cyan-500"
                         : "bg-slate-200 dark:bg-slate-700"
                     )}>
                       {msg.role === "assistant" ? (
@@ -312,16 +312,16 @@ export default function AIAssistantHub({ language }: AIAssistantHubProps) {
                       "max-w-[75%] rounded-2xl px-4 py-3",
                       msg.role === "assistant"
                         ? "bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700"
-                        : "bg-teal-600 text-white"
+                        : "bg-brand-navy-600 text-white"
                     )}>
                       {msg.content ? (
                       <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
                       ) : isTyping && msg.role === "assistant" ? (
-                      <span className="inline-block w-1.5 h-4 bg-teal-500 animate-pulse rounded-sm align-text-bottom" />
+                      <span className="inline-block w-1.5 h-4 bg-brand-navy-500 animate-pulse rounded-sm align-text-bottom" />
                       ) : null}
                       <p className={cn(
                         "text-[10px] mt-1.5",
-                        msg.role === "assistant" ? "text-slate-400" : "text-teal-200"
+                        msg.role === "assistant" ? "text-slate-400" : "text-brand-navy-200"
                       )}>
                         {msg.timestamp.toLocaleTimeString(ar ? "ar-AE" : "en-US", { hour: "2-digit", minute: "2-digit" })}
                       </p>
@@ -333,7 +333,7 @@ export default function AIAssistantHub({ language }: AIAssistantHubProps) {
                   if (lastMsg && lastMsg.role === "assistant" && lastMsg.content.length > 0) return null;
                   return (
                   <div className="flex gap-3">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-navy-500 to-cyan-500 flex items-center justify-center shrink-0">
                       <Sparkles className="h-4 w-4 text-white" />
                     </div>
                     <div className="bg-slate-50 dark:bg-slate-800 rounded-2xl px-4 py-3 border border-slate-100 dark:border-slate-700">
@@ -358,7 +358,7 @@ export default function AIAssistantHub({ language }: AIAssistantHubProps) {
                     <button
                       key={suggestion}
                       onClick={() => handleSend(suggestion)}
-                      className="text-xs px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-teal-50 hover:text-teal-700 hover:border-teal-200 dark:hover:bg-teal-950 dark:hover:text-teal-400 dark:hover:border-teal-800 transition-colors"
+                      className="text-xs px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-brand-navy-50 hover:text-brand-navy-700 hover:border-brand-navy-200 dark:hover:bg-brand-navy-950 dark:hover:text-brand-navy-400 dark:hover:border-brand-navy-800 transition-colors"
                     >
                       {suggestion}
                     </button>
@@ -380,7 +380,7 @@ export default function AIAssistantHub({ language }: AIAssistantHubProps) {
                 <Button
                   onClick={() => handleSend()}
                   disabled={!inputValue.trim() || isTyping}
-                  className="h-10 w-10 rounded-xl bg-teal-600 hover:bg-teal-700 text-white p-0 shrink-0"
+                  className="h-10 w-10 rounded-xl bg-brand-navy-600 hover:bg-brand-navy-700 text-white p-0 shrink-0"
                 >
                   <Send className="h-4 w-4" />
                 </Button>
@@ -430,10 +430,10 @@ export default function AIAssistantHub({ language }: AIAssistantHubProps) {
                 </div>
               </Card>
               <Card className="py-0 gap-0 border-0 shadow-sm overflow-hidden">
-                <div className="bg-gradient-to-br from-teal-500 to-cyan-500 p-3">
+                <div className="bg-gradient-to-br from-brand-navy-500 to-cyan-500 p-3">
                   <div className="flex items-center gap-2">
                     <FolderOpen className="h-4 w-4 text-white/80" />
-                    <span className="text-xs text-teal-100">{tAuto('auto.categories')}</span>
+                    <span className="text-xs text-brand-navy-100">{tAuto('auto.categories')}</span>
                   </div>
                   <div className="text-lg font-bold text-white mt-1">{Object.keys(categoryConfig).length}</div>
                 </div>
@@ -504,7 +504,7 @@ export default function AIAssistantHub({ language }: AIAssistantHubProps) {
                 onClick={() => setFaqFilter("all")}
                 className={cn(
                   "text-xs px-3 py-1.5 rounded-full transition-colors",
-                  faqFilter === "all" ? "bg-teal-600 text-white" : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700"
+                  faqFilter === "all" ? "bg-brand-navy-600 text-white" : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700"
                 )}
               >
                 {tAuto('auto.all')}
@@ -515,7 +515,7 @@ export default function AIAssistantHub({ language }: AIAssistantHubProps) {
                   onClick={() => setFaqFilter(key)}
                   className={cn(
                     "text-xs px-3 py-1.5 rounded-full transition-colors",
-                    faqFilter === key ? "bg-teal-600 text-white" : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700"
+                    faqFilter === key ? "bg-brand-navy-600 text-white" : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700"
                   )}
                 >
                   {ar ? cat.ar : cat.en}
@@ -554,11 +554,11 @@ export default function AIAssistantHub({ language }: AIAssistantHubProps) {
             </div>
 
             {/* Contact Support */}
-            <Card className="border-teal-200 dark:border-teal-800/50 bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-950/30 dark:to-cyan-950/30">
+            <Card className="border-brand-navy-200 dark:border-brand-navy-800/50 bg-gradient-to-br from-brand-navy-50 to-cyan-50 dark:from-brand-navy-950/30 dark:to-cyan-950/30">
               <CardContent className="p-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-teal-100 dark:bg-teal-900/50 flex items-center justify-center">
-                    <MessageSquare className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+                  <div className="w-10 h-10 rounded-xl bg-brand-navy-100 dark:bg-brand-navy-900/50 flex items-center justify-center">
+                    <MessageSquare className="h-5 w-5 text-brand-navy-600 dark:text-brand-navy-400" />
                   </div>
                   <div>
                     <h3 className="text-sm font-semibold text-slate-900 dark:text-white">{tAuto('auto.needMoreHelp')}</h3>

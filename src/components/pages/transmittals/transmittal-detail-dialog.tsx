@@ -62,7 +62,7 @@ export function TransmittalDetailDialog({
             <>
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
-                  <Send className="h-5 w-5 text-teal-500" />
+                  <Send className="h-5 w-5 text-brand-navy-500" />
                   {tAuto('auto.transmittalDetails')}
                 </DialogTitle>
                 <DialogDescription>

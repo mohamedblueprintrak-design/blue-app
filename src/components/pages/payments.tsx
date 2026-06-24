@@ -123,7 +123,7 @@ function PaymentTimeline({ payments, ar }: { payments: PaymentItem[]; ar: boolea
             <div key={m.key} className="flex-1 flex flex-col items-center gap-1">
               <div className="w-full relative group">
                 <div
-                  className="w-full rounded-t-md bg-gradient-to-t from-teal-600 to-teal-400 transition-all duration-500 min-h-[4px]"
+                  className="w-full rounded-t-md bg-gradient-to-t from-brand-navy-600 to-brand-navy-400 transition-all duration-500 min-h-[4px]"
                   style={{ height: `${height}%` }}
                 />
                 {m.amount > 0 && (
@@ -256,8 +256,8 @@ export default function PaymentsPage({ language, projectId }: PaymentsPageProps)
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-lg bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-            <Wallet className="h-4.5 w-4.5 text-teal-600 dark:text-teal-400" />
+          <div className="w-9 h-9 rounded-lg bg-brand-navy-100 dark:bg-brand-navy-900/30 flex items-center justify-center">
+            <Wallet className="h-4.5 w-4.5 text-brand-navy-600 dark:text-brand-navy-400" />
           </div>
           <div>
             <h2 className="text-lg font-bold text-slate-900 dark:text-white">{tAuto('auto.payments')}</h2>
@@ -281,7 +281,7 @@ export default function PaymentsPage({ language, projectId }: PaymentsPageProps)
               <SelectItem value="CANCELLED">{tAuto('auto.cancelled')}</SelectItem>
             </SelectContent>
           </Select>
-          <Button size="sm" className="h-8 bg-teal-600 hover:bg-teal-700 text-white rounded-lg shadow-sm shadow-teal-600/20" onClick={() => { setFormData(emptyForm); setShowDialog(true); }}>
+          <Button size="sm" className="h-8 bg-brand-navy-600 hover:bg-brand-navy-700 text-white rounded-lg shadow-sm shadow-brand-navy-600/20" onClick={() => { setFormData(emptyForm); setShowDialog(true); }}>
             <Plus className="h-3.5 w-3.5 me-1" />{tAuto('auto.newPayment')}
           </Button>
         </div>
@@ -291,10 +291,10 @@ export default function PaymentsPage({ language, projectId }: PaymentsPageProps)
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {/* Total Payments */}
         <Card className="py-0 gap-0 border-0 shadow-sm overflow-hidden">
-          <div className="bg-gradient-to-br from-teal-500 to-cyan-600 dark:from-teal-600 dark:to-cyan-700 p-4">
+          <div className="bg-gradient-to-br from-brand-navy-500 to-cyan-600 dark:from-brand-navy-600 dark:to-cyan-700 p-4">
             <div className="flex items-center gap-2 mb-2">
               <div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm"><Wallet className="h-3.5 w-3.5 text-white" /></div>
-              <span className="text-xs text-teal-100">{tAuto('auto.totalPayments')}</span>
+              <span className="text-xs text-brand-navy-100">{tAuto('auto.totalPayments')}</span>
             </div>
             <div className="text-xl font-bold text-white font-mono tabular-nums">{formatCurrency(totalAmount, ar)}</div>
             <p className="text-[10px] text-white/60 mt-1">{filtered.length} {tAuto('auto.payments1')}</p>
@@ -493,7 +493,7 @@ export default function PaymentsPage({ language, projectId }: PaymentsPageProps)
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => { setShowDialog(false); setFormData(emptyForm); }}>{tAuto('auto.cancel')}</Button>
-            <Button className="bg-teal-600 hover:bg-teal-700 text-white" onClick={() => createMutation.mutate(formData)} disabled={!formData.amount || createMutation.isPending}>
+            <Button className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white" onClick={() => createMutation.mutate(formData)} disabled={!formData.amount || createMutation.isPending}>
               {createMutation.isPending ? (tAuto('auto.saving')) : (tAuto('auto.save'))}
             </Button>
           </DialogFooter>

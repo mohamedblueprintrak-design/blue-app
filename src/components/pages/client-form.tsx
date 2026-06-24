@@ -305,7 +305,7 @@ export default function ClientFormDialog({ open, onOpenChange, editClient, onSav
                       {watchField("idPhoto") ? (
                         <div className="w-16 h-16 rounded-xl border-2 border-slate-200 dark:border-slate-700 overflow-hidden bg-slate-100 dark:bg-slate-800">
                           <div className="w-full h-full flex items-center justify-center">
-                            <FileText className="h-6 w-6 text-teal-500" />
+                            <FileText className="h-6 w-6 text-brand-navy-500" />
                           </div>
                         </div>
                       ) : (
@@ -501,7 +501,7 @@ export default function ClientFormDialog({ open, onOpenChange, editClient, onSav
                         className={cn(
                           "flex items-center gap-2 px-3 py-2.5 rounded-lg border cursor-pointer transition-colors",
                           formServices.includes(service.value)
-                            ? "border-teal-300 bg-teal-50 dark:border-teal-700 dark:bg-teal-950/30"
+                            ? "border-brand-navy-300 bg-brand-navy-50 dark:border-brand-navy-700 dark:bg-brand-navy-950/30"
                             : "border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50"
                         )}
                         onClick={() => toggleService(service.value)}
@@ -535,7 +535,7 @@ export default function ClientFormDialog({ open, onOpenChange, editClient, onSav
                         className={cn(
                           "flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition-colors",
                           formProjectType === pt.value
-                            ? "border-teal-300 bg-teal-50 dark:border-teal-700 dark:bg-teal-950/30"
+                            ? "border-brand-navy-300 bg-brand-navy-50 dark:border-brand-navy-700 dark:bg-brand-navy-950/30"
                             : "border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50"
                         )}
                       >
@@ -557,7 +557,7 @@ export default function ClientFormDialog({ open, onOpenChange, editClient, onSav
                     {...registerExtra("notes")}
                     placeholder={tAuto('auto.describeWhatTheClientNeeds')}
                     rows={4}
-                    className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 resize-none"
+                    className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-navy-500/20 focus:border-brand-navy-500 resize-none"
                   />
                 </div>
 
@@ -588,7 +588,7 @@ export default function ClientFormDialog({ open, onOpenChange, editClient, onSav
                     {...register("serviceNotes")}
                     placeholder={tAuto('auto.describeInDetail')}
                     rows={2}
-                    className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 resize-none"
+                    className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-navy-500/20 focus:border-brand-navy-500 resize-none"
                   />
                 </div>
               </TabsContent>
@@ -651,7 +651,7 @@ export default function ClientFormDialog({ open, onOpenChange, editClient, onSav
                         ].map((doc) => (
                           <div
                             key={doc.key}
-                            className="flex items-center gap-2 px-3 py-2 rounded-lg border border-dashed border-slate-300 dark:border-slate-600 hover:border-teal-400 dark:hover:border-teal-600 transition-colors cursor-pointer"
+                            className="flex items-center gap-2 px-3 py-2 rounded-lg border border-dashed border-slate-300 dark:border-slate-600 hover:border-brand-navy-400 dark:hover:border-brand-navy-600 transition-colors cursor-pointer"
                             onClick={() => {
                               const input = document.createElement("input");
                               input.type = "file";
@@ -715,7 +715,7 @@ export default function ClientFormDialog({ open, onOpenChange, editClient, onSav
                           className={cn(
                             "flex items-center gap-3 px-3 py-3 rounded-lg border cursor-pointer transition-colors",
                             formReferralSource === source.value
-                              ? "border-teal-300 bg-teal-50 dark:border-teal-700 dark:bg-teal-950/30"
+                              ? "border-brand-navy-300 bg-brand-navy-50 dark:border-brand-navy-700 dark:bg-brand-navy-950/30"
                               : "border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50"
                           )}
                         >
@@ -762,7 +762,7 @@ export default function ClientFormDialog({ open, onOpenChange, editClient, onSav
             </Button>
             <Button
               type="submit"
-              className="bg-teal-600 hover:bg-teal-700 text-white"
+              className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white"
               disabled={isSaving}
             >
               {isSaving

@@ -148,7 +148,7 @@ export default function BidsPage({ language, projectId }: BidsPageProps) {
           </div>
         </div>
         <div className="flex items-center gap-2 w-full sm:w-auto sm:ms-auto">
-          <Button size="sm" className="h-8 bg-teal-600 hover:bg-teal-700 text-white rounded-lg shadow-sm shadow-teal-600/20" onClick={() => { setFormData(emptyForm); setShowDialog(true); }}>
+          <Button size="sm" className="h-8 bg-brand-navy-600 hover:bg-brand-navy-700 text-white rounded-lg shadow-sm shadow-brand-navy-600/20" onClick={() => { setFormData(emptyForm); setShowDialog(true); }}>
             <Plus className="h-3.5 w-3.5 me-1" />{tAuto('auto.newBid')}
           </Button>
         </div>
@@ -170,7 +170,7 @@ export default function BidsPage({ language, projectId }: BidsPageProps) {
             value="bids"
             className={cn(
               "text-xs rounded-md px-4 py-2 transition-all",
-              activeTab === "bids" && "bg-white dark:bg-slate-900 shadow-sm text-teal-600 dark:text-teal-400"
+              activeTab === "bids" && "bg-white dark:bg-slate-900 shadow-sm text-brand-navy-600 dark:text-brand-navy-400"
             )}
           >
             <Gavel className="h-3.5 w-3.5 me-1.5" />
@@ -180,7 +180,7 @@ export default function BidsPage({ language, projectId }: BidsPageProps) {
             value="contractors"
             className={cn(
               "text-xs rounded-md px-4 py-2 transition-all",
-              activeTab === "contractors" && "bg-white dark:bg-slate-900 shadow-sm text-teal-600 dark:text-teal-400"
+              activeTab === "contractors" && "bg-white dark:bg-slate-900 shadow-sm text-brand-navy-600 dark:text-brand-navy-400"
             )}
           >
             <Users className="h-3.5 w-3.5 me-1.5" />
@@ -190,7 +190,7 @@ export default function BidsPage({ language, projectId }: BidsPageProps) {
             value="matrix"
             className={cn(
               "text-xs rounded-md px-4 py-2 transition-all",
-              activeTab === "matrix" && "bg-white dark:bg-slate-900 shadow-sm text-teal-600 dark:text-teal-400"
+              activeTab === "matrix" && "bg-white dark:bg-slate-900 shadow-sm text-brand-navy-600 dark:text-brand-navy-400"
             )}
           >
             <BarChart3 className="h-3.5 w-3.5 me-1.5" />

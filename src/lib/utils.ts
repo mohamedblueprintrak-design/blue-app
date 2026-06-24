@@ -6,7 +6,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export const avatarColors = [
-  "bg-teal-500",
+  "bg-brand-navy-500",
   "bg-amber-500",
   "bg-violet-500",
   "bg-rose-500",

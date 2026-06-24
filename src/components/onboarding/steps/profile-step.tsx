@@ -43,8 +43,8 @@ export default function ProfileStep({ data, onChange, onNext, onBack, onSkip }: 
   return (
     <div className="flex flex-col items-center px-4 sm:px-8 py-6">
       <div className="text-center mb-6">
-        <div className="w-12 h-12 rounded-full bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center mx-auto mb-3">
-          <User className="h-6 w-6 text-teal-600 dark:text-teal-400" />
+        <div className="w-12 h-12 rounded-full bg-brand-navy-100 dark:bg-brand-navy-900/30 flex items-center justify-center mx-auto mb-3">
+          <User className="h-6 w-6 text-brand-navy-600 dark:text-brand-navy-400" />
         </div>
         <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-1">
           {t("إعداد الملف الشخصي", "Set Up Your Profile")}
@@ -58,15 +58,15 @@ export default function ProfileStep({ data, onChange, onNext, onBack, onSkip }: 
         {/* Avatar */}
         <div className="flex flex-col items-center gap-2">
           <div className="relative">
-            <Avatar className="h-20 w-20 ring-4 ring-teal-100 dark:ring-teal-900/40">
+            <Avatar className="h-20 w-20 ring-4 ring-brand-navy-100 dark:ring-brand-navy-900/40">
               <AvatarImage src={displayAvatar} alt={displayName} />
-              <AvatarFallback className="bg-teal-100 dark:bg-teal-900 text-teal-700 dark:text-teal-300 text-2xl font-bold">
+              <AvatarFallback className="bg-brand-navy-100 dark:bg-brand-navy-900 text-brand-navy-700 dark:text-brand-navy-300 text-2xl font-bold">
                 {initials}
               </AvatarFallback>
             </Avatar>
             <button
               onClick={handleAvatarChange}
-              className="absolute -bottom-1 -end-1 w-8 h-8 rounded-full bg-teal-500 hover:bg-teal-600 text-white flex items-center justify-center shadow-md transition-colors"
+              className="absolute -bottom-1 -end-1 w-8 h-8 rounded-full bg-brand-navy-500 hover:bg-brand-navy-600 text-white flex items-center justify-center shadow-md transition-colors"
               aria-label={t("تغيير الصورة", "Change avatar")}
             >
               <Camera className="h-4 w-4" />
@@ -121,7 +121,7 @@ export default function ProfileStep({ data, onChange, onNext, onBack, onSkip }: 
         <Button
           onClick={onNext}
           disabled={!canContinue}
-          className="w-full h-11 bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white font-semibold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full h-11 bg-gradient-to-r from-brand-navy-500 to-cyan-600 hover:from-brand-navy-600 hover:to-cyan-700 text-white font-semibold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
           aria-label={t("التالي", "Next")}
         >
           {t("التالي", "Next")}

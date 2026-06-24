@@ -29,12 +29,12 @@ export function SupervisionStats({
   const tAuto = useTranslations();
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-      <Card className="p-4 bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-950/20 dark:to-cyan-950/20 border-teal-100 dark:border-teal-900/30">
+      <Card className="p-4 bg-gradient-to-br from-brand-navy-50 to-cyan-50 dark:from-brand-navy-950/20 dark:to-cyan-950/20 border-brand-navy-100 dark:border-brand-navy-900/30">
         <div className="flex items-center gap-2 mb-2">
-          <ClipboardCheck className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+          <ClipboardCheck className="h-4 w-4 text-brand-navy-600 dark:text-brand-navy-400" />
           <span className="text-[11px] font-medium text-slate-600 dark:text-slate-400">{tAuto('auto.totalVisits')}</span>
         </div>
-        <div className="text-2xl font-bold text-teal-700 dark:text-teal-300">{totalVisits}</div>
+        <div className="text-2xl font-bold text-brand-navy-700 dark:text-brand-navy-300">{totalVisits}</div>
       </Card>
       <Card className="p-4 bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-950/20 dark:to-orange-950/20 border-red-100 dark:border-red-900/30">
         <div className="flex items-center gap-2 mb-2">

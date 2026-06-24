@@ -34,7 +34,7 @@ export function RiskMatrix({ ar, risks, onSelectRisk }: RiskMatrixProps) {
   return (
     <Card className="p-4 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700/50">
       <div className="flex items-center gap-2 mb-3">
-        <ShieldAlert className="h-4 w-4 text-teal-500" />
+        <ShieldAlert className="h-4 w-4 text-brand-navy-500" />
         <h3 className="text-sm font-bold text-slate-900 dark:text-white">
           {tAuto('auto.riskMatrix')}
         </h3>

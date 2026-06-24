@@ -79,10 +79,10 @@ export function GanttTimeline({
             className={cn(
               "flex-shrink-0 w-10 h-8 flex flex-col items-center justify-center text-[10px] border-e border-slate-100 dark:border-slate-800/30 last:border-e-0",
               (header.dayOfWeek === 5 || header.dayOfWeek === 6) && "bg-slate-50/80 dark:bg-slate-800/20",
-              header.isToday && "bg-teal-50 dark:bg-teal-900/20"
+              header.isToday && "bg-brand-navy-50 dark:bg-brand-navy-900/20"
             )}
           >
-            <span className={cn(header.isToday ? "text-teal-600 dark:text-teal-400 font-bold" : "text-slate-400 dark:text-slate-500")}>
+            <span className={cn(header.isToday ? "text-brand-navy-600 dark:text-brand-navy-400 font-bold" : "text-slate-400 dark:text-slate-500")}>
               {header.label}
             </span>
           </div>
@@ -93,8 +93,8 @@ export function GanttTimeline({
       <div className="relative">
         {/* Today Line */}
         {todayPosition !== null && (
-          <div className="absolute top-0 bottom-0 w-0.5 bg-teal-500 z-10 pointer-events-none" style={{ left: `${todayPosition}%` }}>
-            <div className="absolute -top-5 -translate-x-1/2 bg-teal-500 text-white text-[9px] px-1.5 py-0.5 rounded whitespace-nowrap shadow-sm">
+          <div className="absolute top-0 bottom-0 w-0.5 bg-brand-navy-500 z-10 pointer-events-none" style={{ left: `${todayPosition}%` }}>
+            <div className="absolute -top-5 -translate-x-1/2 bg-brand-navy-500 text-white text-[9px] px-1.5 py-0.5 rounded whitespace-nowrap shadow-sm">
               {tAuto('auto.today')}
             </div>
           </div>
@@ -119,7 +119,7 @@ export function GanttTimeline({
                 <div
                   className={cn(
                     "absolute top-1.5 h-8 rounded-lg flex items-center group shadow-sm",
-                    isBeingDragged && "ring-2 ring-teal-400 ring-opacity-50"
+                    isBeingDragged && "ring-2 ring-brand-navy-400 ring-opacity-50"
                   )}
                   style={{
                     left: position.left,

@@ -52,10 +52,10 @@ export function ContractorSummaryCards({ ar, contractors }: ContractorSummaryCar
         </div>
       </Card>
       <Card className="py-0 gap-0 border-0 shadow-sm overflow-hidden">
-        <div className="bg-gradient-to-br from-teal-500 to-teal-600 dark:from-teal-600 dark:to-teal-700 p-4">
+        <div className="bg-gradient-to-br from-brand-navy-500 to-brand-navy-600 dark:from-brand-navy-600 dark:to-brand-navy-700 p-4">
           <div className="flex items-center gap-2 mb-2">
             <div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm"><Gavel className="h-3.5 w-3.5 text-white" /></div>
-            <span className="text-xs text-teal-100">{tAuto('auto.totalBids')}</span>
+            <span className="text-xs text-brand-navy-100">{tAuto('auto.totalBids')}</span>
           </div>
           <div className="text-xl font-bold text-white tabular-nums">{totalBids}</div>
         </div>

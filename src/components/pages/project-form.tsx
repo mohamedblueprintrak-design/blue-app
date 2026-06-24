@@ -201,7 +201,7 @@ export default function ProjectFormDialog({
           <Button
             type="submit"
             disabled={isPending}
-            className="bg-teal-600 hover:bg-teal-700 text-white"
+            className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white"
           >
             {isPending
               ? t("جارٍ الحفظ...", "Saving...")

@@ -277,7 +277,7 @@ export default function GuaranteeLettersPage({ language, projectId }: GuaranteeL
           </div>
         </div>
         <div className="flex items-center gap-2 w-full sm:w-auto sm:ms-auto">
-          <Button size="sm" className="h-8 bg-teal-600 hover:bg-teal-700 text-white rounded-lg shadow-sm shadow-teal-600/20" onClick={() => { setFormData(emptyForm); setEditItem(null); setShowDialog(true); }}>
+          <Button size="sm" className="h-8 bg-brand-navy-600 hover:bg-brand-navy-700 text-white rounded-lg shadow-sm shadow-brand-navy-600/20" onClick={() => { setFormData(emptyForm); setEditItem(null); setShowDialog(true); }}>
             <Plus className="h-3.5 w-3.5 me-1" />{tAuto('auto.newGuarantee')}
           </Button>
         </div>
@@ -403,7 +403,7 @@ export default function GuaranteeLettersPage({ language, projectId }: GuaranteeL
                       item.type === "PERFORMANCE" ? "bg-violet-100 text-violet-700 dark:bg-violet-900/50 dark:text-violet-300" :
                       item.type === "ADVANCE_PAYMENT" ? "bg-sky-100 text-sky-700 dark:bg-sky-900/50 dark:text-sky-300" :
                       item.type === "RETENTION" ? "bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300" :
-                      "bg-teal-100 text-teal-700 dark:bg-teal-900/50 dark:text-teal-300"
+                      "bg-brand-navy-100 text-brand-navy-700 dark:bg-brand-navy-900/50 dark:text-brand-navy-300"
                     )}>
                       {getTypeLabel(item.type, ar)}
                     </span>
@@ -529,7 +529,7 @@ export default function GuaranteeLettersPage({ language, projectId }: GuaranteeL
           </div>
           <DialogFooter>
             <Button variant="outline" className="rounded-lg" onClick={() => { setShowDialog(false); setEditItem(null); setFormData(emptyForm); }}>{tAuto('auto.cancel')}</Button>
-            <Button className="bg-teal-600 hover:bg-teal-700 text-white rounded-lg" disabled={createMutation.isPending || updateMutation.isPending} onClick={handleSave}>
+            <Button className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white rounded-lg" disabled={createMutation.isPending || updateMutation.isPending} onClick={handleSave}>
               {(createMutation.isPending || updateMutation.isPending) ? (tAuto('auto.saving')) : (tAuto('auto.save'))}
             </Button>
           </DialogFooter>

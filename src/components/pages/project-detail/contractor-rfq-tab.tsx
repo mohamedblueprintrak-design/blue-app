@@ -146,12 +146,12 @@ export default function ContractorRFQTab({ projectId, language }: { projectId: s
                     className={cn(
                       "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all",
                       (rfqSubTabs.findIndex(s => s.id === activeSub) >= idx || st.id === activeSub)
-                        ? "bg-teal-500 text-white" : "bg-slate-200 dark:bg-slate-700 text-slate-400"
+                        ? "bg-brand-navy-500 text-white" : "bg-slate-200 dark:bg-slate-700 text-slate-400"
                     )}>
                     {rfqSubTabs.findIndex(s => s.id === activeSub) > idx ? <CheckCircle2 className="h-3.5 w-3.5" /> : idx + 1}
                   </button>
                   {idx < rfqSubTabs.length - 1 && (
-                    <div className={cn("flex-1 h-1 rounded", rfqSubTabs.findIndex(s => s.id === activeSub) > idx ? "bg-teal-400" : "bg-slate-200 dark:bg-slate-700")} />
+                    <div className={cn("flex-1 h-1 rounded", rfqSubTabs.findIndex(s => s.id === activeSub) > idx ? "bg-brand-navy-400" : "bg-slate-200 dark:bg-slate-700")} />
                   )}
                 </React.Fragment>
               ))}
@@ -160,7 +160,7 @@ export default function ContractorRFQTab({ projectId, language }: { projectId: s
           <div className="flex items-center justify-center gap-1 text-xs">
             {rfqSubTabs.map((st) => (
               <button key={st.id} onClick={() => setActiveSub(st.id)}
-                className={cn("px-2 py-1 rounded transition-all", activeSub === st.id ? "text-teal-600 font-semibold" : "text-slate-400 hover:text-slate-600")}>
+                className={cn("px-2 py-1 rounded transition-all", activeSub === st.id ? "text-brand-navy-600 font-semibold" : "text-slate-400 hover:text-slate-600")}>
                 {isAr ? st.labelAr : st.labelEn}
               </button>
             ))}
@@ -173,9 +173,9 @@ export default function ContractorRFQTab({ projectId, language }: { projectId: s
         <Card className="border-slate-200 dark:border-slate-700/50">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <Users className="h-4 w-4 text-teal-500" />
+              <Users className="h-4 w-4 text-brand-navy-500" />
               {t("اختيار المقاولين", "Select Contractors")}
-              <Badge className="bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400 text-[10px] border-0 ms-2">
+              <Badge className="bg-brand-navy-100 text-brand-navy-700 dark:bg-brand-navy-900/30 dark:text-brand-navy-400 text-[10px] border-0 ms-2">
                 {selectedContractors.length} {t("محدد", "selected")}
               </Badge>
             </CardTitle>
@@ -186,7 +186,7 @@ export default function ContractorRFQTab({ projectId, language }: { projectId: s
                 <label key={c.id} className={cn(
                   "flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all",
                   selectedContractors.includes(c.id)
-                    ? "bg-teal-50 dark:bg-teal-950/20 border-teal-300 dark:border-teal-800"
+                    ? "bg-brand-navy-50 dark:bg-brand-navy-950/20 border-brand-navy-300 dark:border-brand-navy-800"
                     : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-slate-300"
                 )}>
                   <input type="checkbox" checked={selectedContractors.includes(c.id)}
@@ -211,7 +211,7 @@ export default function ContractorRFQTab({ projectId, language }: { projectId: s
             </div>
             <div className="mt-4 flex justify-center">
               <Button onClick={() => rfqMutation.mutate()} disabled={selectedContractors.length === 0 || rfqMutation.isPending}
-                className="h-10 px-6 bg-teal-600 hover:bg-teal-700 text-white rounded-xl gap-2 shadow-lg shadow-teal-600/20">
+                className="h-10 px-6 bg-brand-navy-600 hover:bg-brand-navy-700 text-white rounded-xl gap-2 shadow-lg shadow-brand-navy-600/20">
                 <Send className="h-4 w-4" />
                 {rfqMutation.isPending ? t("جارٍ الإرسال...", "Sending...") : t("إرسال طلب عرض سعر", "Send RFQ")}
               </Button>

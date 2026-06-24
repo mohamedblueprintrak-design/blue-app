@@ -39,7 +39,7 @@ export default function DocsPage() {
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950">
       {/* Header */}
-      <div className="sticky top-0 z-50 bg-gradient-to-r from-teal-600 to-cyan-600 text-white px-6 py-3 shadow-lg">
+      <div className="sticky top-0 z-50 bg-gradient-to-r from-brand-navy-600 to-cyan-600 text-white px-6 py-3 shadow-lg">
         <div className="flex items-center justify-between max-w-7xl mx-auto">
           <div className="flex items-center gap-3">
             <svg
@@ -57,12 +57,12 @@ export default function DocsPage() {
             </svg>
             <div>
               <h1 className="text-lg font-bold tracking-tight">BluePrint ERP API Docs</h1>
-              <p className="text-teal-100 text-xs">Interactive API Documentation</p>
+              <p className="text-brand-navy-100 text-xs">Interactive API Documentation</p>
             </div>
           </div>
           <Link
             href="/"
-            className="text-sm text-teal-100 hover:text-white transition-colors flex items-center gap-1"
+            className="text-sm text-brand-navy-100 hover:text-white transition-colors flex items-center gap-1"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -76,7 +76,7 @@ export default function DocsPage() {
       {loading && (
         <div className="flex items-center justify-center py-20">
           <div className="text-center">
-            <div className="inline-block animate-spin rounded-full h-10 w-10 border-b-2 border-teal-600 mb-4" />
+            <div className="inline-block animate-spin rounded-full h-10 w-10 border-b-2 border-brand-navy-600 mb-4" />
             <p className="text-slate-500 dark:text-slate-400">Loading API documentation...</p>
           </div>
         </div>

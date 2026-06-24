@@ -104,7 +104,7 @@ function groupByDate(entries: SiteDiaryItem[]) {
 function getEntryTypeIcon(hasWork: boolean, hasIssues: boolean, hasSafety: boolean, hasEquipment: boolean, hasMaterials: boolean) {
   if (hasIssues) return { icon: AlertCircle, color: "text-red-500 bg-red-50 dark:bg-red-900/20" };
   if (hasSafety) return { icon: ShieldCheck, color: "text-amber-500 bg-amber-50 dark:bg-amber-900/20" };
-  if (hasWork) return { icon: HardHat, color: "text-teal-600 bg-teal-50 dark:bg-teal-900/20" };
+  if (hasWork) return { icon: HardHat, color: "text-brand-navy-600 bg-brand-navy-50 dark:bg-brand-navy-900/20" };
   if (hasEquipment) return { icon: Wrench, color: "text-blue-500 bg-blue-50 dark:bg-blue-900/20" };
   if (hasMaterials) return { icon: Package, color: "text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20" };
   return { icon: FileText, color: "text-slate-500 bg-slate-50 dark:bg-slate-800/50" };
@@ -198,8 +198,8 @@ export default function SiteDiary({ language, projectId }: SiteDiaryProps) {
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-lg bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-            <BookOpen className="h-4.5 w-4.5 text-teal-600 dark:text-teal-400" />
+          <div className="w-9 h-9 rounded-lg bg-brand-navy-100 dark:bg-brand-navy-900/30 flex items-center justify-center">
+            <BookOpen className="h-4.5 w-4.5 text-brand-navy-600 dark:text-brand-navy-400" />
           </div>
           <div>
             <h2 className="text-lg font-bold text-slate-900 dark:text-white">{tAuto('auto.siteDiary')}</h2>
@@ -223,7 +223,7 @@ export default function SiteDiary({ language, projectId }: SiteDiaryProps) {
             </SelectContent>
           </Select>
           )}
-          <Button size="sm" className="h-8 bg-teal-600 hover:bg-teal-700 text-white rounded-lg shadow-sm shadow-teal-600/20" onClick={() => setShowAddDialog(true)}>
+          <Button size="sm" className="h-8 bg-brand-navy-600 hover:bg-brand-navy-700 text-white rounded-lg shadow-sm shadow-brand-navy-600/20" onClick={() => setShowAddDialog(true)}>
             <Plus className="h-3.5 w-3.5 me-1" />{tAuto('auto.newEntry')}
           </Button>
         </div>
@@ -243,8 +243,8 @@ export default function SiteDiary({ language, projectId }: SiteDiaryProps) {
             <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-slate-100 to-slate-50 dark:from-slate-800 dark:to-slate-900 flex items-center justify-center border border-slate-200 dark:border-slate-700">
               <BookOpen className="h-9 w-9 text-slate-300 dark:text-slate-600" />
             </div>
-            <div className="absolute -bottom-1 -end-1 w-8 h-8 rounded-xl bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center border-2 border-white dark:border-slate-950">
-              <Plus className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+            <div className="absolute -bottom-1 -end-1 w-8 h-8 rounded-xl bg-brand-navy-100 dark:bg-brand-navy-900/30 flex items-center justify-center border-2 border-white dark:border-slate-950">
+              <Plus className="h-4 w-4 text-brand-navy-600 dark:text-brand-navy-400" />
             </div>
           </div>
           <h3 className="text-base font-semibold text-slate-900 dark:text-white mb-1">{tAuto('auto.noDiaryEntries')}</h3>
@@ -257,7 +257,7 @@ export default function SiteDiary({ language, projectId }: SiteDiaryProps) {
               <span>{tAuto('auto.weather')}</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <HardHat className="h-3.5 w-3.5 text-teal-400" />
+              <HardHat className="h-3.5 w-3.5 text-brand-navy-400" />
               <span>{tAuto('auto.work')}</span>
             </div>
             <div className="flex items-center gap-1.5">
@@ -266,7 +266,7 @@ export default function SiteDiary({ language, projectId }: SiteDiaryProps) {
             </div>
           </div>
           <Button
-            className="bg-teal-600 hover:bg-teal-700 text-white rounded-lg shadow-sm shadow-teal-600/20"
+            className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white rounded-lg shadow-sm shadow-brand-navy-600/20"
             onClick={() => setShowAddDialog(true)}
           >
             <Plus className="h-4 w-4 me-1.5" />
@@ -276,7 +276,7 @@ export default function SiteDiary({ language, projectId }: SiteDiaryProps) {
       ) : (
         <div className="relative space-y-6 max-h-[calc(100vh-220px)] overflow-y-auto pb-4">
           {/* Timeline line */}
-          <div className="absolute start-[27px] top-0 bottom-0 w-0.5 bg-gradient-to-b from-teal-400 via-slate-200 to-slate-200 dark:from-teal-600 dark:via-slate-700 dark:to-slate-700" />
+          <div className="absolute start-[27px] top-0 bottom-0 w-0.5 bg-gradient-to-b from-brand-navy-400 via-slate-200 to-slate-200 dark:from-brand-navy-600 dark:via-slate-700 dark:to-slate-700" />
 
           {sortedDates.map((dateKey, dateIdx) => {
             const entries = grouped[dateKey];
@@ -291,28 +291,28 @@ export default function SiteDiary({ language, projectId }: SiteDiaryProps) {
                 <div className={cn(
                   "absolute start-[19px] top-1.5 w-[18px] h-[18px] rounded-full border-[3px] z-10 flex items-center justify-center",
                   isToday
-                    ? "bg-teal-500 border-white dark:border-slate-950 shadow-md shadow-teal-500/30"
+                    ? "bg-brand-navy-500 border-white dark:border-slate-950 shadow-md shadow-brand-navy-500/30"
                     : "bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600",
                 )}>
                   {isToday && (
-                    <div className="w-2 h-2 rounded-full bg-white dark:bg-teal-900" />
+                    <div className="w-2 h-2 rounded-full bg-white dark:bg-brand-navy-900" />
                   )}
                 </div>
 
                 {/* Date Grouping Header */}
                 <div className={cn(
                   "flex items-center gap-2 mb-3 py-1.5 px-3 -ms-3 rounded-lg",
-                  isToday && "bg-teal-50 dark:bg-teal-900/20",
+                  isToday && "bg-brand-navy-50 dark:bg-brand-navy-900/20",
                   !isToday && dateIdx % 2 === 0 && "bg-slate-50/50 dark:bg-slate-800/20",
                 )}>
                   <span className={cn(
                     "text-sm font-bold",
-                    isToday ? "text-teal-700 dark:text-teal-300" : "text-slate-900 dark:text-white",
+                    isToday ? "text-brand-navy-700 dark:text-brand-navy-300" : "text-slate-900 dark:text-white",
                   )}>
                     {dateObj.toLocaleDateString(ar ? "ar-AE" : "en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
                   </span>
                   {isToday && (
-                    <Badge className="bg-teal-100 text-teal-700 dark:bg-teal-900/50 dark:text-teal-300 text-[10px] h-5 border-0">
+                    <Badge className="bg-brand-navy-100 text-brand-navy-700 dark:bg-brand-navy-900/50 dark:text-brand-navy-300 text-[10px] h-5 border-0">
                       {tAuto('auto.today')}
                     </Badge>
                   )}
@@ -399,8 +399,8 @@ export default function SiteDiary({ language, projectId }: SiteDiaryProps) {
                         {/* Content Grid */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                           {entry.workDescription && (
-                            <div className="rounded-lg p-2.5 border border-teal-100 dark:border-teal-900/30 bg-teal-50/50 dark:bg-teal-950/10">
-                              <div className="flex items-center gap-1 text-[10px] font-semibold text-teal-600 dark:text-teal-400 mb-1.5 uppercase tracking-wide">
+                            <div className="rounded-lg p-2.5 border border-brand-navy-100 dark:border-brand-navy-900/30 bg-brand-navy-50/50 dark:bg-brand-navy-950/10">
+                              <div className="flex items-center gap-1 text-[10px] font-semibold text-brand-navy-600 dark:text-brand-navy-400 mb-1.5 uppercase tracking-wide">
                                 <HardHat className="h-3 w-3" />
                                 {tAuto('auto.workDone')}
                               </div>
@@ -527,7 +527,7 @@ export default function SiteDiary({ language, projectId }: SiteDiaryProps) {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => { setShowAddDialog(false); resetForm(); }}>{tAuto('auto.cancel')}</Button>
-            <Button className="bg-teal-600 hover:bg-teal-700 text-white" onClick={() => createMutation.mutate(formData)} disabled={!formData.projectId || !formData.date || createMutation.isPending}>
+            <Button className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white" onClick={() => createMutation.mutate(formData)} disabled={!formData.projectId || !formData.date || createMutation.isPending}>
               {createMutation.isPending ? (tAuto('auto.creating')) : (tAuto('auto.create'))}
             </Button>
           </DialogFooter>

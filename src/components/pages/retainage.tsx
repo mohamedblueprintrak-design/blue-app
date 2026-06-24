@@ -218,7 +218,7 @@ export default function RetainagePage({ language, projectId }: RetainagePageProp
           </div>
         </div>
         <div className="flex items-center gap-2 w-full sm:w-auto sm:ms-auto">
-          <Button size="sm" className="h-8 bg-teal-600 hover:bg-teal-700 text-white rounded-lg shadow-sm shadow-teal-600/20" onClick={() => { setFormData(emptyForm); setShowAddDialog(true); }}>
+          <Button size="sm" className="h-8 bg-brand-navy-600 hover:bg-brand-navy-700 text-white rounded-lg shadow-sm shadow-brand-navy-600/20" onClick={() => { setFormData(emptyForm); setShowAddDialog(true); }}>
             <Plus className="h-3.5 w-3.5 me-1" />{tAuto('auto.newRetainage')}
           </Button>
         </div>
@@ -325,7 +325,7 @@ export default function RetainagePage({ language, projectId }: RetainagePageProp
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="h-7 text-xs text-teal-600 hover:text-teal-700 hover:bg-teal-50 dark:hover:bg-teal-950/30"
+                        className="h-7 text-xs text-brand-navy-600 hover:text-brand-navy-700 hover:bg-brand-navy-50 dark:hover:bg-brand-navy-950/30"
                         onClick={() => {
                           setShowReleaseDialog(item);
                           setReleaseAmount(String(remaining));
@@ -394,7 +394,7 @@ export default function RetainagePage({ language, projectId }: RetainagePageProp
           </div>
           <DialogFooter>
             <Button variant="outline" className="rounded-lg" onClick={() => setShowAddDialog(false)}>{tAuto('auto.cancel')}</Button>
-            <Button className="bg-teal-600 hover:bg-teal-700 text-white rounded-lg" disabled={createMutation.isPending} onClick={() => createMutation.mutate(formData)}>
+            <Button className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white rounded-lg" disabled={createMutation.isPending} onClick={() => createMutation.mutate(formData)}>
               {createMutation.isPending ? (tAuto('auto.saving')) : (tAuto('auto.save'))}
             </Button>
           </DialogFooter>

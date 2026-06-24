@@ -281,7 +281,7 @@ export function TenderForm({
             {tAuto('auto.cancel')}
           </Button>
           <Button
-            className="bg-teal-600 hover:bg-teal-700 text-white rounded-lg shadow-sm shadow-teal-600/20"
+            className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white rounded-lg shadow-sm shadow-brand-navy-600/20"
             disabled={!formData.title.trim() || isPending}
             onClick={onSave}
           >

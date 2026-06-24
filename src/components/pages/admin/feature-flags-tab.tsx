@@ -185,7 +185,7 @@ export default function FeatureFlagsTab({ isAr }: FeatureFlagsTabProps) {
                 <TableHead>{tAuto('auto.key')}</TableHead>
                 <TableHead>{tAuto('auto.name')}</TableHead>
                 <TableHead className="text-center">{tAuto('auto.enabled')}</TableHead>
-                <TableHead className="text-center">{isAr ? "النسبة" : "%"}</TableHead>
+                <TableHead className="text-center">{tAuto('auto.pct')}</TableHead>
                 <TableHead>{tAuto('auto.targeting')}</TableHead>
                 <TableHead className="w-12"></TableHead>
               </TableRow>

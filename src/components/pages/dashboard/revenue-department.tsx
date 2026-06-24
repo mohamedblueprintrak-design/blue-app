@@ -39,7 +39,7 @@ export function RevenueDepartment({ revenue, departmentProgress, isAr, deptAccen
       <Card className="lg:col-span-2 rounded-xl border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900 hover:shadow-md transition-shadow">
         <CardHeader className="pb-2 border-b border-slate-100 dark:border-slate-800/50 relative">
           {/* Teal accent line */}
-          <div className="absolute top-0 start-0 end-0 h-[3px] rounded-t-xl bg-gradient-to-l from-teal-500 to-teal-400" />
+          <div className="absolute top-0 start-0 end-0 h-[3px] rounded-t-xl bg-gradient-to-l from-brand-navy-500 to-brand-navy-400" />
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="text-base font-semibold text-slate-900 dark:text-white">
@@ -49,7 +49,7 @@ export function RevenueDepartment({ revenue, departmentProgress, isAr, deptAccen
                 {tAuto('auto.totalCollectedPaymentsOverTheLast6Months')}
               </CardDescription>
             </div>
-            <Button variant="ghost" size="sm" className="text-xs text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 hover:bg-teal-50 dark:hover:bg-teal-950/30 gap-1">
+            <Button variant="ghost" size="sm" className="text-xs text-brand-navy-600 dark:text-brand-navy-400 hover:text-brand-navy-700 dark:hover:text-brand-navy-300 hover:bg-brand-navy-50 dark:hover:bg-brand-navy-950/30 gap-1">
               {tAuto('auto.viewMore')}
               <ArrowUpRight className="h-3 w-3" />
             </Button>
@@ -98,7 +98,7 @@ export function RevenueDepartment({ revenue, departmentProgress, isAr, deptAccen
       <Card className="rounded-xl border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900 hover:shadow-md transition-shadow">
         <CardHeader className="pb-2 border-b border-slate-100 dark:border-slate-800/50 relative">
           {/* Teal accent line */}
-          <div className="absolute top-0 start-0 end-0 h-[3px] rounded-t-xl bg-gradient-to-l from-teal-500 to-teal-400" />
+          <div className="absolute top-0 start-0 end-0 h-[3px] rounded-t-xl bg-gradient-to-l from-brand-navy-500 to-brand-navy-400" />
           <CardTitle className="text-base font-semibold text-slate-900 dark:text-white">
             {tAuto('auto.departmentProgress')}
           </CardTitle>
@@ -108,7 +108,7 @@ export function RevenueDepartment({ revenue, departmentProgress, isAr, deptAccen
         </CardHeader>
         <CardContent className="space-y-1 pt-2">
           {departmentProgress.map((dept, idx) => {
-            const accentColor = deptAccents[dept.key] || "bg-teal-500";
+            const accentColor = deptAccents[dept.key] || "bg-brand-navy-500";
             return (
               <div key={dept.key}>
                 <div className="py-4">

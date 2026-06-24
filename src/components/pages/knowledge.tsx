@@ -60,7 +60,7 @@ interface Article {
 // ===== Helpers =====
 function getCategoryConfig(cat: string) {
   const configs: Record<string, { ar: string; en: string; color: string; icon: string; stripColor: string }> = {
-    guide: { ar: "دليل", en: "Guide", color: "bg-teal-100 text-teal-700 dark:bg-teal-900/50 dark:text-teal-300", icon: "📘", stripColor: "bg-teal-500" },
+    guide: { ar: "دليل", en: "Guide", color: "bg-brand-navy-100 text-brand-navy-700 dark:bg-brand-navy-900/50 dark:text-brand-navy-300", icon: "📘", stripColor: "bg-brand-navy-500" },
     faq: { ar: "أسئلة شائعة", en: "FAQ", color: "bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300", icon: "❓", stripColor: "bg-blue-500" },
     policy: { ar: "سياسة", en: "Policy", color: "bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300", icon: "📋", stripColor: "bg-amber-500" },
     template: { ar: "قالب", en: "Template", color: "bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300", icon: "📄", stripColor: "bg-purple-500" },
@@ -69,7 +69,7 @@ function getCategoryConfig(cat: string) {
 }
 
 const avatarColors = [
-  "bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300",
+  "bg-brand-navy-100 dark:bg-brand-navy-900/30 text-brand-navy-700 dark:text-brand-navy-300",
   "bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300",
   "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300",
   "bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300",
@@ -309,7 +309,7 @@ export default function KnowledgePage({ language, projectId }: KnowledgePageProp
                   onClick={() => { setSelectedCategory(cat.value); setSelectedArticle(null); }}
                   className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors text-start ${
                     isActive
-                      ? "bg-teal-50 dark:bg-teal-900/20 text-teal-700 dark:text-teal-300 font-medium"
+                      ? "bg-brand-navy-50 dark:bg-brand-navy-900/20 text-brand-navy-700 dark:text-brand-navy-300 font-medium"
                       : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50"
                   }`}
                 >
@@ -328,7 +328,7 @@ export default function KnowledgePage({ language, projectId }: KnowledgePageProp
         <div className="p-4 pt-0">
           <Button
             size="sm"
-            className="w-full h-8 bg-teal-600 hover:bg-teal-700 text-white"
+            className="w-full h-8 bg-brand-navy-600 hover:bg-brand-navy-700 text-white"
             onClick={() => { setFormData(emptyForm); setEditArticle(null); setShowDialog(true); }}
           >
             <Plus className="h-3.5 w-3.5 me-1" />
@@ -343,8 +343,8 @@ export default function KnowledgePage({ language, projectId }: KnowledgePageProp
         <div className="p-4 pb-0">
           <div className="grid grid-cols-3 gap-3 mb-4">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-                <FileText className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+              <div className="w-8 h-8 rounded-lg bg-brand-navy-100 dark:bg-brand-navy-900/30 flex items-center justify-center">
+                <FileText className="h-4 w-4 text-brand-navy-600 dark:text-brand-navy-400" />
               </div>
               <div>
                 <p className="text-sm font-bold text-slate-900 dark:text-white tabular-nums">{allArticlesQuery.data?.length || 0}</p>
@@ -399,7 +399,7 @@ export default function KnowledgePage({ language, projectId }: KnowledgePageProp
                     {ar ? getCategoryConfig(articleDetail.category).ar : getCategoryConfig(articleDetail.category).en}
                   </Badge>
                   <Button variant="ghost" size="sm" className="h-8 text-xs" onClick={() => openEdit(articleDetail)}>
-                    <Pencil className="h-3.5 w-3.5 me-1 text-teal-600" />
+                    <Pencil className="h-3.5 w-3.5 me-1 text-brand-navy-600" />
                     {tAuto('auto.edit')}
                   </Button>
                   <Button variant="ghost" size="sm" className="h-8 text-xs" onClick={() => setDeleteTarget(articleDetail)}>
@@ -460,13 +460,13 @@ export default function KnowledgePage({ language, projectId }: KnowledgePageProp
                 <div className="flex items-center gap-1">
                   <button
                     onClick={() => setViewMode("grid")}
-                    className={cn("p-1.5 rounded-lg transition-colors", viewMode === "grid" ? "bg-teal-50 dark:bg-teal-900/20 text-teal-600" : "text-slate-400 hover:text-slate-600")}
+                    className={cn("p-1.5 rounded-lg transition-colors", viewMode === "grid" ? "bg-brand-navy-50 dark:bg-brand-navy-900/20 text-brand-navy-600" : "text-slate-400 hover:text-slate-600")}
                   >
                     <LayoutGrid className="h-4 w-4" />
                   </button>
                   <button
                     onClick={() => setViewMode("list")}
-                    className={cn("p-1.5 rounded-lg transition-colors", viewMode === "list" ? "bg-teal-50 dark:bg-teal-900/20 text-teal-600" : "text-slate-400 hover:text-slate-600")}
+                    className={cn("p-1.5 rounded-lg transition-colors", viewMode === "list" ? "bg-brand-navy-50 dark:bg-brand-navy-900/20 text-brand-navy-600" : "text-slate-400 hover:text-slate-600")}
                   >
                     <LayoutList className="h-4 w-4" />
                   </button>
@@ -481,7 +481,7 @@ export default function KnowledgePage({ language, projectId }: KnowledgePageProp
                   return (
                     <Card
                       key={article.id}
-                      className="group hover:shadow-sm transition-all cursor-pointer border-slate-200 dark:border-slate-700/50 hover:border-teal-200 dark:hover:border-teal-800/50 overflow-hidden"
+                      className="group hover:shadow-sm transition-all cursor-pointer border-slate-200 dark:border-slate-700/50 hover:border-brand-navy-200 dark:hover:border-brand-navy-800/50 overflow-hidden"
                       onClick={() => setSelectedArticle(article)}
                     >
                       <CardContent className="p-0">
@@ -493,7 +493,7 @@ export default function KnowledgePage({ language, projectId }: KnowledgePageProp
                                 <Badge variant="secondary" className={`text-[10px] h-5 ${catCfg.color}`}>
                                   {catCfg.icon} {ar ? catCfg.ar : catCfg.en}
                                 </Badge>
-                                <ChevronRight className="h-3.5 w-3.5 text-slate-300 shrink-0 group-hover:text-teal-500 transition-colors ms-auto" />
+                                <ChevronRight className="h-3.5 w-3.5 text-slate-300 shrink-0 group-hover:text-brand-navy-500 transition-colors ms-auto" />
                               </div>
                               <h4 className="text-sm font-semibold text-slate-900 dark:text-white truncate mb-1">{article.title}</h4>
                               <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 mb-3">
@@ -639,7 +639,7 @@ export default function KnowledgePage({ language, projectId }: KnowledgePageProp
                 value={formData.content}
                 onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                 placeholder={tAuto('auto.writeArticleContentHere')}
-                className="w-full min-h-[200px] rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm resize-y focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
+                className="w-full min-h-[200px] rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm resize-y focus:outline-none focus:ring-2 focus:ring-brand-navy-500/20 focus:border-brand-navy-500"
               />
             </div>
             <div className="space-y-1">
@@ -650,7 +650,7 @@ export default function KnowledgePage({ language, projectId }: KnowledgePageProp
 
           <DialogFooter>
             <Button variant="outline" onClick={() => { setShowDialog(false); setEditArticle(null); setFormData(emptyForm); }}>{tAuto('auto.cancel')}</Button>
-            <Button className="bg-teal-600 hover:bg-teal-700 text-white" onClick={handleSave} disabled={!formData.title || createMutation.isPending || updateMutation.isPending}>
+            <Button className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white" onClick={handleSave} disabled={!formData.title || createMutation.isPending || updateMutation.isPending}>
               {(createMutation.isPending || updateMutation.isPending) ? (tAuto('auto.saving')) : (editArticle ? (tAuto('auto.update')) : (tAuto('auto.publish')))}
             </Button>
           </DialogFooter>

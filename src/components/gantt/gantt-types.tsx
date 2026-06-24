@@ -35,7 +35,7 @@ export const STATUS_COLORS: Record<string, string> = {
 };
 
 export const PHASE_CATEGORY_COLORS: Record<string, { bg: string; text: string; bar: string }> = {
-  ARCHITECTURAL: { bg: "bg-teal-500/20", text: "text-teal-400", bar: "#133371" },
+  ARCHITECTURAL: { bg: "bg-brand-navy-500/20", text: "text-brand-navy-400", bar: "#133371" },
   STRUCTURAL: { bg: "bg-amber-500/20", text: "text-amber-400", bar: "#f59e0b" },
   MEP: { bg: "bg-cyan-500/20", text: "text-cyan-400", bar: "#06b6d4" },
   GOVERNMENT: { bg: "bg-violet-500/20", text: "text-violet-400", bar: "#8b5cf6" },

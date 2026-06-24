@@ -38,7 +38,7 @@ export function CommissionFilters({
           <SelectItem value="CANCELLED">{tAuto('auto.cancelled')}</SelectItem>
         </SelectContent>
       </Select>
-      <Button size="sm" className="h-8 bg-teal-600 hover:bg-teal-700 text-white rounded-lg shadow-sm shadow-teal-600/20" onClick={onNew}>
+      <Button size="sm" className="h-8 bg-brand-navy-600 hover:bg-brand-navy-700 text-white rounded-lg shadow-sm shadow-brand-navy-600/20" onClick={onNew}>
         <Plus className="h-3.5 w-3.5 me-1" />{tAuto('auto.newCommission')}
       </Button>
     </div>
@@ -76,7 +76,7 @@ export function ReferralFilters({
           <SelectItem value="EXPIRED">{tAuto('auto.expired')}</SelectItem>
         </SelectContent>
       </Select>
-      <Button size="sm" className="h-8 bg-teal-600 hover:bg-teal-700 text-white rounded-lg shadow-sm shadow-teal-600/20" onClick={onNew}>
+      <Button size="sm" className="h-8 bg-brand-navy-600 hover:bg-brand-navy-700 text-white rounded-lg shadow-sm shadow-brand-navy-600/20" onClick={onNew}>
         <Plus className="h-3.5 w-3.5 me-1" />{tAuto('auto.newReferral')}
       </Button>
     </div>

@@ -54,7 +54,7 @@ export function EmployeeTable({
             return (
               <TableRow
                 key={emp.id}
-                className={`group even:bg-slate-50/50 dark:even:bg-slate-800/20 cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50 ${selectedEmployee?.id === emp.id ? "bg-teal-50/50 dark:bg-teal-950/20" : ""}`}
+                className={`group even:bg-slate-50/50 dark:even:bg-slate-800/20 cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50 ${selectedEmployee?.id === emp.id ? "bg-brand-navy-50/50 dark:bg-brand-navy-950/20" : ""}`}
                 onClick={() => onSelectEmployee(emp)}
               >
                 <TableCell>

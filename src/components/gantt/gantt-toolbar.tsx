@@ -43,7 +43,7 @@ export function GanttToolbar({
               className={cn(
                 "flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors",
                 mobileView === "list"
-                  ? "bg-teal-600 text-white shadow-sm"
+                  ? "bg-brand-navy-600 text-white shadow-sm"
                   : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
               )}
               aria-label={tAuto('auto.listView')}
@@ -56,7 +56,7 @@ export function GanttToolbar({
               className={cn(
                 "flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors",
                 mobileView === "gantt"
-                  ? "bg-teal-600 text-white shadow-sm"
+                  ? "bg-brand-navy-600 text-white shadow-sm"
                   : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
               )}
               aria-label={tAuto('auto.ganttView')}
@@ -73,7 +73,7 @@ export function GanttToolbar({
             className={cn(
               "h-8 text-xs border-0",
               showPhaseGroups
-                ? "bg-teal-600 hover:bg-teal-700 text-white shadow-sm"
+                ? "bg-brand-navy-600 hover:bg-brand-navy-700 text-white shadow-sm"
                 : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400"
             )}
             onClick={() => onShowPhaseGroupsChange(!showPhaseGroups)}
@@ -94,7 +94,7 @@ export function GanttToolbar({
                 className={cn(
                   "px-3 py-1.5 rounded-md text-xs font-medium transition-colors",
                   viewMode === mode
-                    ? "bg-teal-600 text-white shadow-sm"
+                    ? "bg-brand-navy-600 text-white shadow-sm"
                     : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
                 )}
               >

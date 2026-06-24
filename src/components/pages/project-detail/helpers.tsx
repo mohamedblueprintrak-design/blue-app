@@ -145,7 +145,7 @@ export function StageStepper({ stages, language: _language }: { stages: ProjectS
                   isApproved
                     ? "bg-emerald-500 text-white shadow-md shadow-emerald-500/20"
                     : isInProgress
-                    ? "bg-teal-500 text-white shadow-md shadow-teal-500/20 animate-pulse"
+                    ? "bg-brand-navy-500 text-white shadow-md shadow-brand-navy-500/20 animate-pulse"
                     : isRejected
                     ? "bg-red-500 text-white shadow-md shadow-red-500/20"
                     : isSubmitted
@@ -193,7 +193,7 @@ export function DesignPipeline({ department, stages, language }: { department: s
   const getStatusColor = (status: string) => {
     switch (status) {
       case "APPROVED": return "bg-emerald-500";
-      case "IN_PROGRESS": return "bg-teal-500";
+      case "IN_PROGRESS": return "bg-brand-navy-500";
       case "SUBMITTED": return "bg-amber-500";
       case "REJECTED": return "bg-red-500";
       default: return "bg-slate-200 dark:bg-slate-700";
@@ -266,7 +266,7 @@ export function SubTabsNav<T extends { id: string; icon: React.ComponentType<{ c
             className={cn(
               "gap-1.5 h-8 text-xs whitespace-nowrap",
               activeSubTab === tab.id 
-                ? "bg-teal-600 hover:bg-teal-700 text-white" 
+                ? "bg-brand-navy-600 hover:bg-brand-navy-700 text-white" 
                 : "border-slate-200 dark:border-slate-700"
             )}
           >

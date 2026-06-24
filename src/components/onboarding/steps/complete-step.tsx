@@ -42,15 +42,15 @@ export default function CompleteStep({ onGoToDashboard }: CompleteStepProps) {
         </p>
         <ul className="space-y-1.5 text-start">
           <li className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2">
-            <span className="w-1 h-1 rounded-full bg-teal-500 shrink-0" />
+            <span className="w-1 h-1 rounded-full bg-brand-navy-500 shrink-0" />
             {t("أنشئ مشروعك الأول من لوحة التحكم", "Create your first project from the dashboard")}
           </li>
           <li className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2">
-            <span className="w-1 h-1 rounded-full bg-teal-500 shrink-0" />
+            <span className="w-1 h-1 rounded-full bg-brand-navy-500 shrink-0" />
             {t("أضد أعضاء الفريق من صفحة الموظفين", "Add team members from the Employees page")}
           </li>
           <li className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2">
-            <span className="w-1 h-1 rounded-full bg-teal-500 shrink-0" />
+            <span className="w-1 h-1 rounded-full bg-brand-navy-500 shrink-0" />
             {t("خصص إعداداتك أكثر من صفحة الإعدادات", "Customize more from the Settings page")}
           </li>
         </ul>
@@ -61,7 +61,7 @@ export default function CompleteStep({ onGoToDashboard }: CompleteStepProps) {
       {/* Go to dashboard */}
       <Button
         onClick={onGoToDashboard}
-        className="w-full max-w-sm h-12 bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white font-semibold rounded-xl text-base"
+        className="w-full max-w-sm h-12 bg-gradient-to-r from-brand-navy-500 to-cyan-600 hover:from-brand-navy-600 hover:to-cyan-700 text-white font-semibold rounded-xl text-base"
         aria-label={t("الانتقال إلى لوحة التحكم", "Go to Dashboard")}
       >
         {t("الانتقال إلى لوحة التحكم", "Go to Dashboard")}

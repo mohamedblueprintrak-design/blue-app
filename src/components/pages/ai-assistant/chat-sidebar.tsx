@@ -52,7 +52,7 @@ export function ChatSidebar({
             {/* Sidebar Header */}
             <div className="p-3 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <History className="h-4 w-4 text-teal-500" />
+                <History className="h-4 w-4 text-brand-navy-500" />
                 <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
                   {tAuto('auto.chatHistory')}
                 </span>
@@ -63,7 +63,7 @@ export function ChatSidebar({
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-7 w-7 text-slate-400 hover:text-teal-600"
+                      className="h-7 w-7 text-slate-400 hover:text-brand-navy-600"
                       onClick={startNewChat}
                       aria-label="New chat"
                     >
@@ -114,11 +114,11 @@ export function ChatSidebar({
                       className={cn(
                         "w-full group flex items-start gap-2.5 p-2.5 rounded-lg text-start transition-all hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer",
                         conv.id === conversationId &&
-                          "bg-teal-50 dark:bg-teal-950/20 border border-teal-200 dark:border-teal-800/50"
+                          "bg-brand-navy-50 dark:bg-brand-navy-950/20 border border-brand-navy-200 dark:border-brand-navy-800/50"
                       )}
                     >
                       <div className="mt-0.5 shrink-0">
-                        <MessageSquare className="h-3.5 w-3.5 text-slate-400 group-hover:text-teal-500" />
+                        <MessageSquare className="h-3.5 w-3.5 text-slate-400 group-hover:text-brand-navy-500" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-medium text-slate-700 dark:text-slate-300 truncate">
@@ -152,7 +152,7 @@ export function ChatSidebar({
             <div className="p-2 border-t border-slate-200 dark:border-slate-700">
               <button
                 onClick={startNewChat}
-                className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-medium text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-950/30 hover:bg-teal-100 dark:hover:bg-teal-950/50 transition-colors"
+                className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-medium text-brand-navy-600 dark:text-brand-navy-400 bg-brand-navy-50 dark:bg-brand-navy-950/30 hover:bg-brand-navy-100 dark:hover:bg-brand-navy-950/50 transition-colors"
               >
                 <Plus className="h-3.5 w-3.5" />
                 {tAuto('auto.newChat')}

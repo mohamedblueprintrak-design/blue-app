@@ -40,7 +40,7 @@ export function FilterRow({ ar, activeEntityFilter, setActiveEntityFilter, activ
               className={cn(
                 "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-medium whitespace-nowrap transition-all duration-200 shrink-0",
                 isActive
-                  ? "bg-gradient-to-r from-teal-600 to-cyan-600 text-white shadow-md shadow-teal-500/20"
+                  ? "bg-gradient-to-r from-brand-navy-600 to-cyan-600 text-white shadow-md shadow-brand-navy-500/20"
                   : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700"
               )}
             >
@@ -64,7 +64,7 @@ export function FilterRow({ ar, activeEntityFilter, setActiveEntityFilter, activ
               className={cn(
                 "px-3 py-1.5 rounded-full text-[11px] font-medium whitespace-nowrap transition-all duration-200 shrink-0 border",
                 isActive
-                  ? "bg-teal-50 dark:bg-teal-900/30 border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-300"
+                  ? "bg-brand-navy-50 dark:bg-brand-navy-900/30 border-brand-navy-200 dark:border-brand-navy-800 text-brand-navy-700 dark:text-brand-navy-300"
                   : "border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
               )}
             >

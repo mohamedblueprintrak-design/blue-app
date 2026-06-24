@@ -184,7 +184,7 @@ export function EmployeeFormDialog({
             </Button>
             <Button
               type="submit"
-              className="bg-teal-600 hover:bg-teal-700 text-white"
+              className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white"
               disabled={isSaving}
             >
               {isSaving

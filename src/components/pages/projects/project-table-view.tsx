@@ -100,7 +100,7 @@ export function ProjectTableView({
                 <Checkbox
                   checked={projects.length > 0 && selectedIds.size === projects.length}
                   onCheckedChange={onToggleSelectAll}
-                  className="data-[state=checked]:bg-teal-500 data-[state=checked]:border-teal-500"
+                  className="data-[state=checked]:bg-brand-navy-500 data-[state=checked]:border-brand-navy-500"
                 />
               </TableHead>
               <TableHead className="text-slate-600 dark:text-slate-300 font-semibold">{t("رقم المشروع", "No.")}</TableHead>
@@ -130,19 +130,19 @@ export function ProjectTableView({
           ];
           return (
             <>
-                  <TableCell onClick={() => onRowClick(project.id)} className={cn("cursor-pointer", isSelected && "bg-teal-50/60 dark:bg-teal-950/20")}>
+                  <TableCell onClick={() => onRowClick(project.id)} className={cn("cursor-pointer", isSelected && "bg-brand-navy-50/60 dark:bg-brand-navy-950/20")}>
                     <Checkbox
                       checked={isSelected}
                       onCheckedChange={() => onToggleSelect(project.id)}
                       onClick={(e) => e.stopPropagation()}
-                      className="data-[state=checked]:bg-teal-500 data-[state=checked]:border-teal-500"
+                      className="data-[state=checked]:bg-brand-navy-500 data-[state=checked]:border-brand-navy-500"
                     />
                   </TableCell>
                   <TableCell>
                     <div className="font-mono text-sm text-slate-600 dark:text-slate-400">
                       {project.number}
                       {project.plotNumber && (
-                        <span className="block text-[10px] text-teal-600 dark:text-teal-400 font-medium font-sans">
+                        <span className="block text-[10px] text-brand-navy-600 dark:text-brand-navy-400 font-medium font-sans">
                           {project.plotNumber}
                         </span>
                       )}
@@ -193,14 +193,14 @@ export function ProjectTableView({
                             key={i}
                             className={cn(
                               "w-[3px] rounded-full transition-all",
-                              h >= 75 ? "bg-teal-400" : h >= 40 ? "bg-teal-300" : "bg-amber-400"
+                              h >= 75 ? "bg-brand-navy-400" : h >= 40 ? "bg-brand-navy-300" : "bg-amber-400"
                             )}
                             style={{ height: `${Math.min(h, 100) * 0.16}px` }}
                           />
                         ))}
                       </div>
                       <div className="flex-1 h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
-                        <div className="h-full rounded-full bg-gradient-to-l from-teal-500 to-cyan-400 transition-all duration-500" style={{ width: `${project.progress}%` }} />
+                        <div className="h-full rounded-full bg-gradient-to-l from-brand-navy-500 to-cyan-400 transition-all duration-500" style={{ width: `${project.progress}%` }} />
                       </div>
                       <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 w-10 text-end tabular-nums">
                         {Math.round(project.progress)}%
@@ -216,7 +216,7 @@ export function ProjectTableView({
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-7 w-7 text-slate-400 hover:text-teal-600 dark:hover:text-teal-400"
+                      className="h-7 w-7 text-slate-400 hover:text-brand-navy-600 dark:hover:text-brand-navy-400"
                       onClick={(e) => {
                         e.stopPropagation();
                         onQuickView(project);
@@ -268,7 +268,7 @@ export function ProjectTableView({
                   className={cn(
                     "h-7 w-7 text-xs",
                     page === pageNum
-                      ? "bg-teal-600 hover:bg-teal-700 text-white border-teal-600"
+                      ? "bg-brand-navy-600 hover:bg-brand-navy-700 text-white border-brand-navy-600"
                       : ""
                   )}
                   onClick={() => onPageChange(pageNum)}

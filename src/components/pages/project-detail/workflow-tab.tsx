@@ -80,7 +80,7 @@ export default function WorkflowTab({ projectId, language }: { projectId: string
   const getStageStatusColor = (status: string) => {
     switch (status) {
       case "COMPLETED": return "bg-emerald-500 text-white border-emerald-500";
-      case "IN_PROGRESS": return "bg-teal-500 text-white border-teal-500 ring-2 ring-teal-200";
+      case "IN_PROGRESS": return "bg-brand-navy-500 text-white border-brand-navy-500 ring-2 ring-brand-navy-200";
       case "PENDING": return "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border-amber-300";
       default: return "bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500 border-slate-200";
     }
@@ -89,7 +89,7 @@ export default function WorkflowTab({ projectId, language }: { projectId: string
   const getStepStatusBadge = (status: string) => {
     switch (status) {
       case "COMPLETED": return <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 text-[10px] border-0 flex items-center gap-1"><StatusIcon status="completed" className="h-3 w-3" />{t("مكتمل", "Done")}</Badge>;
-      case "IN_PROGRESS": return <Badge className="bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400 text-[10px] border-0 flex items-center gap-1"><StatusIcon status="in_progress" className="h-3 w-3" />{t("قيد التنفيذ", "In Progress")}</Badge>;
+      case "IN_PROGRESS": return <Badge className="bg-brand-navy-100 text-brand-navy-700 dark:bg-brand-navy-900/30 dark:text-brand-navy-400 text-[10px] border-0 flex items-center gap-1"><StatusIcon status="in_progress" className="h-3 w-3" />{t("قيد التنفيذ", "In Progress")}</Badge>;
       case "PENDING": return <Badge className="bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 text-[10px] border-0 flex items-center gap-1"><StatusIcon status="pending" className="h-3 w-3" />{t("بانتظار", "Pending")}</Badge>;
       case "returned": return <Badge className="bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 text-[10px] border-0 flex items-center gap-1"><StatusIcon status="rejected" className="h-3 w-3" />{t("معاد", "Returned")}</Badge>;
       default: return <Badge className="bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 text-[10px] border-0 flex items-center gap-1"><StatusIcon status="locked" className="h-3 w-3" />{t("مقفل", "Locked")}</Badge>;
@@ -109,7 +109,7 @@ export default function WorkflowTab({ projectId, language }: { projectId: string
           <p className="text-sm text-slate-500 max-w-md mx-auto mb-4">
             {t("لم يتم إنشاء سير العمل لهذا المشروع بعد. اضغط لإنشاء سير عمل تلقائي من القالب الافتراضي.", "Workflow has not been created yet. Click to initialize from the default template.")}
           </p>
-          <Button onClick={() => initMutation.mutate()} disabled={initMutation.isPending} className="bg-teal-600 hover:bg-teal-700 gap-2">
+          <Button onClick={() => initMutation.mutate()} disabled={initMutation.isPending} className="bg-brand-navy-600 hover:bg-brand-navy-700 gap-2">
             <Play className="h-4 w-4" />
             {initMutation.isPending ? t("جارٍ الإنشاء...", "Creating...") : t("إنشاء سير العمل", "Initialize Workflow")}
           </Button>
@@ -122,7 +122,7 @@ export default function WorkflowTab({ projectId, language }: { projectId: string
     <div className="space-y-4">
       {/* Progress Header */}
       <Card className="border-slate-200 dark:border-slate-700/50 overflow-hidden">
-        <div className="bg-gradient-to-r from-teal-600 to-cyan-500 p-4 text-white">
+        <div className="bg-gradient-to-r from-brand-navy-600 to-cyan-500 p-4 text-white">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
@@ -183,7 +183,7 @@ export default function WorkflowTab({ projectId, language }: { projectId: string
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center", currentStage.status === "COMPLETED" ? "bg-emerald-100 text-emerald-600" : "bg-teal-100 text-teal-600")}>
+                <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center", currentStage.status === "COMPLETED" ? "bg-emerald-100 text-emerald-600" : "bg-brand-navy-100 text-brand-navy-600")}>
                   {currentStage.status === "COMPLETED" ? <CheckCircle2 className="h-4 w-4" /> : <Clock className="h-4 w-4" />}
                 </div>
                 <div>
@@ -203,14 +203,14 @@ export default function WorkflowTab({ projectId, language }: { projectId: string
                 <div key={step.id} className={cn(
                   "flex items-center gap-3 p-3 rounded-lg border transition-all",
                   step.status === "COMPLETED" ? "bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800/50" :
-                  step.status === "IN_PROGRESS" ? "bg-teal-50 dark:bg-teal-950/20 border-teal-200 dark:border-teal-800/50" :
+                  step.status === "IN_PROGRESS" ? "bg-brand-navy-50 dark:bg-brand-navy-950/20 border-brand-navy-200 dark:border-brand-navy-800/50" :
                   step.status === "PENDING" ? "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700" :
                   "bg-slate-50 dark:bg-slate-900 border-slate-100 dark:border-slate-800 opacity-60"
                 )}>
                   <div className={cn(
                     "w-8 h-8 rounded-lg flex items-center justify-center shrink-0",
                     step.status === "COMPLETED" ? "bg-emerald-100 text-emerald-600" :
-                    step.status === "IN_PROGRESS" ? "bg-teal-100 text-teal-600" :
+                    step.status === "IN_PROGRESS" ? "bg-brand-navy-100 text-brand-navy-600" :
                     step.status === "PENDING" ? "bg-amber-100 text-amber-600" :
                     "bg-slate-100 text-slate-400"
                   )}>
@@ -235,7 +235,7 @@ export default function WorkflowTab({ projectId, language }: { projectId: string
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
                     {step.status === "PENDING" && (
-                      <Button size="sm" variant="outline" className="h-7 text-[10px] gap-1 bg-teal-600 text-white border-0 hover:bg-teal-700"
+                      <Button size="sm" variant="outline" className="h-7 text-[10px] gap-1 bg-brand-navy-600 text-white border-0 hover:bg-brand-navy-700"
                         onClick={() => actionMutation.mutate({ stepId: step.id, action: "start" })}>
                         <Play className="h-3 w-3" />{t("بدء", "Start")}
                       </Button>
@@ -256,7 +256,7 @@ export default function WorkflowTab({ projectId, language }: { projectId: string
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <StatCard label={t("المراحل", "Stages")} value={`${stages.filter(s => s.status === "COMPLETED").length}/${stages.length}`} icon={GitBranch} color="bg-teal-100 text-teal-600 dark:bg-teal-900/30 dark:text-teal-400" />
+        <StatCard label={t("المراحل", "Stages")} value={`${stages.filter(s => s.status === "COMPLETED").length}/${stages.length}`} icon={GitBranch} color="bg-brand-navy-100 text-brand-navy-600 dark:bg-brand-navy-900/30 dark:text-brand-navy-400" />
         <StatCard label={t("الخطوات", "Steps")} value={`${workflow.progressData?.completedSteps || 0}/${workflow.progressData?.totalSteps || 0}`} icon={CheckSquare} color="bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400" />
         <StatCard label={t("المكتمل", "Completed")} value={`${Math.round(progressPct)}%`} icon={TrendingUp} color="bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400" />
         <StatCard label={t("الحالة", "Status")} value={workflow.status === "COMPLETED" ? t("مكتمل", "Done") : t("نشط", "Active")} icon={Activity} color="bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400" />

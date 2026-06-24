@@ -85,18 +85,18 @@ export function SupervisionDetail({
               </div>
 
               {/* Overall Progress */}
-              <Card className="p-4 bg-gradient-to-r from-teal-50 to-cyan-50 dark:from-teal-950/20 dark:to-cyan-950/20 border-teal-100 dark:border-teal-900/30">
+              <Card className="p-4 bg-gradient-to-r from-brand-navy-50 to-cyan-50 dark:from-brand-navy-950/20 dark:to-cyan-950/20 border-brand-navy-100 dark:border-brand-navy-900/30">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-semibold text-teal-700 dark:text-teal-300">{tAuto('auto.overallProgress')}</span>
-                  <span className="text-lg font-bold text-teal-700 dark:text-teal-300">{Math.round(viewChecklist.progressOverall)}%</span>
+                  <span className="text-xs font-semibold text-brand-navy-700 dark:text-brand-navy-300">{tAuto('auto.overallProgress')}</span>
+                  <span className="text-lg font-bold text-brand-navy-700 dark:text-brand-navy-300">{Math.round(viewChecklist.progressOverall)}%</span>
                 </div>
-                <Progress value={viewChecklist.progressOverall} className="h-2 bg-teal-100 dark:bg-teal-900/30" />
+                <Progress value={viewChecklist.progressOverall} className="h-2 bg-brand-navy-100 dark:bg-brand-navy-900/30" />
               </Card>
 
               {/* Items */}
               <div className="space-y-2">
                 <h4 className="text-sm font-semibold text-slate-900 dark:text-white flex items-center gap-2">
-                  <ClipboardCheck className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                  <ClipboardCheck className="h-4 w-4 text-brand-navy-600 dark:text-brand-navy-400" />
                   {tAuto('auto.checklistItems')} ({viewChecklist.items.length})
                 </h4>
                 <div className="space-y-1.5 max-h-64 overflow-y-auto">

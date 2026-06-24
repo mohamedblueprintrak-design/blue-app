@@ -81,7 +81,7 @@ export function AddVisitDialog({ open, onOpenChange, newVisit, setNewVisit, onAd
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>إلغاء</Button>
-          <Button className="bg-teal-600 hover:bg-teal-700 text-white" onClick={onAdd} disabled={!newVisit.engineerId || !newVisit.projectId || !newVisit.date}>
+          <Button className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white" onClick={onAdd} disabled={!newVisit.engineerId || !newVisit.projectId || !newVisit.date}>
             إضافة الزيارة
           </Button>
         </DialogFooter>
@@ -147,15 +147,15 @@ export function AddBoqItemDialog({ open, onOpenChange, newBoqItem, setNewBoqItem
             </div>
           </div>
           {newBoqItem.quantity > 0 && newBoqItem.unitCost > 0 && (
-            <div className="p-3 rounded-lg bg-teal-50 dark:bg-teal-900/20 text-center">
+            <div className="p-3 rounded-lg bg-brand-navy-50 dark:bg-brand-navy-900/20 text-center">
               <span className="text-xs text-slate-500">الإجمالي: </span>
-              <span className="text-lg font-bold text-teal-700 dark:text-teal-400">{formatCurrency(newBoqItem.quantity * newBoqItem.unitCost)}</span>
+              <span className="text-lg font-bold text-brand-navy-700 dark:text-brand-navy-400">{formatCurrency(newBoqItem.quantity * newBoqItem.unitCost)}</span>
             </div>
           )}
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>إلغاء</Button>
-          <Button className="bg-teal-600 hover:bg-teal-700 text-white" onClick={onAdd} disabled={!newBoqItem.description || newBoqItem.quantity <= 0 || newBoqItem.unitCost <= 0}>
+          <Button className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white" onClick={onAdd} disabled={!newBoqItem.description || newBoqItem.quantity <= 0 || newBoqItem.unitCost <= 0}>
             إضافة البند
           </Button>
         </DialogFooter>
@@ -238,7 +238,7 @@ export function AddInteractionDialog({ open, onOpenChange, newInteraction, setNe
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>إلغاء</Button>
-          <Button className="bg-teal-600 hover:bg-teal-700 text-white" onClick={onAdd} disabled={!newInteraction.clientId || !newInteraction.projectId || !newInteraction.subject}>
+          <Button className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white" onClick={onAdd} disabled={!newInteraction.clientId || !newInteraction.projectId || !newInteraction.subject}>
             تسجيل
           </Button>
         </DialogFooter>

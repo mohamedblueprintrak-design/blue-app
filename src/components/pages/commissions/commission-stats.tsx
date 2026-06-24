@@ -64,10 +64,10 @@ export function ReferralStats({ language, activeReferrals, totalReferrals, total
   return (
     <div className="grid grid-cols-2 gap-3">
       <Card className="py-0 gap-0 border-0 shadow-sm overflow-hidden">
-        <div className="bg-gradient-to-br from-teal-500 to-cyan-600 dark:from-teal-600 dark:to-cyan-700 p-4">
+        <div className="bg-gradient-to-br from-brand-navy-500 to-cyan-600 dark:from-brand-navy-600 dark:to-cyan-700 p-4">
           <div className="flex items-center gap-2 mb-2">
             <div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm"><Users className="h-3.5 w-3.5 text-white" /></div>
-            <span className="text-xs text-teal-100">{tAuto('auto.activeReferrals')}</span>
+            <span className="text-xs text-brand-navy-100">{tAuto('auto.activeReferrals')}</span>
           </div>
           <div className="text-xl font-bold text-white tabular-nums">{activeReferrals}</div>
           <p className="text-[10px] text-white/60 mt-1">{totalReferrals} {tAuto('auto.totalReferrals')}</p>
@@ -101,10 +101,10 @@ export function CampaignStats({ language, campaignCount, totalBudget, totalLeads
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
       <Card className="py-0 gap-0 border-0 shadow-sm overflow-hidden">
-        <div className="bg-gradient-to-br from-teal-500 to-cyan-600 dark:from-teal-600 dark:to-cyan-700 p-4">
+        <div className="bg-gradient-to-br from-brand-navy-500 to-cyan-600 dark:from-brand-navy-600 dark:to-cyan-700 p-4">
           <div className="flex items-center gap-2 mb-2">
             <div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm"><Megaphone className="h-3.5 w-3.5 text-white" /></div>
-            <span className="text-xs text-teal-100">{tAuto('auto.campaigns')}</span>
+            <span className="text-xs text-brand-navy-100">{tAuto('auto.campaigns')}</span>
           </div>
           <div className="text-xl font-bold text-white tabular-nums">{campaignCount}</div>
         </div>

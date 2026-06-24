@@ -188,7 +188,7 @@ export default function ContractorsPage({ language, projectId, initialTab }: Con
           </Select>
           <Button
             size="sm"
-            className="h-8 bg-teal-600 hover:bg-teal-700 text-white rounded-lg shadow-sm"
+            className="h-8 bg-brand-navy-600 hover:bg-brand-navy-700 text-white rounded-lg shadow-sm"
             onClick={() => { setFormData(emptyForm); setEditingId(null); setShowDialog(true); }}
           >
             <Plus className="h-3.5 w-3.5 me-1" />{tAuto('auto.addContractor')}

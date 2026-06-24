@@ -94,7 +94,7 @@ function getCategoryConfig(cat: string) {
     invoice: { ar: "فاتورة", en: "Invoice", color: "bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300", icon: "🧾" },
     transmittal: { ar: "إحالة", en: "Transmittal", color: "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/50 dark:text-cyan-300", icon: "📨" },
     specs: { ar: "مواصفات", en: "Specs", color: "bg-orange-100 text-orange-700 dark:bg-orange-900/50 dark:text-orange-300", icon: "🔧" },
-    calculations: { ar: "حسابات", en: "Calcs", color: "bg-teal-100 text-teal-700 dark:bg-teal-900/50 dark:text-teal-300", icon: "🔢" },
+    calculations: { ar: "حسابات", en: "Calcs", color: "bg-brand-navy-100 text-brand-navy-700 dark:bg-brand-navy-900/50 dark:text-brand-navy-300", icon: "🔢" },
     photos: { ar: "صور", en: "Photos", color: "bg-pink-100 text-pink-700 dark:bg-pink-900/50 dark:text-pink-300", icon: "📷" },
   };
   return configs[cat] || configs.GENERAL;
@@ -102,7 +102,7 @@ function getCategoryConfig(cat: string) {
 
 // Hash-based avatar color
 const avatarColors = [
-  "bg-teal-500", "bg-amber-500", "bg-violet-500", "bg-rose-500",
+  "bg-brand-navy-500", "bg-amber-500", "bg-violet-500", "bg-rose-500",
   "bg-sky-500", "bg-emerald-500", "bg-orange-500", "bg-blue-500",
 ];
 function getAvatarColor(str: string) {
@@ -343,8 +343,8 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
         <Card className="border-slate-200 dark:border-slate-700/50">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-                <FileText className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+              <div className="w-10 h-10 rounded-xl bg-brand-navy-100 dark:bg-brand-navy-900/30 flex items-center justify-center">
+                <FileText className="h-5 w-5 text-brand-navy-600 dark:text-brand-navy-400" />
               </div>
               <div>
                 <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.totalDocuments')}</p>
@@ -402,7 +402,7 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
             <button
               onClick={() => setFilterCategory(typeof item === "string" ? "all" : item.key)}
               className={cn(
-                "hover:text-teal-600 dark:hover:text-teal-400 transition-colors",
+                "hover:text-brand-navy-600 dark:hover:text-brand-navy-400 transition-colors",
                 idx === breadcrumbItems.length - 1 ? "text-slate-700 dark:text-slate-300 font-medium" : ""
               )}
             >
@@ -444,7 +444,7 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
                 className={cn(
                   "px-2.5 py-1 rounded-md text-[11px] font-medium transition-all whitespace-nowrap",
                   activeSortKey === btn.key
-                    ? "bg-teal-500 text-white shadow-sm"
+                    ? "bg-brand-navy-500 text-white shadow-sm"
                     : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-200/50 dark:hover:bg-slate-700/50"
                 )}
               >
@@ -464,7 +464,7 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
               <List className="h-3.5 w-3.5" />
             </Button>
           </div>
-          <Button size="sm" className="h-8 bg-teal-600 hover:bg-teal-700 text-white" onClick={() => { setFormData(emptyForm); setEditDoc(null); setShowDialog(true); }}>
+          <Button size="sm" className="h-8 bg-brand-navy-600 hover:bg-brand-navy-700 text-white" onClick={() => { setFormData(emptyForm); setEditDoc(null); setShowDialog(true); }}>
             <Plus className="h-3.5 w-3.5 me-1" />{tAuto('auto.newDocument')}
           </Button>
         </div>
@@ -494,15 +494,15 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
                         }}
                         className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs transition-colors text-start ${
                           isActive
-                            ? "bg-teal-50 dark:bg-teal-900/20 text-teal-700 dark:text-teal-300 font-medium"
+                            ? "bg-brand-navy-50 dark:bg-brand-navy-900/20 text-brand-navy-700 dark:text-brand-navy-300 font-medium"
                             : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50"
                         }`}
                       >
-                        <FolderIcon className={`h-3.5 w-3.5 shrink-0 ${isActive ? "text-teal-500" : "text-slate-400 dark:text-slate-500"}`} />
+                        <FolderIcon className={`h-3.5 w-3.5 shrink-0 ${isActive ? "text-brand-navy-500" : "text-slate-400 dark:text-slate-500"}`} />
                         <span className="flex-1 truncate">{ar ? cat.ar : cat.en}</span>
                         <span className={`text-[10px] tabular-nums min-w-[18px] text-center rounded-full px-1 ${
                           isActive
-                            ? "bg-teal-100 dark:bg-teal-900/40 text-teal-700 dark:text-teal-300"
+                            ? "bg-brand-navy-100 dark:bg-brand-navy-900/40 text-brand-navy-700 dark:text-brand-navy-300"
                             : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400"
                         }`}>
                           {count}
@@ -523,8 +523,8 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
             <CardContent className="p-4">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-                    <HardDrive className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                  <div className="w-8 h-8 rounded-lg bg-brand-navy-100 dark:bg-brand-navy-900/30 flex items-center justify-center">
+                    <HardDrive className="h-4 w-4 text-brand-navy-600 dark:text-brand-navy-400" />
                   </div>
                   <p className="text-sm font-semibold text-slate-900 dark:text-white">{tAuto('auto.storageUsage')}</p>
                 </div>
@@ -536,7 +536,7 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
                 <div
                   className={cn(
                     "h-full rounded-full transition-all duration-500",
-                    storagePercent > 80 ? "bg-red-500" : storagePercent > 60 ? "bg-amber-500" : "bg-teal-500"
+                    storagePercent > 80 ? "bg-red-500" : storagePercent > 60 ? "bg-amber-500" : "bg-brand-navy-500"
                   )}
                   style={{ width: `${storagePercent}%` }}
                 />
@@ -550,11 +550,11 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
           {/* Upload Drop Zone */}
           {showUploadZone && (
             <div
-              className="border-2 border-dashed border-teal-300 dark:border-teal-700 rounded-xl p-8 flex flex-col items-center justify-center gap-3 bg-teal-50/50 dark:bg-teal-950/10 hover:bg-teal-50 dark:hover:bg-teal-950/20 transition-colors cursor-pointer"
+              className="border-2 border-dashed border-brand-navy-300 dark:border-brand-navy-700 rounded-xl p-8 flex flex-col items-center justify-center gap-3 bg-brand-navy-50/50 dark:bg-brand-navy-950/10 hover:bg-brand-navy-50 dark:hover:bg-brand-navy-950/20 transition-colors cursor-pointer"
               onClick={() => { setShowUploadZone(false); setShowDialog(true); }}
             >
-              <div className="w-14 h-14 rounded-xl bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-                <Upload className="h-7 w-7 text-teal-600 dark:text-teal-400" />
+              <div className="w-14 h-14 rounded-xl bg-brand-navy-100 dark:bg-brand-navy-900/30 flex items-center justify-center">
+                <Upload className="h-7 w-7 text-brand-navy-600 dark:text-brand-navy-400" />
               </div>
               <div className="text-center">
                 <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
@@ -566,7 +566,7 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
               </div>
               <Button
                 size="sm"
-                className="h-8 bg-teal-600 hover:bg-teal-700 text-white"
+                className="h-8 bg-brand-navy-600 hover:bg-brand-navy-700 text-white"
                 onClick={(e) => { e.stopPropagation(); setShowUploadZone(false); setShowDialog(true); }}
               >
                 <Plus className="h-3.5 w-3.5 me-1" />
@@ -579,7 +579,7 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
           {!showUploadZone && (
             <button
               onClick={() => setShowUploadZone(true)}
-              className="w-full border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl p-4 flex items-center justify-center gap-2 text-slate-400 dark:text-slate-500 hover:border-teal-300 dark:hover:border-teal-700 hover:text-teal-500 dark:hover:text-teal-400 transition-colors"
+              className="w-full border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl p-4 flex items-center justify-center gap-2 text-slate-400 dark:text-slate-500 hover:border-brand-navy-300 dark:hover:border-brand-navy-700 hover:text-brand-navy-500 dark:hover:text-brand-navy-400 transition-colors"
             >
               <Upload className="h-4 w-4" />
               <span className="text-xs font-medium">{tAuto('auto.dragFilesHereToUpload')}</span>
@@ -599,7 +599,7 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
                 return (
                   <Card
                     key={doc.id}
-                    className="group hover:shadow-md transition-all duration-200 border-slate-200 dark:border-slate-700/50 cursor-pointer hover:border-teal-200 dark:hover:border-teal-800/50"
+                    className="group hover:shadow-md transition-all duration-200 border-slate-200 dark:border-slate-700/50 cursor-pointer hover:border-brand-navy-200 dark:hover:border-brand-navy-800/50"
                     onClick={() => setViewDoc(doc)}
                   >
                     <CardContent className="p-4">
@@ -929,7 +929,7 @@ export default function DocumentsPage({ language, projectId }: DocumentsPageProp
 
           <DialogFooter>
             <Button variant="outline" onClick={() => { setShowDialog(false); setEditDoc(null); setFormData(emptyForm); }}>{tAuto('auto.cancel')}</Button>
-            <Button className="bg-teal-600 hover:bg-teal-700 text-white" onClick={handleSave} disabled={!formData.name || createMutation.isPending}>
+            <Button className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white" onClick={handleSave} disabled={!formData.name || createMutation.isPending}>
               {createMutation.isPending ? (tAuto('auto.saving')) : (tAuto('auto.save'))}
             </Button>
           </DialogFooter>

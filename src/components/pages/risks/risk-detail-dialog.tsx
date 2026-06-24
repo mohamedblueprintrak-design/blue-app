@@ -42,7 +42,7 @@ export function RiskDetailDialog({
           <>
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                <ShieldAlert className="h-5 w-5 text-teal-500" />
+                <ShieldAlert className="h-5 w-5 text-brand-navy-500" />
                 {selectedRisk.title}
               </DialogTitle>
               <DialogDescription>

@@ -62,7 +62,7 @@ export function BidsTable({
                   className={cn(
                     "cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50",
                     idx % 2 === 0 ? "bg-white dark:bg-slate-900" : "bg-slate-50/50 dark:bg-slate-800/20",
-                    showDetailId === bid.id && "bg-teal-50/50 dark:bg-teal-950/20"
+                    showDetailId === bid.id && "bg-brand-navy-50/50 dark:bg-brand-navy-950/20"
                   )}
                   onClick={() => onShowDetail(bid)}
                 >
@@ -73,7 +73,7 @@ export function BidsTable({
                     <div>
                       <div className="text-sm text-slate-900 dark:text-white">{bid.contractorName}</div>
                       {bid.contractor && (
-                        <span className="text-[10px] text-teal-600 dark:text-teal-400">{ar ? bid.contractor.companyName : bid.contractor.companyEn || bid.contractor.companyName}</span>
+                        <span className="text-[10px] text-brand-navy-600 dark:text-brand-navy-400">{ar ? bid.contractor.companyName : bid.contractor.companyEn || bid.contractor.companyName}</span>
                       )}
                     </div>
                   </TableCell>
@@ -90,7 +90,7 @@ export function BidsTable({
                         )}>
                           {Math.round(bid.totalScore)}
                         </span>
-                        <Progress value={bid.totalScore} className="w-14 h-1 [&>div]:bg-teal-500" />
+                        <Progress value={bid.totalScore} className="w-14 h-1 [&>div]:bg-brand-navy-500" />
                       </div>
                     ) : (
                       <span className="text-xs text-slate-300">—</span>

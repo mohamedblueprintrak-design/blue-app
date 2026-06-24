@@ -62,9 +62,9 @@ function AppHeader() {
   }, [setCurrentPage]);
 
   return (
-    <header className="relative sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-slate-200/60 dark:border-slate-700/40 bg-gradient-to-r from-white/90 via-white/85 to-teal-50/80 dark:from-slate-900/90 dark:via-slate-900/85 dark:to-teal-950/80 backdrop-blur-xl shadow-sm shadow-slate-200/30 dark:shadow-slate-900/30 px-4 lg:px-6">
+    <header className="relative sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-slate-200/60 dark:border-slate-700/40 bg-gradient-to-r from-white/90 via-white/85 to-brand-navy-50/80 dark:from-slate-900/90 dark:via-slate-900/85 dark:to-brand-navy-950/80 backdrop-blur-xl shadow-sm shadow-slate-200/30 dark:shadow-slate-900/30 px-4 lg:px-6">
       {/* Teal gradient accent line at top */}
-      <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-teal-500 via-cyan-400 to-teal-500 dark:from-teal-400 dark:via-cyan-300 dark:to-teal-400" />
+      <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-brand-navy-500 via-cyan-400 to-brand-navy-500 dark:from-brand-navy-400 dark:via-cyan-300 dark:to-brand-navy-400" />
 
       <SidebarTrigger className="-ms-1" aria-label={tAuto('auto.toggleSidebar')} />
       <Separator orientation="vertical" className="h-6" />
@@ -80,12 +80,12 @@ function AppHeader() {
         <div className={cn(
           "hidden md:flex items-center relative rounded-lg border overflow-hidden transition-all duration-300 ease-out",
           searchFocused
-            ? "w-72 border-teal-400/50 bg-white dark:bg-slate-800 search-bar-glow"
+            ? "w-72 border-brand-navy-400/50 bg-white dark:bg-slate-800 search-bar-glow"
             : "w-48 border-slate-200/80 dark:border-slate-700/50 bg-slate-50/80 dark:bg-slate-800/40 hover:border-slate-300 dark:hover:border-slate-600"
         )}>
           <Search className={cn(
             "absolute start-3 h-3.5 w-3.5 pointer-events-none transition-colors duration-200",
-            searchFocused ? "text-teal-500" : "text-slate-400"
+            searchFocused ? "text-brand-navy-500" : "text-slate-400"
           )} />
           <input
             type="text"
@@ -108,7 +108,7 @@ function AppHeader() {
           <kbd className={cn(
             "absolute end-2 pointer-events-none inline-flex h-5 items-center rounded border px-1.5 font-mono text-[10px] font-medium transition-all duration-200",
             searchFocused
-              ? "border-teal-300 dark:border-teal-700 bg-teal-50 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 opacity-0"
+              ? "border-brand-navy-300 dark:border-brand-navy-700 bg-brand-navy-50 dark:bg-brand-navy-900/30 text-brand-navy-600 dark:text-brand-navy-400 opacity-0"
               : "border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500"
           )}>
             ⌘K
@@ -170,7 +170,7 @@ function AppHeader() {
               <div className="relative">
                 <Avatar className="h-7 w-7 ring-1 ring-slate-200/80 dark:ring-slate-700/60">
                   <AvatarImage src={user?.avatar} alt={user?.name} />
-                  <AvatarFallback className="bg-teal-100 dark:bg-teal-900 text-teal-700 dark:text-teal-300 text-xs font-semibold">
+                  <AvatarFallback className="bg-brand-navy-100 dark:bg-brand-navy-900 text-brand-navy-700 dark:text-brand-navy-300 text-xs font-semibold">
                     {user?.name?.charAt(0)?.toUpperCase() || "U"}
                   </AvatarFallback>
                 </Avatar>
@@ -186,9 +186,9 @@ function AppHeader() {
             <div className="px-3 py-2.5">
               <div className="flex items-center gap-2.5">
                 <div className="relative">
-                  <Avatar className="h-10 w-10 ring-2 ring-teal-200/40 dark:ring-teal-800/40">
+                  <Avatar className="h-10 w-10 ring-2 ring-brand-navy-200/40 dark:ring-brand-navy-800/40">
                     <AvatarImage src={user?.avatar} alt={user?.name} />
-                    <AvatarFallback className="bg-teal-100 dark:bg-teal-900 text-teal-700 dark:text-teal-300 text-sm font-semibold">
+                    <AvatarFallback className="bg-brand-navy-100 dark:bg-brand-navy-900 text-brand-navy-700 dark:text-brand-navy-300 text-sm font-semibold">
                       {user?.name?.charAt(0)?.toUpperCase() || "U"}
                     </AvatarFallback>
                   </Avatar>
@@ -205,7 +205,7 @@ function AppHeader() {
                 </div>
               </div>
               <p className="text-xs text-slate-500 dark:text-slate-400 truncate mt-2">{user?.email}</p>
-              <Badge variant="secondary" className="mt-1 text-[10px] font-medium bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-400 hover:bg-teal-100 dark:hover:bg-teal-950/60 border-teal-200/60 dark:border-teal-800/40">
+              <Badge variant="secondary" className="mt-1 text-[10px] font-medium bg-brand-navy-50 dark:bg-brand-navy-950/40 text-brand-navy-700 dark:text-brand-navy-400 hover:bg-brand-navy-100 dark:hover:bg-brand-navy-950/60 border-brand-navy-200/60 dark:border-brand-navy-800/40">
                 {roleLabelsAr[normalizeRole(user?.role || '') as Role] || user?.role}
               </Badge>
             </div>

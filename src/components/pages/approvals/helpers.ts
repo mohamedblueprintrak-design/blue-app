@@ -48,7 +48,7 @@ export function getEntityTypeIcon(type: string) {
 
 export function getEntityTypeBadgeColor(type: string) {
   const colors: Record<string, string> = {
-    invoice: "bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300",
+    invoice: "bg-brand-navy-100 text-brand-navy-700 dark:bg-brand-navy-900/40 dark:text-brand-navy-300",
     payment: "bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300",
     purchase_order: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300",
     change_order: "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300",
@@ -84,7 +84,7 @@ export function getStatusConfig(status: string) {
 
 export function getHashColor(name: string): string {
   const colors = [
-    "bg-teal-500", "bg-cyan-500", "bg-emerald-500", "bg-amber-500",
+    "bg-brand-navy-500", "bg-cyan-500", "bg-emerald-500", "bg-amber-500",
     "bg-violet-500", "bg-rose-500", "bg-sky-500", "bg-lime-500",
   ];
   let hash = 0;
@@ -94,7 +94,7 @@ export function getHashColor(name: string): string {
 
 export function _getHashRing(name: string): string {
   const colors = [
-    "ring-teal-200 dark:ring-teal-800",
+    "ring-brand-navy-200 dark:ring-brand-navy-800",
     "ring-cyan-200 dark:ring-cyan-800",
     "ring-emerald-200 dark:ring-emerald-800",
     "ring-amber-200 dark:ring-amber-800",

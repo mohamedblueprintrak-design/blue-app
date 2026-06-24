@@ -235,8 +235,8 @@ export default function ClientsPage({ language, projectId, initialTab }: Clients
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-lg bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-              <UserCircle className="h-4.5 w-4.5 text-teal-600 dark:text-teal-400" />
+            <div className="w-9 h-9 rounded-lg bg-brand-navy-100 dark:bg-brand-navy-900/30 flex items-center justify-center">
+              <UserCircle className="h-4.5 w-4.5 text-brand-navy-600 dark:text-brand-navy-400" />
             </div>
             <div>
               <h2 className="text-lg font-bold text-slate-900 dark:text-white">
@@ -269,7 +269,7 @@ export default function ClientsPage({ language, projectId, initialTab }: Clients
             </Button>
             <Button
               size="sm"
-              className="h-8 bg-teal-600 hover:bg-teal-700 text-white rounded-lg shadow-sm shadow-teal-600/20"
+              className="h-8 bg-brand-navy-600 hover:bg-brand-navy-700 text-white rounded-lg shadow-sm shadow-brand-navy-600/20"
               onClick={openAddDialog}
             >
               <Plus className="h-3.5 w-3.5 me-1" />
@@ -303,7 +303,7 @@ export default function ClientsPage({ language, projectId, initialTab }: Clients
                       className={cn(
                         "cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50",
                         idx % 2 === 0 ? "bg-white dark:bg-slate-900" : "bg-slate-50/50 dark:bg-slate-800/20",
-                        selectedClient?.id === client.id && "bg-teal-50/50 dark:bg-teal-950/20"
+                        selectedClient?.id === client.id && "bg-brand-navy-50/50 dark:bg-brand-navy-950/20"
                       )}
                       onClick={() => setSelectedClient(client)}
                     >
@@ -337,7 +337,7 @@ export default function ClientsPage({ language, projectId, initialTab }: Clients
                           <a
                             href={`tel:${client.phone}`}
                             onClick={(e) => e.stopPropagation()}
-                            className="text-teal-600 dark:text-teal-400 hover:underline flex items-center gap-1"
+                            className="text-brand-navy-600 dark:text-brand-navy-400 hover:underline flex items-center gap-1"
                           >
                             <Phone className="h-3 w-3" />
                             {client.phone}
@@ -364,7 +364,7 @@ export default function ClientsPage({ language, projectId, initialTab }: Clients
                             <div
                               className={cn(
                                 "h-full rounded-full transition-all",
-                                creditPct >= 80 ? "bg-red-500" : creditPct >= 50 ? "bg-amber-500" : "bg-teal-500"
+                                creditPct >= 80 ? "bg-red-500" : creditPct >= 50 ? "bg-amber-500" : "bg-brand-navy-500"
                               )}
                               style={{ width: `${creditPct}%` }}
                             />

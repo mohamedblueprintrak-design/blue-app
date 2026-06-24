@@ -61,7 +61,7 @@ export function ApprovalCardList({
         </p>
         <Button
           onClick={onNewClick}
-          className="gap-2 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white border-0 shadow-md shadow-teal-500/20"
+          className="gap-2 bg-gradient-to-r from-brand-navy-600 to-cyan-600 hover:from-brand-navy-700 hover:to-cyan-700 text-white border-0 shadow-md shadow-brand-navy-500/20"
         >
           <Plus className="h-4 w-4" />
           {tAuto('auto.createNewRequest')}

@@ -77,7 +77,7 @@ export function ComparisonMatrix({
               size="sm"
               className={cn(
                 "h-7 text-xs rounded-lg",
-                sortBy === s.key ? "bg-teal-600 hover:bg-teal-700 text-white" : ""
+                sortBy === s.key ? "bg-brand-navy-600 hover:bg-brand-navy-700 text-white" : ""
               )}
               onClick={() => setSortBy(s.key)}
             >
@@ -120,7 +120,7 @@ export function ComparisonMatrix({
                   <Legend wrapperStyle={{ fontSize: 10 }} />
                   <Bar dataKey={tAuto('auto.tech')} fill="var(--color-amber-500)" radius={[0, 2, 2, 0]} barSize={12} />
                   <Bar dataKey={tAuto('auto.fin')} fill="var(--color-cyan-500)" radius={[0, 2, 2, 0]} barSize={12} />
-                  <Bar dataKey={tAuto('auto.total')} fill="var(--color-teal-600)" radius={[0, 2, 2, 0]} barSize={12} />
+                  <Bar dataKey={tAuto('auto.total')} fill="var(--color-brand-navy-600)" radius={[0, 2, 2, 0]} barSize={12} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -154,7 +154,7 @@ export function ComparisonMatrix({
                     className={cn(
                       "transition-colors",
                       idx % 2 === 0 ? "bg-white dark:bg-slate-900" : "bg-slate-50/50 dark:bg-slate-800/20",
-                      isTop && "bg-teal-50/50 dark:bg-teal-950/20"
+                      isTop && "bg-brand-navy-50/50 dark:bg-brand-navy-950/20"
                     )}
                   >
                     <TableCell className="text-xs font-bold text-slate-400">
@@ -195,7 +195,7 @@ export function ComparisonMatrix({
                         <span className={cn("text-sm font-bold tabular-nums", bid.totalScore >= 70 ? "text-emerald-600 dark:text-emerald-400" : bid.totalScore >= 40 ? "text-amber-600" : "text-red-500")}>
                           {Math.round(bid.totalScore)}
                         </span>
-                        <Progress value={bid.totalScore} className="w-20 h-1.5 [&>div]:bg-teal-500" />
+                        <Progress value={bid.totalScore} className="w-20 h-1.5 [&>div]:bg-brand-navy-500" />
                       </div>
                     </TableCell>
                     <TableCell>

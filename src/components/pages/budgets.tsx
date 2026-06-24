@@ -65,7 +65,7 @@ function getCategoryConfig(category: string) {
     ARCHITECTURAL: { ar: "معماري", en: "Architectural", color: "from-amber-500 to-orange-500", icon: "Building2" },
     STRUCTURAL: { ar: "إنشائي", en: "Structural", color: "from-blue-500 to-indigo-500", icon: "HardHat" },
     ELECTRICAL: { ar: "كهربائي", en: "Electrical", color: "from-yellow-500 to-amber-500", icon: "Zap" },
-    MEP: { ar: "MEP", en: "MEP", color: "from-teal-500 to-cyan-500", icon: "Settings" },
+    MEP: { ar: "MEP", en: "MEP", color: "from-brand-navy-500 to-cyan-500", icon: "Settings" },
   };
   return configs[category] || configs.OVERALL;
 }
@@ -93,7 +93,7 @@ function BudgetUtilizationBar({ planned, actual, committed, ar }: { planned: num
               ? "bg-gradient-to-r from-red-400 to-red-500"
               : pct > 80
                 ? "bg-gradient-to-r from-amber-400 to-amber-500"
-                : "bg-gradient-to-r from-teal-400 to-teal-500"
+                : "bg-gradient-to-r from-brand-navy-400 to-brand-navy-500"
           )}
           style={{ width: `${Math.min(pct, 100)}%` }}
         />
@@ -109,7 +109,7 @@ function BudgetUtilizationBar({ planned, actual, committed, ar }: { planned: num
         </div>
         <span className={cn(
           "text-[10px] font-bold tabular-nums",
-          isOver ? "text-red-500" : pct > 80 ? "text-amber-500" : "text-teal-600 dark:text-teal-400"
+          isOver ? "text-red-500" : pct > 80 ? "text-amber-500" : "text-brand-navy-600 dark:text-brand-navy-400"
         )}>
           {pct.toFixed(0)}%
         </span>
@@ -280,7 +280,7 @@ export default function BudgetsPage({ language, projectId }: BudgetsPageProps) {
               ? "bg-gradient-to-br from-red-500 to-red-600 dark:from-red-600 dark:to-red-700"
               : utilizationPct > 80
                 ? "bg-gradient-to-br from-amber-500 to-amber-600 dark:from-amber-600 dark:to-amber-700"
-                : "bg-gradient-to-br from-teal-500 to-teal-600 dark:from-teal-600 dark:to-teal-700"
+                : "bg-gradient-to-br from-brand-navy-500 to-brand-navy-600 dark:from-brand-navy-600 dark:to-brand-navy-700"
           )}>
             <div className="flex items-center gap-2 mb-2">
               <div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm"><Wallet className="h-3.5 w-3.5 text-white" /></div>
@@ -335,7 +335,7 @@ export default function BudgetsPage({ language, projectId }: BudgetsPageProps) {
               ? "bg-gradient-to-r from-red-500 to-rose-600"
               : totalDeviation > 0
                 ? "bg-gradient-to-r from-amber-500 to-amber-600"
-                : "bg-gradient-to-r from-teal-500 to-cyan-600"
+                : "bg-gradient-to-r from-brand-navy-500 to-cyan-600"
           )}>
             <div className="flex items-center gap-3 mb-3">
               <BarChart3 className="h-5 w-5 text-white/80" />
@@ -551,7 +551,7 @@ export default function BudgetsPage({ language, projectId }: BudgetsPageProps) {
                                     ? "bg-gradient-to-r from-red-400 to-red-500"
                                     : childPct > 80
                                       ? "bg-gradient-to-r from-amber-400 to-amber-500"
-                                      : "bg-gradient-to-r from-teal-400 to-teal-500"
+                                      : "bg-gradient-to-r from-brand-navy-400 to-brand-navy-500"
                                 )}
                                 style={{ width: `${Math.min(childPct, 100)}%` }}
                               />

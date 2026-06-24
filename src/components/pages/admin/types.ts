@@ -77,7 +77,7 @@ export const entityLabels: Record<string, { ar: string; en: string }> = {
 };
 
 const avatarColors = [
-  "bg-teal-100 dark:bg-teal-900 text-teal-700 dark:text-teal-300",
+  "bg-brand-navy-100 dark:bg-brand-navy-900 text-brand-navy-700 dark:text-brand-navy-300",
   "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300",
   "bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300",
   "bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300",

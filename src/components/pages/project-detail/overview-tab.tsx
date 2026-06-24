@@ -49,7 +49,7 @@ export default function OverviewTab({ project, language }: { project: ProjectDat
   return (
     <div className="space-y-6">
       {/* Hero Section */}
-      <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-teal-600 via-teal-500 to-cyan-500 dark:from-teal-800 dark:via-teal-700 dark:to-cyan-700 p-6 md:p-8 text-white">
+      <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-brand-navy-600 via-brand-navy-500 to-cyan-500 dark:from-brand-navy-800 dark:via-brand-navy-700 dark:to-cyan-700 p-6 md:p-8 text-white">
         {/* Decorative pattern */}
         <div className="absolute inset-0 opacity-10" style={{ 
           backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23fff' fill-opacity='1' fill-rule='evenodd'%3E%3Cpath d='M0 38.59l2.83-2.83 1.41 1.41L1.41 40H0v-1.41zM0 1.4l2.83 2.83 1.41-1.41L1.41 0H0v1.41zM38.59 40l-2.83-2.83 1.41-1.41L40 38.59V40h-1.41zM40 1.41l-2.83 2.83-1.41-1.41L38.59 0H40v1.41zM20 18.6l2.83-2.83 1.41 1.41L21.41 20l2.83 2.83-1.41 1.41L20 21.41l-2.83 2.83-1.41-1.41L18.59 20l-2.83-2.83 1.41-1.41L20 18.59z'/%3E%3C/g%3E%3C/svg%3E")` 
@@ -82,7 +82,7 @@ export default function OverviewTab({ project, language }: { project: ProjectDat
 
               {/* Quick Action Buttons */}
               <div className="flex items-center gap-2">
-                <Button size="sm" className="h-8 gap-1.5 text-xs bg-white text-teal-700 hover:bg-white/90 font-medium shadow-md">
+                <Button size="sm" className="h-8 gap-1.5 text-xs bg-white text-brand-navy-700 hover:bg-white/90 font-medium shadow-md">
                   <Pencil className="h-3.5 w-3.5" />
                   {t("تعديل المشروع", "Edit Project")}
                 </Button>
@@ -133,7 +133,7 @@ export default function OverviewTab({ project, language }: { project: ProjectDat
           label={t("المدفوع", "Paid")}
           value={<>{totalPaid.toLocaleString()} <span className="text-xs text-slate-400">AED</span></>}
           icon={CreditCard}
-          color="bg-teal-100 text-teal-600 dark:bg-teal-900/30 dark:text-teal-400"
+          color="bg-brand-navy-100 text-brand-navy-600 dark:bg-brand-navy-900/30 dark:text-brand-navy-400"
         />
         <StatCard
           label={t("المهام", "Tasks")}
@@ -179,8 +179,8 @@ export default function OverviewTab({ project, language }: { project: ProjectDat
         <Card className="border-slate-200 dark:border-slate-700/50" style={{ borderInlineStartWidth: "4px", borderInlineStartColor: "#133371" }}>
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-                <Users className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+              <div className="w-8 h-8 rounded-lg bg-brand-navy-100 dark:bg-brand-navy-900/30 flex items-center justify-center">
+                <Users className="h-4 w-4 text-brand-navy-600 dark:text-brand-navy-400" />
               </div>
               <div>
                 <span className="text-slate-900 dark:text-white">{t("العميل", "Client")}</span>
@@ -199,7 +199,7 @@ export default function OverviewTab({ project, language }: { project: ProjectDat
             </div>
             <div className="flex justify-between">
               <span className="text-slate-500">{t("البريد", "Email")}</span>
-              <span className="font-medium text-teal-600 dark:text-teal-400">{project.client?.email || "—"}</span>
+              <span className="font-medium text-brand-navy-600 dark:text-brand-navy-400">{project.client?.email || "—"}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-slate-500">{t("الهاتف", "Phone")}</span>
@@ -407,8 +407,8 @@ export default function OverviewTab({ project, language }: { project: ProjectDat
         <Card className="border-slate-200 dark:border-slate-700/50" style={{ borderInlineStartWidth: "4px", borderInlineStartColor: "#133371" }}>
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-                <Users className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+              <div className="w-8 h-8 rounded-lg bg-brand-navy-100 dark:bg-brand-navy-900/30 flex items-center justify-center">
+                <Users className="h-4 w-4 text-brand-navy-600 dark:text-brand-navy-400" />
               </div>
               <div>
                 <span className="text-slate-900 dark:text-white">{t("العميل", "Client")}</span>
@@ -428,7 +428,7 @@ export default function OverviewTab({ project, language }: { project: ProjectDat
             <div className="flex justify-between items-center">
               <span className="text-slate-500">{t("البريد", "Email")}</span>
               {project.client?.email ? (
-                <a href={`mailto:${project.client.email}`} className="font-medium text-teal-600 dark:text-teal-400 hover:underline">{project.client.email}</a>
+                <a href={`mailto:${project.client.email}`} className="font-medium text-brand-navy-600 dark:text-brand-navy-400 hover:underline">{project.client.email}</a>
               ) : (
                 <span className="text-slate-400">—</span>
               )}
@@ -438,8 +438,8 @@ export default function OverviewTab({ project, language }: { project: ProjectDat
               <div className="flex items-center gap-1">
                 {project.client?.phone && (
                   <>
-                    <a href={`tel:${project.client.phone}`} className="p-1 rounded-md hover:bg-teal-50 dark:hover:bg-teal-900/20 transition-colors" title={t("اتصال", "Call")}>
-                      <Phone className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" />
+                    <a href={`tel:${project.client.phone}`} className="p-1 rounded-md hover:bg-brand-navy-50 dark:hover:bg-brand-navy-900/20 transition-colors" title={t("اتصال", "Call")}>
+                      <Phone className="h-3.5 w-3.5 text-brand-navy-600 dark:text-brand-navy-400" />
                     </a>
 
                     <span className="font-medium text-slate-900 dark:text-white text-xs" dir="ltr">{project.client.phone}</span>
@@ -562,7 +562,7 @@ export default function OverviewTab({ project, language }: { project: ProjectDat
       <Card className="border-slate-200 dark:border-slate-700/50">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-semibold flex items-center gap-2">
-            <GitBranch className="h-4 w-4 text-teal-500" />
+            <GitBranch className="h-4 w-4 text-brand-navy-500" />
             {t("مراحل المشروع", "Project Lifecycle")}
           </CardTitle>
         </CardHeader>
@@ -578,7 +578,7 @@ export default function OverviewTab({ project, language }: { project: ProjectDat
                       <div className={cn(
                         "w-10 h-10 rounded-full flex items-center justify-center transition-all",
                         isCompleted ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20" :
-                        isActive ? "bg-teal-500 text-white shadow-lg shadow-teal-500/20 animate-pulse" :
+                        isActive ? "bg-brand-navy-500 text-white shadow-lg shadow-brand-navy-500/20 animate-pulse" :
                         "bg-slate-100 dark:bg-slate-800 text-slate-400"
                       )}>
                         {isCompleted ? <CheckCircle2 className="h-5 w-5" /> : <stage.icon className="h-4 w-4" />}
@@ -602,7 +602,7 @@ export default function OverviewTab({ project, language }: { project: ProjectDat
       <Card className="border-slate-200 dark:border-slate-700/50">
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">
-            <UsersRound className="h-4 w-4 text-teal-500" />
+            <UsersRound className="h-4 w-4 text-brand-navy-500" />
             {t("فريق العمل", "Project Team")}
           </CardTitle>
         </CardHeader>
@@ -674,7 +674,7 @@ export default function OverviewTab({ project, language }: { project: ProjectDat
                 <FileText className="h-4 w-4 text-amber-500" />
                 {t("مستندات سريعة", "Quick Documents")}
               </CardTitle>
-              <Button variant="ghost" size="sm" className="h-7 text-xs text-teal-600 hover:text-teal-700 gap-1">
+              <Button variant="ghost" size="sm" className="h-7 text-xs text-brand-navy-600 hover:text-brand-navy-700 gap-1">
                 {t("عرض الكل", "View All")}
                 <ArrowUpRight className="h-3 w-3" />
               </Button>

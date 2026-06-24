@@ -262,7 +262,11 @@ export async function checkProxyRateLimit(
   const now = Date.now();
 
   const redisUrl = process.env.REDIS_URL;
-  const internalSecret = process.env.INTERNAL_API_SECRET || process.env.JWT_SECRET;
+  // SECURITY: INTERNAL_API_SECRET is required INDEPENDENTLY of JWT_SECRET
+  // (no secret reuse). If missing, Redis-backed rate limiting is skipped and
+  // we fall back to in-memory only — with a one-time warning so operators know
+  // to set it for multi-instance deployments.
+  const internalSecret = process.env.INTERNAL_API_SECRET;
 
   if (redisUrl && internalSecret && requestOrigin) {
     try {

@@ -58,7 +58,7 @@ export default function PortalSection({ language }: PortalSectionProps) {
             {/* Milestones */}
             <div className="mb-6">
               <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-                <ClipboardList className="h-4 w-4 text-teal-600" />
+                <ClipboardList className="h-4 w-4 text-brand-navy-600" />
                 {tAuto('auto.milestones')}
               </h3>
               <div className="space-y-3">
@@ -84,13 +84,13 @@ export default function PortalSection({ language }: PortalSectionProps) {
             {/* Documents */}
             <div>
               <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-                <Archive className="h-4 w-4 text-teal-600" />
+                <Archive className="h-4 w-4 text-brand-navy-600" />
                 {tAuto('auto.sharedDocuments')}
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {project.documents.map((doc, i) => (
                   <div key={i} className="flex items-center gap-2 p-2 rounded-lg bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                    <FileText className="h-4 w-4 text-teal-600" />
+                    <FileText className="h-4 w-4 text-brand-navy-600" />
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-medium truncate">{doc.name}</p>
                       <p className="text-[10px] text-slate-400">{doc.date} • {doc.type.toUpperCase()}</p>

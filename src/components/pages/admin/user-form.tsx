@@ -71,7 +71,7 @@ export function UserForm({
   return (
     <Dialog open={addUserOpen} onOpenChange={setAddUserOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-teal-600 hover:bg-teal-700 text-white gap-1.5 h-9 rounded-lg shadow-sm shadow-teal-500/20">
+        <Button className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white gap-1.5 h-9 rounded-lg shadow-sm shadow-brand-navy-500/20">
           <UserPlus className="h-4 w-4" />
           {tAuto('auto.addUser')}
         </Button>
@@ -142,7 +142,7 @@ export function UserForm({
           <Button
             onClick={() => createUserMutation.mutate(newUser)}
             disabled={createUserMutation.isPending || !newUser.name || !newUser.email}
-            className="w-full bg-teal-600 hover:bg-teal-700 text-white h-10 rounded-lg shadow-sm shadow-teal-500/20"
+            className="w-full bg-brand-navy-600 hover:bg-brand-navy-700 text-white h-10 rounded-lg shadow-sm shadow-brand-navy-500/20"
           >
             {tAuto('auto.addUser')}
           </Button>

@@ -101,7 +101,7 @@ export function CommissionFormDialog({ language, open, onOpenChange, users, proj
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => { onOpenChange(false); setFormData(emptyForm); }}>{tAuto('auto.cancel')}</Button>
-          <Button className="bg-teal-600 hover:bg-teal-700 text-white" onClick={() => createMutation.mutate(formData)} disabled={!formData.userId || !formData.amount || createMutation.isPending}>
+          <Button className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white" onClick={() => createMutation.mutate(formData)} disabled={!formData.userId || !formData.amount || createMutation.isPending}>
             {createMutation.isPending ? (tAuto('auto.saving')) : (tAuto('auto.save'))}
           </Button>
         </DialogFooter>
@@ -184,7 +184,7 @@ export function ReferralFormDialog({ language, open, onOpenChange, users, projec
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => { onOpenChange(false); setFormData(emptyForm); }}>{tAuto('auto.cancel')}</Button>
-          <Button className="bg-teal-600 hover:bg-teal-700 text-white" onClick={() => createMutation.mutate(formData)} disabled={!formData.referrerId || !formData.referredName || createMutation.isPending}>
+          <Button className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white" onClick={() => createMutation.mutate(formData)} disabled={!formData.referrerId || !formData.referredName || createMutation.isPending}>
             {createMutation.isPending ? (tAuto('auto.saving')) : (tAuto('auto.save'))}
           </Button>
         </DialogFooter>
@@ -289,7 +289,7 @@ export function CampaignFormDialog({ language, open, onOpenChange, editId, onEdi
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => { onOpenChange(false); setFormData(emptyForm); onEditIdChange(null); }}>{tAuto('auto.cancel')}</Button>
-          <Button className="bg-teal-600 hover:bg-teal-700 text-white" onClick={handleSave} disabled={!formData.name || createMutation.isPending || updateMutation.isPending}>
+          <Button className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white" onClick={handleSave} disabled={!formData.name || createMutation.isPending || updateMutation.isPending}>
             {(createMutation.isPending || updateMutation.isPending) ? (tAuto('auto.saving')) : (tAuto('auto.save'))}
           </Button>
         </DialogFooter>

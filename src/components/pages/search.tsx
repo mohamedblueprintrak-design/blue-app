@@ -501,7 +501,7 @@ export default function GlobalSearch({ language: lang, projectId }: Props) {
                       <button
                         key={idx}
                         onClick={() => handleRecentClick(term)}
-                        className="inline-flex items-center gap-1 text-[11px] text-slate-500 dark:text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 px-2 py-1 rounded-full bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                        className="inline-flex items-center gap-1 text-[11px] text-slate-500 dark:text-slate-400 hover:text-brand-navy-600 dark:hover:text-brand-navy-400 px-2 py-1 rounded-full bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                       >
                         {term}
                       </button>

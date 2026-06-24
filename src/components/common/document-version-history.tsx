@@ -85,7 +85,7 @@ function VersionTimelineEntry({
           className={cn(
             "w-8 h-8 rounded-full flex items-center justify-center shrink-0 border-2 transition-colors",
             isCurrent
-              ? "bg-teal-100 dark:bg-teal-900/30 border-teal-500 text-teal-600 dark:text-teal-400"
+              ? "bg-brand-navy-100 dark:bg-brand-navy-900/30 border-brand-navy-500 text-brand-navy-600 dark:text-brand-navy-400"
               : "bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-500 dark:text-slate-400"
           )}
         >
@@ -102,20 +102,20 @@ function VersionTimelineEntry({
         <div className={cn(
           "rounded-lg border p-3 transition-colors",
           isCurrent
-            ? "border-teal-200 dark:border-teal-800/50 bg-teal-50/50 dark:bg-teal-950/10"
+            ? "border-brand-navy-200 dark:border-brand-navy-800/50 bg-brand-navy-50/50 dark:bg-brand-navy-950/10"
             : "border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900"
         )}>
           {/* Header row */}
           <div className="flex items-center justify-between gap-2 mb-1.5">
             <div className="flex items-center gap-2 min-w-0">
-              <FileText className={cn("h-3.5 w-3.5 shrink-0", isCurrent ? "text-teal-500" : "text-slate-400")} />
+              <FileText className={cn("h-3.5 w-3.5 shrink-0", isCurrent ? "text-brand-navy-500" : "text-slate-400")} />
               <span className="text-sm font-medium text-slate-900 dark:text-white truncate">
                 {entry.fileName}
               </span>
             </div>
             <div className="flex items-center gap-1.5 shrink-0">
               {isCurrent && (
-                <Badge variant="outline" className="text-[9px] h-5 bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400 border-teal-200 dark:border-teal-800/40">
+                <Badge variant="outline" className="text-[9px] h-5 bg-brand-navy-100 dark:bg-brand-navy-900/30 text-brand-navy-700 dark:text-brand-navy-400 border-brand-navy-200 dark:border-brand-navy-800/40">
                   {t("current")}
                 </Badge>
               )}
@@ -157,7 +157,7 @@ function VersionTimelineEntry({
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-6 gap-1 text-[10px] text-slate-500 hover:text-teal-600"
+                className="h-6 gap-1 text-[10px] text-slate-500 hover:text-brand-navy-600"
                 onClick={() => {
                   window.open(`/api/documents/${documentId}/versions/${entry.version}`, "_blank");
                 }}
@@ -218,7 +218,7 @@ function UploadVersionDialog({
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Upload className="h-4 w-4 text-teal-500" />
+            <Upload className="h-4 w-4 text-brand-navy-500" />
             {t("uploadNewVersion")}
           </DialogTitle>
           <DialogDescription>
@@ -248,7 +248,7 @@ function UploadVersionDialog({
           </Button>
           <Button
             size="sm"
-            className="h-8 bg-teal-600 hover:bg-teal-700 text-white"
+            className="h-8 bg-brand-navy-600 hover:bg-brand-navy-700 text-white"
             onClick={() => uploadMutation.mutate()}
             disabled={uploadMutation.isPending}
           >
@@ -316,7 +316,7 @@ export default function DocumentVersionHistory({
       <Card className="border-slate-200 dark:border-slate-700/50">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-semibold flex items-center gap-2">
-            <History className="h-4 w-4 text-teal-500" />
+            <History className="h-4 w-4 text-brand-navy-500" />
             {t("versionHistory")}
           </CardTitle>
         </CardHeader>
@@ -337,7 +337,7 @@ export default function DocumentVersionHistory({
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <History className="h-4 w-4 text-teal-500" />
+              <History className="h-4 w-4 text-brand-navy-500" />
               {t("versionHistory")}
               <Badge variant="secondary" className="text-[10px] h-5">
                 {allVersions.length} {t("versionsCount")}
@@ -346,7 +346,7 @@ export default function DocumentVersionHistory({
             <div className="flex items-center gap-1.5">
               <Button
                 size="sm"
-                className="h-7 gap-1 text-xs bg-teal-600 hover:bg-teal-700 text-white"
+                className="h-7 gap-1 text-xs bg-brand-navy-600 hover:bg-brand-navy-700 text-white"
                 onClick={() => setShowUploadDialog(true)}
               >
                 <Plus className="h-3 w-3" />

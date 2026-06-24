@@ -3,7 +3,8 @@
 # ============================================
 
 # Stage 1: Build dependencies & generate Prisma client
-FROM oven/bun:1-alpine AS builder
+# Pin to Bun 1.1.x minor for reproducible builds
+FROM oven/bun:1.1-alpine AS builder
 WORKDIR /app
 
 # Copy root configurations & prisma directory
@@ -20,7 +21,7 @@ RUN bun install --frozen-lockfile
 RUN bunx prisma generate --schema=../../prisma/schema.prisma
 
 # Stage 2: Production runtime
-FROM oven/bun:1-alpine AS runner
+FROM oven/bun:1.1-alpine AS runner
 WORKDIR /app
 
 # Copy all built dependencies and code from builder

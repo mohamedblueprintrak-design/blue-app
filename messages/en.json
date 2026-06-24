@@ -2655,6 +2655,10 @@
     "map": "Map",
     "showAll": "Show All",
     "welcomeToBluePrint2": "Welcome to BluePrint! 🎉",
-    "chooseAQuickRoleOrEnterYourCredentials": "Choose a quick role or enter your credentials"
+    "chooseAQuickRoleOrEnterYourCredentials": "Choose a quick role or enter your credentials",
+    "pct": "%",
+    "budgetStatusOnTrack": "On Track",
+    "budgetStatusAtRisk": "At Risk",
+    "budgetStatusOverBudget": "Over Budget"
   }
 }

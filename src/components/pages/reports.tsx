@@ -208,8 +208,8 @@ export default function ReportsPage({ projectId }: ReportsPageProps) {
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-lg bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-            <BarChart3 className="h-4.5 w-4.5 text-teal-600 dark:text-teal-400" />
+          <div className="w-9 h-9 rounded-lg bg-brand-navy-100 dark:bg-brand-navy-900/30 flex items-center justify-center">
+            <BarChart3 className="h-4.5 w-4.5 text-brand-navy-600 dark:text-brand-navy-400" />
           </div>
           <div>
             <h2 className="text-lg font-bold text-slate-900 dark:text-white">{tAuto('auto.reports1')}</h2>
@@ -218,7 +218,7 @@ export default function ReportsPage({ projectId }: ReportsPageProps) {
         </div>
 
         <div className="flex items-center gap-2 sm:ms-auto flex-wrap">
-          <Button size="sm" variant="outline" className="h-8 gap-1.5 text-xs border-slate-200 dark:border-slate-700 hover:bg-teal-50 dark:hover:bg-teal-900/20" disabled={exporting === "pdf"} onClick={async () => {
+          <Button size="sm" variant="outline" className="h-8 gap-1.5 text-xs border-slate-200 dark:border-slate-700 hover:bg-brand-navy-50 dark:hover:bg-brand-navy-900/20" disabled={exporting === "pdf"} onClick={async () => {
             setExporting("pdf");
             try {
               const res = await fetch(`/api/reports/report-pdf/financial?lang=${ar ? "ar" : "en"}`);
@@ -232,7 +232,7 @@ export default function ReportsPage({ projectId }: ReportsPageProps) {
             {exporting === "pdf" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileText className="h-3.5 w-3.5" />}
             {tAuto('auto.exportPDF')}
           </Button>
-          <Button size="sm" variant="outline" className="h-8 gap-1.5 text-xs border-slate-200 dark:border-slate-700 hover:bg-teal-50 dark:hover:bg-teal-900/20" disabled={exporting === "excel"} onClick={async () => {
+          <Button size="sm" variant="outline" className="h-8 gap-1.5 text-xs border-slate-200 dark:border-slate-700 hover:bg-brand-navy-50 dark:hover:bg-brand-navy-900/20" disabled={exporting === "excel"} onClick={async () => {
             setExporting("excel");
             try {
               const res = await fetch(`/api/reports/excel?type=projects&lang=${ar ? "ar" : "en"}`);
@@ -249,7 +249,7 @@ export default function ReportsPage({ projectId }: ReportsPageProps) {
             {tAuto('auto.exportExcel')}
           </Button>
           {dateRanges.map((dr) => (
-            <button key={dr.value} onClick={() => setDateRange(dr.value)} className={cn("px-3 py-1.5 rounded-full text-xs font-medium transition-all", dateRange === dr.value ? "bg-teal-600 text-white shadow-sm shadow-teal-600/25" : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700")}>
+            <button key={dr.value} onClick={() => setDateRange(dr.value)} className={cn("px-3 py-1.5 rounded-full text-xs font-medium transition-all", dateRange === dr.value ? "bg-brand-navy-600 text-white shadow-sm shadow-brand-navy-600/25" : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700")}>
               {ar ? dr.ar : dr.en}
             </button>
           ))}
@@ -311,7 +311,7 @@ export default function ReportsPage({ projectId }: ReportsPageProps) {
                       <TableCell className="text-sm font-medium text-slate-900 dark:text-white">{ar ? p.name : p.nameEn || p.name}</TableCell>
                       <TableCell className="text-xs text-slate-500">{p.clientName || "—"}</TableCell>
                       <TableCell><span className={cn("px-2 py-0.5 rounded-full text-[10px] font-medium", statusColors[p.status] || "")}>{p.status}</span></TableCell>
-                      <TableCell><div className="flex items-center gap-2"><div className="w-16 h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden"><div className="h-full rounded-full bg-teal-500" style={{ width: `${prog}%` }} /></div><span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 tabular-nums">{prog}%</span></div></TableCell>
+                      <TableCell><div className="flex items-center gap-2"><div className="w-16 h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden"><div className="h-full rounded-full bg-brand-navy-500" style={{ width: `${prog}%` }} /></div><span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 tabular-nums">{prog}%</span></div></TableCell>
                       <TableCell className="text-xs text-start font-mono tabular-nums text-slate-600 dark:text-slate-400">{formatCurrency(p.budget, ar)}</TableCell>
                       <TableCell className="text-xs text-start font-mono tabular-nums text-amber-600 dark:text-amber-400">{formatCurrency(p.totalPaid, ar)} <span className="text-[9px] text-slate-400">({spent}%)</span></TableCell>
                     </TableRow>
@@ -595,7 +595,7 @@ export default function ReportsPage({ projectId }: ReportsPageProps) {
                     <TableCell className="text-xs text-start font-mono tabular-nums">{formatCurrency(c.totalRevenue, ar)}</TableCell>
                     <TableCell className="text-xs text-start text-emerald-600 dark:text-emerald-400 font-mono tabular-nums">{formatCurrency(c.collectedAmount, ar)}</TableCell>
                     <TableCell className="text-xs text-start text-amber-600 dark:text-amber-400 font-mono tabular-nums">{formatCurrency(c.outstanding, ar)}</TableCell>
-                    <TableCell className="text-start"><div className="flex items-center gap-2"><div className="w-16 h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden"><div className="h-full rounded-full bg-teal-500" style={{ width: `${rate}%` }} /></div><span className="text-[10px] font-bold tabular-nums">{rate}%</span></div></TableCell>
+                    <TableCell className="text-start"><div className="flex items-center gap-2"><div className="w-16 h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden"><div className="h-full rounded-full bg-brand-navy-500" style={{ width: `${rate}%` }} /></div><span className="text-[10px] font-bold tabular-nums">{rate}%</span></div></TableCell>
                   </TableRow>
                 );
               })}

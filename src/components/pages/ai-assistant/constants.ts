@@ -63,9 +63,9 @@ export const quickActions = [
     en: "Project Summary",
     arMsg: "أعطني ملخصاً شاملاً لجميع المشاريع الحالية وحالتها",
     enMsg: "Give me a comprehensive summary of all current projects and their status",
-    color: "from-teal-500 to-cyan-500",
-    bgLight: "bg-teal-50 dark:bg-teal-950/30",
-    iconColor: "text-teal-600 dark:text-teal-400",
+    color: "from-brand-navy-500 to-cyan-500",
+    bgLight: "bg-brand-navy-50 dark:bg-brand-navy-950/30",
+    iconColor: "text-brand-navy-600 dark:text-brand-navy-400",
   },
   {
     icon: AlertTriangle,

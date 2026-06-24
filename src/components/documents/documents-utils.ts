@@ -54,7 +54,7 @@ export function getCategoryConfig(cat: string) {
     invoice: { ar: "فاتورة", en: "Invoice", color: "bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300", icon: "🧾" },
     transmittal: { ar: "إحالة", en: "Transmittal", color: "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/50 dark:text-cyan-300", icon: "📨" },
     specs: { ar: "مواصفات", en: "Specs", color: "bg-orange-100 text-orange-700 dark:bg-orange-900/50 dark:text-orange-300", icon: "🔧" },
-    calculations: { ar: "حسابات", en: "Calcs", color: "bg-teal-100 text-teal-700 dark:bg-teal-900/50 dark:text-teal-300", icon: "🔢" },
+    calculations: { ar: "حسابات", en: "Calcs", color: "bg-brand-navy-100 text-brand-navy-700 dark:bg-brand-navy-900/50 dark:text-brand-navy-300", icon: "🔢" },
     photos: { ar: "صور", en: "Photos", color: "bg-pink-100 text-pink-700 dark:bg-pink-900/50 dark:text-pink-300", icon: "📷" },
   };
   return configs[cat] || configs.general;

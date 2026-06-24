@@ -389,8 +389,8 @@ export default function Inspections({ language, projectId: _projectId }: Inspect
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-lg bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-            <SearchCheck className="h-4.5 w-4.5 text-teal-600 dark:text-teal-400" />
+          <div className="w-9 h-9 rounded-lg bg-brand-navy-100 dark:bg-brand-navy-900/30 flex items-center justify-center">
+            <SearchCheck className="h-4.5 w-4.5 text-brand-navy-600 dark:text-brand-navy-400" />
           </div>
           <div>
             <h2 className="text-lg font-bold text-slate-900 dark:text-white">{tAuto('auto.buildingInspections')}</h2>
@@ -426,7 +426,7 @@ export default function Inspections({ language, projectId: _projectId }: Inspect
           </Select>
           <Button
             size="sm"
-            className="h-8 bg-teal-600 hover:bg-teal-700 text-white rounded-lg shadow-sm shadow-teal-600/20"
+            className="h-8 bg-brand-navy-600 hover:bg-brand-navy-700 text-white rounded-lg shadow-sm shadow-brand-navy-600/20"
             onClick={() => { resetForm(); setShowFormDialog(true); }}
           >
             <Plus className="h-3.5 w-3.5 me-1" />{tAuto('auto.newInspection')}
@@ -623,7 +623,7 @@ export default function Inspections({ language, projectId: _projectId }: Inspect
             {/* Building Info Section */}
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <Building2 className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                <Building2 className="h-4 w-4 text-brand-navy-600 dark:text-brand-navy-400" />
                 <h3 className="text-sm font-semibold text-slate-900 dark:text-white">{tAuto('auto.buildingInformation')}</h3>
               </div>
               <div className="grid sm:grid-cols-2 gap-3">
@@ -663,7 +663,7 @@ export default function Inspections({ language, projectId: _projectId }: Inspect
             {/* Inspection Details Section */}
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <CalendarDays className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                <CalendarDays className="h-4 w-4 text-brand-navy-600 dark:text-brand-navy-400" />
                 <h3 className="text-sm font-semibold text-slate-900 dark:text-white">{tAuto('auto.inspectionDetails')}</h3>
               </div>
               <div className="grid sm:grid-cols-2 gap-3">
@@ -728,7 +728,7 @@ export default function Inspections({ language, projectId: _projectId }: Inspect
             <div>
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
-                  <AlertCircle className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                  <AlertCircle className="h-4 w-4 text-brand-navy-600 dark:text-brand-navy-400" />
                   <h3 className="text-sm font-semibold text-slate-900 dark:text-white">{tAuto('auto.findings')}</h3>
                   <Badge variant="outline" className="text-[10px] px-1.5">{formData.findings.length}</Badge>
                 </div>
@@ -835,7 +835,7 @@ export default function Inspections({ language, projectId: _projectId }: Inspect
               {tAuto('auto.cancel')}
             </Button>
             <Button
-              className="bg-teal-600 hover:bg-teal-700 text-white"
+              className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white"
               disabled={saveMutation.isPending || !formData.buildingName || !formData.inspectionType || !formData.inspectionDate}
               onClick={handleSubmit}
             >
@@ -864,7 +864,7 @@ export default function Inspections({ language, projectId: _projectId }: Inspect
                     <h4 className="text-base font-bold text-slate-900 dark:text-white">{viewingInspection.buildingName}</h4>
                     {viewingInspection.buildingAddress && <p className="text-xs text-slate-500 mt-1">{viewingInspection.buildingAddress}</p>}
                     {viewingInspection.project && (
-                      <p className="text-xs text-teal-600 dark:text-teal-400 mt-1">
+                      <p className="text-xs text-brand-navy-600 dark:text-brand-navy-400 mt-1">
                         {tAuto('auto.project1')}{ar ? viewingInspection.project.name : viewingInspection.project.nameEn || viewingInspection.project.name}
                       </p>
                     )}
@@ -968,9 +968,9 @@ export default function Inspections({ language, projectId: _projectId }: Inspect
                                   <p className="text-xs text-slate-600 dark:text-slate-400">{finding.description}</p>
                                 )}
                                 {finding.remediation && (
-                                  <div className="rounded bg-teal-50 dark:bg-teal-900/20 p-2">
-                                    <p className="text-[10px] font-medium text-teal-700 dark:text-teal-400 mb-0.5">{tAuto('auto.remediation')}</p>
-                                    <p className="text-xs text-teal-600 dark:text-teal-300">{finding.remediation}</p>
+                                  <div className="rounded bg-brand-navy-50 dark:bg-brand-navy-900/20 p-2">
+                                    <p className="text-[10px] font-medium text-brand-navy-700 dark:text-brand-navy-400 mb-0.5">{tAuto('auto.remediation')}</p>
+                                    <p className="text-xs text-brand-navy-600 dark:text-brand-navy-300">{finding.remediation}</p>
                                   </div>
                                 )}
                               </div>

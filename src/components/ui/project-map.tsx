@@ -421,7 +421,7 @@ export default function ProjectMap({
       {/* Stats Overlay (top right) */}
       <div className="absolute top-3 right-3 z-[400] bg-white/90 backdrop-blur-sm rounded-lg shadow-md p-2.5 space-y-1 text-xs">
         <div className="flex items-center gap-2">
-          <Navigation className="h-3.5 w-3.5 text-teal-500" />
+          <Navigation className="h-3.5 w-3.5 text-brand-navy-500" />
           <span className="font-semibold text-slate-600">
             {tAuto('auto.projects')}: {mappedProjects.length}
           </span>
@@ -481,7 +481,7 @@ export default function ProjectMap({
                       onClick={() => onSelectProject(project)}
                       className={cn(
                         "w-full text-start p-2.5 rounded-lg transition-all hover:bg-slate-50",
-                        isSelected && "bg-teal-50 ring-1 ring-teal-200"
+                        isSelected && "bg-brand-navy-50 ring-1 ring-brand-navy-200"
                       )}
                     >
                       <div className="flex items-start gap-2">

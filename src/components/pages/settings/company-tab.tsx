@@ -228,7 +228,7 @@ export function CompanyTab({
             }}
           />
           <div
-            className="relative border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl p-8 flex flex-col items-center justify-center gap-3 hover:border-teal-400 hover:bg-teal-50/30 dark:hover:bg-teal-950/10 transition-all cursor-pointer group"
+            className="relative border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl p-8 flex flex-col items-center justify-center gap-3 hover:border-brand-navy-400 hover:bg-brand-navy-50/30 dark:hover:bg-brand-navy-950/10 transition-all cursor-pointer group"
             onClick={() => fileInputRef.current?.click()}
             onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
             onDrop={(e) => {
@@ -245,7 +245,7 @@ export function CompanyTab({
           >
             {logoUploading ? (
               <div className="flex flex-col items-center gap-2">
-                <span className="h-8 w-8 border-2 border-teal-300 border-t-teal-600 rounded-full animate-spin" />
+                <span className="h-8 w-8 border-2 border-brand-navy-300 border-t-brand-navy-600 rounded-full animate-spin" />
                 <p className="text-sm text-slate-500">{tAuto('auto.uploading')}</p>
               </div>
             ) : logoPreview || settings?.logo ? (
@@ -260,8 +260,8 @@ export function CompanyTab({
               </div>
             ) : (
               <>
-                <div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center group-hover:bg-teal-100 dark:group-hover:bg-teal-900/50 transition-colors">
-                  <Upload className="h-7 w-7 text-slate-400 group-hover:text-teal-500 transition-colors" />
+                <div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center group-hover:bg-brand-navy-100 dark:group-hover:bg-brand-navy-900/50 transition-colors">
+                  <Upload className="h-7 w-7 text-slate-400 group-hover:text-brand-navy-500 transition-colors" />
                 </div>
                 <div className="text-center">
                   <p className="text-sm font-medium text-slate-600 dark:text-slate-300">
@@ -295,8 +295,8 @@ export function CompanyTab({
                   className={cn(
                     "h-9 rounded-lg transition-all",
                     isSelected
-                      ? "bg-teal-600 hover:bg-teal-700 text-white shadow-sm shadow-teal-500/20"
-                      : "text-slate-600 dark:text-slate-400 hover:border-teal-300"
+                      ? "bg-brand-navy-600 hover:bg-brand-navy-700 text-white shadow-sm shadow-brand-navy-500/20"
+                      : "text-slate-600 dark:text-slate-400 hover:border-brand-navy-300"
                   )}
                 >
                   {isSelected && <Check className="h-3 w-3 me-1.5" />}
@@ -311,7 +311,7 @@ export function CompanyTab({
           <Button
             onClick={handleSave}
             disabled={saving}
-            className="bg-teal-600 hover:bg-teal-700 text-white min-w-32 h-10 rounded-lg shadow-sm shadow-teal-500/20"
+            className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white min-w-32 h-10 rounded-lg shadow-sm shadow-brand-navy-500/20"
           >
             {saving ? (
               <span className="flex items-center gap-2">

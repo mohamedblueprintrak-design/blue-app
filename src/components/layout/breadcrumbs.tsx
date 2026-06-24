@@ -159,7 +159,7 @@ export default function Breadcrumbs({ language }: BreadcrumbsProps) {
                         e.preventDefault();
                         crumb.onClick?.();
                       }}
-                      className="text-slate-500 dark:text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 transition-colors"
+                      className="text-slate-500 dark:text-slate-400 hover:text-brand-navy-600 dark:hover:text-brand-navy-400 transition-colors"
                     >
                       {crumb.label}
                     </BreadcrumbLink>

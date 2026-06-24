@@ -49,7 +49,7 @@ export function SummaryCards({ ar, totalBids, wonCount, lostCount, winRate }: Su
       <Card className="py-0 gap-0 border-slate-200 dark:border-slate-700/50 shadow-sm overflow-hidden">
         <CardContent className="p-4">
           <div className="flex items-center gap-2 mb-2">
-            <div className="p-1.5 rounded-lg bg-teal-100 dark:bg-teal-900/50"><TrendingUp className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" /></div>
+            <div className="p-1.5 rounded-lg bg-brand-navy-100 dark:bg-brand-navy-900/50"><TrendingUp className="h-3.5 w-3.5 text-brand-navy-600 dark:text-brand-navy-400" /></div>
             <span className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.winRate')}</span>
           </div>
           <div className="flex items-center gap-2">

@@ -30,7 +30,7 @@ export function DesignDetail({ language, drawing, onClose, onOpenReview, onDelet
           <>
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                <FileText className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+                <FileText className="h-5 w-5 text-brand-navy-600 dark:text-brand-navy-400" />
                 {drawing.title}
               </DialogTitle>
               <DialogDescription>
@@ -102,7 +102,7 @@ export function DesignDetail({ language, drawing, onClose, onOpenReview, onDelet
                 <div className="space-y-1.5 max-h-32 overflow-y-auto">
                   {drawing.revisions.map((rev) => (
                     <div key={rev.id} className="flex items-center gap-3 p-2 rounded-lg bg-slate-50 dark:bg-slate-800/50 text-xs">
-                      <span className="font-mono font-semibold text-teal-600 dark:text-teal-400">V{rev.version}</span>
+                      <span className="font-mono font-semibold text-brand-navy-600 dark:text-brand-navy-400">V{rev.version}</span>
                       <span className="text-slate-600 dark:text-slate-400 flex-1 truncate">{rev.changeNotes || "-"}</span>
                       <span className="text-[10px] text-slate-400 tabular-nums">{formatDate(rev.createdAt, ar)}</span>
                     </div>

@@ -47,7 +47,7 @@ export function AuditLog({
         <CardHeader className="pb-3">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <CardTitle className="text-lg flex items-center gap-2">
-              <Activity className="h-5 w-5 text-teal-600" />
+              <Activity className="h-5 w-5 text-brand-navy-600" />
               {tAuto('auto.activityLog')}
             </CardTitle>
             <div className="flex items-center gap-2">
@@ -102,7 +102,7 @@ export function AuditLog({
                       CREATE: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300",
                       UPDATE: "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300",
                       DELETE: "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300",
-                      APPROVE: "bg-teal-100 text-teal-700 dark:bg-teal-900 dark:text-teal-300",
+                      APPROVE: "bg-brand-navy-100 text-brand-navy-700 dark:bg-brand-navy-900 dark:text-brand-navy-300",
                       REJECT: "bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300",
                     };
                     return (

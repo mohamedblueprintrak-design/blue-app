@@ -26,8 +26,8 @@ export function RiskStats({ ar, risks }: RiskStatsProps) {
         <Card className="border-slate-200 dark:border-slate-700/50">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-                <ShieldAlert className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+              <div className="w-10 h-10 rounded-xl bg-brand-navy-100 dark:bg-brand-navy-900/30 flex items-center justify-center">
+                <ShieldAlert className="h-5 w-5 text-brand-navy-600 dark:text-brand-navy-400" />
               </div>
               <div>
                 <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.totalRisks')}</p>
@@ -100,7 +100,7 @@ export function RiskStats({ ar, risks }: RiskStatsProps) {
         <Card className="border-slate-200 dark:border-slate-700/50">
           <CardContent className="p-4">
             <div className="flex items-center gap-2 mb-3">
-              <BarChart3 className="h-4 w-4 text-teal-500" />
+              <BarChart3 className="h-4 w-4 text-brand-navy-500" />
               <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
                 {tAuto('auto.riskDistribution')}
               </h3>

@@ -109,7 +109,7 @@ interface UserOption {
 // ===== Helpers =====
 function getTypeBadge(type: string, ar: boolean) {
   const configs: Record<string, { label: string; labelEn: string; color: string; icon: typeof Monitor }> = {
-    ONSITE: { label: "حضوري", labelEn: "On-site", color: "bg-teal-100 text-teal-700 dark:bg-teal-900/50 dark:text-teal-300", icon: Building2 },
+    ONSITE: { label: "حضوري", labelEn: "On-site", color: "bg-brand-navy-100 text-brand-navy-700 dark:bg-brand-navy-900/50 dark:text-brand-navy-300", icon: Building2 },
     ONLINE: { label: "عن بُعد", labelEn: "Online", color: "bg-sky-100 text-sky-700 dark:bg-sky-900/50 dark:text-sky-300", icon: Monitor },
   };
   const cfg = configs[type] || configs.ONSITE;
@@ -136,7 +136,7 @@ function getInitials(name: string) {
 
 function getAvatarColor(name: string) {
   const colors = [
-    "bg-teal-100 dark:bg-teal-900/50 text-teal-700 dark:text-teal-300",
+    "bg-brand-navy-100 dark:bg-brand-navy-900/50 text-brand-navy-700 dark:text-brand-navy-300",
     "bg-sky-100 dark:bg-sky-900/50 text-sky-700 dark:text-sky-300",
     "bg-violet-100 dark:bg-violet-900/50 text-violet-700 dark:text-violet-300",
     "bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300",
@@ -323,8 +323,8 @@ export default function Meetings({ language, projectId }: MeetingsProps) {
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-lg bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-              <Video className="h-4.5 w-4.5 text-teal-600 dark:text-teal-400" />
+            <div className="w-9 h-9 rounded-lg bg-brand-navy-100 dark:bg-brand-navy-900/30 flex items-center justify-center">
+              <Video className="h-4.5 w-4.5 text-brand-navy-600 dark:text-brand-navy-400" />
             </div>
             <div>
               <h2 className="text-lg font-bold text-slate-900 dark:text-white">
@@ -367,7 +367,7 @@ export default function Meetings({ language, projectId }: MeetingsProps) {
 
             <Button
               size="sm"
-              className="h-8 bg-teal-600 hover:bg-teal-700 text-white rounded-lg shadow-sm shadow-teal-600/20"
+              className="h-8 bg-brand-navy-600 hover:bg-brand-navy-700 text-white rounded-lg shadow-sm shadow-brand-navy-600/20"
               onClick={() => setShowAddDialog(true)}
             >
               <Plus className="h-3.5 w-3.5 me-1" />
@@ -387,19 +387,19 @@ export default function Meetings({ language, projectId }: MeetingsProps) {
                 className={cn(
                   "flex flex-col items-center min-w-[52px] px-2 py-2.5 rounded-xl border transition-all duration-200 shrink-0",
                   isToday
-                    ? "bg-teal-50 dark:bg-teal-950/30 border-teal-300 dark:border-teal-700 shadow-sm"
-                    : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700/50 hover:border-teal-200 dark:hover:border-teal-800"
+                    ? "bg-brand-navy-50 dark:bg-brand-navy-950/30 border-brand-navy-300 dark:border-brand-navy-700 shadow-sm"
+                    : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700/50 hover:border-brand-navy-200 dark:hover:border-brand-navy-800"
                 )}
               >
                 <span className={cn(
                   "text-[10px] font-medium",
-                  isToday ? "text-teal-600 dark:text-teal-400" : "text-slate-400 dark:text-slate-500"
+                  isToday ? "text-brand-navy-600 dark:text-brand-navy-400" : "text-slate-400 dark:text-slate-500"
                 )}>
                   {d.toLocaleDateString(ar ? "ar-AE" : "en-US", { weekday: "short" })}
                 </span>
                 <span className={cn(
                   "text-lg font-bold mt-0.5",
-                  isToday ? "text-teal-700 dark:text-teal-300" : "text-slate-700 dark:text-slate-300"
+                  isToday ? "text-brand-navy-700 dark:text-brand-navy-300" : "text-slate-700 dark:text-slate-300"
                 )}>
                   {d.getDate()}
                 </span>
@@ -407,7 +407,7 @@ export default function Meetings({ language, projectId }: MeetingsProps) {
                   <span className={cn(
                     "mt-1 w-5 h-5 rounded-full text-[9px] font-bold flex items-center justify-center",
                     isToday
-                      ? "bg-teal-500 text-white"
+                      ? "bg-brand-navy-500 text-white"
                       : "bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400"
                   )}>
                     {dayMeetings.length}
@@ -433,11 +433,11 @@ export default function Meetings({ language, projectId }: MeetingsProps) {
           </Card>
           <Card className="p-3 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700/50 shadow-sm">
             <div className="flex items-center gap-2">
-              <div className="w-9 h-9 rounded-lg bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-                <Zap className="h-4 w-4 text-teal-500" />
+              <div className="w-9 h-9 rounded-lg bg-brand-navy-100 dark:bg-brand-navy-900/30 flex items-center justify-center">
+                <Zap className="h-4 w-4 text-brand-navy-500" />
               </div>
               <div>
-                <div className="text-lg font-bold text-teal-600 dark:text-teal-400">{upcoming24h}</div>
+                <div className="text-lg font-bold text-brand-navy-600 dark:text-brand-navy-400">{upcoming24h}</div>
                 <div className="text-[10px] text-slate-500">{tAuto('auto.next24h')}</div>
               </div>
             </div>
@@ -494,12 +494,12 @@ export default function Meetings({ language, projectId }: MeetingsProps) {
                   className={cn(
                     "rounded-xl p-0 border overflow-hidden bg-white dark:bg-slate-900 shadow-sm",
                     "hover:shadow-md transition-all group cursor-pointer",
-                    isToday ? "ring-2 ring-teal-500/50" : "",
+                    isToday ? "ring-2 ring-brand-navy-500/50" : "",
                     meeting.type === "ONSITE"
-                      ? "border-s-teal-400 border-s-4"
+                      ? "border-s-brand-navy-400 border-s-4"
                       : "border-s-sky-400 border-s-4",
                     meeting.type === "ONSITE"
-                      ? "border-teal-200/80 dark:border-teal-800/60"
+                      ? "border-brand-navy-200/80 dark:border-brand-navy-800/60"
                       : "border-sky-200/80 dark:border-sky-800/60"
                   )}
                   onClick={() => { setSelectedMeeting(meeting); setShowDetailDialog(true); }}
@@ -510,8 +510,8 @@ export default function Meetings({ language, projectId }: MeetingsProps) {
                       <div className="flex items-center gap-2">
                         {isWithin1h && !isPast && (
                           <span className="relative flex h-2.5 w-2.5 shrink-0">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75" />
-                            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-teal-500" />
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-navy-400 opacity-75" />
+                            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-brand-navy-500" />
                           </span>
                         )}
                         <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
@@ -521,13 +521,13 @@ export default function Meetings({ language, projectId }: MeetingsProps) {
                           </span>
                         </div>
                         {isWithin24h && !isPast && !isWithin1h && (
-                          <Badge className="text-[9px] h-5 px-1.5 bg-teal-100 text-teal-700 dark:bg-teal-900/50 dark:text-teal-300 border-0 animate-pulse gap-0.5">
+                          <Badge className="text-[9px] h-5 px-1.5 bg-brand-navy-100 text-brand-navy-700 dark:bg-brand-navy-900/50 dark:text-brand-navy-300 border-0 animate-pulse gap-0.5">
                             <Zap className="h-2.5 w-2.5" />
                             {tAuto('auto.comingUp')}
                           </Badge>
                         )}
                         {isToday && !isWithin24h && (
-                          <Badge className="text-[8px] h-5 px-1 bg-teal-100 text-teal-700 dark:bg-teal-900/50 dark:text-teal-300 border-0">
+                          <Badge className="text-[8px] h-5 px-1 bg-brand-navy-100 text-brand-navy-700 dark:bg-brand-navy-900/50 dark:text-brand-navy-300 border-0">
                             {tAuto('auto.today')}
                           </Badge>
                         )}
@@ -642,7 +642,7 @@ export default function Meetings({ language, projectId }: MeetingsProps) {
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                <Video className="h-5 w-5 text-teal-500" />
+                <Video className="h-5 w-5 text-brand-navy-500" />
                 {tAuto('auto.newMeeting')}
               </DialogTitle>
               <DialogDescription>
@@ -733,7 +733,7 @@ export default function Meetings({ language, projectId }: MeetingsProps) {
                         className={cn(
                           "flex items-center gap-2 p-2 rounded-lg border text-start transition-colors",
                           isSelected
-                            ? "border-teal-500 bg-teal-50 dark:bg-teal-900/20"
+                            ? "border-brand-navy-500 bg-brand-navy-50 dark:bg-brand-navy-900/20"
                             : "border-slate-200 dark:border-slate-700 hover:border-slate-300"
                         )}
                         onClick={() => toggleAttendee(user.id)}
@@ -745,7 +745,7 @@ export default function Meetings({ language, projectId }: MeetingsProps) {
                         </Avatar>
                         <span className="text-xs truncate">{user.name}</span>
                         {isSelected && (
-                          <span className="ms-auto text-teal-500 text-xs">✓</span>
+                          <span className="ms-auto text-brand-navy-500 text-xs">✓</span>
                         )}
                       </button>
                     );
@@ -821,7 +821,7 @@ export default function Meetings({ language, projectId }: MeetingsProps) {
                 {tAuto('auto.cancel')}
               </Button>
               <Button
-                className="bg-teal-600 hover:bg-teal-700 text-white"
+                className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white"
                 type="submit"
                 disabled={createMutation.isPending}
               >
@@ -838,7 +838,7 @@ export default function Meetings({ language, projectId }: MeetingsProps) {
               <>
                 <DialogHeader>
                   <DialogTitle className="flex items-center gap-2">
-                    <Video className="h-5 w-5 text-teal-500" />
+                    <Video className="h-5 w-5 text-brand-navy-500" />
                     {selectedMeeting.title}
                   </DialogTitle>
                   <DialogDescription>
@@ -880,7 +880,7 @@ export default function Meetings({ language, projectId }: MeetingsProps) {
                   {/* Project */}
                   {selectedMeeting.project && (
                     <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800/50 rounded-xl p-3">
-                      <Building2 className="h-4 w-4 text-teal-500" />
+                      <Building2 className="h-4 w-4 text-brand-navy-500" />
                       <div>
                         <div className="text-[10px] text-slate-500">{tAuto('auto.project')}</div>
                         <div className="text-xs font-medium text-slate-900 dark:text-white">
@@ -922,7 +922,7 @@ export default function Meetings({ language, projectId }: MeetingsProps) {
                       <div className="space-y-1.5">
                         {selectedMeeting.agenda.map((item, idx) => (
                           <div key={item.id} className="flex items-center gap-3 p-2 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
-                            <span className="w-5 h-5 rounded-full bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400 flex items-center justify-center text-[10px] font-bold shrink-0">
+                            <span className="w-5 h-5 rounded-full bg-brand-navy-100 dark:bg-brand-navy-900/30 text-brand-navy-700 dark:text-brand-navy-400 flex items-center justify-center text-[10px] font-bold shrink-0">
                               {idx + 1}
                             </span>
                             <span className="text-xs text-slate-900 dark:text-white flex-1">{item.topic}</span>

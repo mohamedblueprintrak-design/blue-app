@@ -315,7 +315,7 @@ export default function ProposalsPage({ language, projectId }: ProposalsPageProp
               <SelectItem value="EXPIRED">{tAuto('auto.expired')}</SelectItem>
             </SelectContent>
           </Select>
-          <Button size="sm" className="h-8 bg-teal-600 hover:bg-teal-700 text-white rounded-lg shadow-sm shadow-teal-600/20" onClick={() => { setFormData(emptyForm); setShowDialog(true); }}>
+          <Button size="sm" className="h-8 bg-brand-navy-600 hover:bg-brand-navy-700 text-white rounded-lg shadow-sm shadow-brand-navy-600/20" onClick={() => { setFormData(emptyForm); setShowDialog(true); }}>
             <Plus className="h-3.5 w-3.5 me-1" />{tAuto('auto.newProposal')}
           </Button>
         </div>
@@ -369,12 +369,12 @@ export default function ProposalsPage({ language, projectId }: ProposalsPageProp
         <Card className="py-0 gap-0 border-slate-200 dark:border-slate-700/50 shadow-sm overflow-hidden">
           <CardContent className="p-4">
             <div className="flex items-center gap-2 mb-2">
-              <div className="p-1.5 rounded-lg bg-teal-100 dark:bg-teal-900/50"><TrendingUp className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" /></div>
+              <div className="p-1.5 rounded-lg bg-brand-navy-100 dark:bg-brand-navy-900/50"><TrendingUp className="h-3.5 w-3.5 text-brand-navy-600 dark:text-brand-navy-400" /></div>
               <span className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.conversionRate')}</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-xl font-bold text-teal-600 dark:text-teal-400 tabular-nums">{conversionRate}%</span>
-              <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-semibold bg-teal-100 text-teal-700 dark:bg-teal-900/50 dark:text-teal-300">
+              <span className="text-xl font-bold text-brand-navy-600 dark:text-brand-navy-400 tabular-nums">{conversionRate}%</span>
+              <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-semibold bg-brand-navy-100 text-brand-navy-700 dark:bg-brand-navy-900/50 dark:text-brand-navy-300">
                 {parseFloat(conversionRate) >= 50 ? (tAuto('auto.excellent')) : parseFloat(conversionRate) >= 30 ? (tAuto('auto.good')) : (tAuto('auto.needsWork'))}
               </span>
             </div>
@@ -411,14 +411,14 @@ export default function ProposalsPage({ language, projectId }: ProposalsPageProp
                       idx % 2 === 0
                         ? "bg-white dark:bg-slate-900"
                         : "bg-slate-50/50 dark:bg-slate-800/20",
-                      isHighValue && "ring-1 ring-inset ring-teal-200 dark:ring-teal-800/50"
+                      isHighValue && "ring-1 ring-inset ring-brand-navy-200 dark:ring-brand-navy-800/50"
                     )}
                   >
                     <TableCell>
                       <div className="flex items-center gap-1.5">
                         <span className="font-mono text-xs text-slate-500">{proposal.number || "—"}</span>
                         {isHighValue && (
-                          <Sparkles className="h-3 w-3 text-teal-500" />
+                          <Sparkles className="h-3 w-3 text-brand-navy-500" />
                         )}
                       </div>
                     </TableCell>
@@ -426,7 +426,7 @@ export default function ProposalsPage({ language, projectId }: ProposalsPageProp
                     <TableCell className="hidden md:table-cell text-xs text-slate-500">{proposal.project ? (ar ? proposal.project.name : proposal.project.nameEn || proposal.project.name) : "—"}</TableCell>
                     <TableCell className={cn(
                       "text-sm font-medium text-end font-mono tabular-nums",
-                      isHighValue ? "text-teal-700 dark:text-teal-400" : "text-slate-900 dark:text-white"
+                      isHighValue ? "text-brand-navy-700 dark:text-brand-navy-400" : "text-slate-900 dark:text-white"
                     )}>
                       {formatCurrency(proposal.total, ar)}
                     </TableCell>
@@ -443,7 +443,7 @@ export default function ProposalsPage({ language, projectId }: ProposalsPageProp
                       <div className="flex items-center gap-1">
                         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(proposal)} aria-label="Edit"><Pencil className="h-3.5 w-3.5" /></Button>
                         {proposal.status === "ACCEPTED" && (
-                          <Button variant="ghost" size="sm" className="h-7 text-xs text-teal-600 hover:text-teal-700" onClick={() => {
+                          <Button variant="ghost" size="sm" className="h-7 text-xs text-brand-navy-600 hover:text-brand-navy-700" onClick={() => {
                             if (confirm(tAuto('auto.convertProposalToContract'))) {
                               convertMutation.mutate(proposal);
                             }
@@ -564,14 +564,14 @@ export default function ProposalsPage({ language, projectId }: ProposalsPageProp
                 <div className="flex justify-between text-sm"><span className="text-slate-500">{tAuto('auto.subtotal')}</span><span className="tabular-nums font-mono text-slate-700 dark:text-slate-300">{formatCurrency(calcSubtotal, ar)}</span></div>
                 <div className="flex justify-between text-sm"><span className="text-slate-500">{tAuto('auto.tax5')}</span><span className="tabular-nums font-mono text-slate-700 dark:text-slate-300">{formatCurrency(calcTax, ar)}</span></div>
                 <div className="border-t border-slate-200 dark:border-slate-700 pt-2.5">
-                  <div className="flex justify-between text-base font-bold"><span>{tAuto('auto.total')}</span><span className="text-teal-600 dark:text-teal-400 tabular-nums font-mono">{formatCurrency(calcTotal, ar)}</span></div>
+                  <div className="flex justify-between text-base font-bold"><span>{tAuto('auto.total')}</span><span className="text-brand-navy-600 dark:text-brand-navy-400 tabular-nums font-mono">{formatCurrency(calcTotal, ar)}</span></div>
                 </div>
               </div>
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => { setShowDialog(false); setEditProposal(null); setFormData(emptyForm); }}>{tAuto('auto.cancel')}</Button>
-            <Button className="bg-teal-600 hover:bg-teal-700 text-white" onClick={handleSave} disabled={!formData.clientId || createMutation.isPending || updateMutation.isPending}>
+            <Button className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white" onClick={handleSave} disabled={!formData.clientId || createMutation.isPending || updateMutation.isPending}>
               {(createMutation.isPending || updateMutation.isPending) ? (tAuto('auto.saving')) : (tAuto('auto.save'))}
             </Button>
           </DialogFooter>

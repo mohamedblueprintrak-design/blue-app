@@ -76,7 +76,7 @@ export function DashboardWidget({
         className={cn(
           "flex items-center gap-2 px-3 py-2 mb-2 rounded-lg transition-colors",
           isDragging
-            ? "bg-teal-50 dark:bg-teal-950/20 shadow-lg shadow-slate-200/60 dark:shadow-slate-900/60 ring-2 ring-teal-500/30 dark:ring-teal-400/20"
+            ? "bg-brand-navy-50 dark:bg-brand-navy-950/20 shadow-lg shadow-slate-200/60 dark:shadow-slate-900/60 ring-2 ring-brand-navy-500/30 dark:ring-brand-navy-400/20"
             : "hover:bg-slate-50/80 dark:hover:bg-slate-800/30"
         )}
       >
@@ -88,8 +88,8 @@ export function DashboardWidget({
             "cursor-grab active:cursor-grabbing p-1 rounded-md transition-colors",
             "hover:bg-slate-200/60 dark:hover:bg-slate-700/60",
             "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300",
-            "focus:outline-none focus:ring-2 focus:ring-teal-500/30",
-            isDragging && "text-teal-600 dark:text-teal-400 bg-teal-100/60 dark:bg-teal-900/30"
+            "focus:outline-none focus:ring-2 focus:ring-brand-navy-500/30",
+            isDragging && "text-brand-navy-600 dark:text-brand-navy-400 bg-brand-navy-100/60 dark:bg-brand-navy-900/30"
           )}
           aria-label={tAuto('auto.dragToReorder')}
           tabIndex={0}
@@ -99,7 +99,7 @@ export function DashboardWidget({
 
         {/* Icon + Title */}
         <div className="flex items-center gap-2 flex-1 min-w-0">
-          <Icon className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400 shrink-0" />
+          <Icon className="h-3.5 w-3.5 text-brand-navy-600 dark:text-brand-navy-400 shrink-0" />
           <h3 className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide truncate">
             {title}
           </h3>

@@ -341,8 +341,8 @@ export default function Transmittals({ language, projectId }: TransmittalsProps)
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
         <div className="flex items-center gap-3 flex-1">
-          <div className="w-9 h-9 rounded-xl bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-            <ArrowRightLeft className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+          <div className="w-9 h-9 rounded-xl bg-brand-navy-100 dark:bg-brand-navy-900/30 flex items-center justify-center">
+            <ArrowRightLeft className="h-5 w-5 text-brand-navy-600 dark:text-brand-navy-400" />
           </div>
           <div>
             <h2 className="text-lg font-bold text-slate-900 dark:text-white">
@@ -387,7 +387,7 @@ export default function Transmittals({ language, projectId }: TransmittalsProps)
 
           <Button
             size="sm"
-            className="h-8 bg-teal-600 hover:bg-teal-700 text-white"
+            className="h-8 bg-brand-navy-600 hover:bg-brand-navy-700 text-white"
             onClick={() => setShowAddDialog(true)}
           >
             <Plus className="h-3.5 w-3.5 me-1" />
@@ -401,8 +401,8 @@ export default function Transmittals({ language, projectId }: TransmittalsProps)
         <Card className="border-slate-200 dark:border-slate-700/50">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-                <ArrowRightLeft className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+              <div className="w-10 h-10 rounded-xl bg-brand-navy-100 dark:bg-brand-navy-900/30 flex items-center justify-center">
+                <ArrowRightLeft className="h-5 w-5 text-brand-navy-600 dark:text-brand-navy-400" />
               </div>
               <div>
                 <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.totalTransmittals')}</p>
@@ -615,7 +615,7 @@ export default function Transmittals({ language, projectId }: TransmittalsProps)
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Send className="h-5 w-5 text-teal-500" />
+              <Send className="h-5 w-5 text-brand-navy-500" />
               {tAuto('auto.newTransmittal')}
             </DialogTitle>
             <DialogDescription>
@@ -791,7 +791,7 @@ export default function Transmittals({ language, projectId }: TransmittalsProps)
               {tAuto('auto.cancel')}
             </Button>
             <Button
-              className="bg-teal-600 hover:bg-teal-700 text-white"
+              className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white"
               onClick={handleSubmit}
               disabled={!formData.projectId || !formData.subject || !formData.fromId || createMutation.isPending}
             >
@@ -808,7 +808,7 @@ export default function Transmittals({ language, projectId }: TransmittalsProps)
             <>
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
-                  <Send className="h-5 w-5 text-teal-500" />
+                  <Send className="h-5 w-5 text-brand-navy-500" />
                   {tAuto('auto.transmittalDetails')}
                 </DialogTitle>
                 <DialogDescription>

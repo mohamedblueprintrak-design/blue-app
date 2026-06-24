@@ -47,7 +47,7 @@ export function DesignTable({
         {/* Drawings header */}
         <div className="flex items-center justify-between p-4 pb-3 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-2">
-            <FileText className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+            <FileText className="h-4 w-4 text-brand-navy-600 dark:text-brand-navy-400" />
             <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
               {tAuto('auto.phaseDrawings')}
             </h3>
@@ -58,7 +58,7 @@ export function DesignTable({
           <Button
             size="sm"
             variant="outline"
-            className="h-7 text-xs border-teal-300 text-teal-700 hover:bg-teal-50 dark:border-teal-700 dark:text-teal-400 dark:hover:bg-teal-900/30"
+            className="h-7 text-xs border-brand-navy-300 text-brand-navy-700 hover:bg-brand-navy-50 dark:border-brand-navy-700 dark:text-brand-navy-400 dark:hover:bg-brand-navy-900/30"
             onClick={onUploadDrawing}
           >
             <Upload className="h-3 w-3 me-1" />
@@ -115,7 +115,7 @@ export function DesignTable({
                       <TableCell>
                         <button
                           onClick={() => onShowDetail(drawing)}
-                          className="text-sm font-medium text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 hover:underline text-start"
+                          className="text-sm font-medium text-brand-navy-600 dark:text-brand-navy-400 hover:text-brand-navy-700 dark:hover:text-brand-navy-300 hover:underline text-start"
                         >
                           {drawing.title}
                         </button>

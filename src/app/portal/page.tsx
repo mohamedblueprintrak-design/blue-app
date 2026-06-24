@@ -74,7 +74,7 @@ interface PortalData {
 const STAGES = [
   { key: "design", ar: "التصميم", en: "Design", color: "bg-blue-500" },
   { key: "municipality", ar: "البلدية", en: "Municipality", color: "bg-amber-500" },
-  { key: "construction", ar: "التنفيذ", en: "Construction", color: "bg-teal-500" },
+  { key: "construction", ar: "التنفيذ", en: "Construction", color: "bg-brand-navy-500" },
   { key: "handover", ar: "التسليم", en: "Handover", color: "bg-emerald-500" },
   { key: "on_hold", ar: "معلق", en: "On Hold", color: "bg-slate-500" },
 ];
@@ -167,7 +167,7 @@ function LoadingSkeleton() {
   return (
     <div className="flex items-center justify-center py-20">
       <div className="flex flex-col items-center gap-3">
-        <Loader2 className="h-8 w-8 text-teal-500 animate-spin" />
+        <Loader2 className="h-8 w-8 text-brand-navy-500 animate-spin" />
         <p className="text-sm text-slate-500">جاري تحميل البيانات...</p>
       </div>
     </div>
@@ -302,7 +302,7 @@ export default function PortalPage() {
   // ===== LOGIN VIEW =====
   if (view === "login" || !activeProject) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-teal-50/30" dir="rtl">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-brand-navy-50/30" dir="rtl">
         {/* Header */}
         <header className="bg-white border-b border-slate-100">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -311,11 +311,11 @@ export default function PortalPage() {
                 <LogoImage size={36} />
                 <div>
                   <h1 className="text-lg font-bold text-slate-900">BluePrint</h1>
-                  <p className="text-[10px] text-teal-600 font-medium">مكتب الاستشارات الهندسية</p>
+                  <p className="text-[10px] text-brand-navy-600 font-medium">مكتب الاستشارات الهندسية</p>
                 </div>
               </Link>
               <Link href="/">
-                <Button variant="ghost" className="text-slate-600 hover:text-teal-600 text-sm">
+                <Button variant="ghost" className="text-slate-600 hover:text-brand-navy-600 text-sm">
                   <ChevronLeft className="h-4 w-4 me-1" />
                   الرئيسية
                 </Button>
@@ -329,7 +329,7 @@ export default function PortalPage() {
         <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] px-4">
           <div className="w-full max-w-md">
             <div className="text-center mb-8">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-teal-500 to-cyan-500 mb-4 shadow-lg shadow-teal-500/20">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-navy-500 to-cyan-500 mb-4 shadow-lg shadow-brand-navy-500/20">
                 <Shield className="w-8 h-8 text-white" />
               </div>
               <h2 className="text-2xl font-bold text-slate-900 mb-2">بوابة العملاء</h2>
@@ -345,7 +345,7 @@ export default function PortalPage() {
                       value={projectNumber}
                       onChange={(e) => setProjectNumber(e.target.value)}
                       placeholder="مثال: PRJ-2024-001"
-                      className="h-11 text-sm border-slate-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                      className="h-11 text-sm border-slate-200 focus:border-brand-navy-500 focus:ring-2 focus:ring-brand-navy-500/20"
                       dir="ltr"
                       required
                     />
@@ -356,7 +356,7 @@ export default function PortalPage() {
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       placeholder="05XXXXXXXX"
-                      className="h-11 text-sm border-slate-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                      className="h-11 text-sm border-slate-200 focus:border-brand-navy-500 focus:ring-2 focus:ring-brand-navy-500/20"
                       dir="ltr"
                       required
                     />
@@ -372,7 +372,7 @@ export default function PortalPage() {
                   <Button
                     type="submit"
                     disabled={loginLoading}
-                    className="w-full h-11 bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white shadow-lg shadow-teal-500/20 rounded-xl text-base font-semibold"
+                    className="w-full h-11 bg-gradient-to-r from-brand-navy-500 to-cyan-500 hover:from-brand-navy-600 hover:to-cyan-600 text-white shadow-lg shadow-brand-navy-500/20 rounded-xl text-base font-semibold"
                   >
                     {loginLoading ? (
                       <span className="flex items-center gap-2">
@@ -394,7 +394,7 @@ export default function PortalPage() {
             <div className="mt-8 text-center space-y-2">
               <p className="text-sm text-slate-500">هل تحتاج مساعدة؟</p>
               <div className="flex items-center justify-center gap-4">
-                <a href={`tel:${company.phone}`} className="flex items-center gap-1.5 text-sm text-teal-600 hover:text-teal-700">
+                <a href={`tel:${company.phone}`} className="flex items-center gap-1.5 text-sm text-brand-navy-600 hover:text-brand-navy-700">
                   <Phone className="h-3.5 w-3.5" />
                   <span dir="ltr">{company.phone}</span>
                 </a>
@@ -494,7 +494,7 @@ export default function PortalPage() {
                 onClick={() => setActiveSection(item.key)}
                 className={cn(
                   "flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-colors",
-                  isActive ? "text-teal-600" : "text-slate-400"
+                  isActive ? "text-brand-navy-600" : "text-slate-400"
                 )}
               >
                 <Icon className="h-5 w-5" />
@@ -518,7 +518,7 @@ export default function PortalPage() {
                 className={cn(
                   "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all",
                   isActive
-                    ? "bg-teal-600 text-white shadow-sm"
+                    ? "bg-brand-navy-600 text-white shadow-sm"
                     : "text-slate-600 hover:bg-slate-50"
                 )}
               >
@@ -541,7 +541,7 @@ export default function PortalPage() {
                       <span className="text-[10px] font-mono bg-white/20 text-white/80 px-2 py-0.5 rounded" dir="ltr">
                         {activeProject.number}
                       </span>
-                      <Badge className="bg-teal-500/20 text-teal-300 border-0 text-[10px]">
+                      <Badge className="bg-brand-navy-500/20 text-brand-navy-300 border-0 text-[10px]">
                         {activeProject.type}
                       </Badge>
                     </div>
@@ -556,11 +556,11 @@ export default function PortalPage() {
                 <div className="sm:hidden mt-3">
                   <div className="flex items-center justify-between text-xs mb-1">
                     <span className="text-slate-300">التقدم</span>
-                    <span className="text-teal-400 font-bold">{Math.round(activeProject.progress)}%</span>
+                    <span className="text-brand-navy-400 font-bold">{Math.round(activeProject.progress)}%</span>
                   </div>
                   <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-gradient-to-l from-teal-400 to-cyan-400 rounded-full transition-all duration-1000"
+                      className="h-full bg-gradient-to-l from-brand-navy-400 to-cyan-400 rounded-full transition-all duration-1000"
                       style={{ width: `${activeProject.progress}%` }}
                     />
                   </div>
@@ -580,8 +580,8 @@ export default function PortalPage() {
                           <div
                             className={cn(
                               "w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center border-2 transition-all",
-                              isComplete && "bg-teal-500 border-teal-500 text-white",
-                              isCurrent && "bg-teal-50 border-teal-500 text-teal-600 ring-4 ring-teal-100",
+                              isComplete && "bg-brand-navy-500 border-brand-navy-500 text-white",
+                              isCurrent && "bg-brand-navy-50 border-brand-navy-500 text-brand-navy-600 ring-4 ring-brand-navy-100",
                               !isComplete && !isCurrent && "bg-slate-50 border-slate-200 text-slate-300"
                             )}
                           >
@@ -594,13 +594,13 @@ export default function PortalPage() {
                           <span
                             className={cn(
                               "text-[10px] sm:text-xs mt-1.5 font-medium text-center",
-                              isCurrent ? "text-teal-600" : isComplete ? "text-slate-700" : "text-slate-300"
+                              isCurrent ? "text-brand-navy-600" : isComplete ? "text-slate-700" : "text-slate-300"
                             )}
                           >
                             {stage.ar}
                           </span>
                           {isCurrent && (
-                            <Badge className="mt-1 bg-teal-100 text-teal-700 border-0 text-[9px] px-1.5">
+                            <Badge className="mt-1 bg-brand-navy-100 text-brand-navy-700 border-0 text-[9px] px-1.5">
                               الحالية
                             </Badge>
                           )}
@@ -609,7 +609,7 @@ export default function PortalPage() {
                           <div
                             className={cn(
                               "h-0.5 flex-1 -mt-4 sm:mt-5 mx-1",
-                              idx < currentStageIndex ? "bg-teal-500" : "bg-slate-200"
+                              idx < currentStageIndex ? "bg-brand-navy-500" : "bg-slate-200"
                             )}
                           />
                         )}
@@ -646,8 +646,8 @@ export default function PortalPage() {
               <Card className="border-slate-200">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-2 mb-3">
-                    <div className="p-1.5 rounded-lg bg-teal-100">
-                      <User className="h-4 w-4 text-teal-600" />
+                    <div className="p-1.5 rounded-lg bg-brand-navy-100">
+                      <User className="h-4 w-4 text-brand-navy-600" />
                     </div>
                     <span className="text-xs font-medium text-slate-600">مدير المشروع</span>
                   </div>
@@ -657,7 +657,7 @@ export default function PortalPage() {
                       <>
                         <a
                           href={`tel:${activeProject.managerPhone}`}
-                          className="flex items-center gap-1.5 text-xs text-teal-600 hover:text-teal-700"
+                          className="flex items-center gap-1.5 text-xs text-brand-navy-600 hover:text-brand-navy-700"
                           dir="ltr"
                         >
                           <Phone className="h-3 w-3" />
@@ -713,13 +713,13 @@ export default function PortalPage() {
                         {/* Timeline line */}
                         {idx < MILESTONES.length - 1 && (
                           <div className="absolute start-[11px] top-6 bottom-0 w-0.5">
-                            <div className={cn("h-full", isComplete ? "bg-teal-400" : "bg-slate-200")} />
+                            <div className={cn("h-full", isComplete ? "bg-brand-navy-400" : "bg-slate-200")} />
                           </div>
                         )}
                         <Icon
                           className={cn(
                             "h-6 w-6 shrink-0 rounded-full mt-0.5",
-                            isComplete ? "text-teal-500 fill-teal-50" : "text-slate-300"
+                            isComplete ? "text-brand-navy-500 fill-brand-navy-50" : "text-slate-300"
                           )}
                         />
                         <div>
@@ -732,7 +732,7 @@ export default function PortalPage() {
                             {milestone.ar}
                           </span>
                           {isComplete && (
-                            <span className="text-[10px] text-teal-600 me-2">تم الإنجاز</span>
+                            <span className="text-[10px] text-brand-navy-600 me-2">تم الإنجاز</span>
                           )}
                         </div>
                       </div>
@@ -744,7 +744,7 @@ export default function PortalPage() {
 
             {/* Contact Section */}
             <Card className="border-slate-200 overflow-hidden">
-              <div className="bg-gradient-to-r from-teal-600 to-cyan-600 p-6 text-white">
+              <div className="bg-gradient-to-r from-brand-navy-600 to-cyan-600 p-6 text-white">
                 <h3 className="text-base font-bold mb-4">تواصل معنا</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <a href={`tel:${company.phone}`} className="flex items-center gap-3 bg-white/10 hover:bg-white/20 rounded-lg p-3 transition-colors">
@@ -820,7 +820,7 @@ export default function PortalPage() {
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
                           <Badge className={cn("text-[10px]", getDocTypeColor(doc.type))}>{doc.category}</Badge>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-teal-600 hover:text-teal-700 hover:bg-teal-50" aria-label="View">
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-brand-navy-600 hover:text-brand-navy-700 hover:bg-brand-navy-50" aria-label="View">
                             <Eye className="h-4 w-4" />
                           </Button>
                           <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-500 hover:text-slate-700 hover:bg-slate-50" aria-label="Download">
@@ -873,7 +873,7 @@ export default function PortalPage() {
                             <p className="text-xs text-slate-500 leading-relaxed mb-2">{comm.description}</p>
                             {comm.outcome && (
                               <div className="flex items-start gap-1.5 p-2 rounded-lg bg-slate-50">
-                                <CheckCircle2 className="h-3.5 w-3.5 text-teal-500 mt-0.5 shrink-0" />
+                                <CheckCircle2 className="h-3.5 w-3.5 text-brand-navy-500 mt-0.5 shrink-0" />
                                 <div>
                                   <span className="text-[10px] text-slate-400 block">النتيجة</span>
                                   <span className="text-xs text-slate-600">{comm.outcome}</span>
@@ -932,8 +932,8 @@ export default function PortalPage() {
                     </div>
                   </Card>
                   <Card className="border-slate-200 overflow-hidden">
-                    <div className="bg-gradient-to-br from-teal-500 to-teal-600 p-3">
-                      <span className="text-[10px] text-teal-100">نسبة السداد</span>
+                    <div className="bg-gradient-to-br from-brand-navy-500 to-brand-navy-600 p-3">
+                      <span className="text-[10px] text-brand-navy-100">نسبة السداد</span>
                       <div className="text-lg font-bold text-white tabular-nums mt-1">
                         {(() => {
                           const total = portalData?.invoices.reduce((s, i) => s + i.amount, 0) ?? 0;

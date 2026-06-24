@@ -110,7 +110,7 @@ const statusConfig: Record<string, { ar: string; en: string; color: string }> = 
   DRAFT: { ar: "مسودة", en: "Draft", color: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300" },
   SUBMITTED: { ar: "مقدمة", en: "Submitted", color: "bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300" },
   APPROVED: { ar: "معتمدة", en: "Approved", color: "bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300" },
-  RECEIVED: { ar: "مستلمة", en: "Received", color: "bg-teal-100 text-teal-700 dark:bg-teal-900/50 dark:text-teal-300" },
+  RECEIVED: { ar: "مستلمة", en: "Received", color: "bg-brand-navy-100 text-brand-navy-700 dark:bg-brand-navy-900/50 dark:text-brand-navy-300" },
   CANCELLED: { ar: "ملغاة", en: "Cancelled", color: "bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300" },
 };
 
@@ -210,8 +210,8 @@ export default function PurchaseOrdersPage({ language }: PurchaseOrdersPageProps
       label: tAuto('auto.totalValue'),
       value: formatCurrency(stats.totalValue, ar),
       icon: DollarSign,
-      color: "text-teal-600 dark:text-teal-400",
-      bg: "bg-teal-100 dark:bg-teal-900/30",
+      color: "text-brand-navy-600 dark:text-brand-navy-400",
+      bg: "bg-brand-navy-100 dark:bg-brand-navy-900/30",
       isText: true,
     },
   ];
@@ -420,7 +420,7 @@ export default function PurchaseOrdersPage({ language }: PurchaseOrdersPageProps
           </Select>
           <Button
             size="sm"
-            className="h-8 bg-teal-600 hover:bg-teal-700 text-white"
+            className="h-8 bg-brand-navy-600 hover:bg-brand-navy-700 text-white"
             onClick={() => { setFormData(emptyForm); setShowAddDialog(true); }}
           >
             <Plus className="h-3.5 w-3.5 me-1" />
@@ -474,13 +474,13 @@ export default function PurchaseOrdersPage({ language }: PurchaseOrdersPageProps
                     <TableRow
                       key={order.id}
                       className={`group even:bg-slate-50/50 dark:even:bg-slate-800/20 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors ${
-                        highValue ? "border-s-2 border-s-teal-200 dark:border-s-teal-800/50" : ""
+                        highValue ? "border-s-2 border-s-brand-navy-200 dark:border-s-brand-navy-800/50" : ""
                       }`}
                     >
                       <TableCell className="font-mono text-sm font-medium text-slate-900 dark:text-white">
                         <div className="flex items-center gap-1.5">
                           {highValue && (
-                            <span className="w-1.5 h-1.5 rounded-full bg-teal-500" />
+                            <span className="w-1.5 h-1.5 rounded-full bg-brand-navy-500" />
                           )}
                           {order.number}
                         </div>
@@ -492,11 +492,11 @@ export default function PurchaseOrdersPage({ language }: PurchaseOrdersPageProps
                         {order.project ? (ar ? order.project.name : order.project.nameEn || order.project.name) : "—"}
                       </TableCell>
                       <TableCell>
-                        <span className={`text-sm tabular-nums font-semibold font-mono ${highValue ? "text-teal-700 dark:text-teal-300" : "text-slate-900 dark:text-white"}`}>
+                        <span className={`text-sm tabular-nums font-semibold font-mono ${highValue ? "text-brand-navy-700 dark:text-brand-navy-300" : "text-slate-900 dark:text-white"}`}>
                           {formatCurrency(order.amount, ar)}
                         </span>
                         {highValue && (
-                          <Badge variant="secondary" className="text-[9px] h-4 ms-1.5 bg-teal-100 text-teal-700 dark:bg-teal-900/50 dark:text-teal-300 border-0">
+                          <Badge variant="secondary" className="text-[9px] h-4 ms-1.5 bg-brand-navy-100 text-brand-navy-700 dark:bg-brand-navy-900/50 dark:text-brand-navy-300 border-0">
                             {tAuto('auto.highValue')}
                           </Badge>
                         )}
@@ -553,7 +553,7 @@ export default function PurchaseOrdersPage({ language }: PurchaseOrdersPageProps
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-7 w-7 text-teal-600 hover:text-teal-700"
+                              className="h-7 w-7 text-brand-navy-600 hover:text-brand-navy-700"
                               onClick={() => updateStatusMutation.mutate({ id: order.id, status: "RECEIVED" })}
                               title={tAuto('auto.markReceived')}
                               aria-label="Mark received"
@@ -592,7 +592,7 @@ export default function PurchaseOrdersPage({ language }: PurchaseOrdersPageProps
                                 </DropdownMenuItem>
                                 {order.status === "DRAFT" && (
                                   <DropdownMenuItem
-                                    className="text-teal-600 dark:text-teal-400"
+                                    className="text-brand-navy-600 dark:text-brand-navy-400"
                                     onClick={() => {
                                       fetch("/api/approvals", {
                                         method: "POST",
@@ -637,9 +637,9 @@ export default function PurchaseOrdersPage({ language }: PurchaseOrdersPageProps
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
                   <span>{tAuto('auto.purchaseOrder')}</span>
-                  <span className="font-mono text-sm text-teal-600 dark:text-teal-400">#{viewOrder.number}</span>
+                  <span className="font-mono text-sm text-brand-navy-600 dark:text-brand-navy-400">#{viewOrder.number}</span>
                   {isHighValue(viewOrder.amount) && (
-                    <Badge variant="secondary" className="text-[9px] h-4 bg-teal-100 text-teal-700 dark:bg-teal-900/50 dark:text-teal-300 border-0">
+                    <Badge variant="secondary" className="text-[9px] h-4 bg-brand-navy-100 text-brand-navy-700 dark:bg-brand-navy-900/50 dark:text-brand-navy-300 border-0">
                       {tAuto('auto.highValue')}
                     </Badge>
                   )}
@@ -704,9 +704,9 @@ export default function PurchaseOrdersPage({ language }: PurchaseOrdersPageProps
                   </div>
                 )}
 
-                <div className="flex justify-between items-center p-3 rounded-lg bg-gradient-to-l from-teal-50 to-sky-50 dark:from-teal-950/20 dark:to-sky-950/20">
+                <div className="flex justify-between items-center p-3 rounded-lg bg-gradient-to-l from-brand-navy-50 to-sky-50 dark:from-brand-navy-950/20 dark:to-sky-950/20">
                   <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{tAuto('auto.totalAmount')}</span>
-                  <span className="text-lg font-bold text-teal-700 dark:text-teal-300 tabular-nums font-mono">
+                  <span className="text-lg font-bold text-brand-navy-700 dark:text-brand-navy-300 tabular-nums font-mono">
                     {formatCurrency(viewOrder.amount, ar)}
                   </span>
                 </div>
@@ -734,7 +734,7 @@ export default function PurchaseOrdersPage({ language }: PurchaseOrdersPageProps
                     )}
                     {viewOrder.status === "APPROVED" && (
                       <Button
-                        className="flex-1 bg-teal-600 hover:bg-teal-700 text-white"
+                        className="flex-1 bg-brand-navy-600 hover:bg-brand-navy-700 text-white"
                         onClick={() => updateStatusMutation.mutate({ id: viewOrder.id, status: "RECEIVED" })}
                       >
                         <CheckCircle className="h-4 w-4 me-1" />
@@ -891,9 +891,9 @@ export default function PurchaseOrdersPage({ language }: PurchaseOrdersPageProps
             </div>
 
             {/* Total */}
-            <div className="flex justify-between items-center p-3 rounded-lg bg-gradient-to-l from-teal-50 to-sky-50 dark:from-teal-950/20 dark:to-sky-950/20">
+            <div className="flex justify-between items-center p-3 rounded-lg bg-gradient-to-l from-brand-navy-50 to-sky-50 dark:from-brand-navy-950/20 dark:to-sky-950/20">
               <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{tAuto('auto.totalAmount')}</span>
-              <span className="text-lg font-bold text-teal-700 dark:text-teal-300 tabular-nums font-mono">
+              <span className="text-lg font-bold text-brand-navy-700 dark:text-brand-navy-300 tabular-nums font-mono">
                 {formatCurrency(parseFloat(formData.amount) || 0, ar)}
               </span>
             </div>
@@ -907,7 +907,7 @@ export default function PurchaseOrdersPage({ language }: PurchaseOrdersPageProps
               {tAuto('auto.cancel')}
             </Button>
             <Button
-              className="bg-teal-600 hover:bg-teal-700 text-white"
+              className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white"
               onClick={handleSave}
               disabled={!formData.number || !formData.supplierId || createMutation.isPending || updateMutation.isPending}
             >

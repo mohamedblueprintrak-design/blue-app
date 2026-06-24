@@ -47,9 +47,9 @@ export default function SidebarStats() {
       icon: FolderKanban,
       count: activeProjects,
       label: tAuto('auto.active'),
-      pillBg: "bg-teal-50 dark:bg-teal-950/30",
-      iconColor: "text-teal-600 dark:text-teal-400",
-      countColor: "text-teal-700 dark:text-teal-300",
+      pillBg: "bg-brand-navy-50 dark:bg-brand-navy-950/30",
+      iconColor: "text-brand-navy-600 dark:text-brand-navy-400",
+      countColor: "text-brand-navy-700 dark:text-brand-navy-300",
     },
     {
       icon: ListTodo,

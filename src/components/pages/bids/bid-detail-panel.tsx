@@ -54,7 +54,7 @@ export function BidDetailPanel({
             </div>
             <div>
               <span className="text-xs text-slate-400">{tAuto('auto.amount')}</span>
-              <p className="text-lg font-bold text-teal-600 dark:text-teal-400 tabular-nums font-mono">{formatCurrency(bid.amount, ar)}</p>
+              <p className="text-lg font-bold text-brand-navy-600 dark:text-brand-navy-400 tabular-nums font-mono">{formatCurrency(bid.amount, ar)}</p>
             </div>
 
             {/* Scores */}
@@ -72,10 +72,10 @@ export function BidDetailPanel({
                   </div>
                   <div>
                     <p className="text-[10px] text-slate-400">{tAuto('auto.total')}</p>
-                    <p className="text-sm font-bold text-teal-600 tabular-nums">{Math.round(bid.totalScore)}</p>
+                    <p className="text-sm font-bold text-brand-navy-600 tabular-nums">{Math.round(bid.totalScore)}</p>
                   </div>
                 </div>
-                <Progress value={bid.totalScore} className="h-2 [&>div]:bg-teal-500" />
+                <Progress value={bid.totalScore} className="h-2 [&>div]:bg-brand-navy-500" />
               </div>
             )}
 

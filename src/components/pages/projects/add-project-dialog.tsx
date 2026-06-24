@@ -141,15 +141,15 @@ export function AddProjectDialog({
         </DialogHeader>
 
         {/* Template toggle */}
-        <div className="flex items-center gap-2 p-3 rounded-lg border border-teal-200 dark:border-teal-800 bg-teal-50/50 dark:bg-teal-950/20">
-          <LayoutTemplate className="h-4 w-4 text-teal-600 dark:text-teal-400 shrink-0" />
+        <div className="flex items-center gap-2 p-3 rounded-lg border border-brand-navy-200 dark:border-brand-navy-800 bg-brand-navy-50/50 dark:bg-brand-navy-950/20">
+          <LayoutTemplate className="h-4 w-4 text-brand-navy-600 dark:text-brand-navy-400 shrink-0" />
           <span className="text-sm text-slate-700 dark:text-slate-300 flex-1">
             {t("ابدأ من قالب جاهز", "Start from a template")}
           </span>
           <Button
             variant={useTemplate ? "default" : "outline"}
             size="sm"
-            className={cn("h-7 text-xs", useTemplate && "bg-teal-600 hover:bg-teal-700 text-white")}
+            className={cn("h-7 text-xs", useTemplate && "bg-brand-navy-600 hover:bg-brand-navy-700 text-white")}
             onClick={() => setUseTemplate(!useTemplate)}
           >
             {useTemplate ? t("مفعّل", "Enabled") : t("تفعيل", "Enable")}
@@ -160,7 +160,7 @@ export function AddProjectDialog({
         {useTemplate && (
           <div className="space-y-2">
             <Label className="flex items-center gap-2">
-              <LayoutTemplate className="h-3.5 w-3.5 text-teal-600" />
+              <LayoutTemplate className="h-3.5 w-3.5 text-brand-navy-600" />
               {t("اختر القالب", "Select Template")}
             </Label>
             <Select value={selectedTemplateId} onValueChange={setSelectedTemplateId}>
@@ -184,7 +184,7 @@ export function AddProjectDialog({
               </SelectContent>
             </Select>
             {selectedTemplateId && (
-              <p className="text-xs text-teal-600 dark:text-teal-400">
+              <p className="text-xs text-brand-navy-600 dark:text-brand-navy-400">
                 {t(
                   "سيتم إنشاء المراحل والمهام تلقائياً من القالب عند حفظ المشروع",
                   "Stages and tasks will be automatically created from the template when the project is saved"
@@ -306,7 +306,7 @@ export function AddProjectDialog({
           <Button
             type="submit"
             disabled={createMutationPending}
-            className="bg-teal-600 hover:bg-teal-700 text-white"
+            className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white"
           >
             {createMutationPending
               ? t("جارٍ الحفظ...", "Saving...")

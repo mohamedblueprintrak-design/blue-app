@@ -274,7 +274,7 @@ export function TaskForm({
               {tAuto('auto.cancel')}
             </Button>
             <Button
-              className="bg-teal-600 hover:bg-teal-700 text-white"
+              className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white"
               type="submit"
               disabled={createTaskMutation.isPending}
             >

@@ -35,7 +35,7 @@ export function CompareDialog({
         <DialogHeader>
           <div className="flex items-center justify-between">
             <DialogTitle className="flex items-center gap-2">
-              <GitCompareArrows className="h-5 w-5 text-teal-500" />
+              <GitCompareArrows className="h-5 w-5 text-brand-navy-500" />
               {t("مقارنة المشاريع", "Project Comparison")}
             </DialogTitle>
             <Badge variant="secondary" className="text-xs">

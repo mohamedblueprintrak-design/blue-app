@@ -17,7 +17,7 @@ export function getInitials(name: string) {
 }
 
 const avatarColors = [
-  "bg-teal-100 dark:bg-teal-900 text-teal-700 dark:text-teal-300",
+  "bg-brand-navy-100 dark:bg-brand-navy-900 text-brand-navy-700 dark:text-brand-navy-300",
   "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300",
   "bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300",
   "bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300",
@@ -39,14 +39,14 @@ export const departmentColors: Record<string, string> = {
   "الهندسة المعمارية": "bg-violet-500",
   "الهندسة الإنشائية": "bg-blue-500",
   "الهندسة الكهربائية": "bg-amber-500",
-  "الهندسة الميكانيكية": "bg-teal-500",
+  "الهندسة الميكانيكية": "bg-brand-navy-500",
   "الإدارة": "bg-slate-500",
   "المالية": "bg-green-500",
   "الموارد البشرية": "bg-rose-500",
   "Architecture": "bg-violet-500",
   "Structural": "bg-blue-500",
   "Electrical": "bg-amber-500",
-  "Mechanical": "bg-teal-500",
+  "Mechanical": "bg-brand-navy-500",
   "Management": "bg-slate-500",
   "Finance": "bg-green-500",
   "HR": "bg-rose-500",
@@ -57,5 +57,5 @@ export const skillTags: Record<string, { color: string }> = {
   "Revit": { color: "bg-violet-100 text-violet-700 dark:bg-violet-900/50 dark:text-violet-300" },
   "Primavera": { color: "bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300" },
   "Excel": { color: "bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300" },
-  "Project Management": { color: "bg-teal-100 text-teal-700 dark:bg-teal-900/50 dark:text-teal-300" },
+  "Project Management": { color: "bg-brand-navy-100 text-brand-navy-700 dark:bg-brand-navy-900/50 dark:text-brand-navy-300" },
 };

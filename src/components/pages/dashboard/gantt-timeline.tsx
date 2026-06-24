@@ -21,10 +21,10 @@ export function GanttTimeline({ recentProjects, isAr }: GanttTimelineProps) {
     <Card className="rounded-xl border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900 hover:shadow-md transition-shadow">
       <CardHeader className="pb-3 border-b border-slate-100 dark:border-slate-800/50 relative">
         {/* Teal accent line */}
-        <div className="absolute top-0 start-0 end-0 h-[3px] rounded-t-xl bg-gradient-to-l from-teal-500 to-teal-400" />
+        <div className="absolute top-0 start-0 end-0 h-[3px] rounded-t-xl bg-gradient-to-l from-brand-navy-500 to-brand-navy-400" />
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-teal-500 to-cyan-600 flex items-center justify-center shadow-md">
+            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-brand-navy-500 to-cyan-600 flex items-center justify-center shadow-md">
               <Activity className="h-4 w-4 text-white" />
             </div>
             <div>
@@ -39,7 +39,7 @@ export function GanttTimeline({ recentProjects, isAr }: GanttTimelineProps) {
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-3 text-[10px]">
               <span className="flex items-center gap-1">
-                <span className="w-2 h-2 rounded-full bg-gradient-to-r from-teal-500 to-cyan-500" />
+                <span className="w-2 h-2 rounded-full bg-gradient-to-r from-brand-navy-500 to-cyan-500" />
                 <span className="text-slate-500 dark:text-slate-400">{tAuto('auto.active')}</span>
               </span>
               <span className="flex items-center gap-1">
@@ -68,12 +68,12 @@ export function GanttTimeline({ recentProjects, isAr }: GanttTimelineProps) {
               ? "from-red-400 to-red-500 dark:from-red-500 dark:to-red-600"
               : isCompleted
                 ? "from-emerald-400 to-emerald-500 dark:from-emerald-500 dark:to-emerald-600"
-                : "from-teal-400 to-cyan-500 dark:from-teal-500 dark:to-cyan-600";
+                : "from-brand-navy-400 to-cyan-500 dark:from-brand-navy-500 dark:to-cyan-600";
             const trackColor = isDelayed
               ? "bg-red-100 dark:bg-red-950/30"
               : isCompleted
                 ? "bg-emerald-100 dark:bg-emerald-950/30"
-                : "bg-teal-100/60 dark:bg-teal-950/30";
+                : "bg-brand-navy-100/60 dark:bg-brand-navy-950/30";
             // Milestone positions (deterministic based on project index)
             const milestonePct = [35, 60, 45, 75, 50][idx % 5];
 
@@ -142,7 +142,7 @@ export function GanttTimeline({ recentProjects, isAr }: GanttTimelineProps) {
                     ) : isCompleted ? (
                       <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
                     ) : (
-                      <CircleDot className="h-3.5 w-3.5 text-teal-500" />
+                      <CircleDot className="h-3.5 w-3.5 text-brand-navy-500" />
                     )}
                   </div>
                 </div>

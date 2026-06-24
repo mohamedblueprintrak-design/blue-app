@@ -110,7 +110,7 @@ export function MyTasksWidget({ language }: { language: "ar" | "en" }) {
   return (
     <Card className="rounded-xl border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900 overflow-hidden hover:shadow-md transition-shadow">
       {/* Teal gradient header */}
-      <div className="bg-gradient-to-l from-teal-600 to-teal-700 dark:from-teal-800 dark:to-teal-900 px-5 py-4">
+      <div className="bg-gradient-to-l from-brand-navy-600 to-brand-navy-700 dark:from-brand-navy-800 dark:to-brand-navy-900 px-5 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="h-9 w-9 rounded-lg bg-white/20 backdrop-blur-sm flex items-center justify-center">
@@ -177,10 +177,10 @@ export function MyTasksWidget({ language }: { language: "ar" | "en" }) {
                 {/* Mark done button */}
                 <button
                   onClick={() => completeMutation.mutate(task.id)}
-                  className="h-6 w-6 rounded-full border-2 border-slate-300 dark:border-slate-600 flex items-center justify-center shrink-0 hover:bg-teal-50 hover:border-teal-500 dark:hover:bg-teal-950/30 dark:hover:border-teal-500 transition-colors group"
+                  className="h-6 w-6 rounded-full border-2 border-slate-300 dark:border-slate-600 flex items-center justify-center shrink-0 hover:bg-brand-navy-50 hover:border-brand-navy-500 dark:hover:bg-brand-navy-950/30 dark:hover:border-brand-navy-500 transition-colors group"
                   title={tAuto('auto.markDone')}
                 >
-                  <CheckCheck className="h-3 w-3 text-slate-400 group-hover:text-teal-500 transition-colors" />
+                  <CheckCheck className="h-3 w-3 text-slate-400 group-hover:text-brand-navy-500 transition-colors" />
                 </button>
               </div>
             );

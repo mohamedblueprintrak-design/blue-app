@@ -310,10 +310,10 @@ export default function FinanceRevenuePage({ }: Props) {
         </Card>
 
         <Card className="py-0 gap-0 border-0 shadow-sm overflow-hidden">
-          <div className="bg-gradient-to-br from-teal-500 to-teal-600 dark:from-teal-600 dark:to-teal-700 p-4">
+          <div className="bg-gradient-to-br from-brand-navy-500 to-brand-navy-600 dark:from-brand-navy-600 dark:to-brand-navy-700 p-4">
             <div className="flex items-center gap-2 mb-2">
               <div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm"><Wallet className="h-3.5 w-3.5 text-white" /></div>
-              <span className="text-[11px] text-teal-100">{tAuto('auto.totalRevenue')}</span>
+              <span className="text-[11px] text-brand-navy-100">{tAuto('auto.totalRevenue')}</span>
             </div>
             <div className="text-lg font-bold text-white tabular-nums">{formatCurrency(totalRevenue, ar)}</div>
           </div>
@@ -363,7 +363,7 @@ export default function FinanceRevenuePage({ }: Props) {
                   <span className="text-xs font-bold font-mono tabular-nums text-slate-900 dark:text-white">{formatCurrency(p.revenue, ar)}</span>
                 </div>
                 <div className="w-full h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
-                  <div className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 transition-all duration-500" style={{ width: `${totalRevenue > 0 ? (p.revenue / totalRevenue) * 100 : 0}%` }} />
+                  <div className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-brand-navy-500 transition-all duration-500" style={{ width: `${totalRevenue > 0 ? (p.revenue / totalRevenue) * 100 : 0}%` }} />
                 </div>
               </div>
             </div>

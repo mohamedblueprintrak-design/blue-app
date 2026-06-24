@@ -95,7 +95,7 @@ function getProjectRoleLabel(role: string, ar: boolean) {
 function getProjectRoleColor(role: string) {
   const colors: Record<string, string> = {
     project_manager: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300",
-    engineer: "bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300",
+    engineer: "bg-brand-navy-100 text-brand-navy-700 dark:bg-brand-navy-900/40 dark:text-brand-navy-300",
     architect: "bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300",
     draftsman: "bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300",
     supervisor: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300",
@@ -117,7 +117,7 @@ function getProjectRoleIcon(role: string) {
 
 function getHashColor(name: string): string {
   const colors = [
-    "bg-teal-500", "bg-cyan-500", "bg-emerald-500", "bg-amber-500",
+    "bg-brand-navy-500", "bg-cyan-500", "bg-emerald-500", "bg-amber-500",
     "bg-violet-500", "bg-rose-500", "bg-sky-500", "bg-lime-500",
     "bg-orange-500", "bg-pink-500",
   ];
@@ -424,7 +424,7 @@ export default function TeamMembers({ language, projectId }: TeamMembersProps) {
         {/* Department Breakdown - top departments */}
         {departmentBreakdown.slice(0, 3).map(([dept, count], idx) => {
           const gradients = [
-            "from-teal-500 to-teal-600 dark:from-teal-600 dark:to-teal-700",
+            "from-brand-navy-500 to-brand-navy-600 dark:from-brand-navy-600 dark:to-brand-navy-700",
             "from-amber-500 to-orange-500 dark:from-amber-600 dark:to-orange-600",
             "from-emerald-500 to-emerald-600 dark:from-emerald-600 dark:to-emerald-700",
           ];
@@ -579,7 +579,7 @@ export default function TeamMembers({ language, projectId }: TeamMembersProps) {
                         {assignment.user.email && (
                           <a
                             href={`mailto:${assignment.user.email}`}
-                            className="flex items-center gap-1 text-[11px] text-teal-600 dark:text-teal-400 hover:underline"
+                            className="flex items-center gap-1 text-[11px] text-brand-navy-600 dark:text-brand-navy-400 hover:underline"
                           >
                             <Mail className="h-3 w-3" />
                             <span className="truncate max-w-[180px]">{assignment.user.email}</span>

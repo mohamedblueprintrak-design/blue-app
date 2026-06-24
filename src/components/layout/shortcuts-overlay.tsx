@@ -145,8 +145,8 @@ export default function ShortcutsOverlay({
       <DialogContent className="max-w-md p-0 gap-0 overflow-hidden border border-white/10 dark:border-slate-700/50 shadow-2xl">
         <DialogHeader className="px-5 pt-5 pb-3">
           <DialogTitle className="flex items-center gap-2 text-base">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-100 dark:bg-teal-900/30">
-              <Keyboard className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-navy-100 dark:bg-brand-navy-900/30">
+              <Keyboard className="h-4 w-4 text-brand-navy-600 dark:text-brand-navy-400" />
             </div>
             {t("اختصارات لوحة المفاتيح", "Keyboard Shortcuts")}
           </DialogTitle>
@@ -160,8 +160,8 @@ export default function ShortcutsOverlay({
                 className={cn(
                   "group flex flex-col gap-2 rounded-lg p-3 transition-colors",
                   "bg-slate-50 dark:bg-slate-800/50",
-                  "hover:bg-teal-50 dark:hover:bg-teal-950/20",
-                  "border border-transparent hover:border-teal-200 dark:hover:border-teal-800/50"
+                  "hover:bg-brand-navy-50 dark:hover:bg-brand-navy-950/20",
+                  "border border-transparent hover:border-brand-navy-200 dark:hover:border-brand-navy-800/50"
                 )}
               >
                 <div className="flex items-center justify-between gap-2">

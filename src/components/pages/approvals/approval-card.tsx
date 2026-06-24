@@ -165,7 +165,7 @@ export function ApprovalCard({
 
               {/* Amount */}
               {approval.amount > 0 && (
-                <span className="text-[11px] font-mono tabular-nums font-medium text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/20 px-2 py-0.5 rounded-md">
+                <span className="text-[11px] font-mono tabular-nums font-medium text-brand-navy-600 dark:text-brand-navy-400 bg-brand-navy-50 dark:bg-brand-navy-900/20 px-2 py-0.5 rounded-md">
                   {formatCurrency(approval.amount, ar)}
                 </span>
               )}
