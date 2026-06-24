@@ -28,6 +28,7 @@ const jestConfig = {
   collectCoverageFrom: [
     'src/lib/**/*.ts',
     'src/app/api/**/*.ts',
+    'src/app/api/**/route.ts',
     '!src/**/*.d.ts',
     '!src/**/types.ts',
   ],

@@ -23,7 +23,7 @@ test.describe.serial('Core Application Flows (Login, Projects, Invoices)', () =>
     // 1. Navigate to dashboard login page
     const response = await sharedPage.goto('/dashboard', { timeout: 60000 });
     expect(response).not.toBeNull();
-    expect(response?.status()).not.toBe(500);
+    expect(response?.ok()).toBe(true);
     await sharedPage.waitForLoadState('domcontentloaded');
 
     // 2. Wait for the auth store to initialize.
@@ -72,7 +72,7 @@ test.describe.serial('Core Application Flows (Login, Projects, Invoices)', () =>
     // 1. Navigate directly to projects route
     const response = await sharedPage.goto('/dashboard/projects', { timeout: 60000 });
     expect(response).not.toBeNull();
-    expect(response?.status()).not.toBe(500);
+    expect(response?.ok()).toBe(true);
     await sharedPage.waitForLoadState('domcontentloaded');
 
     // 2. Verify URL
@@ -90,7 +90,7 @@ test.describe.serial('Core Application Flows (Login, Projects, Invoices)', () =>
     // 1. Navigate directly to invoices route
     const response = await sharedPage.goto('/dashboard/invoices', { timeout: 60000 });
     expect(response).not.toBeNull();
-    expect(response?.status()).not.toBe(500);
+    expect(response?.ok()).toBe(true);
     await sharedPage.waitForLoadState('domcontentloaded');
 
     // 2. Verify URL

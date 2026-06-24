@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { rateLimiters } from '@/lib/rate-limiter';
 import { log } from '@/lib/logger';
+import { timingSafeCompare } from '@/lib/middleware/security';
 
 export async function POST(request: NextRequest) {
   try {
     const authHeader = request.headers.get('Authorization');
     const internalSecret = process.env.INTERNAL_API_SECRET || process.env.JWT_SECRET;
     
-    if (!internalSecret || authHeader !== `Bearer ${internalSecret}`) {
+    if (!internalSecret || !authHeader || !(await timingSafeCompare(authHeader, `Bearer ${internalSecret}`))) {
       log.security('Unauthorized access attempt to internal rate-limit API');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

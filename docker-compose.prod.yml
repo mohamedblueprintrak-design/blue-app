@@ -32,6 +32,7 @@ services:
   # Application Service
   # ============================================
   app:
+    image: ${DOCKER_IMAGE:-ghcr.io/mohamedblueprintrak-design/blue-app/app:latest}
     build:
       context: .
       dockerfile: Dockerfile
@@ -244,6 +245,35 @@ services:
           memory: 256M
         reservations:
           memory: 64M
+
+  # ============================================
+  # WebSocket Chat Service
+  # ============================================
+  chat-service:
+    build:
+      context: .
+      dockerfile: mini-services/chat-service/Dockerfile
+    container_name: blueprint-chat
+    restart: unless-stopped
+    expose:
+      - "3003"
+    environment:
+      - PORT=3003
+      - DATABASE_URL=postgresql://blueprint:${DATABASE_PASSWORD:?DATABASE_PASSWORD must be set}@postgres:5432/blueprint
+      - JWT_SECRET=${JWT_SECRET:?JWT_SECRET must be set}
+      - CORS_ORIGINS=${NEXT_PUBLIC_APP_URL}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - blueprint-network
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
 
 # ============================================
 # Networks - Internal Only

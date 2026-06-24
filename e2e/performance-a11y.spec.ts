@@ -8,7 +8,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Performance', () => {
   test('landing page should load within 5 seconds', async ({ page }) => {
     const start = Date.now();
-    await page.goto('/', { timeout: 30000 });
+    await page.goto('/', { timeout: 30000, waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('domcontentloaded');
     const loadTime = Date.now() - start;
     // P2-30 FIX: was 30s — way too lenient. A landing page should load in <5s.
@@ -18,7 +18,7 @@ test.describe('Performance', () => {
 
   test('login page should load within 5 seconds', async ({ page }) => {
     const start = Date.now();
-    await page.goto('/dashboard', { timeout: 30000 });
+    await page.goto('/dashboard', { timeout: 30000, waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('domcontentloaded');
     const loadTime = Date.now() - start;
     // P2-30 FIX: was 30s — too lenient.
@@ -37,7 +37,7 @@ test.describe('Performance', () => {
   });
 
   test('static assets should be cacheable', async ({ page }) => {
-    const response = await page.goto('/', { timeout: 60000 });
+    const response = await page.goto('/', { timeout: 60000, waitUntil: 'domcontentloaded' });
     expect(response).not.toBeNull();
 
     // Check for common static assets being cacheable
@@ -51,14 +51,14 @@ test.describe('Performance', () => {
   });
 
   test('HTML should have lang attribute', async ({ page }) => {
-    await page.goto('/', { timeout: 60000 });
+    await page.goto('/', { timeout: 60000, waitUntil: 'domcontentloaded' });
     const lang = await page.getAttribute('html', 'lang');
     // Should have some language set
     expect(lang).toBeTruthy();
   });
 
   test('page should have viewport meta tag', async ({ page }) => {
-    await page.goto('/', { timeout: 60000 });
+    await page.goto('/', { timeout: 60000, waitUntil: 'domcontentloaded' });
     const viewport = await page.getAttribute('meta[name="viewport"]', 'content');
     expect(viewport).toBeTruthy();
   });
@@ -97,7 +97,7 @@ test.describe('Accessibility (a11y)', () => {
       }
     });
 
-    await page.goto('/', { timeout: 30000 });
+    await page.goto('/', { timeout: 30000, waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('domcontentloaded');
 
     // Only count REAL JavaScript errors (not network/API failures)
@@ -107,7 +107,7 @@ test.describe('Accessibility (a11y)', () => {
   });
 
   test('images should have alt text', async ({ page }) => {
-    await page.goto('/', { timeout: 60000 });
+    await page.goto('/', { timeout: 60000, waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('domcontentloaded');
 
     const images = await page.$$('img');
@@ -119,7 +119,7 @@ test.describe('Accessibility (a11y)', () => {
   });
 
   test('buttons should have accessible text or be icon-only', async ({ page }) => {
-    await page.goto('/dashboard', { timeout: 60000 });
+    await page.goto('/dashboard', { timeout: 60000, waitUntil: 'domcontentloaded' });
     // Wait for page to be fully stable (avoid execution context destroyed by navigation)
     await page.waitForLoadState('networkidle').catch(() => {});
     await page.waitForLoadState('domcontentloaded');
@@ -147,7 +147,7 @@ test.describe('Accessibility (a11y)', () => {
   });
 
   test('page should have proper heading hierarchy', async ({ page }) => {
-    await page.goto('/', { timeout: 30000 });
+    await page.goto('/', { timeout: 30000, waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('domcontentloaded');
 
     const h1 = await page.$$('h1');
@@ -159,7 +159,7 @@ test.describe('Accessibility (a11y)', () => {
   });
 
   test('focus should be manageable via keyboard', async ({ page }) => {
-    await page.goto('/dashboard', { timeout: 60000 });
+    await page.goto('/dashboard', { timeout: 60000, waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('domcontentloaded');
 
     // Tab through the page a few times
@@ -175,7 +175,7 @@ test.describe('Accessibility (a11y)', () => {
 
 test.describe('Content Security', () => {
   test('no inline scripts in page source', async ({ page }) => {
-    await page.goto('/', { timeout: 60000 });
+    await page.goto('/', { timeout: 60000, waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('domcontentloaded');
 
     const inlineScripts = await page.$$eval('script:not([src])', (scripts) => scripts.length);

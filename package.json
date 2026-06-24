@@ -7,7 +7,7 @@
     "setup": "npx prisma db push && npx tsx prisma/seed.ts",
     "dev": "next dev -p 3000 --webpack",
     "build": "next build",
-    "start": "node .next/standalone/server.js",
+    "start": "next start",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "type-check": "tsc --noEmit",

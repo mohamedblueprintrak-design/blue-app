@@ -175,25 +175,29 @@ jobs:
             # Log in to GitHub Container Registry
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
 
-            # Pull the latest image
-            echo "Pulling Docker image..."
-            docker compose -f docker-compose.yml -f docker-compose.prod.yml pull app
+            # Set deployment environment variables
+            DOCKER_IMAGE="ghcr.io/${{ github.repository }}:${{ steps.deploy-vars.outputs.image_tag }}"
+            export DOCKER_IMAGE
 
-            # Run database migrations (if using PostgreSQL)
+            # Pull the latest images
+            echo "Pulling Docker images..."
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml pull
+
+            # Run database migrations
             echo "Running database migrations..."
             docker compose -f docker-compose.yml -f docker-compose.prod.yml run --rm app \
-              bunx prisma migrate deploy
+              npx prisma migrate deploy
 
             # Restart services with zero-downtime
             echo "Restarting application..."
             docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --remove-orphans
 
-            # Wait for health check
+            # Wait for health check (running wget inside the app container since port 3000 is expose-only)
             echo "Waiting for health check..."
             timeout=60
             elapsed=0
             while [ $elapsed -lt $timeout ]; do
-              if curl -sf http://localhost:3000/api/health > /dev/null 2>&1; then
+              if docker compose -f docker-compose.yml -f docker-compose.prod.yml exec -T app wget --no-verbose --tries=1 --spider http://localhost:3000/api/health > /dev/null 2>&1; then
                 echo "Health check passed!"
                 break
               fi

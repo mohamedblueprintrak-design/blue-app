@@ -12,8 +12,7 @@
 import { createServer } from 'http';
 import { Server as IOServer, Socket, DefaultEventsMap } from 'socket.io';
 import { jwtVerify } from 'jose';
-import { Database } from 'bun:sqlite';
-import path from 'path';
+import { PrismaClient } from '@prisma/client';
 import {
   SocketData,
   NotificationPayload,
@@ -47,63 +46,11 @@ const JWT_AUDIENCE = process.env.JWT_AUDIENCE || 'blueprint-ws';
 const CORS_ORIGIN = process.env.CORS_ORIGINS || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
 // ============================================
-// Database Connection (bun:sqlite — built into Bun, no native deps)
+// Database Connection (PrismaClient)
 // ============================================
 
-function resolveDatabasePath(): string {
-  const dbUrl = process.env.DATABASE_URL || 'file:./db/custom.db';
-  // Handle file: protocol URLs
-  if (dbUrl.startsWith('file:')) {
-    const rawPath = dbUrl.slice(5);
-    // If absolute path, use as-is; otherwise resolve relative to project root
-    if (path.isAbsolute(rawPath)) {
-      return rawPath;
-    }
-    // Resolve relative to the main project root (3 levels up from this file)
-    return path.resolve(__dirname, '..', '..', rawPath);
-  }
-  return dbUrl;
-}
-
-const DB_PATH = resolveDatabasePath();
-console.info(`[DB] Opening SQLite database at: ${DB_PATH}`);
-
-let db: Database;
-try {
-  db = new Database(DB_PATH);
-  // Enable WAL mode for better concurrent read performance
-  db.exec('PRAGMA journal_mode = WAL');
-  console.info('[DB] Database connected successfully');
-} catch (error) {
-  console.error('[DB] Failed to connect to database:', error);
-  process.exit(1);
-}
-
-// ============================================
-// Prepared Statements
-// ============================================
-
-const stmtFindUser = db.prepare(`
-  SELECT id, email, name, role, organizationId, isActive
-  FROM User
-  WHERE id = ?
-`);
-
-const stmtCountUnreadNotifications = db.prepare(`
-  SELECT COUNT(*) as count
-  FROM Notification
-  WHERE userId = ? AND isRead = 0
-`);
-
-const stmtMarkNotificationRead = db.prepare(`
-  UPDATE Notification
-  SET isRead = 1
-  WHERE id = ? AND userId = ?
-`);
-
-const stmtFindNotification = db.prepare(`
-  SELECT id, userId FROM Notification WHERE id = ?
-`);
+const prisma = new PrismaClient();
+console.info(`[DB] Initialized Prisma Client`);
 
 // ============================================
 // Connected Users Tracking
@@ -182,11 +129,56 @@ const rateLimitCleanupInterval = setInterval(() => {
 type TypedIOServer = IOServer<ClientToServerEvents, ServerToClientEvents, DefaultEventsMap, SocketData>;
 type TypedSocket = Socket<ClientToServerEvents, ServerToClientEvents, DefaultEventsMap, SocketData>;
 
-const httpServer = createServer((req, res) => {
+const httpServer = createServer(async (req, res) => {
   // Expose a simple HTTP GET /health endpoint for monitoring
   if (req.method === 'GET' && req.url === '/health') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ status: 'ok', timestamp: new Date().toISOString() }));
+    return;
+  }
+  
+  // POST /api/broadcast for microservice event broadcasting
+  if (req.method === 'POST' && req.url === '/api/broadcast') {
+    try {
+      // Auth check
+      const authHeader = req.headers['authorization'];
+      const internalSecret = process.env.INTERNAL_API_SECRET || process.env.JWT_SECRET;
+      
+      if (!internalSecret || authHeader !== `Bearer ${internalSecret}`) {
+        res.writeHead(401, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Unauthorized' }));
+        return;
+      }
+      
+      // Parse body
+      const buffers = [];
+      for await (const chunk of req) {
+        buffers.push(chunk);
+      }
+      const bodyText = Buffer.concat(buffers).toString();
+      const body = JSON.parse(bodyText);
+      
+      const { type, userId, organizationId, event, payload } = body;
+      
+      if (type === 'user' && userId) {
+        const roomName = getRoomName('user', userId);
+        io.to(roomName).emit(event, payload);
+        // Also update unread count if it's a notification
+        if (event === 'notification') {
+          await sendNotificationCountToUser(userId);
+        }
+      } else if (type === 'organization' && organizationId) {
+        const roomName = getRoomName('organization', organizationId);
+        io.to(roomName).emit(event, payload);
+      }
+      
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ status: 'success' }));
+    } catch (error) {
+      console.error('[WS API] Broadcast failed:', error);
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Internal Server Error' }));
+    }
     return;
   }
   
@@ -246,14 +238,9 @@ io.use(async (socket: TypedSocket, next: (err?: Error) => void) => {
     };
 
     // Look up user in database to verify they still exist and are active
-    const user = stmtFindUser.get(decoded.userId) as {
-      id: string;
-      email: string;
-      name: string | null;
-      role: string;
-      organizationId: string | null;
-      isActive: boolean;
-    } | undefined;
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.userId }
+    });
 
     if (!user || !user.isActive) {
       return next(new Error('User not found or inactive'));
@@ -312,20 +299,22 @@ function leaveRoom(socket: TypedSocket, type: RoomType, id: string) {
 // Notification Helpers
 // ============================================
 
-function sendNotificationCount(socket: TypedSocket, userId: string): void {
+async function sendNotificationCount(socket: TypedSocket, userId: string): Promise<void> {
   try {
-    const result = stmtCountUnreadNotifications.get(userId) as { count: number } | undefined;
-    const count = result?.count ?? 0;
+    const count = await prisma.notification.count({
+      where: { userId: userId, isRead: false }
+    });
     socket.emit('notification_count', { count });
   } catch (error) {
     console.error('[Notification] Error getting notification count:', error);
   }
 }
 
-function sendNotificationCountToUser(userId: string): void {
+async function sendNotificationCountToUser(userId: string): Promise<void> {
   try {
-    const result = stmtCountUnreadNotifications.get(userId) as { count: number } | undefined;
-    const count = result?.count ?? 0;
+    const count = await prisma.notification.count({
+      where: { userId: userId, isRead: false }
+    });
     const userRoom = getRoomName('user', userId);
     io.to(userRoom).emit('notification_count', { count });
   } catch (error) {
@@ -369,7 +358,7 @@ function findUserConnection(userId: string): ConnectedUser | undefined {
 // Connection Handler
 // ============================================
 
-function handleConnection(socket: TypedSocket) {
+async function handleConnection(socket: TypedSocket) {
   const { userId, organizationId, userName } = socket.data;
 
   console.info(`[WS] User connected: ${userName} (${userId})`);
@@ -426,7 +415,7 @@ function handleConnection(socket: TypedSocket) {
   broadcastUserPresence(userId, userName, true);
 
   // Send initial notification count
-  sendNotificationCount(socket, userId);
+  await sendNotificationCount(socket, userId);
 
   // Setup event handlers
   setupEventHandlers(socket);
@@ -468,10 +457,13 @@ function setupEventHandlers(socket: TypedSocket) {
   });
 
   // Mark notification as read (with ownership verification — prevents IDOR)
-  socket.on('mark_notification_read', (notificationId: string) => {
+  socket.on('mark_notification_read', async (notificationId: string) => {
     try {
       // SECURITY: Verify the notification belongs to the requesting user
-      const notification = stmtFindNotification.get(notificationId) as { id: string; userId: string } | undefined;
+      const notification = await prisma.notification.findUnique({
+        where: { id: notificationId },
+        select: { id: true, userId: true }
+      });
       if (!notification) {
         console.warn(`[Security] Notification not found: ${notificationId} (user: ${socket.data.userId})`);
         return;
@@ -480,9 +472,12 @@ function setupEventHandlers(socket: TypedSocket) {
         console.warn(`[Security] IDOR attempt: user ${socket.data.userId} tried to mark notification ${notificationId} owned by ${notification.userId}`);
         return;
       }
-      stmtMarkNotificationRead.run(notificationId, socket.data.userId);
+      await prisma.notification.updateMany({
+        where: { id: notificationId, userId: socket.data.userId },
+        data: { isRead: true }
+      });
       // Update notification count for this user
-      sendNotificationCount(socket, socket.data.userId);
+      await sendNotificationCount(socket, socket.data.userId);
       console.info(`[Notification] Marked as read: ${notificationId}`);
     } catch (error) {
       console.error('[Notification] Error marking notification as read:', error);
@@ -490,7 +485,7 @@ function setupEventHandlers(socket: TypedSocket) {
   });
 
   // Subscribe to entity updates
-  socket.on('subscribe_to_entity', (data: { entityType: string; entityId: string }) => {
+  socket.on('subscribe_to_entity', async (data: { entityType: string; entityId: string }) => {
     const { entityType, entityId } = data;
     const organizationId = socket.data.organizationId;
 
@@ -499,11 +494,18 @@ function setupEventHandlers(socket: TypedSocket) {
     // Here we implement it for 'project' and 'task' if the database is available.
     if (['project', 'task'].includes(entityType) && organizationId) {
       try {
-        // Warning: This only works if using SQLite (which chat-service expects)
-        const table = entityType === 'project' ? 'Project' : 'Task';
-        // Note: Using raw string concatenation for table name is safe here because it's tightly controlled above.
-        const stmtCheck = db.prepare(`SELECT organizationId FROM ${table} WHERE id = ?`);
-        const result = stmtCheck.get(entityId) as { organizationId: string } | undefined;
+        let result: { organizationId: string | null } | null = null;
+        if (entityType === 'project') {
+          result = await prisma.project.findUnique({
+            where: { id: entityId },
+            select: { organizationId: true }
+          });
+        } else if (entityType === 'task') {
+          result = await prisma.task.findUnique({
+            where: { id: entityId },
+            select: { organizationId: true }
+          });
+        }
         
         if (result && result.organizationId !== organizationId) {
           console.warn(`[Security] IDOR attempt: user ${socket.data.userId} tried to subscribe to ${entityType} ${entityId}`);
@@ -694,8 +696,8 @@ export function getConnectionStats(): {
 // Start Server
 // ============================================
 
-io.on('connection', (socket) => {
-  handleConnection(socket);
+io.on('connection', async (socket) => {
+  await handleConnection(socket);
 });
 
 httpServer.listen(PORT, () => {
@@ -703,7 +705,7 @@ httpServer.listen(PORT, () => {
   console.info(`[WS] Socket.io path: '/'`);
   console.info(`[WS] CORS origin: ${CORS_ORIGIN}`);
   console.info(`[WS] JWT auth: enabled`);
-  console.info(`[WS] Database: ${DB_PATH}`);
+  console.info(`[WS] Database: Prisma Client`);
   console.info(`[WS] Ready for connections`);
 });
 
@@ -721,10 +723,10 @@ function gracefulShutdown(signal: string) {
   io.disconnectSockets(true);
 
   // Close HTTP server
-  httpServer.close(() => {
+  httpServer.close(async () => {
     // Close database
     try {
-      db.close();
+      await prisma.$disconnect();
       console.info('[DB] Database connection closed');
     } catch {
       // Database may already be closed

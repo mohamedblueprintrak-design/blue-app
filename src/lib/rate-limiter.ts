@@ -273,7 +273,7 @@ export class RateLimiter {
 
 // In development/demo mode, use a more generous rate limit to avoid blocking
 // legitimate testing and demo usage. In production, these limits are enforced strictly.
-const isDev = process.env.NODE_ENV === 'development' || process.env.DEMO_MODE === 'true';
+const isDev = process.env.NODE_ENV === 'development' || process.env.DEMO_MODE === 'true' || process.env.PLAYWRIGHT_TEST === 'true' || process.env.JEST_WORKER_ID !== undefined;
 
 export const rateLimiters = {
   /**

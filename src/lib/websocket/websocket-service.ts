@@ -394,6 +394,31 @@ function getRoomName(type: RoomType, id: string): string {
 // Broadcasting Functions
 // ============================================
 
+// Helper to post events to the standalone chat-service on port 3003
+async function postToChatService(body: Record<string, any>): Promise<void> {
+  const chatServiceUrl = process.env.CHAT_SERVICE_URL || 'http://localhost:3003';
+  const internalSecret = process.env.INTERNAL_API_SECRET || process.env.JWT_SECRET;
+  if (!internalSecret) {
+    log.error('[WebSocket Service] INTERNAL_API_SECRET/JWT_SECRET is not configured.');
+    return;
+  }
+  try {
+    const res = await fetch(`${chatServiceUrl}/api/broadcast`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${internalSecret}`
+      },
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) {
+      log.error(`[WebSocket Service] HTTP error from chat-service: ${res.status}`);
+    }
+  } catch (err) {
+    log.error('[WebSocket Service] Failed to send broadcast to chat-service:', err);
+  }
+}
+
 /**
  * Send notification to specific user
  */
@@ -401,62 +426,99 @@ export async function sendNotificationToUser(
   userId: string,
   notification: NotificationPayload
 ): Promise<void> {
-  if (!io) return;
+  if (io) {
+    const roomName = getRoomName('user', userId);
+    io.to(roomName).emit('notification', notification);
+    await sendNotificationCountToUser(userId);
+    return;
+  }
 
-  const roomName = getRoomName('user', userId);
-  io.to(roomName).emit('notification', notification);
-
-  // Update notification count
-  await sendNotificationCountToUser(userId);
+  await postToChatService({
+    type: 'user',
+    userId,
+    event: 'notification',
+    payload: notification
+  });
 }
 
 /**
  * Send notification to all users in organization
  */
-export function sendNotificationToOrganization(
+export async function sendNotificationToOrganization(
   organizationId: string,
   event: string,
   payload: Record<string, unknown>
-): void {
-  if (!io) return;
+): Promise<void> {
+  if (io) {
+    const roomName = getRoomName('organization', organizationId);
+    io.to(roomName).emit(event as keyof ServerToClientEvents, payload as never);
+    return;
+  }
 
-  const roomName = getRoomName('organization', organizationId);
-  io.to(roomName).emit(event as keyof ServerToClientEvents, payload as never); // Dynamic emit — callers ensure event/payload type match
+  await postToChatService({
+    type: 'organization',
+    organizationId,
+    event,
+    payload
+  });
 }
 
 /**
  * Broadcast project update
  */
-export function broadcastProjectUpdate(
+export async function broadcastProjectUpdate(
   organizationId: string,
   payload: ProjectPayload
-): void {
-  if (!io) return;
+): Promise<void> {
+  if (io) {
+    const roomName = getRoomName('organization', organizationId);
+    io.to(roomName).emit('project_update', payload);
+    return;
+  }
 
-  const roomName = getRoomName('organization', organizationId);
-  io.to(roomName).emit('project_update', payload);
+  await postToChatService({
+    type: 'organization',
+    organizationId,
+    event: 'project_update',
+    payload
+  });
 }
 
 /**
  * Broadcast task update
  */
-export function broadcastTaskUpdate(
+export async function broadcastTaskUpdate(
   organizationId: string,
   userId: string,
   payload: TaskPayload
-): void {
-  if (!io) return;
-
-  // Send to organization
-  if (organizationId) {
-    const orgRoom = getRoomName('organization', organizationId);
-    io.to(orgRoom).emit('task_update', payload);
+): Promise<void> {
+  if (io) {
+    if (organizationId) {
+      const orgRoom = getRoomName('organization', organizationId);
+      io.to(orgRoom).emit('task_update', payload);
+    }
+    if (payload.assignedTo) {
+      const userRoom = getRoomName('user', payload.assignedTo);
+      io.to(userRoom).emit('task_update', payload);
+    }
+    return;
   }
 
-  // Also send to assigned user specifically
+  if (organizationId) {
+    await postToChatService({
+      type: 'organization',
+      organizationId,
+      event: 'task_update',
+      payload
+    });
+  }
   if (payload.assignedTo) {
-    const userRoom = getRoomName('user', payload.assignedTo);
-    io.to(userRoom).emit('task_update', payload);
+    await postToChatService({
+      type: 'user',
+      userId: payload.assignedTo,
+      event: 'task_update',
+      payload
+    });
   }
 }
 

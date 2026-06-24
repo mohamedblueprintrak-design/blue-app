@@ -229,6 +229,7 @@ async function main() {
         position: '',
         isActive: true,
         organizationId: orgAssignments[cred.email] || org1.id,
+        preferences: JSON.stringify({ onboardingCompleted: true }),
       },
     });
     userMap[cred.email] = user;

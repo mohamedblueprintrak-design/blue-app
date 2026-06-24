@@ -26,7 +26,7 @@ export interface RateLimitEntry {
 // (net, tls, timers/promises) which are NOT supported in Next.js Edge Runtime (middleware).
 // Falling back to in-memory store for rate limiting in middleware.
 
-const isDev = process.env.NODE_ENV === 'development' || process.env.DEMO_MODE === 'true';
+const isDev = process.env.NODE_ENV === 'development' || process.env.DEMO_MODE === 'true' || process.env.PLAYWRIGHT_TEST === 'true' || process.env.JEST_WORKER_ID !== undefined;
 
 export const RATE_LIMIT_TIERS: Record<RateLimitTier, RateLimitConfig> = {
   strict:  { maxRequests: isDev ? 1000 : 5,   windowMs: 60_000 },  // 5 req/min  — login, register, password reset

@@ -47,7 +47,8 @@ export async function POST(request: Request) {
     // SECURITY: In multi-tenant mode, require orgId from the request to prevent
     // data being assigned to the wrong organization. In single-tenant mode,
     // default to the first (only) organization.
-    const isMultiTenant = process.env.MULTI_TENANT === 'true';
+    const isExplicitSingleTenant = process.env.MULTI_TENANT === 'false';
+    const isMultiTenant = !isExplicitSingleTenant;
     const requestOrgId = body.orgId as string | undefined;
     let orgId: string;
 

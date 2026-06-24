@@ -156,6 +156,23 @@ echo Step 10: Generating Prisma Client...
 call %EXEC% prisma generate
 echo [OK] Prisma Client ready
 
+set SETUP_TOKEN=
+if "%MODE_CHOICE%"=="1" (
+    echo.
+    echo Step 11: Generating one-time setup token...
+    echo const crypto = require('crypto'); > temp_token.js
+    echo const token = crypto.randomBytes(24).toString('hex'); >> temp_token.js
+    echo const hash = crypto.createHash('sha256').update(token).digest('hex'); >> temp_token.js
+    echo const fs = require('fs'); >> temp_token.js
+    echo const now = Date.now(); >> temp_token.js
+    echo const data = { version: 1, tokens: [{ hash, createdAt: now, consumed: false }], updatedAt: new Date().toISOString() }; >> temp_token.js
+    echo fs.writeFileSync('.setup-tokens.json', JSON.stringify(data, null, 2^)^); >> temp_token.js
+    echo console.log(token^); >> temp_token.js
+    for /f "delims=" %%i in ('%RUNNER% temp_token.js') do set SETUP_TOKEN=%%i
+    del temp_token.js
+    echo [OK] Setup token generated
+)
+
 echo.
 echo ==================================================
 echo           [OK] Setup Complete! - تم الإعداد!
@@ -168,10 +185,6 @@ if "%MODE_CHOICE%"=="1" (
     echo   Mode:     PRODUCTION - وضع الإنتاج
 )
 echo   URL:      http://localhost:3000
-if "%MODE_CHOICE%"=="1" (
-    echo   Email:    admin@blueprint.ae
-    echo   Password: Admin@BP2024!
-)
 if "%DB_CHOICE%"=="1" (
     echo   Database: PostgreSQL
 ) else (
@@ -179,6 +192,21 @@ if "%DB_CHOICE%"=="1" (
 )
 echo ----------------------------------------------
 echo.
+
+if "%MODE_CHOICE%"=="1" (
+    echo 🔐 لعرض بيانات الدخول التجريبية:
+    echo.
+    echo   1. افتح الرابط التالي في المتصفح:
+    echo      http://localhost:3000/setup-complete
+    echo.
+    echo   2. أدخل رمز الإعداد التالي (يُستخدم مرة واحدة فقط):
+    echo.
+    echo      %SETUP_TOKEN%
+    echo.
+    echo   ⚠️  احفظ هذا الرمز الآن — لن يظهر مرة أخرى.
+    echo       الرمز صالح لمدة 24 ساعة من الآن.
+    echo.
+)
 if "%MODE_CHOICE%"=="2" (
     echo [WARN] NOTE FOR PRODUCTION:
     echo Please edit .env to configure your SMTP and Stripe keys before going live.

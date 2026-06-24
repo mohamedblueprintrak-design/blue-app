@@ -210,6 +210,34 @@ services:
     profiles:
       - production
 
+  # ============================================
+  # WebSocket Chat Service
+  # ============================================
+  chat-service:
+    build:
+      context: .
+      dockerfile: mini-services/chat-service/Dockerfile
+    container_name: blueprint-chat
+    restart: unless-stopped
+    ports:
+      - "3003:3003"
+    env_file: .env
+    environment:
+      - PORT=3003
+      - DATABASE_URL=postgresql://blueprint:${DATABASE_PASSWORD:?DATABASE_PASSWORD must be set}@postgres:5432/blueprint?schema=public
+      - JWT_SECRET=${JWT_SECRET}
+      - CORS_ORIGINS=${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - blueprint-network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+
 # ============================================
 # Networks
 # ============================================

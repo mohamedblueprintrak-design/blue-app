@@ -71,11 +71,12 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Step 2: Find project by number + clientId
+    // Step 2: Find project by number + clientId + organizationId
     const project = await db.project.findFirst({
       where: {
         number: projectNumber,
         clientId: client.id,
+        organizationId: resolvedOrgId,
         deletedAt: null,
       },
       include: {

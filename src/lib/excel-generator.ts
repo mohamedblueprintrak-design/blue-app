@@ -1,6 +1,36 @@
 import ExcelJS from 'exceljs';
 import { db } from '@/lib/db';
 
+// Monkey-patch ExcelJS Worksheet prototype to prevent Excel Formula Injection (CWE-1236)
+// We dynamically resolve the Worksheet prototype via a dummy workbook instance to avoid TS build issues.
+const dummyWorkbook = new ExcelJS.Workbook();
+const dummyWorksheet = dummyWorkbook.addWorksheet('dummy');
+const WorksheetPrototype = Object.getPrototypeOf(dummyWorksheet);
+const originalAddRow = WorksheetPrototype.addRow;
+WorksheetPrototype.addRow = function(this: any, values: any, ...args: any[]) {
+  const sanitizeValue = (val: any) => {
+    if (typeof val === 'string') {
+      // If the string starts with =, +, -, or @, prepend a single quote (')
+      // to force Excel/LibreOffice to treat it as raw text rather than a formula.
+      if (/^[=\+\-@\t\r]/.test(val)) {
+        return `'${val}`;
+      }
+    }
+    return val;
+  };
+
+  if (Array.isArray(values)) {
+    return originalAddRow.call(this, values.map(sanitizeValue), ...args);
+  } else if (values && typeof values === 'object') {
+    const sanitizedObj: Record<string, any> = {};
+    for (const key of Object.keys(values)) {
+      sanitizedObj[key] = sanitizeValue((values as any)[key]);
+    }
+    return originalAddRow.call(this, sanitizedObj, ...args);
+  }
+  return originalAddRow.call(this, values, ...args);
+};
+
 // Get labels based on language
 function getLabels(language: 'ar' | 'en') {
   if (language === 'ar') {

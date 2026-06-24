@@ -78,7 +78,7 @@ test.describe('Authentication Flow', () => {
       },
     });
     // Should get a response (not a redirect)
-    expect([400, 401, 429, 500]).toContain(response.status());
+    expect([400, 401, 429]).toContain(response.status());
   });
 });
 
