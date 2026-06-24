@@ -3,7 +3,8 @@
 # ============================================
 # Hot-reload development environment
 
-FROM oven/bun:1-alpine
+# Pin to Bun 1.1.x minor for reproducible dev environments
+FROM oven/bun:1.1-alpine
 RUN apk add --no-cache libc6-compat openssl
 
 WORKDIR /app

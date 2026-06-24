@@ -5,11 +5,13 @@
 # Uses Bun for dependency installation, Node.js for runtime
 
 # Stage 1: Dependencies (ALL — including devDependencies for the build stage)
-FROM node:20-alpine AS deps
+# Pin to Node 20.18 LTS minor (gets security patch updates, but no surprise major bumps)
+FROM node:20.18-alpine AS deps
 # python3, make, g++ needed for native modules (sharp)
 RUN apk add --no-cache libc6-compat openssl python3 make g++
 # Install Bun for dependency installation (project uses bun.lock)
-RUN npm install -g bun@latest
+# Pin to 1.1.x minor for reproducible builds (avoids major-bump breakage from bun@latest)
+RUN npm install -g bun@1.1
 
 WORKDIR /app
 
@@ -27,7 +29,7 @@ RUN npx prisma generate
 
 # ============================================
 # Stage 2: Builder
-FROM node:20-alpine AS builder
+FROM node:20.18-alpine AS builder
 
 
 WORKDIR /app
@@ -55,10 +57,10 @@ RUN npm run build
 # "lockfile had changes, but lockfile is frozen" error that occurs
 # when running `bun install --production` in Docker (Bun's --production
 # flag modifies the lockfile, which conflicts with frozen-lockfile mode).
-FROM node:20-alpine AS prod-deps
+FROM node:20.18-alpine AS prod-deps
 RUN apk add --no-cache libc6-compat openssl
 # Install Bun for dependency installation (project uses bun.lock)
-RUN npm install -g bun@latest
+RUN npm install -g bun@1.1
 
 WORKDIR /app
 
@@ -81,7 +83,7 @@ COPY --from=deps /app/node_modules/@prisma ./node_modules/@prisma
 
 # ============================================
 # Stage 4: Runner (Production)
-FROM node:20-alpine AS runner
+FROM node:20.18-alpine AS runner
 
 WORKDIR /app
 
