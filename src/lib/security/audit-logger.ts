@@ -415,8 +415,11 @@ export class AuditLogger {
 
     const prisma = this.prismaClient as Record<string, unknown>;
 
-    // Try the Activity model first, then fallback to AuditLog
-    const model = (prisma.activity ?? prisma.auditLog) as { createMany: (args: Record<string, unknown>) => Promise<unknown> } | undefined;
+    // SECURITY FIX: Use the correct Prisma delegate name. The schema model is
+    // `ActivityLog` → delegate is `prisma.activityLog`. Previously this looked
+    // for `prisma.activity ?? prisma.auditLog` — neither exists — so every
+    // persist was silently skipped.
+    const model = prisma.activityLog as { createMany: (args: Record<string, unknown>) => Promise<unknown> } | undefined;
     if (!model) return;
 
     // Batch create (up to 100 at a time to avoid DB limits)
@@ -430,25 +433,38 @@ export class AuditLogger {
           const organizationId = detailObj.organizationId ? String(detailObj.organizationId) : null;
           const projectId = detailObj.projectId ? String(detailObj.projectId) : null;
 
+          // SECURITY FIX: ActivityLog model only has: userId, projectId, action,
+          // entityType, entityId, details, metadata, organizationId.
+          // The rich AuditLogger fields (level, category, resource, ip, userAgent,
+          // path, method, requestId, timestamp) are preserved in the metadata JSON
+          // for forensic analysis without requiring schema changes.
+          const richMetadata = {
+            ...entry.details,
+            _audit: {
+              level: entry.level,
+              category: entry.category,
+              resource: entry.resource ?? null,
+              ip: entry.ip ?? null,
+              userAgent: entry.userAgent ?? null,
+              path: entry.path ?? null,
+              method: entry.method ?? null,
+              requestId: entry.requestId ?? null,
+              timestamp: entry.timestamp,
+            },
+          };
+
           return {
-            timestamp: new Date(entry.timestamp),
-            level: entry.level,
-            category: entry.category,
             userId: entry.userId,
             action: entry.action,
-            resource: entry.resource ?? null,
+            entityType: detailObj.entityType ? String(detailObj.entityType) : 'audit',
+            entityId: detailObj.entityId ? String(detailObj.entityId) : '',
             details: description,
-            metadata: entry.details ? JSON.stringify(entry.details) : null,
-            organizationId,
+            metadata: JSON.stringify(richMetadata),
+            organizationId: organizationId || '__DENIED__',
             projectId,
-            ip: entry.ip ?? null,
-            userAgent: entry.userAgent ?? null,
-            path: entry.path ?? null,
-            method: entry.method ?? null,
-            requestId: entry.requestId ?? null,
           };
         }),
-        
+
       });
     }
   }
@@ -532,7 +548,8 @@ export class AuditLogger {
     }
 
     const prisma = this.prismaClient as Record<string, unknown>;
-    const model = (prisma.activity ?? prisma.auditLog) as { findMany: (args: Record<string, unknown>) => Promise<unknown[]> } | undefined;
+    // SECURITY FIX: Use the correct Prisma delegate (was prisma.activity ?? prisma.auditLog)
+    const model = prisma.activityLog as { findMany: (args: Record<string, unknown>) => Promise<unknown[]> } | undefined;
     if (!model) return [];
 
     const where: Record<string, unknown> = {};

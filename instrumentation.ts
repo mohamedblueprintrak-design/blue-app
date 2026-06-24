@@ -40,6 +40,27 @@ export async function register() {
       ],
     });
   }
+
+  // SECURITY: Wire the Prisma client into the AuditLogger so audit events
+  // are persisted to the ActivityLog table. Without this, every logAudit()
+  // call from services (invoices, projects, clients, payments, 2FA changes)
+  // was silently lost in production — defeating the audit trail required for
+  // SOC 2 / ISO 27001 compliance.
+  //
+  // Only run in Node.js runtime (Prisma is Node-only; Edge can't use it).
+  if (process.env.NEXT_RUNTIME === 'nodejs') {
+    try {
+      const { db } = await import('@/lib/db');
+      const { getAuditLogger } = await import('@/lib/security/audit-logger');
+      getAuditLogger().setPrismaClient(db);
+    } catch (error) {
+      // Log but don't crash — audit logging is a side-effect, not a startup
+      // requirement. The app will still work, just without buffered audit
+      // persistence (direct logAudit() calls in audit.service.ts bypass the
+      // buffer and write directly to DB regardless).
+      console.error('[instrumentation] Failed to wire AuditLogger Prisma client:', error);
+    }
+  }
 }
 
 /**
