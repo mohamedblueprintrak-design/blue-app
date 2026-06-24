@@ -16,6 +16,7 @@ import {
   ArrowUpRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 // ===== Types =====
 interface CategoryComparison {
@@ -74,7 +75,7 @@ function getCategoryLabel(category: string, isAr: boolean): string {
   return category.charAt(0).toUpperCase() + category.slice(1).replace(/_/g, " ");
 }
 
-function getStatusConfig(status: string, isAr: boolean) {
+function getStatusConfig(status: string) {
   switch (status) {
     case "on_track":
       return {
@@ -82,7 +83,7 @@ function getStatusConfig(status: string, isAr: boolean) {
         bg: "bg-emerald-100 dark:bg-emerald-900/30",
         border: "border-emerald-200 dark:border-emerald-800/40",
         progressColor: "bg-emerald-500",
-        label: isAr ? "على المسار" : "On Track",
+        labelKey: "auto.budgetStatusOnTrack",
         icon: CheckCircle2,
       };
     case "at_risk":
@@ -91,7 +92,7 @@ function getStatusConfig(status: string, isAr: boolean) {
         bg: "bg-amber-100 dark:bg-amber-900/30",
         border: "border-amber-200 dark:border-amber-800/40",
         progressColor: "bg-amber-500",
-        label: isAr ? "في خطر" : "At Risk",
+        labelKey: "auto.budgetStatusAtRisk",
         icon: AlertTriangle,
       };
     case "over_budget":
@@ -100,7 +101,7 @@ function getStatusConfig(status: string, isAr: boolean) {
         bg: "bg-red-100 dark:bg-red-900/30",
         border: "border-red-200 dark:border-red-800/40",
         progressColor: "bg-red-500",
-        label: isAr ? "تجاوز الميزانية" : "Over Budget",
+        labelKey: "auto.budgetStatusOverBudget",
         icon: TrendingDown,
       };
     default:
@@ -109,7 +110,7 @@ function getStatusConfig(status: string, isAr: boolean) {
         bg: "bg-slate-100 dark:bg-slate-800",
         border: "border-slate-200 dark:border-slate-700",
         progressColor: "bg-slate-400",
-        label: status,
+        labelKey: "",
         icon: CheckCircle2,
       };
   }
@@ -128,6 +129,7 @@ interface BudgetComparisonTabProps {
 export default function BudgetComparisonTab({ projectId, language }: BudgetComparisonTabProps) {
   const isAr = language === "ar";
   const t = (ar: string, en: string) => (isAr ? ar : en);
+  const tAuto = useTranslations();
 
   const { data: comparison, isLoading } = useQuery<BudgetComparisonData>({
     queryKey: ["budget-comparison", projectId],
@@ -300,7 +302,7 @@ export default function BudgetComparisonTab({ projectId, language }: BudgetCompa
         <CardContent>
           <div className="space-y-4">
             {comparison.categories.map((cat) => {
-              const statusConf = getStatusConfig(cat.status, isAr);
+              const statusConf = getStatusConfig(cat.status);
               const StatusIcon = statusConf.icon;
               const pct = cat.budgeted > 0 ? Math.min(Math.round((cat.spent / cat.budgeted) * 100), 100) : 0;
 
@@ -313,7 +315,7 @@ export default function BudgetComparisonTab({ projectId, language }: BudgetCompa
                       </span>
                       <Badge variant="outline" className={cn("text-[10px] h-5 border-0 px-2", statusConf.bg, statusConf.color)}>
                         <StatusIcon className="h-3 w-3 me-1" />
-                        {statusConf.label}
+                        {statusConf.labelKey ? tAuto(statusConf.labelKey) : status}
                       </Badge>
                     </div>
                     <div className="flex items-center gap-3 text-xs tabular-nums">

@@ -2655,6 +2655,10 @@
     "map": "خريطة",
     "showAll": "عرض الكل",
     "welcomeToBluePrint2": "مرحباً بك في BluePrint! 🎉",
-    "chooseAQuickRoleOrEnterYourCredentials": "اختر دوراً سريعاً أو أدخل بياناتك"
+    "chooseAQuickRoleOrEnterYourCredentials": "اختر دوراً سريعاً أو أدخل بياناتك",
+    "pct": "النسبة",
+    "budgetStatusOnTrack": "على المسار",
+    "budgetStatusAtRisk": "في خطر",
+    "budgetStatusOverBudget": "تجاوز الميزانية"
   }
 }
