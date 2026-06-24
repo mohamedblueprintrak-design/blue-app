@@ -72,11 +72,9 @@ if "%DB_CHOICE%"=="" set DB_CHOICE=2
 
 echo.
 echo Step 3: Generating Secrets...
-echo const crypto = require('crypto'); console.log(crypto.randomBytes(32).toString('hex')); > temp_crypto.js
-for /f "delims=" %%i in ('%RUNNER% temp_crypto.js') do set JWT_SECRET=%%i
-for /f "delims=" %%i in ('%RUNNER% temp_crypto.js') do set ENCRYPTION_KEY=%%i
-for /f "delims=" %%i in ('%RUNNER% temp_crypto.js') do set CSRF_SECRET=%%i
-del temp_crypto.js
+for /f "delims=" %%i in ('powershell -Command "([Guid]::NewGuid().ToString('N') + [Guid]::NewGuid().ToString('N'))"') do set JWT_SECRET=%%i
+for /f "delims=" %%i in ('powershell -Command "([Guid]::NewGuid().ToString('N') + [Guid]::NewGuid().ToString('N'))"') do set ENCRYPTION_KEY=%%i
+for /f "delims=" %%i in ('powershell -Command "([Guid]::NewGuid().ToString('N') + [Guid]::NewGuid().ToString('N'))"') do set CSRF_SECRET=%%i
 echo [OK] Secrets generated
 
 echo.
