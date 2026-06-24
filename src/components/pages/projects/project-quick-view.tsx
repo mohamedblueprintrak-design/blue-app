@@ -29,7 +29,7 @@ export function ProjectQuickView({
   const tp = typeConfig[project.type] || typeConfig.VILLA;
 
   const mockActivities = [
-    { id: "1", text: tAuto('auto.projectCreated'), time: project.createdAt, color: "bg-teal-500", icon: <CheckCircle2 className="h-3 w-3" /> },
+    { id: "1", text: tAuto('auto.projectCreated'), time: project.createdAt, color: "bg-brand-navy-500", icon: <CheckCircle2 className="h-3 w-3" /> },
     { id: "2", text: tAuto('auto.initialTeamAssigned'), time: project.createdAt, color: "bg-blue-500", icon: <Users className="h-3 w-3" /> },
     { id: "3", text: tAuto('auto.designPhaseStarted'), time: project.createdAt, color: "bg-amber-500", icon: <Activity className="h-3 w-3" /> },
     { id: "4", text: tAuto('auto.drawingReview'), time: project.createdAt, color: "bg-violet-500", icon: <MessageSquare className="h-3 w-3" /> },
@@ -37,13 +37,13 @@ export function ProjectQuickView({
   ];
 
   const mockTeam = [
-    { name: tAuto('auto.ahmedM'), color: "bg-teal-500" },
+    { name: tAuto('auto.ahmedM'), color: "bg-brand-navy-500" },
     { name: tAuto('auto.fatimaS'), color: "bg-amber-500" },
     { name: tAuto('auto.mohammedK'), color: "bg-blue-500" },
     { name: tAuto('auto.saraB'), color: "bg-violet-500" },
   ];
 
-  const progressColor = project.progress >= 80 ? "text-emerald-500" : project.progress >= 50 ? "text-teal-500" : project.progress >= 25 ? "text-amber-500" : "text-red-500";
+  const progressColor = project.progress >= 80 ? "text-emerald-500" : project.progress >= 50 ? "text-brand-navy-500" : project.progress >= 25 ? "text-amber-500" : "text-red-500";
   const progressStroke = project.progress >= 80 ? "#10b981" : project.progress >= 50 ? "#133371" : project.progress >= 25 ? "#f59e0b" : "#ef4444";
   const ringRadius = 28;
   const ringCircumference = ringRadius * 2 * Math.PI;
@@ -52,7 +52,7 @@ export function ProjectQuickView({
   return (
     <div className="flex flex-col h-full">
       {/* Header gradient */}
-      <div className="bg-gradient-to-l from-teal-600 to-teal-700 dark:from-teal-800 dark:to-teal-900 p-5 shrink-0">
+      <div className="bg-gradient-to-l from-brand-navy-600 to-brand-navy-700 dark:from-brand-navy-800 dark:to-brand-navy-900 p-5 shrink-0">
         <div className="flex items-center justify-between mb-4">
           <span className="text-xs font-medium text-white/70">
             {t("عرض سريع", "Quick View")}
@@ -172,7 +172,7 @@ export function ProjectQuickView({
       <div className="p-5 border-t border-slate-200 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-800/30 shrink-0 space-y-2">
         <Button
           onClick={onOpenFull}
-          className="w-full bg-teal-600 hover:bg-teal-700 text-white gap-2"
+          className="w-full bg-brand-navy-600 hover:bg-brand-navy-700 text-white gap-2"
         >
           {t("فتح العرض الكامل", "Open Full View")}
           <ArrowUpRight className="h-4 w-4" />

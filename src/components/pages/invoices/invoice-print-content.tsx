@@ -14,7 +14,7 @@ export function InvoicePrintContent({ invoice, ar }: { invoice: Invoice; ar: boo
       {/* Company Header */}
       <div className="flex items-start justify-between border-b border-slate-200 dark:border-slate-700 pb-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-600 flex items-center justify-center shadow-sm">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-navy-500 to-cyan-600 flex items-center justify-center shadow-sm">
             <Building2 className="h-5 w-5 text-white" />
           </div>
           <div>
@@ -25,7 +25,7 @@ export function InvoicePrintContent({ invoice, ar }: { invoice: Invoice; ar: boo
         </div>
         <div className="text-end">
           <div className="text-xs text-slate-500">{tAuto('auto.taxInvoice')}</div>
-          <div className="text-2xl font-bold font-mono text-teal-600 dark:text-teal-400">{invoice.number}</div>
+          <div className="text-2xl font-bold font-mono text-brand-navy-600 dark:text-brand-navy-400">{invoice.number}</div>
         </div>
       </div>
 
@@ -88,9 +88,9 @@ export function InvoicePrintContent({ invoice, ar }: { invoice: Invoice; ar: boo
             <span className="text-slate-500">{tAuto('auto.vAT5')}</span>
             <span className="font-mono tabular-nums">{invoice.tax.toLocaleString()} AED</span>
           </div>
-          <div className="border-t-2 border-teal-500 dark:border-teal-400 pt-1.5 flex justify-between text-base font-bold">
+          <div className="border-t-2 border-brand-navy-500 dark:border-brand-navy-400 pt-1.5 flex justify-between text-base font-bold">
             <span>{tAuto('auto.total')}</span>
-            <span className="text-teal-600 dark:text-teal-400 font-mono tabular-nums">{invoice.total.toLocaleString()} AED</span>
+            <span className="text-brand-navy-600 dark:text-brand-navy-400 font-mono tabular-nums">{invoice.total.toLocaleString()} AED</span>
           </div>
         </div>
       </div>

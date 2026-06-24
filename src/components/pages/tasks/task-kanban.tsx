@@ -72,7 +72,7 @@ function TaskActionsDropdown({ taskId, taskTitle, ar, onOpenComments }: { taskId
       <DropdownMenuContent align={ar ? "start" : "end"} className="w-40">
         {onOpenComments && (
           <DropdownMenuItem
-            className="text-teal-600 dark:text-teal-400 focus:text-teal-600"
+            className="text-brand-navy-600 dark:text-brand-navy-400 focus:text-brand-navy-600"
             onClick={() => onOpenComments()}
           >
             <MessageSquare className="h-3.5 w-3.5 me-2" />
@@ -143,7 +143,7 @@ function SortableTaskCard({ task, ar, bulkMode, selected, onToggle, onOpenCommen
         priorityConfig.leftBorder,
         priorityConfig.gradient || "bg-white dark:bg-slate-900/80",
         "rounded-lg",
-        bulkMode && selected && "ring-2 ring-teal-400 ring-offset-1 dark:ring-offset-slate-900"
+        bulkMode && selected && "ring-2 ring-brand-navy-400 ring-offset-1 dark:ring-offset-slate-900"
       )}
     >
       <div className="p-3">
@@ -153,7 +153,7 @@ function SortableTaskCard({ task, ar, bulkMode, selected, onToggle, onOpenCommen
             <Checkbox
               checked={selected}
               onCheckedChange={() => onToggle?.(task.id)}
-              className="data-[state=checked]:bg-teal-500 data-[state=checked]:border-teal-500 h-4 w-4"
+              className="data-[state=checked]:bg-brand-navy-500 data-[state=checked]:border-brand-navy-500 h-4 w-4"
             />
           </div>
         )}
@@ -179,7 +179,7 @@ function SortableTaskCard({ task, ar, bulkMode, selected, onToggle, onOpenCommen
           )}
           <div className="flex-1" />
           <button
-            className="opacity-0 group-hover:opacity-100 transition-all duration-200 p-1 rounded-md text-slate-400 hover:text-teal-600 hover:bg-teal-50 dark:hover:text-teal-400 dark:hover:bg-teal-900/30 cursor-grab active:cursor-grabbing"
+            className="opacity-0 group-hover:opacity-100 transition-all duration-200 p-1 rounded-md text-slate-400 hover:text-brand-navy-600 hover:bg-brand-navy-50 dark:hover:text-brand-navy-400 dark:hover:bg-brand-navy-900/30 cursor-grab active:cursor-grabbing"
             {...attributes}
             {...listeners}
           >
@@ -229,8 +229,8 @@ function SortableTaskCard({ task, ar, bulkMode, selected, onToggle, onOpenCommen
           className={cn(
             "inline-flex items-center gap-1 mb-2 text-xs rounded-full px-2 py-0.5 transition-colors",
             (task.commentCount ?? 0) > 0
-              ? "text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/20 hover:bg-teal-100 dark:hover:bg-teal-900/30"
-              : "text-slate-400 dark:text-slate-500 hover:text-teal-500 dark:hover:text-teal-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+              ? "text-brand-navy-600 dark:text-brand-navy-400 bg-brand-navy-50 dark:bg-brand-navy-900/20 hover:bg-brand-navy-100 dark:hover:bg-brand-navy-900/30"
+              : "text-slate-400 dark:text-slate-500 hover:text-brand-navy-500 dark:hover:text-brand-navy-400 hover:bg-slate-50 dark:hover:bg-slate-800"
           )}
         >
           <MessageSquare className="h-3 w-3" />
@@ -290,7 +290,7 @@ function SortableTaskCard({ task, ar, bulkMode, selected, onToggle, onOpenCommen
             <div className="flex items-center gap-1.5 min-w-0">
               <Avatar className="h-5 w-5">
                 <AvatarImage src={task.assignee.avatar} />
-                <AvatarFallback className="text-[8px] bg-teal-100 dark:bg-teal-900 text-teal-700 dark:text-teal-300">
+                <AvatarFallback className="text-[8px] bg-brand-navy-100 dark:bg-brand-navy-900 text-brand-navy-700 dark:text-brand-navy-300">
                   {task.assignee.name?.charAt(0)}
                 </AvatarFallback>
               </Avatar>
@@ -333,7 +333,7 @@ export function DroppableColumn({
         col.bg,
         col.border,
         "shadow-sm",
-        isOver && "ring-2 ring-teal-400/50 scale-[1.01] shadow-lg shadow-teal-500/10"
+        isOver && "ring-2 ring-brand-navy-400/50 scale-[1.01] shadow-lg shadow-brand-navy-500/10"
       )}
     >
       {/* Column Header with gradient accent */}
@@ -341,12 +341,12 @@ export function DroppableColumn({
         {bulkMode && (
           <button
             onClick={onToggleSelectAll}
-            className="h-5 w-5 rounded-md flex items-center justify-center text-slate-400 hover:text-teal-600 hover:bg-teal-50 dark:hover:bg-teal-900/30 transition-colors"
+            className="h-5 w-5 rounded-md flex items-center justify-center text-slate-400 hover:text-brand-navy-600 hover:bg-brand-navy-50 dark:hover:bg-brand-navy-900/30 transition-colors"
           >
             <Checkbox
               checked={tasks.length > 0 && tasks.every((t) => selectedIds?.has(t.id))}
               onCheckedChange={onToggleSelectAll}
-              className="data-[state=checked]:bg-teal-500 data-[state=checked]:border-teal-500"
+              className="data-[state=checked]:bg-brand-navy-500 data-[state=checked]:border-brand-navy-500"
             />
           </button>
         )}
@@ -364,7 +364,7 @@ export function DroppableColumn({
             <TooltipTrigger asChild>
               <button
                 onClick={() => onAddTask(id)}
-                className="h-6 w-6 rounded-md flex items-center justify-center text-slate-400 hover:text-teal-600 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-all duration-200 hover:scale-110"
+                className="h-6 w-6 rounded-md flex items-center justify-center text-slate-400 hover:text-brand-navy-600 hover:bg-brand-navy-100 dark:hover:bg-brand-navy-900/40 transition-all duration-200 hover:scale-110"
               >
                 <Plus className="h-3.5 w-3.5" />
               </button>

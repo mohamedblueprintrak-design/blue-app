@@ -211,7 +211,7 @@ export function getInteractionIcon(type: string) {
 
 export function getAvatarColor(name: string) {
   const colors = [
-    "bg-teal-100 dark:bg-teal-900/50 text-teal-700 dark:text-teal-300",
+    "bg-brand-navy-100 dark:bg-brand-navy-900/50 text-brand-navy-700 dark:text-brand-navy-300",
     "bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300",
     "bg-rose-100 dark:bg-rose-900/50 text-rose-700 dark:text-rose-300",
     "bg-violet-100 dark:bg-violet-900/50 text-violet-700 dark:text-violet-300",

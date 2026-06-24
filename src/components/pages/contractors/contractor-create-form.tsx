@@ -38,7 +38,7 @@ function ContractorCreateForm({
   const tAuto = useTranslations();
   const update = (field: string, value: string) => setFormData({ ...formData, [field]: value });
 
-  const inputCls = "h-9 text-sm rounded-lg border-slate-200 dark:border-slate-700 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20";
+  const inputCls = "h-9 text-sm rounded-lg border-slate-200 dark:border-slate-700 focus:border-brand-navy-500 focus:ring-2 focus:ring-brand-navy-500/20";
   const labelCls = "text-xs font-medium text-slate-600 dark:text-slate-400";
 
   return (
@@ -46,8 +46,8 @@ function ContractorCreateForm({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-lg bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-            <Users className="h-4.5 w-4.5 text-teal-600 dark:text-teal-400" />
+          <div className="w-9 h-9 rounded-lg bg-brand-navy-100 dark:bg-brand-navy-900/30 flex items-center justify-center">
+            <Users className="h-4.5 w-4.5 text-brand-navy-600 dark:text-brand-navy-400" />
           </div>
           <div>
             <h2 className="text-lg font-bold text-slate-900 dark:text-white">
@@ -245,7 +245,7 @@ function ContractorCreateForm({
           {tAuto('auto.cancel')}
         </Button>
         <Button
-          className="h-9 bg-teal-600 hover:bg-teal-700 text-white rounded-lg shadow-sm shadow-teal-600/20 min-w-[120px]"
+          className="h-9 bg-brand-navy-600 hover:bg-brand-navy-700 text-white rounded-lg shadow-sm shadow-brand-navy-600/20 min-w-[120px]"
           onClick={() => saveMutation.mutate(formData)}
           disabled={!formData.name || saveMutation.isPending}
         >

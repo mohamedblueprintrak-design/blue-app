@@ -300,7 +300,7 @@ export default function LoginPage({ language: _language }: LoginPageProps) {
       dir={isAr ? "rtl" : "ltr"}
     >
       {/* ===== Branded Panel (hidden on mobile, visible on lg+) ===== */}
-      <div className="hidden lg:flex lg:w-[520px] xl:w-[580px] relative overflow-hidden bg-gradient-to-br from-teal-600 via-teal-500 to-cyan-500">
+      <div className="hidden lg:flex lg:w-[520px] xl:w-[580px] relative overflow-hidden bg-gradient-to-br from-brand-navy-600 via-brand-navy-500 to-cyan-500">
         {/* Animated background pattern */}
         <div className="absolute inset-0">
           <svg
@@ -476,8 +476,8 @@ export default function LoginPage({ language: _language }: LoginPageProps) {
                 {/* Logo for mobile / top branding */}
                 <div className="text-center space-y-3">
                   <div className="inline-flex relative">
-                    <div className="absolute inset-0 w-16 h-16 rounded-2xl bg-gradient-to-br from-teal-500 to-cyan-500 blur-lg opacity-30" />
-                    <LogoImage size={64} className="relative shadow-lg shadow-teal-500/20" />
+                    <div className="absolute inset-0 w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-navy-500 to-cyan-500 blur-lg opacity-30" />
+                    <LogoImage size={64} className="relative shadow-lg shadow-brand-navy-500/20" />
                     <div className="absolute -bottom-0.5 -end-0.5 w-5 h-5 rounded-full bg-cyan-400 border-2 border-white dark:border-slate-950" />
                   </div>
                   <div>
@@ -566,7 +566,7 @@ export default function LoginPage({ language: _language }: LoginPageProps) {
                             required
                             className={cn(
                               "h-11 ps-10 bg-slate-50/80 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700",
-                              "focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition-all duration-200",
+                              "focus:border-brand-navy-500 focus:ring-2 focus:ring-brand-navy-500/20 transition-all duration-200",
                               "placeholder:text-slate-400",
                               error && "border-red-400 dark:border-red-600 focus:border-red-500 focus:ring-red-500/20"
                             )}
@@ -584,7 +584,7 @@ export default function LoginPage({ language: _language }: LoginPageProps) {
                           <button
                             type="button"
                             onClick={handleForgotPassword}
-                            className="text-xs text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 transition-colors"
+                            className="text-xs text-brand-navy-600 dark:text-brand-navy-400 hover:text-brand-navy-700 dark:hover:text-brand-navy-300 transition-colors"
                           >
                             {t("forgotPassword")}
                           </button>
@@ -599,7 +599,7 @@ export default function LoginPage({ language: _language }: LoginPageProps) {
                             required
                             className={cn(
                               "h-11 ps-10 pe-11 bg-slate-50/80 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700",
-                              "focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition-all duration-200",
+                              "focus:border-brand-navy-500 focus:ring-2 focus:ring-brand-navy-500/20 transition-all duration-200",
                               "placeholder:text-slate-400",
                               error && "border-red-400 dark:border-red-600 focus:border-red-500 focus:ring-red-500/20"
                             )}
@@ -629,7 +629,7 @@ export default function LoginPage({ language: _language }: LoginPageProps) {
                           <Checkbox
                             checked={rememberMe}
                             onCheckedChange={(checked) => setRememberMe(checked === true)}
-                            className="data-[state=checked]:bg-teal-500 data-[state=checked]:border-teal-500"
+                            className="data-[state=checked]:bg-brand-navy-500 data-[state=checked]:border-brand-navy-500"
                           />
                           <span className="text-sm text-slate-600 dark:text-slate-400">
                             {t("rememberMe")}
@@ -645,7 +645,7 @@ export default function LoginPage({ language: _language }: LoginPageProps) {
                       {tAuto('auto.quickLoginDemoMode')}
                     </p>
                     <Select value={selectedRole} onValueChange={handleRoleSelect}>
-                      <SelectTrigger className="w-full bg-slate-50/80 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 focus:ring-teal-500/20 focus:border-teal-500">
+                      <SelectTrigger className="w-full bg-slate-50/80 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 focus:ring-brand-navy-500/20 focus:border-brand-navy-500">
                         <SelectValue placeholder={tAuto('auto.selectARole')} />
                       </SelectTrigger>
                       <SelectContent>
@@ -663,9 +663,9 @@ export default function LoginPage({ language: _language }: LoginPageProps) {
                     type="submit"
                     disabled={isLoading}
                     className={cn(
-                      "w-full h-11 bg-gradient-to-r from-teal-500 to-cyan-500",
-                      "hover:from-teal-600 hover:to-cyan-600 text-white font-medium",
-                      "shadow-lg shadow-teal-500/20 hover:shadow-teal-500/40",
+                      "w-full h-11 bg-gradient-to-r from-brand-navy-500 to-cyan-500",
+                      "hover:from-brand-navy-600 hover:to-cyan-600 text-white font-medium",
+                      "shadow-lg shadow-brand-navy-500/20 hover:shadow-brand-navy-500/40",
                       "transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] cursor-pointer mt-2",
                     )}
                   >
@@ -713,7 +713,7 @@ export default function LoginPage({ language: _language }: LoginPageProps) {
             <button
               type="button"
               onClick={toggleLanguage}
-              className="flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500 hover:text-teal-600 dark:hover:text-teal-400 transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500 hover:text-brand-navy-600 dark:hover:text-brand-navy-400 transition-colors cursor-pointer"
             >
               <Languages className="h-3.5 w-3.5" />
               <span>{tAuto('auto.text8280')}</span>

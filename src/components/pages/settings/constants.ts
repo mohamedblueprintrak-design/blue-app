@@ -11,7 +11,7 @@ export const WORKING_DAYS = [
 ];
 
 export const ACCENT_COLORS: AccentColor[] = [
-  { name: "Teal", value: "teal", color: "bg-teal-500" },
+  { name: "Teal", value: "teal", color: "bg-brand-navy-500" },
   { name: "Blue", value: "blue", color: "bg-blue-500" },
   { name: "Violet", value: "violet", color: "bg-violet-500" },
   { name: "Rose", value: "rose", color: "bg-rose-500" },

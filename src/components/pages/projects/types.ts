@@ -25,7 +25,7 @@ interface ProjectRow {
 // ===== STATUS CONFIGS =====
 const statusConfig: Record<string, { ar: string; en: string; variant: "default" | "secondary" | "destructive" | "outline"; className: string; dotColor: string }> = {
   ACTIVE: { ar: "نشط", en: "Active", variant: "default", className: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 border-emerald-200", dotColor: "bg-emerald-500" },
-  COMPLETED: { ar: "مكتمل", en: "Completed", variant: "default", className: "bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400 border-teal-200", dotColor: "bg-teal-500" },
+  COMPLETED: { ar: "مكتمل", en: "Completed", variant: "default", className: "bg-brand-navy-100 text-brand-navy-700 dark:bg-brand-navy-900/30 dark:text-brand-navy-400 border-brand-navy-200", dotColor: "bg-brand-navy-500" },
   DELAYED: { ar: "متأخر", en: "Delayed", variant: "destructive", className: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border-red-200", dotColor: "bg-red-500" },
   ON_HOLD: { ar: "معلق", en: "On Hold", variant: "secondary", className: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border-amber-200", dotColor: "bg-amber-500" },
   CANCELLED: { ar: "ملغى", en: "Cancelled", variant: "destructive", className: "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 border-slate-200", dotColor: "bg-slate-400" },

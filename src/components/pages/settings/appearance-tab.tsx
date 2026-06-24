@@ -58,16 +58,16 @@ export function AppearanceTab({
                   className={cn(
                     "flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all hover:shadow-sm cursor-pointer",
                     isActive
-                      ? "border-teal-500 bg-teal-50/50 dark:bg-teal-950/20 shadow-sm shadow-teal-500/10"
-                      : "border-slate-200 dark:border-slate-700 hover:border-teal-300"
+                      ? "border-brand-navy-500 bg-brand-navy-50/50 dark:bg-brand-navy-950/20 shadow-sm shadow-brand-navy-500/10"
+                      : "border-slate-200 dark:border-slate-700 hover:border-brand-navy-300"
                   )}
                 >
                   <div className={cn("w-14 h-10 rounded-lg border flex items-center justify-center", themeOption.color)}>
-                    <themeOption.icon className={cn("h-5 w-5", isActive ? "text-teal-500" : "text-slate-600 dark:text-slate-300")} />
+                    <themeOption.icon className={cn("h-5 w-5", isActive ? "text-brand-navy-500" : "text-slate-600 dark:text-slate-300")} />
                   </div>
                   <span className="text-sm font-medium text-slate-900 dark:text-white">{themeOption.label}</span>
                   {isActive && (
-                    <Badge className="bg-teal-100 text-teal-700 dark:bg-teal-900 dark:text-teal-300 text-[10px] h-5 px-1.5 border-0">
+                    <Badge className="bg-brand-navy-100 text-brand-navy-700 dark:bg-brand-navy-900 dark:text-brand-navy-300 text-[10px] h-5 px-1.5 border-0">
                       {tAuto('auto.active')}
                     </Badge>
                   )}
@@ -84,7 +84,7 @@ export function AppearanceTab({
           <Label className="text-sm font-semibold text-slate-900 dark:text-white">
             {tAuto('auto.accentColor')}
             {accentSaving && (
-              <span className="h-3 w-3 border-2 border-teal-300 border-t-teal-600 rounded-full animate-spin inline-block ms-2 align-middle" />
+              <span className="h-3 w-3 border-2 border-brand-navy-300 border-t-brand-navy-600 rounded-full animate-spin inline-block ms-2 align-middle" />
             )}
           </Label>
           <div className="flex items-center gap-3">
@@ -95,7 +95,7 @@ export function AppearanceTab({
                 className={cn(
                   "w-9 h-9 rounded-full transition-all hover:scale-110",
                   c.color,
-                  c.value === accentColor && "ring-2 ring-offset-2 ring-offset-white dark:ring-offset-slate-900 ring-teal-500 shadow-lg shadow-teal-500/30"
+                  c.value === accentColor && "ring-2 ring-offset-2 ring-offset-white dark:ring-offset-slate-900 ring-brand-navy-500 shadow-lg shadow-brand-navy-500/30"
                 )}
                 title={c.name}
               />
@@ -124,8 +124,8 @@ export function AppearanceTab({
                 className={cn(
                   "flex items-center gap-3 p-4 rounded-xl border-2 transition-all hover:shadow-sm cursor-pointer",
                   langOption.active
-                    ? "border-teal-500 bg-teal-50/50 dark:bg-teal-950/20"
-                    : "border-slate-200 dark:border-slate-700 hover:border-teal-300"
+                    ? "border-brand-navy-500 bg-brand-navy-50/50 dark:bg-brand-navy-950/20"
+                    : "border-slate-200 dark:border-slate-700 hover:border-brand-navy-300"
                 )}
               >
                 <div className="w-11 h-11 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-lg font-bold">
@@ -162,8 +162,8 @@ export function AppearanceTab({
                 className={cn(
                   "flex items-center gap-3 p-4 rounded-xl border-2 transition-all hover:shadow-sm cursor-pointer",
                   dir.active
-                    ? "border-teal-500 bg-teal-50/50 dark:bg-teal-950/20"
-                    : "border-slate-200 dark:border-slate-700 hover:border-teal-300"
+                    ? "border-brand-navy-500 bg-brand-navy-50/50 dark:bg-brand-navy-950/20"
+                    : "border-slate-200 dark:border-slate-700 hover:border-brand-navy-300"
                 )}
               >
                 <span className="text-2xl font-bold text-slate-500 dark:text-slate-400">{dir.icon}</span>

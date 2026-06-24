@@ -236,8 +236,8 @@ export default function RFI({ language, projectId }: RFIProps) {
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-lg bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-            <MessageSquareQuote className="h-4.5 w-4.5 text-teal-600 dark:text-teal-400" />
+          <div className="w-9 h-9 rounded-lg bg-brand-navy-100 dark:bg-brand-navy-900/30 flex items-center justify-center">
+            <MessageSquareQuote className="h-4.5 w-4.5 text-brand-navy-600 dark:text-brand-navy-400" />
           </div>
           <div>
             <h2 className="text-lg font-bold text-slate-900 dark:text-white">{tAuto('auto.rFI')}</h2>
@@ -261,7 +261,7 @@ export default function RFI({ language, projectId }: RFIProps) {
             </SelectContent>
           </Select>
           )}
-          <Button size="sm" className="h-8 bg-teal-600 hover:bg-teal-700 text-white rounded-lg shadow-sm shadow-teal-600/20" onClick={() => setShowAddDialog(true)}>
+          <Button size="sm" className="h-8 bg-brand-navy-600 hover:bg-brand-navy-700 text-white rounded-lg shadow-sm shadow-brand-navy-600/20" onClick={() => setShowAddDialog(true)}>
             <Plus className="h-3.5 w-3.5 me-1" />{tAuto('auto.newRFI')}
           </Button>
         </div>
@@ -380,7 +380,7 @@ export default function RFI({ language, projectId }: RFIProps) {
                         <div className="flex items-center gap-1.5">
                           <Avatar className="h-5 w-5">
                             <AvatarImage src={rfi.from.avatar} />
-                            <AvatarFallback className="text-[8px] bg-teal-100 dark:bg-teal-900 text-teal-700 dark:text-teal-300">{rfi.from.name?.charAt(0)}</AvatarFallback>
+                            <AvatarFallback className="text-[8px] bg-brand-navy-100 dark:bg-brand-navy-900 text-brand-navy-700 dark:text-brand-navy-300">{rfi.from.name?.charAt(0)}</AvatarFallback>
                           </Avatar>
                           <span className="text-xs text-slate-600 dark:text-slate-400 truncate max-w-[80px]">{rfi.from.name}</span>
                         </div>
@@ -535,7 +535,7 @@ export default function RFI({ language, projectId }: RFIProps) {
             </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => { setShowAddDialog(false); resetForm(); }}>{tAuto('auto.cancel')}</Button>
-            <Button type="submit" className="bg-teal-600 hover:bg-teal-700 text-white" disabled={createMutation.isPending}>
+            <Button type="submit" className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white" disabled={createMutation.isPending}>
               {createMutation.isPending ? (tAuto('auto.sending')) : (tAuto('auto.submit'))}
             </Button>
           </DialogFooter>
@@ -550,7 +550,7 @@ export default function RFI({ language, projectId }: RFIProps) {
             <>
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
-                  <Reply className="h-5 w-5 text-teal-500" />
+                  <Reply className="h-5 w-5 text-brand-navy-500" />
                   {tAuto('auto.replyToRFI')}
                 </DialogTitle>
                 <DialogDescription>{selectedRFI.subject}</DialogDescription>
@@ -562,7 +562,7 @@ export default function RFI({ language, projectId }: RFIProps) {
                   <div className="flex items-center gap-2">
                     <Avatar className="h-6 w-6">
                       <AvatarImage src={selectedRFI.from.avatar} />
-                      <AvatarFallback className="text-[9px] bg-teal-100 dark:bg-teal-900 text-teal-700 dark:text-teal-300">{selectedRFI.from.name?.charAt(0)}</AvatarFallback>
+                      <AvatarFallback className="text-[9px] bg-brand-navy-100 dark:bg-brand-navy-900 text-brand-navy-700 dark:text-brand-navy-300">{selectedRFI.from.name?.charAt(0)}</AvatarFallback>
                     </Avatar>
                     <span className="text-xs font-medium text-slate-900 dark:text-white">{selectedRFI.from.name}</span>
                     <ArrowRightLeft className="h-3 w-3 text-slate-400" />

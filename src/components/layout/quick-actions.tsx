@@ -84,7 +84,7 @@ export default function QuickActions({ language }: QuickActionsProps) {
             <Button
               size="lg"
               className={cn(
-                "h-14 w-14 rounded-full shadow-lg shadow-teal-500/25 bg-gradient-to-br from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white p-0 transition-all backdrop-blur-md",
+                "h-14 w-14 rounded-full shadow-lg shadow-brand-navy-500/25 bg-gradient-to-br from-brand-navy-500 to-cyan-600 hover:from-brand-navy-600 hover:to-cyan-700 text-white p-0 transition-all backdrop-blur-md",
                 open && "rotate-45"
               )}
               aria-label={open ? "Close quick actions" : "Open quick actions"}
@@ -126,13 +126,13 @@ export default function QuickActions({ language }: QuickActionsProps) {
                       onClick={() => handleAction(action.page)}
                       className={cn(
                         "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm",
-                        "hover:bg-teal-50 dark:hover:bg-teal-950/30",
+                        "hover:bg-brand-navy-50 dark:hover:bg-brand-navy-950/30",
                         "text-slate-700 dark:text-slate-300",
                         "transition-colors cursor-pointer text-start w-full"
                       )}
                     >
-                      <div className="w-8 h-8 rounded-lg bg-teal-100 dark:bg-teal-900/50 flex items-center justify-center shrink-0">
-                        <Icon className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                      <div className="w-8 h-8 rounded-lg bg-brand-navy-100 dark:bg-brand-navy-900/50 flex items-center justify-center shrink-0">
+                        <Icon className="h-4 w-4 text-brand-navy-600 dark:text-brand-navy-400" />
                       </div>
                       <span className="font-medium">
                         {isAr ? action.labelAr : action.labelEn}

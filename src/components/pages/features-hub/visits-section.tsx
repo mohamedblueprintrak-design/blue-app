@@ -38,7 +38,7 @@ export default function VisitsSection({
             {tAuto('auto.manageTrackFieldSiteVisits')}
           </p>
         </div>
-        <Button onClick={onAddVisit} className="bg-teal-600 hover:bg-teal-700 text-white">
+        <Button onClick={onAddVisit} className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white">
           <Plus className="h-4 w-4 me-2" /> {tAuto('auto.newVisit')}
         </Button>
       </div>
@@ -48,8 +48,8 @@ export default function VisitsSection({
         <Card className="border-slate-200 dark:border-slate-700/50">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-                <MapPinned className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+              <div className="w-10 h-10 rounded-xl bg-brand-navy-100 dark:bg-brand-navy-900/30 flex items-center justify-center">
+                <MapPinned className="h-5 w-5 text-brand-navy-600 dark:text-brand-navy-400" />
               </div>
               <div>
                 <p className="text-xs text-slate-500">{tAuto('auto.totalVisits')}</p>
@@ -137,7 +137,7 @@ export default function VisitsSection({
                       </span>
                     </div>
                     <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5">
-                      <div className="bg-teal-500 h-1.5 rounded-full transition-all" style={{ width: `${Math.min((engVisits.length / Math.max(...DEMO_ENGINEERS.map(e => visits.filter(v => v.engineerId === e.id).length))) * 100, 100)}%` }} />
+                      <div className="bg-brand-navy-500 h-1.5 rounded-full transition-all" style={{ width: `${Math.min((engVisits.length / Math.max(...DEMO_ENGINEERS.map(e => visits.filter(v => v.engineerId === e.id).length))) * 100, 100)}%` }} />
                     </div>
                   </div>
                 </div>

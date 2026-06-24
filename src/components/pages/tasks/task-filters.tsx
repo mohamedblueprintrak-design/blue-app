@@ -22,7 +22,7 @@ function FilterChip({ label, active, onClick, count }: FilterChipProps) {
       className={cn(
         "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all",
         active
-          ? "bg-teal-600 text-white shadow-sm shadow-teal-600/25"
+          ? "bg-brand-navy-600 text-white shadow-sm shadow-brand-navy-600/25"
           : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700"
       )}
     >
@@ -30,7 +30,7 @@ function FilterChip({ label, active, onClick, count }: FilterChipProps) {
       {count !== undefined && (
         <span className={cn(
           "text-[10px] min-w-[18px] h-[18px] flex items-center justify-center rounded-full",
-          active ? "bg-teal-500 text-white" : "bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400"
+          active ? "bg-brand-navy-500 text-white" : "bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400"
         )}>
           {count}
         </span>
@@ -85,8 +85,8 @@ export function TaskFilters({
     <div className="rounded-xl border border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900 p-4 shadow-sm">
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-3">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-lg bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-            <ListChecks className="h-4.5 w-4.5 text-teal-600 dark:text-teal-400" />
+          <div className="w-9 h-9 rounded-lg bg-brand-navy-100 dark:bg-brand-navy-900/30 flex items-center justify-center">
+            <ListChecks className="h-4.5 w-4.5 text-brand-navy-600 dark:text-brand-navy-400" />
           </div>
           <div>
             <h2 className="text-lg font-bold text-slate-900 dark:text-white">
@@ -104,7 +104,7 @@ export function TaskFilters({
             className={cn(
               "h-8 rounded-lg shadow-sm",
               bulkMode
-                ? "bg-teal-500 hover:bg-teal-600 text-white shadow-teal-500/20"
+                ? "bg-brand-navy-500 hover:bg-brand-navy-600 text-white shadow-brand-navy-500/20"
                 : "text-slate-600 dark:text-slate-300"
             )}
             onClick={() => { if (bulkMode) onExitBulkMode(); else onEnterBulkMode(); }}
@@ -116,7 +116,7 @@ export function TaskFilters({
           </Button>
           <Button
             size="sm"
-            className="h-8 bg-teal-600 hover:bg-teal-700 text-white rounded-lg shadow-sm shadow-teal-600/20"
+            className="h-8 bg-brand-navy-600 hover:bg-brand-navy-700 text-white rounded-lg shadow-sm shadow-brand-navy-600/20"
             onClick={onAddTask}
           >
             <Plus className="h-3.5 w-3.5 me-1" />

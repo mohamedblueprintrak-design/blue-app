@@ -46,9 +46,9 @@ export default function MunicipalityTab({ project, language, projectId, activeSu
           <Card className="border-slate-200 dark:border-slate-700/50">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <ClipboardCheck className="h-4 w-4 text-teal-500" />
+                <ClipboardCheck className="h-4 w-4 text-brand-navy-500" />
                 {t("قائمة المتطلبات", "Prerequisites Checklist")}
-                <Badge variant="outline" className="text-[10px] border-0 bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400 ms-2">
+                <Badge variant="outline" className="text-[10px] border-0 bg-brand-navy-100 text-brand-navy-700 dark:bg-brand-navy-900/30 dark:text-brand-navy-400 ms-2">
                   {(() => {
                     const checked = MUNICIPALITY_PREREQUISITES.filter(p => {
                       if (p.dependsOn === "EXTERNAL") return false;

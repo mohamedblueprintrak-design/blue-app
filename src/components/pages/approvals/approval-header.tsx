@@ -18,7 +18,7 @@ export function ApprovalHeader({ ar, totalCount, pendingCount, onNewClick }: App
   return (
     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-600 flex items-center justify-center shadow-md shadow-teal-500/20">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-navy-500 to-cyan-600 flex items-center justify-center shadow-md shadow-brand-navy-500/20">
           <ClipboardCheck className="h-5 w-5 text-white" />
         </div>
         <div>
@@ -46,7 +46,7 @@ export function ApprovalHeader({ ar, totalCount, pendingCount, onNewClick }: App
       {/* New Approval Request Button */}
       <Button
         onClick={onNewClick}
-        className="gap-2 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white text-sm shadow-md shadow-teal-500/20 border-0 h-9 px-4"
+        className="gap-2 bg-gradient-to-r from-brand-navy-600 to-cyan-600 hover:from-brand-navy-700 hover:to-cyan-700 text-white text-sm shadow-md shadow-brand-navy-500/20 border-0 h-9 px-4"
       >
         <Plus className="h-4 w-4" />
         {tAuto('auto.newApprovalRequest')}

@@ -55,7 +55,7 @@ export function WelcomeSection({ userName, alertsCount, isAr, onNavigate }: Welc
           <Button
             onClick={() => onNavigate("clients")}
             size="sm"
-            className="h-8 px-3 text-xs gap-1.5 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white shadow-sm rounded-lg"
+            className="h-8 px-3 text-xs gap-1.5 bg-gradient-to-r from-brand-navy-500 to-brand-navy-600 hover:from-brand-navy-600 hover:to-brand-navy-700 text-white shadow-sm rounded-lg"
           >
             <UserRoundPlus className="h-3.5 w-3.5" />
             {tAuto('auto.newClient')}
@@ -64,7 +64,7 @@ export function WelcomeSection({ userName, alertsCount, isAr, onNavigate }: Welc
             onClick={() => onNavigate("projects")}
             size="sm"
             variant="outline"
-            className="h-8 px-3 text-xs gap-1.5 border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-950/30 rounded-lg"
+            className="h-8 px-3 text-xs gap-1.5 border-brand-navy-200 dark:border-brand-navy-800 text-brand-navy-700 dark:text-brand-navy-400 hover:bg-brand-navy-50 dark:hover:bg-brand-navy-950/30 rounded-lg"
           >
             <Plus className="h-3.5 w-3.5" />
             {tAuto('auto.newProject')}

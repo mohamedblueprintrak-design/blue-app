@@ -127,7 +127,7 @@ export function TaskDetailPanel({
               }
             }}
             disabled={isSaving}
-            className="bg-teal-600 hover:bg-teal-700 text-white border-0"
+            className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white border-0"
           >
             {isSaving ? <Loader2 className="w-4 h-4 me-1 animate-spin" /> : null}
             {tAuto('auto.save')}

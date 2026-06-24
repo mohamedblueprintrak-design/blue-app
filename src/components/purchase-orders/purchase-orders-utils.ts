@@ -49,7 +49,7 @@ export const statusConfig: Record<string, { ar: string; en: string; color: strin
   DRAFT: { ar: "مسودة", en: "Draft", color: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300" },
   SUBMITTED: { ar: "مقدمة", en: "Submitted", color: "bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300" },
   APPROVED: { ar: "معتمدة", en: "Approved", color: "bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300" },
-  RECEIVED: { ar: "مستلمة", en: "Received", color: "bg-teal-100 text-teal-700 dark:bg-teal-900/50 dark:text-teal-300" },
+  RECEIVED: { ar: "مستلمة", en: "Received", color: "bg-brand-navy-100 text-brand-navy-700 dark:bg-brand-navy-900/50 dark:text-brand-navy-300" },
   CANCELLED: { ar: "ملغاة", en: "Cancelled", color: "bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300" },
 };
 

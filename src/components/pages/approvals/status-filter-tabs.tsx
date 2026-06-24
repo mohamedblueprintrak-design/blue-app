@@ -46,7 +46,7 @@ export function StatusFilterTabs({ ar, activeStatusFilter, setActiveStatusFilter
                       ? "bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300"
                       : tab === "REJECTED"
                         ? "bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300"
-                        : "bg-teal-100 dark:bg-teal-900/50 text-teal-700 dark:text-teal-300"
+                        : "bg-brand-navy-100 dark:bg-brand-navy-900/50 text-brand-navy-700 dark:text-brand-navy-300"
                   : "bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400"
               )}>
                 {count}

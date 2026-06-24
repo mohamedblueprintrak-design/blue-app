@@ -474,8 +474,8 @@ export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-lg bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-            <BarChart3 className="h-4.5 w-4.5 text-teal-600 dark:text-teal-400" />
+          <div className="w-9 h-9 rounded-lg bg-brand-navy-100 dark:bg-brand-navy-900/30 flex items-center justify-center">
+            <BarChart3 className="h-4.5 w-4.5 text-brand-navy-600 dark:text-brand-navy-400" />
           </div>
           <div>
             <h2 className="text-lg font-bold text-slate-900 dark:text-white">
@@ -502,7 +502,7 @@ export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
                 <button
                   key={report.id}
                   onClick={() => loadSavedReport(report)}
-                  className="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-teal-50 dark:hover:bg-teal-900/20 hover:text-teal-700 dark:hover:text-teal-300 transition-all border border-slate-200 dark:border-slate-700"
+                  className="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-brand-navy-50 dark:hover:bg-brand-navy-900/20 hover:text-brand-navy-700 dark:hover:text-brand-navy-300 transition-all border border-slate-200 dark:border-slate-700"
                 >
                   {report.nameAr && ar ? report.nameAr : report.name}
                   <span className="ml-1.5 text-[10px] text-slate-400">
@@ -528,9 +528,9 @@ export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
               className={cn(
                 "flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all whitespace-nowrap",
                 isActive
-                  ? "bg-teal-600 text-white shadow-sm shadow-teal-600/25"
+                  ? "bg-brand-navy-600 text-white shadow-sm shadow-brand-navy-600/25"
                   : isCompleted
-                    ? "bg-teal-50 dark:bg-teal-900/20 text-teal-700 dark:text-teal-300"
+                    ? "bg-brand-navy-50 dark:bg-brand-navy-900/20 text-brand-navy-700 dark:text-brand-navy-300"
                     : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400"
               )}
             >
@@ -579,7 +579,7 @@ export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
               </h3>
               {dsLoading ? (
                 <div className="flex items-center justify-center py-12">
-                  <Loader2 className="h-6 w-6 animate-spin text-teal-500" />
+                  <Loader2 className="h-6 w-6 animate-spin text-brand-navy-500" />
                 </div>
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
@@ -599,7 +599,7 @@ export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
                       className={cn(
                         "p-4 rounded-xl text-center transition-all border-2",
                         definition.dataSource === ds.key
-                          ? "border-teal-500 bg-teal-50 dark:bg-teal-900/20 shadow-sm shadow-teal-500/20"
+                          ? "border-brand-navy-500 bg-brand-navy-50 dark:bg-brand-navy-900/20 shadow-sm shadow-brand-navy-500/20"
                           : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-slate-300 dark:hover:border-slate-600"
                       )}
                     >
@@ -607,7 +607,7 @@ export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
                         className={cn(
                           "w-10 h-10 rounded-lg mx-auto mb-2 flex items-center justify-center",
                           definition.dataSource === ds.key
-                            ? "bg-teal-100 dark:bg-teal-800"
+                            ? "bg-brand-navy-100 dark:bg-brand-navy-800"
                             : "bg-slate-100 dark:bg-slate-800"
                         )}
                       >
@@ -615,7 +615,7 @@ export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
                           className={cn(
                             "h-5 w-5",
                             definition.dataSource === ds.key
-                              ? "text-teal-600 dark:text-teal-400"
+                              ? "text-brand-navy-600 dark:text-brand-navy-400"
                               : "text-slate-400"
                           )}
                         />
@@ -624,7 +624,7 @@ export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
                         className={cn(
                           "text-xs font-medium",
                           definition.dataSource === ds.key
-                            ? "text-teal-700 dark:text-teal-300"
+                            ? "text-brand-navy-700 dark:text-brand-navy-300"
                             : "text-slate-600 dark:text-slate-400"
                         )}
                       >
@@ -663,7 +663,7 @@ export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
                         className={cn(
                           "flex items-center gap-3 p-3 rounded-lg border transition-all",
                           isSelected
-                            ? "border-teal-200 dark:border-teal-800 bg-teal-50/50 dark:bg-teal-900/10"
+                            ? "border-brand-navy-200 dark:border-brand-navy-800 bg-brand-navy-50/50 dark:bg-brand-navy-900/10"
                             : "border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900"
                         )}
                       >
@@ -952,7 +952,7 @@ export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
                       className={cn(
                         "p-4 rounded-xl text-center transition-all border-2",
                         isActive
-                          ? "border-teal-500 bg-teal-50 dark:bg-teal-900/20 shadow-sm shadow-teal-500/20"
+                          ? "border-brand-navy-500 bg-brand-navy-50 dark:bg-brand-navy-900/20 shadow-sm shadow-brand-navy-500/20"
                           : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-slate-300 dark:hover:border-slate-600"
                       )}
                     >
@@ -960,7 +960,7 @@ export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
                         className={cn(
                           "h-6 w-6 mx-auto mb-2",
                           isActive
-                            ? "text-teal-600 dark:text-teal-400"
+                            ? "text-brand-navy-600 dark:text-brand-navy-400"
                             : "text-slate-400"
                         )}
                       />
@@ -968,7 +968,7 @@ export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
                         className={cn(
                           "text-xs font-medium",
                           isActive
-                            ? "text-teal-700 dark:text-teal-300"
+                            ? "text-brand-navy-700 dark:text-brand-navy-300"
                             : "text-slate-600 dark:text-slate-400"
                         )}
                       >
@@ -1047,7 +1047,7 @@ export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
                   </Button>
                   <Button
                     size="sm"
-                    className="h-8 gap-1.5 text-xs bg-teal-600 hover:bg-teal-700"
+                    className="h-8 gap-1.5 text-xs bg-brand-navy-600 hover:bg-brand-navy-700"
                     onClick={handleSave}
                     disabled={saveMutation.isPending}
                   >
@@ -1183,7 +1183,7 @@ export default function ReportBuilder({ onReportSaved }: ReportBuilderProps) {
         </span>
         <Button
           size="sm"
-          className="h-8 gap-1 text-xs bg-teal-600 hover:bg-teal-700"
+          className="h-8 gap-1 text-xs bg-brand-navy-600 hover:bg-brand-navy-700"
           onClick={() =>
             setCurrentStep((prev) => Math.min(STEPS.length - 1, prev + 1))
           }

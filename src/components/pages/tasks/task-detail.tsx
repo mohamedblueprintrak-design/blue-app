@@ -34,7 +34,7 @@ export function TaskDetail({ ar, language, commentTask, onClose }: TaskDetailPro
           <>
             <SheetHeader className="p-4 pb-0">
               <SheetTitle className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2 line-clamp-1">
-                <ListChecks className="h-4 w-4 text-teal-600 dark:text-teal-400 shrink-0" />
+                <ListChecks className="h-4 w-4 text-brand-navy-600 dark:text-brand-navy-400 shrink-0" />
                 <span className="truncate">{commentTask.title}</span>
               </SheetTitle>
               <SheetDescription className="text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-3 flex-wrap">
@@ -61,7 +61,7 @@ export function TaskDetail({ ar, language, commentTask, onClose }: TaskDetailPro
             <div className="flex-1 min-h-0 p-4">
               <div className="mb-3">
                 <h4 className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-1.5">
-                  <MessageSquare className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" />
+                  <MessageSquare className="h-3.5 w-3.5 text-brand-navy-600 dark:text-brand-navy-400" />
                   {tAuto('auto.comments')}
                 </h4>
               </div>

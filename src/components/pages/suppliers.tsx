@@ -84,14 +84,14 @@ const categoryLabels: Record<string, { ar: string; en: string }> = {
 const categoryColors: Record<string, string> = {
   MATERIALS: "bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300",
   EQUIPMENT: "bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300",
-  SERVICES: "bg-teal-100 text-teal-700 dark:bg-teal-900/50 dark:text-teal-300",
+  SERVICES: "bg-brand-navy-100 text-brand-navy-700 dark:bg-brand-navy-900/50 dark:text-brand-navy-300",
   SUBCONTRACTORS: "bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300",
 };
 
 const categoryDotColors: Record<string, string> = {
   MATERIALS: "bg-blue-500",
   EQUIPMENT: "bg-purple-500",
-  SERVICES: "bg-teal-500",
+  SERVICES: "bg-brand-navy-500",
   SUBCONTRACTORS: "bg-amber-500",
 };
 
@@ -179,8 +179,8 @@ export default function SuppliersPage({ language }: SuppliersPageProps) {
       label: tAuto('auto.active'),
       value: stats.ACTIVE,
       icon: TrendingUp,
-      color: "text-teal-600 dark:text-teal-400",
-      bg: "bg-teal-100 dark:bg-teal-900/30",
+      color: "text-brand-navy-600 dark:text-brand-navy-400",
+      bg: "bg-brand-navy-100 dark:bg-brand-navy-900/30",
     },
     {
       label: tAuto('auto.topRated'),
@@ -335,7 +335,7 @@ export default function SuppliersPage({ language }: SuppliersPageProps) {
           </Select>
           <Button
             size="sm"
-            className="h-8 bg-teal-600 hover:bg-teal-700 text-white"
+            className="h-8 bg-brand-navy-600 hover:bg-brand-navy-700 text-white"
             onClick={() => { setFormData(emptyForm); setShowAddDialog(true); }}
           >
             <Plus className="h-3.5 w-3.5 me-1" />
@@ -585,7 +585,7 @@ export default function SuppliersPage({ language }: SuppliersPageProps) {
             </Button>
             <Button
               type="submit"
-              className="bg-teal-600 hover:bg-teal-700 text-white"
+              className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white"
               disabled={createMutation.isPending || updateMutation.isPending}
             >
               {(createMutation.isPending || updateMutation.isPending)

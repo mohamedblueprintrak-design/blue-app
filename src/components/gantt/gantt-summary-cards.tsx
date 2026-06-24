@@ -34,17 +34,17 @@ export function GanttSummaryCards({
       </Card>
 
       <Card className="py-0 gap-0 border-0 shadow-sm overflow-hidden rounded-xl hover:scale-[1.02] hover:-translate-y-0.5 transition-all duration-200 cursor-default">
-        <div className="bg-gradient-to-br from-teal-500 to-cyan-600 dark:from-teal-600 dark:to-cyan-700 p-4">
+        <div className="bg-gradient-to-br from-brand-navy-500 to-cyan-600 dark:from-brand-navy-600 dark:to-cyan-700 p-4">
           <div className="flex items-center justify-between mb-3">
             <div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm">
               <TrendingUp className="h-3.5 w-3.5 text-white" />
             </div>
-            <span className="flex items-center gap-0.5 text-[10px] text-teal-100">
+            <span className="flex items-center gap-0.5 text-[10px] text-brand-navy-100">
               <Play className="h-2.5 w-2.5" />
             </span>
           </div>
           <div className="text-2xl font-bold text-white tabular-nums">{activeTasks}</div>
-          <p className="text-[11px] text-teal-100 mt-0.5">{tAuto('auto.inProgress')}</p>
+          <p className="text-[11px] text-brand-navy-100 mt-0.5">{tAuto('auto.inProgress')}</p>
         </div>
       </Card>
 

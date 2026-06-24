@@ -101,10 +101,10 @@ function SidebarQuickStats() {
     <div className="px-2 py-2 space-y-2">
       <div className="flex items-center justify-between text-[11px] px-2 py-1 rounded-md bg-slate-50/60 dark:bg-slate-800/30">
         <span className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-          <Activity className="h-3 w-3 text-teal-500" />
+          <Activity className="h-3 w-3 text-brand-navy-500" />
           {t("activeProjects")}
         </span>
-        <span className="font-bold text-teal-600 dark:text-teal-400 tabular-nums">{activeProjects}</span>
+        <span className="font-bold text-brand-navy-600 dark:text-brand-navy-400 tabular-nums">{activeProjects}</span>
       </div>
       <div className="flex items-center justify-between text-[11px] px-2 py-1 rounded-md bg-slate-50/60 dark:bg-slate-800/30">
         <span className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
@@ -236,7 +236,7 @@ function AppSidebar() {
           "flex items-center gap-3 px-2 py-1.5",
           state === "collapsed" && "justify-center px-0"
         )}>
-          <LogoImage size={38} className="shrink-0 shadow-md shadow-teal-500/20 rounded-lg" />
+          <LogoImage size={38} className="shrink-0 shadow-md shadow-brand-navy-500/20 rounded-lg" />
           {state !== "collapsed" && (
             <div className="flex flex-col">
               <span className="text-lg font-bold text-slate-900 dark:text-white tracking-tight leading-none">
@@ -316,9 +316,9 @@ function AppSidebar() {
           "sidebar-user-card flex items-center gap-3 rounded-lg px-2.5 py-2 transition-all duration-200",
           state === "collapsed" && "justify-center px-0 rounded-none"
         )}>
-          <Avatar className="h-8 w-8 shrink-0 ring-2 ring-teal-200/60 dark:ring-teal-800/60">
+          <Avatar className="h-8 w-8 shrink-0 ring-2 ring-brand-navy-200/60 dark:ring-brand-navy-800/60">
             <AvatarImage src={user.avatar} alt={user.name} />
-            <AvatarFallback className="bg-teal-100 dark:bg-teal-900 text-teal-700 dark:text-teal-300 text-xs font-semibold">
+            <AvatarFallback className="bg-brand-navy-100 dark:bg-brand-navy-900 text-brand-navy-700 dark:text-brand-navy-300 text-xs font-semibold">
               {user.name?.charAt(0)?.toUpperCase() || "U"}
             </AvatarFallback>
           </Avatar>

@@ -203,7 +203,7 @@ export function SupervisionForm({
                 <div key={item.key} className="space-y-1">
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] text-slate-600 dark:text-slate-400">{ar ? item.ar : item.en}</span>
-                    <span className="text-[11px] font-medium text-teal-600 dark:text-teal-400">{createForm[item.key as keyof typeof createForm] as number}%</span>
+                    <span className="text-[11px] font-medium text-brand-navy-600 dark:text-brand-navy-400">{createForm[item.key as keyof typeof createForm] as number}%</span>
                   </div>
                   <Slider
                     value={[createForm[item.key as keyof typeof createForm] as number]}
@@ -377,7 +377,7 @@ export function SupervisionForm({
         <DialogFooter>
           <Button variant="outline" onClick={onCancel}>{tAuto('auto.cancel')}</Button>
           <Button
-            className="bg-teal-600 hover:bg-teal-700 text-white"
+            className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white"
             onClick={onSubmit}
             disabled={!createForm.projectId || !createForm.visitDate || isPending}
           >

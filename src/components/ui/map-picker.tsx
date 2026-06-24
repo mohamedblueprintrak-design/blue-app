@@ -206,7 +206,7 @@ export default function MapPicker({
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <label className="text-sm font-medium text-slate-700 flex items-center gap-2">
-          <MapPin className="w-4 h-4 text-teal-500" />
+          <MapPin className="w-4 h-4 text-brand-navy-500" />
           {label}
         </label>
         <div className="flex items-center gap-2">
@@ -223,7 +223,7 @@ export default function MapPicker({
           <button
             type="button"
             onClick={handleGeolocate}
-            className="text-xs text-teal-600 hover:text-teal-800 flex items-center gap-1 transition-colors"
+            className="text-xs text-brand-navy-600 hover:text-brand-navy-800 flex items-center gap-1 transition-colors"
           >
             <LocateFixed className="w-3 h-3" />
             موقعي الحالي

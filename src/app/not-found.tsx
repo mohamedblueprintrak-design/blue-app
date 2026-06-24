@@ -8,8 +8,8 @@ export default function NotFound() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-4">
       <SkipNavContent />
       <div className="max-w-md w-full text-center space-y-6">
-        <div className="mx-auto w-24 h-24 rounded-full bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-          <FileQuestion className="h-12 w-12 text-teal-600 dark:text-teal-400" />
+        <div className="mx-auto w-24 h-24 rounded-full bg-brand-navy-100 dark:bg-brand-navy-900/30 flex items-center justify-center">
+          <FileQuestion className="h-12 w-12 text-brand-navy-600 dark:text-brand-navy-400" />
         </div>
         <div className="space-y-2">
           <h1 className="text-6xl font-black text-slate-900 dark:text-white">404</h1>
@@ -18,7 +18,7 @@ export default function NotFound() {
         </div>
         <div className="flex items-center justify-center gap-3">
           <Link href="/">
-            <Button className="bg-teal-600 hover:bg-teal-700 text-white gap-2"><Home className="h-4 w-4" /> الصفحة الرئيسية</Button>
+            <Button className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white gap-2"><Home className="h-4 w-4" /> الصفحة الرئيسية</Button>
           </Link>
           <Link href="/dashboard">
             <Button variant="outline" className="gap-2">لوحة التحكم <ArrowRight className="h-4 w-4 rotate-180" /></Button>

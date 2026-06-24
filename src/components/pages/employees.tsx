@@ -236,7 +236,7 @@ export default function EmployeesPage({ language }: EmployeesPageProps) {
           </div>
           <Button
             size="sm"
-            className="h-8 bg-teal-600 hover:bg-teal-700 text-white"
+            className="h-8 bg-brand-navy-600 hover:bg-brand-navy-700 text-white"
             onClick={openAddDialog}
           >
             <Plus className="h-3.5 w-3.5 me-1" />
@@ -255,7 +255,7 @@ export default function EmployeesPage({ language }: EmployeesPageProps) {
             return (
               <Card
                 key={emp.id}
-                className={`border-slate-200 dark:border-slate-700/50 hover:shadow-md transition-all hover:scale-[1.01] cursor-pointer ${selectedEmployee?.id === emp.id ? "ring-2 ring-teal-500/50" : ""}`}
+                className={`border-slate-200 dark:border-slate-700/50 hover:shadow-md transition-all hover:scale-[1.01] cursor-pointer ${selectedEmployee?.id === emp.id ? "ring-2 ring-brand-navy-500/50" : ""}`}
                 onClick={() => setSelectedEmployee(emp)}
               >
                 <CardContent className="p-4">
@@ -382,7 +382,7 @@ function EmployeeProfileCard({ employee, ar, onClose, onEdit }: {
   return (
     <div className="w-full lg:w-[380px] flex-shrink-0 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900 overflow-hidden">
       {/* Gradient Header */}
-      <div className="h-20 bg-gradient-to-br from-teal-500 to-teal-700 relative">
+      <div className="h-20 bg-gradient-to-br from-brand-navy-500 to-brand-navy-700 relative">
         <div className="absolute -bottom-8 start-4">
           <Avatar className="h-16 w-16 border-4 border-white dark:border-slate-900">
             <AvatarImage src={employee.user.avatar} alt={employee.user.name} />

@@ -232,8 +232,8 @@ export default function SiteVisits({ language, projectId }: SiteVisitsProps) {
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
         <div className="flex items-center gap-2.5 flex-1">
-          <div className="w-9 h-9 rounded-lg bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-            <MapPin className="h-4.5 w-4.5 text-teal-600 dark:text-teal-400" />
+          <div className="w-9 h-9 rounded-lg bg-brand-navy-100 dark:bg-brand-navy-900/30 flex items-center justify-center">
+            <MapPin className="h-4.5 w-4.5 text-brand-navy-600 dark:text-brand-navy-400" />
           </div>
           <div>
             <h2 className="text-lg font-bold text-slate-900 dark:text-white">
@@ -277,7 +277,7 @@ export default function SiteVisits({ language, projectId }: SiteVisitsProps) {
 
           <Button
             size="sm"
-            className="h-8 bg-teal-600 hover:bg-teal-700 text-white rounded-lg shadow-sm shadow-teal-600/20"
+            className="h-8 bg-brand-navy-600 hover:bg-brand-navy-700 text-white rounded-lg shadow-sm shadow-brand-navy-600/20"
             onClick={() => setShowAddDialog(true)}
           >
             <Plus className="h-3.5 w-3.5 me-1" />
@@ -372,7 +372,7 @@ export default function SiteVisits({ language, projectId }: SiteVisitsProps) {
                 {/* Plot Number */}
                 {visit.plotNumber && (
                   <div className="flex items-center gap-1.5 mb-2">
-                    <MapPin className="h-3.5 w-3.5 text-teal-500" />
+                    <MapPin className="h-3.5 w-3.5 text-brand-navy-500" />
                     <span className="text-sm font-medium text-slate-900 dark:text-white">{visit.plotNumber}</span>
                   </div>
                 )}
@@ -420,7 +420,7 @@ export default function SiteVisits({ language, projectId }: SiteVisitsProps) {
                     href={`https://www.openstreetmap.org/?mlat=25.2&mlon=55.3#map=13/25.2/55.3`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[9px] text-teal-500 hover:text-teal-600 mt-1 inline-block"
+                    className="text-[9px] text-brand-navy-500 hover:text-brand-navy-600 mt-1 inline-block"
                   >
                     {tAuto('auto.openLargerMap')}
                   </a>
@@ -559,7 +559,7 @@ export default function SiteVisits({ language, projectId }: SiteVisitsProps) {
               {tAuto('auto.cancel')}
             </Button>
             <Button
-              className="bg-teal-600 hover:bg-teal-700 text-white"
+              className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white"
               onClick={() => createMutation.mutate(formData)}
               disabled={!formData.projectId || !formData.date || createMutation.isPending}
             >
@@ -576,7 +576,7 @@ export default function SiteVisits({ language, projectId }: SiteVisitsProps) {
             <>
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
-                  <MapPin className="h-5 w-5 text-teal-500" />
+                  <MapPin className="h-5 w-5 text-brand-navy-500" />
                   {selectedVisit.plotNumber || (tAuto('auto.siteVisit'))}
                 </DialogTitle>
                 <DialogDescription>

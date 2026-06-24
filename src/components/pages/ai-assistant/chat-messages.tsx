@@ -53,8 +53,8 @@ export function ChatMessages({
       <div className="flex-1 overflow-y-auto p-4 custom-scrollbar" style={{ scrollbarGutter: "stable" }}>
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full min-h-[300px] text-center px-4">
-            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-950 dark:to-cyan-950 flex items-center justify-center mb-5 shadow-lg shadow-teal-500/5">
-              <Sparkles className="h-10 w-10 text-teal-500" />
+            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-brand-navy-50 to-cyan-50 dark:from-brand-navy-950 dark:to-cyan-950 flex items-center justify-center mb-5 shadow-lg shadow-brand-navy-500/5">
+              <Sparkles className="h-10 w-10 text-brand-navy-500" />
             </div>
             <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
               {tAuto('auto.welcomeToBluePrintAIAssistant')}
@@ -69,15 +69,15 @@ export function ChatMessages({
                 <button
                   key={suggestion.ar}
                   onClick={() => handleSend(isAr ? suggestion.arMsg : suggestion.enMsg)}
-                  className="group relative flex items-center gap-3 px-4 py-3.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-teal-400 dark:hover:border-teal-600 bg-gradient-to-br from-white to-slate-50/50 dark:from-slate-900 dark:to-slate-800/50 hover:from-teal-50/80 hover:to-cyan-50/80 dark:hover:from-teal-950/30 dark:hover:to-cyan-950/30 transition-all text-sm text-start hover:shadow-lg hover:shadow-teal-500/5 hover:scale-[1.02] active:scale-[0.98]"
+                  className="group relative flex items-center gap-3 px-4 py-3.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-brand-navy-400 dark:hover:border-brand-navy-600 bg-gradient-to-br from-white to-slate-50/50 dark:from-slate-900 dark:to-slate-800/50 hover:from-brand-navy-50/80 hover:to-cyan-50/80 dark:hover:from-brand-navy-950/30 dark:hover:to-cyan-950/30 transition-all text-sm text-start hover:shadow-lg hover:shadow-brand-navy-500/5 hover:scale-[1.02] active:scale-[0.98]"
                 >
-                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-teal-100 to-cyan-100 dark:from-teal-900/50 dark:to-cyan-900/50 flex items-center justify-center shrink-0 group-hover:from-teal-200 group-hover:to-cyan-200 dark:group-hover:from-teal-800 dark:group-hover:to-cyan-800 transition-colors shadow-sm">
-                    <suggestion.icon className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-navy-100 to-cyan-100 dark:from-brand-navy-900/50 dark:to-cyan-900/50 flex items-center justify-center shrink-0 group-hover:from-brand-navy-200 group-hover:to-cyan-200 dark:group-hover:from-brand-navy-800 dark:group-hover:to-cyan-800 transition-colors shadow-sm">
+                    <suggestion.icon className="h-4 w-4 text-brand-navy-600 dark:text-brand-navy-400" />
                   </div>
                   <span className="text-slate-700 dark:text-slate-300 font-medium">
                     {isAr ? suggestion.ar : suggestion.en}
                   </span>
-                  <div className="absolute inset-0 rounded-xl border-2 border-transparent group-hover:border-teal-400/30 dark:group-hover:border-teal-600/30 transition-colors pointer-events-none" />
+                  <div className="absolute inset-0 rounded-xl border-2 border-transparent group-hover:border-brand-navy-400/30 dark:group-hover:border-brand-navy-600/30 transition-colors pointer-events-none" />
                 </button>
               ))}
             </div>
@@ -98,7 +98,7 @@ export function ChatMessages({
                     <AvatarFallback
                       className={
                         msg.role === "user"
-                          ? "bg-gradient-to-br from-teal-500 to-cyan-600 text-white text-xs shadow-sm shadow-teal-500/20"
+                          ? "bg-gradient-to-br from-brand-navy-500 to-cyan-600 text-white text-xs shadow-sm shadow-brand-navy-500/20"
                           : "bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-700 text-slate-700 dark:text-slate-300 text-xs"
                       }
                     >
@@ -109,10 +109,10 @@ export function ChatMessages({
                   {/* Message Bubble */}
                   <div className={cn("max-w-[80%] relative", msg.role === "user" ? "text-end" : "text-start")}>
                     {msg.role === "user" ? (
-                      <div className="inline-block rounded-2xl rounded-tr-sm bg-gradient-to-br from-teal-500 to-teal-600 text-white px-4 py-3 shadow-md shadow-teal-500/15">
+                      <div className="inline-block rounded-2xl rounded-tr-sm bg-gradient-to-br from-brand-navy-500 to-brand-navy-600 text-white px-4 py-3 shadow-md shadow-brand-navy-500/15">
                         <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
                         <div className="flex items-center justify-end gap-2 mt-1.5">
-                          <span className="text-[10px] text-teal-200">
+                          <span className="text-[10px] text-brand-navy-200">
                             {msg.timestamp.toLocaleTimeString(isAr ? "ar-AE" : "en-US", {
                               hour: "2-digit",
                               minute: "2-digit",
@@ -124,9 +124,9 @@ export function ChatMessages({
                             title={tAuto('auto.copy')}
                           >
                             {copiedMsgId === msg.id ? (
-                              <Check className="h-3 w-3 text-teal-200" />
+                              <Check className="h-3 w-3 text-brand-navy-200" />
                             ) : (
-                              <Copy className="h-3 w-3 text-teal-200" />
+                              <Copy className="h-3 w-3 text-brand-navy-200" />
                             )}
                           </button>
                         </div>
@@ -159,14 +159,14 @@ export function ChatMessages({
                       </div>
                     ) : (
                       <div className="inline-block text-start">
-                        <div className="rounded-2xl rounded-tl-sm bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-4 py-3 border-s-2 border-s-0 border-s-teal-500 dark:border-s-teal-600">
+                        <div className="rounded-2xl rounded-tl-sm bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-4 py-3 border-s-2 border-s-0 border-s-brand-navy-500 dark:border-s-brand-navy-600">
                           <div className="text-sm leading-relaxed">
                             {msg.content ? (
                               <MarkdownRenderer content={msg.content} />
                             ) : null}
                             {/* Streaming cursor: show when message is still being streamed (empty or loading) */}
                             {isLoading && msg.content.length === 0 && (
-                              <span className="inline-block w-1.5 h-4 bg-teal-500 animate-pulse rounded-sm ml-0.5 align-text-bottom" />
+                              <span className="inline-block w-1.5 h-4 bg-brand-navy-500 animate-pulse rounded-sm ml-0.5 align-text-bottom" />
                             )}
                           </div>
                           {/* Only show action bar when content is present (not during initial streaming) */}
@@ -241,7 +241,7 @@ export function ChatMessages({
                               <button
                                 key={reply}
                                 onClick={() => handleSend(reply)}
-                                className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium border border-teal-200 dark:border-teal-800/50 text-teal-700 dark:text-teal-400 bg-teal-50/50 dark:bg-teal-950/20 hover:bg-teal-100 dark:hover:bg-teal-950/40 hover:border-teal-300 dark:hover:border-teal-700 transition-all"
+                                className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium border border-brand-navy-200 dark:border-brand-navy-800/50 text-brand-navy-700 dark:text-brand-navy-400 bg-brand-navy-50/50 dark:bg-brand-navy-950/20 hover:bg-brand-navy-100 dark:hover:bg-brand-navy-950/40 hover:border-brand-navy-300 dark:hover:border-brand-navy-700 transition-all"
                               >
                                 <Lightbulb className="h-2.5 w-2.5" />
                                 {reply}
@@ -273,19 +273,19 @@ export function ChatMessages({
                     <Bot className="h-4 w-4" />
                   </AvatarFallback>
                 </Avatar>
-                <div className="rounded-2xl rounded-tl-sm bg-slate-100 dark:bg-slate-800 border-s-2 border-s-0 border-s-teal-500 dark:border-s-teal-600 px-5 py-4">
+                <div className="rounded-2xl rounded-tl-sm bg-slate-100 dark:bg-slate-800 border-s-2 border-s-0 border-s-brand-navy-500 dark:border-s-brand-navy-600 px-5 py-4">
                   <div className="flex items-center gap-3">
                     <div className="flex items-center gap-1">
                       <span
-                        className="w-2 h-2 rounded-full bg-teal-500 animate-bounce"
+                        className="w-2 h-2 rounded-full bg-brand-navy-500 animate-bounce"
                         style={{ animationDelay: "0ms" }}
                       />
                       <span
-                        className="w-2 h-2 rounded-full bg-teal-500 animate-bounce"
+                        className="w-2 h-2 rounded-full bg-brand-navy-500 animate-bounce"
                         style={{ animationDelay: "150ms" }}
                       />
                       <span
-                        className="w-2 h-2 rounded-full bg-teal-500 animate-bounce"
+                        className="w-2 h-2 rounded-full bg-brand-navy-500 animate-bounce"
                         style={{ animationDelay: "300ms" }}
                       />
                     </div>

@@ -11,7 +11,7 @@ export default function AuthError({
   reset: () => void;
 }) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-teal-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-4" dir="rtl">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-brand-navy-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-4" dir="rtl">
       <div className="max-w-md w-full text-center space-y-6">
         <div className="mx-auto w-20 h-20 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
           <ShieldAlert className="h-10 w-10 text-amber-500" />
@@ -24,7 +24,7 @@ export default function AuthError({
         </div>
         {error.digest && <p className="text-xs text-slate-400">Error ID: {error.digest}</p>}
         <div className="flex items-center justify-center gap-3">
-          <Button onClick={reset} className="bg-teal-600 hover:bg-teal-700 text-white gap-2">
+          <Button onClick={reset} className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white gap-2">
             <RefreshCw className="h-4 w-4" /> إعادة المحاولة
           </Button>
           <Button variant="outline" onClick={() => (window.location.href = "/dashboard")} className="gap-2">

@@ -17,7 +17,7 @@ export function getActivityFeed(data: DashboardData | undefined, isAr: boolean):
   // If we have real activity data from the API, use it
   if (data?.activities && data.activities.length > 0) {
     const actionMap: Record<string, { actionAr: string; actionEn: string; icon: ActivityItem["icon"]; iconBg: string; iconColor: string; borderColor: string }> = {
-      CREATE: { actionAr: "أنشأ", actionEn: "Created", icon: Plus, iconBg: "bg-teal-100 dark:bg-teal-950/50", iconColor: "text-teal-600 dark:text-teal-400", borderColor: "border-s-teal-400 dark:border-s-teal-600" },
+      CREATE: { actionAr: "أنشأ", actionEn: "Created", icon: Plus, iconBg: "bg-brand-navy-100 dark:bg-brand-navy-950/50", iconColor: "text-brand-navy-600 dark:text-brand-navy-400", borderColor: "border-s-brand-navy-400 dark:border-s-brand-navy-600" },
       UPDATE: { actionAr: "حدّث", actionEn: "Updated", icon: Activity, iconBg: "bg-amber-100 dark:bg-amber-950/50", iconColor: "text-amber-600 dark:text-amber-400", borderColor: "border-s-amber-400 dark:border-s-amber-600" },
       DELETE: { actionAr: "حذف", actionEn: "Deleted", icon: XCircle, iconBg: "bg-red-100 dark:bg-red-950/50", iconColor: "text-red-600 dark:text-red-400", borderColor: "border-s-red-400 dark:border-s-red-600" },
       APPROVE: { actionAr: "وافق على", actionEn: "Approved", icon: CheckCircle2, iconBg: "bg-emerald-100 dark:bg-emerald-950/50", iconColor: "text-emerald-600 dark:text-emerald-400", borderColor: "border-s-emerald-400 dark:border-s-emerald-600" },

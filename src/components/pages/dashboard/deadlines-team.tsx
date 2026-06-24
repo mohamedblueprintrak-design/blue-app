@@ -28,7 +28,7 @@ export function DeadlinesTeam({ upcomingTasks, teamPerformance, isAr, onProjectC
       <Card className="rounded-xl border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900 hover:shadow-md transition-shadow">
         <CardHeader className="pb-3 border-b border-slate-100 dark:border-slate-800/50 relative">
           {/* Teal accent line */}
-          <div className="absolute top-0 start-0 end-0 h-[3px] rounded-t-xl bg-gradient-to-l from-teal-500 to-teal-400" />
+          <div className="absolute top-0 start-0 end-0 h-[3px] rounded-t-xl bg-gradient-to-l from-brand-navy-500 to-brand-navy-400" />
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-rose-500 to-red-500 flex items-center justify-center shadow-md">
@@ -132,7 +132,7 @@ export function DeadlinesTeam({ upcomingTasks, teamPerformance, isAr, onProjectC
       <Card className="rounded-xl border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900 hover:shadow-md transition-shadow">
         <CardHeader className="pb-3 border-b border-slate-100 dark:border-slate-800/50 relative">
           {/* Teal accent line */}
-          <div className="absolute top-0 start-0 end-0 h-[3px] rounded-t-xl bg-gradient-to-l from-teal-500 to-teal-400" />
+          <div className="absolute top-0 start-0 end-0 h-[3px] rounded-t-xl bg-gradient-to-l from-brand-navy-500 to-brand-navy-400" />
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center shadow-md">
@@ -192,9 +192,9 @@ export function DeadlinesTeam({ upcomingTasks, teamPerformance, isAr, onProjectC
                     className={cn(
                       "h-full rounded-full transition-all duration-700 ease-out",
                       member.completion >= 85
-                        ? "bg-gradient-to-r from-teal-500 to-emerald-400"
+                        ? "bg-gradient-to-r from-brand-navy-500 to-emerald-400"
                         : member.completion >= 70
-                        ? "bg-gradient-to-r from-teal-500 to-cyan-400"
+                        ? "bg-gradient-to-r from-brand-navy-500 to-cyan-400"
                         : member.completion >= 50
                         ? "bg-gradient-to-r from-amber-400 to-amber-500"
                         : "bg-gradient-to-r from-orange-400 to-amber-500"
@@ -212,7 +212,7 @@ export function DeadlinesTeam({ upcomingTasks, teamPerformance, isAr, onProjectC
                 member.completion >= 85
                   ? "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400"
                   : member.completion >= 70
-                  ? "bg-teal-50 dark:bg-teal-950/50 text-teal-600 dark:text-teal-400"
+                  ? "bg-brand-navy-50 dark:bg-brand-navy-950/50 text-brand-navy-600 dark:text-brand-navy-400"
                   : member.completion >= 50
                   ? "bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400"
                   : "bg-orange-50 dark:bg-orange-950/50 text-orange-600 dark:text-orange-400"

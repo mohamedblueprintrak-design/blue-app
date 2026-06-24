@@ -141,15 +141,15 @@ export function ChecklistList({
           <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-slate-100 to-slate-50 dark:from-slate-800 dark:to-slate-900 flex items-center justify-center border border-slate-200 dark:border-slate-700">
             <ClipboardCheck className="h-9 w-9 text-slate-300 dark:text-slate-600" />
           </div>
-          <div className="absolute -bottom-1 -end-1 w-8 h-8 rounded-xl bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center border-2 border-white dark:border-slate-950">
-            <Plus className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+          <div className="absolute -bottom-1 -end-1 w-8 h-8 rounded-xl bg-brand-navy-100 dark:bg-brand-navy-900/30 flex items-center justify-center border-2 border-white dark:border-slate-950">
+            <Plus className="h-4 w-4 text-brand-navy-600 dark:text-brand-navy-400" />
           </div>
         </div>
         <h3 className="text-base font-semibold text-slate-900 dark:text-white mb-1">{tAuto('auto.noChecklistsFound')}</h3>
         <p className="text-sm text-slate-500 mb-4 max-w-xs">
           {tAuto('auto.createANewSupervisionChecklistToTrackWor')}
         </p>
-        <Button className="bg-teal-600 hover:bg-teal-700 text-white rounded-lg shadow-sm shadow-teal-600/20" onClick={onCreateNew}>
+        <Button className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white rounded-lg shadow-sm shadow-brand-navy-600/20" onClick={onCreateNew}>
           <Plus className="h-4 w-4 me-1.5" />
           {tAuto('auto.newChecklist')}
         </Button>
@@ -174,7 +174,7 @@ export function ChecklistList({
             <div className="flex items-start justify-between mb-3">
               <div className="flex items-center gap-2 flex-wrap">
                 {stageLabel && (
-                  <Badge variant="outline" className="text-[10px] h-5 border-teal-300 dark:border-teal-700 text-teal-600 dark:text-teal-400">
+                  <Badge variant="outline" className="text-[10px] h-5 border-brand-navy-300 dark:border-brand-navy-700 text-brand-navy-600 dark:text-brand-navy-400">
                     {ar ? stageLabel.ar : stageLabel.en}
                   </Badge>
                 )}

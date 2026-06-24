@@ -55,7 +55,7 @@ function RFQsView({ ar, contractors, onBack, projectId: _projectId }: {
     return acc;
   }, {} as Record<string, number>);
 
-  const inputCls = "h-9 text-sm rounded-lg border-slate-200 dark:border-slate-700 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20";
+  const inputCls = "h-9 text-sm rounded-lg border-slate-200 dark:border-slate-700 focus:border-brand-navy-500 focus:ring-2 focus:ring-brand-navy-500/20";
 
   return (
     <div className="space-y-4">
@@ -73,7 +73,7 @@ function RFQsView({ ar, contractors, onBack, projectId: _projectId }: {
         <div className="flex items-center gap-2">
           <Button
             size="sm"
-            className="h-8 bg-teal-600 hover:bg-teal-700 text-white rounded-lg shadow-sm"
+            className="h-8 bg-brand-navy-600 hover:bg-brand-navy-700 text-white rounded-lg shadow-sm"
             onClick={() => setShowCreateDialog(true)}
           >
             <Plus className="h-3.5 w-3.5 me-1" />
@@ -103,7 +103,7 @@ function RFQsView({ ar, contractors, onBack, projectId: _projectId }: {
             className={cn(
               "h-7 text-xs rounded-lg",
               statusFilter === s.value
-                ? "bg-teal-600 hover:bg-teal-700 text-white"
+                ? "bg-brand-navy-600 hover:bg-brand-navy-700 text-white"
                 : "border-slate-200 dark:border-slate-700"
             )}
             onClick={() => setStatusFilter(s.value)}
@@ -170,7 +170,7 @@ function RFQsView({ ar, contractors, onBack, projectId: _projectId }: {
         <DialogContent className="max-w-lg" dir={ar ? "rtl" : "ltr"}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Gavel className="h-4.5 w-4.5 text-teal-600" />
+              <Gavel className="h-4.5 w-4.5 text-brand-navy-600" />
               {tAuto('auto.newRequestForQuotation')}
             </DialogTitle>
             <DialogDescription>
@@ -229,7 +229,7 @@ function RFQsView({ ar, contractors, onBack, projectId: _projectId }: {
               <div className="max-h-[120px] overflow-y-auto rounded-lg border border-slate-200 dark:border-slate-700 divide-y divide-slate-100 dark:divide-slate-800">
                 {contractors.slice(0, 5).map((c) => (
                   <label key={c.id} className="flex items-center gap-2 px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer">
-                    <input type="checkbox" className="rounded border-slate-300 text-teal-600 focus:ring-teal-500" />
+                    <input type="checkbox" className="rounded border-slate-300 text-brand-navy-600 focus:ring-brand-navy-500" />
                     <span className="text-xs text-slate-700 dark:text-slate-300">{ar ? c.name : c.nameEn || c.name}</span>
                     <Badge className={cn("text-[9px] ms-auto", getCategoryConfig(c.category).color)}>
                       {ar ? getCategoryConfig(c.category).ar : getCategoryConfig(c.category).en}
@@ -244,7 +244,7 @@ function RFQsView({ ar, contractors, onBack, projectId: _projectId }: {
               {tAuto('auto.cancel')}
             </Button>
             <Button
-              className="h-9 bg-teal-600 hover:bg-teal-700 text-white rounded-lg min-w-[120px]"
+              className="h-9 bg-brand-navy-600 hover:bg-brand-navy-700 text-white rounded-lg min-w-[120px]"
               disabled={!newRFQ.title || !newRFQ.description}
               onClick={() => {
                 // In production this would call the API

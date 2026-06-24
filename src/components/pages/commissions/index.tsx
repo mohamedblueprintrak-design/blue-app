@@ -51,8 +51,8 @@ export default function CommissionsPage({ language }: CommissionsPageProps) {
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center gap-2.5">
-        <div className="w-9 h-9 rounded-lg bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-          <Gift className="h-4.5 w-4.5 text-teal-600 dark:text-teal-400" />
+        <div className="w-9 h-9 rounded-lg bg-brand-navy-100 dark:bg-brand-navy-900/30 flex items-center justify-center">
+          <Gift className="h-4.5 w-4.5 text-brand-navy-600 dark:text-brand-navy-400" />
         </div>
         <div>
           <h2 className="text-lg font-bold text-slate-900 dark:text-white">{tAuto('auto.commissionsReferrals')}</h2>
@@ -218,7 +218,7 @@ function CampaignsTab({ language }: { language: "ar" | "en" }) {
     <div className="space-y-4">
       <CampaignStats language={language} campaignCount={campaigns.length} totalBudget={totalBudget} totalLeads={totalLeads} totalConversions={totalConversions} />
       <div className="flex items-center justify-end">
-        <Button size="sm" className="h-8 bg-teal-600 hover:bg-teal-700 text-white rounded-lg shadow-sm shadow-teal-600/20" onClick={() => { setEditId(null); setShowDialog(true); }}>
+        <Button size="sm" className="h-8 bg-brand-navy-600 hover:bg-brand-navy-700 text-white rounded-lg shadow-sm shadow-brand-navy-600/20" onClick={() => { setEditId(null); setShowDialog(true); }}>
           <Plus className="h-3.5 w-3.5 me-1" />{tAuto('auto.newCampaign')}
         </Button>
       </div>

@@ -111,7 +111,7 @@ export function UsersTable({
         <CardHeader className="pb-3">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <CardTitle className="text-lg flex items-center gap-2">
-              <Users className="h-5 w-5 text-teal-600" />
+              <Users className="h-5 w-5 text-brand-navy-600" />
               {tAuto('auto.userManagement')}
               <Badge variant="secondary" className="text-xs">
                 {users.length} {tAuto('auto.users1')}

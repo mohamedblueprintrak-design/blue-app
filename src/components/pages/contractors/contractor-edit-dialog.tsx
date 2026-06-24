@@ -53,7 +53,7 @@ export function ContractorEditDialog({
       <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            {isEditing ? <Edit3 className="h-5 w-5 text-amber-600" /> : <Users className="h-5 w-5 text-teal-600" />}
+            {isEditing ? <Edit3 className="h-5 w-5 text-amber-600" /> : <Users className="h-5 w-5 text-brand-navy-600" />}
             {isEditing ? (tAuto('auto.editContractor')) : (tAuto('auto.addNewContractor'))}
           </DialogTitle>
           <DialogDescription>{tAuto('auto.completeContractorProfile')}</DialogDescription>
@@ -190,7 +190,7 @@ export function ContractorEditDialog({
         <DialogFooter>
           <Button variant="outline" onClick={onCancel}>{tAuto('auto.cancel')}</Button>
           <Button
-            className="bg-teal-600 hover:bg-teal-700 text-white rounded-lg"
+            className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white rounded-lg"
             onClick={() => saveMutation.mutate(formData)}
             disabled={!formData.name || saveMutation.isPending}
           >

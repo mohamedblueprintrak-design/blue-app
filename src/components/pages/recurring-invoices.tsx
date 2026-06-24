@@ -435,8 +435,8 @@ export default function RecurringInvoicesPage({ language }: RecurringInvoicesPag
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-            <RefreshCw className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+          <div className="w-10 h-10 rounded-xl bg-brand-navy-100 dark:bg-brand-navy-900/30 flex items-center justify-center">
+            <RefreshCw className="h-5 w-5 text-brand-navy-600 dark:text-brand-navy-400" />
           </div>
           <div>
             <h2 className="text-lg font-bold text-slate-900 dark:text-white">
@@ -449,7 +449,7 @@ export default function RecurringInvoicesPage({ language }: RecurringInvoicesPag
         </div>
         <Button
           onClick={handleOpenCreate}
-          className="bg-teal-600 hover:bg-teal-700 text-white h-9 rounded-lg"
+          className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white h-9 rounded-lg"
         >
           <Plus className="h-4 w-4 me-2" />
           {tAuto('auto.newRecurringInvoice')}
@@ -487,8 +487,8 @@ export default function RecurringInvoicesPage({ language }: RecurringInvoicesPag
         <Card className="py-0 gap-0">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-                <DollarSign className="h-5 w-5 text-teal-600" />
+              <div className="w-10 h-10 rounded-lg bg-brand-navy-100 dark:bg-brand-navy-900/30 flex items-center justify-center">
+                <DollarSign className="h-5 w-5 text-brand-navy-600" />
               </div>
               <div>
                 <p className="text-xs text-slate-500">{tAuto('auto.estMonthlyValue')}</p>
@@ -532,7 +532,7 @@ export default function RecurringInvoicesPage({ language }: RecurringInvoicesPag
                         idx % 2 === 0
                           ? "bg-white dark:bg-slate-900"
                           : "bg-slate-50/50 dark:bg-slate-800/20",
-                        "hover:bg-teal-50/50 dark:hover:bg-teal-950/10"
+                        "hover:bg-brand-navy-50/50 dark:hover:bg-brand-navy-950/10"
                       )}
                       onClick={() => handleOpenEdit(ri)}
                     >
@@ -720,7 +720,7 @@ export default function RecurringInvoicesPage({ language }: RecurringInvoicesPag
                   <TableBody>
                     {formData.items.map((item, idx) => (
                       <TableRow key={idx} className={cn(
-                        "transition-colors hover:bg-teal-50/50 dark:hover:bg-teal-950/10",
+                        "transition-colors hover:bg-brand-navy-50/50 dark:hover:bg-brand-navy-950/10",
                         idx % 2 === 0
                           ? "bg-white dark:bg-slate-900"
                           : "bg-slate-50/50 dark:bg-slate-800/20"
@@ -786,7 +786,7 @@ export default function RecurringInvoicesPage({ language }: RecurringInvoicesPag
                 <div className="border-t border-slate-200 dark:border-slate-700 pt-2.5">
                   <div className="flex justify-between text-base font-bold">
                     <span>{tAuto('auto.total')}</span>
-                    <span className="text-teal-600 dark:text-teal-400 tabular-nums font-mono">{formatCurrency(calcTotal, ar)}</span>
+                    <span className="text-brand-navy-600 dark:text-brand-navy-400 tabular-nums font-mono">{formatCurrency(calcTotal, ar)}</span>
                   </div>
                 </div>
               </div>
@@ -877,7 +877,7 @@ export default function RecurringInvoicesPage({ language }: RecurringInvoicesPag
               </Button>
               <Button
                 type="submit"
-                className="bg-teal-600 hover:bg-teal-700 text-white"
+                className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white"
                 disabled={createMutation.isPending || updateMutation.isPending}
               >
                 {createMutation.isPending || updateMutation.isPending

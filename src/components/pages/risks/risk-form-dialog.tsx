@@ -80,7 +80,7 @@ export function RiskFormDialog({
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <ShieldAlert className="h-5 w-5 text-teal-500" />
+            <ShieldAlert className="h-5 w-5 text-brand-navy-500" />
             {tAuto('auto.newRisk')}
           </DialogTitle>
           <DialogDescription>
@@ -265,7 +265,7 @@ export function RiskFormDialog({
             {tAuto('auto.cancel')}
           </Button>
           <Button
-            className="bg-teal-600 hover:bg-teal-700 text-white"
+            className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white"
             onClick={() => createMutation.mutate({ ...formData, actions: newActions })}
             disabled={!formData.projectId || !formData.title || createMutation.isPending}
           >

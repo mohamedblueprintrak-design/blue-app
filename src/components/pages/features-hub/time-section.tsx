@@ -62,8 +62,8 @@ export default function TimeSection({
         <Card className="border-slate-200 dark:border-slate-700/50">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-                <Clock className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+              <div className="w-10 h-10 rounded-xl bg-brand-navy-100 dark:bg-brand-navy-900/30 flex items-center justify-center">
+                <Clock className="h-5 w-5 text-brand-navy-600 dark:text-brand-navy-400" />
               </div>
               <div>
                 <p className="text-xs text-slate-500">{tAuto('auto.totalHours')}</p>
@@ -186,7 +186,7 @@ export default function TimeSection({
                       <Button
                         variant="ghost"
                         size="sm"
-                        className={cn('h-7 w-7 p-0', entry.isTimerRunning ? 'text-red-500 hover:text-red-700' : 'text-teal-500 hover:text-teal-700')}
+                        className={cn('h-7 w-7 p-0', entry.isTimerRunning ? 'text-red-500 hover:text-red-700' : 'text-brand-navy-500 hover:text-brand-navy-700')}
                         onClick={() => onToggleTimer(entry.id)}
                         aria-label={entry.isTimerRunning ? 'Stop timer' : 'Start timer'}
                       >
@@ -213,7 +213,7 @@ export default function TimeSection({
               return (
                 <div key={day} className="text-center">
                   <p className="text-[10px] text-slate-500 mb-1">{day}</p>
-                  <div className={cn('w-full h-16 rounded-lg flex items-center justify-center text-xs font-bold', dayHours > 0 ? 'bg-teal-50 dark:bg-teal-900/20 text-teal-700 dark:text-teal-400' : 'bg-slate-50 dark:bg-slate-800 text-slate-400')}>
+                  <div className={cn('w-full h-16 rounded-lg flex items-center justify-center text-xs font-bold', dayHours > 0 ? 'bg-brand-navy-50 dark:bg-brand-navy-900/20 text-brand-navy-700 dark:text-brand-navy-400' : 'bg-slate-50 dark:bg-slate-800 text-slate-400')}>
                     {dayHours > 0 ? `${dayHours}h` : '-'}
                   </div>
                 </div>

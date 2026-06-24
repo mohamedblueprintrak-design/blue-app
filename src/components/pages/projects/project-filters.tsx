@@ -45,7 +45,7 @@ export function ProjectFilters({
             placeholder={t("بحث في المشاريع...", "Search projects...")}
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="ps-9 bg-slate-50/50 dark:bg-slate-800/30 border-slate-200/80 dark:border-slate-700/50 focus:border-teal-300 dark:focus:border-teal-700"
+            className="ps-9 bg-slate-50/50 dark:bg-slate-800/30 border-slate-200/80 dark:border-slate-700/50 focus:border-brand-navy-300 dark:focus:border-brand-navy-700"
           />
         </div>
         {/* Pill-style Status Filter Chips */}
@@ -55,7 +55,7 @@ export function ProjectFilters({
           const labels: Record<string, { ar: string; en: string; dotColor: string }> = {
             all: { ar: "الكل", en: "All", dotColor: "bg-slate-400" },
             ACTIVE: { ar: "نشط", en: "Active", dotColor: "bg-emerald-500" },
-            COMPLETED: { ar: "مكتمل", en: "Completed", dotColor: "bg-teal-500" },
+            COMPLETED: { ar: "مكتمل", en: "Completed", dotColor: "bg-brand-navy-500" },
             DELAYED: { ar: "متأخر", en: "Delayed", dotColor: "bg-red-500" },
             ON_HOLD: { ar: "معلق", en: "On Hold", dotColor: "bg-amber-500" },
             DESIGN: { ar: "تصميم", en: "Design", dotColor: "bg-violet-500" },
@@ -71,7 +71,7 @@ export function ProjectFilters({
               className={cn(
                 "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200",
                 isActive
-                  ? "bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300 shadow-sm"
+                  ? "bg-brand-navy-100 text-brand-navy-700 dark:bg-brand-navy-900/40 dark:text-brand-navy-300 shadow-sm"
                   : "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700"
               )}
             >
@@ -101,7 +101,7 @@ export function ProjectFilters({
             className={cn(
               "p-1.5 rounded-md transition-all duration-200",
               viewMode === "table"
-                ? "bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300 shadow-sm"
+                ? "bg-brand-navy-100 text-brand-navy-700 dark:bg-brand-navy-900/40 dark:text-brand-navy-300 shadow-sm"
                 : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
             )}
           >
@@ -112,7 +112,7 @@ export function ProjectFilters({
             className={cn(
               "p-1.5 rounded-md transition-all duration-200",
               viewMode === "grid"
-                ? "bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300 shadow-sm"
+                ? "bg-brand-navy-100 text-brand-navy-700 dark:bg-brand-navy-900/40 dark:text-brand-navy-300 shadow-sm"
                 : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
             )}
           >

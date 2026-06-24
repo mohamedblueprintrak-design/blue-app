@@ -344,7 +344,7 @@ export function ProjectTemplatesPage({ isAr, userRole }: ProjectTemplatesPagePro
           </p>
         </div>
         {isAdmin && (
-          <Button onClick={openCreateDialog} className="bg-teal-600 hover:bg-teal-700 text-white">
+          <Button onClick={openCreateDialog} className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white">
             <Plus className="h-4 w-4 me-2" />
             {t("قالب جديد", "New Template")}
           </Button>
@@ -358,7 +358,7 @@ export function ProjectTemplatesPage({ isAr, userRole }: ProjectTemplatesPagePro
             <TabsTrigger
               key={cat.id}
               value={cat.id}
-              className="data-[state=active]:bg-teal-600 data-[state=active]:text-white text-xs px-3 py-1.5"
+              className="data-[state=active]:bg-brand-navy-600 data-[state=active]:text-white text-xs px-3 py-1.5"
             >
               <cat.icon className="h-3.5 w-3.5 me-1.5" />
               {isAr ? cat.labelAr : cat.labelEn}
@@ -433,7 +433,7 @@ export function ProjectTemplatesPage({ isAr, userRole }: ProjectTemplatesPagePro
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8 text-slate-400 hover:text-teal-600"
+                            className="h-8 w-8 text-slate-400 hover:text-brand-navy-600"
                             onClick={() => openEditDialog(tpl)}
                             title={tAuto('auto.edit')}
                           >
@@ -473,7 +473,7 @@ export function ProjectTemplatesPage({ isAr, userRole }: ProjectTemplatesPagePro
                       <span>{tpl.usageCount} {t("استخدام", "uses")}</span>
                     </div>
                     {tpl.defaultBudget != null && tpl.defaultBudget > 0 && (
-                      <div className="flex items-center gap-1 font-medium text-teal-600 dark:text-teal-400">
+                      <div className="flex items-center gap-1 font-medium text-brand-navy-600 dark:text-brand-navy-400">
                         {formatCurrencyMulti(tpl.defaultBudget, tpl.currency || "AED", isAr ? "ar" : "en")}
                       </div>
                     )}
@@ -486,7 +486,7 @@ export function ProjectTemplatesPage({ isAr, userRole }: ProjectTemplatesPagePro
 
                   {/* Expand/Collapse Stages Preview */}
                   <button
-                    className="flex items-center gap-1 text-xs text-teal-600 dark:text-teal-400 hover:underline"
+                    className="flex items-center gap-1 text-xs text-brand-navy-600 dark:text-brand-navy-400 hover:underline"
                     onClick={() => setExpandedTemplate(isExpanded ? null : tpl.id)}
                   >
                     {isExpanded ? (
@@ -507,7 +507,7 @@ export function ProjectTemplatesPage({ isAr, userRole }: ProjectTemplatesPagePro
                       {stages.map((stage, si) => (
                         <div key={si} className="space-y-1">
                           <div className="flex items-center gap-2">
-                            <div className="w-5 h-5 rounded-full bg-teal-100 dark:bg-teal-900/40 text-teal-700 dark:text-teal-300 flex items-center justify-center text-[10px] font-bold">
+                            <div className="w-5 h-5 rounded-full bg-brand-navy-100 dark:bg-brand-navy-900/40 text-brand-navy-700 dark:text-brand-navy-300 flex items-center justify-center text-[10px] font-bold">
                               {stage.order}
                             </div>
                             <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
@@ -535,7 +535,7 @@ export function ProjectTemplatesPage({ isAr, userRole }: ProjectTemplatesPagePro
 
                   {/* Use Template Button */}
                   <Button
-                    className="w-full mt-2 bg-teal-600 hover:bg-teal-700 text-white"
+                    className="w-full mt-2 bg-brand-navy-600 hover:bg-brand-navy-700 text-white"
                     onClick={() => openInstantiateDialog(tpl)}
                   >
                     <Play className="h-4 w-4 me-2" />
@@ -618,7 +618,7 @@ export function ProjectTemplatesPage({ isAr, userRole }: ProjectTemplatesPagePro
                     </span>
                   )}
                   {selectedTemplate.defaultBudget != null && selectedTemplate.defaultBudget > 0 && (
-                    <span className="text-teal-600 dark:text-teal-400 font-medium">
+                    <span className="text-brand-navy-600 dark:text-brand-navy-400 font-medium">
                       {formatCurrencyMulti(selectedTemplate.defaultBudget, selectedTemplate.currency || "AED", isAr ? "ar" : "en")}
                     </span>
                   )}
@@ -633,7 +633,7 @@ export function ProjectTemplatesPage({ isAr, userRole }: ProjectTemplatesPagePro
             <Button
               onClick={handleInstantiate}
               disabled={!projectName || !clientId || creating}
-              className="bg-teal-600 hover:bg-teal-700 text-white"
+              className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white"
             >
               {creating ? (
                 <Loader2 className="h-4 w-4 me-2 animate-spin" />
@@ -771,7 +771,7 @@ export function ProjectTemplatesPage({ isAr, userRole }: ProjectTemplatesPagePro
             <Button
               onClick={handleSaveTemplate}
               disabled={!formData.name || saving}
-              className="bg-teal-600 hover:bg-teal-700 text-white"
+              className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white"
             >
               {saving ? (
                 <Loader2 className="h-4 w-4 me-2 animate-spin" />

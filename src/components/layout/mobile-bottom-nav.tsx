@@ -159,7 +159,7 @@ export default function MobileBottomNav({ language }: { language: "ar" | "en" })
             transition: "left 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease, width 0.25s ease",
           }}
         >
-          <div className="w-full h-full rounded-full bg-gradient-to-r from-teal-400 via-teal-500 to-emerald-500 shadow-[0_0_8px_rgba(20,184,166,0.5)]" />
+          <div className="w-full h-full rounded-full bg-gradient-to-r from-brand-navy-400 via-brand-navy-500 to-emerald-500 shadow-[0_0_8px_rgba(20,184,166,0.5)]" />
         </div>
 
         <div ref={navRef} className="flex items-center justify-around px-1 py-1.5">
@@ -192,7 +192,7 @@ export default function MobileBottomNav({ language }: { language: "ar" | "en" })
                   isPressed && !isActive && "scale-[0.88]",
                   // Active pill background
                   isActive
-                    ? "bg-teal-50/80 dark:bg-teal-900/25 text-teal-600 dark:text-teal-400"
+                    ? "bg-brand-navy-50/80 dark:bg-brand-navy-900/25 text-brand-navy-600 dark:text-brand-navy-400"
                     : "text-slate-400 dark:text-slate-500 hover:text-slate-500 dark:hover:text-slate-400"
                 )}
               >
@@ -283,7 +283,7 @@ export default function MobileBottomNav({ language }: { language: "ar" | "en" })
                           "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200",
                           "active:scale-[0.97]",
                           isActive
-                            ? "bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20"
+                            ? "bg-brand-navy-500/10 text-brand-navy-600 dark:text-brand-navy-400 border border-brand-navy-500/20"
                             : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
                         )}
                       >

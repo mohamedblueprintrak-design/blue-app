@@ -270,8 +270,8 @@ export default function FinanceReportsPage({ }: Props) {
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-lg bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-            <BarChart3 className="h-4.5 w-4.5 text-teal-600 dark:text-teal-400" />
+          <div className="w-9 h-9 rounded-lg bg-brand-navy-100 dark:bg-brand-navy-900/30 flex items-center justify-center">
+            <BarChart3 className="h-4.5 w-4.5 text-brand-navy-600 dark:text-brand-navy-400" />
           </div>
           <div>
             <h2 className="text-lg font-bold text-slate-900 dark:text-white">{tAuto('auto.financialReports')}</h2>
@@ -279,11 +279,11 @@ export default function FinanceReportsPage({ }: Props) {
           </div>
         </div>
         <div className="flex items-center gap-2 sm:ms-auto">
-          <Button size="sm" variant="outline" className="h-8 gap-1.5 text-xs border-slate-200 dark:border-slate-700 hover:bg-teal-50 dark:hover:bg-teal-900/20" disabled={exporting === "pdf"} onClick={handleExportPDF}>
+          <Button size="sm" variant="outline" className="h-8 gap-1.5 text-xs border-slate-200 dark:border-slate-700 hover:bg-brand-navy-50 dark:hover:bg-brand-navy-900/20" disabled={exporting === "pdf"} onClick={handleExportPDF}>
             {exporting === "pdf" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileText className="h-3.5 w-3.5" />}
             {tAuto('auto.exportPDF')}
           </Button>
-          <Button size="sm" variant="outline" className="h-8 gap-1.5 text-xs border-slate-200 dark:border-slate-700 hover:bg-teal-50 dark:hover:bg-teal-900/20" disabled={exporting === "excel"} onClick={handleExportExcel}>
+          <Button size="sm" variant="outline" className="h-8 gap-1.5 text-xs border-slate-200 dark:border-slate-700 hover:bg-brand-navy-50 dark:hover:bg-brand-navy-900/20" disabled={exporting === "excel"} onClick={handleExportExcel}>
             {exporting === "excel" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileSpreadsheet className="h-3.5 w-3.5" />}
             {tAuto('auto.exportExcel')}
           </Button>
@@ -293,7 +293,7 @@ export default function FinanceReportsPage({ }: Props) {
       {/* ===== P&L Summary Section ===== */}
       <Card className="border-slate-200 dark:border-slate-700/50 shadow-sm"><CardContent className="p-4">
         <div className="flex items-center gap-2 mb-4">
-          <div className="p-1.5 rounded-lg bg-teal-100 dark:bg-teal-900/30"><Activity className="h-4 w-4 text-teal-600 dark:text-teal-400" /></div>
+          <div className="p-1.5 rounded-lg bg-brand-navy-100 dark:bg-brand-navy-900/30"><Activity className="h-4 w-4 text-brand-navy-600 dark:text-brand-navy-400" /></div>
           <h3 className="text-sm font-semibold text-slate-900 dark:text-white">{tAuto('auto.profitLossSummary')}</h3>
         </div>
 
@@ -322,7 +322,7 @@ export default function FinanceReportsPage({ }: Props) {
           </Card>
 
           <Card className="py-0 gap-0 border-0 shadow-sm overflow-hidden">
-            <div className={cn("p-4 relative", profitIsPositive ? "bg-gradient-to-br from-teal-500 to-teal-600 dark:from-teal-600 dark:to-teal-700" : "bg-gradient-to-br from-red-500 to-rose-600 dark:from-red-600 dark:to-rose-700")}>
+            <div className={cn("p-4 relative", profitIsPositive ? "bg-gradient-to-br from-brand-navy-500 to-brand-navy-600 dark:from-brand-navy-600 dark:to-brand-navy-700" : "bg-gradient-to-br from-red-500 to-rose-600 dark:from-red-600 dark:to-rose-700")}>
               <div className="absolute top-0 start-0 w-16 h-16 bg-white/5 rounded-full -translate-x-4 -translate-y-4" />
               <div className="flex items-center gap-2 mb-2 relative">
                 <div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm">{profitIsPositive ? <TrendingUp className="h-3.5 w-3.5 text-white" /> : <TrendingDown className="h-3.5 w-3.5 text-white" />}</div>
@@ -402,10 +402,10 @@ export default function FinanceReportsPage({ }: Props) {
             <span className="text-[11px] text-red-700 dark:text-red-300">{tAuto('auto.totalOutflow')}</span>
             <span className="text-xs font-bold text-red-600 dark:text-red-400 font-mono tabular-nums">{formatCurrency(cashFlowData.reduce((s: number, m: { outflow: number }) => s + m.outflow, 0), ar)}</span>
           </div>
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-teal-50 dark:bg-teal-950/20 border border-teal-100 dark:border-teal-900/30">
-            <Wallet className="h-3 w-3 text-teal-600" />
-            <span className="text-[11px] text-teal-700 dark:text-teal-300">{tAuto('auto.netCashFlow')}</span>
-            <span className={cn("text-xs font-bold font-mono tabular-nums", (financial?.collectedInvoices || 0) >= cashFlowData.reduce((s: number, m: { outflow: number }) => s + m.outflow, 0) ? "text-teal-600 dark:text-teal-400" : "text-red-600 dark:text-red-400")}>
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand-navy-50 dark:bg-brand-navy-950/20 border border-brand-navy-100 dark:border-brand-navy-900/30">
+            <Wallet className="h-3 w-3 text-brand-navy-600" />
+            <span className="text-[11px] text-brand-navy-700 dark:text-brand-navy-300">{tAuto('auto.netCashFlow')}</span>
+            <span className={cn("text-xs font-bold font-mono tabular-nums", (financial?.collectedInvoices || 0) >= cashFlowData.reduce((s: number, m: { outflow: number }) => s + m.outflow, 0) ? "text-brand-navy-600 dark:text-brand-navy-400" : "text-red-600 dark:text-red-400")}>
               {formatCurrency((financial?.collectedInvoices || 0) - cashFlowData.reduce((s: number, m: { outflow: number }) => s + m.outflow, 0), ar)}
             </span>
           </div>

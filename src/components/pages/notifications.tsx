@@ -39,10 +39,10 @@ const typeConfig: Record<string, {
   borderColor: string;
 }> = {
   PROJECT_UPDATE: {
-    icon: Building2, color: "text-teal-600 dark:text-teal-400",
-    bg: "bg-gradient-to-br from-teal-100 to-teal-50 dark:from-teal-900/40 dark:to-teal-950/30",
-    dot: "bg-teal-500", ar: "تحديث مشروع", en: "Project Update", tab: "projects",
-    borderColor: "border-s-teal-400 dark:border-s-teal-600",
+    icon: Building2, color: "text-brand-navy-600 dark:text-brand-navy-400",
+    bg: "bg-gradient-to-br from-brand-navy-100 to-brand-navy-50 dark:from-brand-navy-900/40 dark:to-brand-navy-950/30",
+    dot: "bg-brand-navy-500", ar: "تحديث مشروع", en: "Project Update", tab: "projects",
+    borderColor: "border-s-brand-navy-400 dark:border-s-brand-navy-600",
   },
   TASK_DUE: {
     icon: CheckSquare, color: "text-cyan-600 dark:text-cyan-400",
@@ -87,10 +87,10 @@ const typeConfig: Record<string, {
     borderColor: "border-s-rose-400 dark:border-s-rose-600",
   },
   site_visit: {
-    icon: MapPin, color: "text-teal-600 dark:text-teal-400",
-    bg: "bg-gradient-to-br from-teal-100 to-teal-50 dark:from-teal-900/40 dark:to-teal-950/30",
-    dot: "bg-teal-500", ar: "زيارة موقع", en: "Site Visit", tab: "projects",
-    borderColor: "border-s-teal-400 dark:border-s-teal-600",
+    icon: MapPin, color: "text-brand-navy-600 dark:text-brand-navy-400",
+    bg: "bg-gradient-to-br from-brand-navy-100 to-brand-navy-50 dark:from-brand-navy-900/40 dark:to-brand-navy-950/30",
+    dot: "bg-brand-navy-500", ar: "زيارة موقع", en: "Site Visit", tab: "projects",
+    borderColor: "border-s-brand-navy-400 dark:border-s-brand-navy-600",
   },
   system: {
     icon: MonitorCheck, color: "text-slate-600 dark:text-slate-400",
@@ -322,7 +322,7 @@ export default function NotificationsPage({ projectId }: Props) {
       {/* Header with notification count badge */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-teal-500/20">
+          <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-brand-navy-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-brand-navy-500/20">
             <Bell className="h-5 w-5 text-white" />
             {liveUnreadCount > 0 && (
               <span className="absolute -top-1 -end-1 flex h-4.5 min-w-[18px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold leading-none text-white shadow-sm ring-2 ring-white dark:ring-slate-900">
@@ -367,7 +367,7 @@ export default function NotificationsPage({ projectId }: Props) {
                 "gap-1.5 text-xs h-9 px-4 text-white border-0 shadow-md transition-all",
                 confirmMarkAll
                   ? "bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 shadow-red-500/20"
-                  : "bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 shadow-teal-500/20"
+                  : "bg-gradient-to-r from-brand-navy-600 to-cyan-600 hover:from-brand-navy-700 hover:to-cyan-700 shadow-brand-navy-500/20"
               )}
             >
               {markAllReadMutation.isPending ? (
@@ -402,13 +402,13 @@ export default function NotificationsPage({ projectId }: Props) {
                   : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
               )}
             >
-              <Icon className={cn("h-3.5 w-3.5", isActive ? "text-teal-600 dark:text-teal-400" : "")} />
+              <Icon className={cn("h-3.5 w-3.5", isActive ? "text-brand-navy-600 dark:text-brand-navy-400" : "")} />
               {isAr ? cfg.ar : cfg.en}
               {count > 0 && (
                 <span className={cn(
                   "h-4 min-w-[16px] px-1 rounded-full text-[10px] font-bold flex items-center justify-center",
                   isActive
-                    ? "bg-teal-100 dark:bg-teal-900/50 text-teal-700 dark:text-teal-300"
+                    ? "bg-brand-navy-100 dark:bg-brand-navy-900/50 text-brand-navy-700 dark:text-brand-navy-300"
                     : key === "unread"
                       ? "bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400"
                       : "bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400"
@@ -426,14 +426,14 @@ export default function NotificationsPage({ projectId }: Props) {
         <Card className="p-12 text-center border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden relative">
           {/* Decorative background elements */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute -top-10 -end-10 w-40 h-40 rounded-full bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-950/20 dark:to-cyan-950/10 opacity-60" />
-            <div className="absolute -bottom-10 -start-10 w-32 h-32 rounded-full bg-gradient-to-br from-cyan-50 to-teal-50 dark:from-cyan-950/20 dark:to-teal-950/10 opacity-60" />
+            <div className="absolute -top-10 -end-10 w-40 h-40 rounded-full bg-gradient-to-br from-brand-navy-50 to-cyan-50 dark:from-brand-navy-950/20 dark:to-cyan-950/10 opacity-60" />
+            <div className="absolute -bottom-10 -start-10 w-32 h-32 rounded-full bg-gradient-to-br from-cyan-50 to-brand-navy-50 dark:from-cyan-950/20 dark:to-brand-navy-950/10 opacity-60" />
           </div>
 
           <div className="relative z-10">
-            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-teal-50 via-cyan-50 to-teal-50 dark:from-teal-900/30 dark:via-cyan-900/20 dark:to-teal-900/30 flex items-center justify-center mx-auto mb-4 shadow-sm">
+            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-brand-navy-50 via-cyan-50 to-brand-navy-50 dark:from-brand-navy-900/30 dark:via-cyan-900/20 dark:to-brand-navy-900/30 flex items-center justify-center mx-auto mb-4 shadow-sm">
               {activeTab === "unread" ? (
-                <PartyPopper className="h-10 w-10 text-teal-400 dark:text-teal-500" />
+                <PartyPopper className="h-10 w-10 text-brand-navy-400 dark:text-brand-navy-500" />
               ) : (
                 <BellOff className="h-10 w-10 text-slate-300 dark:text-slate-600" />
               )}
@@ -455,7 +455,7 @@ export default function NotificationsPage({ projectId }: Props) {
               <Button
                 variant="outline"
                 size="sm"
-                className="mt-4 text-xs border-teal-200 dark:border-teal-800 text-teal-600 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-950/30"
+                className="mt-4 text-xs border-brand-navy-200 dark:border-brand-navy-800 text-brand-navy-600 dark:text-brand-navy-400 hover:bg-brand-navy-50 dark:hover:bg-brand-navy-950/30"
                 onClick={() => setActiveTab("all")}
               >
                 <Layers className="h-3.5 w-3.5 me-1.5" />
@@ -489,9 +489,9 @@ export default function NotificationsPage({ projectId }: Props) {
                       notif.isRead
                         ? "bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 hover:bg-slate-50/80 dark:hover:bg-slate-800/50 hover:shadow-md hover:shadow-slate-100 dark:hover:shadow-slate-900/50"
                         : cn(
-                            "bg-gradient-to-e from-teal-50/50 to-white dark:from-teal-950/15 dark:to-slate-900",
-                            "border-s-teal-200 dark:border-s-teal-800",
-                            "hover:shadow-md hover:shadow-teal-100/50 dark:hover:shadow-teal-900/20",
+                            "bg-gradient-to-e from-brand-navy-50/50 to-white dark:from-brand-navy-950/15 dark:to-slate-900",
+                            "border-s-brand-navy-200 dark:border-s-brand-navy-800",
+                            "hover:shadow-md hover:shadow-brand-navy-100/50 dark:hover:shadow-brand-navy-900/20",
                             config.borderColor
                           )
                     )}
@@ -544,10 +544,10 @@ export default function NotificationsPage({ projectId }: Props) {
                       {!notif.isRead && (
                         <button
                           onClick={(e) => { e.stopPropagation(); markReadMutation.mutate(notif.id); }}
-                          className="p-1.5 rounded-lg hover:bg-teal-50 dark:hover:bg-teal-900/30 transition-colors"
+                          className="p-1.5 rounded-lg hover:bg-brand-navy-50 dark:hover:bg-brand-navy-900/30 transition-colors"
                           title={tAuto('auto.markAsRead')}
                         >
-                          <Eye className="h-3.5 w-3.5 text-slate-400 hover:text-teal-500 dark:hover:text-teal-400" />
+                          <Eye className="h-3.5 w-3.5 text-slate-400 hover:text-brand-navy-500 dark:hover:text-brand-navy-400" />
                         </button>
                       )}
                       {notif.relatedEntityType && notif.relatedEntityId && (
@@ -556,7 +556,7 @@ export default function NotificationsPage({ projectId }: Props) {
                           className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                           title={tAuto('auto.open')}
                         >
-                          <ArrowRight className="h-3.5 w-3.5 text-slate-400 hover:text-teal-500 dark:hover:text-teal-400" />
+                          <ArrowRight className="h-3.5 w-3.5 text-slate-400 hover:text-brand-navy-500 dark:hover:text-brand-navy-400" />
                         </button>
                       )}
                       <button

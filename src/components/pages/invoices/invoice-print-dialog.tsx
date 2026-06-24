@@ -35,7 +35,7 @@ export function InvoicePrintDialog({
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Printer className="h-5 w-5 text-teal-500" />
+              <Printer className="h-5 w-5 text-brand-navy-500" />
               {tAuto('auto.printInvoice')} — {printInvoice.number}
             </DialogTitle>
           </DialogHeader>
@@ -47,7 +47,7 @@ export function InvoicePrintDialog({
               {tAuto('auto.close')}
             </Button>
             <Button
-              className="bg-teal-600 hover:bg-teal-700 text-white gap-2"
+              className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white gap-2"
               onClick={() => window.print()}
             >
               <Printer className="h-4 w-4" />

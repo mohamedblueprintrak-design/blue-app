@@ -53,7 +53,7 @@ export function FormField({
             "focus:outline-none focus:ring-2 transition-colors",
             error
               ? "border-red-500 focus:ring-red-500/20"
-              : "border-slate-300 dark:border-slate-600 focus:ring-teal-500/20 focus:border-teal-500",
+              : "border-slate-300 dark:border-slate-600 focus:ring-brand-navy-500/20 focus:border-brand-navy-500",
             inputClassName
           )}
         />

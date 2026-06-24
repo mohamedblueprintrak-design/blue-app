@@ -295,15 +295,15 @@ export default function InventoryPage({ language }: InventoryPageProps) {
       </div>
 
       {/* Total Value Card */}
-      <Card className="border-slate-200 dark:border-slate-700/50 bg-gradient-to-l from-teal-50 to-sky-50 dark:from-teal-950/20 dark:to-sky-950/20">
+      <Card className="border-slate-200 dark:border-slate-700/50 bg-gradient-to-l from-brand-navy-50 to-sky-50 dark:from-brand-navy-950/20 dark:to-sky-950/20">
         <CardContent className="p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-              <DollarSign className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+            <div className="w-10 h-10 rounded-xl bg-brand-navy-100 dark:bg-brand-navy-900/30 flex items-center justify-center">
+              <DollarSign className="h-5 w-5 text-brand-navy-600 dark:text-brand-navy-400" />
             </div>
             <div>
               <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.totalInventoryValue')}</p>
-              <p className="text-xl font-bold text-teal-700 dark:text-teal-300 font-mono tabular-nums">
+              <p className="text-xl font-bold text-brand-navy-700 dark:text-brand-navy-300 font-mono tabular-nums">
                 {formatCurrency(summary.totalValue, ar)}
               </p>
             </div>
@@ -331,7 +331,7 @@ export default function InventoryPage({ language }: InventoryPageProps) {
           </div>
           <Button
             size="sm"
-            className="h-8 bg-teal-600 hover:bg-teal-700 text-white"
+            className="h-8 bg-brand-navy-600 hover:bg-brand-navy-700 text-white"
             onClick={() => { setFormData(emptyForm); setShowAddDialog(true); }}
           >
             <Plus className="h-3.5 w-3.5 me-1" />
@@ -499,7 +499,7 @@ export default function InventoryPage({ language }: InventoryPageProps) {
               {tAuto('auto.cancel')}
             </Button>
             <Button
-              className="bg-teal-600 hover:bg-teal-700 text-white"
+              className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white"
               onClick={handleSave}
               disabled={!formData.name || createMutation.isPending || updateMutation.isPending}
             >

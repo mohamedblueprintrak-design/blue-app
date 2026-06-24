@@ -255,7 +255,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
                     className={cn(
                       'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors cursor-pointer',
                       isSelected
-                        ? 'bg-teal-500/10 text-teal-600 dark:text-teal-400'
+                        ? 'bg-brand-navy-500/10 text-brand-navy-600 dark:text-brand-navy-400'
                         : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100/80 dark:hover:bg-slate-800/60'
                     )}
                   >
@@ -263,7 +263,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
                       className={cn(
                         'w-8 h-8 rounded-lg flex items-center justify-center shrink-0',
                         isSelected
-                          ? 'bg-teal-100 dark:bg-teal-900/40'
+                          ? 'bg-brand-navy-100 dark:bg-brand-navy-900/40'
                           : 'bg-slate-100 dark:bg-slate-800'
                       )}
                     >
@@ -271,7 +271,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
                         className={cn(
                           'w-4 h-4',
                           isSelected
-                            ? 'text-teal-600 dark:text-teal-400'
+                            ? 'text-brand-navy-600 dark:text-brand-navy-400'
                             : 'text-slate-500 dark:text-slate-400'
                         )}
                       />
@@ -289,9 +289,9 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
                     )}
                     {isSelected &&
                       (ar ? (
-                        <ChevronLeft className="w-4 h-4 text-teal-500 dark:text-teal-400" />
+                        <ChevronLeft className="w-4 h-4 text-brand-navy-500 dark:text-brand-navy-400" />
                       ) : (
-                        <ChevronRight className="w-4 h-4 text-teal-500 dark:text-teal-400" />
+                        <ChevronRight className="w-4 h-4 text-brand-navy-500 dark:text-brand-navy-400" />
                       ))}
                   </button>
                 );

@@ -186,8 +186,8 @@ export default function ChangeOrders({ language, projectId }: ChangeOrdersProps)
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-lg bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-            <FileEdit className="h-4.5 w-4.5 text-teal-600 dark:text-teal-400" />
+          <div className="w-9 h-9 rounded-lg bg-brand-navy-100 dark:bg-brand-navy-900/30 flex items-center justify-center">
+            <FileEdit className="h-4.5 w-4.5 text-brand-navy-600 dark:text-brand-navy-400" />
           </div>
           <div>
             <h2 className="text-lg font-bold text-slate-900 dark:text-white">{tAuto('auto.changeOrders')}</h2>
@@ -220,7 +220,7 @@ export default function ChangeOrders({ language, projectId }: ChangeOrdersProps)
               <SelectItem value="REJECTED">{tAuto('auto.rejected')}</SelectItem>
             </SelectContent>
           </Select>
-          <Button size="sm" className="h-8 bg-teal-600 hover:bg-teal-700 text-white rounded-lg shadow-sm shadow-teal-600/20" onClick={() => setShowAddDialog(true)}>
+          <Button size="sm" className="h-8 bg-brand-navy-600 hover:bg-brand-navy-700 text-white rounded-lg shadow-sm shadow-brand-navy-600/20" onClick={() => setShowAddDialog(true)}>
             <Plus className="h-3.5 w-3.5 me-1" />{tAuto('auto.newOrder')}
           </Button>
         </div>
@@ -283,7 +283,7 @@ export default function ChangeOrders({ language, projectId }: ChangeOrdersProps)
         <div className="rounded-xl border border-slate-200 dark:border-slate-700/50 bg-gradient-to-br from-slate-50 to-white dark:from-slate-800/50 dark:to-slate-900 p-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
             <div className="flex items-center gap-2">
-              <Wallet className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+              <Wallet className="h-4 w-4 text-brand-navy-600 dark:text-brand-navy-400" />
               <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">{tAuto('auto.totalFinancialImpact')}</span>
             </div>
             <div className="flex items-center gap-6 sm:ms-auto">
@@ -303,7 +303,7 @@ export default function ChangeOrders({ language, projectId }: ChangeOrdersProps)
               <div className="w-px h-8 bg-slate-200 dark:bg-slate-700" />
               <div className="text-center">
                 <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wide">{tAuto('auto.net')}</p>
-                <p className={cn("text-sm font-bold tabular-nums font-mono", totalCost >= 0 ? "text-teal-600 dark:text-teal-400" : "text-red-600 dark:text-red-400")}>
+                <p className={cn("text-sm font-bold tabular-nums font-mono", totalCost >= 0 ? "text-brand-navy-600 dark:text-brand-navy-400" : "text-red-600 dark:text-red-400")}>
                   {formatCurrency(totalCost, ar)}
                 </p>
               </div>
@@ -490,7 +490,7 @@ export default function ChangeOrders({ language, projectId }: ChangeOrdersProps)
             </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => { setShowAddDialog(false); resetForm(); }}>{tAuto('auto.cancel')}</Button>
-            <Button type="submit" className="bg-teal-600 hover:bg-teal-700 text-white" disabled={createMutation.isPending}>
+            <Button type="submit" className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white" disabled={createMutation.isPending}>
               {createMutation.isPending ? (tAuto('auto.creating')) : (tAuto('auto.create'))}
             </Button>
           </DialogFooter>

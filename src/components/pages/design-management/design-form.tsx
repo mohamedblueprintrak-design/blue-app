@@ -219,7 +219,7 @@ export function AddDrawingDialog({ language, open, onOpenChange, selectedPhaseId
             {tAuto('auto.cancel')}
           </Button>
           <Button
-            className="bg-teal-600 hover:bg-teal-700 text-white"
+            className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white"
             disabled={!newDrawing.title || !selectedPhaseId || createDrawingMutation.isPending}
             onClick={() => {
               createDrawingMutation.mutate({
@@ -325,7 +325,7 @@ export function ReviewDialog({ language, drawing, onClose }: ReviewDialogProps) 
           <>
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                <ClipboardCheck className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+                <ClipboardCheck className="h-5 w-5 text-brand-navy-600 dark:text-brand-navy-400" />
                 {tAuto('auto.reviewDrawing')}
               </DialogTitle>
               <DialogDescription>

@@ -57,7 +57,7 @@ export function CreateApprovalDialog({
       <DialogContent className="sm:max-w-lg bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700">
         <DialogHeader>
           <DialogTitle className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-teal-500 to-cyan-600 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-navy-500 to-cyan-600 flex items-center justify-center">
               <Plus className="h-4 w-4 text-white" />
             </div>
             {tAuto('auto.newApprovalRequest')}
@@ -195,7 +195,7 @@ export function CreateApprovalDialog({
                 };
                 const pColors: Record<string, string> = {
                   LOW: "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700",
-                  NORMAL: "bg-teal-50 dark:bg-teal-900/20 text-teal-600 dark:text-teal-400 border-teal-200 dark:border-teal-800",
+                  NORMAL: "bg-brand-navy-50 dark:bg-brand-navy-900/20 text-brand-navy-600 dark:text-brand-navy-400 border-brand-navy-200 dark:border-brand-navy-800",
                   HIGH: "bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-800",
                   URGENT: "bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800",
                 };
@@ -266,7 +266,7 @@ export function CreateApprovalDialog({
           <Button
             onClick={() => onCreate(createForm)}
             disabled={!createForm.entityType || !createForm.title || !createForm.assignedTo || createMutationIsPending}
-            className="gap-2 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white border-0 shadow-md shadow-teal-500/20 text-sm"
+            className="gap-2 bg-gradient-to-r from-brand-navy-600 to-cyan-600 hover:from-brand-navy-700 hover:to-cyan-700 text-white border-0 shadow-md shadow-brand-navy-500/20 text-sm"
           >
             {createMutationIsPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
             {tAuto('auto.createRequest')}

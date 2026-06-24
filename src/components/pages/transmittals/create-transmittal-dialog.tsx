@@ -109,7 +109,7 @@ export function CreateTransmittalDialog({
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Send className="h-5 w-5 text-teal-500" />
+              <Send className="h-5 w-5 text-brand-navy-500" />
               {tAuto('auto.newTransmittal')}
             </DialogTitle>
             <DialogDescription>
@@ -285,7 +285,7 @@ export function CreateTransmittalDialog({
               {tAuto('auto.cancel')}
             </Button>
             <Button
-              className="bg-teal-600 hover:bg-teal-700 text-white"
+              className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white"
               onClick={handleSubmit}
               disabled={!formData.projectId || !formData.subject || !formData.fromId || isPending}
             >

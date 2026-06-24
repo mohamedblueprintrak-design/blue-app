@@ -158,9 +158,9 @@ export default function DesignManagement({ language }: DesignManagementProps) {
                               className={cn(
                                 "flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all min-w-[130px] hover:shadow-md cursor-pointer",
                                 isSelected
-                                  ? "border-teal-500 bg-teal-50 dark:bg-teal-900/20 shadow-lg shadow-teal-500/10"
+                                  ? "border-brand-navy-500 bg-brand-navy-50 dark:bg-brand-navy-900/20 shadow-lg shadow-brand-navy-500/10"
                                   : phase
-                                    ? "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-teal-300"
+                                    ? "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-brand-navy-300"
                                     : "border-dashed border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50"
                               )}
                             >

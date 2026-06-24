@@ -60,7 +60,7 @@ export function getInitials(name: string): string {
 }
 
 const AVATAR_COLORS = [
-  "bg-teal-500",
+  "bg-brand-navy-500",
   "bg-amber-500",
   "bg-blue-500",
   "bg-violet-500",
@@ -83,7 +83,7 @@ export function getAvatarColor(name: string): string {
 export function getStatusBadge(status: string, isAr: boolean) {
   const map: Record<string, { labelAr: string; labelEn: string; dotColor: string; className: string }> = {
     ACTIVE: { labelAr: "نشط", labelEn: "Active", dotColor: "bg-emerald-500", className: "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800" },
-    COMPLETED: { labelAr: "مكتمل", labelEn: "Completed", dotColor: "bg-teal-500", className: "bg-teal-50 dark:bg-teal-950/50 text-teal-700 dark:text-teal-400 border border-teal-200 dark:border-teal-800" },
+    COMPLETED: { labelAr: "مكتمل", labelEn: "Completed", dotColor: "bg-brand-navy-500", className: "bg-brand-navy-50 dark:bg-brand-navy-950/50 text-brand-navy-700 dark:text-brand-navy-400 border border-brand-navy-200 dark:border-brand-navy-800" },
     DELAYED: { labelAr: "متأخر", labelEn: "Delayed", dotColor: "bg-red-500", className: "bg-red-50 dark:bg-red-950/50 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800" },
     ON_HOLD: { labelAr: "معلق", labelEn: "On Hold", dotColor: "bg-amber-500", className: "bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800" },
     CANCELLED: { labelAr: "ملغى", labelEn: "Cancelled", dotColor: "bg-slate-400", className: "bg-slate-50 dark:bg-slate-800 dark:text-slate-400 border border-slate-200 dark:border-slate-700" },

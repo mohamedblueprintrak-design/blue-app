@@ -155,7 +155,7 @@ export function TenderTable({
                   idx % 2 === 0
                     ? "bg-white dark:bg-slate-900"
                     : "even:bg-slate-50/50 dark:even:bg-slate-800/20",
-                  selectedTenderId === tender.id && "bg-teal-50/50 dark:bg-teal-950/20"
+                  selectedTenderId === tender.id && "bg-brand-navy-50/50 dark:bg-brand-navy-950/20"
                 )}
                 onClick={() => onSelectTender(tender)}
               >
@@ -244,7 +244,7 @@ export function TenderTable({
                   </div>
                   <Button
                     size="sm"
-                    className="h-8 bg-teal-600 hover:bg-teal-700 text-white rounded-lg"
+                    className="h-8 bg-brand-navy-600 hover:bg-brand-navy-700 text-white rounded-lg"
                     onClick={onAddClick}
                   >
                     <Plus className="h-3.5 w-3.5 me-1" />

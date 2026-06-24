@@ -55,22 +55,13 @@ export default function DashboardLayout({
     return <LoginPage language={language} />;
   }
 
-  // File-based routing is now the default. Set NEXT_PUBLIC_FILE_ROUTING=false
-  // to opt back into the legacy hash-based SPA routing (useful for debugging
-  // or for environments where the new routing has not yet been validated).
-  // When file-based routing is enabled, Next.js serves real URLs
-  // (/dashboard/projects, /dashboard/clients, etc.) with proper SSR, deep
-  // linking, and browser back/forward support.
-  const useFileRouting = process.env.NEXT_PUBLIC_FILE_ROUTING !== "false";
-
-  if (useFileRouting) {
-    return (
-      <AppLayout language={language} useFileRouting>
-        {children}
-      </AppLayout>
-    );
-  }
-
-  // Legacy mode: render the SPA app layout (no children needed)
-  return <AppLayout language={language} />;
+  // File-based routing via Next.js App Router is the only routing mode.
+  // (The legacy hash-based SPA routing has been removed from AppLayout.)
+  // Next.js serves real URLs (/dashboard/projects, /dashboard/clients, etc.)
+  // with proper SSR, deep linking, and browser back/forward support.
+  return (
+    <AppLayout language={language}>
+      {children}
+    </AppLayout>
+  );
 }

@@ -32,7 +32,7 @@ export default function GlobalError({
         </div>
         {error.digest && <p className="text-xs text-slate-400">Error ID: {error.digest}</p>}
         <div className="flex items-center justify-center gap-3">
-          <Button onClick={reset} className="bg-teal-600 hover:bg-teal-700 text-white gap-2">
+          <Button onClick={reset} className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white gap-2">
             <RefreshCw className="h-4 w-4" /> إعادة المحاولة
           </Button>
           <Button variant="outline" onClick={() => router.push("/")} className="gap-2">

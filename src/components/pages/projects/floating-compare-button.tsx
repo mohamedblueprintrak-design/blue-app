@@ -25,7 +25,7 @@ export function FloatingCompareButton({
       <Button
         onClick={onShowCompare}
         disabled={selectedIdsSize > MAX_COMPARE}
-        className="bg-gradient-to-l from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white shadow-xl shadow-teal-500/30 rounded-full px-6 h-12 gap-2 text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+        className="bg-gradient-to-l from-brand-navy-500 to-cyan-500 hover:from-brand-navy-600 hover:to-cyan-600 text-white shadow-xl shadow-brand-navy-500/30 rounded-full px-6 h-12 gap-2 text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <GitCompareArrows className="h-4 w-4" />
         {selectedIdsSize > MAX_COMPARE

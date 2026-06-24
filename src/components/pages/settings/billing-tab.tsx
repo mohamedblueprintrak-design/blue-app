@@ -29,7 +29,7 @@ export function BillingTab({ isAr }: BillingTabProps) {
           subtitle={tAuto('auto.manageYourPlanAndSubscription')}
         />
 
-        <div className="rounded-xl bg-gradient-to-br from-teal-500 to-cyan-600 p-5 text-white shadow-lg shadow-teal-500/20">
+        <div className="rounded-xl bg-gradient-to-br from-brand-navy-500 to-cyan-600 p-5 text-white shadow-lg shadow-brand-navy-500/20">
           <div className="flex items-center justify-between mb-3">
             <span className="text-sm opacity-80">
               {tAuto('auto.currentPlan')}
@@ -48,7 +48,7 @@ export function BillingTab({ isAr }: BillingTabProps) {
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
           {[
-            { label: tAuto('auto.users'), value: "8/50", icon: User, color: "bg-teal-100 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400" },
+            { label: tAuto('auto.users'), value: "8/50", icon: User, color: "bg-brand-navy-100 dark:bg-brand-navy-900/30 text-brand-navy-600 dark:text-brand-navy-400" },
             { label: tAuto('auto.projects'), value: "5", icon: Building2, color: "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400" },
             { label: tAuto('auto.storage'), value: "2.4 GB", icon: CreditCard, color: "bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400" },
             { label: tAuto('auto.aPICalls'), value: "1,240", icon: Plug, color: "bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400" },

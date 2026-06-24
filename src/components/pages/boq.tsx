@@ -94,7 +94,7 @@ function getCategoryLabel(category: string, ar: boolean) {
 
 function getCategoryColor(category: string) {
   const colors: Record<string, string> = {
-    CIVIL: "bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300",
+    CIVIL: "bg-brand-navy-100 text-brand-navy-700 dark:bg-brand-navy-900/40 dark:text-brand-navy-300",
     STRUCTURAL: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300",
     MEP: "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/40 dark:text-cyan-300",
     FINISHING: "bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300",
@@ -307,7 +307,7 @@ export default function BOQPage({ language, projectId }: BOQPageProps) {
       {/* ===== HEADER SECTION ===== */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-600 flex items-center justify-center shadow-md shadow-teal-500/20">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-navy-500 to-cyan-600 flex items-center justify-center shadow-md shadow-brand-navy-500/20">
             <Calculator className="h-5 w-5 text-white" />
           </div>
           <div>
@@ -326,7 +326,7 @@ export default function BOQPage({ language, projectId }: BOQPageProps) {
           </Button>
           <Button
             onClick={() => { resetFormData(); setShowAddDialog(true); }}
-            className="gap-2 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white text-sm shadow-md shadow-teal-500/20 border-0 h-9 px-4"
+            className="gap-2 bg-gradient-to-r from-brand-navy-600 to-cyan-600 hover:from-brand-navy-700 hover:to-cyan-700 text-white text-sm shadow-md shadow-brand-navy-500/20 border-0 h-9 px-4"
           >
             <Plus className="h-4 w-4" />
             {tAuto('auto.addItem1')}
@@ -337,14 +337,14 @@ export default function BOQPage({ language, projectId }: BOQPageProps) {
       {/* ===== SUMMARY STAT CARDS ===== */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         <Card className="py-0 gap-0 border-0 shadow-sm overflow-hidden rounded-xl">
-          <div className="bg-gradient-to-br from-teal-500 to-cyan-600 dark:from-teal-600 dark:to-cyan-700 p-4">
+          <div className="bg-gradient-to-br from-brand-navy-500 to-cyan-600 dark:from-brand-navy-600 dark:to-cyan-700 p-4">
             <div className="flex items-center justify-between mb-3">
               <div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm">
                 <FileSpreadsheet className="h-3.5 w-3.5 text-white" />
               </div>
             </div>
             <div className="text-2xl font-bold text-white tabular-nums">{boqSummary?.itemCount ?? 0}</div>
-            <p className="text-[11px] text-teal-100 mt-0.5">{tAuto('auto.totalItems')}</p>
+            <p className="text-[11px] text-brand-navy-100 mt-0.5">{tAuto('auto.totalItems')}</p>
           </div>
         </Card>
 
@@ -482,7 +482,7 @@ export default function BOQPage({ language, projectId }: BOQPageProps) {
                 </TableHeader>
                 <TableBody>
                   {filteredItems.map((item, idx) => (
-                    <TableRow key={item.id} className={cn("border-slate-100 dark:border-slate-800/50 hover:bg-teal-50/30 dark:hover:bg-teal-900/10 transition-colors", idx % 2 === 1 && "bg-slate-50/50 dark:bg-slate-800/20")}>
+                    <TableRow key={item.id} className={cn("border-slate-100 dark:border-slate-800/50 hover:bg-brand-navy-50/30 dark:hover:bg-brand-navy-900/10 transition-colors", idx % 2 === 1 && "bg-slate-50/50 dark:bg-slate-800/20")}>
                       <TableCell className="text-xs font-mono text-slate-500 dark:text-slate-400">{item.code || "-"}</TableCell>
                       <TableCell className="text-xs font-medium text-slate-700 dark:text-slate-300">{item.description}</TableCell>
                       <TableCell>
@@ -493,10 +493,10 @@ export default function BOQPage({ language, projectId }: BOQPageProps) {
                       <TableCell className="text-xs text-slate-600 dark:text-slate-400 text-end">{item.unit}</TableCell>
                       <TableCell className="text-xs text-slate-600 dark:text-slate-400 text-end tabular-nums">{item.quantity.toLocaleString()}</TableCell>
                       <TableCell className="text-xs text-slate-600 dark:text-slate-400 text-end font-mono tabular-nums">{formatCurrency(item.unitPrice, ar)}</TableCell>
-                      <TableCell className="text-xs font-semibold text-teal-600 dark:text-teal-400 text-end font-mono tabular-nums">{formatCurrency(item.total, ar)}</TableCell>
+                      <TableCell className="text-xs font-semibold text-brand-navy-600 dark:text-brand-navy-400 text-end font-mono tabular-nums">{formatCurrency(item.total, ar)}</TableCell>
                       <TableCell className="text-center">
                         <div className="flex items-center justify-center gap-1">
-                          <Button variant="ghost" size="icon" className="h-7 w-7 text-slate-400 hover:text-teal-600 dark:hover:text-teal-400" onClick={() => openEditDialog(item)} aria-label="Edit">
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-slate-400 hover:text-brand-navy-600 dark:hover:text-brand-navy-400" onClick={() => openEditDialog(item)} aria-label="Edit">
                             <Edit className="w-3.5 h-3.5" />
                           </Button>
                           <Button variant="ghost" size="icon" className="h-7 w-7 text-slate-400 hover:text-red-600 dark:hover:text-red-400" onClick={() => { setSelectedItem(item); setShowDeleteDialog(true); }} aria-label="Delete">
@@ -522,7 +522,7 @@ export default function BOQPage({ language, projectId }: BOQPageProps) {
               ))}
               <div className="flex justify-between text-sm font-bold mt-2 pt-2 border-t border-slate-200 dark:border-slate-700">
                 <span className="text-slate-900 dark:text-white">{tAuto('auto.grandTotal')}</span>
-                <span className="text-teal-600 dark:text-teal-400 font-mono tabular-nums">{formatCurrency(filteredTotal, ar)}</span>
+                <span className="text-brand-navy-600 dark:text-brand-navy-400 font-mono tabular-nums">{formatCurrency(filteredTotal, ar)}</span>
               </div>
             </div>
           )}
@@ -698,9 +698,9 @@ function BOQItemForm({
       </div>
 
       {/* Auto-calculated Total */}
-      <div className="flex items-center justify-between p-3 bg-teal-50 dark:bg-teal-900/20 rounded-lg border border-teal-100 dark:border-teal-800/30">
+      <div className="flex items-center justify-between p-3 bg-brand-navy-50 dark:bg-brand-navy-900/20 rounded-lg border border-brand-navy-100 dark:border-brand-navy-800/30">
         <span className="text-sm text-slate-600 dark:text-slate-400">{tAuto('auto.total')}</span>
-        <span className="text-lg font-bold text-teal-600 dark:text-teal-400 font-mono tabular-nums">
+        <span className="text-lg font-bold text-brand-navy-600 dark:text-brand-navy-400 font-mono tabular-nums">
           {formatCurrency(computedTotal, ar)}
         </span>
       </div>
@@ -712,7 +712,7 @@ function BOQItemForm({
         <Button
           onClick={onSubmit}
           disabled={!formData.description || !formData.unit || formData.quantity <= 0 || formData.unitPrice <= 0 || isLoading}
-          className="bg-teal-600 hover:bg-teal-700 text-white border-0 text-xs"
+          className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white border-0 text-xs"
         >
           {isLoading ? <Loader2 className="w-4 h-4 me-1 animate-spin" /> : <Save className="w-4 h-4 me-1" />}
           {tAuto('auto.save')}

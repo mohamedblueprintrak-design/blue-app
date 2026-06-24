@@ -39,7 +39,7 @@ export function RecentProjectsAlerts({ recentProjects, alerts, isAr, onProjectCl
       <Card className="lg:col-span-2 rounded-xl border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900 hover:shadow-md transition-shadow">
         <CardHeader className="pb-3 border-b border-slate-100 dark:border-slate-800/50 relative">
           {/* Teal accent line */}
-          <div className="absolute top-0 start-0 end-0 h-[3px] rounded-t-xl bg-gradient-to-l from-teal-500 to-teal-400" />
+          <div className="absolute top-0 start-0 end-0 h-[3px] rounded-t-xl bg-gradient-to-l from-brand-navy-500 to-brand-navy-400" />
           <CardTitle className="text-base font-semibold text-slate-900 dark:text-white">
             {tAuto('auto.recentProjects')}
           </CardTitle>
@@ -106,7 +106,7 @@ export function RecentProjectsAlerts({ recentProjects, alerts, isAr, onProjectCl
                           className={cn(
                             "h-full rounded-full transition-all duration-500",
                             project.progress >= 80 ? "bg-emerald-500" :
-                            project.progress >= 40 ? "bg-teal-500" :
+                            project.progress >= 40 ? "bg-brand-navy-500" :
                             project.progress >= 20 ? "bg-amber-500" : "bg-slate-400"
                           )}
                           style={{ width: `${project.progress}%` }}
@@ -121,7 +121,7 @@ export function RecentProjectsAlerts({ recentProjects, alerts, isAr, onProjectCl
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-7 w-7 text-slate-400 hover:text-teal-600 dark:hover:text-teal-400"
+                      className="h-7 w-7 text-slate-400 hover:text-brand-navy-600 dark:hover:text-brand-navy-400"
                       onClick={(e) => {
                         e.stopPropagation();
                         onProjectClick(project.id);
@@ -142,7 +142,7 @@ export function RecentProjectsAlerts({ recentProjects, alerts, isAr, onProjectCl
       <Card className="rounded-xl border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900 hover:shadow-md transition-shadow">
         <CardHeader className="pb-3 border-b border-slate-100 dark:border-slate-800/50 relative">
           {/* Teal accent line */}
-          <div className="absolute top-0 start-0 end-0 h-[3px] rounded-t-xl bg-gradient-to-l from-teal-500 to-teal-400" />
+          <div className="absolute top-0 start-0 end-0 h-[3px] rounded-t-xl bg-gradient-to-l from-brand-navy-500 to-brand-navy-400" />
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="text-base font-semibold text-slate-900 dark:text-white">
@@ -204,7 +204,7 @@ export function RecentProjectsAlerts({ recentProjects, alerts, isAr, onProjectCl
                 );
               })}
               {/* View All Link */}
-              <Button variant="ghost" className="w-full text-xs text-slate-500 hover:text-teal-600 dark:hover:text-teal-400 mt-1">
+              <Button variant="ghost" className="w-full text-xs text-slate-500 hover:text-brand-navy-600 dark:hover:text-brand-navy-400 mt-1">
                 {tAuto('auto.viewAll')}
                 <ArrowUpRight className="h-3 w-3 ms-1" />
               </Button>

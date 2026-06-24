@@ -180,8 +180,8 @@ export default function BudgetComparisonTab({ projectId, language }: BudgetCompa
         <Card className="border-slate-200 dark:border-slate-700/50">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-                <Wallet className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+              <div className="w-10 h-10 rounded-xl bg-brand-navy-100 dark:bg-brand-navy-900/30 flex items-center justify-center">
+                <Wallet className="h-5 w-5 text-brand-navy-600 dark:text-brand-navy-400" />
               </div>
               <div>
                 <p className="text-xs text-slate-500 dark:text-slate-400">{t("إجمالي الميزانية", "Total Budget")}</p>
@@ -293,7 +293,7 @@ export default function BudgetComparisonTab({ projectId, language }: BudgetCompa
       <Card className="border-slate-200 dark:border-slate-700/50">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-semibold flex items-center gap-2">
-            <Wallet className="h-4 w-4 text-teal-500" />
+            <Wallet className="h-4 w-4 text-brand-navy-500" />
             {t("تفصيل الميزانية حسب الفئة", "Budget Breakdown by Category")}
           </CardTitle>
         </CardHeader>
@@ -356,7 +356,7 @@ export default function BudgetComparisonTab({ projectId, language }: BudgetCompa
         <Card className="border-slate-200 dark:border-slate-700/50">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-teal-500" />
+              <TrendingUp className="h-4 w-4 text-brand-navy-500" />
               {t("الميزانية مقابل الفعلي - شهرياً", "Budget vs Actual — Monthly")}
             </CardTitle>
           </CardHeader>
@@ -372,7 +372,7 @@ export default function BudgetComparisonTab({ projectId, language }: BudgetCompa
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-mono text-slate-500 dark:text-slate-400">{m.month}</span>
                       <div className="flex items-center gap-3 text-[10px] tabular-nums">
-                        <span className="text-teal-600 dark:text-teal-400">
+                        <span className="text-brand-navy-600 dark:text-brand-navy-400">
                           {t("مخطط", "Plan")}: {formatCurrency(m.budgeted)}
                         </span>
                         <span className={isOver ? "text-red-600 dark:text-red-400" : "text-slate-700 dark:text-slate-300"}>
@@ -382,7 +382,7 @@ export default function BudgetComparisonTab({ projectId, language }: BudgetCompa
                     </div>
                     <div className="space-y-1">
                       <div className="w-full h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
-                        <div className="h-full rounded-full bg-teal-400/60 transition-all duration-500" style={{ width: `${budgetPct}%` }} />
+                        <div className="h-full rounded-full bg-brand-navy-400/60 transition-all duration-500" style={{ width: `${budgetPct}%` }} />
                       </div>
                       <div className="w-full h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
                         <div
@@ -399,7 +399,7 @@ export default function BudgetComparisonTab({ projectId, language }: BudgetCompa
             {/* Legend */}
             <div className="flex items-center gap-4 mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
               <div className="flex items-center gap-1.5">
-                <div className="w-3 h-3 rounded-sm bg-teal-400/60" />
+                <div className="w-3 h-3 rounded-sm bg-brand-navy-400/60" />
                 <span className="text-[10px] text-slate-500 dark:text-slate-400">{t("المخطط", "Budgeted")}</span>
               </div>
               <div className="flex items-center gap-1.5">

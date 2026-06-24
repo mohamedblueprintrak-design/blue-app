@@ -158,7 +158,7 @@ const CATEGORY_CONFIG: CategoryConfig[] = [
     titleAr: "المشاريع",
     titleEn: "Projects",
     icon: FolderKanban,
-    color: "bg-teal-100 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400",
+    color: "bg-brand-navy-100 dark:bg-brand-navy-900/30 text-brand-navy-600 dark:text-brand-navy-400",
     eventLabels: {
       created: { ar: "مشروع جديد", en: "Project Created" },
       status_change: { ar: "تغيير حالة المشروع", en: "Project Status Change" },
@@ -227,7 +227,7 @@ const CHANNEL_CONFIG: ChannelConfig[] = [
     titleAr: "داخل التطبيق",
     titleEn: "In-App",
     icon: Monitor,
-    color: "bg-teal-100 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400",
+    color: "bg-brand-navy-100 dark:bg-brand-navy-900/30 text-brand-navy-600 dark:text-brand-navy-400",
   },
   {
     key: "email",
@@ -381,7 +381,7 @@ export function NotificationPreferences({ isAr }: NotificationPreferencesProps) 
                   <Switch
                     checked={channels[ch.key]}
                     onCheckedChange={(checked) => toggleChannel(ch.key, checked)}
-                    className="data-[state=checked]:bg-teal-600"
+                    className="data-[state=checked]:bg-brand-navy-600"
                   />
                 </div>
               ))}
@@ -447,7 +447,7 @@ export function NotificationPreferences({ isAr }: NotificationPreferencesProps) 
                             onCheckedChange={(checked) => {
                               toggleAllCategory(cat.key, checked);
                             }}
-                            className="data-[state=checked]:bg-teal-600"
+                            className="data-[state=checked]:bg-brand-navy-600"
                             onClick={(e) => e.stopPropagation()}
                           />
                           {isOpen ? (
@@ -473,7 +473,7 @@ export function NotificationPreferences({ isAr }: NotificationPreferencesProps) 
                               onCheckedChange={(checked) =>
                                 toggleCategoryEvent(cat.key, eventKey, checked)
                               }
-                              className="data-[state=checked]:bg-teal-600"
+                              className="data-[state=checked]:bg-brand-navy-600"
                             />
                           </div>
                         ))}
@@ -517,7 +517,7 @@ export function NotificationPreferences({ isAr }: NotificationPreferencesProps) 
                 onCheckedChange={(checked) =>
                   setQuietHours((prev) => ({ ...prev, enabled: checked }))
                 }
-                className="data-[state=checked]:bg-teal-600"
+                className="data-[state=checked]:bg-brand-navy-600"
               />
             </div>
 
@@ -590,7 +590,7 @@ export function NotificationPreferences({ isAr }: NotificationPreferencesProps) 
         <Button
           onClick={handleSave}
           disabled={saving || loading}
-          className="bg-teal-600 hover:bg-teal-700 text-white min-w-[120px]"
+          className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white min-w-[120px]"
         >
           {saving ? (
             <span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block" />

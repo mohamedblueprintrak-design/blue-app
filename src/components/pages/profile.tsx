@@ -314,7 +314,7 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
   const getRoleBadge = (role: string) => {
     const roles: Record<string, { labelAr: string; labelEn: string; color: string }> = {
       admin: { labelAr: "مدير النظام", labelEn: "Admin", color: "bg-red-500" },
-      MANAGER: { labelAr: "المدير", labelEn: "Manager", color: "bg-teal-500" },
+      MANAGER: { labelAr: "المدير", labelEn: "Manager", color: "bg-brand-navy-500" },
       project_manager: { labelAr: "مدير مشاريع", labelEn: "PM", color: "bg-cyan-500" },
       engineer: { labelAr: "مهندس", labelEn: "Engineer", color: "bg-sky-500" },
       draftsman: { labelAr: "مساح", labelEn: "Draftsman", color: "bg-violet-500" },
@@ -375,13 +375,13 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
                 <div className="relative">
                   <Avatar className="w-24 h-24 border-4 border-slate-200 dark:border-slate-700">
                     <AvatarImage src={profileUser?.avatar} />
-                    <AvatarFallback className="bg-gradient-to-br from-teal-500 to-teal-600 text-white text-2xl">
+                    <AvatarFallback className="bg-gradient-to-br from-brand-navy-500 to-brand-navy-600 text-white text-2xl">
                       {profileUser?.name?.[0]?.toUpperCase() || "U"}
                     </AvatarFallback>
                   </Avatar>
                   <Button
                     size="icon"
-                    className="absolute bottom-0 end-0 rounded-full bg-teal-500 hover:bg-teal-600 w-8 h-8 shadow-md"
+                    className="absolute bottom-0 end-0 rounded-full bg-brand-navy-500 hover:bg-brand-navy-600 w-8 h-8 shadow-md"
                     onClick={handleAvatarClick}
                     disabled={isUploadingAvatar}
                     aria-label={tAuto('auto.changeAvatar')}
@@ -515,7 +515,7 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
               <CardFooter className="border-t border-slate-200 dark:border-slate-700 pt-4">
                 <Button
                   onClick={handleSaveProfile}
-                  className="bg-teal-500 hover:bg-teal-600 text-white"
+                  className="bg-brand-navy-500 hover:bg-brand-navy-600 text-white"
                   disabled={isSaving}
                 >
                   {isSaving ? (
@@ -541,7 +541,7 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
-                  <Building2 className="w-5 h-5 text-teal-500" />
+                  <Building2 className="w-5 h-5 text-brand-navy-500" />
                   <div>
                     <p className="text-sm text-slate-500 dark:text-slate-400">
                       {tAuto('auto.organization')}
@@ -597,7 +597,7 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
             <CardContent>
               <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 rounded-lg">
                 <div className="flex items-center gap-3">
-                  <Download className="w-5 h-5 text-teal-500" />
+                  <Download className="w-5 h-5 text-brand-navy-500" />
                   <div>
                     <p className="text-slate-900 dark:text-white font-medium">
                       {tAuto('auto.downloadMyData')}
@@ -609,7 +609,7 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
                 </div>
                 <Button
                   variant="outline"
-                  className="border-teal-500/30 text-teal-600 dark:text-teal-400 hover:bg-teal-500/10"
+                  className="border-brand-navy-500/30 text-brand-navy-600 dark:text-brand-navy-400 hover:bg-brand-navy-500/10"
                   onClick={() => setShowExportDialog(true)}
                   disabled={isExporting}
                 >
@@ -675,7 +675,7 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
                 </Button>
                 <Button
                   onClick={handleExportData}
-                  className="bg-teal-500 hover:bg-teal-600 text-white"
+                  className="bg-brand-navy-500 hover:bg-brand-navy-600 text-white"
                   disabled={isExporting}
                 >
                   {isExporting ? (
@@ -765,7 +765,7 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
             <CardFooter className="border-t border-slate-200 dark:border-slate-700 pt-4">
               <Button
                 onClick={handleChangePassword}
-                className="bg-teal-500 hover:bg-teal-600 text-white"
+                className="bg-brand-navy-500 hover:bg-brand-navy-600 text-white"
                 disabled={isChangingPassword}
               >
                 {isChangingPassword ? (
@@ -792,7 +792,7 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
             <CardContent className="space-y-6">
               <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 rounded-lg">
                 <div className="flex items-center gap-3">
-                  <Globe className="w-5 h-5 text-teal-500" />
+                  <Globe className="w-5 h-5 text-brand-navy-500" />
                   <div>
                     <p className="text-slate-900 dark:text-white font-medium">
                       {tAuto('auto.language')}
@@ -806,7 +806,7 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
                   <Button
                     variant={isAr ? "default" : "outline"}
                     size="sm"
-                    className={isAr ? "bg-teal-500 hover:bg-teal-600 text-white" : "border-slate-200 dark:border-slate-700"}
+                    className={isAr ? "bg-brand-navy-500 hover:bg-brand-navy-600 text-white" : "border-slate-200 dark:border-slate-700"}
                     disabled
                   >
                     العربية
@@ -814,7 +814,7 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
                   <Button
                     variant={!isAr ? "default" : "outline"}
                     size="sm"
-                    className={!isAr ? "bg-teal-500 hover:bg-teal-600 text-white" : "border-slate-200 dark:border-slate-700"}
+                    className={!isAr ? "bg-brand-navy-500 hover:bg-brand-navy-600 text-white" : "border-slate-200 dark:border-slate-700"}
                     disabled
                   >
                     English
@@ -845,7 +845,7 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
                     variant={theme === "light" ? "default" : "outline"}
                     size="sm"
                     onClick={() => setTheme("light")}
-                    className={theme === "light" ? "bg-teal-500 hover:bg-teal-600 text-white" : "border-slate-200 dark:border-slate-700"}
+                    className={theme === "light" ? "bg-brand-navy-500 hover:bg-brand-navy-600 text-white" : "border-slate-200 dark:border-slate-700"}
                   >
                     <Sun className="w-4 h-4 me-1" />
                     {tAuto('auto.light')}
@@ -854,7 +854,7 @@ export default function ProfilePage({ language }: { language: "ar" | "en" }) {
                     variant={theme === "dark" ? "default" : "outline"}
                     size="sm"
                     onClick={() => setTheme("dark")}
-                    className={theme === "dark" ? "bg-teal-500 hover:bg-teal-600 text-white" : "border-slate-200 dark:border-slate-700"}
+                    className={theme === "dark" ? "bg-brand-navy-500 hover:bg-brand-navy-600 text-white" : "border-slate-200 dark:border-slate-700"}
                   >
                     <Moon className="w-4 h-4 me-1" />
                     {tAuto('auto.dark')}

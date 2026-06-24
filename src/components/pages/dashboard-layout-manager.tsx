@@ -246,10 +246,10 @@ function SortableWidgetItem({
             ref={setActivatorNodeRef}
             {...attributes}
             {...listeners}
-            className="absolute top-2 start-2 z-10 h-8 w-8 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-center cursor-grab active:cursor-grabbing hover:bg-teal-50 dark:hover:bg-teal-950/30 hover:border-teal-300 dark:hover:border-teal-700 transition-colors"
+            className="absolute top-2 start-2 z-10 h-8 w-8 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-center cursor-grab active:cursor-grabbing hover:bg-brand-navy-50 dark:hover:bg-brand-navy-950/30 hover:border-brand-navy-300 dark:hover:border-brand-navy-700 transition-colors"
             title={tAuto('auto.dragToReorder')}
           >
-            <GripVertical className="h-4 w-4 text-slate-400 group-hover/widget:text-teal-500" />
+            <GripVertical className="h-4 w-4 text-slate-400 group-hover/widget:text-brand-navy-500" />
           </div>
         )}
         {children}
@@ -328,8 +328,8 @@ function WidgetOptionsMenu({
             className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
           >
             {isCollapsed
-              ? <ChevronDown className="h-3.5 w-3.5 text-teal-500" />
-              : <ChevronUp className="h-3.5 w-3.5 text-teal-500" />
+              ? <ChevronDown className="h-3.5 w-3.5 text-brand-navy-500" />
+              : <ChevronUp className="h-3.5 w-3.5 text-brand-navy-500" />
             }
             {isCollapsed
               ? (tAuto('auto.expand'))
@@ -434,7 +434,7 @@ export function WidgetSlot({
             onClick={() => layout.toggleCollapse(widgetId)}
           >
             <div className="flex items-center gap-2.5">
-              <PanelTop className="h-4 w-4 text-teal-500" />
+              <PanelTop className="h-4 w-4 text-brand-navy-500" />
               <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
                 {isAr ? (config?.title || widgetId) : (config?.titleEn || widgetId)}
               </span>
@@ -473,13 +473,13 @@ function HiddenWidgetsPanel({
   if (hiddenWidgets.length === 0) return null;
 
   return (
-    <div className="mt-6 p-4 rounded-xl border-2 border-dashed border-teal-300 dark:border-teal-700 bg-teal-50/30 dark:bg-teal-950/10">
+    <div className="mt-6 p-4 rounded-xl border-2 border-dashed border-brand-navy-300 dark:border-brand-navy-700 bg-brand-navy-50/30 dark:bg-brand-navy-950/10">
       <div className="flex items-center gap-2 mb-3">
-        <EyeOff className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+        <EyeOff className="h-4 w-4 text-brand-navy-600 dark:text-brand-navy-400" />
         <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300">
           {tAuto('auto.hiddenWidgets')}
         </h3>
-        <span className="text-[10px] font-bold text-teal-600 dark:text-teal-400 bg-teal-100 dark:bg-teal-900/50 px-2 py-0.5 rounded-full">
+        <span className="text-[10px] font-bold text-brand-navy-600 dark:text-brand-navy-400 bg-brand-navy-100 dark:bg-brand-navy-900/50 px-2 py-0.5 rounded-full">
           {hiddenWidgets.length}
         </span>
       </div>
@@ -490,7 +490,7 @@ function HiddenWidgetsPanel({
             <button
               key={id}
               onClick={() => onShowWidget(id)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:border-teal-400 hover:text-teal-600 dark:hover:border-teal-600 dark:hover:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-950/20 transition-all duration-200 group"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:border-brand-navy-400 hover:text-brand-navy-600 dark:hover:border-brand-navy-600 dark:hover:text-brand-navy-400 hover:bg-brand-navy-50 dark:hover:bg-brand-navy-950/20 transition-all duration-200 group"
             >
               <Plus className="h-3 w-3 opacity-50 group-hover:opacity-100 transition-opacity" />
               {isAr ? (config?.title || id) : (config?.titleEn || id)}
@@ -524,8 +524,8 @@ function CustomizeBar({
         className={cn(
           "inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-xl border transition-all duration-200",
           isCustomizing
-            ? "bg-teal-600 text-white border-teal-600 shadow-md shadow-teal-200 dark:shadow-teal-900/50"
-            : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-teal-300 dark:hover:border-teal-700 hover:text-teal-600 dark:hover:text-teal-400"
+            ? "bg-brand-navy-600 text-white border-brand-navy-600 shadow-md shadow-brand-navy-200 dark:shadow-brand-navy-900/50"
+            : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-brand-navy-300 dark:hover:border-brand-navy-700 hover:text-brand-navy-600 dark:hover:text-brand-navy-400"
         )}
       >
         <Settings2 className="h-3.5 w-3.5" />
@@ -607,14 +607,14 @@ export function DashboardLayoutManager({
 
       {/* Edit mode banner */}
       {layout.isCustomizing && (
-        <div className="flex items-center gap-2 px-4 py-2.5 bg-teal-50 dark:bg-teal-950/20 border border-teal-200 dark:border-teal-800 rounded-xl text-xs text-teal-700 dark:text-teal-400">
+        <div className="flex items-center gap-2 px-4 py-2.5 bg-brand-navy-50 dark:bg-brand-navy-950/20 border border-brand-navy-200 dark:border-brand-navy-800 rounded-xl text-xs text-brand-navy-700 dark:text-brand-navy-400">
           <LayoutDashboard className="h-4 w-4 shrink-0" />
           <span className="font-medium">
             {tAuto('auto.customizationModeDragItemsToReorderOrUse')}
           </span>
           <button
             onClick={() => layout.setIsCustomizing(false)}
-            className="ms-auto h-5 w-5 rounded-full flex items-center justify-center hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-colors"
+            className="ms-auto h-5 w-5 rounded-full flex items-center justify-center hover:bg-brand-navy-100 dark:hover:bg-brand-navy-900/40 transition-colors"
           >
             <X className="h-3.5 w-3.5" />
           </button>

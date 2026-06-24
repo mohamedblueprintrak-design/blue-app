@@ -51,8 +51,8 @@ const STATUS_LABELS: Record<string, { en: string; ar: string }> = {
 
 const STATUS_BADGE_STYLES: Record<string, string> = {
   TODO: "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400",
-  IN_PROGRESS: "bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400",
-  ACTIVE: "bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400",
+  IN_PROGRESS: "bg-brand-navy-100 text-brand-navy-700 dark:bg-brand-navy-900/30 dark:text-brand-navy-400",
+  ACTIVE: "bg-brand-navy-100 text-brand-navy-700 dark:bg-brand-navy-900/30 dark:text-brand-navy-400",
   REVIEW: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
   DONE: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
   COMPLETED: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
@@ -80,7 +80,7 @@ const PHASE_CATEGORY_LABELS: Record<string, { en: string; ar: string }> = {
 };
 
 const PHASE_CATEGORY_COLORS: Record<string, { bg: string; text: string }> = {
-  ARCHITECTURAL: { bg: "bg-teal-500/10 dark:bg-teal-500/20", text: "text-teal-600 dark:text-teal-400" },
+  ARCHITECTURAL: { bg: "bg-brand-navy-500/10 dark:bg-brand-navy-500/20", text: "text-brand-navy-600 dark:text-brand-navy-400" },
   STRUCTURAL: { bg: "bg-amber-500/10 dark:bg-amber-500/20", text: "text-amber-600 dark:text-amber-400" },
   MEP: { bg: "bg-cyan-500/10 dark:bg-cyan-500/20", text: "text-cyan-600 dark:text-cyan-400" },
   GOVERNMENT: { bg: "bg-violet-500/10 dark:bg-violet-500/20", text: "text-violet-600 dark:text-violet-400" },
@@ -101,7 +101,7 @@ function formatDate(dateStr: string | null, ar: boolean): string {
 
 function getProgressColor(progress: number): string {
   if (progress >= 100) return "bg-emerald-500";
-  if (progress >= 50) return "bg-teal-500";
+  if (progress >= 50) return "bg-brand-navy-500";
   if (progress >= 25) return "bg-amber-500";
   return "bg-slate-400";
 }

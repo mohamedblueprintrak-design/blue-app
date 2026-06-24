@@ -12,7 +12,7 @@ export function GanttLegend({ ar }: GanttLegendProps) {
     <div className="p-3 border-t border-slate-200 dark:border-slate-700/50 flex items-center gap-4 flex-wrap text-xs bg-slate-50 dark:bg-slate-800/30">
       <span className="text-slate-400 dark:text-slate-500">{tAuto('auto.status')}</span>
       <div className="flex items-center gap-1.5">
-        <div className="w-3 h-3 rounded-sm bg-teal-500" />
+        <div className="w-3 h-3 rounded-sm bg-brand-navy-500" />
         <span className="text-slate-500 dark:text-slate-400">{tAuto('auto.inProgress')}</span>
       </div>
       <div className="flex items-center gap-1.5">
@@ -29,7 +29,7 @@ export function GanttLegend({ ar }: GanttLegendProps) {
         <span className="text-slate-500 dark:text-slate-400">{tAuto('auto.milestone')}</span>
       </div>
       <div className="flex items-center gap-1.5">
-        <div className="w-4 h-0 border-t-2 border-teal-500" />
+        <div className="w-4 h-0 border-t-2 border-brand-navy-500" />
         <span className="text-slate-500 dark:text-slate-400">{tAuto('auto.today')}</span>
       </div>
     </div>

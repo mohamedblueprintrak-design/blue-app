@@ -49,8 +49,8 @@ const typeIconConfig: Record<string, {
   dot: string;
 }> = {
   PROJECT_UPDATE: {
-    icon: Building2, color: "text-teal-600 dark:text-teal-400", bg: "bg-gradient-to-br from-teal-100 to-teal-50 dark:from-teal-900/40 dark:to-teal-950/30",
-    dot: "bg-teal-500",
+    icon: Building2, color: "text-brand-navy-600 dark:text-brand-navy-400", bg: "bg-gradient-to-br from-brand-navy-100 to-brand-navy-50 dark:from-brand-navy-900/40 dark:to-brand-navy-950/30",
+    dot: "bg-brand-navy-500",
   },
   TASK_DUE: {
     icon: CheckSquare, color: "text-cyan-600 dark:text-cyan-400", bg: "bg-gradient-to-br from-cyan-100 to-cyan-50 dark:from-cyan-900/40 dark:to-cyan-950/30",
@@ -81,8 +81,8 @@ const typeIconConfig: Record<string, {
     dot: "bg-violet-500",
   },
   site_visit: {
-    icon: MapPin, color: "text-teal-600 dark:text-teal-400", bg: "bg-gradient-to-br from-teal-100 to-teal-50 dark:from-teal-900/40 dark:to-teal-950/30",
-    dot: "bg-teal-500",
+    icon: MapPin, color: "text-brand-navy-600 dark:text-brand-navy-400", bg: "bg-gradient-to-br from-brand-navy-100 to-brand-navy-50 dark:from-brand-navy-900/40 dark:to-brand-navy-950/30",
+    dot: "bg-brand-navy-500",
   },
   system: {
     icon: MonitorCheck, color: "text-slate-600 dark:text-slate-400", bg: "bg-gradient-to-br from-slate-100 to-slate-50 dark:from-slate-800/40 dark:to-slate-900/30",
@@ -267,9 +267,9 @@ export default function NotificationDropdown() {
         )}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-teal-50 to-cyan-50/50 dark:from-teal-950/30 dark:to-cyan-950/20 border-b border-slate-100 dark:border-slate-800">
+        <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-brand-navy-50 to-cyan-50/50 dark:from-brand-navy-950/30 dark:to-cyan-950/20 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-2.5">
-            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center shadow-md shadow-teal-500/20">
+            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-brand-navy-500 to-cyan-500 flex items-center justify-center shadow-md shadow-brand-navy-500/20">
               <Bell className="h-4 w-4 text-white" />
             </div>
             <div>
@@ -277,7 +277,7 @@ export default function NotificationDropdown() {
                 {tAuto('auto.notifications')}
               </h3>
               {liveUnreadCount > 0 && (
-                <p className="text-[10px] text-teal-600 dark:text-teal-400 font-medium">
+                <p className="text-[10px] text-brand-navy-600 dark:text-brand-navy-400 font-medium">
                   {liveUnreadCount} {tAuto('auto.nEW')}
                 </p>
               )}
@@ -287,7 +287,7 @@ export default function NotificationDropdown() {
             <Button
               size="sm"
               variant="ghost"
-              className="h-7 px-2 text-[10px] font-medium text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 hover:bg-teal-100 dark:hover:bg-teal-900/30"
+              className="h-7 px-2 text-[10px] font-medium text-brand-navy-600 dark:text-brand-navy-400 hover:text-brand-navy-700 dark:hover:text-brand-navy-300 hover:bg-brand-navy-100 dark:hover:bg-brand-navy-900/30"
               onClick={() => markAllReadMutation.mutate()}
               disabled={markAllReadMutation.isPending}
             >
@@ -347,7 +347,7 @@ export default function NotificationDropdown() {
                         "flex items-start gap-3 px-4 py-3 cursor-pointer transition-all duration-150 group",
                         notif.isRead
                           ? "hover:bg-slate-50/80 dark:hover:bg-slate-800/30"
-                          : "bg-teal-50/30 dark:bg-teal-950/10 hover:bg-teal-50/50 dark:hover:bg-teal-950/20"
+                          : "bg-brand-navy-50/30 dark:bg-brand-navy-950/10 hover:bg-brand-navy-50/50 dark:hover:bg-brand-navy-950/20"
                       )}
                       onClick={() => handleNotificationClick(notif)}
                       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleNotificationClick(notif); }}
@@ -399,7 +399,7 @@ export default function NotificationDropdown() {
             <Separator className="opacity-60" />
             <button
               onClick={handleViewAll}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-semibold text-teal-600 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-950/30 transition-colors"
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-semibold text-brand-navy-600 dark:text-brand-navy-400 hover:bg-brand-navy-50 dark:hover:bg-brand-navy-950/30 transition-colors"
             >
               <Inbox className="h-3.5 w-3.5" />
               {tAuto('auto.viewAllNotifications')}

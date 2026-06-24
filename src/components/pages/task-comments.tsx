@@ -43,7 +43,7 @@ interface UserOption {
 
 // ===== Avatar Helpers =====
 const avatarColors = [
-  "bg-teal-500",
+  "bg-brand-navy-500",
   "bg-amber-500",
   "bg-violet-500",
   "bg-rose-500",
@@ -100,7 +100,7 @@ function highlightMentions(text: string) {
   return parts.map((part, index) => {
     if (part.startsWith("@")) {
       return (
-        <span key={index} className="text-teal-600 dark:text-teal-400 font-medium">
+        <span key={index} className="text-brand-navy-600 dark:text-brand-navy-400 font-medium">
           {part}
         </span>
       );
@@ -486,7 +486,7 @@ export default function TaskComments({ taskId, language }: TaskCommentsProps) {
                     <button
                       key={user.id}
                       onClick={() => insertMention(user.name)}
-                      className="w-full flex items-center gap-2 px-1.5 py-1.5 rounded-md hover:bg-teal-50 dark:hover:bg-teal-900/20 transition-colors text-start"
+                      className="w-full flex items-center gap-2 px-1.5 py-1.5 rounded-md hover:bg-brand-navy-50 dark:hover:bg-brand-navy-900/20 transition-colors text-start"
                     >
                       <Avatar className="h-5 w-5">
                         <AvatarFallback
@@ -518,8 +518,8 @@ export default function TaskComments({ taskId, language }: TaskCommentsProps) {
             onClick={handleSubmit}
             className={cn(
               "h-[36px] w-[36px] p-0 rounded-lg shrink-0",
-              "bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700",
-              "text-white shadow-sm shadow-teal-500/20",
+              "bg-gradient-to-r from-brand-navy-600 to-cyan-600 hover:from-brand-navy-700 hover:to-cyan-700",
+              "text-white shadow-sm shadow-brand-navy-500/20",
               "disabled:opacity-40 disabled:shadow-none transition-all"
             )}
           >

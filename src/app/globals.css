@@ -5,24 +5,34 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ===== BRAND COLORS ===== */
-/* Note: The codebase heavily uses teal utility classes (e.g. text-teal-600)
-   but expects brand navy styling. We define both to support existing code
-   and allow proper brand token usage going forward. */
+/* Design system: two distinct palettes.
+ *
+ * 1. brand-navy-* : the official BluePrint brand navy (#133371). Used for
+ *    primary actions, headers, sidebar, active states, CTAs. This is the
+ *    "brand" color and should be used in all new code.
+ *
+ * 2. teal-*       : the real Tailwind teal palette (green-cyan). Restored to
+ *    its standard values so that `bg-teal-600` renders actual teal — for
+ *    success states, positive trends, "active/online" badges, etc. Previously
+ *    teal was aliased to navy which caused semantic confusion (success states
+ *    rendered in brand color). All existing teal-as-navy usages have been
+ *    migrated to brand-navy-* via codemod.
+ */
 @theme {
-  /* Brand Navy (aliased as teal to support existing codebase classes) */
-  --color-teal-50: #eef2fb;
-  --color-teal-100: #dfe7f7;
-  --color-teal-200: #bccde9;
-  --color-teal-300: #8eace0;
-  --color-teal-400: #6089d1;
-  --color-teal-500: #3366c0;
-  --color-teal-600: #133371;
-  --color-teal-700: #0f2c5f;
-  --color-teal-800: #0b244e;
-  --color-teal-900: #081c3d;
-  --color-teal-950: #05132c;
+  /* Real Tailwind teal palette (standard values) */
+  --color-teal-50: #f0fdfa;
+  --color-teal-100: #ccfbf1;
+  --color-teal-200: #99f6e4;
+  --color-teal-300: #5eead4;
+  --color-teal-400: #2dd4bf;
+  --color-teal-500: #14b8a6;
+  --color-teal-600: #0d9488;
+  --color-teal-700: #0f766e;
+  --color-teal-800: #115e59;
+  --color-teal-900: #134e4a;
+  --color-teal-950: #042f2e;
 
-  /* Explicit Brand Navy tokens */
+  /* Brand Navy tokens — the official BluePrint brand color */
   --color-brand-navy-50: #eef2fb;
   --color-brand-navy-100: #dfe7f7;
   --color-brand-navy-200: #bccde9;

@@ -129,13 +129,13 @@ export function BackupRestoreTab({
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg flex items-center gap-2">
-                <DatabaseBackup className="h-5 w-5 text-teal-600" />
+                <DatabaseBackup className="h-5 w-5 text-brand-navy-600" />
                 {tAuto('auto.backupRestore')}
               </CardTitle>
               <Button
                 onClick={() => createBackupMutation.mutate()}
                 disabled={createBackupMutation.isPending}
-                className="bg-teal-600 hover:bg-teal-700 text-white gap-1.5 h-9 rounded-lg shadow-sm shadow-teal-500/20"
+                className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white gap-1.5 h-9 rounded-lg shadow-sm shadow-brand-navy-500/20"
               >
                 {createBackupMutation.isPending ? (
                   <RefreshCw className="h-4 w-4 animate-spin" />
@@ -200,8 +200,8 @@ export function BackupRestoreTab({
                     )}
                   >
                     <div className="flex items-center gap-3 min-w-0 flex-1">
-                      <div className="w-9 h-9 rounded-lg bg-teal-50 dark:bg-teal-950 flex items-center justify-center shrink-0">
-                        <DatabaseBackup className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                      <div className="w-9 h-9 rounded-lg bg-brand-navy-50 dark:bg-brand-navy-950 flex items-center justify-center shrink-0">
+                        <DatabaseBackup className="h-4 w-4 text-brand-navy-600 dark:text-brand-navy-400" />
                       </div>
                       <div className="min-w-0">
                         <p className="text-sm font-medium text-slate-900 dark:text-white truncate" dir="ltr">
@@ -356,7 +356,7 @@ export function AutomationTab({ isAr }: { isAr: boolean }) {
                 </div>
                 <Switch
                   checked={rule.enabled}
-                  className="data-[state=checked]:bg-teal-600"
+                  className="data-[state=checked]:bg-brand-navy-600"
                 />
               </div>
             ))}
@@ -436,7 +436,7 @@ export function MiniActivityTimeline({ isAr, activities }: MiniActivityTimelineP
                 CREATE: "bg-emerald-500",
                 UPDATE: "bg-blue-500",
                 DELETE: "bg-red-500",
-                APPROVE: "bg-teal-500",
+                APPROVE: "bg-brand-navy-500",
                 REJECT: "bg-orange-500",
               };
               return (

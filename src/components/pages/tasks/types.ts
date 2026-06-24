@@ -45,7 +45,7 @@ export interface TasksKanbanProps {
 export const COLUMNS = [
   { id: "TODO", borderAccent: "border-t-slate-400", bg: "bg-slate-50/70 dark:bg-slate-800/30 backdrop-blur-sm", border: "border-slate-200/60 dark:border-slate-700/40", headerBg: "bg-gradient-to-b from-slate-100/80 to-transparent dark:from-slate-800/60 dark:to-transparent" },
   { id: "IN_PROGRESS", borderAccent: "border-t-amber-400", bg: "bg-amber-50/50 dark:bg-amber-950/10 backdrop-blur-sm", border: "border-amber-200/60 dark:border-amber-800/40", headerBg: "bg-gradient-to-b from-amber-100/60 to-transparent dark:from-amber-950/30 dark:to-transparent" },
-  { id: "REVIEW", borderAccent: "border-t-teal-400", bg: "bg-teal-50/50 dark:bg-teal-950/10 backdrop-blur-sm", border: "border-teal-200/60 dark:border-teal-800/40", headerBg: "bg-gradient-to-b from-teal-100/60 to-transparent dark:from-teal-950/30 dark:to-transparent" },
+  { id: "REVIEW", borderAccent: "border-t-brand-navy-400", bg: "bg-brand-navy-50/50 dark:bg-brand-navy-950/10 backdrop-blur-sm", border: "border-brand-navy-200/60 dark:border-brand-navy-800/40", headerBg: "bg-gradient-to-b from-brand-navy-100/60 to-transparent dark:from-brand-navy-950/30 dark:to-transparent" },
   { id: "DONE", borderAccent: "border-t-emerald-400", bg: "bg-emerald-50/50 dark:bg-emerald-950/10 backdrop-blur-sm", border: "border-emerald-200/60 dark:border-emerald-800/40", headerBg: "bg-gradient-to-b from-emerald-100/60 to-transparent dark:from-emerald-950/30 dark:to-transparent" },
   { id: "CANCELLED", borderAccent: "border-t-red-400", bg: "bg-red-50/40 dark:bg-red-950/10 backdrop-blur-sm", border: "border-red-200/60 dark:border-red-800/40", headerBg: "bg-gradient-to-b from-red-100/60 to-transparent dark:from-red-950/30 dark:to-transparent" },
 ] as const;

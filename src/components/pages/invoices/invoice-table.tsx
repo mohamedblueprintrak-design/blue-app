@@ -181,7 +181,7 @@ export function InvoiceTable({
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-7 w-7 text-teal-600 hover:text-teal-700"
+                              className="h-7 w-7 text-brand-navy-600 hover:text-brand-navy-700"
                               onClick={() => onRequestApproval(inv)}
                               aria-label="Request approval"
                             >
@@ -235,7 +235,7 @@ export function InvoiceTable({
                   className={cn(
                     "h-7 w-7 text-xs",
                     currentPage === pageNum
-                      ? "bg-teal-600 hover:bg-teal-700 text-white border-teal-600"
+                      ? "bg-brand-navy-600 hover:bg-brand-navy-700 text-white border-brand-navy-600"
                       : ""
                   )}
                   onClick={() => setCurrentPage(pageNum)}
@@ -259,7 +259,7 @@ export function InvoiceTable({
       )}
       {/* Quick Total Floating Badge */}
       {filtered.length > 5 && (
-        <div className="absolute bottom-3 end-3 z-10 bg-gradient-to-r from-teal-600 to-cyan-600 text-white px-4 py-2 rounded-xl shadow-lg shadow-teal-600/30 flex items-center gap-2">
+        <div className="absolute bottom-3 end-3 z-10 bg-gradient-to-r from-brand-navy-600 to-cyan-600 text-white px-4 py-2 rounded-xl shadow-lg shadow-brand-navy-600/30 flex items-center gap-2">
           <Receipt className="h-3.5 w-3.5" />
           <span className="text-[11px] font-medium">{tAuto('auto.total')}</span>
           <span className="text-sm font-bold tabular-nums font-mono">{formatCurrency(totalInvoices, ar)}</span>

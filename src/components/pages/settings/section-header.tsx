@@ -14,8 +14,8 @@ export function SectionHeader({
   return (
     <div className="space-y-1 mb-6">
       <div className="flex items-center gap-3">
-        <div className="w-8 h-8 rounded-lg bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-          <Icon className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+        <div className="w-8 h-8 rounded-lg bg-brand-navy-100 dark:bg-brand-navy-900/30 flex items-center justify-center">
+          <Icon className="h-4 w-4 text-brand-navy-600 dark:text-brand-navy-400" />
         </div>
         <div>
           <h3 className="text-base font-semibold text-slate-900 dark:text-white">{title}</h3>
@@ -24,7 +24,7 @@ export function SectionHeader({
           )}
         </div>
       </div>
-      <div className="h-0.5 w-16 bg-gradient-to-r from-teal-500 to-cyan-500 rounded-full" />
+      <div className="h-0.5 w-16 bg-gradient-to-r from-brand-navy-500 to-cyan-500 rounded-full" />
     </div>
   );
 }

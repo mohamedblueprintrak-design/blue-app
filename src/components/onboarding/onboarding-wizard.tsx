@@ -157,9 +157,9 @@ export default function OnboardingWizard({ language, onComplete }: OnboardingWiz
                 <div
                   className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
                     isCompleted
-                      ? "bg-teal-500 text-white"
+                      ? "bg-brand-navy-500 text-white"
                       : isCurrent
-                      ? "bg-teal-100 dark:bg-teal-900/40 text-teal-600 dark:text-teal-400 ring-2 ring-teal-500"
+                      ? "bg-brand-navy-100 dark:bg-brand-navy-900/40 text-brand-navy-600 dark:text-brand-navy-400 ring-2 ring-brand-navy-500"
                       : "bg-slate-100 dark:bg-slate-800 text-slate-400"
                   }`}
                   aria-current={isCurrent ? "step" : undefined}
@@ -169,7 +169,7 @@ export default function OnboardingWizard({ language, onComplete }: OnboardingWiz
                 <span
                   className={`text-[10px] font-medium hidden sm:block ${
                     isCurrent
-                      ? "text-teal-600 dark:text-teal-400"
+                      ? "text-brand-navy-600 dark:text-brand-navy-400"
                       : "text-slate-400"
                   }`}
                 >
@@ -179,7 +179,7 @@ export default function OnboardingWizard({ language, onComplete }: OnboardingWiz
               {i < STEP_LABELS.length - 1 && (
                 <div
                   className={`flex-1 h-0.5 mx-1.5 rounded-full transition-colors duration-300 ${
-                    isCompleted ? "bg-teal-500" : "bg-slate-200 dark:bg-slate-700"
+                    isCompleted ? "bg-brand-navy-500" : "bg-slate-200 dark:bg-slate-700"
                   }`}
                 />
               )}

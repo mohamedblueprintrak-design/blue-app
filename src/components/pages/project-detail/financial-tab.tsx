@@ -41,7 +41,7 @@ export default function FinancialTab({ project, language, projectId, activeSubTa
       <div className="space-y-4">
         {/* Contract Value Summary */}
         <Card className="border-slate-200 dark:border-slate-700/50 overflow-hidden">
-          <div className="bg-gradient-to-r from-emerald-600 to-teal-500 p-4 text-white">
+          <div className="bg-gradient-to-r from-emerald-600 to-brand-navy-500 p-4 text-white">
             <h3 className="text-sm font-semibold mb-3">{t("ملخص قيمة العقد", "Contract Value Summary")}</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div>
@@ -72,10 +72,10 @@ export default function FinancialTab({ project, language, projectId, activeSubTa
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <Receipt className="h-4 w-4 text-teal-500" />
+                <Receipt className="h-4 w-4 text-brand-navy-500" />
                 {t("جدول الدفعات", "Payment Schedule")}
               </CardTitle>
-              <Button size="sm" className="h-7 gap-1 text-xs bg-teal-600 hover:bg-teal-700 text-white">
+              <Button size="sm" className="h-7 gap-1 text-xs bg-brand-navy-600 hover:bg-brand-navy-700 text-white">
                 <Plus className="h-3 w-3" />
                 {t("إضافة مرحلة دفع", "Add Payment Milestone")}
               </Button>

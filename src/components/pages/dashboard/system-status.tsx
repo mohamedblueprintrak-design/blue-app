@@ -85,9 +85,9 @@ export function SystemStatus({ isAr }: SystemStatusProps) {
     <Card className="rounded-xl border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900 hover:shadow-md transition-shadow">
       <CardHeader className="pb-3 border-b border-slate-100 dark:border-slate-800/50 relative">
         {/* Teal accent line */}
-        <div className="absolute top-0 start-0 end-0 h-[3px] rounded-t-xl bg-gradient-to-l from-teal-500 to-teal-400" />
+        <div className="absolute top-0 start-0 end-0 h-[3px] rounded-t-xl bg-gradient-to-l from-brand-navy-500 to-brand-navy-400" />
         <div className="flex items-center gap-2.5">
-          <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-md">
+          <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-emerald-500 to-brand-navy-600 flex items-center justify-center shadow-md">
             <Server className="h-4 w-4 text-white" />
           </div>
           <div>

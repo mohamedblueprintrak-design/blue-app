@@ -124,7 +124,7 @@ const templates = [
 function TemplateIcon({ icon, className }: { icon: string; className?: string }) {
   const cls = className || 'h-6 w-6';
   switch (icon) {
-    case 'bell': return <Bell className={cn(cls, 'text-teal-600 dark:text-teal-400')} />;
+    case 'bell': return <Bell className={cn(cls, 'text-brand-navy-600 dark:text-brand-navy-400')} />;
     case 'check': return <CheckCircle2 className={cn(cls, 'text-emerald-600 dark:text-emerald-400')} />;
     case 'mail': return <Mail className={cn(cls, 'text-sky-600 dark:text-sky-400')} />;
     case 'trending': return <TrendingUp className={cn(cls, 'text-amber-600 dark:text-amber-400')} />;
@@ -236,7 +236,7 @@ export default function AutomationsPage({ language }: Props) {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-navy-500"></div>
       </div>
     );
   }
@@ -255,7 +255,7 @@ export default function AutomationsPage({ language }: Props) {
         </div>
         <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-teal-600 hover:bg-teal-700 text-white gap-1.5 shadow-sm shadow-teal-500/20">
+            <Button className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white gap-1.5 shadow-sm shadow-brand-navy-500/20">
               <Plus className="w-4 h-4" />
               {tAuto('auto.newAutomation')}
             </Button>
@@ -324,7 +324,7 @@ export default function AutomationsPage({ language }: Props) {
               <Button
                 onClick={() => createMutation.mutate(newAutomation)}
                 disabled={createMutation.isPending || !newAutomation.name}
-                className="w-full bg-teal-600 hover:bg-teal-700 text-white h-10 rounded-lg shadow-sm shadow-teal-500/20"
+                className="w-full bg-brand-navy-600 hover:bg-brand-navy-700 text-white h-10 rounded-lg shadow-sm shadow-brand-navy-500/20"
               >
                 {createMutation.isPending ? (
                   <RotateCcw className="h-4 w-4 animate-spin me-2" />
@@ -345,8 +345,8 @@ export default function AutomationsPage({ language }: Props) {
                 <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.total')}</p>
                 <p className="text-2xl font-bold text-slate-900 dark:text-white tabular-nums">{automations.length}</p>
               </div>
-              <div className="w-10 h-10 bg-teal-100 dark:bg-teal-900/30 rounded-xl flex items-center justify-center">
-                <Zap className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+              <div className="w-10 h-10 bg-brand-navy-100 dark:bg-brand-navy-900/30 rounded-xl flex items-center justify-center">
+                <Zap className="w-5 h-5 text-brand-navy-600 dark:text-brand-navy-400" />
               </div>
             </div>
           </CardContent>
@@ -410,7 +410,7 @@ export default function AutomationsPage({ language }: Props) {
                   <div className="flex items-start gap-3 flex-1 min-w-0">
                     <div className={cn(
                       'w-10 h-10 rounded-xl flex items-center justify-center shrink-0 mt-0.5',
-                      isActive ? 'bg-teal-50 dark:bg-teal-950' : 'bg-slate-100 dark:bg-slate-800'
+                      isActive ? 'bg-brand-navy-50 dark:bg-brand-navy-950' : 'bg-slate-100 dark:bg-slate-800'
                     )}>
                       <TriggerIcon type={automation.triggerType} />
                     </div>
@@ -464,7 +464,7 @@ export default function AutomationsPage({ language }: Props) {
                       disabled={toggleStatusMutation.isPending}
                       className={cn(
                         'w-11 h-6 rounded-full transition-colors relative',
-                        isActive ? 'bg-teal-500' : 'bg-slate-300 dark:bg-slate-600'
+                        isActive ? 'bg-brand-navy-500' : 'bg-slate-300 dark:bg-slate-600'
                       )}
                     >
                       <div className={cn(
@@ -555,7 +555,7 @@ export default function AutomationsPage({ language }: Props) {
             </p>
             <Button
               onClick={() => setCreateDialogOpen(true)}
-              className="bg-teal-600 hover:bg-teal-700 text-white gap-1.5"
+              className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white gap-1.5"
             >
               <Plus className="w-4 h-4" />
               {tAuto('auto.createAutomation')}

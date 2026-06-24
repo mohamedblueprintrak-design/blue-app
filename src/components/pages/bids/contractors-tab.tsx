@@ -128,7 +128,7 @@ export function ContractorsTab({
         </Select>
         <Button
           size="sm"
-          className="h-8 bg-teal-600 hover:bg-teal-700 text-white rounded-lg shadow-sm"
+          className="h-8 bg-brand-navy-600 hover:bg-brand-navy-700 text-white rounded-lg shadow-sm"
           onClick={() => { setFormData(emptyForm); setShowDialog(true); }}
         >
           <Plus className="h-3.5 w-3.5 me-1" />{tAuto('auto.addContractor')}
@@ -198,7 +198,7 @@ export function ContractorsTab({
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Users className="h-5 w-5 text-teal-600" />
+              <Users className="h-5 w-5 text-brand-navy-600" />
               {tAuto('auto.addNewContractor')}
             </DialogTitle>
             <DialogDescription>{tAuto('auto.completeContractorProfile')}</DialogDescription>
@@ -297,7 +297,7 @@ export function ContractorsTab({
           <DialogFooter>
             <Button variant="outline" onClick={() => { setShowDialog(false); setFormData(emptyForm); }}>{tAuto('auto.cancel')}</Button>
             <Button
-              className="bg-teal-600 hover:bg-teal-700 text-white rounded-lg"
+              className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white rounded-lg"
               onClick={() => createMutation.mutate(formData)}
               disabled={!formData.name || createMutation.isPending}
             >

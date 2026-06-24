@@ -42,10 +42,10 @@ export default function BoqSection({
           <p className="text-sm text-slate-500">{tAuto('auto.detailedConstructionCostCalculationWithV')}</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" className="border-teal-300 text-teal-700 hover:bg-teal-50">
+          <Button variant="outline" className="border-brand-navy-300 text-brand-navy-700 hover:bg-brand-navy-50">
             <Download className="h-4 w-4 me-2" /> {tAuto('auto.exportPDF')}
           </Button>
-          <Button onClick={onAddBoqItem} className="bg-teal-600 hover:bg-teal-700 text-white">
+          <Button onClick={onAddBoqItem} className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white">
             <Plus className="h-4 w-4 me-2" /> {tAuto('auto.newItem')}
           </Button>
         </div>
@@ -103,7 +103,7 @@ export default function BoqSection({
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger>
-                                <Badge variant="outline" className="text-[10px] text-teal-600 border-teal-300 cursor-help">
+                                <Badge variant="outline" className="text-[10px] text-brand-navy-600 border-brand-navy-300 cursor-help">
                                   {formatCurrency(aiSuggestion[1].min, language)} - {formatCurrency(aiSuggestion[1].max, language)}
                                 </Badge>
                               </TooltipTrigger>
@@ -157,7 +157,7 @@ export default function BoqSection({
             <Separator />
             <div className="flex items-center justify-between">
               <span className="text-base font-bold text-slate-900 dark:text-white">{tAuto('auto.grandTotal')}</span>
-              <span className="text-2xl font-bold text-teal-600 dark:text-teal-400 tabular-nums">{formatCurrency(boqStats.grandTotal, language)}</span>
+              <span className="text-2xl font-bold text-brand-navy-600 dark:text-brand-navy-400 tabular-nums">{formatCurrency(boqStats.grandTotal, language)}</span>
             </div>
           </div>
         </CardContent>

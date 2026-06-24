@@ -59,7 +59,7 @@ function getInitials(name: string) {
 
 function getAvatarColor(name: string) {
   const colors = [
-    "bg-teal-100 dark:bg-teal-900 text-teal-700 dark:text-teal-300",
+    "bg-brand-navy-100 dark:bg-brand-navy-900 text-brand-navy-700 dark:text-brand-navy-300",
     "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300",
     "bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300",
     "bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300",
@@ -303,8 +303,8 @@ export default function WorkloadPage({ language }: WorkloadPageProps) {
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
         <div className="flex items-center gap-3 flex-1">
-          <div className="w-9 h-9 rounded-xl bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-            <Activity className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+          <div className="w-9 h-9 rounded-xl bg-brand-navy-100 dark:bg-brand-navy-900/30 flex items-center justify-center">
+            <Activity className="h-5 w-5 text-brand-navy-600 dark:text-brand-navy-400" />
           </div>
           <div>
             <h2 className="text-lg font-bold text-slate-900 dark:text-white">
@@ -335,8 +335,8 @@ export default function WorkloadPage({ language }: WorkloadPageProps) {
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
         <div className="rounded-xl border p-4 border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
-              <Users className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+            <div className="w-10 h-10 rounded-xl bg-brand-navy-100 dark:bg-brand-navy-900/30 flex items-center justify-center">
+              <Users className="h-5 w-5 text-brand-navy-600 dark:text-brand-navy-400" />
             </div>
             <div>
               <p className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.teamTotal')}</p>

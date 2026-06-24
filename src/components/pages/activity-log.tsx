@@ -42,7 +42,7 @@ interface ActivityItem {
 
 // ===== Avatar Colors =====
 const avatarColors = [
-  "bg-teal-500",
+  "bg-brand-navy-500",
   "bg-amber-500",
   "bg-violet-500",
   "bg-rose-500",
@@ -73,11 +73,11 @@ const actionConfig: Record<string, {
 }> = {
   CREATE: {
     icon: Plus,
-    color: "text-teal-600 dark:text-teal-400",
-    bg: "bg-teal-50 dark:bg-teal-900/30",
-    border: "border-s-teal-500",
-    dot: "bg-teal-500",
-    dotGradient: "from-teal-400 to-cyan-500",
+    color: "text-brand-navy-600 dark:text-brand-navy-400",
+    bg: "bg-brand-navy-50 dark:bg-brand-navy-900/30",
+    border: "border-s-brand-navy-500",
+    dot: "bg-brand-navy-500",
+    dotGradient: "from-brand-navy-400 to-cyan-500",
     ar: "إنشاء",
     en: "Created",
   },
@@ -137,7 +137,7 @@ const actionConfig: Record<string, {
     bg: "bg-emerald-50 dark:bg-emerald-900/30",
     border: "border-s-emerald-500",
     dot: "bg-emerald-500",
-    dotGradient: "from-emerald-400 to-teal-500",
+    dotGradient: "from-emerald-400 to-brand-navy-500",
     ar: "رفع ملف",
     en: "Uploaded",
   },
@@ -480,7 +480,7 @@ export default function ActivityLog({ language: lang, projectId }: Props) {
       {/* ===== Header ===== */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-600 flex items-center justify-center shadow-md shadow-teal-500/20">
+          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-brand-navy-500 to-cyan-600 flex items-center justify-center shadow-md shadow-brand-navy-500/20">
             <Activity className="h-5 w-5 text-white" />
           </div>
           <div>
@@ -511,7 +511,7 @@ export default function ActivityLog({ language: lang, projectId }: Props) {
 
           <Badge
             variant="outline"
-            className="w-fit gap-1.5 border-teal-200 dark:border-teal-800 text-teal-600 dark:text-teal-400 text-xs px-2.5 py-0.5"
+            className="w-fit gap-1.5 border-brand-navy-200 dark:border-brand-navy-800 text-brand-navy-600 dark:text-brand-navy-400 text-xs px-2.5 py-0.5"
           >
             <RefreshCw className="h-3 w-3" />
             {tAuto('auto.liveUpdates')}
@@ -547,17 +547,17 @@ export default function ActivityLog({ language: lang, projectId }: Props) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, delay: 0.05 }}
         >
-          <Card className="relative overflow-hidden rounded-xl border-slate-200 dark:border-slate-700/50 bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-950/40 dark:to-cyan-950/30 p-4">
-            <div className="absolute top-0 start-0 w-full h-1 bg-gradient-to-r from-teal-400 to-cyan-500 dark:from-teal-600 dark:to-cyan-600" />
+          <Card className="relative overflow-hidden rounded-xl border-slate-200 dark:border-slate-700/50 bg-gradient-to-br from-brand-navy-50 to-cyan-50 dark:from-brand-navy-950/40 dark:to-cyan-950/30 p-4">
+            <div className="absolute top-0 start-0 w-full h-1 bg-gradient-to-r from-brand-navy-400 to-cyan-500 dark:from-brand-navy-600 dark:to-cyan-600" />
             <div className="flex items-center gap-2 mb-2">
-              <div className="p-1.5 rounded-lg bg-teal-100/60 dark:bg-teal-900/40">
-                <Clock className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+              <div className="p-1.5 rounded-lg bg-brand-navy-100/60 dark:bg-brand-navy-900/40">
+                <Clock className="h-4 w-4 text-brand-navy-600 dark:text-brand-navy-400" />
               </div>
-              <span className="text-[11px] font-medium text-teal-600 dark:text-teal-400">
+              <span className="text-[11px] font-medium text-brand-navy-600 dark:text-brand-navy-400">
                 {tAuto('auto.today')}
               </span>
             </div>
-            <p className="text-2xl font-bold text-teal-700 dark:text-teal-300 tabular-nums">{todayActivities}</p>
+            <p className="text-2xl font-bold text-brand-navy-700 dark:text-brand-navy-300 tabular-nums">{todayActivities}</p>
           </Card>
         </motion.div>
 
@@ -621,7 +621,7 @@ export default function ActivityLog({ language: lang, projectId }: Props) {
                     : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
                 )}
               >
-                <Icon className={cn("h-3 w-3", isActive && "text-teal-600 dark:text-teal-400")} />
+                <Icon className={cn("h-3 w-3", isActive && "text-brand-navy-600 dark:text-brand-navy-400")} />
                 {isAr ? opt.ar : opt.en}
               </button>
             );
@@ -678,7 +678,7 @@ export default function ActivityLog({ language: lang, projectId }: Props) {
           </p>
           <div className="flex items-center justify-center gap-6 text-xs text-slate-400 dark:text-slate-500">
             <div className="flex items-center gap-1.5">
-              <div className="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-teal-400 to-cyan-500" />
+              <div className="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-brand-navy-400 to-cyan-500" />
               {tAuto('auto.create')}
             </div>
             <div className="flex items-center gap-1.5">
@@ -842,7 +842,7 @@ export default function ActivityLog({ language: lang, projectId }: Props) {
                 <Button
                   variant="outline"
                   onClick={() => setVisibleCount((prev) => prev + 10)}
-                  className="gap-2 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-teal-50 dark:hover:bg-teal-900/20 hover:text-teal-600 dark:hover:text-teal-400 hover:border-teal-200 dark:hover:border-teal-800"
+                  className="gap-2 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-brand-navy-50 dark:hover:bg-brand-navy-900/20 hover:text-brand-navy-600 dark:hover:text-brand-navy-400 hover:border-brand-navy-200 dark:hover:border-brand-navy-800"
                 >
                   <ChevronDown className="h-4 w-4" />
                   {tAuto('auto.loadMore')}

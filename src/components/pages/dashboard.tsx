@@ -119,11 +119,11 @@ export default function Dashboard({ language }: { language: "ar" | "en" }) {
       label: tAuto('auto.totalProjects'),
       value: formatNumber(stats.totalProjects, language),
       icon: FolderKanban,
-      gradientFrom: "from-teal-500",
-      gradientTo: "to-teal-600",
-      borderAccent: "border-s-teal-500",
-      bgColor: "bg-teal-100 dark:bg-teal-950/30",
-      iconColor: "text-teal-600 dark:text-teal-400",
+      gradientFrom: "from-brand-navy-500",
+      gradientTo: "to-brand-navy-600",
+      borderAccent: "border-s-brand-navy-500",
+      bgColor: "bg-brand-navy-100 dark:bg-brand-navy-950/30",
+      iconColor: "text-brand-navy-600 dark:text-brand-navy-400",
       trend: { value: stats.activeProjects, label: tAuto('auto.aCTIVE'), isPositive: true },
       secondaryBadge: stats.delayedProjects > 0 ? { value: stats.delayedProjects, label: tAuto('auto.dELAYED'), type: "danger" as const } : null,
     },
@@ -171,7 +171,7 @@ export default function Dashboard({ language }: { language: "ar" | "en" }) {
 
   // Department accent colors
   const deptAccents: Record<string, string> = {
-    ARCHITECTURAL: "bg-teal-500",
+    ARCHITECTURAL: "bg-brand-navy-500",
     STRUCTURAL: "bg-amber-500",
     MEP: "bg-violet-500",
   };

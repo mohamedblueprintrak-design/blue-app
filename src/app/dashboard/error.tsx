@@ -16,7 +16,7 @@ export default function DashboardError({ error, reset }: { error: Error & { dige
         </div>
         <h3 className="text-lg font-bold text-slate-900 dark:text-white">{t("errorLoadingData")}</h3>
         <p className="text-sm text-slate-500 dark:text-slate-400 max-w-sm">{t("errorLoadingDashboard")}</p>
-        <Button onClick={reset} className="bg-teal-600 hover:bg-teal-700 text-white gap-2">
+        <Button onClick={reset} className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white gap-2">
           <RefreshCw className="h-4 w-4" /> {t("retry")}
         </Button>
       </div>

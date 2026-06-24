@@ -53,7 +53,7 @@ export function ChatInput({
               key={s.ar}
               onClick={() => handleSend(isAr ? s.arMsg : s.enMsg)}
               disabled={isLoading}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs border border-slate-200 dark:border-slate-700 hover:border-teal-400 hover:bg-teal-50 dark:hover:bg-teal-950/30 transition-all text-slate-600 dark:text-slate-400 disabled:opacity-50 disabled:pointer-events-none hover:shadow-sm"
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs border border-slate-200 dark:border-slate-700 hover:border-brand-navy-400 hover:bg-brand-navy-50 dark:hover:bg-brand-navy-950/30 transition-all text-slate-600 dark:text-slate-400 disabled:opacity-50 disabled:pointer-events-none hover:shadow-sm"
             >
               <s.icon className="h-3 w-3" />
               {isAr ? s.ar : s.en}
@@ -118,7 +118,7 @@ export function ChatInput({
                   "h-11 w-11 rounded-xl shrink-0 transition-all",
                   isListening
                     ? "bg-red-500 hover:bg-red-600 text-white shadow-md shadow-red-500/25 animate-pulse"
-                    : "border-slate-200 dark:border-slate-700 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hover:border-teal-400 dark:hover:border-teal-600"
+                    : "border-slate-200 dark:border-slate-700 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hover:border-brand-navy-400 dark:hover:border-brand-navy-600"
                 )}
                 aria-label={isListening ? "Stop recording" : "Voice input"}
               >
@@ -154,7 +154,7 @@ export function ChatInput({
         <Button
           onClick={() => handleSend()}
           disabled={!input.trim() || isLoading}
-          className="h-11 w-11 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white p-0 shrink-0 shadow-md shadow-teal-500/20 transition-all disabled:opacity-50 disabled:shadow-none"
+          className="h-11 w-11 rounded-xl bg-gradient-to-br from-brand-navy-500 to-brand-navy-600 hover:from-brand-navy-600 hover:to-brand-navy-700 text-white p-0 shrink-0 shadow-md shadow-brand-navy-500/20 transition-all disabled:opacity-50 disabled:shadow-none"
         >
           {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
         </Button>

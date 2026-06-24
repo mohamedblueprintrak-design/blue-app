@@ -88,10 +88,10 @@ export function ApprovalDetailPanel({
               <div className="p-4 space-y-5">
                 {/* View Entity Info (if entityId is not "NEW") */}
                 {selectedApproval.entityId && selectedApproval.entityId !== "NEW" && (
-                  <div className="bg-gradient-to-r from-teal-50 to-cyan-50 dark:from-teal-900/10 dark:to-cyan-900/10 rounded-xl p-4 border border-teal-200 dark:border-teal-800/30">
+                  <div className="bg-gradient-to-r from-brand-navy-50 to-cyan-50 dark:from-brand-navy-900/10 dark:to-cyan-900/10 rounded-xl p-4 border border-brand-navy-200 dark:border-brand-navy-800/30">
                     <div className="flex items-center justify-between mb-2">
                       <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                        <EntityTypeIcon type={selectedApproval.entityType} className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                        <EntityTypeIcon type={selectedApproval.entityType} className="h-4 w-4 text-brand-navy-600 dark:text-brand-navy-400" />
                         {tAuto('auto.linkedEntity')}
                       </h4>
                       <Badge variant="secondary" className={cn("text-[10px]", getEntityTypeBadgeColor(selectedApproval.entityType))}>
@@ -116,7 +116,7 @@ export function ApprovalDetailPanel({
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={(e) => e.stopPropagation()}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-teal-600 dark:text-teal-400 bg-teal-100 dark:bg-teal-900/30 hover:bg-teal-200 dark:hover:bg-teal-900/50 transition-colors"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-brand-navy-600 dark:text-brand-navy-400 bg-brand-navy-100 dark:bg-brand-navy-900/30 hover:bg-brand-navy-200 dark:hover:bg-brand-navy-900/50 transition-colors"
                       >
                         <Eye className="h-3.5 w-3.5" />
                         {tAuto('auto.viewEntity')}
@@ -136,7 +136,7 @@ export function ApprovalDetailPanel({
                             {leTitle}
                           </p>
                           {leAmount > 0 && (
-                            <p className="text-xs text-teal-600 dark:text-teal-400 font-mono mt-1">
+                            <p className="text-xs text-brand-navy-600 dark:text-brand-navy-400 font-mono mt-1">
                               {formatCurrency(leAmount, ar)}
                             </p>
                           )}
@@ -185,7 +185,7 @@ export function ApprovalDetailPanel({
                 {/* ===== APPROVAL CHAIN VISUALIZATION ===== */}
                 <div>
                   <h4 className="text-sm font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
-                    <ChevronDown className="h-4 w-4 text-teal-500" />
+                    <ChevronDown className="h-4 w-4 text-brand-navy-500" />
                     {tAuto('auto.approvalChain')}
                   </h4>
 
@@ -224,7 +224,7 @@ export function ApprovalDetailPanel({
                             <div className={cn(
                               "w-7 h-7 rounded-full flex items-center justify-center shrink-0 z-10 text-[10px] font-bold border-2",
                               stepStatus === "COMPLETED" && "bg-emerald-500 border-emerald-500 text-white",
-                              stepStatus === "current" && "bg-white dark:bg-slate-900 border-2 border-teal-500 text-teal-600 dark:text-teal-400 ring-2 ring-teal-200 dark:ring-teal-800",
+                              stepStatus === "current" && "bg-white dark:bg-slate-900 border-2 border-brand-navy-500 text-brand-navy-600 dark:text-brand-navy-400 ring-2 ring-brand-navy-200 dark:ring-brand-navy-800",
                               stepStatus === "PENDING" && "bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-600 text-slate-400",
                               stepStatus === "REJECTED" && "bg-red-500 border-red-500 text-white",
                             )}>
@@ -244,7 +244,7 @@ export function ApprovalDetailPanel({
                               <p className={cn(
                                 "text-xs font-semibold",
                                 stepStatus === "PENDING" && "text-slate-400 dark:text-slate-500",
-                                stepStatus === "current" && "text-teal-700 dark:text-teal-300",
+                                stepStatus === "current" && "text-brand-navy-700 dark:text-brand-navy-300",
                                 stepStatus === "COMPLETED" && "text-emerald-700 dark:text-emerald-300",
                                 stepStatus === "REJECTED" && "text-red-700 dark:text-red-300",
                               )}>
@@ -267,7 +267,7 @@ export function ApprovalDetailPanel({
                             <span className={cn(
                               "px-2 py-0.5 rounded-full text-[9px] font-medium shrink-0 mt-0.5",
                               stepStatus === "COMPLETED" && "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300",
-                              stepStatus === "current" && "bg-teal-100 dark:bg-teal-900/40 text-teal-700 dark:text-teal-300",
+                              stepStatus === "current" && "bg-brand-navy-100 dark:bg-brand-navy-900/40 text-brand-navy-700 dark:text-brand-navy-300",
                               stepStatus === "PENDING" && "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400",
                               stepStatus === "REJECTED" && "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300",
                             )}>
@@ -288,7 +288,7 @@ export function ApprovalDetailPanel({
                 {/* ===== NOTES / COMMENTS SECTION ===== */}
                 <div>
                   <h4 className="text-sm font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
-                    <MessageSquare className="h-4 w-4 text-teal-500" />
+                    <MessageSquare className="h-4 w-4 text-brand-navy-500" />
                     {tAuto('auto.notesComments')}
                   </h4>
                   {selectedApproval.notes ? (
@@ -321,14 +321,14 @@ export function ApprovalDetailPanel({
                 {/* ===== ACTIVITY LOG ===== */}
                 <div>
                   <h4 className="text-sm font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-teal-500" />
+                    <Clock className="h-4 w-4 text-brand-navy-500" />
                     {tAuto('auto.activityLog')}
                   </h4>
                   <div className="space-y-2">
                     {/* Created event */}
                     <div className="flex items-start gap-2.5">
-                      <div className="w-5 h-5 rounded-full bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center shrink-0 mt-0.5">
-                        <Plus className="h-3 w-3 text-teal-600 dark:text-teal-400" />
+                      <div className="w-5 h-5 rounded-full bg-brand-navy-100 dark:bg-brand-navy-900/30 flex items-center justify-center shrink-0 mt-0.5">
+                        <Plus className="h-3 w-3 text-brand-navy-600 dark:text-brand-navy-400" />
                       </div>
                       <div>
                         <p className="text-[11px] text-slate-700 dark:text-slate-300">
