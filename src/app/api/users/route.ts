@@ -4,6 +4,7 @@ import { hash } from 'bcryptjs';
 import { orgFilter, orgCreate, requireVerifiedPermission } from '@/app/api/utils/auth';
 import { Permission, UserRoleValues } from '@/lib/auth/types';
 import { getRoleLevel, normalizeRole } from '@/lib/auth/modules/authorization';
+import { requireStepUp2FA } from '@/lib/auth/step-up-2fa';
 import { cacheDeletePattern } from '@/lib/cache/redis';
 import { cachedQuery, invalidateCache, CACHE_TTL, buildCacheKey } from '@/lib/cache/query-cache';
 import { log } from '@/lib/logger';
@@ -85,6 +86,10 @@ export async function POST(request: NextRequest) {
     const rbac = await requireVerifiedPermission(request, Permission.USER_CREATE);
     if ('error' in rbac) return rbac.error;
     const ctx = rbac.user;
+
+    // ── Step-up 2FA: required for user creation (admin privilege operation) ──
+    const stepUpResult = await requireStepUp2FA(request, ctx);
+    if ('error' in stepUpResult) return stepUpResult.error;
 
     const body = await request.json();
 

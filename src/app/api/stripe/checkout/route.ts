@@ -14,6 +14,7 @@ import { requireVerifiedPermission } from '../../utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
+import { requireStepUp2FA } from '@/lib/auth/step-up-2fa';
 
 export async function POST(request: NextRequest) {
   // Rate limiting - strict for payment operations (5 req/min)
@@ -26,6 +27,10 @@ export async function POST(request: NextRequest) {
     const rbac = await requireVerifiedPermission(request, Permission.INVOICE_CREATE);
     if ('error' in rbac) return rbac.error;
     const ctx = rbac.user;
+
+    // ── Step-up 2FA: required for Stripe checkout (financial operation) ──
+    const stepUpResult = await requireStepUp2FA(request, ctx);
+    if ('error' in stepUpResult) return stepUpResult.error;
 
     const body = await request.json();
     const { planId, interval = 'month', organizationId, email, name, idempotencyKey } = body;

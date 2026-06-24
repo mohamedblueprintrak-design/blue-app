@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireVerifiedPermission, orgCheck } from '../../utils/auth';
 import { errorResponse, notFoundResponse } from '../../utils/response';
 import { validateRequest, invoiceUpdateSchema, invoiceItemUpdateSchema, validateIdParam } from '@/lib/api-validation';
+import { requireStepUp2FA } from '@/lib/auth/step-up-2fa';
 import { z } from 'zod';
 import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
@@ -58,6 +59,10 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     const rbac = await requireVerifiedPermission(request, Permission.INVOICE_UPDATE);
     if ('error' in rbac) return rbac.error;
     const user = rbac.user;
+
+    // ── Step-up 2FA: required for invoice updates (financial operation) ──
+    const stepUpResult = await requireStepUp2FA(request, user);
+    if ('error' in stepUpResult) return stepUpResult.error;
 
     const { id: rawId } = await params;
     const idResult = validateIdParam(rawId);
