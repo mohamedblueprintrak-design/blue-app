@@ -121,7 +121,12 @@ echo [OK] .env configured
 
 echo.
 echo Step 5: Preparing Prisma schema...
-node scripts\prepare-schema.js
+%RUNNER% scripts\prepare-schema.js
+if %ERRORLEVEL% NEQ 0 (
+    echo [ERROR] Failed to prepare Prisma schema!
+    pause
+    exit /b 1
+)
 echo [OK] Prisma schema prepared
 
 echo.
@@ -135,17 +140,32 @@ echo [OK] Cleaned
 echo.
 echo Step 7: Installing dependencies (%PKG_MGR% install)...
 call %PKG_MGR% install
+if %ERRORLEVEL% NEQ 0 (
+    echo [ERROR] Failed to install dependencies!
+    pause
+    exit /b 1
+)
 echo [OK] Dependencies installed
 
 echo.
 echo Step 8: Creating Database Tables...
 call %EXEC% prisma db push
+if %ERRORLEVEL% NEQ 0 (
+    echo [ERROR] Failed to push database schema!
+    pause
+    exit /b 1
+)
 echo [OK] Database schema pushed
 
 echo.
 echo Step 9: Seeding data...
 if "%MODE_CHOICE%"=="1" (
     call %EXEC% tsx prisma/seed.ts
+    if %ERRORLEVEL% NEQ 0 (
+        echo [ERROR] Failed to seed demo data!
+        pause
+        exit /b 1
+    )
     echo [OK] Demo data seeded
 ) else (
     echo [OK] Skipped demo data for Production Mode
@@ -154,6 +174,11 @@ if "%MODE_CHOICE%"=="1" (
 echo.
 echo Step 10: Generating Prisma Client...
 call %EXEC% prisma generate
+if %ERRORLEVEL% NEQ 0 (
+    echo [ERROR] Failed to generate Prisma Client!
+    pause
+    exit /b 1
+)
 echo [OK] Prisma Client ready
 
 set SETUP_TOKEN=
@@ -217,4 +242,8 @@ set /p START_DEV="Start server now? (y/n, default=y): "
 if "%START_DEV%"=="" set START_DEV=y
 if /i "%START_DEV%"=="y" (
     call %PKG_MGR% run dev
+) else (
+    echo.
+    echo Press any key to exit...
+    pause >nul
 )
