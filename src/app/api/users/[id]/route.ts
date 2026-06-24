@@ -4,6 +4,7 @@ import { validateRequest, userUpdateSchema, validateIdParam } from '@/lib/api-va
 import { orgFilter, requireVerifiedPermission } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { handleApiErrorWithLogging as handleApiError } from '@/lib/api-error';
+import { requireStepUp2FA } from '@/lib/auth/step-up-2fa';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 
 export async function GET(
@@ -70,6 +71,10 @@ export async function PUT(
     const rbac = await requireVerifiedPermission(request, Permission.USER_UPDATE);
     if ('error' in rbac) return rbac.error;
     const ctx = rbac.user;
+
+    // ── Step-up 2FA: required for user updates (admin privilege operation) ──
+    const stepUpResult = await requireStepUp2FA(request, ctx);
+    if ('error' in stepUpResult) return stepUpResult.error;
 
     const { id: rawId } = await params;
     const idResult = validateIdParam(rawId);

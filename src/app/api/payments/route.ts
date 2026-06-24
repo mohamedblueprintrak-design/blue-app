@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireVerifiedPermission, orgFilter, orgCreate } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { validateRequest, paymentCreateSchema } from '@/lib/api-validation';
+import { requireStepUp2FA } from '@/lib/auth/step-up-2fa';
 import { log } from '@/lib/logger';
 import { parsePaginationParams, buildPaginationMeta, calculateSkip } from '../utils/pagination';
 import { insensitiveContains } from '../utils/db';
@@ -103,6 +104,10 @@ export async function POST(request: NextRequest) {
     const rbac = await requireVerifiedPermission(request, Permission.PAYMENT_CREATE);
     if ('error' in rbac) return rbac.error;
     const ctx = rbac.user;
+
+    // ── Step-up 2FA: required for payment creation (sensitive financial operation) ──
+    const stepUpResult = await requireStepUp2FA(request, ctx);
+    if ('error' in stepUpResult) return stepUpResult.error;
 
     const body = await request.json();
     const validation = validateRequest(paymentCreateSchema, body);

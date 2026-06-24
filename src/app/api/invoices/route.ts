@@ -5,6 +5,7 @@ import { sanitizeObject } from '@/lib/security/sanitize';
 import { requireVerifiedPermission, orgFilter } from '../utils/auth';
 import { errorResponse } from '../utils/response';
 import { parsePaginationParams, buildPaginationMeta, calculateSkip } from '../utils/pagination';
+import { requireStepUp2FA } from '@/lib/auth/step-up-2fa';
 import { insensitiveContains } from '../utils/db';
 import { z } from 'zod';
 import { Permission } from '@/lib/auth/types';
@@ -297,6 +298,10 @@ export async function POST(request: NextRequest) {
     const rbac = await requireVerifiedPermission(request, Permission.INVOICE_CREATE);
     if ('error' in rbac) return rbac.error;
     const ctx = rbac.user;
+
+    // ── Step-up 2FA: required for invoice creation (financial operation) ──
+    const stepUpResult = await requireStepUp2FA(request, ctx);
+    if ('error' in stepUpResult) return stepUpResult.error;
 
     const rawBody = await request.json();
 
