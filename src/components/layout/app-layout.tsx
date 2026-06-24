@@ -143,9 +143,9 @@ export default function AppLayout({ language, children }: AppLayoutProps) {
 
   return (
     <SidebarProvider style={{ "--sidebar-width": "16rem", "--sidebar-width-mobile": "20rem" } as React.CSSProperties}>
-      <AppSidebar language={language} />
+      <AppSidebar />
       <SidebarInset>
-        <AppHeader language={language} />
+        <AppHeader />
         <div className="flex flex-col flex-1">
           <Breadcrumbs language={language} />
           <main className="flex-1 overflow-y-auto">
