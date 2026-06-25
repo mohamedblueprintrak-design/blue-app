@@ -34,7 +34,7 @@ export function TenderFilters({
   filterAuthority,
   onFilterAuthorityChange,
   total,
-  isAr,
+  isAr: _isAr,
   onAddClick,
 }: TenderFiltersProps) {
   const tAuto = useTranslations();

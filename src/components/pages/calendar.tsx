@@ -247,7 +247,7 @@ export default function CalendarPage({ language: lang, projectId }: Props) {
     });
 
     return evts;
-  }, [tasks, meetings, invoices, siteVisits, isAr, tAuto]);
+  }, [tasks, meetings, invoices, siteVisits, tAuto]);
 
   // Stat calculations
   const todayEvents = useMemo(() => {

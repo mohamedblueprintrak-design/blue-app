@@ -18,7 +18,7 @@ interface BillingTabProps {
   isAr: boolean;
 }
 
-export function BillingTab({ isAr }: BillingTabProps) {
+export function BillingTab({ isAr: _isAr }: BillingTabProps) {
   const tAuto = useTranslations();
   return (
     <Card>

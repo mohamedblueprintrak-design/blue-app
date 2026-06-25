@@ -90,7 +90,7 @@ interface ViolationFiltersProps {
 }
 
 export function ViolationFilters({
-  ar,
+  ar: _ar,
   violationFilterStatus,
   violationFilterSeverity,
   onViolationFilterStatusChange,

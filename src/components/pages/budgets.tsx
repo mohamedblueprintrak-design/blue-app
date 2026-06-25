@@ -119,7 +119,7 @@ function BudgetUtilizationBar({ planned, actual, committed, ar }: { planned: num
 }
 
 // ===== Variance Indicator =====
-function VarianceIndicator({ deviation, ar }: { deviation: number; ar: boolean }) {
+function VarianceIndicator({ deviation, ar: _ar }: { deviation: number; ar: boolean }) {
   const tAuto = useTranslations();
   const isPositive = deviation >= 0;
   return (

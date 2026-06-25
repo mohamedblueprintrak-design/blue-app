@@ -283,7 +283,7 @@ export function BackupRestoreTab({
 }
 
 // ===== Automation Tab =====
-export function AutomationTab({ isAr }: { isAr: boolean }) {
+export function AutomationTab({ isAr: _isAr }: { isAr: boolean }) {
   const tAuto = useTranslations();
   const automations = [
     {
@@ -368,7 +368,7 @@ export function AutomationTab({ isAr }: { isAr: boolean }) {
 }
 
 // ===== System Health Sidebar =====
-export function SystemHealthSidebar({ isAr }: { isAr: boolean }) {
+export function SystemHealthSidebar({ isAr: _isAr }: { isAr: boolean }) {
   const tAuto = useTranslations();
   const systemHealth = [
     { label: tAuto('auto.cPU'), value: 23, color: "bg-emerald-500" },

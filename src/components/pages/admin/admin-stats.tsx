@@ -11,7 +11,7 @@ interface AdminStatsProps {
   activeUsers: number;
 }
 
-export function AdminStats({ isAr, totalUsers, activeUsers }: AdminStatsProps) {
+export function AdminStats({ isAr: _isAr, totalUsers, activeUsers }: AdminStatsProps) {
   const tAuto = useTranslations();
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

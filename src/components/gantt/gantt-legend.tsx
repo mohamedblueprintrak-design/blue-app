@@ -6,7 +6,7 @@ interface GanttLegendProps {
   ar: boolean;
 }
 
-export function GanttLegend({ ar }: GanttLegendProps) {
+export function GanttLegend({ ar: _ar }: GanttLegendProps) {
   const tAuto = useTranslations();
   return (
     <div className="p-3 border-t border-slate-200 dark:border-slate-700/50 flex items-center gap-4 flex-wrap text-xs bg-slate-50 dark:bg-slate-800/30">

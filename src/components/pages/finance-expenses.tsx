@@ -162,7 +162,7 @@ export default function FinanceExpensesPage({ }: Props) {
       value,
       color: colors[i % colors.length],
     })).sort((a, b) => b.value - a.value);
-  }, [filtered, ar, tAuto]);
+  }, [filtered, tAuto]);
 
   // Expense by project
   const expenseByProject = useMemo(() => {

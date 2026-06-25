@@ -92,7 +92,7 @@ export function GuidedTour({ language }: GuidedTourProps) {
     }, 1500);
 
     return () => clearTimeout(timer);
-  }, [hasSeenTour, currentPage, user, isAr]);
+  }, [hasSeenTour, currentPage, user, isAr, tAuto]);
 
   return null;
 }

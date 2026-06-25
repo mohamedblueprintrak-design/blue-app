@@ -27,7 +27,7 @@ interface ChatSidebarProps {
 }
 
 export function ChatSidebar({
-  isAr,
+  isAr: _isAr,
   sidebarOpen,
   conversations,
   conversationId,

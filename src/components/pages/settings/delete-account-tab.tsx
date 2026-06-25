@@ -20,7 +20,7 @@ interface DeleteAccountTabProps {
   isAr: boolean;
 }
 
-export function DeleteAccountTab({ isAr }: DeleteAccountTabProps) {
+export function DeleteAccountTab({ isAr: _isAr }: DeleteAccountTabProps) {
   const tAuto = useTranslations();
   const [password, setPassword] = useState("");
   const [confirmText, setConfirmText] = useState("");

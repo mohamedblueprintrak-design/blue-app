@@ -395,7 +395,7 @@ function getRoomName(type: RoomType, id: string): string {
 // ============================================
 
 // Helper to post events to the standalone chat-service on port 3003
-async function postToChatService(body: Record<string, any>): Promise<void> {
+async function postToChatService(body: Record<string, unknown>): Promise<void> {
   const chatServiceUrl = process.env.CHAT_SERVICE_URL || 'http://localhost:3003';
   // SECURITY: INTERNAL_API_SECRET is required INDEPENDENTLY of JWT_SECRET.
   // If missing, broadcast is skipped (notifications won't reach real-time clients)

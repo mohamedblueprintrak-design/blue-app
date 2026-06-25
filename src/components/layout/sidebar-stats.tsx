@@ -40,7 +40,7 @@ export default function SidebarStats() {
   const unreadNotifs = 0;
 
   const lang = useLang();
-  const isAr = lang === "ar";
+  const _isAr = lang === "ar";
 
   const stats = [
     {

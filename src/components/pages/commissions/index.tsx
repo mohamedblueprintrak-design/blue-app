@@ -23,7 +23,7 @@ interface CommissionsPageProps {
 
 export default function CommissionsPage({ language }: CommissionsPageProps) {
   const tAuto = useTranslations();
-  const ar = language === "ar";
+  const _ar = language === "ar";
   const [activeTab, setActiveTab] = useState("commissions");
 
   // Shared fetches
@@ -166,7 +166,7 @@ function ReferralsTab({ language, users, projects }: { language: "ar" | "en"; us
 // ===== CAMPAIGNS TAB =====
 function CampaignsTab({ language }: { language: "ar" | "en" }) {
   const tAuto = useTranslations();
-  const ar = language === "ar";
+  const _ar = language === "ar";
   const queryClient = useQueryClient();
   const [showDialog, setShowDialog] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);

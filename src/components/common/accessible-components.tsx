@@ -99,7 +99,8 @@ export function SkipNavLink({
   children,
   className,
   contentId = 'skip-nav-content',
-  lang = 'ar',
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        lang = 'ar',
 }: {
   /** Link text (default: bilingual based on lang prop) */
   children?: React.ReactNode;

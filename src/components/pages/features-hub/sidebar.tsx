@@ -22,7 +22,7 @@ const ar = (lang?: 'ar' | 'en') => lang !== 'en'
 
 export function MobileHeader({ mobileSidebarOpen, setMobileSidebarOpen, language }: { mobileSidebarOpen: boolean; setMobileSidebarOpen: (open: boolean) => void; language?: 'ar' | 'en' }) {
   const tAuto = useTranslations();
-  const isAr = ar(language)
+  const _isAr = ar(language)
   return (
     <div className="lg:hidden sticky top-0 z-50 bg-white dark:bg-slate-900 border-b px-4 py-3 flex items-center justify-between">
       <div className="flex items-center gap-2">

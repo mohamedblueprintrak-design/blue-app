@@ -238,7 +238,7 @@ export default function InventoryPage({ language }: InventoryPageProps) {
       groups[loc].push(item);
     });
     return groups;
-  }, [filteredItems, ar, tAuto]);
+  }, [filteredItems, tAuto]);
 
   const hasMultipleLocations = Object.keys(groupedItems).length > 1;
 

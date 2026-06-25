@@ -14,7 +14,7 @@ interface BulkActionBarProps {
 }
 
 export function BulkActionBar({
-  ar,
+  ar: _ar,
   selectedCount,
   onClearSelection,
   onDeleteSelected,

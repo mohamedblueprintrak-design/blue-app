@@ -193,7 +193,7 @@ export default function LeavePage({ language }: LeavePageProps) {
     ANNUAL: { used: typeDistribution["ANNUAL"] || 0, total: 30, label: tAuto('auto.annual'), color: "text-blue-600 dark:text-blue-400", barColor: "bg-blue-500" },
     SICK: { used: typeDistribution["SICK"] || 0, total: 15, label: tAuto('auto.sick'), color: "text-amber-600 dark:text-amber-400", barColor: "bg-amber-500" },
     EMERGENCY: { used: typeDistribution["EMERGENCY"] || 0, total: 7, label: tAuto('auto.emergency'), color: "text-red-600 dark:text-red-400", barColor: "bg-red-500" },
-  }), [typeDistribution, ar, tAuto]);
+  }), [typeDistribution, tAuto]);
 
   // Calendar strip - next 14 days
   const calendarStrip = useMemo(() => {

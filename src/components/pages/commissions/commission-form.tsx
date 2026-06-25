@@ -204,7 +204,7 @@ interface CampaignFormProps {
 
 export function CampaignFormDialog({ language, open, onOpenChange, editId, onEditIdChange }: CampaignFormProps) {
   const tAuto = useTranslations();
-  const ar = language === "ar";
+  const _ar = language === "ar";
   const queryClient = useQueryClient();
   const emptyForm = { name: "", type: "SOCIAL_MEDIA", budget: "", startDate: "", endDate: "", notes: "" };
   const [formData, setFormData] = useState(emptyForm);

@@ -101,7 +101,7 @@ export function TaskForm({
       });
       return () => subscription.unsubscribe();
     }
-  }, [open, watch, setValue, toast, ar]);
+  }, [open, watch, setValue, toast, ar, tAuto]);
 
   // Create task mutation
   const createTaskMutation = useMutation({

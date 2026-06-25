@@ -438,7 +438,7 @@ interface TimesheetRejectDialogProps {
 }
 
 export function TimesheetRejectDialog({
-  ar,
+  ar: _ar,
   open,
   onOpenChange,
   rejectedReason,

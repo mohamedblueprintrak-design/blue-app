@@ -18,7 +18,7 @@ interface QuickOverviewProps {
   isAr: boolean;
 }
 
-export function QuickOverview({ stats, overdueTasksCount, invoices, upcomingTasks, isAr }: QuickOverviewProps) {
+export function QuickOverview({ stats, overdueTasksCount, invoices, upcomingTasks, isAr: _isAr }: QuickOverviewProps) {
   const tAuto = useTranslations();
   return (
     <div className="overflow-x-auto -mx-1 px-1 pb-1">

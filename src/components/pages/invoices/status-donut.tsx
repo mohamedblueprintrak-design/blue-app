@@ -14,7 +14,7 @@ interface StatusDonutProps {
 }
 
 export function StatusDonut({
-  ar,
+  ar: _ar,
   filteredCount,
   paidCount,
   pendingCount,

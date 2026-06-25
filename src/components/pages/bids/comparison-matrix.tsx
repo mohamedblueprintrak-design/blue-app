@@ -58,7 +58,7 @@ export function ComparisonMatrix({
       [tAuto('auto.fin')]: b.financialScore,
       [tAuto('auto.total')]: Math.round(b.totalScore),
     }));
-  }, [sorted, ar, tAuto]);
+  }, [sorted, tAuto]);
 
   return (
     <div className="space-y-4">

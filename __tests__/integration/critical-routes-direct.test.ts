@@ -14,7 +14,7 @@
  * critical-routes.test.ts which uses fetch() against a live server.
  */
 
-import { describe, it, expect, beforeAll } from '@jest/globals';
+import { describe, it, expect } from '@jest/globals';
 import { NextRequest } from 'next/server';
 
 // Direct handler imports — these run without a server

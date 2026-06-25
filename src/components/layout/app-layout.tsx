@@ -50,8 +50,8 @@ interface AppLayoutProps {
 export default function AppLayout({ language, children }: AppLayoutProps) {
   const { setRouter } = useNavStore();
   const locale = useLocale();
-  const t = useTranslations("layout");
-  const isAr = locale === "ar";
+  const _t = useTranslations("layout");
+  const _isAr = locale === "ar";
 
   const router = useRouter();
   const pathname = usePathname();

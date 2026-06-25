@@ -38,7 +38,7 @@ interface GanttTimelineProps {
 }
 
 export function GanttTimeline({
-  ar,
+  ar: _ar,
   timelineHeaders,
   monthLabels,
   todayPosition,
