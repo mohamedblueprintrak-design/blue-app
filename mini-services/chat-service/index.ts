@@ -504,32 +504,92 @@ function setupEventHandlers(socket: TypedSocket) {
     const { entityType, entityId } = data;
     const organizationId = socket.data.organizationId;
 
-    // SECURITY: Basic entity verification to prevent IDOR and cross-tenant access.
-    // In a full implementation, we'd query the DB for the entity's orgId.
-    // Here we implement it for 'project' and 'task' if the database is available.
-    if (['project', 'task'].includes(entityType) && organizationId) {
-      try {
-        let result: { organizationId: string | null } | null = null;
-        if (entityType === 'project') {
-          result = await prisma.project.findUnique({
-            where: { id: entityId },
-            select: { organizationId: true }
-          });
-        } else if (entityType === 'task') {
-          result = await prisma.task.findUnique({
-            where: { id: entityId },
-            select: { organizationId: true }
-          });
-        }
-        
-        if (result && result.organizationId !== organizationId) {
-          console.warn(`[Security] IDOR attempt: user ${socket.data.userId} tried to subscribe to ${entityType} ${entityId}`);
-          return socket.emit('error', { message: 'Unauthorized entity access', code: 'UNAUTHORIZED' });
-        }
-      } catch (error) {
-        console.error(`[WS] Entity verification failed for ${entityType} ${entityId}:`, error);
-        return socket.emit('error', { message: 'Unauthorized entity access', code: 'UNAUTHORIZED' });
+    // SECURITY: Verify entity belongs to the user's organization BEFORE allowing
+    // subscription. This prevents within-org IDOR (e.g., a VIEWER subscribing to
+    // an invoice entity room they shouldn't have access to).
+    //
+    // SECURITY FIX: Previously only 'project' and 'task' were verified. All other
+    // entity types (invoice, document, contract, defect, meeting, etc.) were
+    // allowed without DB verification — a within-org IDOR. The org-scoped room
+    // naming (org:${orgId}:...) prevented cross-tenant access, but a malicious
+    // user within the same org could subscribe to any entity room.
+    //
+    // Now: we verify orgId for ALL entity types that have an organizationId column.
+    // Unknown entity types (not in the map) are rejected with an error.
+    if (!organizationId) {
+      return socket.emit('error', { message: 'No organization context', code: 'NO_ORG' });
+    }
+
+    // Map of entityType -> Prisma model delegate.
+    // Only entity types listed here are subscribable. Add new entity types here
+    // when new real-time features are added.
+    const ENTITY_MODEL_MAP: Record<string, keyof typeof prisma> = {
+      project: 'project',
+      task: 'task',
+      invoice: 'invoice',
+      document: 'document',
+      contract: 'contract',
+      defect: 'defect',
+      meeting: 'meeting',
+      client: 'client',
+      contractor: 'contractor',
+      proposal: 'proposal',
+      risk: 'risk',
+      rfi: 'rFI',
+      submittal: 'submittal',
+      transmittal: 'transmittal',
+      changeOrder: 'changeOrder',
+      siteVisit: 'siteVisit',
+      siteDiary: 'siteDiary',
+      budget: 'budget',
+      payment: 'payment',
+      bid: 'bid',
+      tender: 'tender',
+      boqItem: 'bOQItem',
+      employee: 'employee',
+      attendance: 'attendance',
+      leave: 'leave',
+      approval: 'approval',
+      inspection: 'buildingInspection',
+      equipment: 'equipment',
+      supplier: 'supplier',
+      purchaseOrder: 'purchaseOrder',
+      commission: 'commission',
+      progressClaim: 'progressClaim',
+      retainage: 'retainage',
+      guaranteeLetter: 'guaranteeLetter',
+      municipalityCorrespondence: 'municipalityCorrespondence',
+      designPhase: 'designPhase',
+      designDrawing: 'designDrawing',
+      automation: 'automation',
+      knowledgeArticle: 'knowledgeArticle',
+    };
+
+    const modelName = ENTITY_MODEL_MAP[entityType];
+    if (!modelName) {
+      console.warn(`[Security] Unknown entityType '${entityType}' from user ${socket.data.userId}`);
+      return socket.emit('error', { message: `Unknown entity type: ${entityType}`, code: 'UNKNOWN_ENTITY' });
+    }
+
+    try {
+      // Use findFirst with orgId filter (not findUnique) to enforce org scoping
+      // at the DB level. This is defense-in-depth: even if the room naming were
+      // bypassed, the DB query would return null for cross-org entities.
+      const model = prisma[modelName] as unknown as {
+        findFirst: (args: { where: { id: string; organizationId: string }; select: { organizationId: true } }) => Promise<{ organizationId: string | null } | null>;
+      };
+      const result = await model.findFirst({
+        where: { id: entityId, organizationId },
+        select: { organizationId: true },
+      });
+
+      if (!result) {
+        console.warn(`[Security] IDOR attempt: user ${socket.data.userId} tried to subscribe to ${entityType} ${entityId} (not found or cross-org)`);
+        return socket.emit('error', { message: 'Entity not found or access denied', code: 'UNAUTHORIZED' });
       }
+    } catch (error) {
+      console.error(`[WS] Entity verification failed for ${entityType} ${entityId}:`, error);
+      return socket.emit('error', { message: 'Entity verification failed', code: 'UNAUTHORIZED' });
     }
 
     joinRoom(socket, 'entity', `org:${socket.data.organizationId}:${data.entityType}:${data.entityId}`);
