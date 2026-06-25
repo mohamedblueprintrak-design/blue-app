@@ -90,13 +90,13 @@ export function detectMimeType(buffer: Buffer): string | null {
  *
  * @param buffer - The file content (at least the first 512 bytes; full buffer is fine)
  * @param claimedMime - The MIME type claimed by the client (Content-Type header or file.type)
- * @param claimedExtension - The file extension (e.g. '.jpg', 'pdf')
+ * @param _claimedExtension - The file extension (e.g. '.jpg', 'pdf') — reserved for future use
  * @returns null if the file is safe, or an error message string if verification fails
  */
 export function verifyFileContent(
   buffer: Buffer,
   claimedMime: string,
-  claimedExtension: string
+  __claimedExtension: string
 ): string | null {
   const detected = detectMimeType(buffer);
 
