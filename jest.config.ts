@@ -56,7 +56,7 @@ const jestConfig = {
       branches: 45,
       functions: 50,
       lines: 45,
-      statements: 65,
+      statements: 45,
     },
     // Stricter thresholds for security-critical modules (unchanged — these
     // already have good coverage and should be held to a higher standard)

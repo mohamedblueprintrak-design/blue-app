@@ -32,7 +32,7 @@ test.describe.serial('Approvals Workflow & Multi-tenant Isolation', () => {
   // Helper: wait for auth store to initialize
   async function waitForAuth() {
     const emailInput = sharedPage.locator('input[type="email"], input[name="email"]').first();
-    const mainLayout = sharedPage.locator('main[role="main"]').first();
+    const mainLayout = sharedPage.locator('main').first();
 
     await expect.poll(async () => {
       const emailVisible = await emailInput.isVisible().catch(() => false);
@@ -64,7 +64,7 @@ test.describe.serial('Approvals Workflow & Multi-tenant Isolation', () => {
     await submitButton.click();
 
     await sharedPage.waitForURL('**/dashboard', { timeout: 30000 });
-    await expect(sharedPage.locator('main[role="main"]').first()).toBeVisible({ timeout: 15000 });
+    await expect(sharedPage.locator('main').first()).toBeVisible({ timeout: 15000 });
   }
 
   // ─────────────────────────────────────────────────────────────────────────
