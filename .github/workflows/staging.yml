@@ -146,7 +146,18 @@ jobs:
             set -euo pipefail
             echo "Deploying to staging..."
             cd /opt/blueprint-staging || exit 1
-            docker compose pull app
+
+            # SECURITY FIX: Same fix as deploy.yml (#29).
+            # 'docker compose pull app' is a no-op when the app service uses
+            # 'build:' (no 'image:' key). Pull ALL images instead, then
+            # rebuild app from source if needed.
+            docker compose pull || true
+            docker compose build app
+
+            # Run database migrations using npx (not bunx — the runner image
+            # only has node, not bun).
+            docker compose run --rm app npx prisma migrate deploy
+
             docker compose up -d --remove-orphans
             echo "Staging deployment completed!"
 
