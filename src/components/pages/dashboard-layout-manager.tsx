@@ -219,7 +219,7 @@ function SortableWidgetItem({
   children: React.ReactNode;
 }) {
   const tAuto = useTranslations();
-  const ar = typeof window !== 'undefined' && localStorage.getItem('blueprint-lang') === 'en' ? false : true;
+  const _ar = typeof window !== 'undefined' && localStorage.getItem('blueprint-lang') === 'en' ? false : true;
   const {
     attributes,
     listeners,
@@ -508,7 +508,7 @@ function CustomizeBar({
   onToggle,
   onReset,
   hiddenCount,
-  isAr,
+  isAr: _isAr,
 }: {
   isCustomizing: boolean;
   onToggle: () => void;

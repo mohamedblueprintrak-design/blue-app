@@ -16,7 +16,7 @@ interface EmployeeStatsProps {
   ar: boolean;
 }
 
-export function EmployeeStats({ employees, ar }: EmployeeStatsProps) {
+export function EmployeeStats({ employees, ar: _ar }: EmployeeStatsProps) {
   const tAuto = useTranslations();
   const stats = useMemo(() => ({
     total: employees.length,

@@ -7,12 +7,12 @@ const dummyWorkbook = new ExcelJS.Workbook();
 const dummyWorksheet = dummyWorkbook.addWorksheet('dummy');
 const WorksheetPrototype = Object.getPrototypeOf(dummyWorksheet);
 const originalAddRow = WorksheetPrototype.addRow;
-WorksheetPrototype.addRow = function(this: any, values: any, ...args: any[]) {
-  const sanitizeValue = (val: any) => {
+WorksheetPrototype.addRow = function(this: unknown, values: unknown, ...args: unknown[]) {
+  const sanitizeValue = (val: unknown): unknown => {
     if (typeof val === 'string') {
       // If the string starts with =, +, -, or @, prepend a single quote (')
       // to force Excel/LibreOffice to treat it as raw text rather than a formula.
-      if (/^[=\+\-@\t\r]/.test(val)) {
+      if (/^[=+\-@\t\r]/.test(val)) {
         return `'${val}`;
       }
     }
@@ -22,9 +22,9 @@ WorksheetPrototype.addRow = function(this: any, values: any, ...args: any[]) {
   if (Array.isArray(values)) {
     return originalAddRow.call(this, values.map(sanitizeValue), ...args);
   } else if (values && typeof values === 'object') {
-    const sanitizedObj: Record<string, any> = {};
+    const sanitizedObj: Record<string, unknown> = {};
     for (const key of Object.keys(values)) {
-      sanitizedObj[key] = sanitizeValue((values as any)[key]);
+      sanitizedObj[key] = sanitizeValue((values as Record<string, unknown>)[key]);
     }
     return originalAddRow.call(this, sanitizedObj, ...args);
   }

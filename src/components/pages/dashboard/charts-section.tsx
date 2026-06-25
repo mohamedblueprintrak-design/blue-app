@@ -45,7 +45,7 @@ interface ChartsSectionProps {
   language: "ar" | "en";
 }
 
-export function ChartsSection({ projectStatusData, taskTrendData, stats, isAr, language: _language }: ChartsSectionProps) {
+export function ChartsSection({ projectStatusData, taskTrendData, stats, isAr: _isAr, language: _language }: ChartsSectionProps) {
   const tAuto = useTranslations();
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

@@ -11,7 +11,7 @@ interface ProjectCountBarProps {
 }
 
 export function ProjectCountBar({
-  isAr,
+  isAr: _isAr,
   t,
   allProjectsCount,
   selectedIdsSize,

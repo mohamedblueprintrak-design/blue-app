@@ -112,7 +112,7 @@ function getAvailabilityConfig(status: "AVAILABLE" | "occupied" | "overloaded", 
 }
 
 // ===== Task Distribution Bar =====
-function TaskDistributionBar({ stats, ar }: { stats: WorkloadEmployee["taskStats"]; ar: boolean }) {
+function TaskDistributionBar({ stats, ar: _ar }: { stats: WorkloadEmployee["taskStats"]; ar: boolean }) {
   const tAuto = useTranslations();
   const total = stats.total || 1;
   const segments = [

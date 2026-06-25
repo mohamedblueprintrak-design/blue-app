@@ -61,7 +61,7 @@ function SimpleTooltip({ active, payload, label }: { active?: boolean; payload?:
 }
 
 // ===== Report Type Card =====
-function ReportTypeCard({ icon: Icon, title, description, count, color, active, onClick, ar }: {
+function ReportTypeCard({ icon: Icon, title, description, count, color, active, onClick, ar: _ar }: {
   icon: typeof BarChart3; title: string; description: string; count: number; color: string; active: boolean; onClick: () => void; ar: boolean;
 }) {
   const tAuto = useTranslations();

@@ -35,7 +35,7 @@ export default function WelcomeNotification() {
     }, 800);
 
     return () => clearTimeout(timer);
-  }, [isAr, toast]);
+  }, [isAr, toast, tAuto]);
 
   // This component doesn't render any visible UI itself
   // It triggers the toast as a side effect

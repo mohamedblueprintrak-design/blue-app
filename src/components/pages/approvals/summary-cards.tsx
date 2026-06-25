@@ -13,7 +13,7 @@ interface SummaryCardsProps {
   rejectedCount: number;
 }
 
-export function SummaryCards({ ar, totalCount, pendingCount, approvedThisMonthCount, rejectedCount }: SummaryCardsProps) {
+export function SummaryCards({ ar: _ar, totalCount, pendingCount, approvedThisMonthCount, rejectedCount }: SummaryCardsProps) {
   const tAuto = useTranslations();
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">

@@ -12,7 +12,7 @@ interface GanttSummaryCardsProps {
 }
 
 export function GanttSummaryCards({
-  ar,
+  ar: _ar,
   totalTasks,
   activeTasks,
   completedTasks,

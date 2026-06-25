@@ -15,7 +15,7 @@ interface SummaryCardsProps {
   winRate: string;
 }
 
-export function SummaryCards({ ar, totalBids, wonCount, lostCount, winRate }: SummaryCardsProps) {
+export function SummaryCards({ ar: _ar, totalBids, wonCount, lostCount, winRate }: SummaryCardsProps) {
   const tAuto = useTranslations();
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">

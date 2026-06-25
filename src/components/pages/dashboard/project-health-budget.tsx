@@ -34,7 +34,7 @@ interface ProjectHealthBudgetProps {
 
 export function ProjectHealthBudget({ budgetOverviewData, language }: ProjectHealthBudgetProps) {
   const tAuto = useTranslations();
-  const isAr = language === "ar";
+  const _isAr = language === "ar";
 
   return (
     <>

@@ -21,7 +21,7 @@ export function CommissionFilters({
   language, search, onSearchChange, filterStatus, onFilterStatusChange, onNew,
 }: CommissionFiltersProps) {
   const tAuto = useTranslations();
-  const ar = language === "ar";
+  const _ar = language === "ar";
   return (
     <div className="flex items-center gap-2">
       <div className="relative flex-1">
@@ -59,7 +59,7 @@ export function ReferralFilters({
   language, search, onSearchChange, filterStatus, onFilterStatusChange, onNew,
 }: ReferralFiltersProps) {
   const tAuto = useTranslations();
-  const ar = language === "ar";
+  const _ar = language === "ar";
   return (
     <div className="flex items-center gap-2">
       <div className="relative flex-1">

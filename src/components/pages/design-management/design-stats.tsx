@@ -15,7 +15,7 @@ interface DesignStatsProps {
 
 export function DesignStats({ language, totalDrawings, reviewedCount, needsRevisionCount, clashCount }: DesignStatsProps) {
   const tAuto = useTranslations();
-  const ar = language === "ar";
+  const _ar = language === "ar";
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">

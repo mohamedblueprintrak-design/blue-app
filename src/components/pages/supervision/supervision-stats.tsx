@@ -20,7 +20,7 @@ interface SupervisionStatsProps {
 }
 
 export function SupervisionStats({
-  ar,
+  ar: _ar,
   totalVisits,
   openViolations,
   resolvedViolations,

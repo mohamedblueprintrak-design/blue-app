@@ -23,7 +23,7 @@ import { emptyForm } from "./types";
 
 // ===== Full-Page Create Form =====
 function ContractorCreateForm({
-  ar,
+  ar: _ar,
   formData,
   setFormData,
   saveMutation,

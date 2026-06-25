@@ -38,7 +38,7 @@ export function TenderForm({
   open,
   editTender,
   formData,
-  isAr,
+  isAr: _isAr,
   isPending,
   onFormDataChange,
   onSave,

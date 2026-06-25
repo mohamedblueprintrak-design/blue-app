@@ -11,7 +11,7 @@ interface TimesheetStatsProps {
   summary: Summary;
 }
 
-export function TimesheetStats({ ar, summary }: TimesheetStatsProps) {
+export function TimesheetStats({ ar: _ar, summary }: TimesheetStatsProps) {
   const tAuto = useTranslations();
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">

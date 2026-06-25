@@ -279,7 +279,7 @@ function ProjectPopup({
 }
 
 // ===== Empty Map State =====
-function EmptyMapState({ isAr }: { isAr: boolean }) {
+function EmptyMapState({ isAr: _isAr }: { isAr: boolean }) {
   const tAuto = useTranslations();
   return (
     <div className="absolute inset-0 flex items-center justify-center bg-slate-50/80 dark:bg-slate-900/80 z-[500]">

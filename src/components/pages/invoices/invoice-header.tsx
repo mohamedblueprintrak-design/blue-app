@@ -24,7 +24,7 @@ interface InvoiceHeaderProps {
 }
 
 export function InvoiceHeader({
-  ar,
+  ar: _ar,
   search,
   onSearchChange,
   filterStatus,

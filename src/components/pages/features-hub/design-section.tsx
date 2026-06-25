@@ -11,7 +11,7 @@ interface DesignSectionProps {
   language: 'ar' | 'en'
 }
 
-export default function DesignSection({ language }: DesignSectionProps) {
+export default function DesignSection({ language: _language }: DesignSectionProps) {
   const tAuto = useTranslations();
   return (
     <div className="space-y-4">

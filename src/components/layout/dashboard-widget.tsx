@@ -46,7 +46,7 @@ export function DashboardWidget({
 }: DashboardWidgetProps) {
   const tAuto = useTranslations();
   const lang = useLang();
-  const ar = lang === "ar";
+  const _ar = lang === "ar";
   const {
     attributes,
     listeners,

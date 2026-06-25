@@ -36,7 +36,7 @@ interface ContractorEditDialogProps {
 }
 
 export function ContractorEditDialog({
-  ar,
+  ar: _ar,
   open,
   onOpenChange,
   isEditing,
