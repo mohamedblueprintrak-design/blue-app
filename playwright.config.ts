@@ -36,10 +36,14 @@ export default defineConfig({
     ] : []),
   ],
   webServer: {
-    command: 'npm run start',
+    // Build first, then start. Without the build step, 'npm run start' fails
+    // with "Could not find a production build in the '.next' directory".
+    // In CI, each job runs in a fresh runner, so the build from the "Build Test"
+    // stage is not available — we must build here.
+    command: process.env.CI ? 'npm run build && npm run start' : 'npm run dev',
     url: 'http://localhost:3000',
-    reuseExistingServer: true,
-    timeout: 120000,
+    reuseExistingServer: !process.env.CI,
+    timeout: 300000, // 5 min for build + start
     env: {
       PLAYWRIGHT_TEST: 'true',
       DEMO_MODE: 'false',

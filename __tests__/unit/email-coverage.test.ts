@@ -255,26 +255,32 @@ describe('Email — testEmailConnection', () => {
 // ═══════════════════════════════════════════════════════════════════════
 
 describe('Email — sendEmailWithRetry', () => {
-  it('should return a queue item ID', () => {
-    const id = sendEmailWithRetry({
+  it('should return a queue item ID', async () => {
+    const id = await sendEmailWithRetry({
       to: 'test@example.com',
       subject: 'Retry Test',
       html: '<p>Test</p>',
     });
     expect(typeof id).toBe('string');
-    expect(id).toMatch(/^email_/);
+    // ID format: 'email_...' for in-memory queue, or 'bullmq_...' for BullMQ
+    expect(id).toMatch(/^(email_|bullmq_)/);
   });
 
-  it('should track status of queued email', () => {
-    const id = sendEmailWithRetry({
+  it('should track status of queued email', async () => {
+    const id = await sendEmailWithRetry({
       to: 'test@example.com',
       subject: 'Status Test',
       html: '<p>Test</p>',
     });
-    const status = emailQueue.getStatus(id);
-    expect(status).toBeDefined();
-    expect(status!.id).toBe(id);
-    expect(['pending', 'sending', 'sent', 'simulated']).toContain(status!.status);
+    // For in-memory queue, getStatus works. For BullMQ, status tracking is
+    // via the job API (not emailQueue.getStatus). Since tests run without
+    // REDIS_URL, the in-memory fallback is used.
+    if (id.startsWith('email_')) {
+      const status = emailQueue.getStatus(id);
+      expect(status).toBeDefined();
+      expect(status!.id).toBe(id);
+      expect(['pending', 'sending', 'sent', 'simulated']).toContain(status!.status);
+    }
   });
 
   it('should provide queue stats', () => {

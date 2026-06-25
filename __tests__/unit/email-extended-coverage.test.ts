@@ -299,10 +299,12 @@ describe('Email — EmailQueue additional branches', () => {
 
   it('should track multiple queued emails', async () => {
     const { sendEmailWithRetry, emailQueue } = await import('@/lib/email');
-    const _id1 = sendEmailWithRetry({ to: 'test1@test.com', subject: 'Test 1', html: '<p>1</p>' });
-    const _id2 = sendEmailWithRetry({ to: 'test2@test.com', subject: 'Test 2', html: '<p>2</p>' });
+    const _id1 = await sendEmailWithRetry({ to: 'test1@test.com', subject: 'Test 1', html: '<p>1</p>' });
+    const _id2 = await sendEmailWithRetry({ to: 'test2@test.com', subject: 'Test 2', html: '<p>2</p>' });
     
     const stats = emailQueue.getStats();
+    // sendEmailWithRetry uses BullMQ if REDIS_URL is set, otherwise in-memory.
+    // In tests without REDIS_URL, the in-memory fallback is used.
     expect(stats.total).toBeGreaterThanOrEqual(2);
   });
 });

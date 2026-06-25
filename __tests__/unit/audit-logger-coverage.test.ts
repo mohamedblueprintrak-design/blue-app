@@ -41,7 +41,7 @@ describe('AuditLogger — flush branches', () => {
     
     const mockCreateMany = jest.fn<Promise<{ count: number }>>().mockResolvedValue({ count: 1 });
     const mockPrisma = {
-      activity: { createMany: mockCreateMany },
+      activityLog: { createMany: mockCreateMany },
     };
     logger.setPrismaClient(mockPrisma);
     
@@ -57,7 +57,7 @@ describe('AuditLogger — flush branches', () => {
     
     const mockCreateMany = jest.fn<Promise<{ count: number }>>().mockResolvedValue({ count: 1 });
     const mockPrisma = {
-      auditLog: { createMany: mockCreateMany },
+      activityLog: { createMany: mockCreateMany },
       // No activity model
     };
     logger.setPrismaClient(mockPrisma);
@@ -85,7 +85,7 @@ describe('AuditLogger — flush branches', () => {
     
     const mockCreateMany = jest.fn().mockRejectedValue(new Error('DB connection lost'));
     const mockPrisma = {
-      activity: { createMany: mockCreateMany },
+      activityLog: { createMany: mockCreateMany },
     };
     logger.setPrismaClient(mockPrisma);
     
@@ -101,7 +101,7 @@ describe('AuditLogger — flush branches', () => {
     
     const mockCreateMany = jest.fn().mockRejectedValue(new Error('DB error'));
     const mockPrisma = {
-      activity: { createMany: mockCreateMany },
+      activityLog: { createMany: mockCreateMany },
     };
     logger.setPrismaClient(mockPrisma);
     
@@ -135,7 +135,7 @@ describe('AuditLogger — flush branches', () => {
     
     const mockCreateMany = jest.fn<Promise<{ count: number }>>().mockResolvedValue({ count: 2 });
     const mockPrisma = {
-      activity: { createMany: mockCreateMany },
+      activityLog: { createMany: mockCreateMany },
     };
     logger.setPrismaClient(mockPrisma);
     
@@ -170,7 +170,7 @@ describe('AuditLogger — persistToDatabase detail branches', () => {
     
     const mockCreateMany = jest.fn<Promise<{ count: number }>>().mockResolvedValue({ count: 1 });
     const mockPrisma = {
-      activity: { createMany: mockCreateMany },
+      activityLog: { createMany: mockCreateMany },
     };
     logger.setPrismaClient(mockPrisma);
     
@@ -190,7 +190,7 @@ describe('AuditLogger — persistToDatabase detail branches', () => {
     
     const mockCreateMany = jest.fn<Promise<{ count: number }>>().mockResolvedValue({ count: 1 });
     const mockPrisma = {
-      activity: { createMany: mockCreateMany },
+      activityLog: { createMany: mockCreateMany },
     };
     logger.setPrismaClient(mockPrisma);
     
@@ -201,7 +201,8 @@ describe('AuditLogger — persistToDatabase detail branches', () => {
     const createCall = mockCreateMany.mock.calls[0][0];
     const entry = createCall.data[0];
     expect(entry.details).toBe('test.action_no_desc'); // Falls back to action
-    expect(entry.organizationId).toBeNull();
+    // organizationId defaults to '__DENIED__' sentinel when null (not null)
+    expect(entry.organizationId).toBe('__DENIED__');
     expect(entry.projectId).toBeNull();
   });
 
@@ -210,7 +211,7 @@ describe('AuditLogger — persistToDatabase detail branches', () => {
     
     const mockCreateMany = jest.fn<Promise<{ count: number }>>().mockResolvedValue({ count: 1 });
     const mockPrisma = {
-      activity: { createMany: mockCreateMany },
+      activityLog: { createMany: mockCreateMany },
     };
     logger.setPrismaClient(mockPrisma);
     
@@ -229,12 +230,15 @@ describe('AuditLogger — persistToDatabase detail branches', () => {
     const createCall = mockCreateMany.mock.calls[0][0];
     const entry = createCall.data[0];
     expect(entry.userId).toBe('user-1');
-    expect(entry.ip).toBe('1.2.3.4');
-    expect(entry.userAgent).toBe('Mozilla/5.0');
-    expect(entry.path).toBe('/api/test');
-    expect(entry.method).toBe('POST');
-    expect(entry.resource).toBe('res-1');
-    expect(entry.requestId).toBe('req-1');
+    // Rich audit fields (ip, userAgent, path, method, resource, requestId) are
+    // stored in the metadata JSON under _audit namespace (not as top-level columns).
+    const metadata = JSON.parse(entry.metadata);
+    expect(metadata._audit.ip).toBe('1.2.3.4');
+    expect(metadata._audit.userAgent).toBe('Mozilla/5.0');
+    expect(metadata._audit.path).toBe('/api/test');
+    expect(metadata._audit.method).toBe('POST');
+    expect(metadata._audit.resource).toBe('res-1');
+    expect(metadata._audit.requestId).toBe('req-1');
   });
 });
 
@@ -266,7 +270,7 @@ describe('AuditLogger — query filter branches', () => {
   it('should query with all filter options', async () => {
     const mockFindMany = jest.fn<Promise<unknown[]>>().mockResolvedValue([]);
     const mockPrisma = {
-      activity: { findMany: mockFindMany },
+      activityLog: { findMany: mockFindMany },
     };
     logger.setPrismaClient(mockPrisma);
     
@@ -301,7 +305,7 @@ describe('AuditLogger — query filter branches', () => {
   it('should query with only startDate', async () => {
     const mockFindMany = jest.fn<Promise<unknown[]>>().mockResolvedValue([]);
     const mockPrisma = {
-      activity: { findMany: mockFindMany },
+      activityLog: { findMany: mockFindMany },
     };
     logger.setPrismaClient(mockPrisma);
     
@@ -318,7 +322,7 @@ describe('AuditLogger — query filter branches', () => {
   it('should query with only endDate', async () => {
     const mockFindMany = jest.fn<Promise<unknown[]>>().mockResolvedValue([]);
     const mockPrisma = {
-      activity: { findMany: mockFindMany },
+      activityLog: { findMany: mockFindMany },
     };
     logger.setPrismaClient(mockPrisma);
     
@@ -334,7 +338,7 @@ describe('AuditLogger — query filter branches', () => {
   it('should use default limit and offset', async () => {
     const mockFindMany = jest.fn<Promise<unknown[]>>().mockResolvedValue([]);
     const mockPrisma = {
-      activity: { findMany: mockFindMany },
+      activityLog: { findMany: mockFindMany },
     };
     logger.setPrismaClient(mockPrisma);
     
@@ -422,7 +426,7 @@ describe('AuditLogger — minimum level filtering', () => {
   it('should skip INFO when minimum is WARNING', () => {
     const mockCreateMany = jest.fn<Promise<{ count: number }>>().mockResolvedValue({ count: 0 });
     logger = new AuditLogger({ minLevel: 'WARNING', console: false, persist: true, flushInterval: 60000 });
-    logger.setPrismaClient({ activity: { createMany: mockCreateMany } });
+    logger.setPrismaClient({ activityLog: { createMany: mockCreateMany } });
     
     logger.info('test.info');
     logger.warning('test.warning');
@@ -434,7 +438,8 @@ describe('AuditLogger — minimum level filtering', () => {
       expect(mockCreateMany).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.arrayContaining([
-            expect.objectContaining({ level: 'WARNING' }),
+            // level is now stored in metadata JSON under _audit namespace
+            expect.objectContaining({ metadata: expect.stringContaining('"level":"WARNING"') }),
           ]),
         })
       );
@@ -444,7 +449,7 @@ describe('AuditLogger — minimum level filtering', () => {
   it('should skip WARNING when minimum is ERROR', () => {
     const mockCreateMany = jest.fn<Promise<{ count: number }>>().mockResolvedValue({ count: 0 });
     logger = new AuditLogger({ minLevel: 'ERROR', console: false, persist: true, flushInterval: 60000 });
-    logger.setPrismaClient({ activity: { createMany: mockCreateMany } });
+    logger.setPrismaClient({ activityLog: { createMany: mockCreateMany } });
     
     logger.info('test.info');
     logger.warning('test.warning');
@@ -454,7 +459,7 @@ describe('AuditLogger — minimum level filtering', () => {
       expect(mockCreateMany).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.arrayContaining([
-            expect.objectContaining({ level: 'ERROR' }),
+            expect.objectContaining({ metadata: expect.stringContaining('"level":"ERROR"') }),
           ]),
         })
       );
@@ -464,7 +469,7 @@ describe('AuditLogger — minimum level filtering', () => {
   it('should only allow CRITICAL when minimum is CRITICAL', () => {
     const mockCreateMany = jest.fn<Promise<{ count: number }>>().mockResolvedValue({ count: 0 });
     logger = new AuditLogger({ minLevel: 'CRITICAL', console: false, persist: true, flushInterval: 60000 });
-    logger.setPrismaClient({ activity: { createMany: mockCreateMany } });
+    logger.setPrismaClient({ activityLog: { createMany: mockCreateMany } });
     
     logger.info('test.info');
     logger.warning('test.warning');
@@ -475,7 +480,7 @@ describe('AuditLogger — minimum level filtering', () => {
       expect(mockCreateMany).toHaveBeenCalledWith(
         expect.objectContaining({
           data: [
-            expect.objectContaining({ level: 'CRITICAL' }),
+            expect.objectContaining({ metadata: expect.stringContaining('"level":"CRITICAL"') }),
           ],
         })
       );
