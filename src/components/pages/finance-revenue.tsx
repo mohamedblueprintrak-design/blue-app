@@ -464,7 +464,7 @@ export default function FinanceRevenuePage({ }: Props) {
           {/* Quick Total */}
           <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100 dark:border-slate-800">
             <span className="text-xs text-slate-500 dark:text-slate-400">{tAuto('auto.totalShown')}</span>
-            <span className="text-sm font-bold font-mono tabular-nums text-slate-900 dark:text-white">{formatCurrency(filtered.reduce((s, i) => s + i.total, 0), ar)}</span>
+            <span className="text-sm font-bold font-mono tabular-nums text-slate-900 dark:text-white">{formatCurrency(filtered.reduce((s, i) => s + Number(i.total), 0), ar)}</span>
           </div>
         </CardContent>
       </Card>

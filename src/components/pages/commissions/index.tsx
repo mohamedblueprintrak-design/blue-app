@@ -197,7 +197,7 @@ function CampaignsTab({ language }: { language: "ar" | "en" }) {
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["marketing-campaigns"] }); },
   });
 
-  const totalBudget = campaigns.reduce((s, c) => s + c.budget, 0);
+  const totalBudget = campaigns.reduce((s, c) => s + Number(c.budget), 0);
   const totalLeads = campaigns.reduce((s, c) => s + c.leads, 0);
   const totalConversions = campaigns.reduce((s, c) => s + c.conversions, 0);
 

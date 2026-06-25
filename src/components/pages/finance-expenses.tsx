@@ -125,9 +125,9 @@ export default function FinanceExpensesPage({ }: Props) {
 
   // Summary calculations
   const now = new Date();
-  const totalExpenses = filtered.reduce((s, p) => s + p.amount, 0);
-  const completedExpenses = filtered.filter((p) => p.status === "COMPLETED").reduce((s, p) => s + p.amount, 0);
-  const pendingExpenses = filtered.filter((p) => p.status === "PENDING" || p.status === "APPROVED").reduce((s, p) => s + p.amount, 0);
+  const totalExpenses = filtered.reduce((s, p) => s + Number(p.amount), 0);
+  const completedExpenses = filtered.filter((p) => p.status === "COMPLETED").reduce((s, p) => s + Number(p.amount), 0);
+  const pendingExpenses = filtered.filter((p) => p.status === "PENDING" || p.status === "APPROVED").reduce((s, p) => s + Number(p.amount), 0);
 
   const thisMonthPayments = filtered.filter((p) => {
     const d = new Date(p.createdAt);
@@ -138,8 +138,8 @@ export default function FinanceExpensesPage({ }: Props) {
     const lm = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     return d.getMonth() === lm.getMonth() && d.getFullYear() === lm.getFullYear() && p.status === "COMPLETED";
   });
-  const thisMonthTotal = thisMonthPayments.reduce((s, p) => s + p.amount, 0);
-  const lastMonthTotal = lastMonthPayments.reduce((s, p) => s + p.amount, 0);
+  const thisMonthTotal = thisMonthPayments.reduce((s, p) => s + Number(p.amount), 0);
+  const lastMonthTotal = lastMonthPayments.reduce((s, p) => s + Number(p.amount), 0);
   const expenseGrowth = lastMonthTotal > 0 ? ((thisMonthTotal - lastMonthTotal) / lastMonthTotal) * 100 : 0;
 
   // Category-based expense distribution
