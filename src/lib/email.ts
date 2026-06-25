@@ -399,9 +399,41 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
  * Enqueue an email for sending with automatic retry on failure.
  * Uses exponential backoff (1s, 2s, 4s) up to MAX_RETRIES (3) attempts.
  *
- * Returns the queue item ID for status tracking.
+ * SECURITY/RELIABILITY FIX: Previously this used an in-memory Map queue only.
+ * On multi-instance deployments (Docker Swarm, k8s), emails were processed
+ * only by the instance that enqueued them — and if that instance crashed,
+ * all pending emails were lost. Now uses BullMQ (Redis-backed) for durability,
+ * with fallback to the in-memory queue if Redis is unavailable (dev mode).
+ *
+ * Returns the queue item ID (BullMQ job ID or in-memory ID) for status tracking.
  */
-export function sendEmailWithRetry(options: EmailOptions): string {
+export async function sendEmailWithRetry(options: EmailOptions): Promise<string> {
+  // Try BullMQ (Redis-backed) first for durability + multi-instance support
+  try {
+    const { getQueue, QUEUES, isRedisAvailable } = await import('@/lib/queue');
+    if (isRedisAvailable()) {
+      const emailQueue = getQueue(QUEUES.EMAIL);
+      const job = await emailQueue.add('send-email', {
+        to: options.to,
+        subject: options.subject,
+        html: options.html,
+        text: options.text,
+        from: options.from,
+      });
+      log.info('[Email] Enqueued to BullMQ', {
+        jobId: job.id,
+        to: options.to,
+        subject: options.subject,
+      });
+      return job.id ?? `bullmq_${Date.now()}`;
+    }
+  } catch (error) {
+    log.warn('[Email] BullMQ enqueue failed, falling back to in-memory queue', {
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
+
+  // Fallback: in-memory queue (single-instance, not durable)
   return emailQueue.enqueue(options);
 }
 
