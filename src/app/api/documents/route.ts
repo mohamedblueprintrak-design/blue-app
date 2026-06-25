@@ -8,6 +8,7 @@ import { getStorageProvider, generateStorageKey } from '@/lib/storage';
 import { z } from 'zod';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
 import { parsePaginationParams, buildPaginationMeta, calculateSkip } from '@/app/api/utils/pagination';
+import { verifyFileContent } from '@/lib/security/magic-bytes';
 
 /**
  * @openapi
@@ -220,6 +221,16 @@ export async function POST(request: NextRequest) {
       // Convert File to Buffer
       const arrayBuffer = await file.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
+
+      // SECURITY: Verify file content via magic bytes — do NOT trust the
+      // client-supplied Content-Type, which can be trivially spoofed.
+      // An attacker could upload a PHP webshell with Content-Type: image/jpeg
+      // and filename: evil.jpg — the extension/MIME checks above would pass
+      // but the file is executable code. Magic-byte sniffing catches this.
+      const contentError = verifyFileContent(buffer, fileContentType, fileName);
+      if (contentError) {
+        return NextResponse.json({ error: contentError }, { status: 400 });
+      }
 
       const filePath = await storage.upload(storageKey, buffer, fileContentType);
 

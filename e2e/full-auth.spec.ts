@@ -76,22 +76,27 @@ test.describe.serial('Full Authentication Flow', () => {
       },
     });
 
+    // SECURITY FIX: Assert the EXPECTED status, not "if ok".
+    // Previously: if (response.ok()) { ... } — skipped asserts on 500,
+    // giving false confidence that login works.
+    // Allow 429 (rate-limited from prior tests) but NOT 500 (server crash).
+    expect([200, 429]).toContain(response.status());
+    if (response.status() === 429) return; // skip body asserts if rate-limited
+
     // Get cookies from response
     const cookies = response.headers()['set-cookie'];
-    if (response.ok() && cookies) {
-      // Cookie should be httpOnly
-      expect(cookies).toContain('blue_token');
-      expect(cookies).toContain('HttpOnly');
-      expect(cookies).toContain('SameSite=Lax');
-    }
+    expect(cookies).toBeTruthy();
+    // Cookie should be httpOnly
+    expect(cookies).toContain('blue_token');
+    expect(cookies).toContain('HttpOnly');
+    expect(cookies).toContain('SameSite=Lax');
+
     // Response should contain user data
-    if (response.ok()) {
-      const body = await response.json();
-      expect(body).toHaveProperty('id');
-      expect(body).toHaveProperty('email');
-      expect(body).toHaveProperty('name');
-      expect(body).toHaveProperty('role');
-    }
+    const body = await response.json();
+    expect(body).toHaveProperty('id');
+    expect(body).toHaveProperty('email');
+    expect(body).toHaveProperty('name');
+    expect(body).toHaveProperty('role');
   });
 
   test('step 8: session endpoint returns user data after login', async ({ request }) => {

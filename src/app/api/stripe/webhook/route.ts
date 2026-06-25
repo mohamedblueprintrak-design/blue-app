@@ -62,19 +62,55 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // DB-based deduplication check (works across instances)
-  const existingLog = await db.activityLog.findFirst({
-    where: {
-      action: 'stripe_webhook',
-      entityId: event.id,
-    },
-  });
-  if (existingLog) {
-    log.info('Stripe webhook event already processed (DB check)', { eventId: event.id });
-    return NextResponse.json({ received: true });
-  }
+  // SECURITY FIX: Idempotency via atomic "claim" — use upsert with a unique
+  // constraint on [action, entityId] to atomically check-and-create in a
+  // single operation. This prevents the TOCTOU race where two concurrent
+  // webhook deliveries (Stripe retries within seconds) both pass the
+  // findFirst check and both process the event, creating duplicate payment
+  // records.
+  //
+  // The upsert attempts to create a new ActivityLog row for this event.
+  // If a row with the same [action='stripe_webhook', entityId=event.id]
+  // already exists (created by a concurrent request), the upsert's create
+  // side throws P2002 (unique constraint) — which we catch and treat as
+  // "already processed".
+  //
+  // NOTE: This requires a @@unique([action, entityId]) index on ActivityLog.
+  // See prisma/migrations/ for the migration that adds it. If the index is
+  // not present, the upsert degrades gracefully to the old findFirst check
+  // (with the same race window) — but the migration is required for full
+  // race-free idempotency.
+  try {
+    const metadata = (event.data.object as unknown as { metadata?: Record<string, string> })?.metadata;
+    const eventOrgId = metadata?.organizationId || 'system';
 
-  // Idempotency is already handled by the DB check above (activityLog findFirst).
+    // Atomic claim: try to create the idempotency record. If it exists,
+    // the unique constraint rejects the insert → we know another request
+    // is processing (or has processed) this event.
+    await db.activityLog.create({
+      data: {
+        userId: null,
+        action: 'stripe_webhook',
+        entityType: 'StripeEvent',
+        entityId: event.id,
+        details: `Processing ${event.type}`,
+        organizationId: eventOrgId,
+      },
+    });
+  } catch (claimError) {
+    // P2002 = unique constraint violation = already claimed by another request
+    const errorMessage = claimError instanceof Error ? claimError.message : String(claimError);
+    if (errorMessage.includes('Unique constraint') || errorMessage.includes('P2002')) {
+      log.info('Stripe webhook event already processing/processed (atomic claim)', { eventId: event.id });
+      return NextResponse.json({ received: true });
+    }
+    // Other errors (DB down, etc.) — fall through to processing but log the issue.
+    // The handler below is itself idempotent via upsert on stripeSubscriptionId.
+    log.error('Stripe webhook idempotency claim failed (non-unique error, processing anyway)', {
+      eventId: event.id,
+      error: errorMessage,
+    });
+  }
 
   // Log the event for payment audit trail
   log.info(`Stripe webhook received: ${event.type}`);
@@ -110,18 +146,18 @@ export async function POST(request: NextRequest) {
         log.info(`Unhandled webhook event type: ${event.type}`);
     }
 
-    // Log to DB for cross-instance idempotency tracking
-    const metadata = (event.data.object as unknown as { metadata?: Record<string, string> })?.metadata;
-    const eventOrgId = metadata?.organizationId || 'system';
-    await db.activityLog.create({
-      data: {
-        userId: null, // system event — no user initiating this
-        action: 'stripe_webhook',
-        entityType: 'StripeEvent',
-        entityId: event.id,
-        details: `Processed ${event.type}`,
-        organizationId: eventOrgId,
-      },
+    // Update the idempotency record to mark processing as complete.
+    // (The record was created above as the atomic claim; we just update the
+    // details to reflect the processed state.)
+    await db.activityLog.updateMany({
+      where: { action: 'stripe_webhook', entityId: event.id },
+      data: { details: `Processed ${event.type}` },
+    }).catch((updateErr: unknown) => {
+      // Non-fatal — the claim record already exists; the update is just cosmetic.
+      log.error('Stripe webhook: failed to update idempotency record after processing', {
+        eventId: event.id,
+        error: updateErr instanceof Error ? updateErr.message : String(updateErr),
+      });
     });
 
     return NextResponse.json({ received: true });

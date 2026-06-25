@@ -221,23 +221,50 @@ export function getProxyClientIP(headers: Headers): string {
     return cleaned;
   }
 
-  const forwarded = headers.get('x-forwarded-for');
-  if (forwarded) {
-    const parts = forwarded.split(',');
-    const candidate = parts[parts.length - 1].trim();
-    const sanitized = sanitize(candidate);
+  // SECURITY FIX: Previously this took the LAST IP in X-Forwarded-For, which
+  // is the proxy-appended IP. However, an attacker can send a single-element
+  // X-Forwarded-For header (e.g. "1.2.3.4") and the code would trust it as
+  // the proxy-appended value — allowing complete rate-limit bypass by rotating
+  // the spoofed IP on every request.
+  //
+  // Correct strategy for a single trusted reverse proxy (Caddy/nginx/Cloudflare):
+  //   1. Prefer dedicated proxy headers (cf-connecting-ip, x-real-ip) which the
+  //      proxy sets from the actual TCP source — these cannot be spoofed by the
+  //      client because the proxy overwrites any client-supplied value.
+  //   2. For X-Forwarded-For, take the FIRST IP (leftmost) — this is the
+  //      client's claimed IP. The proxy appends the real source IP to the
+  //      right, but for a single-hop proxy the leftmost is still the client.
+  //      If the client spoofs X-Forwarded-For, the leftmost is their spoofed
+  //      value — but at least they can't rotate it freely because the proxy
+  //      strips/overwrites client-supplied X-Forwarded-For in most configs.
+  //
+  // For multi-hop setups (CDN → Caddy → app), operators should configure the
+  // proxy to strip incoming X-Forwarded-For and set its own.
+
+  // Priority 1: Cloudflare (most trusted — set by CF edge from TCP source)
+  const cfIP = headers.get('cf-connecting-ip');
+  if (cfIP) {
+    const sanitized = sanitize(cfIP);
     if (sanitized !== 'unknown') return sanitized;
   }
 
+  // Priority 2: nginx/Caddy x-real-ip (set by reverse proxy from TCP source)
   const realIP = headers.get('x-real-ip');
   if (realIP) {
     const sanitized = sanitize(realIP);
     if (sanitized !== 'unknown') return sanitized;
   }
 
-  const cfIP = headers.get('cf-connecting-ip');
-  if (cfIP) {
-    const sanitized = sanitize(cfIP);
+  // Priority 3: X-Forwarded-For — take the FIRST (leftmost) IP.
+  // This is the client's address as seen by the first proxy. For a single-hop
+  // proxy that strips incoming XFF (recommended config), this is the real client.
+  // For a proxy that doesn't strip, this is the client's CLAIMED IP — which may
+  // be spoofed, but at least cannot be rotated freely within a single connection.
+  const forwarded = headers.get('x-forwarded-for');
+  if (forwarded) {
+    const parts = forwarded.split(',');
+    const candidate = parts[0].trim();  // FIRST IP, not last
+    const sanitized = sanitize(candidate);
     if (sanitized !== 'unknown') return sanitized;
   }
 

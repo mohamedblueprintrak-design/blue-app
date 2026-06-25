@@ -1735,6 +1735,11 @@ model ActivityLog {
   @@index([entityType, entityId])
   @@index([projectId])
   @@index([organizationId])
+  // SECURITY: Unique constraint enables atomic idempotency for Stripe webhooks
+  // and any other event-source that needs dedup. The webhook handler does
+  // activityLog.create() as an atomic "claim" — P2002 means another request
+  // already claimed this event.
+  @@unique([action, entityId])
 }
 
 // ==================== APPROVALS ====================

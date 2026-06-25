@@ -299,7 +299,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Clear step-up session (one-shot — can't reuse after cancellation)
-    clearStepUpSession(ctx.userId);
+    await clearStepUpSession(ctx.userId);
 
     return successResponse({
       message: immediately

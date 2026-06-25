@@ -111,7 +111,7 @@ export async function PUT(request: NextRequest) {
       ]);
 
       // Clear step-up session (one-shot — can't reuse after password change)
-      clearStepUpSession(ctx.userId);
+      await clearStepUpSession(ctx.userId);
 
       return NextResponse.json({ success: true });
     } else {
