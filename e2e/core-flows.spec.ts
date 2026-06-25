@@ -34,7 +34,7 @@ test.describe.serial('Core Application Flows (Login, Projects, Invoices)', () =>
     //   - The email input (login form rendered), OR
     //   - The main dashboard layout (already authenticated)
     const emailInput = sharedPage.locator('input[type="email"], input[name="email"]').first();
-    const mainLayout = sharedPage.locator('main[role="main"]').first();
+    const mainLayout = sharedPage.locator('main').first();
 
     // Wait up to 30s for either the login form or the dashboard to appear
     await expect.poll(async () => {

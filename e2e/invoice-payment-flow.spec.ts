@@ -47,7 +47,7 @@ test.describe.serial('Invoice → Payment → Webhook Flow', () => {
 
     // Wait for the auth store to initialize (loading screen → login form or dashboard)
     const emailInput = sharedPage.locator('input[type="email"], input[name="email"]').first();
-    const mainLayout = sharedPage.locator('main[role="main"]').first();
+    const mainLayout = sharedPage.locator('main').first();
 
     await expect.poll(async () => {
       const emailVisible = await emailInput.isVisible().catch(() => false);

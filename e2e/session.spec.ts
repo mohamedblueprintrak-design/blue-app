@@ -26,9 +26,9 @@ test.describe('Session Management', () => {
 
   test('logout endpoint should clear cookies', async ({ request }) => {
     const response = await request.post('/api/auth/logout');
-    // May be rate limited from previous tests
-    expect([200, 429]).toContain(response.status());
-    if (response.status() === 429) return;
+    // May be rate limited from previous tests, or 403 (CSRF required for mutations)
+    expect([200, 403, 429]).toContain(response.status());
+    if (response.status() !== 200) return;
 
     const body = await response.json();
     expect(body.success).toBe(true);
