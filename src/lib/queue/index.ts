@@ -355,6 +355,14 @@ export async function addJob(
   return job;
 }
 
+/**
+ * Check if BullMQ (Redis) is available for durable queueing.
+ * Used by callers to decide whether to use BullMQ or fall back to in-memory.
+ */
+export function isRedisAvailable(): boolean {
+  return !!process.env.REDIS_URL;
+}
+
 // Register with graceful shutdown manager
 declare global {
   var __queueShutdownRegistered: boolean | undefined;
