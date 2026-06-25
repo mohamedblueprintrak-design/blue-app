@@ -9,15 +9,23 @@ import { StatusIcon } from "@/components/ui/status-icon";
 
 // ===== Formatting Helpers =====
 
-export function formatCurrency(amount: number, locale: string): string {
+/**
+ * Format a number as currency for dashboard display.
+ * SECURITY FIX: Accepts string|number because Prisma Decimal fields are
+ * serialized as strings in JSON. Without Number() conversion, string
+ * values cause garbage output from Intl.NumberFormat.
+ */
+export function formatCurrency(amount: number | string, locale: string): string {
+  const num = Number(amount) || 0;
   return new Intl.NumberFormat(locale === "ar" ? "ar-AE" : "en-AE", {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
-  }).format(amount);
+  }).format(num);
 }
 
-export function formatNumber(num: number, locale: string): string {
-  return new Intl.NumberFormat(locale === "ar" ? "ar-AE" : "en-US").format(num);
+export function formatNumber(num: number | string, locale: string): string {
+  const n = Number(num) || 0;
+  return new Intl.NumberFormat(locale === "ar" ? "ar-AE" : "en-US").format(n);
 }
 
 // ===== Time Helpers =====

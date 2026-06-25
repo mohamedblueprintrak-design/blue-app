@@ -5,9 +5,13 @@ import { formatCurrency as formatCurrencyMulti } from './currency';
 
 /**
  * Format a number as AED currency (backward-compatible)
+ * SECURITY FIX: Prisma Decimal fields are serialized as strings in JSON.
+ * This function accepts string|number and safely converts to Number before
+ * formatting. Without this, string concatenation or type coercion produces
+ * garbage values (e.g. "66250" + "66250" = "6625066250" instead of 132500).
  */
-export function formatCurrency(amount: number | undefined | null, ar: boolean): string {
-  const num = amount ?? 0;
+export function formatCurrency(amount: number | string | undefined | null, ar: boolean): string {
+  const num = Number(amount) || 0;
   return `${num.toLocaleString(ar ? "ar-AE" : "en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${ar ? "د.إ" : "AED"}`;
 }
 

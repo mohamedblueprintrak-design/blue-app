@@ -73,11 +73,13 @@ function toArabicNumerals(str: string): string {
  * formatCurrency(5000, 'KWD', 'ar')   // "٥,٠٠٠.٠٠٠ د.ك"
  */
 export function formatCurrency(
-  amount: number | undefined | null,
+  amount: number | string | undefined | null,
   currency: string = 'AED',
   language: 'ar' | 'en' = 'en'
 ): string {
-  const num = amount ?? 0;
+  // SECURITY FIX: Prisma Decimal is serialized as string in JSON.
+  // Convert to Number before formatting to prevent type coercion bugs.
+  const num = Number(amount) || 0;
   const info = SUPPORTED_CURRENCIES[currency] || SUPPORTED_CURRENCIES.AED;
   const decimals = info.decimals;
   
@@ -108,11 +110,11 @@ export function formatCurrency(
  * Format a number as a compact currency string (e.g., "AED 1.5M")
  */
 export function formatCurrencyCompact(
-  amount: number | undefined | null,
+  amount: number | string | undefined | null,
   currency: string = 'AED',
   language: 'ar' | 'en' = 'en'
 ): string {
-  const num = amount ?? 0;
+  const num = Number(amount) || 0;
   const info = SUPPORTED_CURRENCIES[currency] || SUPPORTED_CURRENCIES.AED;
   
   let compact: string;
