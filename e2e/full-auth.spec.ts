@@ -88,7 +88,7 @@ test.describe.serial('Full Authentication Flow', () => {
     // Cookie should be httpOnly
     expect(cookies).toContain('blue_token');
     expect(cookies).toContain('HttpOnly');
-    expect(cookies).toContain('SameSite=Lax');
+    expect(cookies.toLowerCase()).toContain('samesite=lax');
 
     // Response should contain user data
     const body = await response.json();
