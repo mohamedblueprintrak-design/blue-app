@@ -41,7 +41,11 @@ export function getStripe(): Stripe {
       throw new Error('STRIPE_SECRET_KEY is not configured');
     }
     _stripe = new Stripe(secretKey, {
-      apiVersion: '2026-05-27.dahlia',
+      // Let the Stripe SDK use its default API version. Hardcoding a version
+      // causes build failures when the stripe package is updated (the new
+      // package expects a newer API version string that doesn't match the
+      // old hardcoded value, producing a TypeScript error).
+      // The SDK's default is always the latest stable version it supports.
       typescript: true,
     });
   }
