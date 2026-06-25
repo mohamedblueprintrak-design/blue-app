@@ -80,7 +80,8 @@ describe('avatarColors', () => {
   });
 
   it('should contain expected tailwind classes', () => {
-    expect(avatarColors).toContain('bg-teal-500');
+    // teal was aliased to brand-navy in the design system codemod
+    expect(avatarColors).toContain('bg-brand-navy-500');
     expect(avatarColors).toContain('bg-blue-500');
   });
 });
