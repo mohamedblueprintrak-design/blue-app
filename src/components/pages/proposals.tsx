@@ -238,7 +238,7 @@ export default function ProposalsPage({ language, projectId }: ProposalsPageProp
   const activeProposals = filtered.filter((p) => p.status === "DRAFT" || p.status === "SENT").length;
   const convertedCount = filtered.filter((p) => p.status === "ACCEPTED").length;
   const conversionRate = totalProposals > 0 ? ((convertedCount / totalProposals) * 100).toFixed(1) : "0";
-  const highValueThreshold = filtered.length > 0 ? filtered.reduce((s, p) => s + p.total, 0) / filtered.length * 1.5 : 0;
+  const highValueThreshold = filtered.length > 0 ? filtered.reduce((s, p) => s + Number(p.total), 0) / filtered.length * 1.5 : 0;
 
   // Form helpers
   const openEdit = (p: Proposal) => {
@@ -332,7 +332,7 @@ export default function ProposalsPage({ language, projectId }: ProposalsPageProp
             </div>
             <div className="text-xl font-bold text-white tabular-nums">{totalProposals}</div>
             <p className="text-[10px] text-white/60 mt-1">
-              {formatCurrency(filtered.reduce((s, p) => s + p.total, 0), ar)}
+              {formatCurrency(filtered.reduce((s, p) => s + Number(p.total), 0), ar)}
             </p>
           </div>
         </Card>
@@ -360,7 +360,7 @@ export default function ProposalsPage({ language, projectId }: ProposalsPageProp
             </div>
             <div className="text-xl font-bold text-white tabular-nums">{convertedCount}</div>
             <p className="text-[10px] text-white/60 mt-1">
-              {formatCurrency(filtered.filter((p) => p.status === "ACCEPTED").reduce((s, p) => s + p.total, 0), ar)}
+              {formatCurrency(filtered.filter((p) => p.status === "ACCEPTED").reduce((s, p) => s + Number(p.total), 0), ar)}
             </p>
           </div>
         </Card>

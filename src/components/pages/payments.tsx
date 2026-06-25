@@ -228,7 +228,7 @@ export default function PaymentsPage({ language, projectId }: PaymentsPageProps)
   });
 
   // Summary
-  const totalAmount = filtered.reduce((s, p) => s + p.amount, 0);
+  const totalAmount = filtered.reduce((s, p) => s + Number(p.amount), 0);
   const pendingCount = filtered.filter((p) => p.status === "PENDING").length;
   const approvedThisMonth = filtered.filter((p) => {
     if (p.status !== "APPROVED") return false;
@@ -236,7 +236,7 @@ export default function PaymentsPage({ language, projectId }: PaymentsPageProps)
     const pDate = new Date(p.createdAt);
     return pDate.getMonth() === now.getMonth() && pDate.getFullYear() === now.getFullYear();
   }).length;
-  const completedAmount = filtered.filter((p) => p.status === "COMPLETED").reduce((s, p) => s + p.amount, 0);
+  const completedAmount = filtered.filter((p) => p.status === "COMPLETED").reduce((s, p) => s + Number(p.amount), 0);
 
   if (isLoading) {
     return (
@@ -310,7 +310,7 @@ export default function PaymentsPage({ language, projectId }: PaymentsPageProps)
             </div>
             <div className="text-xl font-bold text-white tabular-nums">{pendingCount}</div>
             <p className="text-[10px] text-white/60 mt-1">
-              {formatCurrency(filtered.filter((p) => p.status === "PENDING").reduce((s, p) => s + p.amount, 0), ar)}
+              {formatCurrency(filtered.filter((p) => p.status === "PENDING").reduce((s, p) => s + Number(p.amount), 0), ar)}
             </p>
           </div>
         </Card>
@@ -329,7 +329,7 @@ export default function PaymentsPage({ language, projectId }: PaymentsPageProps)
                 const now = new Date();
                 const pDate = new Date(p.createdAt);
                 return pDate.getMonth() === now.getMonth() && pDate.getFullYear() === now.getFullYear();
-              }).reduce((s, p) => s + p.amount, 0), ar)}
+              }).reduce((s, p) => s + Number(p.amount), 0), ar)}
             </p>
           </div>
         </Card>

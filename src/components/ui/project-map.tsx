@@ -334,7 +334,7 @@ export default function ProjectMap({
 
   // Stats
   const totalBudget = useMemo(
-    () => mappedProjects.reduce((acc, p) => acc + (p.budget || 0), 0),
+    () => mappedProjects.reduce((acc, p) => acc + (Number(p.budget) || 0), 0),
     [mappedProjects]
   );
 

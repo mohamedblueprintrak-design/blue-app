@@ -57,7 +57,7 @@ export default function MapSection({
   const tAuto = useTranslations();
   // Total budget calculation from source
   const totalBudget = hasRealData
-    ? (projectsApiResponse || []).reduce((a, p) => a + (p.budget || 0), 0)
+    ? (projectsApiResponse || []).reduce((a, p) => a + (Number(p.budget) || 0), 0)
     : DEMO_PROJECTS.reduce((a, p) => a + p.budget, 0)
 
   return (

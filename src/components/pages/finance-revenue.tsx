@@ -186,10 +186,13 @@ export default function FinanceRevenuePage({ }: Props) {
     return d.getMonth() === lastMonthDate.getMonth() && d.getFullYear() === lastMonthDate.getFullYear();
   });
 
-  const totalRevenue = filtered.reduce((s, i) => s + i.total, 0);
-  const totalOutstanding = filtered.reduce((s, i) => s + i.remaining, 0);
-  const thisMonthRevenue = thisMonth.reduce((s, i) => s + i.total, 0);
-  const lastMonthRevenue = lastMonth.reduce((s, i) => s + i.total, 0);
+  // SECURITY FIX: Prisma Decimal fields (total, paidAmount, remaining) are
+  // serialized as strings in JSON. Must use Number() to convert before
+  // arithmetic — otherwise "+" does string concatenation: "66250" + "66250" = "6625066250"
+  const totalRevenue = filtered.reduce((s, i) => s + Number(i.total), 0);
+  const totalOutstanding = filtered.reduce((s, i) => s + Number(i.remaining), 0);
+  const thisMonthRevenue = thisMonth.reduce((s, i) => s + Number(i.total), 0);
+  const lastMonthRevenue = lastMonth.reduce((s, i) => s + Number(i.total), 0);
   const revenueGrowth = lastMonthRevenue > 0 ? ((thisMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100 : 0;
 
   const outstandingInvoices = filtered.filter((i) => i.status === "SENT" || i.status === "PARTIALLY_PAID" || i.status === "OVERDUE");
@@ -211,8 +214,8 @@ export default function FinanceRevenuePage({ }: Props) {
       const d = new Date(inv.issueDate);
       const key = `${d.getFullYear()}-${d.getMonth()}`;
       if (months[key]) {
-        months[key].revenue += inv.total;
-        months[key].collected += inv.paidAmount;
+        months[key].revenue += Number(inv.total);
+        months[key].collected += Number(inv.paidAmount);
       }
     });
 
@@ -226,8 +229,8 @@ export default function FinanceRevenuePage({ }: Props) {
       if (!inv.project) return; // Skip invoices without project data
       const name = ar ? inv.project.name : inv.project.nameEn || inv.project.name;
       if (!map[inv.projectId]) map[inv.projectId] = { name, revenue: 0, collected: 0 };
-      map[inv.projectId].revenue += inv.total;
-      map[inv.projectId].collected += inv.paidAmount;
+      map[inv.projectId].revenue += Number(inv.total);
+      map[inv.projectId].collected += Number(inv.paidAmount);
     });
     return Object.values(map).sort((a, b) => b.revenue - a.revenue);
   }, [filtered, ar]);

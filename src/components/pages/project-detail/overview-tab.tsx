@@ -44,8 +44,8 @@ export default function OverviewTab({ project, language }: { project: ProjectDat
   const isAr = language === "ar";
   const t = (ar: string, en: string) => (isAr ? ar : en);
 
-  const totalInvoiced = project?.invoices?.reduce((s, i) => s + i.total, 0) || 0;
-  const totalPaid = project?.invoices?.reduce((s, i) => s + i.paidAmount, 0) || 0;
+  const totalInvoiced = project?.invoices?.reduce((s, i) => s + Number(i.total), 0) || 0;
+  const totalPaid = project?.invoices?.reduce((s, i) => s + Number(i.paidAmount), 0) || 0;
   return (
     <div className="space-y-6">
       {/* Hero Section */}

@@ -115,9 +115,9 @@ function CommissionsTab({ language, users, projects }: { language: "ar" | "en"; 
     return matchSearch && matchStatus;
   });
 
-  const totalPaid = commissions.filter((c) => c.status === "PAID").reduce((s, c) => s + c.amount, 0);
-  const totalPending = commissions.filter((c) => c.status === "PENDING").reduce((s, c) => s + c.amount, 0);
-  const totalApproved = commissions.filter((c) => c.status === "APPROVED").reduce((s, c) => s + c.amount, 0);
+  const totalPaid = commissions.filter((c) => c.status === "PAID").reduce((s, c) => s + Number(c.amount), 0);
+  const totalPending = commissions.filter((c) => c.status === "PENDING").reduce((s, c) => s + Number(c.amount), 0);
+  const totalApproved = commissions.filter((c) => c.status === "APPROVED").reduce((s, c) => s + Number(c.amount), 0);
 
   return (
     <div className="space-y-4">

@@ -241,7 +241,7 @@ export default function BOQPage({ language, projectId }: BOQPageProps) {
     return subtotals;
   }, [filteredItems]);
 
-  const filteredTotal = filteredItems.reduce((sum, item) => sum + item.total, 0);
+  const filteredTotal = filteredItems.reduce((sum, item) => sum + Number(item.total), 0);
 
   // Export to CSV
   const handleExport = () => {

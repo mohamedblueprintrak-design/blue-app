@@ -50,17 +50,17 @@ export default function FinancialTab({ project, language, projectId, activeSubTa
               </div>
               <div>
                 <p className="text-xs text-white/70">{t("إجمالي المدفوع", "Total Paid")}</p>
-                <p className="text-lg font-bold tabular-nums">{project.invoices?.reduce((s, i) => s + i.paidAmount, 0).toLocaleString() || 0} <span className="text-xs font-normal">AED</span></p>
+                <p className="text-lg font-bold tabular-nums">{project.invoices?.reduce((s, i) => s + Number(i.paidAmount), 0).toLocaleString() || 0} <span className="text-xs font-normal">AED</span></p>
               </div>
               <div>
                 <p className="text-xs text-white/70">{t("المتبقي", "Total Remaining")}</p>
-                <p className="text-lg font-bold tabular-nums">{Math.max(project.budget - (project.invoices?.reduce((s, i) => s + i.paidAmount, 0) || 0), 0).toLocaleString()} <span className="text-xs font-normal">AED</span></p>
+                <p className="text-lg font-bold tabular-nums">{Math.max(project.budget - (project.invoices?.reduce((s, i) => s + Number(i.paidAmount), 0) || 0), 0).toLocaleString()} <span className="text-xs font-normal">AED</span></p>
               </div>
               <div>
                 <p className="text-xs text-white/70">{t("نسبة التحصيل", "% Collected")}</p>
                 <div className="flex items-center gap-2">
-                  <p className="text-lg font-bold tabular-nums">{project.budget > 0 ? Math.round(((project.invoices?.reduce((s, i) => s + i.paidAmount, 0) || 0) / project.budget) * 100) : 0}%</p>
-                  <Progress value={project.budget > 0 ? Math.round(((project.invoices?.reduce((s, i) => s + i.paidAmount, 0) || 0) / project.budget) * 100) : 0} className="h-2 bg-white/20 flex-1" />
+                  <p className="text-lg font-bold tabular-nums">{project.budget > 0 ? Math.round(((project.invoices?.reduce((s, i) => s + Number(i.paidAmount), 0) || 0) / project.budget) * 100) : 0}%</p>
+                  <Progress value={project.budget > 0 ? Math.round(((project.invoices?.reduce((s, i) => s + Number(i.paidAmount), 0) || 0) / project.budget) * 100) : 0} className="h-2 bg-white/20 flex-1" />
                 </div>
               </div>
             </div>
