@@ -7,6 +7,7 @@
  */
 
 import { AITaskType, getBestModelForTask, getModelInfo} from './model-config';
+import { sanitizeAndWrap, sanitizeAiInput, PROMPT_INJECTION_DEFENSE_SUFFIX } from './prompt-sanitizer';
 
 // أنواع المدخلات
 export interface AIRequest {
@@ -169,7 +170,9 @@ export class AIRouter {
     const messages: Array<{ role: string; content: string | Array<{ type: string; text?: string; image_url?: { url: string } }> }> = [];
     
     // System prompt
-    const systemPrompt = SYSTEM_PROMPTS[request.task];
+    // SECURITY: Append prompt-injection defense suffix so the LLM treats
+    // user-controlled content as untrusted data, not instructions.
+    const systemPrompt = SYSTEM_PROMPTS[request.task] + PROMPT_INJECTION_DEFENSE_SUFFIX;
     messages.push({ role: 'system', content: systemPrompt });
 
     // التاريخ (history)
@@ -179,36 +182,35 @@ export class AIRouter {
     if (request.history && request.history.length > 0) {
       const limitedHistory = request.history.slice(-MAX_HISTORY_ITEMS); // Keep only last N messages
       limitedHistory.forEach(msg => {
-        const truncatedContent = msg.content.length > MAX_HISTORY_CONTENT_LENGTH
-          ? msg.content.substring(0, MAX_HISTORY_CONTENT_LENGTH) + '...[truncated]'
-          : msg.content;
-        messages.push({ role: msg.role, content: truncatedContent });
+        // SECURITY: Sanitize each history message (user messages may contain
+        // injection attempts; assistant messages are echoed back and could
+        // be manipulated if the conversation was hijacked).
+        const sanitized = sanitizeAiInput(msg.content, MAX_HISTORY_CONTENT_LENGTH);
+        messages.push({ role: msg.role, content: sanitized });
       });
     }
 
     // السياق
-    // SECURITY FIX (CWE-400): Limit context size
+    // SECURITY FIX (CWE-400): Limit context size + sanitize for prompt injection
     const MAX_CONTEXT_LENGTH = 50000; // 50KB
     let userContent = '';
     if (request.context) {
-      const truncatedContext = request.context.length > MAX_CONTEXT_LENGTH
-        ? request.context.substring(0, MAX_CONTEXT_LENGTH) + '...[truncated]'
-        : request.context;
-      userContent += `السياق:\n${truncatedContext}\n\n`;
+      // SECURITY: Wrap context in <user_data> delimiters so the LLM treats it
+      // as data, not instructions. Sanitize for common injection patterns.
+      userContent += `السياق:\n${sanitizeAndWrap(request.context, MAX_CONTEXT_LENGTH)}\n\n`;
     }
 
     // المستند
-    // SECURITY FIX (CWE-400): Limit document size
+    // SECURITY FIX (CWE-400): Limit document size + sanitize
     const MAX_DOCUMENT_LENGTH = 500000; // 500KB
     if (request.document) {
-      const truncatedDoc = request.document.length > MAX_DOCUMENT_LENGTH
-        ? request.document.substring(0, MAX_DOCUMENT_LENGTH) + '...[truncated]'
-        : request.document;
-      userContent += `المستند:\n${truncatedDoc}\n\n`;
+      userContent += `المستند:\n${sanitizeAndWrap(request.document, MAX_DOCUMENT_LENGTH)}\n\n`;
     }
 
     // الطلب الرئيسي
-    userContent += request.prompt;
+    // SECURITY: The user's main prompt is also sanitized — it's the most
+    // direct injection vector.
+    userContent += sanitizeAiInput(request.prompt, 50000);
 
     // لو فيه صورة
     if (request.image) {
