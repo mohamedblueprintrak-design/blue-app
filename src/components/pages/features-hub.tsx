@@ -158,7 +158,7 @@ export default function FeaturesHub({ language }: FeaturesHubProps) {
 
   // BOQ calculations
   const boqStats = useMemo(() => {
-    const subtotal = boqItems.reduce((acc, item) => acc + item.total, 0)
+    const subtotal = boqItems.reduce((acc, item) => acc + Number(item.total), 0)
     const vat = subtotal * VAT_RATE
     const contingency = subtotal * (contingencyPercent / 100)
     const grandTotal = subtotal + vat + contingency

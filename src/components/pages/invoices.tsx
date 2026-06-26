@@ -233,9 +233,9 @@ export default function InvoicesPage({ language, projectId }: InvoicesPageProps)
 
 
   // Summary calculations
-  const totalInvoices = filtered.reduce((s, i) => s + i.total, 0);
-  const totalPaid = filtered.reduce((s, i) => s + i.paidAmount, 0);
-  const totalOutstanding = filtered.reduce((s, i) => s + i.remaining, 0);
+  const totalInvoices = filtered.reduce((s, i) => s + Number(i.total), 0);
+  const totalPaid = filtered.reduce((s, i) => s + Number(i.paidAmount), 0);
+  const totalOutstanding = filtered.reduce((s, i) => s + Number(i.remaining), 0);
   const overdueCount = filtered.filter((i) => i.status === "OVERDUE").length;
   const paidCount = filtered.filter((i) => i.status === "PAID").length;
   const pendingCount = filtered.filter((i) => i.status === "SENT" || i.status === "PARTIALLY_PAID").length;
