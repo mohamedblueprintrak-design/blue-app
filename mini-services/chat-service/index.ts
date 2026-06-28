@@ -13,6 +13,8 @@ import { createServer } from 'http';
 import { Server as IOServer, Socket, DefaultEventsMap } from 'socket.io';
 import { jwtVerify } from 'jose';
 import { PrismaClient } from '@prisma/client';
+import { createAdapter } from '@socket.io/redis-adapter';
+import { Redis } from 'ioredis';
 import {
   SocketData,
   NotificationPayload,
@@ -214,6 +216,47 @@ const io: TypedIOServer = new IOServer(httpServer, {
   pingTimeout: 60000,
   pingInterval: 25000,
 });
+
+// ============================================
+// Redis Adapter (Multi-Instance Support)
+// ============================================
+// When REDIS_URL is configured, the Socket.io Redis adapter propagates
+// events across multiple chat-service instances. This means:
+//   - User A connected to instance 1 can receive notifications
+//     sent via instance 2's /api/broadcast endpoint
+//   - Presence (online/offline) is shared across instances
+//   - Room joins/leaves are synchronized
+//
+// Without Redis (single-instance mode), everything works locally.
+const REDIS_URL = process.env.REDIS_URL;
+
+if (REDIS_URL) {
+  try {
+    const pubClient = new Redis(REDIS_URL, {
+      maxRetriesPerRequest: 3,
+      enableReadyCheck: true,
+      retryStrategy: (times: number) => Math.min(times * 100, 3000),
+    });
+    const subClient = pubClient.duplicate();
+
+    pubClient.on('connect', () => {
+      console.info('[Redis Adapter] Connected to Redis for multi-instance WebSocket sync');
+    });
+    pubClient.on('error', (err: Error) => {
+      console.error('[Redis Adapter] Pub client error:', err.message);
+    });
+    subClient.on('error', (err: Error) => {
+      console.error('[Redis Adapter] Sub client error:', err.message);
+    });
+
+    io.adapter(createAdapter(pubClient, subClient));
+    console.info('[Redis Adapter] Socket.io Redis adapter enabled — multi-instance ready');
+  } catch (err) {
+    console.error('[Redis Adapter] Failed to initialize Redis adapter — running in single-instance mode:', err);
+  }
+} else {
+  console.info('[Redis Adapter] REDIS_URL not set — running in single-instance mode');
+}
 
 // ============================================
 // JWT Authentication Middleware
