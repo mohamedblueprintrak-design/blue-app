@@ -150,9 +150,19 @@ export async function getAllFlags(): Promise<FeatureFlagRecord[]> {
 /**
  * Set a flag's enabled state — for admin UI quick toggle.
  */
-export async function setFlag(key: string, enabled: boolean): Promise<void> {
+export async function setFlag(key: string, enabled: boolean, organizationId?: string): Promise<void> {
+  // After schema change, 'key' alone is no longer @unique. The composite
+  // unique is @@unique([key, organizationId]). We need to find the flag
+  // first, then update by id.
+  const flag = await db.featureFlag.findFirst({
+    where: { key, ...(organizationId ? { organizationId } : {}) },
+    select: { id: true },
+  });
+  if (!flag) {
+    throw new Error(`Feature flag '${key}' not found`);
+  }
   await db.featureFlag.update({
-    where: { key },
+    where: { id: flag.id },
     data: { enabled },
   });
   invalidateFlagsCache();
@@ -182,32 +192,41 @@ export async function upsertFlag(data: {
     orgId = org?.id || "";
   }
 
-  const result = await db.featureFlag.upsert({
-    where: { key: data.key },
-    update: {
-      name: data.name,
-      ...(data.nameAr !== undefined && { nameAr: data.nameAr }),
-      ...(data.description !== undefined && { description: data.description }),
-      ...(data.descriptionAr !== undefined && { descriptionAr: data.descriptionAr }),
-      ...(data.enabled !== undefined && { enabled: data.enabled }),
-      ...(data.enabledForOrgs !== undefined && { enabledForOrgs: data.enabledForOrgs }),
-      ...(data.enabledForRoles !== undefined && { enabledForRoles: data.enabledForRoles }),
-      ...(data.percentage !== undefined && { percentage: data.percentage }),
-      ...(orgId && { organizationId: orgId }),
-    },
-    create: {
-      key: data.key,
-      name: data.name,
-      nameAr: data.nameAr || null,
-      description: data.description || null,
-      descriptionAr: data.descriptionAr || null,
-      enabled: data.enabled ?? false,
-      enabledForOrgs: data.enabledForOrgs || null,
-      enabledForRoles: data.enabledForRoles || null,
-      percentage: data.percentage ?? 100,
-      organizationId: orgId,
-    },
+  // After schema change, 'key' alone is no longer @unique. Use findFirst + create/update.
+  const existing = await db.featureFlag.findFirst({
+    where: { key: data.key, organizationId: orgId },
+    select: { id: true },
   });
+
+  const result = existing
+    ? await db.featureFlag.update({
+        where: { id: existing.id },
+        data: {
+          name: data.name,
+          ...(data.nameAr !== undefined && { nameAr: data.nameAr }),
+          ...(data.description !== undefined && { description: data.description }),
+          ...(data.descriptionAr !== undefined && { descriptionAr: data.descriptionAr }),
+          ...(data.enabled !== undefined && { enabled: data.enabled }),
+          ...(data.enabledForOrgs !== undefined && { enabledForOrgs: data.enabledForOrgs }),
+          ...(data.enabledForRoles !== undefined && { enabledForRoles: data.enabledForRoles }),
+          ...(data.percentage !== undefined && { percentage: data.percentage }),
+          ...(orgId && { organizationId: orgId }),
+        },
+      })
+    : await db.featureFlag.create({
+        data: {
+          key: data.key,
+          name: data.name,
+          nameAr: data.nameAr || null,
+          description: data.description || null,
+          descriptionAr: data.descriptionAr || null,
+          enabled: data.enabled ?? false,
+          enabledForOrgs: data.enabledForOrgs || null,
+          enabledForRoles: data.enabledForRoles || null,
+          percentage: data.percentage ?? 100,
+          organizationId: orgId,
+        },
+      });
   invalidateFlagsCache();
   return result;
 }
