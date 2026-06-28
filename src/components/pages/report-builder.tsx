@@ -66,116 +66,30 @@ import { cn } from "@/lib/utils";
 import { useToastFeedback } from "@/hooks/use-toast-feedback";
 
 // ============================================
-// Types
+// Types (extracted to ./report-builder/types)
 // ============================================
-
-type DataSourceName =
-  | "projects"
-  | "invoices"
-  | "tasks"
-  | "clients"
-  | "employees"
-  | "payments"
-  | "contracts"
-  | "timesheets"
-  | "expenses"
-  | "commissions";
-
-type AggregationType = "sum" | "avg" | "count" | "min" | "max" | "none";
-
-type FilterOperator =
-  | "eq"
-  | "neq"
-  | "gt"
-  | "gte"
-  | "lt"
-  | "lte"
-  | "contains"
-  | "startsWith"
-  | "in"
-  | "between";
-
-type ChartType = "bar" | "line" | "pie" | "table";
-type OutputFormat = "json" | "csv" | "pdf";
-
-interface FieldMeta {
-  key: string;
-  labelEn: string;
-  labelAr: string;
-  type: "string" | "number" | "date" | "boolean";
-  aggregatable: boolean;
-}
-
-interface DataSourceMeta {
-  key: DataSourceName;
-  labelEn: string;
-  labelAr: string;
-  fields: FieldMeta[];
-}
-
-interface FilterOperatorMeta {
-  value: FilterOperator;
-  labelEn: string;
-  labelAr: string;
-}
-
-interface ReportField {
-  key: string;
-  label: string;
-  aggregation: AggregationType;
-}
-
-interface ReportFilter {
-  field: string;
-  operator: FilterOperator;
-  value: unknown;
-  value2?: unknown;
-}
-
-interface ReportDefinition {
-  name: string;
-  nameAr?: string;
-  description?: string;
-  dataSource: DataSourceName;
-  fields: ReportField[];
-  filters: ReportFilter[];
-  groupBy?: string;
-  sortBy?: string;
-  sortOrder?: "asc" | "desc";
-  chartType?: ChartType;
-  format?: OutputFormat;
-}
-
-interface SavedReport {
-  id: string;
-  name: string;
-  nameAr?: string;
-  description?: string;
-  dataSource: string;
-  fields: ReportField[];
-  filters: ReportFilter[];
-  groupBy?: string;
-  sortBy?: string;
-  sortOrder: string;
-  chartType: string;
-  isPublic: boolean;
-  createdAt: string;
-  createdBy?: { id: string; name: string; email: string };
-}
+import type {
+  DataSourceName,
+  AggregationType,
+  FilterOperator,
+  ChartType,
+  OutputFormat,
+  FieldMeta,
+  DataSourceMeta,
+  FilterOperatorMeta,
+  ReportField,
+  ReportFilter,
+  ReportDefinition,
+  SavedReport,
+} from "./report-builder/types";
 
 // ============================================
-// Step definitions
+// Constants (extracted to ./report-builder/constants)
 // ============================================
+import { STEPS, isFilterableField, CHART_OPTIONS } from "./report-builder/constants";
 
-const STEPS = [
-  { key: "datasource", icon: Database, labelEn: "Data Source", labelAr: "مصدر البيانات" },
-  { key: "fields", icon: Columns3, labelEn: "Fields", labelAr: "الحقول" },
-  { key: "filters", icon: Filter, labelEn: "Filters", labelAr: "التصفية" },
-  { key: "sorting", icon: ArrowUpDown, labelEn: "Grouping & Sorting", labelAr: "التجميع والترتيب" },
-  { key: "output", icon: FileOutput, labelEn: "Output Format", labelAr: "تنسيق الإخراج" },
-  { key: "preview", icon: Eye, labelEn: "Preview", labelAr: "معاينة" },
-];
-
+// ============================================
+// Step definitions (now imported from constants)
 // ============================================
 // Main Component
 // ============================================
