@@ -180,10 +180,10 @@ export default function BudgetsPage({ language, projectId }: BudgetsPageProps) {
   // Overall totals
   const totals = sortedBudgets.reduce(
     (acc, b) => ({
-      planned: acc.planned + b.planned,
-      actual: acc.actual + b.actual,
-      committed: acc.committed + b.committed,
-      remaining: acc.remaining + b.remaining,
+      planned: acc.planned + Number(b.planned),
+      actual: acc.actual + Number(b.actual),
+      committed: acc.committed + Number(b.committed),
+      remaining: acc.remaining + Number(b.remaining),
     }),
     { planned: 0, actual: 0, committed: 0, remaining: 0 }
   );

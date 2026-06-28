@@ -150,7 +150,7 @@ function ReferralsTab({ language, users, projects }: { language: "ar" | "en"; us
     return matchSearch && matchStatus;
   });
 
-  const totalRewards = referrals.filter((r) => r.status === "rewarded").reduce((s, r) => s + r.rewardAmount, 0);
+  const totalRewards = referrals.filter((r) => r.status === "rewarded").reduce((s, r) => s + Number(r.rewardAmount), 0);
   const activeReferrals = referrals.filter((r) => r.status === "PENDING" || r.status === "CONVERTED").length;
 
   return (
