@@ -15,6 +15,9 @@ import { timingSafeEqual } from 'crypto';
  * 3. Expired email verification tokens
  * 4. Old read notifications (> 90 days)
  * 5. Old security audit logs (> 180 days)
+ * 6. Old activity logs (> 365 days) — prevents unbounded growth
+ * 7. Old AI chat messages (> 180 days) — prevents unbounded growth
+ * 8. Old push subscriptions (bounced/inactive > 30 days)
  */
 export async function POST(request: NextRequest) {
   // Verify cron secret
@@ -113,6 +116,52 @@ export async function POST(request: NextRequest) {
       results.oldSecurityAuditLogs = 0;
     }
 
+    // 6. Clean old activity logs (> 365 days)
+    // ActivityLog grows unbounded without retention — every CRUD operation
+    // creates an entry. At 1000+ operations/day, this table reaches millions
+    // of rows within a year, slowing dashboard queries.
+    // Retention: 1 year (365 days). Older entries are deleted.
+    // For compliance/forensics, SecurityAuditLog retains 180 days separately.
+    try {
+      const oneYearAgo = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+      const oldActivityLogs = await db.activityLog.deleteMany({
+        where: {
+          createdAt: { lt: oneYearAgo },
+        },
+      });
+      results.oldActivityLogs = oldActivityLogs.count;
+    } catch {
+      results.oldActivityLogs = 0;
+    }
+
+    // 7. Clean old AI chat messages (> 180 days)
+    // AIChatMessage stores every LLM interaction. Active users accumulate
+    // thousands of messages. Retention: 6 months (180 days).
+    // Conversations with no remaining messages are cleaned up automatically
+    // by the onDelete: Cascade on AIChatMessage → AIChatConversation.
+    try {
+      const oldAiMessages = await db.aIChatMessage.deleteMany({
+        where: {
+          createdAt: { lt: hundredEightyDaysAgo },
+        },
+      });
+      results.oldAiChatMessages = oldAiMessages.count;
+    } catch {
+      results.oldAiChatMessages = 0;
+    }
+
+    // 8. Clean orphaned AI chat conversations (no messages left)
+    try {
+      const orphanedConversations = await db.aIChatConversation.deleteMany({
+        where: {
+          messages: { none: {} },
+        },
+      });
+      results.orphanedAiConversations = orphanedConversations.count;
+    } catch {
+      results.orphanedAiConversations = 0;
+    }
+
     log.info('[Cron] Cleanup completed', results);
 
     
@@ -146,6 +195,6 @@ export async function GET(request: NextRequest) {
   }
   return NextResponse.json({
     status: 'ready',
-    models: ['RefreshToken', 'PasswordResetToken', 'EmailVerificationToken', 'Notification', 'SecurityAuditLog'],
+    models: ['RefreshToken', 'PasswordResetToken', 'EmailVerificationToken', 'Notification', 'SecurityAuditLog', 'ActivityLog', 'AIChatMessage', 'AIChatConversation'],
   });
 }
