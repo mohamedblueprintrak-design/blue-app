@@ -38,6 +38,22 @@ interface ClientDetailPanelProps {
 
 export default function ClientDetailPanel({ client, ar, onClose, onEdit }: ClientDetailPanelProps) {
   const tAuto = useTranslations();
+
+  // Loading state: if client data is not yet available
+  if (!client) {
+    return (
+      <div className="w-full lg:w-[420px] flex-shrink-0 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900 overflow-hidden shadow-sm">
+        <div className="p-4 border-b border-slate-100 dark:border-slate-800">
+          <div className="h-6 w-32 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" />
+        </div>
+        <div className="p-4 space-y-3">
+          <div className="h-4 w-full bg-slate-200 dark:bg-slate-700 rounded animate-pulse" />
+          <div className="h-4 w-3/4 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" />
+          <div className="h-4 w-1/2 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" />
+        </div>
+      </div>
+    );
+  }
   const creditPct = client.creditLimit > 0 ? Math.min((client.creditUsed / client.creditLimit) * 100, 100) : 0;
 
   const services = parseServicesWanted(client.servicesWanted);
