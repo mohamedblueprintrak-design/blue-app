@@ -1,6 +1,5 @@
 import { useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
-import { dictionaries, type DictionaryPath } from "@/lib/i18n/dictionaries";
 
 // ===== Shared Language Hook =====
 // Centralized language detection to avoid duplication across 10+ page components.
@@ -21,6 +20,16 @@ export function useLang(): "ar" | "en" {
 /**
  * Extended language hook that also provides helper functions.
  * Usage: `const { lang, language, ar, isAr, t, toggleLanguage } = useLanguage();`
+ *
+ * SECURITY FIX: Removed dependency on src/lib/i18n/dictionaries.ts.
+ * The dictionary-based t("common.save") path resolution was never used —
+ * all callers use the inline mode: t("arabic text", "english text").
+ * The dictionaries.ts file (222 lines) was dead code duplicating
+ * messages/{ar,en}.json content.
+ *
+ * For new code, prefer useTranslations() from next-intl directly:
+ *   const tAuto = useTranslations();
+ *   tAuto('auto.someKey')
  */
 export function useLanguage() {
   const lang = useLang();
@@ -28,44 +37,25 @@ export function useLanguage() {
   const router = useRouter();
 
   /**
-   * Translates a key path from the dictionary (e.g. "common.save")
-   * or falls back to inline (arText, enText) if two string arguments are provided.
+   * Inline translation helper.
+   * Usage: t("arabic text", "english text")
+   *
+   * For dictionary-based translations, use useTranslations() from next-intl
+   * with keys from messages/{ar,en}.json instead.
    */
-  const t = (pathOrArText: string | DictionaryPath, enText?: string): string => {
-    if (enText !== undefined) {
-      return ar ? (pathOrArText as string) : enText;
-    }
-
-    // Resolve key path
-    const parts = (pathOrArText as string).split(".");
-    let current: unknown = dictionaries[lang];
-    for (const part of parts) {
-      if (current && typeof current === "object" && part in current) {
-        current = (current as Record<string, unknown>)[part];
-      } else {
-        return pathOrArText as string; // Fallback to path if not found
-      }
-    }
-    return typeof current === "string" ? current : (pathOrArText as string);
+  const t = (arText: string, enText: string): string => {
+    return ar ? arText : enText;
   };
 
   const toggleLanguage = () => {
     const next = lang === "ar" ? "en" : "ar";
-    // P0-10 FIX: Replaced `window.location.reload()` with `router.refresh()`.
-    // The old implementation destroyed all client state (open modals, form drafts,
-    // scroll position, unsaved inputs) on every language toggle. `router.refresh()`
-    // re-fetches server components with the new locale (read from the blueprint-lang
-    // cookie by next-intl's getRequestConfig) while preserving client state.
-    localStorage.setItem("blueprint-lang", next); // Keep for migration/sync
+    localStorage.setItem("blueprint-lang", next);
     document.cookie = `blueprint-lang=${next}; path=/; max-age=31536000; samesite=lax`;
     document.documentElement.dir = next === "ar" ? "rtl" : "ltr";
     document.documentElement.lang = next;
     window.dispatchEvent(new Event("blueprint-lang-change"));
-    // Trigger a soft refresh — server components re-render with the new locale,
-    // client state (modals, forms, scroll) is preserved.
     router.refresh();
   };
 
   return { lang, language: lang, ar, isAr: ar, t, toggleLanguage };
 }
-
