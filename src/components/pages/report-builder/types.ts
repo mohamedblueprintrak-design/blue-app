@@ -1,5 +1,7 @@
-// Types
-// ============================================
+/**
+ * Report Builder — Type Definitions
+ * Extracted from report-builder.tsx for reusability and testing.
+ */
 
 export type DataSourceName =
   | "projects"
@@ -92,3 +94,5 @@ export interface SavedReport {
   chartType: string;
   isPublic: boolean;
   createdAt: string;
+  createdBy?: { id: string; name: string; email: string };
+}

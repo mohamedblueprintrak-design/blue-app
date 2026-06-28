@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Calendar, CheckCircle2, Clock, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { daysUntil, getInitials, getAvatarColor, formatDueDate } from "./helpers";
+import { daysUntil, getInitials, getAvatarColor } from "./helpers";
 import type { UpcomingTask, TeamMember } from "./types";
 
 interface DeadlinesTeamProps {
