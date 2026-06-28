@@ -43,11 +43,11 @@ function createMockRequest(options: {
 // ═══════════════════════════════════════════════════════════════════════
 
 describe('Auth Flow — Auth Context from Request', () => {
-  let getAuthContext: typeof import('@/app/api/utils/auth').getAuthContext;
+  let extractAuthContext: typeof import('@/app/api/utils/auth').extractAuthContext;
 
   beforeAll(async () => {
     const mod = await import('@/app/api/utils/auth');
-    getAuthContext = mod.getAuthContext;
+    extractAuthContext = mod.extractAuthContext;
   });
 
   it('should extract auth context from middleware-set headers', () => {
@@ -61,7 +61,7 @@ describe('Auth Flow — Auth Context from Request', () => {
       },
     });
 
-    const ctx = getAuthContext(request as never);
+    const ctx = extractAuthContext(request as never);
     expect(ctx).not.toBeNull();
     expect(ctx!.userId).toBe('user-123');
     expect(ctx!.email).toBe('admin@blueprint.ae');
@@ -72,7 +72,7 @@ describe('Auth Flow — Auth Context from Request', () => {
 
   it('should return null when no auth headers present', () => {
     const request = createMockRequest({});
-    const ctx = getAuthContext(request as never);
+    const ctx = extractAuthContext(request as never);
     expect(ctx).toBeNull();
   });
 
@@ -83,7 +83,7 @@ describe('Auth Flow — Auth Context from Request', () => {
         // Missing x-user-email and x-user-role
       },
     });
-    const ctx = getAuthContext(request as never);
+    const ctx = extractAuthContext(request as never);
     expect(ctx).toBeNull();
   });
 
@@ -94,7 +94,7 @@ describe('Auth Flow — Auth Context from Request', () => {
         'x-user-role': 'ADMIN',
       },
     });
-    const ctx = getAuthContext(request as never);
+    const ctx = extractAuthContext(request as never);
     expect(ctx).toBeNull();
   });
 
@@ -105,17 +105,17 @@ describe('Auth Flow — Auth Context from Request', () => {
         'x-user-email': 'test@test.com',
       },
     });
-    const ctx = getAuthContext(request as never);
+    const ctx = extractAuthContext(request as never);
     expect(ctx).toBeNull();
   });
 
-  it('getAuthContext should return null for unauthenticated request', () => {
+  it('extractAuthContext should return null for unauthenticated request', () => {
     const request = createMockRequest({});
-    const result = getAuthContext(request as never);
+    const result = extractAuthContext(request as never);
     expect(result).toBeNull();
   });
 
-  it('getAuthContext should return user context for authenticated request', () => {
+  it('extractAuthContext should return user context for authenticated request', () => {
     const request = createMockRequest({
       headers: {
         'x-user-id': 'user-123',
@@ -123,7 +123,7 @@ describe('Auth Flow — Auth Context from Request', () => {
         'x-user-role': 'ADMIN',
       },
     });
-    const result = getAuthContext(request as never);
+    const result = extractAuthContext(request as never);
     expect(result).not.toBeNull();
     if (result) {
       expect(result.userId).toBe('user-123');
@@ -139,7 +139,7 @@ describe('Auth Flow — Auth Context from Request', () => {
       },
     });
 
-    const ctx = getAuthContext(request as never);
+    const ctx = extractAuthContext(request as never);
     expect(ctx).not.toBeNull();
     expect(ctx!.organizationId).toBeNull();
   });

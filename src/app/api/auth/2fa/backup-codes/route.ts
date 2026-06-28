@@ -16,7 +16,7 @@ import { log } from '@/lib/logger';
  * Body: { password: string }
  */
 export async function POST(request: NextRequest) {
-  // SECURITY FIX: Use requireVerifiedAuth() instead of getAuthContext()
+  // SECURITY FIX: Use requireVerifiedAuth() instead of requireVerifiedAuth()
   // to prevent header forgery — backup codes grant account recovery access.
   const authResult = await requireVerifiedAuth(request);
   if ('error' in authResult) return authResult.error;

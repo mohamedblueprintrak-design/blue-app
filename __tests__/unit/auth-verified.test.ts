@@ -30,7 +30,7 @@ jest.mock('@/lib/db', () => ({
 // The role helpers use the real authorization implementation.
 
 import {
-  getAuthContext,
+  extractAuthContext,
   requirePermission,
   requireAdmin,
   requireFinancialAccess,
@@ -104,7 +104,7 @@ describe('Deprecated Auth Functions (throw on use)', () => {
   });
 });
 
-describe('getAuthContext (deprecated but still functional)', () => {
+describe('extractAuthContext (deprecated but still functional)', () => {
   it('should extract auth context from headers', () => {
     const req = createMockRequest({
       headers: {
@@ -116,7 +116,7 @@ describe('getAuthContext (deprecated but still functional)', () => {
       },
     });
 
-    const ctx = getAuthContext(req);
+    const ctx = extractAuthContext(req);
     expect(ctx).not.toBeNull();
     expect(ctx!.userId).toBe('user-123');
     expect(ctx!.email).toBe('test@example.com');
@@ -133,13 +133,13 @@ describe('getAuthContext (deprecated but still functional)', () => {
       },
     });
 
-    const ctx = getAuthContext(req);
+    const ctx = extractAuthContext(req);
     expect(ctx).toBeNull();
   });
 
   it('should return null if no auth headers present', () => {
     const req = createMockRequest({});
-    const ctx = getAuthContext(req);
+    const ctx = extractAuthContext(req);
     expect(ctx).toBeNull();
   });
 
@@ -152,7 +152,7 @@ describe('getAuthContext (deprecated but still functional)', () => {
       },
     });
 
-    const ctx = getAuthContext(req);
+    const ctx = extractAuthContext(req);
     expect(ctx).not.toBeNull();
     expect(ctx!.organizationId).toBeNull();
     expect(ctx!.name).toBe('');

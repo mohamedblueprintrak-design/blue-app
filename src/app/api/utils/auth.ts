@@ -48,10 +48,10 @@ export interface AuthContext {
  * headers and does NOT verify the JWT, making it vulnerable to header forgery.
  * Use requireVerifiedAuth() or requireVerifiedPermission() instead.
  *
- * This function is intentionally NOT exported. It is only used internally by
- * requireVerifiedAuth() as the first step of defense-in-depth verification.
+ * Exported ONLY for testing (unit tests need to verify header parsing logic
+ * without a full JWT). Production code must use requireVerifiedAuth().
  */
-function extractAuthContext(request: NextRequest): AuthContext | null {
+export function extractAuthContext(request: NextRequest): AuthContext | null {
   const userId = request.headers.get('x-user-id');
   const email = request.headers.get('x-user-email');
   const role = request.headers.get('x-user-role');
@@ -69,22 +69,6 @@ function extractAuthContext(request: NextRequest): AuthContext | null {
     name: name ? decodeURIComponent(name) : '',
     organizationId: organizationId || null,
   };
-}
-
-/**
- * @deprecated Use requireVerifiedAuth() instead. This function trusts headers
- * without JWT verification and is vulnerable to header forgery.
- * 
- * Kept temporarily for backward compatibility during migration.
- * Will be removed in a future version.
- */
-export function getAuthContext(request: NextRequest): AuthContext | null {
-  if (process.env.NODE_ENV !== 'test') {
-    log.warn('SECURITY: getAuthContext() is deprecated and vulnerable to header forgery. Use requireVerifiedAuth() instead.', {
-      path: request.nextUrl?.pathname,
-    });
-  }
-  return extractAuthContext(request);
 }
 
 /**
@@ -317,7 +301,7 @@ import { Permission } from '@/lib/auth/types';
 
 /**
  * @deprecated REMOVED — Use requireVerifiedPermission() instead.
- * This function previously wrapped getAuthContext() without JWT re-verification
+ * This function previously wrapped extractAuthContext() without JWT re-verification
  * and was vulnerable to header forgery attacks.
  *
  * Migration: Replace requirePermission(request, permission) with
@@ -336,7 +320,7 @@ export function requirePermission(
 
 /**
  * @deprecated REMOVED — Use requireVerifiedAdmin() instead.
- * This function previously wrapped getAuthContext() without JWT re-verification
+ * This function previously wrapped extractAuthContext() without JWT re-verification
  * and was vulnerable to header forgery attacks.
  *
  * Migration: Replace requireAdmin(request) with
@@ -354,7 +338,7 @@ export function requireAdmin(
 
 /**
  * @deprecated REMOVED — Use requireVerifiedFinancialAccess() instead.
- * This function previously wrapped getAuthContext() without JWT re-verification
+ * This function previously wrapped extractAuthContext() without JWT re-verification
  * and was vulnerable to header forgery attacks.
  *
  * Migration: Replace requireFinancialAccess(request) with
@@ -372,7 +356,7 @@ export function requireFinancialAccess(
 
 /**
  * @deprecated REMOVED — Use requireVerifiedAuth() + role check instead.
- * This function previously wrapped getAuthContext() without JWT re-verification
+ * This function previously wrapped extractAuthContext() without JWT re-verification
  * and was vulnerable to header forgery attacks.
  *
  * Migration: Replace requireHRAccess(request) with
@@ -397,7 +381,7 @@ export function requireHRAccess(
 /**
  * SECURITY FIX: Header Forgery Prevention
  *
- * `getAuthContext()` reads x-user-id / x-user-email / x-user-role from headers
+ * `extractAuthContext()` reads x-user-id / x-user-email / x-user-role from headers
  * set by the proxy after JWT verification. If the proxy is bypassed (e.g., direct
  * access to the Node.js port), an attacker can forge these headers and assume
  * any identity.
@@ -411,7 +395,7 @@ export function requireHRAccess(
  * rejected with 401. This makes header forgery ineffective even if the
  * proxy is bypassed.
  *
- * Use this for ALL authenticated routes. The deprecated getAuthContext() and
+ * Use this for ALL authenticated routes. The deprecated extractAuthContext() and
  * requirePermission() functions have been removed — always use requireVerified*
  * variants.
  */

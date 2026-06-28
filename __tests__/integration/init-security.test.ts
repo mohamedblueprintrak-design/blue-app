@@ -52,16 +52,16 @@ function createMockRequest(options: {
 // ═══════════════════════════════════════════════════════════════════════
 
 describe('/api/init Security — Authentication Check', () => {
-  let getAuthContext: typeof import('@/app/api/utils/auth').getAuthContext;
+  let extractAuthContext: typeof import('@/app/api/utils/auth').extractAuthContext;
 
   beforeAll(async () => {
     const mod = await import('@/app/api/utils/auth');
-    getAuthContext = mod.getAuthContext;
+    extractAuthContext = mod.extractAuthContext;
   });
 
   it('should return null auth context when no auth headers present', () => {
     const request = createMockRequest({ method: 'POST' });
-    const ctx = getAuthContext(request);
+    const ctx = extractAuthContext(request);
     expect(ctx).toBeNull();
     // The init route checks: if (!authCtx) return 401
   });
@@ -74,7 +74,7 @@ describe('/api/init Security — Authentication Check', () => {
         'x-user-role': 'ADMIN',
       },
     });
-    const ctx = getAuthContext(request);
+    const ctx = extractAuthContext(request);
     expect(ctx).toBeNull();
   });
 
@@ -86,7 +86,7 @@ describe('/api/init Security — Authentication Check', () => {
         'x-user-email': 'admin@blueprint.ae',
       },
     });
-    const ctx = getAuthContext(request);
+    const ctx = extractAuthContext(request);
     expect(ctx).toBeNull();
   });
 });
@@ -96,11 +96,11 @@ describe('/api/init Security — Authentication Check', () => {
 // ═══════════════════════════════════════════════════════════════════════
 
 describe('/api/init Security — Authorization Check', () => {
-  let getAuthContext: typeof import('@/app/api/utils/auth').getAuthContext;
+  let extractAuthContext: typeof import('@/app/api/utils/auth').extractAuthContext;
 
   beforeAll(async () => {
     const mod = await import('@/app/api/utils/auth');
-    getAuthContext = mod.getAuthContext;
+    extractAuthContext = mod.extractAuthContext;
   });
 
   it('should return ADMIN role for admin user', () => {
@@ -112,7 +112,7 @@ describe('/api/init Security — Authorization Check', () => {
         'x-user-role': 'ADMIN',
       },
     });
-    const ctx = getAuthContext(request);
+    const ctx = extractAuthContext(request);
     expect(ctx).not.toBeNull();
     expect(ctx!.role.toUpperCase()).toBe('ADMIN');
     // The init route checks: normalizedRole !== 'ADMIN' → 403
@@ -127,7 +127,7 @@ describe('/api/init Security — Authorization Check', () => {
         'x-user-role': 'ENGINEER',
       },
     });
-    const ctx = getAuthContext(request);
+    const ctx = extractAuthContext(request);
     expect(ctx).not.toBeNull();
     expect(ctx!.role.toUpperCase()).not.toBe('ADMIN');
     // The init route checks: normalizedRole !== 'ADMIN' → 403
@@ -142,7 +142,7 @@ describe('/api/init Security — Authorization Check', () => {
         'x-user-role': 'HR',
       },
     });
-    const ctx = getAuthContext(request);
+    const ctx = extractAuthContext(request);
     expect(ctx).not.toBeNull();
     expect(ctx!.role.toUpperCase()).not.toBe('ADMIN');
   });
@@ -156,7 +156,7 @@ describe('/api/init Security — Authorization Check', () => {
         'x-user-role': 'VIEWER',
       },
     });
-    const ctx = getAuthContext(request);
+    const ctx = extractAuthContext(request);
     expect(ctx).not.toBeNull();
     expect(ctx!.role.toUpperCase()).not.toBe('ADMIN');
   });
@@ -170,7 +170,7 @@ describe('/api/init Security — Authorization Check', () => {
         'x-user-role': 'PROJECT_MANAGER',
       },
     });
-    const ctx = getAuthContext(request);
+    const ctx = extractAuthContext(request);
     expect(ctx).not.toBeNull();
     expect(ctx!.role.toUpperCase()).not.toBe('ADMIN');
   });
@@ -184,7 +184,7 @@ describe('/api/init Security — Authorization Check', () => {
         'x-user-role': 'admin', // lowercase from middleware
       },
     });
-    const ctx = getAuthContext(request);
+    const ctx = extractAuthContext(request);
     expect(ctx).not.toBeNull();
     // The init route normalizes to uppercase: normalizedRole = authCtx.role.toUpperCase()
     expect(ctx!.role.toUpperCase()).toBe('ADMIN');

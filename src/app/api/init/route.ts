@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
 
     // ============================================
     // 2. Authentication check - only ADMIN users (JWT-verified)
-    // SECURITY FIX: Use requireVerifiedAdmin() instead of getAuthContext()
+    // SECURITY FIX: Use requireVerifiedAdmin() instead of requireVerifiedAdmin()
     // to prevent header forgery attacks on this admin-only endpoint.
     // ============================================
     const adminResult = await requireVerifiedAdmin(request);
