@@ -56,6 +56,37 @@ export function daysUntil(dueDate: string | null): number {
   return Math.ceil((due.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
 }
 
+/**
+ * Format a due date with Hijri calendar support.
+ * Shows both Gregorian and Hijri dates in Arabic mode.
+ * Returns "—" if no date.
+ */
+export function formatDueDate(dueDate: string | null, isAr: boolean): string {
+  if (!dueDate) return "—";
+  try {
+    const date = new Date(dueDate);
+    const gregorian = date.toLocaleDateString(isAr ? "ar-AE" : "en-US", {
+      month: "short",
+      day: "numeric",
+    });
+
+    if (isAr) {
+      try {
+        const hijri = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', {
+          day: 'numeric',
+          month: 'short',
+        }).format(date);
+        return `${gregorian} (${hijri})`;
+      } catch {
+        return gregorian;
+      }
+    }
+    return gregorian;
+  } catch {
+    return dueDate;
+  }
+}
+
 // ===== Avatar Helpers =====
 
 export function getInitials(name: string): string {

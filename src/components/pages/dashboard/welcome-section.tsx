@@ -18,14 +18,32 @@ interface WelcomeSectionProps {
 export function WelcomeSection({ userName, alertsCount, isAr, onNavigate }: WelcomeSectionProps) {
   const tAuto = useTranslations();
   // Defer date rendering to client to avoid hydration mismatch
+  // Shows Hijri date alongside Gregorian in Arabic mode
   const [dateStr, setDateStr] = useState("");
   useEffect(() => {
-    setDateStr(new Date().toLocaleDateString(isAr ? "ar-AE" : "en-US", {
+    const now = new Date();
+    const gregorian = now.toLocaleDateString(isAr ? "ar-AE" : "en-US", {
       weekday: "long",
       year: "numeric",
       month: "long",
       day: "numeric",
-    }));
+    });
+
+    if (isAr) {
+      try {
+        const hijri = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', {
+          weekday: 'long',
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        }).format(now);
+        setDateStr(`${gregorian} | ${hijri} هـ`);
+      } catch {
+        setDateStr(gregorian);
+      }
+    } else {
+      setDateStr(gregorian);
+    }
   }, [isAr]);
 
   return (

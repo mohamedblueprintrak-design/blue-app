@@ -46,13 +46,49 @@ export function formatPct(value: number): string {
 /**
  * Format a date string for display
  */
-export function formatDate(dateStr: string | undefined | null, ar: boolean, options?: Intl.DateTimeFormatOptions): string {
+/**
+ * Format a date string with optional Hijri (Islamic) calendar display.
+ * In Arabic mode, shows both Gregorian and Hijri dates.
+ * In English mode, shows Gregorian only (with optional Hijri in parentheses).
+ *
+ * @param dateStr - ISO date string or null
+ * @param ar - Arabic mode flag
+ * @param options - Intl.DateTimeFormatOptions for custom formatting
+ * @param showHijri - If true, appends Hijri date (default: true in Arabic mode)
+ */
+export function formatDate(
+  dateStr: string | undefined | null,
+  ar: boolean,
+  options?: Intl.DateTimeFormatOptions,
+  showHijri?: boolean
+): string {
   if (!dateStr) return "—";
   try {
-    return new Date(dateStr).toLocaleDateString(
+    const date = new Date(dateStr);
+    const gregorian = date.toLocaleDateString(
       ar ? "ar-AE" : "en-US",
       options ?? { year: "numeric", month: "short", day: "numeric" }
     );
+
+    // Determine if Hijri should be shown
+    const shouldShowHijri = showHijri ?? ar; // Default: show in Arabic mode only
+
+    if (shouldShowHijri) {
+      try {
+        const hijri = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric',
+        }).format(date);
+        return ar
+          ? `${gregorian} (${hijri} هـ)`
+          : `${gregorian} (AH ${hijri})`;
+      } catch {
+        return gregorian;
+      }
+    }
+
+    return gregorian;
   } catch {
     return dateStr;
   }
