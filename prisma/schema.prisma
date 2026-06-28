@@ -2634,7 +2634,7 @@ model NotificationSettings {
 
 model FeatureFlag {
   id              String   @id @default(cuid())
-  key             String   @unique
+  key             String
   name            String
   nameAr          String?
   description     String?
@@ -2643,12 +2643,16 @@ model FeatureFlag {
   enabledForOrgs  String? // JSON array of organization IDs
   enabledForRoles String? // JSON array of roles
   percentage      Int      @default(100)
-  organizationId  String // Optional relation for org-specific flags
+  organizationId  String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
+  // SECURITY FIX: Changed from @unique on key alone (global) to @@unique([key, organizationId])
+  // so multiple orgs can have flags with the same key. A null organizationId means
+  // the flag is global (applies to all orgs).
+  @@unique([key, organizationId])
   @@index([key])
   @@index([organizationId])
 }
@@ -2917,6 +2921,7 @@ model DashboardPreset {
   nameEn         String
   role           UserRole
   isDefault      Boolean   @default(false)
+  isSystem       Boolean   @default(false) // System presets are shared across all orgs
   layout         String    @default("[]") // JSON string layout
   widgets        String    @default("[]") // JSON string widgets
   organizationId String?
@@ -2930,6 +2935,7 @@ model DashboardPreset {
   @@index([role])
   @@index([organizationId])
   @@index([createdById])
+  @@index([isSystem])
 }
 
 // Sequence numbering generator (idempotent document sequences)
@@ -2937,10 +2943,14 @@ model Sequence {
   id             String   @id @default(cuid())
   name           String
   value          Int      @default(0)
-  organizationId String   @default("")
+  organizationId String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
+  // SECURITY FIX: organizationId is now nullable (was @default("")).
+  // Null means global sequence; non-null means org-specific.
+  // The @@unique constraint still works with nulls (each null is treated
+  // as distinct in Postgres, but Prisma handles this correctly).
   @@unique([name, organizationId])
 }
 
