@@ -1,9 +1,14 @@
 @echo off
-REM BluePrint Setup - Simple launcher
-REM All setup logic is in scripts/setup.js (Node.js) to avoid cmd.exe parser issues.
-REM This batch file just finds Node/Bun and runs the script.
-
+chcp 65001 >nul 2>nul
 title BluePrint Setup
+color 0B
+
+echo ==================================================
+echo   BluePrint - Engineering Consultancy ERP
+echo ==================================================
+echo.
+echo [INFO] Starting setup...
+echo.
 
 REM Find Node.js or Bun
 where bun >nul 2>nul
@@ -13,23 +18,27 @@ where node >nul 2>nul
 if %ERRORLEVEL% NEQ 0 goto :error
 
 :run_node
+echo [INFO] Using Node.js
 node scripts\setup.js
-goto :done
+echo.
+echo ================================================
+echo Setup script finished (exit code: %ERRORLEVEL%)
+echo ================================================
+pause
+exit /b %ERRORLEVEL%
 
 :run_bun
+echo [INFO] Using Bun
 bun scripts\setup.js
-goto :done
+echo.
+echo ================================================
+echo Setup script finished (exit code: %ERRORLEVEL%)
+echo ================================================
+pause
+exit /b %ERRORLEVEL%
 
 :error
 echo [ERROR] Neither Bun nor Node.js found!
 echo Please install Node.js from https://nodejs.org/
 pause
 exit /b 1
-
-:done
-if %ERRORLEVEL% NEQ 0 (
-    echo.
-    echo [ERROR] Setup failed. See messages above.
-    pause
-)
-exit /b %ERRORLEVEL%
