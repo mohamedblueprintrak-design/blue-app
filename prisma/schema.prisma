@@ -427,6 +427,8 @@ model ProjectComment {
   user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  opportunities Opportunity[]
+  activities    CRMActivity[]
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
   deletedAt      DateTime? // Soft delete
@@ -2442,6 +2444,10 @@ model Organization {
   leads                      Lead[]
   bankAccounts               BankAccount[]
   bankTransactions           BankTransaction[]
+  whatsAppTemplates          WhatsAppTemplate[]
+  whatsAppMessages           WhatsAppMessage[]
+  opportunities              Opportunity[]
+  crmActivities              CRMActivity[]
 
   @@index([deletedAt])
 }
@@ -3156,3 +3162,112 @@ model BankTransaction {
 
 // Add relations to existing models
 // Relations added to Organization, Account, JournalEntry
+
+// ==================== WHATSAPP INTEGRATION ====================
+
+model WhatsAppTemplate {
+  id             String   @id @default(cuid())
+  name           String   // Template name (unique per org)
+  language       String   @default("ar") // ar, en
+  category       String   @default("MARKETING") // MARKETING, UTILITY, AUTHENTICATION
+  status         String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  headerType     String?  // TEXT, IMAGE, DOCUMENT, VIDEO
+  headerText     String?
+  bodyText       String   // Template body with {{1}}, {{2}} placeholders
+  footerText     String?
+  buttonType     String?  // NONE, QUICK_REPLY, CALL_TO_ACTION
+  buttons        String?  // JSON string of buttons
+  organizationId String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  messages       WhatsAppMessage[]
+
+  @@unique([organizationId, name])
+  @@index([organizationId])
+  @@index([status])
+}
+
+model WhatsAppMessage {
+  id              String   @id @default(cuid())
+  to              String   // Phone number (with country code)
+  from            String?  // Sender phone number (WhatsApp Business number)
+  messageText     String?  // Text content
+  templateId      String?  // If sent via template
+  templateParams  String?  // JSON string of template parameters
+  status          String   @default("QUEUED") // QUEUED, SENT, DELIVERED, READ, FAILED
+  direction       String   @default("OUTBOUND") // OUTBOUND, INBOUND
+  errorMessage    String?
+  invoiceId       String?  // If linked to an invoice
+  clientId        String?  // If linked to a client
+  organizationId  String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  organization    Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  template        WhatsAppTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId])
+  @@index([status])
+  @@index([to])
+  @@index([invoiceId])
+  @@index([createdAt])
+}
+
+// ==================== CRM: OPPORTUNITIES & ACTIVITIES ====================
+
+model Opportunity {
+  id             String    @id @default(cuid())
+  title          String
+  leadId         String?   // Link to Lead (if originated from a lead)
+  clientId       String?   // Link to Client (if converted)
+  projectId      String?   // Link to Project (if won and project created)
+  stage          String    @default("QUALIFICATION") // QUALIFICATION, NEEDS_ANALYSIS, PROPOSAL, NEGOTIATION, WON, LOST
+  probability    Int       @default(10) // 0-100
+  estimatedValue Decimal   @default(0)
+  expectedCloseDate DateTime?
+  description    String?
+  lostReason     String?
+  organizationId String
+  deletedAt      DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  lead           Lead?       @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  activities     CRMActivity[]
+
+  @@index([organizationId])
+  @@index([stage])
+  @@index([leadId])
+  @@index([deletedAt])
+}
+
+model CRMActivity {
+  id             String   @id @default(cuid())
+  type           String   // CALL, MEETING, EMAIL, TASK, NOTE, WHATSAPP
+  title          String
+  description    String?
+  dueDate        DateTime?
+  completedAt    DateTime?
+  status         String   @default("PENDING") // PENDING, COMPLETED, CANCELLED
+  leadId         String?
+  opportunityId  String?
+  clientId       String?
+  assignedToId   String?  // User ID
+  organizationId String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  lead           Lead?         @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  opportunity    Opportunity?  @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  assignedTo     User?         @relation(fields: [assignedToId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId])
+  @@index([leadId])
+  @@index([opportunityId])
+  @@index([status])
+  @@index([dueDate])
+}
