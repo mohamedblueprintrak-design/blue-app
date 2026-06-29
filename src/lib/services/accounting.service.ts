@@ -591,7 +591,7 @@ export async function createInvoiceJournalEntry(
   invoiceNumber: string,
   subtotal: number,
   tax: number,
-  userId: string
+  _userId: string
 ): Promise<void> {
   const total = subtotal + tax;
 
@@ -662,7 +662,7 @@ export async function createPaymentJournalEntry(
   invoiceNumber: string,
   amount: number,
   paymentMethod: 'cash' | 'bank' = 'bank',
-  userId: string
+  _userId: string
 ): Promise<void> {
   // Get account IDs
   const cashAccountId = await getAccountByCode(organizationId, '1010'); // Cash on Hand
