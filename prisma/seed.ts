@@ -66,7 +66,6 @@ async function main() {
     db.journalEntry.deleteMany(),
     db.account.deleteMany(),
     db.whatsAppMessage.deleteMany(),
-    db.communicationConsent.deleteMany(),
     db.lead.deleteMany(),
     db.aIChatConversation.deleteMany(),
     db.aIChatMessage.deleteMany(),
@@ -151,6 +150,12 @@ async function main() {
     db.employee.deleteMany(),
     db.companySettings.deleteMany(),
     db.user.deleteMany(),
+    // New models (Phase 2)
+    db.bankAccount.deleteMany(),
+    db.bankTransaction.deleteMany(),
+    db.whatsAppTemplate.deleteMany(),
+    db.opportunity.deleteMany(),
+    db.cRMActivity.deleteMany(),
     db.organization.deleteMany(),
   ]);
   // Re-enable FK checks
