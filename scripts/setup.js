@@ -198,8 +198,15 @@ async function main() {
 
   // ── Step 5: Prepare Prisma schema ───────────
   logStep(5, 'Preparing Prisma schema...');
-  if (!runCommand(runner, ['scripts/prepare-schema.js'])) {
+  // Run prepare-schema.js directly with node — no external deps needed
+  const prepResult = spawnSync(runner, ['scripts/prepare-schema.js'], {
+    stdio: 'inherit',
+    cwd: process.cwd(),
+    timeout: 30000,
+  });
+  if (prepResult.status !== 0) {
     logError('Failed to prepare Prisma schema!');
+    logError(`Exit code: ${prepResult.status}, Signal: ${prepResult.signal || 'none'}`);
     rl.close();
     process.exit(1);
   }
@@ -217,9 +224,19 @@ async function main() {
 
   // ── Step 7: Install dependencies ────────────
   logStep(7, `Installing dependencies (${pkgMgr} install)...`);
-  log('  (This may take a few minutes. Please wait...)');
-  if (!runCommand(pkgMgr, ['install'], { timeout: 600000 })) {
+  log('  (This may take 3-10 minutes on first run. Please wait...)');
+  const installResult = spawnSync(pkgMgr, ['install'], {
+    stdio: 'inherit',
+    shell: true,
+    cwd: process.cwd(),
+    timeout: 600000, // 10 minutes
+  });
+  if (installResult.status !== 0) {
     logError('Failed to install dependencies!');
+    logError(`Exit code: ${installResult.status}, Signal: ${installResult.signal || 'none'}`);
+    if (installResult.signal === 'SIGTERM' || installResult.signal === 'SIGKILL') {
+      logError('The install timed out. Try running "npm install" manually.');
+    }
     rl.close();
     process.exit(1);
   }
@@ -228,8 +245,21 @@ async function main() {
   // ── Step 8: Create database tables ──────────
   logStep(8, 'Creating Database Tables...');
   log('  (Running prisma db push...)');
-  if (!runCommand(execCmd, ['prisma', 'db', 'push'], { timeout: 120000 })) {
+  // Use npx --yes to auto-confirm any prompts
+  // Or use node_modules/.bin/prisma directly
+  const prismaBin = path.join('node_modules', '.bin', 'prisma');
+  const prismaCmd = fs.existsSync(prismaBin) ? prismaBin : execCmd;
+  const prismaArgs = fs.existsSync(prismaBin) ? ['db', 'push'] : ['--yes', 'prisma', 'db', 'push'];
+
+  const dbPushResult = spawnSync(prismaCmd, prismaArgs, {
+    stdio: 'inherit',
+    shell: true,
+    cwd: process.cwd(),
+    timeout: 120000,
+  });
+  if (dbPushResult.status !== 0) {
     logError('Failed to push database schema!');
+    logError(`Exit code: ${dbPushResult.status}, Signal: ${dbPushResult.signal || 'none'}`);
     rl.close();
     process.exit(1);
   }
@@ -239,8 +269,19 @@ async function main() {
   logStep(9, 'Seeding data...');
   if (isDemo) {
     log('  (Running prisma seed... This may take a minute for demo data)');
-    if (!runCommand(execCmd, ['tsx', 'prisma/seed.ts'], { timeout: 300000 })) {
+    const tsxBin = path.join('node_modules', '.bin', 'tsx');
+    const seedCmd = fs.existsSync(tsxBin) ? tsxBin : execCmd;
+    const seedArgs = fs.existsSync(tsxBin) ? ['prisma/seed.ts'] : ['--yes', 'tsx', 'prisma/seed.ts'];
+
+    const seedResult = spawnSync(seedCmd, seedArgs, {
+      stdio: 'inherit',
+      shell: true,
+      cwd: process.cwd(),
+      timeout: 300000,
+    });
+    if (seedResult.status !== 0) {
       logError('Failed to seed demo data!');
+      logError(`Exit code: ${seedResult.status}, Signal: ${seedResult.signal || 'none'}`);
       rl.close();
       process.exit(1);
     }
@@ -251,8 +292,15 @@ async function main() {
 
   // ── Step 10: Generate Prisma Client ─────────
   logStep(10, 'Generating Prisma Client...');
-  if (!runCommand(execCmd, ['prisma', 'generate'], { timeout: 120000 })) {
+  const genResult = spawnSync(prismaCmd, fs.existsSync(prismaBin) ? ['generate'] : ['--yes', 'prisma', 'generate'], {
+    stdio: 'inherit',
+    shell: true,
+    cwd: process.cwd(),
+    timeout: 120000,
+  });
+  if (genResult.status !== 0) {
     logError('Failed to generate Prisma Client!');
+    logError(`Exit code: ${genResult.status}, Signal: ${genResult.signal || 'none'}`);
     rl.close();
     process.exit(1);
   }
