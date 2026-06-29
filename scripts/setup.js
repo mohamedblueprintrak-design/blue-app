@@ -49,10 +49,22 @@ function runCommand(cmd, args, options = {}) {
       stdio: options.silent ? 'pipe' : 'inherit',
       shell: true,
       cwd: process.cwd(),
+      timeout: options.timeout || 300000, // Default 5 min timeout
       ...options,
     });
+    if (result.error) {
+      // spawnSync error (e.g., EAGAIN, ENOMEM)
+      logError(`Command failed: ${cmd} ${args.join(' ')}`);
+      logError(`Error: ${result.error.message}`);
+      return false;
+    }
+    if (result.signal === 'SIGTERM' || result.signal === 'SIGKILL') {
+      logError(`Command timed out after ${options.timeout || 300000}ms: ${cmd} ${args.join(' ')}`);
+      return false;
+    }
     return result.status === 0;
   } catch (err) {
+    logError(`Exception running ${cmd} ${args.join(' ')}: ${err.message}`);
     return false;
   }
 }
@@ -205,7 +217,8 @@ async function main() {
 
   // ── Step 7: Install dependencies ────────────
   logStep(7, `Installing dependencies (${pkgMgr} install)...`);
-  if (!runCommand(pkgMgr, ['install'])) {
+  log('  (This may take a few minutes. Please wait...)');
+  if (!runCommand(pkgMgr, ['install'], { timeout: 600000 })) {
     logError('Failed to install dependencies!');
     rl.close();
     process.exit(1);
@@ -214,7 +227,8 @@ async function main() {
 
   // ── Step 8: Create database tables ──────────
   logStep(8, 'Creating Database Tables...');
-  if (!runCommand(execCmd, ['prisma', 'db', 'push'])) {
+  log('  (Running prisma db push...)');
+  if (!runCommand(execCmd, ['prisma', 'db', 'push'], { timeout: 120000 })) {
     logError('Failed to push database schema!');
     rl.close();
     process.exit(1);
@@ -224,7 +238,8 @@ async function main() {
   // ── Step 9: Seed data ───────────────────────
   logStep(9, 'Seeding data...');
   if (isDemo) {
-    if (!runCommand(execCmd, ['tsx', 'prisma/seed.ts'])) {
+    log('  (Running prisma seed... This may take a minute for demo data)');
+    if (!runCommand(execCmd, ['tsx', 'prisma/seed.ts'], { timeout: 300000 })) {
       logError('Failed to seed demo data!');
       rl.close();
       process.exit(1);
@@ -236,7 +251,7 @@ async function main() {
 
   // ── Step 10: Generate Prisma Client ─────────
   logStep(10, 'Generating Prisma Client...');
-  if (!runCommand(execCmd, ['prisma', 'generate'])) {
+  if (!runCommand(execCmd, ['prisma', 'generate'], { timeout: 120000 })) {
     logError('Failed to generate Prisma Client!');
     rl.close();
     process.exit(1);
@@ -247,17 +262,22 @@ async function main() {
   let setupToken = '';
   if (isDemo) {
     logStep(11, 'Generating one-time setup token...');
-    const token = crypto.randomBytes(24).toString('hex');
-    const hash = crypto.createHash('sha256').update(token).digest('hex');
-    const now = Date.now();
-    const tokenData = {
-      version: 1,
-      tokens: [{ hash, createdAt: now, consumed: false }],
-      updatedAt: new Date().toISOString(),
-    };
-    fs.writeFileSync('.setup-tokens.json', JSON.stringify(tokenData, null, 2), 'utf8');
-    setupToken = token;
-    logOK('Setup token generated');
+    try {
+      const token = crypto.randomBytes(24).toString('hex');
+      const hash = crypto.createHash('sha256').update(token).digest('hex');
+      const now = Date.now();
+      const tokenData = {
+        version: 1,
+        tokens: [{ hash, createdAt: now, consumed: false }],
+        updatedAt: new Date().toISOString(),
+      };
+      fs.writeFileSync('.setup-tokens.json', JSON.stringify(tokenData, null, 2), 'utf8');
+      setupToken = token;
+      logOK('Setup token generated');
+    } catch (tokenErr) {
+      logError(`Failed to generate setup token: ${tokenErr.message}`);
+      log('  (Setup will continue, but demo credentials will not be available via token.)');
+    }
   }
 
   // ── Summary ─────────────────────────────────
@@ -270,7 +290,7 @@ async function main() {
   log(`  Database: ${isPostgres ? 'PostgreSQL' : 'SQLite'}`);
   log('------------------------------------------------\n');
 
-  if (isDemo) {
+  if (isDemo && setupToken) {
     log('[SECURE] To view demo login credentials:');
     log('');
     log('  1. Open this URL in your browser:');
@@ -282,6 +302,10 @@ async function main() {
     log('');
     log('  [!] Save this token now - it will not be shown again.');
     log('      The token is valid for 24 hours from now.');
+    log('');
+  } else if (isDemo) {
+    log('[INFO] Demo credentials were seeded. Check the console output');
+    log('       from the seed step above, or use: admin@blueprint.ae');
     log('');
   } else {
     log('[WARN] NOTE FOR PRODUCTION:');
@@ -296,8 +320,11 @@ async function main() {
   rl.close();
 
   if (startDev.toLowerCase() === 'y') {
-    log('\nStarting development server...\n');
-    runCommand(pkgMgr, ['run', 'dev']);
+    log('\nStarting development server...');
+    log('  (Press Ctrl+C to stop the server)');
+    log('');
+    // Use spawnSync with inherit so the server output shows
+    runCommand(pkgMgr, ['run', 'dev'], { timeout: 0 }); // No timeout for dev server
   } else {
     log('\nSetup complete. Press Enter to exit...');
     process.stdin.resume();
@@ -307,5 +334,11 @@ async function main() {
 
 main().catch((err) => {
   console.error('\n[FATAL] Setup failed:', err.message);
+  console.error('\nStack trace:', err.stack);
+  console.error('\nPlease check the error above and try again.');
+  console.error('If the problem persists, check:');
+  console.error('  1. Node.js is installed and in PATH');
+  console.error('  2. You have write permissions in this directory');
+  console.error('  3. No other process is using port 3000');
   process.exit(1);
 });
