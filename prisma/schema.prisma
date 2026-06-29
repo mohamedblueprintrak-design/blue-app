@@ -236,6 +236,7 @@ model User {
   designRevisions         DesignRevision[]         @relation("DesignRevisionUploader")
   certifiedProgressClaims ProgressClaim[]           @relation("ProgressClaimCertifier")
   securityAuditLogs       SecurityAuditLog[]        @relation("SecurityAuditLogUser")
+  crmActivities           CRMActivity[]
 
   @@unique([email, organizationId])
   @@unique([googleId, organizationId])
@@ -427,8 +428,6 @@ model ProjectComment {
   user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  opportunities Opportunity[]
-  activities    CRMActivity[]
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
   deletedAt      DateTime? // Soft delete
@@ -575,7 +574,6 @@ model Client {
   proposals           Proposal[]
   interactions        ClientInteraction[]
   buildingInspections BuildingInspection[]
-  whatsappMessages    WhatsAppMessage[]
 
   @@unique([email, organizationId], name: "client_email_org_unique")
   @@unique([idNumber, organizationId], name: "client_idnumber_org_unique")
@@ -2440,7 +2438,6 @@ model Organization {
   dashboardPresets           DashboardPreset[]
   accounts                   Account[]
   journalEntries             JournalEntry[]
-  whatsappMessages           WhatsAppMessage[]
   leads                      Lead[]
   bankAccounts               BankAccount[]
   bankTransactions           BankTransaction[]
@@ -3032,17 +3029,6 @@ model JournalLine {
   @@index([accountId])
 }
 
-// ==================== WHATSAPP INTEGRATION ====================
-
-  updatedAt      DateTime @updatedAt
-  createdAt      DateTime @default(now())
-  
-  @@unique([organizationId, phoneNumber, channel])
-  @@index([organizationId])
-  @@index([phoneNumber])
-  @@map("communication_consents")
-}
-
 model Lead {
   id             String    @id @default(cuid())
   name           String    @default("")
@@ -3058,6 +3044,8 @@ model Lead {
   updatedAt      DateTime  @updatedAt
 
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  opportunities Opportunity[]
+  activities    CRMActivity[]
 
   @@index([organizationId])
   @@index([status])
