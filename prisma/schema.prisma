@@ -2440,6 +2440,8 @@ model Organization {
   journalEntries             JournalEntry[]
   whatsappMessages           WhatsAppMessage[]
   leads                      Lead[]
+  bankAccounts               BankAccount[]
+  bankTransactions           BankTransaction[]
 
   @@index([deletedAt])
 }
@@ -2984,6 +2986,7 @@ model Account {
   parentAccount    Account?      @relation("AccountHierarchy", fields: [parentAccountId], references: [id], onDelete: Cascade)
   childAccounts    Account[]     @relation("AccountHierarchy")
   journalLines     JournalLine[]
+  bankAccounts     BankAccount[]
 
   @@unique([organizationId, code])
   @@index([organizationId])
@@ -3001,6 +3004,7 @@ model JournalEntry {
 
   organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   lines          JournalLine[]
+  bankTransactions BankTransaction[]
 
   @@index([organizationId])
   @@index([date])
@@ -3095,3 +3099,60 @@ model Lead {
   @@map("leads")
 }
 
+
+// ==================== BANK ACCOUNTS & RECONCILIATION ====================
+
+model BankAccount {
+  id             String   @id @default(cuid())
+  name           String   // e.g. "ADCB Current Account"
+  nameAr         String?  // e.g. "حساب ADCB الجاري"
+  bankName       String   // e.g. "ADCB", "Emirates NBD"
+  iban           String?  @unique // International Bank Account Number
+  accountNumber  String?  // Last 4 digits for display
+  currency       String   @default("AED")
+  accountId      String?  // Link to Chart of Accounts (GL account 1020)
+  organizationId String
+  isActive       Boolean  @default(true)
+  openingBalance Decimal  @default(0)
+  currentBalance Decimal  @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  account        Account?     @relation(fields: [accountId], references: [id], onDelete: SetNull)
+  transactions   BankTransaction[]
+
+  @@index([organizationId])
+  @@index([isActive])
+}
+
+model BankTransaction {
+  id              String   @id @default(cuid())
+  bankAccountId   String
+  date            DateTime
+  description     String
+  reference       String?  // Cheque number, transfer ref, etc.
+  amount          Decimal  // Positive = deposit, Negative = withdrawal
+  balanceAfter    Decimal  // Running balance after this transaction
+  type            String   @default("OTHER") // DEPOSIT, WITHDRAWAL, TRANSFER, FEE, INTEREST, OTHER
+  isReconciled    Boolean  @default(false)
+  reconciledAt    DateTime?
+  journalEntryId  String?  // Link to GL journal entry if matched
+  matchType       String?  // "AUTO" or "MANUAL" or null
+  matchDetails    String?  // JSON string: what was matched (invoice, payment, etc.)
+  organizationId  String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  bankAccount     BankAccount  @relation(fields: [bankAccountId], references: [id], onDelete: Cascade)
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  journalEntry    JournalEntry? @relation(fields: [journalEntryId], references: [id], onDelete: SetNull)
+
+  @@index([bankAccountId])
+  @@index([organizationId])
+  @@index([date])
+  @@index([isReconciled])
+}
+
+// Add relations to existing models
+// Relations added to Organization, Account, JournalEntry
