@@ -104,7 +104,7 @@ describe("Accounting Engine & Double-Entry Ledger", () => {
   it("4. should post a valid double-entry journal entry", async () => {
     const accounts = await AccountingService.getAccounts(testOrgId);
     const bankAccount = accounts.find((a) => a.code === "1020")!;
-    const serviceRevenue = accounts.find((a) => a.code === "4010")!;
+    const _serviceRevenue = accounts.find((a) => a.code === "4010")!;
 
     const entry = await AccountingService.createJournalEntry(
       testOrgId,
@@ -128,7 +128,7 @@ describe("Accounting Engine & Double-Entry Ledger", () => {
   it("5. should reject out-of-balance journal entries", async () => {
     const accounts = await AccountingService.getAccounts(testOrgId);
     const bankAccount = accounts.find((a) => a.code === "1020")!;
-    const serviceRevenue = accounts.find((a) => a.code === "4010")!;
+    const _serviceRevenue = accounts.find((a) => a.code === "4010")!;
 
     await expect(
       AccountingService.createJournalEntry(
@@ -148,7 +148,7 @@ describe("Accounting Engine & Double-Entry Ledger", () => {
   it("6. should correctly compute Trial Balance, P&L, and Balance Sheet", async () => {
     const accounts = await AccountingService.getAccounts(testOrgId);
     const bankAccount = accounts.find((a) => a.code === "1020")!;
-    const serviceRevenue = accounts.find((a) => a.code === "4010")!;
+    const _serviceRevenue = accounts.find((a) => a.code === "4010")!;
     const salaryExpense = accounts.find((a) => a.code === "5010")!;
     const marketingExpense = accounts.find((a) => a.code === "5200")!;
 

@@ -11,7 +11,7 @@ import { sanitizeObject } from "@/lib/security/sanitize";
  * Fetch active leads for organization
  */
 export async function GET(request: NextRequest) {
-  const { allowed, result } = await withRateLimit(request, "api");
+  const { allowed: _allowed, result } = await withRateLimit(request, "api");
   const blocked = rateLimitResponse(result);
   if (blocked) return blocked;
 
@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
     });
 
     return successResponse(leads);
-  } catch (error: any) {
+  } catch (error: unknown) {
     return errorResponse(error.message || "Internal Server Error", "INTERNAL_ERROR", 500);
   }
 }
@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
  * Create a new lead
  */
 export async function POST(request: NextRequest) {
-  const { allowed, result } = await withRateLimit(request, "api");
+  const { allowed: _allowed, result } = await withRateLimit(request, "api");
   const blocked = rateLimitResponse(result);
   if (blocked) return blocked;
 
@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
     });
 
     return createdResponse(lead);
-  } catch (error: any) {
+  } catch (error: unknown) {
     return errorResponse(error.message || "Internal Server Error", "INTERNAL_ERROR", 500);
   }
 }

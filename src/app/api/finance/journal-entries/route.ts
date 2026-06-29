@@ -1,8 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
 import { AccountingService } from "@/lib/services/accounting.service";
 import { requireVerifiedPermission } from "../../utils/auth";
 import { Permission } from "@/lib/auth/types";
-import { errorResponse, successResponse, createdResponse } from "../../utils/response";
 import { sanitizeObject } from "@/lib/security/sanitize";
 import { withRateLimit, rateLimitResponse } from "@/lib/rate-limit-middleware";
 
@@ -11,7 +9,7 @@ import { withRateLimit, rateLimitResponse } from "@/lib/rate-limit-middleware";
  * Create a new double-entry journal entry
  */
 export async function POST(request: NextRequest) {
-  const { allowed, result } = await withRateLimit(request, "api");
+  const { allowed: _allowed, result } = await withRateLimit(request, "api");
   const blocked = rateLimitResponse(result);
   if (blocked) return blocked;
 
@@ -35,7 +33,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Map lines and parse amounts securely
-    const journalLines = lines.map((line: any) => ({
+    const journalLines = lines.map((line: unknown) => ({
       accountId: String(line.accountId),
       debit: Number(line.debit || 0),
       credit: Number(line.credit || 0),
@@ -53,7 +51,7 @@ export async function POST(request: NextRequest) {
     );
 
     return createdResponse(entry);
-  } catch (error: any) {
+  } catch (error: unknown) {
     return errorResponse(error.message || "Internal Server Error", "INTERNAL_ERROR", 500);
   }
 }

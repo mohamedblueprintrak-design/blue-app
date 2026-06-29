@@ -43,7 +43,6 @@ import {
   RefreshCw,
   Calendar,
   Layers,
-  FileText
 } from "lucide-react";
 import { toast } from "sonner";
 import { formatCurrency } from "@/lib/formatters";
@@ -88,7 +87,7 @@ export default function FinanceJournalEntriesPage() {
   });
 
   // Group ledger lines by Journal Entry ID
-  const entriesMap = new Map<string, { entry: any; lines: any[] }>();
+  const entriesMap = new Map<string, { entry: unknown; lines: unknown[] }>();
   for (const line of ledgerLines) {
     const entryId = line.journalEntryId;
     const existing = entriesMap.get(entryId) || {
@@ -107,7 +106,7 @@ export default function FinanceJournalEntriesPage() {
 
   // 3. Create Journal Entry Mutation
   const createMutation = useMutation({
-    mutationFn: async (newEntry: any) => {
+    mutationFn: async (newEntry: unknown) => {
       const res = await fetch("/api/finance/journal-entries", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -125,7 +124,7 @@ export default function FinanceJournalEntriesPage() {
       setIsCreateOpen(false);
       resetForm();
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       toast.error(error.message || t("حدث خطأ ما", "Something went wrong"));
     },
   });
@@ -155,7 +154,7 @@ export default function FinanceJournalEntriesPage() {
   };
 
   // Update line details
-  const updateLine = (index: number, field: string, value: any) => {
+  const updateLine = (index: number, field: string, value: unknown) => {
     const updated = [...lines];
     if (field === "accountId") {
       updated[index].accountId = value;

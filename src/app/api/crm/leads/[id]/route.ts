@@ -17,7 +17,7 @@ interface RouteContext {
  * Update a lead
  */
 export async function PUT(request: NextRequest, { params }: RouteContext) {
-  const { allowed, result } = await withRateLimit(request, "api");
+  const { allowed: _allowed, result } = await withRateLimit(request, "api");
   const blocked = rateLimitResponse(result);
   if (blocked) return blocked;
 
@@ -45,7 +45,7 @@ export async function PUT(request: NextRequest, { params }: RouteContext) {
 
     const { name, company, email, phone, status, estimatedValue, notes } = sanitized;
 
-    const updateData: any = {};
+    const updateData: unknown = {};
     if (name !== undefined) updateData.name = name;
     if (company !== undefined) updateData.company = company;
     if (email !== undefined) updateData.email = email;
@@ -60,7 +60,7 @@ export async function PUT(request: NextRequest, { params }: RouteContext) {
     });
 
     return successResponse(updatedLead);
-  } catch (error: any) {
+  } catch (error: unknown) {
     return errorResponse(error.message || "Internal Server Error", "INTERNAL_ERROR", 500);
   }
 }
@@ -70,7 +70,7 @@ export async function PUT(request: NextRequest, { params }: RouteContext) {
  * Soft delete a lead
  */
 export async function DELETE(request: NextRequest, { params }: RouteContext) {
-  const { allowed, result } = await withRateLimit(request, "api");
+  const { allowed: _allowed, result } = await withRateLimit(request, "api");
   const blocked = rateLimitResponse(result);
   if (blocked) return blocked;
 
@@ -99,7 +99,7 @@ export async function DELETE(request: NextRequest, { params }: RouteContext) {
     });
 
     return successResponse({ success: true });
-  } catch (error: any) {
+  } catch (error: unknown) {
     return errorResponse(error.message || "Internal Server Error", "INTERNAL_ERROR", 500);
   }
 }

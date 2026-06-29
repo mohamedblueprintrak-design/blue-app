@@ -4,12 +4,12 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Plus, Target, TrendingUp, Coins, Users, Phone, Mail,
-  Briefcase, Trash2, Edit, CheckCircle, X, AlertCircle,
+  Trash2, X,
   Building, Check, ArrowRightLeft, MessageCircle
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { Card, CardContent } from "@/components/ui/card"
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { useTranslations } from 'next-intl'
@@ -35,12 +35,12 @@ const COLUMNS = [
 ]
 
 export default function CrmLeadsPage({ language = 'ar' }: { language?: 'ar' | 'en' }) {
-  const tAuto = useTranslations()
+  const _tAuto = useTranslations()
   const isAr = language === 'ar'
 
   const [leads, setLeads] = useState<Lead[]>([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [_error, setError] = useState<string | null>(null)
 
   // Modals state
   const [isAddOpen, setIsAddOpen] = useState(false)
@@ -71,7 +71,7 @@ export default function CrmLeadsPage({ language = 'ar' }: { language?: 'ar' | 'e
       const items = data.data ?? data ?? []
       setLeads(items)
       setError(null)
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.message)
     } finally {
       setLoading(false)
@@ -107,7 +107,7 @@ export default function CrmLeadsPage({ language = 'ar' }: { language?: 'ar' | 'e
         body: JSON.stringify({ status: targetStatus }),
       })
       if (!res.ok) throw new Error('Failed to update lead status')
-    } catch (err) {
+    } catch (_err) {
       // Revert if error
       setLeads(previousLeads)
       alert(isAr ? 'عذراً، فشل تحديث حالة العميل المحتمل' : 'Sorry, failed to update lead status')
@@ -138,7 +138,7 @@ export default function CrmLeadsPage({ language = 'ar' }: { language?: 'ar' | 'e
       setIsAddOpen(false)
       resetForm()
       fetchLeads()
-    } catch (err: any) {
+    } catch (err: unknown) {
       alert(err.message)
     }
   }
@@ -167,7 +167,7 @@ export default function CrmLeadsPage({ language = 'ar' }: { language?: 'ar' | 'e
       setIsEditOpen(false)
       resetForm()
       fetchLeads()
-    } catch (err: any) {
+    } catch (err: unknown) {
       alert(err.message)
     }
   }
@@ -182,7 +182,7 @@ export default function CrmLeadsPage({ language = 'ar' }: { language?: 'ar' | 'e
       })
       if (!res.ok) throw new Error('Failed to delete lead')
       fetchLeads()
-    } catch (err: any) {
+    } catch (err: unknown) {
       alert(err.message)
     }
   }
@@ -200,7 +200,7 @@ export default function CrmLeadsPage({ language = 'ar' }: { language?: 'ar' | 'e
         setConvertSuccess(null)
       }, 3000)
       fetchLeads()
-    } catch (err: any) {
+    } catch (err: unknown) {
       alert(err.message)
     } finally {
       setConvertingId(null)

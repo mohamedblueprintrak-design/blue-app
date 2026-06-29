@@ -67,7 +67,7 @@ export class AccountingService {
   /**
    * Seed default Chart of Accounts for an organization
    */
-  static async seedDefaultAccounts(tx: any, organizationId: string): Promise<void> {
+  static async seedDefaultAccounts(tx: unknown, organizationId: string): Promise<void> {
     log.info(`[Accounting] Seeding default Chart of Accounts for organization: ${organizationId}`);
     
     // Build array of create inputs
@@ -393,7 +393,7 @@ export class AccountingService {
     });
 
     // Group by account
-    const accountsMap = new Map<string, { account: any; debit: number; credit: number }>();
+    const accountsMap = new Map<string, { account: unknown; debit: number; credit: number }>();
     for (const line of lines) {
       const existing = accountsMap.get(line.accountId) || {
         account: line.account,
@@ -405,8 +405,8 @@ export class AccountingService {
       accountsMap.set(line.accountId, existing);
     }
 
-    const revenueRows: any[] = [];
-    const expenseRows: any[] = [];
+    const revenueRows: unknown[] = [];
+    const expenseRows: unknown[] = [];
     let totalRevenue = 0;
     let totalExpense = 0;
 
@@ -463,7 +463,7 @@ export class AccountingService {
     });
 
     // Group by account
-    const accountsMap = new Map<string, { account: any; debit: number; credit: number }>();
+    const accountsMap = new Map<string, { account: unknown; debit: number; credit: number }>();
     for (const line of lines) {
       const existing = accountsMap.get(line.accountId) || {
         account: line.account,
@@ -512,9 +512,9 @@ export class AccountingService {
     }
     const netRetainedEarnings = historicalRevenue - historicalExpense;
 
-    const assetRows: any[] = [];
-    const liabilityRows: any[] = [];
-    const equityRows: any[] = [];
+    const assetRows: unknown[] = [];
+    const liabilityRows: unknown[] = [];
+    const equityRows: unknown[] = [];
     let totalAssets = 0;
     let totalLiabilities = 0;
     let totalEquity = 0;

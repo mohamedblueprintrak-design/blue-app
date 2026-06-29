@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "../../../../db";
 import { requireVerifiedPermission } from "../../../../utils/auth";
 import { Permission } from "@/lib/auth/types";
-import { errorResponse, successResponse } from "../../../../utils/response";
 import { withRateLimit, rateLimitResponse } from "@/lib/rate-limit-middleware";
 import { cacheDeletePattern } from "@/lib/cache/redis";
 
@@ -17,7 +16,7 @@ interface RouteContext {
  * Convert a Won lead to a Client
  */
 export async function POST(request: NextRequest, { params }: RouteContext) {
-  const { allowed, result } = await withRateLimit(request, "api");
+  const { allowed: _allowed, result } = await withRateLimit(request, "api");
   const blocked = rateLimitResponse(result);
   if (blocked) return blocked;
 
@@ -68,7 +67,7 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
     await cacheDeletePattern(`dashboard:${user.organizationId || 'global'}:*`);
 
     return NextResponse.json(client, { status: 201 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     return errorResponse(error.message || "Internal Server Error", "INTERNAL_ERROR", 500);
   }
 }

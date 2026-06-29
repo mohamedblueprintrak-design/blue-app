@@ -48,7 +48,7 @@ const PHONE_REGEX = /^[1-9]\d{6,14}$/;
 
 function isValidPhoneNumber(phone: string): boolean {
   // Strip common formatting characters
-  const cleaned = phone.replace(/[\s\-\+\(\)]/g, '');
+  const cleaned = phone.replace(/[\s\-+()]/g, '');
   return PHONE_REGEX.test(cleaned);
 }
 

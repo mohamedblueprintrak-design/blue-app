@@ -10,7 +10,7 @@ import { withRateLimit, rateLimitResponse } from "@/lib/rate-limit-middleware";
  * Retrieve Trial Balance sheet
  */
 export async function GET(request: NextRequest) {
-  const { allowed, result } = await withRateLimit(request, "api");
+  const { allowed: _allowed, result } = await withRateLimit(request, "api");
   const blocked = rateLimitResponse(result);
   if (blocked) return blocked;
 
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
 
     const trialBalance = await AccountingService.getTrialBalance(user.organizationId || "default");
     return successResponse(trialBalance);
-  } catch (error: any) {
+  } catch (error: unknown) {
     return errorResponse(error.message || "Internal Server Error", "INTERNAL_ERROR", 500);
   }
 }

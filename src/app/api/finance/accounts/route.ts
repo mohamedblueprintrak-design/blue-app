@@ -1,5 +1,3 @@
-import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
 import { AccountingService } from "@/lib/services/accounting.service";
 import { requireVerifiedPermission } from "../../utils/auth";
 import { Permission } from "@/lib/auth/types";
@@ -13,7 +11,7 @@ import { withRateLimit, rateLimitResponse } from "@/lib/rate-limit-middleware";
  * Retrieve Chart of Accounts
  */
 export async function GET(request: NextRequest) {
-  const { allowed, result } = await withRateLimit(request, "api");
+  const { allowed: _allowed, result } = await withRateLimit(request, "api");
   const blocked = rateLimitResponse(result);
   if (blocked) return blocked;
 
@@ -41,7 +39,7 @@ export async function GET(request: NextRequest) {
 
     const accounts = await AccountingService.getAccounts(user.organizationId || "default", filter);
     return successResponse(accounts);
-  } catch (error: any) {
+  } catch (error: unknown) {
     return errorResponse(error.message || "Internal Server Error", "INTERNAL_ERROR", 500);
   }
 }
@@ -51,7 +49,7 @@ export async function GET(request: NextRequest) {
  * Create a new account
  */
 export async function POST(request: NextRequest) {
-  const { allowed, result } = await withRateLimit(request, "api");
+  const { allowed: _allowed, result } = await withRateLimit(request, "api");
   const blocked = rateLimitResponse(result);
   if (blocked) return blocked;
 
@@ -92,7 +90,7 @@ export async function POST(request: NextRequest) {
     );
 
     return createdResponse(account);
-  } catch (error: any) {
+  } catch (error: unknown) {
     return errorResponse(error.message || "Internal Server Error", "INTERNAL_ERROR", 500);
   }
 }
