@@ -561,8 +561,8 @@ export class AccountingService {
  * Get account by code within an organization.
  * Creates default accounts if they don't exist yet.
  */
-async function getAccountByCode(organizationId: string, code: string): Promise<string> {
-  const account = await db.account.findFirst({
+async function getAccountByCode(tx: Prisma.TransactionClient, organizationId: string, code: string): Promise<string> {
+  const account = await tx.account.findFirst({
     where: { organizationId, code },
     select: { id: true },
   });
@@ -596,9 +596,9 @@ export async function createInvoiceJournalEntry(
   const total = subtotal + tax;
 
   // Get account IDs
-  const arAccountId = await getAccountByCode(organizationId, '1100'); // Accounts Receivable
-  const revenueAccountId = await getAccountByCode(organizationId, '4010'); // Service Revenue
-  const vatAccountId = await getAccountByCode(organizationId, '2200'); // VAT Payable
+  const arAccountId = await getAccountByCode(tx, organizationId, '1100'); // Accounts Receivable
+  const revenueAccountId = await getAccountByCode(tx, organizationId, '4010'); // Service Revenue
+  const vatAccountId = await getAccountByCode(tx, organizationId, '2200'); // VAT Payable
 
   // Create journal entry within the same transaction
   const journalEntry = await tx.journalEntry.create({
@@ -665,9 +665,9 @@ export async function createPaymentJournalEntry(
   _userId: string
 ): Promise<void> {
   // Get account IDs
-  const cashAccountId = await getAccountByCode(organizationId, '1010'); // Cash on Hand
-  const bankAccountId = await getAccountByCode(organizationId, '1020'); // Bank Account
-  const arAccountId = await getAccountByCode(organizationId, '1100'); // Accounts Receivable
+  const cashAccountId = await getAccountByCode(tx, organizationId, '1010'); // Cash on Hand
+  const bankAccountId = await getAccountByCode(tx, organizationId, '1020'); // Bank Account
+  const arAccountId = await getAccountByCode(tx, organizationId, '1100'); // Accounts Receivable
 
   const debitAccountId = paymentMethod === 'cash' ? cashAccountId : bankAccountId;
 
