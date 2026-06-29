@@ -573,6 +573,7 @@ model Client {
   proposals           Proposal[]
   interactions        ClientInteraction[]
   buildingInspections BuildingInspection[]
+  whatsappMessages    WhatsAppMessage[]
 
   @@unique([email, organizationId], name: "client_email_org_unique")
   @@unique([idNumber, organizationId], name: "client_idnumber_org_unique")
@@ -2437,6 +2438,7 @@ model Organization {
   dashboardPresets           DashboardPreset[]
   accounts                   Account[]
   journalEntries             JournalEntry[]
+  whatsappMessages           WhatsAppMessage[]
 
   @@index([deletedAt])
 }
@@ -3017,5 +3019,56 @@ model JournalLine {
 
   @@index([journalEntryId])
   @@index([accountId])
+}
+
+// ==================== WHATSAPP INTEGRATION ====================
+
+model WhatsAppMessage {
+  id             String    @id @default(cuid())
+  organizationId String?
+  messageId      String? // WhatsApp message ID
+  fromNumber     String? // Sender phone number
+  toNumber       String? // Recipient phone number
+  direction      String    @default("outbound") // inbound, outbound
+  type           String    @default("text") // text, template, document, image
+  status         String    @default("sent") // sent, delivered, read, failed, received
+  templateName   String?
+  templateParams String? // JSON: template component parameters
+  content        String? // Message content or template data
+  metadata       String? // JSON: additional metadata (e.g., message context, source)
+  relatedType    String? // invoice, project, document, meeting
+  relatedId      String? // ID of related entity
+  clientId       String? // Optional link to Client record
+  error          String? // Error message if failed
+  sentAt         DateTime?
+  deliveredAt    DateTime?
+  readAt         DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  client       Client?       @relation(fields: [clientId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId])
+  @@index([toNumber])
+  @@index([status])
+  @@index([createdAt])
+  @@index([clientId])
+  @@map("whatsapp_messages")
+}
+
+model CommunicationConsent {
+  id             String   @id @default(cuid())
+  organizationId String
+  phoneNumber    String
+  channel        String   @default("whatsapp")
+  optIn          Boolean  @default(false)
+  updatedAt      DateTime @updatedAt
+  createdAt      DateTime @default(now())
+  
+  @@unique([organizationId, phoneNumber, channel])
+  @@index([organizationId])
+  @@index([phoneNumber])
+  @@map("communication_consents")
 }
 

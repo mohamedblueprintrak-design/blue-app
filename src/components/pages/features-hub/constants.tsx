@@ -1,5 +1,5 @@
-import { MapPin, Calculator, Clock, Globe, PhoneCall, PenTool, Car } from 'lucide-react'
-import type { DemoProject, DemoEngineer, DemoVisit, BOQItem, TimeEntry, ClientInteraction, ClientProject, NavItem } from './types'
+import { MapPin, Calculator, Clock, Globe, PhoneCall, PenTool, Car, MessageCircle } from 'lucide-react'
+import type { DemoProject, DemoEngineer, DemoVisit, BOQItem, TimeEntry, ClientInteraction, ClientProject, NavItem, WhatsAppMessage } from './types'
 
 // ===== Demo Data =====
 export const DEMO_PROJECTS: DemoProject[] = [
@@ -99,6 +99,22 @@ export const DEMO_CLIENT_PROJECTS: ClientProject[] = [
 
 export const PIE_COLORS = ['#0e2a5c', '#f59e0b', '#ef4444', '#8b5cf6', '#3b82f6', '#ec4899', '#10b981', '#f97316']
 
+export const DEMO_WHATSAPP_MESSAGES: WhatsAppMessage[] = [
+  { id: 'w1', contactName: 'أحمد المريعي', phone: '+971501112233', message: 'السلام عليكم، متى يمكننا مراجعة التصميم المحدث؟', timestamp: '2025-04-08 10:30', direction: 'received', projectName: 'فيلا المريعي' },
+  { id: 'w2', contactName: 'أحمد المريعي', phone: '+971501112233', message: 'وعليكم السلام، يمكننا يوم الخميس الساعة 10 صباحاً', timestamp: '2025-04-08 10:35', direction: 'sent', projectName: 'فيلا المريعي' },
+  { id: 'w3', contactName: 'خالد الشامسي', phone: '+971502223344', message: 'أريد معرفة حالة المشروع', timestamp: '2025-04-07 14:20', direction: 'received', projectName: 'فيلا الشامسي' },
+  { id: 'w4', contactName: 'خالد الشامسي', phone: '+971502223344', message: 'المشروع متوقف حالياً بانتظار الموافقة. سأرسل لكم التقرير قريباً', timestamp: '2025-04-07 14:45', direction: 'sent', projectName: 'فيلا الشامسي' },
+  { id: 'w5', contactName: 'سالم الكعبي', phone: '+971503334455', message: 'شكراً لكم على العمل الممتاز! المشروع يبدو رائعاً', timestamp: '2025-04-06 09:00', direction: 'received', projectName: 'فيلا الكعبي' },
+];
+
+export const WHATSAPP_TEMPLATES = [
+  'تحية طيبة، نود إعلامكم بأنه تم تحديث حالة المشروع.',
+  'السلام عليكم، نود تأكيد موعد الزيارة الميدانية.',
+  'مرحباً، تم إرسال المخططات المحدثة لمراجعتكم.',
+  'تحية، نود طلب موافقتكم على التعديلات المقترحة.',
+  'السلام عليكم، تقرير سير الأعمال لهذا الأسبوع.',
+];
+
 // ===== NAVIGATION =====
 export const NAV_ITEMS: NavItem[] = [
   { id: 'map', label: 'خريطة المشاريع', labelEn: 'Project Map', icon: <MapPin className="h-5 w-5" /> },
@@ -106,6 +122,7 @@ export const NAV_ITEMS: NavItem[] = [
   { id: 'boq', label: 'حاسبة التكاليف', labelEn: 'Cost Calculator', icon: <Calculator className="h-5 w-5" /> },
   { id: 'time', label: 'إدارة الوقت', labelEn: 'Time Tracking', icon: <Clock className="h-5 w-5" /> },
   { id: 'portal', label: 'بوابة العملاء', labelEn: 'Client Portal', icon: <Globe className="h-5 w-5" /> },
+  { id: 'whatsapp', label: 'واتساب', labelEn: 'WhatsApp', icon: <MessageCircle className="h-5 w-5" /> },
   { id: 'communications', label: 'التواصل', labelEn: 'Communications', icon: <PhoneCall className="h-5 w-5" /> },
   { id: 'design', label: 'إدارة التصميم', labelEn: 'Design Management', icon: <PenTool className="h-5 w-5" /> },
 ]

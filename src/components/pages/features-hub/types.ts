@@ -1,12 +1,22 @@
 // ===== Types for Features Hub =====
 
-export type TabId = 'map' | 'visits' | 'boq' | 'time' | 'portal' | 'communications' | 'design'
+export type TabId = 'map' | 'visits' | 'boq' | 'time' | 'portal' | 'communications' | 'design' | 'whatsapp'
 
 export interface NavItem {
   id: TabId
   label: string
   labelEn: string
   icon: React.ReactNode
+}
+
+export interface WhatsAppMessage {
+  id: string
+  contactName: string
+  phone: string
+  message: string
+  timestamp: string
+  direction: 'received' | 'sent'
+  projectName: string
 }
 
 export interface RealProject {
