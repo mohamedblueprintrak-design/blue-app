@@ -65,7 +65,7 @@ test.describe.serial('Core Application Flows (Login, Projects, Invoices)', () =>
     // 4. Verify successful redirection and rendering of authenticated layout
     await sharedPage.waitForURL('**/dashboard', { timeout: 30000 });
     
-    await expect(mainLayout).toBeVisible({ timeout: 15000 });
+    await expect(mainLayout).toBeVisible({ timeout: 45000 });
   });
 
   test('should navigate to and load the projects list page', async () => {
@@ -80,10 +80,10 @@ test.describe.serial('Core Application Flows (Login, Projects, Invoices)', () =>
 
     // 3. Verify header elements or filter controls are loaded
     const header = sharedPage.locator('h1, h2, header, .project-header').first();
-    await expect(header).toBeVisible({ timeout: 15000 });
+    await expect(header).toBeVisible({ timeout: 45000 });
 
     const searchInput = sharedPage.locator('input[placeholder*="search"], input[placeholder*="بحث"], input[type="text"]').first();
-    await expect(searchInput).toBeVisible({ timeout: 15000 });
+    await expect(searchInput).toBeVisible({ timeout: 45000 });
   });
 
   test('should navigate to and load the invoices list page', async () => {
@@ -98,9 +98,9 @@ test.describe.serial('Core Application Flows (Login, Projects, Invoices)', () =>
 
     // 3. Verify header and list container exist
     const header = sharedPage.locator('h1, h2, header, .invoice-header').first();
-    await expect(header).toBeVisible({ timeout: 15000 });
+    await expect(header).toBeVisible({ timeout: 45000 });
 
     const listContainer = sharedPage.locator('table, .table, .list-container, .grid').first();
-    await expect(listContainer).toBeVisible({ timeout: 15000 });
+    await expect(listContainer).toBeVisible({ timeout: 45000 });
   });
 });

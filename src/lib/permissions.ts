@@ -154,6 +154,27 @@ const allNavItems: NavItem[] = [
         labelEn: "Progress Claims",
         roles: ["ADMIN", "MANAGER", "ACCOUNTANT", "PROJECT_MANAGER"],
       },
+      {
+        id: "finance-accounts",
+        icon: "FolderTree",
+        labelAr: "شجرة الحسابات",
+        labelEn: "Chart of Accounts",
+        roles: ["ADMIN", "MANAGER", "ACCOUNTANT"],
+      },
+      {
+        id: "finance-journal-entries",
+        icon: "FileSpreadsheet",
+        labelAr: "قيود اليومية",
+        labelEn: "Journal Entries",
+        roles: ["ADMIN", "MANAGER", "ACCOUNTANT"],
+      },
+      {
+        id: "finance-accounting-reports",
+        icon: "FileText",
+        labelAr: "القوائم المالية",
+        labelEn: "Financial Statements",
+        roles: ["ADMIN", "MANAGER", "ACCOUNTANT"],
+      },
     ],
   },
 

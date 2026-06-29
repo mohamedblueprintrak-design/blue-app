@@ -2435,6 +2435,8 @@ model Organization {
   timesheets                 Timesheet[]
   contractAmendments         ContractAmendment[]
   dashboardPresets           DashboardPreset[]
+  accounts                   Account[]
+  journalEntries             JournalEntry[]
 
   @@index([deletedAt])
 }
@@ -2952,5 +2954,68 @@ model Sequence {
   // The @@unique constraint still works with nulls (each null is treated
   // as distinct in Postgres, but Prisma handles this correctly).
   @@unique([name, organizationId])
+}
+
+enum AccountType {
+  ASSET
+  LIABILITY
+  EQUITY
+  REVENUE
+  EXPENSE
+}
+
+model Account {
+  id               String        @id @default(cuid())
+  code             String
+  nameAr           String
+  nameEn           String
+  description      String?
+  type             AccountType
+  parentAccountId  String?
+  organizationId   String
+  isActive         Boolean       @default(true)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  organization     Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  parentAccount    Account?      @relation("AccountHierarchy", fields: [parentAccountId], references: [id], onDelete: Cascade)
+  childAccounts    Account[]     @relation("AccountHierarchy")
+  journalLines     JournalLine[]
+
+  @@unique([organizationId, code])
+  @@index([organizationId])
+  @@index([parentAccountId])
+}
+
+model JournalEntry {
+  id             String        @id @default(cuid())
+  date           DateTime      @default(now())
+  reference      String?       // e.g. Invoice Number, Receipt Number
+  description    String
+  organizationId String
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  lines          JournalLine[]
+
+  @@index([organizationId])
+  @@index([date])
+}
+
+model JournalLine {
+  id             String        @id @default(cuid())
+  journalEntryId String
+  accountId      String
+  debit          Decimal       @default(0)
+  credit         Decimal       @default(0)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  journalEntry   JournalEntry  @relation(fields: [journalEntryId], references: [id], onDelete: Cascade)
+  account        Account       @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@index([journalEntryId])
+  @@index([accountId])
 }
 

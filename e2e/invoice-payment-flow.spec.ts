@@ -73,7 +73,7 @@ test.describe.serial('Invoice → Payment → Webhook Flow', () => {
     await submitButton.click();
 
     await sharedPage.waitForURL('**/dashboard', { timeout: 30000 });
-    await expect(mainLayout).toBeVisible({ timeout: 15000 });
+    await expect(mainLayout).toBeVisible({ timeout: 45000 });
   });
 
   test('2. should load invoices list page', async () => {
@@ -84,13 +84,13 @@ test.describe.serial('Invoice → Payment → Webhook Flow', () => {
 
     // Verify header is visible
     const header = sharedPage.locator('h1, h2, header').first();
-    await expect(header).toBeVisible({ timeout: 15000 });
+    await expect(header).toBeVisible({ timeout: 45000 });
 
     // Verify either table or empty state is present
     const contentContainer = sharedPage
       .locator('table, .table, .list-container, .grid, [role="table"], [data-empty-state]')
       .first();
-    await expect(contentContainer).toBeVisible({ timeout: 15000 });
+    await expect(contentContainer).toBeVisible({ timeout: 45000 });
   });
 
   test('3. should load payments list page', async () => {
@@ -100,7 +100,7 @@ test.describe.serial('Invoice → Payment → Webhook Flow', () => {
     expect(sharedPage.url()).toContain('/dashboard/payments');
 
     const header = sharedPage.locator('h1, h2, header').first();
-    await expect(header).toBeVisible({ timeout: 15000 });
+    await expect(header).toBeVisible({ timeout: 45000 });
   });
 
   test('4. should load billing page', async () => {

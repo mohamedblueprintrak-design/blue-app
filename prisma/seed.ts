@@ -5,6 +5,7 @@ import { PrismaClient } from '@prisma/client';
 const db = new PrismaClient();
 import bcrypt from 'bcryptjs';
 import { DEMO_CREDENTIALS } from '../src/lib/demo-credentials';
+import { defaultAccounts } from '../src/lib/services/accounting.service';
 
 /**
  * BluePrint Comprehensive Seed Script
@@ -195,6 +196,25 @@ async function main() {
       isActive: true,
     },
   });
+  
+  // Seed Chart of Accounts for the organizations
+  console.info('🌱 Seeding Chart of Accounts for all organizations...');
+  const seedAccountsForOrg = async (orgId: string) => {
+    await db.account.createMany({
+      data: defaultAccounts.map(acc => ({
+        code: acc.code,
+        nameAr: acc.nameAr,
+        nameEn: acc.nameEn,
+        type: acc.type,
+        organizationId: orgId,
+        isActive: true,
+      })),
+    });
+  };
+  await seedAccountsForOrg(_defaultOrg.id);
+  await seedAccountsForOrg(org1.id);
+  await seedAccountsForOrg(org2.id);
+
   console.info('✅ 3 organizations created (Default + RAK + DXB)');
 
   // ========== 1. Create All Demo Users from Shared Credentials ==========

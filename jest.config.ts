@@ -73,6 +73,8 @@ const jestConfig = {
       statements: 80,
     },
   },
+  globalSetup: '<rootDir>/jest.global-setup.ts',
+  globalTeardown: '<rootDir>/jest.global-teardown.ts',
 };
 
 export default jestConfig;

@@ -20,6 +20,7 @@ import { UserRole } from '@prisma/client';
 import { validateRequest, registerSchema } from '@/lib/api-validation';
 import { log } from '@/lib/logger';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
+import { AccountingService } from '@/lib/services/accounting.service';
 import { validatePasswordStrength, checkPasswordBreached } from '@/lib/auth/modules/password';
 import {
   AUTH_COOKIE_NAME,
@@ -273,6 +274,8 @@ async function handleRegister(
                 currency: 'AED',
               },
             });
+            // Seed default Chart of Accounts for the new organization
+            await AccountingService.seedDefaultAccounts(tx, org.id);
             const createdUser = await tx.user.create({
               data: {
                 email: data.email.toLowerCase(),
