@@ -62,6 +62,12 @@ async function main() {
     // Child tables first (foreign key dependencies)
     // Newer models — added to ensure complete cleanup
     db.sLABreach.deleteMany(),
+    db.journalLine.deleteMany(),
+    db.journalEntry.deleteMany(),
+    db.account.deleteMany(),
+    db.whatsAppMessage.deleteMany(),
+    db.communicationConsent.deleteMany(),
+    db.lead.deleteMany(),
     db.aIChatConversation.deleteMany(),
     db.aIChatMessage.deleteMany(),
     db.refreshToken.deleteMany(),

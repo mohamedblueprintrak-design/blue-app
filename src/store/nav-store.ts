@@ -28,6 +28,7 @@ interface NavStore {
 const PAGE_ROUTE_MAP: Record<string, string> = {
   dashboard: "/dashboard",
   clients: "/dashboard/clients",
+  "crm-leads": "/dashboard/crm",
   projects: "/dashboard/projects",
   contractors: "/dashboard/contractors",
   employees: "/dashboard/employees",

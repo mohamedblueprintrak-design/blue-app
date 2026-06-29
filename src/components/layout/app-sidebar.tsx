@@ -30,7 +30,7 @@ import {
   AlertTriangle, Shield, PenTool, Gavel, SearchCheck, ClipboardCheck, Gift,
   UserPlus, BookOpen, Plus, CheckCircle2, TrendingUp, TrendingDown, Wallet, Wind,
   Headphones, Calendar, BookMarked, Search, Bell, User, Settings,
-  FolderTree, FileSpreadsheet, FileText,
+  FolderTree, FileSpreadsheet, FileText, Target,
   type LucideIcon
 } from "lucide-react";
 import SidebarStats from "@/components/layout/sidebar-stats";
@@ -77,6 +77,7 @@ const iconMap: Record<string, LucideIcon> = {
   FolderTree,
   FileSpreadsheet,
   FileText,
+  Target,
 };
 
 function getIcon(iconName: string): LucideIcon {

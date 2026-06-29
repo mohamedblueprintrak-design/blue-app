@@ -2439,6 +2439,7 @@ model Organization {
   accounts                   Account[]
   journalEntries             JournalEntry[]
   whatsappMessages           WhatsAppMessage[]
+  leads                      Lead[]
 
   @@index([deletedAt])
 }
@@ -3070,5 +3071,27 @@ model CommunicationConsent {
   @@index([organizationId])
   @@index([phoneNumber])
   @@map("communication_consents")
+}
+
+model Lead {
+  id             String    @id @default(cuid())
+  name           String    @default("")
+  company        String?   @default("")
+  email          String?   @default("")
+  phone          String?   @default("")
+  status         String    @default("NEW") // NEW, CONTACTED, PROPOSAL_SENT, WON, LOST
+  estimatedValue Decimal   @default(0)
+  notes          String?   @default("")
+  organizationId String
+  deletedAt      DateTime? // Soft delete
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([status])
+  @@index([deletedAt])
+  @@map("leads")
 }
 

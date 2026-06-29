@@ -86,6 +86,15 @@ const allNavItems: NavItem[] = [
     roles: allRoles,
   },
 
+  // ───── CRM / Leads (العملاء المحتملين) ─────
+  {
+    id: "crm-leads",
+    icon: "Target",
+    labelAr: "العملاء المحتملين",
+    labelEn: "CRM Leads",
+    roles: ["ADMIN", "MANAGER", "PROJECT_MANAGER"],
+  },
+
   // ───── 3. Projects (صفحة واحدة بتابات داخلية + إنشاء جواها) ─────
   {
     id: "projects",
@@ -396,5 +405,6 @@ export const pageTitleMap: Record<string, { ar: string; en: string }> = {
   "finance-retainage": { ar: "إدارة الاحتجاز", en: "Retainage Management" },
   "finance-guarantees": { ar: "خطابات الضمان", en: "Guarantee Letters" },
   "finance-progress-claims": { ar: "مطالبات التقدم", en: "Progress Claims" },
+  "crm-leads": { ar: "العملاء المحتملين", en: "CRM Leads" },
 };
 
