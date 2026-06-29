@@ -9,6 +9,7 @@
 import { db } from '@/lib/db';
 import { insensitiveContains } from '@/app/api/utils/db';
 import { logAudit } from './audit.service';
+import { createInvoiceJournalEntry, createPaymentJournalEntry } from './accounting.service';
 import { sequenceService } from './sequence.service';
 import { automationService } from './automation.service';
 import { Invoice } from '@prisma/client';
@@ -225,6 +226,20 @@ class InvoiceService {
         metadata: { projectId: data.projectId, newValue: invoice },
       });
 
+      // GL Integration: Auto-create journal entry for the invoice
+      // Debit: Accounts Receivable (total), Credit: Revenue (subtotal) + VAT Payable (tax)
+      try {
+        await createInvoiceJournalEntry(tx, organizationId, invoice.number, subtotal, tax, userId);
+      } catch (glError) {
+        // Don't fail the invoice creation if GL fails — log and continue
+        // The invoice is the primary business record; GL can be reconciled later
+        log.error('GL: Failed to create journal entry for invoice', {
+          invoiceId: invoice.id,
+          invoiceNumber: invoice.number,
+          error: glError instanceof Error ? glError.message : String(glError),
+        });
+      }
+
       return invoice;
     });
   }
@@ -411,6 +426,20 @@ class InvoiceService {
         description: `تسجيل دفعة للفاتورة: ${finalInvoice.number} بقيمة ${amount}`,
         metadata: { projectId: finalInvoice.projectId, amount, newStatus: status },
       });
+
+      // GL Integration: Auto-create journal entry for the payment
+      // Debit: Cash/Bank, Credit: Accounts Receivable
+      try {
+        const paymentMethod = payMethod === 'cash' ? 'cash' : 'bank';
+        await createPaymentJournalEntry(tx, organizationId, finalInvoice.number, amount, paymentMethod, userId);
+      } catch (glError) {
+        log.error('GL: Failed to create journal entry for payment', {
+          invoiceId: id,
+          invoiceNumber: finalInvoice.number,
+          amount,
+          error: glError instanceof Error ? glError.message : String(glError),
+        });
+      }
 
       return finalInvoice;
     });

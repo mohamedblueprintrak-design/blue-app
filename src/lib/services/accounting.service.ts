@@ -552,3 +552,157 @@ export class AccountingService {
     };
   }
 }
+
+// ============================================
+// GL Integration: Auto-create journal entries from business transactions
+// ============================================
+
+/**
+ * Get account by code within an organization.
+ * Creates default accounts if they don't exist yet.
+ */
+async function getAccountByCode(organizationId: string, code: string): Promise<string> {
+  const account = await db.account.findFirst({
+    where: { organizationId, code },
+    select: { id: true },
+  });
+  if (!account) {
+    throw new Error(`Account with code ${code} not found for organization ${organizationId}. Run seedAccounts first.`);
+  }
+  return account.id;
+}
+
+/**
+ * Create a journal entry for an invoice.
+ * Debit: Accounts Receivable (1100) — total amount (subtotal + tax)
+ * Credit: Service Revenue (4010) — subtotal
+ * Credit: VAT Payable (2200) — tax
+ *
+ * @param tx - Prisma transaction client
+ * @param organizationId - Organization ID
+ * @param invoiceNumber - Invoice number for reference
+ * @param subtotal - Invoice subtotal (before tax)
+ * @param tax - Invoice tax amount
+ * @param userId - User creating the invoice
+ */
+export async function createInvoiceJournalEntry(
+  tx: Prisma.TransactionClient,
+  organizationId: string,
+  invoiceNumber: string,
+  subtotal: number,
+  tax: number,
+  userId: string
+): Promise<void> {
+  const total = subtotal + tax;
+
+  // Get account IDs
+  const arAccountId = await getAccountByCode(organizationId, '1100'); // Accounts Receivable
+  const revenueAccountId = await getAccountByCode(organizationId, '4010'); // Service Revenue
+  const vatAccountId = await getAccountByCode(organizationId, '2200'); // VAT Payable
+
+  // Create journal entry within the same transaction
+  const journalEntry = await tx.journalEntry.create({
+    data: {
+      date: new Date(),
+      reference: invoiceNumber,
+      description: `Invoice ${invoiceNumber}`,
+      organizationId,
+    },
+  });
+
+  // Create journal lines
+  const lines: Array<{ journalEntryId: string; accountId: string; debit: Prisma.Decimal; credit: Prisma.Decimal }> = [
+    // Debit: Accounts Receivable (total)
+    {
+      journalEntryId: journalEntry.id,
+      accountId: arAccountId,
+      debit: new Prisma.Decimal(total),
+      credit: new Prisma.Decimal(0),
+    },
+    // Credit: Service Revenue (subtotal)
+    {
+      journalEntryId: journalEntry.id,
+      accountId: revenueAccountId,
+      debit: new Prisma.Decimal(0),
+      credit: new Prisma.Decimal(subtotal),
+    },
+  ];
+
+  // Credit: VAT Payable (tax) — only if tax > 0
+  if (tax > 0) {
+    lines.push({
+      journalEntryId: journalEntry.id,
+      accountId: vatAccountId,
+      debit: new Prisma.Decimal(0),
+      credit: new Prisma.Decimal(tax),
+    });
+  }
+
+  await tx.journalLine.createMany({ data: lines });
+
+  // Note: audit log is handled by the calling function (createInvoice)
+  // to avoid duplicate audit entries.
+}
+
+/**
+ * Create a journal entry for a payment received.
+ * Debit: Cash/Bank (1010 or 1020) — payment amount
+ * Credit: Accounts Receivable (1100) — payment amount
+ *
+ * @param tx - Prisma transaction client
+ * @param organizationId - Organization ID
+ * @param invoiceNumber - Invoice number for reference
+ * @param amount - Payment amount
+ * @param paymentMethod - 'cash' or 'bank' (determines debit account)
+ * @param userId - User recording the payment
+ */
+export async function createPaymentJournalEntry(
+  tx: Prisma.TransactionClient,
+  organizationId: string,
+  invoiceNumber: string,
+  amount: number,
+  paymentMethod: 'cash' | 'bank' = 'bank',
+  userId: string
+): Promise<void> {
+  // Get account IDs
+  const cashAccountId = await getAccountByCode(organizationId, '1010'); // Cash on Hand
+  const bankAccountId = await getAccountByCode(organizationId, '1020'); // Bank Account
+  const arAccountId = await getAccountByCode(organizationId, '1100'); // Accounts Receivable
+
+  const debitAccountId = paymentMethod === 'cash' ? cashAccountId : bankAccountId;
+
+  // Create journal entry
+  const journalEntry = await tx.journalEntry.create({
+    data: {
+      date: new Date(),
+      reference: `PAYMENT-${invoiceNumber}`,
+      description: `Payment received for invoice ${invoiceNumber}`,
+      organizationId,
+    },
+  });
+
+  // Create journal lines
+  await tx.journalLine.createMany({
+    data: [
+      // Debit: Cash or Bank
+      {
+        journalEntryId: journalEntry.id,
+        accountId: debitAccountId,
+        debit: new Prisma.Decimal(amount),
+        credit: new Prisma.Decimal(0),
+      },
+      // Credit: Accounts Receivable
+      {
+        journalEntryId: journalEntry.id,
+        accountId: arAccountId,
+        debit: new Prisma.Decimal(0),
+        credit: new Prisma.Decimal(amount),
+      },
+    ],
+  });
+}
+
+/**
+ * Seed default chart of accounts for a new organization.
+ * Called during organization creation or setup.
+ */
