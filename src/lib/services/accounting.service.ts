@@ -67,7 +67,7 @@ export class AccountingService {
   /**
    * Seed default Chart of Accounts for an organization
    */
-  static async seedDefaultAccounts(tx: unknown, organizationId: string): Promise<void> {
+  static async seedDefaultAccounts(tx: any, organizationId: string): Promise<void> {
     log.info(`[Accounting] Seeding default Chart of Accounts for organization: ${organizationId}`);
     
     // Build array of create inputs
@@ -178,11 +178,10 @@ export class AccountingService {
       totalCredit += line.credit;
     }
 
-    // Enforce debits === credits (allow slight floating point delta up to 0.001)
-    const difference = Math.abs(totalDebit - totalCredit);
-    if (difference > 0.001) {
+    // Enforce debits === credits (using precise integer-cents comparison to prevent floating-point delta issues)
+    if (Math.round(totalDebit * 100) !== Math.round(totalCredit * 100)) {
       throw new Error(
-        `Journal entry does not balance. Total Debits: ${totalDebit}, Total Credits: ${totalCredit}. Difference: ${difference.toFixed(4)}`
+        `Journal entry does not balance. Total Debits: ${totalDebit}, Total Credits: ${totalCredit}.`
       );
     }
 
@@ -393,7 +392,7 @@ export class AccountingService {
     });
 
     // Group by account
-    const accountsMap = new Map<string, { account: unknown; debit: number; credit: number }>();
+    const accountsMap = new Map<string, { account: any; debit: number; credit: number }>();
     for (const line of lines) {
       const existing = accountsMap.get(line.accountId) || {
         account: line.account,
@@ -463,7 +462,7 @@ export class AccountingService {
     });
 
     // Group by account
-    const accountsMap = new Map<string, { account: unknown; debit: number; credit: number }>();
+    const accountsMap = new Map<string, { account: any; debit: number; credit: number }>();
     for (const line of lines) {
       const existing = accountsMap.get(line.accountId) || {
         account: line.account,

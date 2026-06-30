@@ -19,14 +19,18 @@ export async function GET(request: NextRequest) {
     if ("error" in rbac) return rbac.error;
     const user = rbac.user;
 
+    if (!user.organizationId) {
+      return errorResponse("غير مصرح بالدخول - لم يتم تحديد المؤسسة", "FORBIDDEN", 403);
+    }
+
     // Scoped restriction to financial roles
     if (user.role !== "ADMIN" && user.role !== "MANAGER" && user.role !== "ACCOUNTANT") {
       return errorResponse("غير مصرح بالدخول", "FORBIDDEN", 403);
     }
 
-    const trialBalance = await AccountingService.getTrialBalance(user.organizationId || "default");
+    const trialBalance = await AccountingService.getTrialBalance(user.organizationId);
     return successResponse(trialBalance);
-  } catch (error: unknown) {
+  } catch (error: any) {
     return errorResponse(error.message || "Internal Server Error", "INTERNAL_ERROR", 500);
   }
 }

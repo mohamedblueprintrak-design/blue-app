@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
     });
 
     return successResponse(leads);
-  } catch (error: unknown) {
+  } catch (error: any) {
     return errorResponse(error.message || "Internal Server Error", "INTERNAL_ERROR", 500);
   }
 }
@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
     });
 
     return createdResponse(lead);
-  } catch (error: unknown) {
+  } catch (error: any) {
     return errorResponse(error.message || "Internal Server Error", "INTERNAL_ERROR", 500);
   }
 }

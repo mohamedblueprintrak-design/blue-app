@@ -51,7 +51,7 @@ export default async function globalSetup() {
   });
 
   // Save reference to process globally so we can terminate it in teardown
-  (globalThis as unknown).__NEXT_SERVER__ = serverProcess;
+  (globalThis as any).__NEXT_SERVER__ = serverProcess;
 
   // Poll /api/health until online
   const start = Date.now();

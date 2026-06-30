@@ -55,9 +55,9 @@ export async function POST(
     return NextResponse.json({ error: 'Transaction already reconciled' }, { status: 400 });
   }
 
-  // Mark as reconciled
-  const updated = await db.bankTransaction.update({
-    where: { id: transactionId },
+  // Mark as reconciled using Optimistic Concurrency Control (OCC)
+  const updateResult = await db.bankTransaction.updateMany({
+    where: { id: transactionId, isReconciled: false, bankAccountId, organizationId: ctx.organizationId || undefined },
     data: {
       isReconciled: true,
       reconciledAt: new Date(),
@@ -65,6 +65,14 @@ export async function POST(
       matchType,
       matchDetails: matchDetails || null,
     },
+  });
+
+  if (updateResult.count === 0) {
+    return NextResponse.json({ error: 'Transaction already reconciled or not found' }, { status: 400 });
+  }
+
+  const updated = await db.bankTransaction.findUnique({
+    where: { id: transactionId },
   });
 
   log.info('Bank transaction reconciled', {
@@ -133,4 +141,73 @@ export async function GET(
     },
     unreconciledTransactions: unreconciled,
   });
+}
+
+/**
+ * DELETE /api/finance/bank-accounts/[id]/reconcile
+ * Unreconcile a bank transaction
+ */
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { allowed: _allowed, result: rlResult } = await withRateLimit(request, 'strict');
+    const blocked = rateLimitResponse(rlResult);
+    if (blocked) return blocked;
+
+    const rbac = await requireVerifiedPermission(request, Permission.INVOICE_CREATE);
+    if ('error' in rbac) return rbac.error;
+    const ctx = rbac.user;
+
+    const { id: bankAccountId } = await params;
+    const { transactionId } = await request.json();
+
+    if (!transactionId) {
+      return NextResponse.json({ error: 'Transaction ID is required' }, { status: 400 });
+    }
+
+    // Verify bank account belongs to org
+    const bankAccount = await db.bankAccount.findFirst({
+      where: { id: bankAccountId, ...orgFilter(ctx) },
+    });
+    if (!bankAccount) {
+      return NextResponse.json({ error: 'Bank account not found' }, { status: 404 });
+    }
+
+    // Verify transaction belongs to this bank account and is reconciled
+    const transaction = await db.bankTransaction.findFirst({
+      where: { id: transactionId, bankAccountId, organizationId: ctx.organizationId || undefined, isReconciled: true },
+    });
+    if (!transaction) {
+      return NextResponse.json({ error: 'Reconciled transaction not found' }, { status: 404 });
+    }
+
+    // Mark as unreconciled using OCC
+    const updateResult = await db.bankTransaction.updateMany({
+      where: { id: transactionId, isReconciled: true, bankAccountId, organizationId: ctx.organizationId || undefined },
+      data: {
+        isReconciled: false,
+        reconciledAt: null,
+        journalEntryId: null,
+        matchType: null,
+        matchDetails: null,
+      },
+    });
+
+    if (updateResult.count === 0) {
+      return NextResponse.json({ error: 'Failed to unreconcile transaction' }, { status: 400 });
+    }
+
+    log.info('Bank transaction unreconciled', {
+      transactionId,
+      bankAccountId,
+      amount: transaction.amount,
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
+    log.error('Error unreconciling transaction:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
 }

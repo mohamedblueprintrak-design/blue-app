@@ -19,6 +19,10 @@ export async function GET(request: NextRequest) {
     if ("error" in rbac) return rbac.error;
     const user = rbac.user;
 
+    if (!user.organizationId) {
+      return errorResponse("غير مصرح بالدخول - لم يتم تحديد المؤسسة", "FORBIDDEN", 403);
+    }
+
     // Scoped restriction to financial roles
     if (user.role !== "ADMIN" && user.role !== "MANAGER" && user.role !== "ACCOUNTANT") {
       return errorResponse("غير مصرح بالدخول", "FORBIDDEN", 403);
@@ -29,11 +33,11 @@ export async function GET(request: NextRequest) {
     const date = dateStr ? new Date(dateStr) : undefined;
 
     const balanceSheet = await AccountingService.getBalanceSheet(
-      user.organizationId || "default",
+      user.organizationId,
       date
     );
     return successResponse(balanceSheet);
-  } catch (error: unknown) {
+  } catch (error: any) {
     return errorResponse(error.message || "Internal Server Error", "INTERNAL_ERROR", 500);
   }
 }

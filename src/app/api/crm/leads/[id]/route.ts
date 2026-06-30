@@ -6,22 +6,21 @@ import { errorResponse, successResponse } from "../../../utils/response";
 import { withRateLimit, rateLimitResponse } from "@/lib/rate-limit-middleware";
 import { sanitizeObject } from "@/lib/security/sanitize";
 
-interface RouteContext {
-  params: {
-    id: string;
-  };
-}
+
 
 /**
  * PUT /api/crm/leads/[id]
  * Update a lead
  */
-export async function PUT(request: NextRequest, { params }: RouteContext) {
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   const { allowed: _allowed, result } = await withRateLimit(request, "api");
   const blocked = rateLimitResponse(result);
   if (blocked) return blocked;
 
-  const leadId = params.id;
+  const { id: leadId } = await params;
 
   try {
     const rbac = await requireVerifiedPermission(request, Permission.CLIENT_UPDATE);
@@ -45,7 +44,7 @@ export async function PUT(request: NextRequest, { params }: RouteContext) {
 
     const { name, company, email, phone, status, estimatedValue, notes } = sanitized;
 
-    const updateData: unknown = {};
+    const updateData: any = {};
     if (name !== undefined) updateData.name = name;
     if (company !== undefined) updateData.company = company;
     if (email !== undefined) updateData.email = email;
@@ -60,7 +59,7 @@ export async function PUT(request: NextRequest, { params }: RouteContext) {
     });
 
     return successResponse(updatedLead);
-  } catch (error: unknown) {
+  } catch (error: any) {
     return errorResponse(error.message || "Internal Server Error", "INTERNAL_ERROR", 500);
   }
 }
@@ -69,12 +68,15 @@ export async function PUT(request: NextRequest, { params }: RouteContext) {
  * DELETE /api/crm/leads/[id]
  * Soft delete a lead
  */
-export async function DELETE(request: NextRequest, { params }: RouteContext) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   const { allowed: _allowed, result } = await withRateLimit(request, "api");
   const blocked = rateLimitResponse(result);
   if (blocked) return blocked;
 
-  const leadId = params.id;
+  const { id: leadId } = await params;
 
   try {
     const rbac = await requireVerifiedPermission(request, Permission.CLIENT_UPDATE); // CLIENT_DELETE equivalent
@@ -99,7 +101,7 @@ export async function DELETE(request: NextRequest, { params }: RouteContext) {
     });
 
     return successResponse({ success: true });
-  } catch (error: unknown) {
+  } catch (error: any) {
     return errorResponse(error.message || "Internal Server Error", "INTERNAL_ERROR", 500);
   }
 }

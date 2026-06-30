@@ -21,6 +21,10 @@ export async function GET(request: NextRequest) {
     if ("error" in rbac) return rbac.error;
     const user = rbac.user;
 
+    if (!user.organizationId) {
+      return errorResponse("غير مصرح بالدخول - لم يتم تحديد المؤسسة", "FORBIDDEN", 403);
+    }
+
     // Scoped restriction to financial roles
     if (user.role !== "ADMIN" && user.role !== "MANAGER" && user.role !== "ACCOUNTANT") {
       return errorResponse("غير مصرح بالدخول", "FORBIDDEN", 403);
@@ -38,9 +42,9 @@ export async function GET(request: NextRequest) {
       filter.parentAccountId = parentAccountId === "null" ? null : parentAccountId;
     }
 
-    const accounts = await AccountingService.getAccounts(user.organizationId || "default", filter);
+    const accounts = await AccountingService.getAccounts(user.organizationId, filter);
     return successResponse(accounts);
-  } catch (error: unknown) {
+  } catch (error: any) {
     return errorResponse(error.message || "Internal Server Error", "INTERNAL_ERROR", 500);
   }
 }
@@ -58,6 +62,10 @@ export async function POST(request: NextRequest) {
     const rbac = await requireVerifiedPermission(request, Permission.INVOICE_CREATE);
     if ("error" in rbac) return rbac.error;
     const user = rbac.user;
+
+    if (!user.organizationId) {
+      return errorResponse("غير مصرح بالدخول - لم يتم تحديد المؤسسة", "FORBIDDEN", 403);
+    }
 
     // Scoped restriction to financial writing roles
     if (user.role !== "ADMIN" && user.role !== "MANAGER" && user.role !== "ACCOUNTANT") {
@@ -78,7 +86,7 @@ export async function POST(request: NextRequest) {
     }
 
     const account = await AccountingService.createAccount(
-      user.organizationId || "default",
+      user.organizationId,
       {
         code: String(code),
         nameAr: String(nameAr),
@@ -91,7 +99,7 @@ export async function POST(request: NextRequest) {
     );
 
     return createdResponse(account);
-  } catch (error: unknown) {
+  } catch (error: any) {
     return errorResponse(error.message || "Internal Server Error", "INTERNAL_ERROR", 500);
   }
 }

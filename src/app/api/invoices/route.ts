@@ -315,6 +315,24 @@ export async function POST(request: NextRequest) {
     const validatedData = validation.data;
     const { number: _number, clientId, projectId, issueDate, dueDate, status } = validatedData;
 
+    // Verify client belongs to organization
+    const client = await db.client.findFirst({
+      where: { id: clientId, organizationId: ctx.organizationId || '__DENIED__' },
+    });
+    if (!client) {
+      return errorResponse("العميل المحدد غير موجود أو لا ينتمي لمؤسستك", "BAD_REQUEST", 400);
+    }
+
+    // Verify project belongs to organization (if provided)
+    if (projectId) {
+      const project = await db.project.findFirst({
+        where: { id: projectId, organizationId: ctx.organizationId || '__DENIED__' },
+      });
+      if (!project) {
+        return errorResponse("المشروع المحدد غير موجود أو لا ينتمي لمؤسستك", "BAD_REQUEST", 400);
+      }
+    }
+
     // Validate invoice line items with Zod
     const rawItems = (rawBody as Record<string, unknown>).items;
     const itemsValidation = z.array(invoiceItemSchema).safeParse(rawItems);

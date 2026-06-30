@@ -1,6 +1,6 @@
 export default async function globalTeardown() {
   console.info('\n[Global Teardown] Stopping Next.js test server...');
-  const serverProcess = (globalThis as unknown).__NEXT_SERVER__;
+  const serverProcess = (globalThis as any).__NEXT_SERVER__;
   if (serverProcess) {
     serverProcess.kill();
     console.info('[Global Teardown] Next.js test server stopped.');

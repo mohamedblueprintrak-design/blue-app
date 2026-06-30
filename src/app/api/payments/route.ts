@@ -121,6 +121,16 @@ export async function POST(request: NextRequest) {
 
     const { voucherNumber, projectId, amount, payMethod, beneficiary, referenceNumber, description } = validation.data;
 
+    // Verify project belongs to organization (if provided)
+    if (projectId) {
+      const project = await db.project.findFirst({
+        where: { id: projectId, organizationId: ctx.organizationId || '__DENIED__' },
+      });
+      if (!project) {
+        return NextResponse.json({ error: "المشروع المحدد غير موجود أو لا ينتمي لمؤسستك" }, { status: 400 });
+      }
+    }
+
     // Idempotency / Double-charge prevention
     const idempotencyKey = request.headers.get('idempotency-key');
     if (idempotencyKey) {

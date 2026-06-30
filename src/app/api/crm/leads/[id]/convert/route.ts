@@ -1,26 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "../../../../db";
+import { db } from "@/lib/db";
 import { requireVerifiedPermission } from "../../../../utils/auth";
 import { Permission } from "@/lib/auth/types";
+import { errorResponse } from "../../../../utils/response";
 import { withRateLimit, rateLimitResponse } from "@/lib/rate-limit-middleware";
 import { cacheDeletePattern } from "@/lib/cache/redis";
-
-interface RouteContext {
-  params: {
-    id: string;
-  };
-}
 
 /**
  * POST /api/crm/leads/[id]/convert
  * Convert a Won lead to a Client
  */
-export async function POST(request: NextRequest, { params }: RouteContext) {
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   const { allowed: _allowed, result } = await withRateLimit(request, "api");
   const blocked = rateLimitResponse(result);
   if (blocked) return blocked;
 
-  const leadId = params.id;
+  const { id: leadId } = await params;
 
   try {
     const rbac = await requireVerifiedPermission(request, Permission.CLIENT_UPDATE);
@@ -67,7 +65,7 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
     await cacheDeletePattern(`dashboard:${user.organizationId || 'global'}:*`);
 
     return NextResponse.json(client, { status: 201 });
-  } catch (error: unknown) {
+  } catch (error: any) {
     return errorResponse(error.message || "Internal Server Error", "INTERNAL_ERROR", 500);
   }
 }

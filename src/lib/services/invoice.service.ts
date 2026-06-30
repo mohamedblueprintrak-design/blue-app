@@ -227,20 +227,6 @@ class InvoiceService {
         metadata: { projectId: data.projectId, newValue: invoice },
       });
 
-      // GL Integration: Auto-create journal entry for the invoice
-      // Debit: Accounts Receivable (total), Credit: Revenue (subtotal) + VAT Payable (tax)
-      try {
-        await createInvoiceJournalEntry(tx, organizationId, invoice.number, subtotal, tax, userId);
-      } catch (glError) {
-        // Don't fail the invoice creation if GL fails — log and continue
-        // The invoice is the primary business record; GL can be reconciled later
-        log.error('GL: Failed to create journal entry for invoice', {
-          invoiceId: invoice.id,
-          invoiceNumber: invoice.number,
-          error: glError instanceof Error ? glError.message : String(glError),
-        });
-      }
-
       return invoice;
     });
   }
@@ -272,6 +258,12 @@ class InvoiceService {
 
       if (!currentInvoice) {
         throw new Error('Invoice not found or access denied');
+      }
+
+      if (currentInvoice.status !== 'DRAFT') {
+        if (data.subtotal !== undefined || data.taxRate !== undefined || data.tax !== undefined || data.total !== undefined) {
+          throw new Error('Cannot edit financial details of a sent or paid invoice. Please void and issue a new invoice.');
+        }
       }
 
       // Recalculate totals if subtotal, tax rate, or paidAmount changed
@@ -347,15 +339,59 @@ class InvoiceService {
    * Mark invoice as sent
    */
   async markAsSent(id: string, organizationId: string, userId: string): Promise<Invoice> {
-    const invoice = await this.updateInvoice(id, { status: 'SENT' } as Partial<Invoice>, organizationId, userId);
-    
-    await automationService.triggerEvent('INVOICE_SENT', {
-      organizationId,
-      entityId: id,
-      userId
-    });
+    return await db.$transaction(async (tx) => {
+      const invoice = await tx.invoice.findFirst({
+        where: { id, organizationId, deletedAt: null },
+      });
+      if (!invoice) {
+        throw new Error('Invoice not found or access denied');
+      }
 
-    return invoice;
+      if (invoice.status === 'DRAFT') {
+        // Update status to SENT
+        await tx.invoice.update({
+          where: { id },
+          data: { status: 'SENT' },
+        });
+
+        // GL Integration: Auto-create journal entry for the invoice
+        try {
+          await createInvoiceJournalEntry(
+            tx,
+            organizationId,
+            invoice.number,
+            Number(invoice.subtotal),
+            Number(invoice.tax),
+            userId
+          );
+        } catch (glError) {
+          log.error('GL: Failed to create journal entry for invoice on markAsSent', {
+            invoiceId: invoice.id,
+            invoiceNumber: invoice.number,
+            error: glError instanceof Error ? glError.message : String(glError),
+          });
+          throw glError; // Rethrow to rollback transaction!
+        }
+      }
+
+      const finalInvoice = await tx.invoice.findFirst({
+        where: { id, organizationId },
+        include: {
+          client: { select: { id: true, name: true, company: true } },
+          project: { select: { id: true, name: true, nameEn: true, number: true } },
+          items: { orderBy: { createdAt: "asc" } },
+        },
+      });
+      if (!finalInvoice) throw new Error('Invoice not found after update');
+
+      await automationService.triggerEvent('INVOICE_SENT', {
+        organizationId,
+        entityId: id,
+        userId
+      });
+
+      return finalInvoice;
+    });
   }
 
   /**
@@ -441,6 +477,7 @@ class InvoiceService {
           amount,
           error: glError instanceof Error ? glError.message : String(glError),
         });
+        throw glError; // Rethrow to rollback transaction!
       }
 
       return finalInvoice;
