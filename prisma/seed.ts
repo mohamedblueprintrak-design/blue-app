@@ -165,16 +165,6 @@ async function main() {
   console.info('✅ Existing data cleaned\n');
 
   // ========== 0.5. Create Organizations (Multi-Tenant) ==========
-  // Default organization — required because organizationId fields use @default("default")
-  const _defaultOrg = await db.organization.create({
-    data: {
-      id: 'default',
-      name: 'Default Organization',
-      slug: 'default',
-      description: 'Fallback organization for data isolation — records created without an explicit org assignment',
-      isActive: true,
-    },
-  });
   const org1 = await db.organization.create({
     data: {
       id: 'org-blueprint-rak',
@@ -222,11 +212,10 @@ async function main() {
       })),
     });
   };
-  await seedAccountsForOrg(_defaultOrg.id);
   await seedAccountsForOrg(org1.id);
   await seedAccountsForOrg(org2.id);
 
-  console.info('✅ 3 organizations created (Default + RAK + DXB)');
+  console.info('✅ 2 organizations created (RAK + DXB)');
 
   // ========== 1. Create All Demo Users from Shared Credentials ==========
   const userMap: Record<string, { id: string }> = {};

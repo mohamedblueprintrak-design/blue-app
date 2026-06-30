@@ -25,11 +25,15 @@ export async function POST(
     if ("error" in rbac) return rbac.error;
     const user = rbac.user;
 
+    if (!user.organizationId) {
+      return errorResponse("غير مصرح بالدخول - لم يتم تحديد المؤسسة", "FORBIDDEN", 403);
+    }
+
     // Find the lead
     const lead = await db.lead.findFirst({
       where: {
         id: leadId,
-        organizationId: user.organizationId || "default",
+        organizationId: user.organizationId,
         deletedAt: null,
       },
     });
@@ -49,7 +53,7 @@ export async function POST(
         taxNumber: "",
         creditLimit: 0,
         paymentTerms: "",
-        organizationId: user.organizationId || "default",
+        organizationId: user.organizationId,
         createdById: user.userId,
       },
     });
@@ -65,7 +69,8 @@ export async function POST(
     await cacheDeletePattern(`dashboard:${user.organizationId || 'global'}:*`);
 
     return NextResponse.json(client, { status: 201 });
-  } catch (error: any) {
-    return errorResponse(error.message || "Internal Server Error", "INTERNAL_ERROR", 500);
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : "Internal Server Error";
+    return errorResponse(msg, "INTERNAL_ERROR", 500);
   }
 }

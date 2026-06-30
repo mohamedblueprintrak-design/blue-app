@@ -300,43 +300,43 @@ export class AccountingService {
       },
     });
 
-    const aggMap = new Map<string, { debit: number; credit: number }>();
+    const aggMap = new Map<string, { debit: Prisma.Decimal; credit: Prisma.Decimal }>();
     for (const agg of aggregations) {
       aggMap.set(agg.accountId, {
-        debit: Number(agg._sum.debit || 0),
-        credit: Number(agg._sum.credit || 0),
+        debit: new Prisma.Decimal(agg._sum.debit || 0),
+        credit: new Prisma.Decimal(agg._sum.credit || 0),
       });
     }
 
     // 3. Compile balances
-    let totalDebitSum = 0;
-    let totalCreditSum = 0;
+    let totalDebitSum = new Prisma.Decimal(0);
+    let totalCreditSum = new Prisma.Decimal(0);
 
     const rows = accounts.map((acc) => {
-      const totals = aggMap.get(acc.id) || { debit: 0, credit: 0 };
+      const totals = aggMap.get(acc.id) || { debit: new Prisma.Decimal(0), credit: new Prisma.Decimal(0) };
       
       // Calculate net balance based on account type normal balance
       const isDebitNormal = acc.type === AccountType.ASSET || acc.type === AccountType.EXPENSE;
-      let netBalance = 0;
+      let netBalance = new Prisma.Decimal(0);
       
       if (isDebitNormal) {
-        netBalance = totals.debit - totals.credit;
+        netBalance = totals.debit.sub(totals.credit);
       } else {
-        netBalance = totals.credit - totals.debit;
+        netBalance = totals.credit.sub(totals.debit);
       }
 
       // Add to trial balance totals
       if (isDebitNormal) {
-        if (netBalance >= 0) {
-          totalDebitSum += netBalance;
+        if (netBalance.gte(0)) {
+          totalDebitSum = totalDebitSum.add(netBalance);
         } else {
-          totalCreditSum += Math.abs(netBalance);
+          totalCreditSum = totalCreditSum.add(netBalance.abs());
         }
       } else {
-        if (netBalance >= 0) {
-          totalCreditSum += netBalance;
+        if (netBalance.gte(0)) {
+          totalCreditSum = totalCreditSum.add(netBalance);
         } else {
-          totalDebitSum += Math.abs(netBalance);
+          totalDebitSum = totalDebitSum.add(netBalance.abs());
         }
       }
 
@@ -346,18 +346,18 @@ export class AccountingService {
         nameAr: acc.nameAr,
         nameEn: acc.nameEn,
         type: acc.type,
-        totalDebit: totals.debit,
-        totalCredit: totals.credit,
-        netBalance,
+        totalDebit: totals.debit.toNumber(),
+        totalCredit: totals.credit.toNumber(),
+        netBalance: netBalance.toNumber(),
         isDebitNormal,
       };
     });
 
     return {
       rows,
-      totalDebitSum,
-      totalCreditSum,
-      balancesMatch: Math.abs(totalDebitSum - totalCreditSum) < 0.01,
+      totalDebitSum: totalDebitSum.toNumber(),
+      totalCreditSum: totalCreditSum.toNumber(),
+      balancesMatch: totalDebitSum.equals(totalCreditSum),
     };
   }
 
@@ -392,43 +392,53 @@ export class AccountingService {
     });
 
     // Group by account
-    const accountsMap = new Map<string, { account: any; debit: number; credit: number }>();
+    const accountsMap = new Map<string, { account: any; debit: Prisma.Decimal; credit: Prisma.Decimal }>();
     for (const line of lines) {
       const existing = accountsMap.get(line.accountId) || {
         account: line.account,
-        debit: 0,
-        credit: 0,
+        debit: new Prisma.Decimal(0),
+        credit: new Prisma.Decimal(0),
       };
-      existing.debit += Number(line.debit);
-      existing.credit += Number(line.credit);
+      existing.debit = existing.debit.add(new Prisma.Decimal(line.debit));
+      existing.credit = existing.credit.add(new Prisma.Decimal(line.credit));
       accountsMap.set(line.accountId, existing);
     }
 
-    const revenueRows: unknown[] = [];
-    const expenseRows: unknown[] = [];
-    let totalRevenue = 0;
-    let totalExpense = 0;
+    const revenueRows: any[] = [];
+    const expenseRows: any[] = [];
+    let totalRevenue = new Prisma.Decimal(0);
+    let totalExpense = new Prisma.Decimal(0);
 
     for (const val of accountsMap.values()) {
       if (val.account.type === AccountType.REVENUE) {
         // Credit-normal
-        const net = val.credit - val.debit;
-        totalRevenue += net;
-        revenueRows.push({ ...val, netBalance: net });
+        const net = val.credit.sub(val.debit);
+        totalRevenue = totalRevenue.add(net);
+        revenueRows.push({
+          account: val.account,
+          debit: val.debit.toNumber(),
+          credit: val.credit.toNumber(),
+          netBalance: net.toNumber(),
+        });
       } else {
         // Debit-normal
-        const net = val.debit - val.credit;
-        totalExpense += net;
-        expenseRows.push({ ...val, netBalance: net });
+        const net = val.debit.sub(val.credit);
+        totalExpense = totalExpense.add(net);
+        expenseRows.push({
+          account: val.account,
+          debit: val.debit.toNumber(),
+          credit: val.credit.toNumber(),
+          netBalance: net.toNumber(),
+        });
       }
     }
 
     return {
       revenueRows,
       expenseRows,
-      totalRevenue,
-      totalExpense,
-      netProfit: totalRevenue - totalExpense,
+      totalRevenue: totalRevenue.toNumber(),
+      totalExpense: totalExpense.toNumber(),
+      netProfit: totalRevenue.sub(totalExpense).toNumber(),
     };
   }
 
@@ -462,15 +472,15 @@ export class AccountingService {
     });
 
     // Group by account
-    const accountsMap = new Map<string, { account: any; debit: number; credit: number }>();
+    const accountsMap = new Map<string, { account: any; debit: Prisma.Decimal; credit: Prisma.Decimal }>();
     for (const line of lines) {
       const existing = accountsMap.get(line.accountId) || {
         account: line.account,
-        debit: 0,
-        credit: 0,
+        debit: new Prisma.Decimal(0),
+        credit: new Prisma.Decimal(0),
       };
-      existing.debit += Number(line.debit);
-      existing.credit += Number(line.credit);
+      existing.debit = existing.debit.add(new Prisma.Decimal(line.debit));
+      existing.credit = existing.credit.add(new Prisma.Decimal(line.credit));
       accountsMap.set(line.accountId, existing);
     }
 
@@ -500,54 +510,71 @@ export class AccountingService {
       },
     });
 
-    let historicalRevenue = 0;
-    let historicalExpense = 0;
+    let historicalRevenue = new Prisma.Decimal(0);
+    let historicalExpense = new Prisma.Decimal(0);
     for (const line of plLines) {
       if (line.account.type === AccountType.REVENUE) {
-        historicalRevenue += Number(line.credit) - Number(line.debit);
+        historicalRevenue = historicalRevenue.add(new Prisma.Decimal(line.credit).sub(new Prisma.Decimal(line.debit)));
       } else {
-        historicalExpense += Number(line.debit) - Number(line.credit);
+        historicalExpense = historicalExpense.add(new Prisma.Decimal(line.debit).sub(new Prisma.Decimal(line.credit)));
       }
     }
-    const netRetainedEarnings = historicalRevenue - historicalExpense;
+    const netRetainedEarnings = historicalRevenue.sub(historicalExpense);
 
-    const assetRows: unknown[] = [];
-    const liabilityRows: unknown[] = [];
-    const equityRows: unknown[] = [];
-    let totalAssets = 0;
-    let totalLiabilities = 0;
-    let totalEquity = 0;
+    const assetRows: any[] = [];
+    const liabilityRows: any[] = [];
+    const equityRows: any[] = [];
+    let totalAssets = new Prisma.Decimal(0);
+    let totalLiabilities = new Prisma.Decimal(0);
+    let totalEquity = new Prisma.Decimal(0);
 
     for (const val of accountsMap.values()) {
       const type = val.account.type;
       if (type === AccountType.ASSET) {
-        const net = val.debit - val.credit;
-        totalAssets += net;
-        assetRows.push({ ...val, netBalance: net });
+        const net = val.debit.sub(val.credit);
+        totalAssets = totalAssets.add(net);
+        assetRows.push({
+          account: val.account,
+          debit: val.debit.toNumber(),
+          credit: val.credit.toNumber(),
+          netBalance: net.toNumber(),
+        });
       } else if (type === AccountType.LIABILITY) {
-        const net = val.credit - val.debit;
-        totalLiabilities += net;
-        liabilityRows.push({ ...val, netBalance: net });
+        const net = val.credit.sub(val.debit);
+        totalLiabilities = totalLiabilities.add(net);
+        liabilityRows.push({
+          account: val.account,
+          debit: val.debit.toNumber(),
+          credit: val.credit.toNumber(),
+          netBalance: net.toNumber(),
+        });
       } else if (type === AccountType.EQUITY) {
-        const net = val.credit - val.debit;
-        totalEquity += net;
-        equityRows.push({ ...val, netBalance: net });
+        const net = val.credit.sub(val.debit);
+        totalEquity = totalEquity.add(net);
+        equityRows.push({
+          account: val.account,
+          debit: val.debit.toNumber(),
+          credit: val.credit.toNumber(),
+          netBalance: net.toNumber(),
+        });
       }
     }
 
     // Add historical retained earnings to equity total
-    totalEquity += netRetainedEarnings;
+    totalEquity = totalEquity.add(netRetainedEarnings);
+
+    const totalLiabilitiesAndEquity = totalLiabilities.add(totalEquity);
 
     return {
       assetRows,
       liabilityRows,
       equityRows,
-      netRetainedEarnings,
-      totalAssets,
-      totalLiabilities,
-      totalEquity,
-      totalLiabilitiesAndEquity: totalLiabilities + totalEquity,
-      balancesMatch: Math.abs(totalAssets - (totalLiabilities + totalEquity)) < 0.01,
+      netRetainedEarnings: netRetainedEarnings.toNumber(),
+      totalAssets: totalAssets.toNumber(),
+      totalLiabilities: totalLiabilities.toNumber(),
+      totalEquity: totalEquity.toNumber(),
+      totalLiabilitiesAndEquity: totalLiabilitiesAndEquity.toNumber(),
+      balancesMatch: totalAssets.equals(totalLiabilitiesAndEquity),
     };
   }
 }
@@ -588,11 +615,13 @@ export async function createInvoiceJournalEntry(
   tx: any,
   organizationId: string,
   invoiceNumber: string,
-  subtotal: number,
-  tax: number,
+  subtotal: Prisma.Decimal | number,
+  tax: Prisma.Decimal | number,
   _userId: string
 ): Promise<void> {
-  const total = subtotal + tax;
+  const subtotalDec = new Prisma.Decimal(subtotal);
+  const taxDec = new Prisma.Decimal(tax);
+  const total = subtotalDec.add(taxDec);
 
   // Get account IDs
   const arAccountId = await getAccountByCode(tx, organizationId, '1100'); // Accounts Receivable
@@ -615,7 +644,7 @@ export async function createInvoiceJournalEntry(
     {
       journalEntryId: journalEntry.id,
       accountId: arAccountId,
-      debit: new Prisma.Decimal(total),
+      debit: total,
       credit: new Prisma.Decimal(0),
     },
     // Credit: Service Revenue (subtotal)
@@ -623,17 +652,17 @@ export async function createInvoiceJournalEntry(
       journalEntryId: journalEntry.id,
       accountId: revenueAccountId,
       debit: new Prisma.Decimal(0),
-      credit: new Prisma.Decimal(subtotal),
+      credit: subtotalDec,
     },
   ];
 
   // Credit: VAT Payable (tax) — only if tax > 0
-  if (tax > 0) {
+  if (taxDec.gt(0)) {
     lines.push({
       journalEntryId: journalEntry.id,
       accountId: vatAccountId,
       debit: new Prisma.Decimal(0),
-      credit: new Prisma.Decimal(tax),
+      credit: taxDec,
     });
   }
 
@@ -659,10 +688,12 @@ export async function createPaymentJournalEntry(
   tx: any,
   organizationId: string,
   invoiceNumber: string,
-  amount: number,
+  amount: Prisma.Decimal | number,
   paymentMethod: 'cash' | 'bank' = 'bank',
   _userId: string
 ): Promise<void> {
+  const amountDec = new Prisma.Decimal(amount);
+
   // Get account IDs
   const cashAccountId = await getAccountByCode(tx, organizationId, '1010'); // Cash on Hand
   const bankAccountId = await getAccountByCode(tx, organizationId, '1020'); // Bank Account
@@ -687,7 +718,7 @@ export async function createPaymentJournalEntry(
       {
         journalEntryId: journalEntry.id,
         accountId: debitAccountId,
-        debit: new Prisma.Decimal(amount),
+        debit: amountDec,
         credit: new Prisma.Decimal(0),
       },
       // Credit: Accounts Receivable
@@ -695,7 +726,7 @@ export async function createPaymentJournalEntry(
         journalEntryId: journalEntry.id,
         accountId: arAccountId,
         debit: new Prisma.Decimal(0),
-        credit: new Prisma.Decimal(amount),
+        credit: amountDec,
       },
     ],
   });

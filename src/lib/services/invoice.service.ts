@@ -13,7 +13,7 @@ import { logAudit } from './audit.service';
 import { createInvoiceJournalEntry, createPaymentJournalEntry } from './accounting.service';
 import { sequenceService } from './sequence.service';
 import { automationService } from './automation.service';
-import { Invoice } from '@prisma/client';
+import { Invoice, Prisma } from '@prisma/client';
 
 /**
  * Invoice filtering options
@@ -268,14 +268,14 @@ class InvoiceService {
 
       // Recalculate totals if subtotal, tax rate, or paidAmount changed
       if (data.subtotal !== undefined || data.taxRate !== undefined || data.paidAmount !== undefined) {
-        const subtotal = data.subtotal !== undefined ? Number(data.subtotal) : Number(currentInvoice.subtotal);
-        const taxRate = data.taxRate !== undefined ? Number(data.taxRate) : Number(currentInvoice.taxRate);
-        const tax = subtotal * (taxRate / 100);
-        const total = subtotal + tax;
-        const paidAmount = data.paidAmount !== undefined ? Number(data.paidAmount) : Number(currentInvoice.paidAmount);
+        const subtotal = new Prisma.Decimal(data.subtotal !== undefined ? data.subtotal : currentInvoice.subtotal);
+        const taxRate = new Prisma.Decimal(data.taxRate !== undefined ? data.taxRate : currentInvoice.taxRate);
+        const tax = subtotal.mul(taxRate.div(100));
+        const total = subtotal.add(tax);
+        const paidAmount = new Prisma.Decimal(data.paidAmount !== undefined ? data.paidAmount : currentInvoice.paidAmount);
         updateData.tax = tax;
         updateData.total = total;
-        updateData.remaining = total - paidAmount;
+        updateData.remaining = total.sub(paidAmount);
       }
 
       await tx.invoice.updateMany({
@@ -418,12 +418,13 @@ class InvoiceService {
         throw new Error('Invoice not found or access denied');
       }
 
-      const currentPaid = Number(invoice.paidAmount);
-      const total = Number(invoice.total);
+      const currentPaid = new Prisma.Decimal(invoice.paidAmount);
+      const total = new Prisma.Decimal(invoice.total);
+      const amountDec = new Prisma.Decimal(amount);
 
       // Overpayment protection: payments cannot exceed the total invoice amount
-      if (currentPaid + amount > total) {
-        throw new Error(`Payment amount exceeds remaining balance. Remaining: ${total - currentPaid}`);
+      if (currentPaid.add(amountDec).gt(total)) {
+        throw new Error(`Payment amount exceeds remaining balance. Remaining: ${total.sub(currentPaid).toNumber()}`);
       }
 
       // Use optimistic concurrency control (OCC) matching on current paidAmount to prevent concurrent updates
@@ -438,9 +439,9 @@ class InvoiceService {
         throw new Error('CONCURRENT_UPDATE_ERROR');
       }
 
-      const newPaidAmount = currentPaid + amount;
-      const status = newPaidAmount >= total ? 'PAID' : 'PARTIALLY_PAID';
-      const remaining = Math.max(0, total - newPaidAmount);
+      const newPaidAmount = currentPaid.add(amountDec);
+      const status = newPaidAmount.gte(total) ? 'PAID' : 'PARTIALLY_PAID';
+      const remaining = total.sub(newPaidAmount).gt(0) ? total.sub(newPaidAmount) : new Prisma.Decimal(0);
 
       // Update status and remaining
       const finalUpdateResult = await tx.invoice.updateMany({

@@ -190,10 +190,10 @@ function AppSidebar() {
             <SidebarMenuButton
               isActive={isActive}
               onClick={() => handleNavClick(item)}
-              tooltip={tNav(`${item.id}.label`) || (isAr ? item.labelAr : item.labelEn)}
+              tooltip={tNav.has(`${item.id}.label`) ? tNav(`${item.id}.label`) : (isAr ? item.labelAr : item.labelEn)}
             >
               <Icon className="h-[18px] w-[18px]" />
-              <span>{tNav(`${item.id}.label`) || (isAr ? item.labelAr : item.labelEn)}</span>
+              <span>{tNav.has(`${item.id}.label`) ? tNav(`${item.id}.label`) : (isAr ? item.labelAr : item.labelEn)}</span>
               <ChevronDown
                 className={cn(
                   "ms-auto h-4 w-4 shrink-0 transition-transform duration-200",
@@ -212,7 +212,7 @@ function AppSidebar() {
                         onClick={() => handleNavClick(child)}
                       >
                         <ChildIcon className="h-3.5 w-3.5" />
-                        <span>{tNav(`${child.id}.label`) || (isAr ? child.labelAr : child.labelEn)}</span>
+                        <span>{tNav.has(`${child.id}.label`) ? tNav(`${child.id}.label`) : (isAr ? child.labelAr : child.labelEn)}</span>
                       </SidebarMenuSubButton>
                     </SidebarMenuSubItem>
                   );
@@ -224,10 +224,10 @@ function AppSidebar() {
           <SidebarMenuButton
             isActive={currentPage === item.id}
             onClick={() => setCurrentPage(item.id)}
-            tooltip={tNav(`${item.id}.label`) || (isAr ? item.labelAr : item.labelEn)}
+            tooltip={tNav.has(`${item.id}.label`) ? tNav(`${item.id}.label`) : (isAr ? item.labelAr : item.labelEn)}
           >
             <Icon className="h-[18px] w-[18px]" />
-            <span>{tNav(`${item.id}.label`) || (isAr ? item.labelAr : item.labelEn)}</span>
+            <span>{tNav.has(`${item.id}.label`) ? tNav(`${item.id}.label`) : (isAr ? item.labelAr : item.labelEn)}</span>
           </SidebarMenuButton>
         )}
       </SidebarMenuItem>

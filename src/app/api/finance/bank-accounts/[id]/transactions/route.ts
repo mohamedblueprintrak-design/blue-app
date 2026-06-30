@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { Prisma } from '@prisma/client';
 import { requireVerifiedPermission, orgFilter } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
@@ -93,11 +94,11 @@ export async function POST(
   }
 
   // Import transactions with running balance
-  let runningBalance = Number(bankAccount.currentBalance);
+  let runningBalance = new Prisma.Decimal(bankAccount.currentBalance);
   const created: unknown[] = [];
 
   for (const txn of validation.data.transactions) {
-    runningBalance += txn.amount;
+    runningBalance = runningBalance.add(new Prisma.Decimal(txn.amount));
     const record = await db.bankTransaction.create({
       data: {
         bankAccountId: id,

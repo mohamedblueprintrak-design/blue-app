@@ -151,11 +151,11 @@ export default function ReportsPage({ projectId }: ReportsPageProps) {
     const clients = financial?.topClients || [];
     const colors = ["#133371", "#0ea5e9", "#f59e0b", "#8b5cf6", "#f43f5e"];
     return clients.slice(0, 5).map((c: { clientName: string; clientCompany: string; totalRevenue: number }, i: number) => ({
-      name: c.clientName || c.clientCompany || "—", value: c.totalRevenue || 0, color: colors[i % colors.length],
+      name: c.clientName || c.clientCompany || "—", value: Number(c.totalRevenue || 0), color: colors[i % colors.length],
     }));
   }, [financial]);
 
-  const totalRevenueByClient = useMemo(() => revenueByClientData.reduce((s: number, d: { name: string; value: number; color: string }) => s + d.value, 0), [revenueByClientData]);
+  const totalRevenueByClient = useMemo(() => revenueByClientData.reduce((s: number, d: { name: string; value: number; color: string }) => s + Number(d.value || 0), 0), [revenueByClientData]);
 
   const departmentData = useMemo(() => {
     const depts = hr?.departmentDistribution || [];

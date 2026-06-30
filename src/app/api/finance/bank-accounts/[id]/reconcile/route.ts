@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { Prisma } from '@prisma/client';
 import { requireVerifiedPermission, orgFilter } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
@@ -119,25 +120,32 @@ export async function GET(
   ]);
 
   const unreconciledCount = unreconciled.length;
-  const unreconciledDeposits = unreconciled
-    .filter((t) => Number(t.amount) > 0)
-    .reduce((sum, t) => sum + Number(t.amount), 0);
-  const unreconciledWithdrawals = unreconciled
-    .filter((t) => Number(t.amount) < 0)
-    .reduce((sum, t) => sum + Number(t.amount), 0);
+  let unreconciledDepositsDec = new Prisma.Decimal(0);
+  let unreconciledWithdrawalsDec = new Prisma.Decimal(0);
+
+  for (const t of unreconciled) {
+    const amt = new Prisma.Decimal(t.amount);
+    if (amt.gt(0)) {
+      unreconciledDepositsDec = unreconciledDepositsDec.add(amt);
+    } else {
+      unreconciledWithdrawalsDec = unreconciledWithdrawalsDec.add(amt);
+    }
+  }
+
+  const netUnreconciledDec = unreconciledDepositsDec.add(unreconciledWithdrawalsDec);
 
   return NextResponse.json({
     bankAccount: {
       id: bankAccount.id,
       name: bankAccount.name,
-      currentBalance: bankAccount.currentBalance,
+      currentBalance: new Prisma.Decimal(bankAccount.currentBalance).toNumber(),
     },
     summary: {
       reconciledCount: reconciled,
       unreconciledCount,
-      unreconciledDeposits,
-      unreconciledWithdrawals,
-      netUnreconciled: unreconciledDeposits + unreconciledWithdrawals,
+      unreconciledDeposits: unreconciledDepositsDec.toNumber(),
+      unreconciledWithdrawals: unreconciledWithdrawalsDec.toNumber(),
+      netUnreconciled: netUnreconciledDec.toNumber(),
     },
     unreconciledTransactions: unreconciled,
   });

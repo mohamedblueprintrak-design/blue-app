@@ -20,9 +20,13 @@ export async function GET(request: NextRequest) {
     if ("error" in rbac) return rbac.error;
     const user = rbac.user;
 
+    if (!user.organizationId) {
+      return errorResponse("غير مصرح بالدخول - لم يتم تحديد المؤسسة", "FORBIDDEN", 403);
+    }
+
     const leads = await db.lead.findMany({
       where: {
-        organizationId: user.organizationId || "default",
+        organizationId: user.organizationId,
         deletedAt: null,
       },
       orderBy: {
@@ -31,8 +35,9 @@ export async function GET(request: NextRequest) {
     });
 
     return successResponse(leads);
-  } catch (error: any) {
-    return errorResponse(error.message || "Internal Server Error", "INTERNAL_ERROR", 500);
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : "Internal Server Error";
+    return errorResponse(msg, "INTERNAL_ERROR", 500);
   }
 }
 
@@ -49,6 +54,10 @@ export async function POST(request: NextRequest) {
     const rbac = await requireVerifiedPermission(request, Permission.CLIENT_CREATE);
     if ("error" in rbac) return rbac.error;
     const user = rbac.user;
+
+    if (!user.organizationId) {
+      return errorResponse("غير مصرح بالدخول - لم يتم تحديد المؤسسة", "FORBIDDEN", 403);
+    }
 
     const body = await request.json();
     const sanitized = sanitizeObject(body);
@@ -68,12 +77,13 @@ export async function POST(request: NextRequest) {
         status: status || "NEW",
         estimatedValue: estimatedValue ? Number(estimatedValue) : 0,
         notes: notes || "",
-        organizationId: user.organizationId || "default",
+        organizationId: user.organizationId,
       },
     });
 
     return createdResponse(lead);
-  } catch (error: any) {
-    return errorResponse(error.message || "Internal Server Error", "INTERNAL_ERROR", 500);
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : "Internal Server Error";
+    return errorResponse(msg, "INTERNAL_ERROR", 500);
   }
 }
