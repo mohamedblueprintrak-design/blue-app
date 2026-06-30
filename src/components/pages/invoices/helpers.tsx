@@ -15,7 +15,7 @@ export function getStatusConfig(status: string) {
 }
 
 export function getEmptyLineItem(): InvoiceItem {
-  return { description: "", quantity: 1, unitPrice: 0, total: 0 };
+  return { description: "", quantity: 1, unitPrice: 0, total: 0, revenueCode: "4010" };
 }
 
 export function getAmountColor(status: string) {

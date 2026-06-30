@@ -764,7 +764,7 @@ model Invoice {
   updatedAt      DateTime  @updatedAt
 
   client          Client           @relation(fields: [clientId], references: [id], onDelete: Restrict)
-  project         Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  project         Project          @relation(fields: [projectId], references: [id], onDelete: Restrict)
   items           InvoiceItem[]
   invoicePayments InvoicePayment[]
   payments        Payment[]
@@ -791,6 +791,7 @@ model InvoiceItem {
   unitPrice   Decimal  @default(0)
   total       Decimal  @default(0)
   boqItemId   String?
+  revenueCode String   @default("4010")
   createdAt   DateTime @default(now())
 
   invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)

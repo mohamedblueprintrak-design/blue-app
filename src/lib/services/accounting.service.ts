@@ -625,8 +625,13 @@ export async function createInvoiceJournalEntry(
 
   // Get account IDs
   const arAccountId = await getAccountByCode(tx, organizationId, '1100'); // Accounts Receivable
-  const revenueAccountId = await getAccountByCode(tx, organizationId, '4010'); // Service Revenue
   const vatAccountId = await getAccountByCode(tx, organizationId, '2200'); // VAT Payable
+
+  // Try to find the invoice with items for granular revenue codes
+  const invoice = await tx.invoice.findFirst({
+    where: { number: invoiceNumber, organizationId },
+    include: { items: true },
+  });
 
   // Create journal entry within the same transaction
   const journalEntry = await tx.journalEntry.create({
@@ -647,14 +652,30 @@ export async function createInvoiceJournalEntry(
       debit: total,
       credit: new Prisma.Decimal(0),
     },
-    // Credit: Service Revenue (subtotal)
-    {
+  ];
+
+  if (invoice && invoice.items && invoice.items.length > 0) {
+    // Credit: Respective revenue accounts based on each item's revenueCode
+    for (const item of invoice.items) {
+      const revCode = item.revenueCode || '4010';
+      const revenueAccountId = await getAccountByCode(tx, organizationId, revCode);
+      lines.push({
+        journalEntryId: journalEntry.id,
+        accountId: revenueAccountId,
+        debit: new Prisma.Decimal(0),
+        credit: new Prisma.Decimal(item.total),
+      });
+    }
+  } else {
+    // Fallback: Credit default Service Revenue (subtotal)
+    const revenueAccountId = await getAccountByCode(tx, organizationId, '4010'); // Service Revenue
+    lines.push({
       journalEntryId: journalEntry.id,
       accountId: revenueAccountId,
       debit: new Prisma.Decimal(0),
       credit: subtotalDec,
-    },
-  ];
+    });
+  }
 
   // Credit: VAT Payable (tax) — only if tax > 0
   if (taxDec.gt(0)) {

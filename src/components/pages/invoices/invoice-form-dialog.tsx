@@ -188,8 +188,9 @@ export function InvoiceFormDialog({
                 <TableHeader>
                   <TableRow className="hover:bg-transparent bg-slate-50 dark:bg-slate-800/50">
                     <TableHead className="text-xs">{tAuto('auto.description')}</TableHead>
-                    <TableHead className="text-xs w-24">{tAuto('auto.qty')}</TableHead>
-                    <TableHead className="text-xs w-28">{tAuto('auto.unitPrice')}</TableHead>
+                    <TableHead className="text-xs w-36">{ar ? 'حساب الإيراد' : 'Revenue Account'}</TableHead>
+                    <TableHead className="text-xs w-20">{tAuto('auto.qty')}</TableHead>
+                    <TableHead className="text-xs w-24">{tAuto('auto.unitPrice')}</TableHead>
                     <TableHead className="text-xs w-28 text-start">{tAuto('auto.total')}</TableHead>
                     <TableHead className="w-10"></TableHead>
                   </TableRow>
@@ -214,6 +215,21 @@ export function InvoiceFormDialog({
                           </span>
                           <Input value={item.description} onChange={(e) => updateLineItem(idx, "description", e.target.value)} placeholder={tAuto('auto.itemDescription')} className="h-8 text-xs rounded-lg" />
                         </div>
+                      </TableCell>
+                      <TableCell>
+                        <Select
+                          value={item.revenueCode || "4010"}
+                          onValueChange={(val) => updateLineItem(idx, "revenueCode", val)}
+                        >
+                          <SelectTrigger className="h-8 text-xs rounded-lg">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="4010">{ar ? "4010 - إيراد خدمات" : "4010 - Service Revenue"}</SelectItem>
+                            <SelectItem value="4020">{ar ? "4020 - إيراد استشارات" : "4020 - Consultation"}</SelectItem>
+                            <SelectItem value="4100">{ar ? "4100 - إيرادات أخرى" : "4100 - Other Revenue"}</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </TableCell>
                       <TableCell><Input type="number" value={item.quantity} onChange={(e) => updateLineItem(idx, "quantity", parseFloat(e.target.value) || 0)} className="h-8 text-xs tabular-nums font-mono rounded-lg" /></TableCell>
                       <TableCell><Input type="number" value={item.unitPrice} onChange={(e) => updateLineItem(idx, "unitPrice", parseFloat(e.target.value) || 0)} className="h-8 text-xs tabular-nums font-mono rounded-lg" /></TableCell>

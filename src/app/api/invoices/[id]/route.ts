@@ -126,6 +126,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
             quantity: item.quantity || 0,
             unitPrice: item.unitPrice || 0,
             total: item.total || (item.quantity * item.unitPrice),
+            revenueCode: item.revenueCode || "4010",
           })),
         });
       }

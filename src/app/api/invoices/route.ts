@@ -23,6 +23,7 @@ const invoiceItemSchema = z.object({
   quantity: z.number().positive().max(999999),
   unitPrice: z.number().nonnegative().max(999999999),
   total: z.number().nonnegative().optional(),
+  revenueCode: z.string().regex(/^(4010|4020|4100)$/).default("4010"),
 });
 
 /**
@@ -360,6 +361,7 @@ export async function POST(request: NextRequest) {
           quantity: item.quantity || 0,
           unitPrice: item.unitPrice || 0,
           total: item.total || (item.quantity * item.unitPrice),
+          revenueCode: item.revenueCode || "4010",
         }))
       },
       ctx.organizationId || "",

@@ -4,6 +4,7 @@ export interface InvoiceItem {
   quantity: number;
   unitPrice: number;
   total: number;
+  revenueCode?: string;
 }
 
 export interface Invoice {

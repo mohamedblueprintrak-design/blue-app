@@ -61,7 +61,7 @@ export interface CreateInvoiceInput {
   subtotal?: number;
   taxRate?: number;
   notes?: string;
-  items?: { description: string; quantity: number; unitPrice: number; total: number }[];
+  items?: { description: string; quantity: number; unitPrice: number; total: number; revenueCode?: string }[];
 }
 
 /**
@@ -205,7 +205,8 @@ class InvoiceService {
                 description: item.description,
                 quantity: item.quantity,
                 unitPrice: item.unitPrice,
-                total: item.total
+                total: item.total,
+                revenueCode: item.revenueCode || "4010"
               }))
             }
           } : {})

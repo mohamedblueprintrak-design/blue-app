@@ -45,6 +45,7 @@ export const invoiceItemUpdateSchema = z.object({
   quantity: z.number().positive().max(999999),
   unitPrice: z.number().nonnegative().max(999999999),
   total: z.number().nonnegative().optional(),
+  revenueCode: z.string().regex(/^(4010|4020|4100)$/).default("4010"),
 });
 
 // ===== Contract =====
