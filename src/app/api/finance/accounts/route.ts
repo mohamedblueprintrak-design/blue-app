@@ -1,3 +1,4 @@
+import { NextRequest } from "next/server";
 import { AccountingService } from "@/lib/services/accounting.service";
 import { requireVerifiedPermission } from "../../utils/auth";
 import { Permission } from "@/lib/auth/types";

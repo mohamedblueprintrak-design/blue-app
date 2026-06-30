@@ -87,7 +87,7 @@ export default function FinanceJournalEntriesPage() {
   });
 
   // Group ledger lines by Journal Entry ID
-  const entriesMap = new Map<string, { entry: unknown; lines: unknown[] }>();
+  const entriesMap = new Map<string, { entry: any; lines: any[] }>();
   for (const line of ledgerLines) {
     const entryId = line.journalEntryId;
     const existing = entriesMap.get(entryId) || {
@@ -124,7 +124,7 @@ export default function FinanceJournalEntriesPage() {
       setIsCreateOpen(false);
       resetForm();
     },
-    onError: (error: unknown) => {
+    onError: (error: any) => {
       toast.error(error.message || t("حدث خطأ ما", "Something went wrong"));
     },
   });

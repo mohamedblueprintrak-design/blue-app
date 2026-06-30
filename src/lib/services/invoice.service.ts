@@ -7,6 +7,7 @@
  */
 
 import { db } from '@/lib/db';
+import { log } from '@/lib/logger';
 import { insensitiveContains } from '@/app/api/utils/db';
 import { logAudit } from './audit.service';
 import { createInvoiceJournalEntry, createPaymentJournalEntry } from './accounting.service';
@@ -364,7 +365,8 @@ class InvoiceService {
     id: string,
     amount: number,
     organizationId: string,
-    userId: string
+    userId: string,
+    paymentMethod: 'cash' | 'bank' = 'bank'
   ): Promise<Invoice> {
     if (amount <= 0) {
       throw new Error('Payment amount must be positive');
@@ -430,8 +432,8 @@ class InvoiceService {
       // GL Integration: Auto-create journal entry for the payment
       // Debit: Cash/Bank, Credit: Accounts Receivable
       try {
-        const paymentMethod = payMethod === 'cash' ? 'cash' : 'bank';
-        await createPaymentJournalEntry(tx, organizationId, finalInvoice.number, amount, paymentMethod, userId);
+        const finalPayMethod = paymentMethod === 'cash' ? 'cash' : 'bank';
+        await createPaymentJournalEntry(tx, organizationId, finalInvoice.number, amount, finalPayMethod, userId);
       } catch (glError) {
         log.error('GL: Failed to create journal entry for payment', {
           invoiceId: id,

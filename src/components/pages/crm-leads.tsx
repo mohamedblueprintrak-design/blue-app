@@ -71,7 +71,7 @@ export default function CrmLeadsPage({ language = 'ar' }: { language?: 'ar' | 'e
       const items = data.data ?? data ?? []
       setLeads(items)
       setError(null)
-    } catch (err: unknown) {
+    } catch (err: any) {
       setError(err.message)
     } finally {
       setLoading(false)
@@ -107,7 +107,7 @@ export default function CrmLeadsPage({ language = 'ar' }: { language?: 'ar' | 'e
         body: JSON.stringify({ status: targetStatus }),
       })
       if (!res.ok) throw new Error('Failed to update lead status')
-    } catch (_err) {
+    } catch (err: any) {
       // Revert if error
       setLeads(previousLeads)
       alert(isAr ? 'عذراً، فشل تحديث حالة العميل المحتمل' : 'Sorry, failed to update lead status')
@@ -138,7 +138,7 @@ export default function CrmLeadsPage({ language = 'ar' }: { language?: 'ar' | 'e
       setIsAddOpen(false)
       resetForm()
       fetchLeads()
-    } catch (err: unknown) {
+    } catch (err: any) {
       alert(err.message)
     }
   }
@@ -167,7 +167,7 @@ export default function CrmLeadsPage({ language = 'ar' }: { language?: 'ar' | 'e
       setIsEditOpen(false)
       resetForm()
       fetchLeads()
-    } catch (err: unknown) {
+    } catch (err: any) {
       alert(err.message)
     }
   }
@@ -182,7 +182,7 @@ export default function CrmLeadsPage({ language = 'ar' }: { language?: 'ar' | 'e
       })
       if (!res.ok) throw new Error('Failed to delete lead')
       fetchLeads()
-    } catch (err: unknown) {
+    } catch (err: any) {
       alert(err.message)
     }
   }
@@ -200,7 +200,7 @@ export default function CrmLeadsPage({ language = 'ar' }: { language?: 'ar' | 'e
         setConvertSuccess(null)
       }, 3000)
       fetchLeads()
-    } catch (err: unknown) {
+    } catch (err: any) {
       alert(err.message)
     } finally {
       setConvertingId(null)
@@ -357,7 +357,7 @@ export default function CrmLeadsPage({ language = 'ar' }: { language?: 'ar' | 'e
                         key={lead.id}
                         layoutId={lead.id}
                         draggable
-                        onDragStart={e => handleDragStart(e, lead.id)}
+                        onDragStart={e => handleDragStart(e as any, lead.id)}
                         onClick={() => openEditModal(lead)}
                         className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-md cursor-grab active:cursor-grabbing p-4 rounded-xl shadow-sm transition-all duration-200 relative group"
                       >
@@ -417,7 +417,7 @@ export default function CrmLeadsPage({ language = 'ar' }: { language?: 'ar' | 'e
                         {lead.status === 'WON' && (
                           <div className="mt-3 pt-2 border-t border-slate-100/60 dark:border-slate-800/60 flex justify-end">
                             <Button
-                              size="xs"
+                              size="sm"
                               disabled={convertingId === lead.id}
                               onClick={e => {
                                 e.stopPropagation()

@@ -50,20 +50,9 @@ export async function sendWhatsAppMessage(params: {
     return { success: false, error: 'No message content (provide message or templateName)' };
   }
 
-  // Log the message in DB
-  const dbMessage = await db.whatsAppMessage.create({
-    data: {
-      to,
-      messageText,
-      templateId: template?.id || null,
-      templateParams: templateParams ? JSON.stringify(templateParams) : null,
-      status: 'QUEUED',
-      direction: 'OUTBOUND',
-      invoiceId: invoiceId || null,
-      clientId: clientId || null,
-      organizationId,
-    },
-  });
+  let messageId: string | undefined = undefined;
+  let status = 'QUEUED';
+  let errorMessage: string | null = null;
 
   // Attempt to send via WhatsApp Business API
   // In production, this would call the Meta WhatsApp Business API
@@ -91,39 +80,46 @@ export async function sendWhatsAppMessage(params: {
 
       if (response.ok) {
         const data = await response.json();
-        await db.whatsAppMessage.update({
-          where: { id: dbMessage.id },
-          data: { status: 'SENT' },
-        });
-        log.info('WhatsApp message sent', { messageId: dbMessage.id, to, wamid: data.message_id });
-        return { success: true, messageId: dbMessage.id };
+        messageId = data.messages?.[0]?.id || data.message_id || `wamid.${Math.random().toString(36).substr(2, 9)}`;
+        status = 'SENT';
+        log.info('WhatsApp message sent via Meta API', { messageId, to });
       } else {
         const errorData = await response.json().catch(() => ({}));
-        const errorMsg = errorData.error?.message || `HTTP ${response.status}`;
-        await db.whatsAppMessage.update({
-          where: { id: dbMessage.id },
-          data: { status: 'FAILED', errorMessage: errorMsg },
-        });
-        return { success: false, error: errorMsg };
+        errorMessage = errorData.error?.message || `HTTP ${response.status}`;
+        status = 'FAILED';
       }
     } else {
       // Dev mode: simulate send
-      await db.whatsAppMessage.update({
-        where: { id: dbMessage.id },
-        data: { status: 'SENT' },
-      });
-      log.info('WhatsApp message sent (dev mode — simulated)', { messageId: dbMessage.id, to });
-      return { success: true, messageId: dbMessage.id };
+      messageId = `wamid.simulated.${Math.random().toString(36).substr(2, 15)}`;
+      status = 'SENT';
+      log.info('WhatsApp message sent (dev mode — simulated)', { messageId, to });
     }
-  } catch (err) {
-    const errorMsg = err instanceof Error ? err.message : String(err);
-    await db.whatsAppMessage.update({
-      where: { id: dbMessage.id },
-      data: { status: 'FAILED', errorMessage: errorMsg },
-    });
-    log.error('WhatsApp send failed', { messageId: dbMessage.id, error: errorMsg });
-    return { success: false, error: errorMsg };
+  } catch (err: any) {
+    errorMessage = err instanceof Error ? err.message : String(err);
+    status = 'FAILED';
+    log.error('WhatsApp send exception', { error: errorMessage });
   }
+
+  // Log the message in DB using the Meta messageId as the primary key id
+  const dbMessage = await db.whatsAppMessage.create({
+    data: {
+      id: messageId,
+      to,
+      messageText,
+      templateId: template?.id || null,
+      templateParams: templateParams ? JSON.stringify(templateParams) : null,
+      status,
+      direction: 'OUTBOUND',
+      errorMessage,
+      invoiceId: invoiceId || null,
+      clientId: clientId || null,
+      organizationId,
+    },
+  });
+
+  return status === 'SENT' 
+    ? { success: true, messageId: dbMessage.id } 
+    : { success: false, error: errorMessage || 'Failed to send WhatsApp message' };
 }
 
 // ============================================
@@ -182,10 +178,29 @@ export const whatsappService = {
   async sendTemplateMessage(
     to: string,
     templateName: string,
-    templateParams: Record<string, string>,
-    organizationId?: string
+    paramsOrLanguage: Record<string, string> | string,
+    componentsOrOrgId?: any
   ) {
-    const result = await sendWhatsAppMessage({ to, templateName, templateParams, organizationId: organizationId || '' });
+    let templateParams: Record<string, string> = {};
+    let organizationId = '';
+    if (typeof paramsOrLanguage === 'string') {
+      const components = componentsOrOrgId as any[] | undefined;
+      if (components) {
+        components.forEach((c, cIdx) => {
+          if (c.parameters) {
+            c.parameters.forEach((p: any, pIdx: number) => {
+              if (p.text) {
+                templateParams[`param_${cIdx}_${pIdx}`] = p.text;
+              }
+            });
+          }
+        });
+      }
+    } else {
+      templateParams = paramsOrLanguage || {};
+      organizationId = componentsOrOrgId || '';
+    }
+    const result = await sendWhatsAppMessage({ to, templateName, templateParams, organizationId });
     return result;
   },
 
@@ -203,7 +218,102 @@ export const whatsappService = {
     });
     return result;
   },
+
+  get verifyToken(): string {
+    return process.env.WHATSAPP_VERIFY_TOKEN || 'blueprint_verify_token';
+  },
+
+  verifyWebhookSignature(signature: string, payload: string): boolean {
+    const appSecret = process.env.WHATSAPP_APP_SECRET || 'blueprint_app_secret';
+    if (!signature || !signature.startsWith('sha256=')) {
+      return false;
+    }
+    try {
+      const nodeCrypto = require('crypto');
+      const expectedSignature = nodeCrypto
+        .createHmac('sha256', appSecret)
+        .update(payload)
+        .digest('hex');
+      const receivedSignature = signature.replace('sha256=', '');
+      return expectedSignature === receivedSignature;
+    } catch (e) {
+      return false;
+    }
+  },
+
+  async getTemplates(organizationId?: string) {
+    return await db.whatsAppTemplate.findMany({
+      where: organizationId ? { organizationId } : undefined,
+    });
+  },
+
+  async sendInvoiceNotification(to: string, invoiceData: InvoiceNotificationData) {
+    if (invoiceData.pdfUrl) {
+      const caption = `فاتورة رقم ${invoiceData.number} - ${invoiceData.client}\nالمبلغ: ${invoiceData.amount} ${invoiceData.currency}\nتاريخ الاستحقاق: ${invoiceData.dueDate}`;
+      return await this.sendDocument(to, invoiceData.pdfUrl, caption);
+    }
+    const templateParams = {
+      '0': invoiceData.number,
+      '1': invoiceData.client,
+      '2': `${invoiceData.amount} ${invoiceData.currency}`,
+      '3': invoiceData.dueDate,
+    };
+    return await this.sendTemplateMessage(to, 'invoice_notification', templateParams);
+  },
+
+  async sendProjectUpdate(to: string, projectData: ProjectUpdateData) {
+    const templateParams = {
+      '0': projectData.name,
+      '1': projectData.status,
+      '2': projectData.update,
+    };
+    return await this.sendTemplateMessage(to, 'project_update', templateParams);
+  },
 };
+
+/** Template component types for WhatsApp template messages */
+interface TemplateComponent {
+  type: 'header' | 'body' | 'button';
+  parameters: TemplateParameter[];
+}
+
+/** Template parameter for dynamic content in template messages */
+interface TemplateParameter {
+  type: 'text' | 'currency' | 'date_time' | 'document' | 'image';
+  text?: string;
+  currency?: {
+    fallback_value: string;
+    code: string;
+    amount_1000: number;
+  };
+  date_time?: {
+    fallback_value: string;
+  };
+  document?: {
+    id: string;
+    filename?: string;
+  };
+  image?: {
+    id: string;
+  };
+}
+
+/** Invoice data for invoice notification messages */
+interface InvoiceNotificationData {
+  number: string;
+  client: string;
+  amount: number;
+  currency: string;
+  dueDate: string;
+  pdfUrl?: string;
+}
+
+/** Project update data for project update messages */
+interface ProjectUpdateData {
+  name: string;
+  status: string;
+  update: string;
+}
 
 // Re-export types for backwards compat
 export type { TemplateComponent, InvoiceNotificationData, ProjectUpdateData };

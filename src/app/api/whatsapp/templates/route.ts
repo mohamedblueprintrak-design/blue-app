@@ -18,7 +18,6 @@ import { Permission } from '@/lib/auth/types';
 import {
   successResponse,
   handleApiError,
-  _errorResponse,
 } from '@/app/api/utils/response';
 import { log } from '@/lib/logger';
 

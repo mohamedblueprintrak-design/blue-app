@@ -31,11 +31,8 @@ import {
   BookOpen, 
   Scale, 
   TrendingUp, 
-  _TrendingDown,
   Building,
   RefreshCw,
-  _Search,
-  _Calendar,
   AlertCircle,
   CheckCircle2,
   FileDown
@@ -79,7 +76,7 @@ export default function FinanceAccountingReportsPage() {
   });
 
   // 3. Fetch Trial Balance
-  const { data: trialBalance, isLoading: isLoadingTB, refetch: refetchTB } = useQuery<unknown>({
+  const { data: trialBalance, isLoading: isLoadingTB, refetch: refetchTB } = useQuery<any>({
     queryKey: ["finance", "reports", "trial-balance"],
     queryFn: async () => {
       const res = await fetch("/api/finance/trial-balance");
@@ -90,7 +87,7 @@ export default function FinanceAccountingReportsPage() {
   });
 
   // 4. Fetch Income Statement (P&L)
-  const { data: incomeStatement, isLoading: isLoadingIS, refetch: refetchIS } = useQuery<unknown>({
+  const { data: incomeStatement, isLoading: isLoadingIS, refetch: refetchIS } = useQuery<any>({
     queryKey: ["finance", "reports", "income-statement", startDate, endDate],
     queryFn: async () => {
       const queryParams = new URLSearchParams();
@@ -104,7 +101,7 @@ export default function FinanceAccountingReportsPage() {
   });
 
   // 5. Fetch Balance Sheet
-  const { data: balanceSheet, isLoading: isLoadingBS, refetch: refetchBS } = useQuery<unknown>({
+  const { data: balanceSheet, isLoading: isLoadingBS, refetch: refetchBS } = useQuery<any>({
     queryKey: ["finance", "reports", "balance-sheet", balanceSheetDate],
     queryFn: async () => {
       const queryParams = new URLSearchParams();
@@ -123,7 +120,7 @@ export default function FinanceAccountingReportsPage() {
     if (activeTab === "balance-sheet") refetchBS();
   };
 
-  const getAccountName = (acc: unknown) => (isAr ? acc.nameAr : acc.nameEn);
+  const getAccountName = (acc: any) => (isAr ? acc.nameAr : acc.nameEn);
 
   return (
     <div className="space-y-6">
@@ -316,7 +313,7 @@ export default function FinanceAccountingReportsPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {trialBalance.rows.map((row: unknown) => (
+                      {trialBalance.rows.map((row: any) => (
                         <TableRow key={row.id}>
                           <TableCell className="font-mono font-bold">{row.code}</TableCell>
                           <TableCell className="font-medium text-slate-800 dark:text-slate-200">{getAccountName(row)}</TableCell>
@@ -403,7 +400,7 @@ export default function FinanceAccountingReportsPage() {
                     </h3>
                     <Table>
                       <TableBody>
-                        {incomeStatement.revenueRows.map((row: unknown) => (
+                        {incomeStatement.revenueRows.map((row: any) => (
                           <TableRow key={row.account.id} className="hover:bg-slate-50/20 dark:hover:bg-slate-800/10 border-b-0">
                             <TableCell className="ps-0 font-medium text-slate-700 dark:text-slate-300">
                               {row.account.code} - {getAccountName(row.account)}
@@ -430,7 +427,7 @@ export default function FinanceAccountingReportsPage() {
                     </h3>
                     <Table>
                       <TableBody>
-                        {incomeStatement.expenseRows.map((row: unknown) => (
+                        {incomeStatement.expenseRows.map((row: any) => (
                           <TableRow key={row.account.id} className="hover:bg-slate-50/20 dark:hover:bg-slate-800/10 border-b-0">
                             <TableCell className="ps-0 font-medium text-slate-700 dark:text-slate-300">
                               {row.account.code} - {getAccountName(row.account)}
@@ -506,7 +503,7 @@ export default function FinanceAccountingReportsPage() {
                     </h3>
                     <Table>
                       <TableBody>
-                        {balanceSheet.assetRows.map((row: unknown) => (
+                        {balanceSheet.assetRows.map((row: any) => (
                           <TableRow key={row.account.id} className="hover:bg-slate-50/20 dark:hover:bg-slate-800/10 border-b-0">
                             <TableCell className="ps-0 font-medium text-slate-700 dark:text-slate-300">
                               {row.account.code} - {getAccountName(row.account)}
@@ -535,7 +532,7 @@ export default function FinanceAccountingReportsPage() {
                       </h3>
                       <Table>
                         <TableBody>
-                          {balanceSheet.liabilityRows.map((row: unknown) => (
+                          {balanceSheet.liabilityRows.map((row: any) => (
                             <TableRow key={row.account.id} className="hover:bg-slate-50/20 dark:hover:bg-slate-800/10 border-b-0">
                               <TableCell className="ps-0 font-medium text-slate-700 dark:text-slate-300">
                                 {row.account.code} - {getAccountName(row.account)}
@@ -562,7 +559,7 @@ export default function FinanceAccountingReportsPage() {
                       </h3>
                       <Table>
                         <TableBody>
-                          {balanceSheet.equityRows.map((row: unknown) => (
+                          {balanceSheet.equityRows.map((row: any) => (
                             <TableRow key={row.account.id} className="hover:bg-slate-50/20 dark:hover:bg-slate-800/10 border-b-0">
                               <TableCell className="ps-0 font-medium text-slate-700 dark:text-slate-300">
                                 {row.account.code} - {getAccountName(row.account)}

@@ -219,16 +219,14 @@ async function processIncomingMessages(
       // Store the incoming message
       await db.whatsAppMessage.create({
         data: {
-          messageId,
-          fromNumber: from,
-          toNumber: phoneNumberId,
-          direction: 'inbound',
-          type: messageType,
-          status: 'received',
-          content,
+          id: messageId,
+          from,
+          to: phoneNumberId,
+          direction: 'INBOUND',
+          status: 'DELIVERED',
+          messageText: content,
           clientId,
-          metadata: JSON.stringify({ contactName }),
-          sentAt: new Date(parseInt(timestamp) * 1000),
+          organizationId: 'default',
         },
       });
 
@@ -249,7 +247,6 @@ async function processStatusUpdates(
   for (const status of statuses) {
     const messageId = status.id as string;
     const statusValue = status.status as string;
-    const timestamp = status.timestamp as string;
     const recipientId = status.recipient_id as string;
 
     log.info('[WhatsApp Webhook] Status update', {
@@ -261,30 +258,21 @@ async function processStatusUpdates(
     try {
       // Find existing message record and update status
       const existing = await db.whatsAppMessage.findFirst({
-        where: { messageId },
+        where: { id: messageId },
       });
 
       if (existing) {
-        const updateData: Record<string, unknown> = {
-          status: statusValue,
-          updatedAt: new Date(),
+        const updateData: any = {
+          status: statusValue.toUpperCase(),
         };
 
-        // Update status-specific timestamps
-        switch (statusValue) {
-          case 'delivered':
-            updateData.deliveredAt = new Date(parseInt(timestamp) * 1000);
-            break;
-          case 'read':
-            updateData.readAt = new Date(parseInt(timestamp) * 1000);
-            updateData.deliveredAt = updateData.deliveredAt || new Date(parseInt(timestamp) * 1000);
-            break;
-          case 'failed':
-            const errorCodes = status.errors as Array<Record<string, unknown>> | undefined;
-            if (errorCodes && errorCodes.length > 0) {
-              updateData.error = JSON.stringify(errorCodes[0]);
-            }
-            break;
+        if (statusValue === 'failed') {
+          const errorCodes = status.errors as Array<Record<string, unknown>> | undefined;
+          if (errorCodes && errorCodes.length > 0) {
+            updateData.errorMessage = JSON.stringify(errorCodes[0]);
+          } else {
+            updateData.errorMessage = 'Failed';
+          }
         }
 
         await db.whatsAppMessage.update({
@@ -297,14 +285,12 @@ async function processStatusUpdates(
         // No existing record — create one for the status update
         await db.whatsAppMessage.create({
           data: {
-            messageId,
-            toNumber: recipientId,
-            direction: 'outbound',
-            type: 'text',
-            status: statusValue,
-            sentAt: new Date(parseInt(timestamp) * 1000),
-            ...(statusValue === 'delivered' && { deliveredAt: new Date(parseInt(timestamp) * 1000) }),
-            ...(statusValue === 'read' && { readAt: new Date(parseInt(timestamp) * 1000) }),
+            id: messageId,
+            to: recipientId,
+            direction: 'OUTBOUND',
+            status: statusValue.toUpperCase(),
+            organizationId: 'default',
+            errorMessage: statusValue === 'failed' ? 'Failed' : null,
           },
         });
 

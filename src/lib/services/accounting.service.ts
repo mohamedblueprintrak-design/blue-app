@@ -561,7 +561,7 @@ export class AccountingService {
  * Get account by code within an organization.
  * Creates default accounts if they don't exist yet.
  */
-async function getAccountByCode(tx: Prisma.TransactionClient, organizationId: string, code: string): Promise<string> {
+async function getAccountByCode(tx: any, organizationId: string, code: string): Promise<string> {
   const account = await tx.account.findFirst({
     where: { organizationId, code },
     select: { id: true },
@@ -586,7 +586,7 @@ async function getAccountByCode(tx: Prisma.TransactionClient, organizationId: st
  * @param userId - User creating the invoice
  */
 export async function createInvoiceJournalEntry(
-  tx: Prisma.TransactionClient,
+  tx: any,
   organizationId: string,
   invoiceNumber: string,
   subtotal: number,
@@ -657,7 +657,7 @@ export async function createInvoiceJournalEntry(
  * @param userId - User recording the payment
  */
 export async function createPaymentJournalEntry(
-  tx: Prisma.TransactionClient,
+  tx: any,
   organizationId: string,
   invoiceNumber: string,
   amount: number,

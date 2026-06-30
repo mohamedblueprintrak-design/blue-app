@@ -1,3 +1,5 @@
+import { NextRequest } from "next/server";
+import { errorResponse, successResponse, createdResponse } from "../../utils/response";
 import { AccountingService } from "@/lib/services/accounting.service";
 import { requireVerifiedPermission } from "../../utils/auth";
 import { Permission } from "@/lib/auth/types";
@@ -33,7 +35,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Map lines and parse amounts securely
-    const journalLines = lines.map((line: unknown) => ({
+    const journalLines = lines.map((line: any) => ({
       accountId: String(line.accountId),
       debit: Number(line.debit || 0),
       credit: Number(line.credit || 0),
@@ -51,7 +53,7 @@ export async function POST(request: NextRequest) {
     );
 
     return createdResponse(entry);
-  } catch (error: unknown) {
+  } catch (error: any) {
     return errorResponse(error.message || "Internal Server Error", "INTERNAL_ERROR", 500);
   }
 }

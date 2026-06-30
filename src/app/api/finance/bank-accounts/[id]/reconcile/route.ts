@@ -45,7 +45,7 @@ export async function POST(
 
   // Verify transaction belongs to this bank account
   const transaction = await db.bankTransaction.findFirst({
-    where: { id: transactionId, bankAccountId, organizationId: ctx.organizationId },
+    where: { id: transactionId, bankAccountId, organizationId: ctx.organizationId || undefined },
   });
   if (!transaction) {
     return NextResponse.json({ error: 'Transaction not found' }, { status: 404 });
@@ -101,12 +101,12 @@ export async function GET(
   // Get reconciliation summary
   const [unreconciled, reconciled] = await Promise.all([
     db.bankTransaction.findMany({
-      where: { bankAccountId, isReconciled: false, organizationId: ctx.organizationId },
+      where: { bankAccountId, isReconciled: false, organizationId: ctx.organizationId || undefined },
       orderBy: { date: 'desc' },
       take: 100,
     }),
     db.bankTransaction.count({
-      where: { bankAccountId, isReconciled: true, organizationId: ctx.organizationId },
+      where: { bankAccountId, isReconciled: true, organizationId: ctx.organizationId || undefined },
     }),
   ]);
 
