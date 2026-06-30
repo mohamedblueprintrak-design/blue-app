@@ -687,6 +687,16 @@ export async function createInvoiceJournalEntry(
     });
   }
 
+  // SECURITY/GL AUDIT CHECK: Ensure double-entry journal lines are perfectly balanced (Debits === Credits)
+  const totalDebit = lines.reduce((sum, line) => sum.add(line.debit), new Prisma.Decimal(0));
+  const totalCredit = lines.reduce((sum, line) => sum.add(line.credit), new Prisma.Decimal(0));
+  
+  if (!totalDebit.equals(totalCredit)) {
+    throw new Error(
+      `Unbalanced journal entry error: total debits (${totalDebit}) do not equal total credits (${totalCredit}) for invoice ${invoiceNumber}.`
+    );
+  }
+
   await tx.journalLine.createMany({ data: lines });
 
   // Note: audit log is handled by the calling function (createInvoice)

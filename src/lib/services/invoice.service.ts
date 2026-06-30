@@ -169,16 +169,16 @@ class InvoiceService {
     organizationId: string,
     userId: string
   ): Promise<Invoice> {
-    const subtotal = data.subtotal || 0;
-    
-    const _companySettings = await db.companySettings.findFirst({
-      where: { organizationId },
-    });
-    
-    const defaultTaxRate = 5.0;
-    const taxRate = data.taxRate ?? defaultTaxRate;
-    const tax = subtotal * (taxRate / 100);
-    const total = subtotal + tax;
+    // Calculate subtotal from items if available to prevent client-side desync,
+    // fallback to data.subtotal or 0.
+    const subtotalDec = data.items && data.items.length > 0
+      ? data.items.reduce((sum, item) => sum.add(new Prisma.Decimal(item.quantity || 1).mul(new Prisma.Decimal(item.unitPrice || 0))), new Prisma.Decimal(0))
+      : new Prisma.Decimal(data.subtotal || 0);
+
+    const defaultTaxRate = new Prisma.Decimal(5.0);
+    const taxRateDec = data.taxRate !== undefined ? new Prisma.Decimal(data.taxRate) : defaultTaxRate;
+    const taxDec = subtotalDec.mul(taxRateDec.div(100));
+    const totalDec = subtotalDec.add(taxDec);
 
     // Use transaction for safe creation
     return await db.$transaction(async (tx) => {
@@ -192,22 +192,27 @@ class InvoiceService {
           projectId: data.projectId || '',
           issueDate: data.issueDate || new Date(),
           dueDate: data.dueDate || new Date(),
-          subtotal,
-          taxRate,
-          tax,
-          total,
-          paidAmount: 0,
-          remaining: total,
+          subtotal: subtotalDec,
+          taxRate: taxRateDec,
+          tax: taxDec,
+          total: totalDec,
+          paidAmount: new Prisma.Decimal(0),
+          remaining: totalDec,
           status: 'DRAFT',
           ...(data.items && data.items.length > 0 ? {
             items: {
-              create: data.items.map(item => ({
-                description: item.description,
-                quantity: item.quantity,
-                unitPrice: item.unitPrice,
-                total: item.total,
-                revenueCode: item.revenueCode || "4010"
-              }))
+              create: data.items.map(item => {
+                const itemQty = new Prisma.Decimal(item.quantity || 1);
+                const itemPrice = new Prisma.Decimal(item.unitPrice || 0);
+                const itemTotal = itemQty.mul(itemPrice);
+                return {
+                  description: item.description,
+                  quantity: itemQty,
+                  unitPrice: itemPrice,
+                  total: itemTotal,
+                  revenueCode: item.revenueCode || "4010"
+                };
+              })
             }
           } : {})
         },
