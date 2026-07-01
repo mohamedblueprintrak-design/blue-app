@@ -3,7 +3,6 @@ import { db } from '@/lib/db';
 import { requireVerifiedPermission, orgFilter } from '@/app/api/utils/auth';
 import { Permission } from '@/lib/auth/types';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
-import { z } from 'zod';
 
 // GET /api/finance/bank-accounts/[id] — get bank account details
 export async function GET(

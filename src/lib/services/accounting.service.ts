@@ -22,6 +22,21 @@ export interface JournalLineInput {
   credit: number;
 }
 
+export interface AccountSummary {
+  id: string;
+  code: string;
+  nameAr: string;
+  nameEn: string;
+  type: AccountType;
+}
+
+export interface LedgerRow {
+  account: AccountSummary;
+  debit: number;
+  credit: number;
+  netBalance: number;
+}
+
 export interface CreateJournalEntryInput {
   date?: Date;
   reference?: string;
@@ -67,7 +82,7 @@ export class AccountingService {
   /**
    * Seed default Chart of Accounts for an organization
    */
-  static async seedDefaultAccounts(tx: any, organizationId: string): Promise<void> {
+  static async seedDefaultAccounts(tx: Prisma.TransactionClient, organizationId: string): Promise<void> {
     log.info(`[Accounting] Seeding default Chart of Accounts for organization: ${organizationId}`);
     
     // Build array of create inputs
@@ -392,7 +407,7 @@ export class AccountingService {
     });
 
     // Group by account
-    const accountsMap = new Map<string, { account: any; debit: Prisma.Decimal; credit: Prisma.Decimal }>();
+    const accountsMap = new Map<string, { account: AccountSummary; debit: Prisma.Decimal; credit: Prisma.Decimal }>();
     for (const line of lines) {
       const existing = accountsMap.get(line.accountId) || {
         account: line.account,
@@ -404,8 +419,8 @@ export class AccountingService {
       accountsMap.set(line.accountId, existing);
     }
 
-    const revenueRows: any[] = [];
-    const expenseRows: any[] = [];
+    const revenueRows: LedgerRow[] = [];
+    const expenseRows: LedgerRow[] = [];
     let totalRevenue = new Prisma.Decimal(0);
     let totalExpense = new Prisma.Decimal(0);
 
@@ -472,7 +487,7 @@ export class AccountingService {
     });
 
     // Group by account
-    const accountsMap = new Map<string, { account: any; debit: Prisma.Decimal; credit: Prisma.Decimal }>();
+    const accountsMap = new Map<string, { account: AccountSummary; debit: Prisma.Decimal; credit: Prisma.Decimal }>();
     for (const line of lines) {
       const existing = accountsMap.get(line.accountId) || {
         account: line.account,
@@ -521,9 +536,9 @@ export class AccountingService {
     }
     const netRetainedEarnings = historicalRevenue.sub(historicalExpense);
 
-    const assetRows: any[] = [];
-    const liabilityRows: any[] = [];
-    const equityRows: any[] = [];
+    const assetRows: LedgerRow[] = [];
+    const liabilityRows: LedgerRow[] = [];
+    const equityRows: LedgerRow[] = [];
     let totalAssets = new Prisma.Decimal(0);
     let totalLiabilities = new Prisma.Decimal(0);
     let totalEquity = new Prisma.Decimal(0);
@@ -587,7 +602,7 @@ export class AccountingService {
  * Get account by code within an organization.
  * Creates default accounts if they don't exist yet.
  */
-async function getAccountByCode(tx: any, organizationId: string, code: string): Promise<string> {
+async function getAccountByCode(tx: Prisma.TransactionClient, organizationId: string, code: string): Promise<string> {
   const account = await tx.account.findFirst({
     where: { organizationId, code },
     select: { id: true },
@@ -612,7 +627,7 @@ async function getAccountByCode(tx: any, organizationId: string, code: string): 
  * @param userId - User creating the invoice
  */
 export async function createInvoiceJournalEntry(
-  tx: any,
+  tx: Prisma.TransactionClient,
   organizationId: string,
   invoiceNumber: string,
   subtotal: Prisma.Decimal | number,
@@ -716,7 +731,7 @@ export async function createInvoiceJournalEntry(
  * @param userId - User recording the payment
  */
 export async function createPaymentJournalEntry(
-  tx: any,
+  tx: Prisma.TransactionClient,
   organizationId: string,
   invoiceNumber: string,
   amount: Prisma.Decimal | number,

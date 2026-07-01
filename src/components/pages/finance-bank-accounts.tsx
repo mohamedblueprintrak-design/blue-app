@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
@@ -15,7 +14,7 @@ import {
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
-import { Plus, Building2, Trash2, RefreshCw, Wallet, ArrowUpCircle, ArrowDownCircle } from "lucide-react";
+import { Plus, Building2, Trash2, RefreshCw, Wallet } from "lucide-react";
 import { useLang } from "@/hooks/use-lang";
 import { useToastFeedback } from "@/hooks/use-toast-feedback";
 import { formatCurrency } from "@/lib/formatters";
@@ -41,7 +40,7 @@ export default function FinanceBankAccountsPage() {
   const toast = useToastFeedback({ ar });
   const queryClient = useQueryClient();
   const [showAddDialog, setShowAddDialog] = useState(false);
-  const [selectedAccount, setSelectedAccount] = useState<BankAccount | null>(null);
+
 
   const [formData, setFormData] = useState({
     name: "",

@@ -48,7 +48,7 @@ export async function PUT(
 
     const { name, company, email, phone, status, estimatedValue, notes } = sanitized;
 
-    const updateData: any = {};
+    const updateData: Record<string, string | number | null | undefined> = {};
     if (name !== undefined) updateData.name = name;
     if (company !== undefined) updateData.company = company;
     if (email !== undefined) updateData.email = email;

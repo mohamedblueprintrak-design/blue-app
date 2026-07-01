@@ -4,6 +4,7 @@
 
 import { db } from '@/lib/db';
 import { log } from '@/lib/logger';
+import crypto from 'crypto';
 
 // ============================================
 // Send WhatsApp Message
@@ -94,7 +95,7 @@ export async function sendWhatsAppMessage(params: {
       status = 'SENT';
       log.info('WhatsApp message sent (dev mode — simulated)', { messageId, to });
     }
-  } catch (err: any) {
+  } catch (err) {
     errorMessage = err instanceof Error ? err.message : String(err);
     status = 'FAILED';
     log.error('WhatsApp send exception', { error: errorMessage });
@@ -179,17 +180,18 @@ export const whatsappService = {
     to: string,
     templateName: string,
     paramsOrLanguage: Record<string, string> | string,
-    componentsOrOrgId?: any
+    componentsOrOrgId?: unknown
   ) {
     let templateParams: Record<string, string> = {};
     let organizationId = '';
     if (typeof paramsOrLanguage === 'string') {
-      const components = componentsOrOrgId as any[] | undefined;
+      const components = componentsOrOrgId as Array<Record<string, unknown>> | undefined;
       if (components) {
         components.forEach((c, cIdx) => {
-          if (c.parameters) {
-            c.parameters.forEach((p: any, pIdx: number) => {
-              if (p.text) {
+          const params = c.parameters as Array<Record<string, unknown>> | undefined;
+          if (params) {
+            params.forEach((p, pIdx) => {
+              if (p.text && typeof p.text === 'string') {
                 templateParams[`param_${cIdx}_${pIdx}`] = p.text;
               }
             });
@@ -198,7 +200,7 @@ export const whatsappService = {
       }
     } else {
       templateParams = paramsOrLanguage || {};
-      organizationId = componentsOrOrgId || '';
+      organizationId = typeof componentsOrOrgId === 'string' ? componentsOrOrgId : '';
     }
     const result = await sendWhatsAppMessage({ to, templateName, templateParams, organizationId });
     return result;
@@ -229,14 +231,13 @@ export const whatsappService = {
       return false;
     }
     try {
-      const nodeCrypto = require('crypto');
-      const expectedSignature = nodeCrypto
+      const expectedSignature = crypto
         .createHmac('sha256', appSecret)
         .update(payload)
         .digest('hex');
       const receivedSignature = signature.replace('sha256=', '');
       return expectedSignature === receivedSignature;
-    } catch (e) {
+    } catch {
       return false;
     }
   },

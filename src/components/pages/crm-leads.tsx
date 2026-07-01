@@ -71,8 +71,8 @@ export default function CrmLeadsPage({ language = 'ar' }: { language?: 'ar' | 'e
       const items = data.data ?? data ?? []
       setLeads(items)
       setError(null)
-    } catch (err: any) {
-      setError(err.message)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err))
     } finally {
       setLoading(false)
     }
@@ -107,7 +107,7 @@ export default function CrmLeadsPage({ language = 'ar' }: { language?: 'ar' | 'e
         body: JSON.stringify({ status: targetStatus }),
       })
       if (!res.ok) throw new Error('Failed to update lead status')
-    } catch (err: any) {
+    } catch {
       // Revert if error
       setLeads(previousLeads)
       alert(isAr ? 'عذراً، فشل تحديث حالة العميل المحتمل' : 'Sorry, failed to update lead status')
@@ -138,8 +138,8 @@ export default function CrmLeadsPage({ language = 'ar' }: { language?: 'ar' | 'e
       setIsAddOpen(false)
       resetForm()
       fetchLeads()
-    } catch (err: any) {
-      alert(err.message)
+    } catch (err) {
+      alert(err instanceof Error ? err.message : String(err))
     }
   }
 
@@ -167,8 +167,8 @@ export default function CrmLeadsPage({ language = 'ar' }: { language?: 'ar' | 'e
       setIsEditOpen(false)
       resetForm()
       fetchLeads()
-    } catch (err: any) {
-      alert(err.message)
+    } catch (err) {
+      alert(err instanceof Error ? err.message : String(err))
     }
   }
 
@@ -182,8 +182,8 @@ export default function CrmLeadsPage({ language = 'ar' }: { language?: 'ar' | 'e
       })
       if (!res.ok) throw new Error('Failed to delete lead')
       fetchLeads()
-    } catch (err: any) {
-      alert(err.message)
+    } catch (err) {
+      alert(err instanceof Error ? err.message : String(err))
     }
   }
 
@@ -200,8 +200,8 @@ export default function CrmLeadsPage({ language = 'ar' }: { language?: 'ar' | 'e
         setConvertSuccess(null)
       }, 3000)
       fetchLeads()
-    } catch (err: any) {
-      alert(err.message)
+    } catch (err) {
+      alert(err instanceof Error ? err.message : String(err))
     } finally {
       setConvertingId(null)
     }
@@ -357,7 +357,7 @@ export default function CrmLeadsPage({ language = 'ar' }: { language?: 'ar' | 'e
                         key={lead.id}
                         layoutId={lead.id}
                         draggable
-                        onDragStart={e => handleDragStart(e as any, lead.id)}
+                        onDragStart={e => handleDragStart(e, lead.id)}
                         onClick={() => openEditModal(lead)}
                         className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-md cursor-grab active:cursor-grabbing p-4 rounded-xl shadow-sm transition-all duration-200 relative group"
                       >

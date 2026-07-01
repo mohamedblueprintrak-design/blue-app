@@ -158,7 +158,7 @@ async function processIncomingMessages(
   for (const message of messages) {
     const messageId = message.id as string;
     const from = message.from as string;
-    const timestamp = message.timestamp as string;
+    const _timestamp = message.timestamp as string;
     const messageType = message.type as string;
 
     log.info('[WhatsApp Webhook] Incoming message', {
@@ -262,7 +262,7 @@ async function processStatusUpdates(
       });
 
       if (existing) {
-        const updateData: any = {
+        const updateData: Record<string, string | null | undefined> = {
           status: statusValue.toUpperCase(),
         };
 

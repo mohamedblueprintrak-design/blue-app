@@ -214,7 +214,7 @@ export async function DELETE(
     });
 
     return NextResponse.json({ success: true });
-  } catch (error: any) {
+  } catch (error) {
     log.error('Error unreconciling transaction:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }

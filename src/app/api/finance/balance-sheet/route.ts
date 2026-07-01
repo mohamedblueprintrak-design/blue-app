@@ -37,7 +37,8 @@ export async function GET(request: NextRequest) {
       date
     );
     return successResponse(balanceSheet);
-  } catch (error: any) {
-    return errorResponse(error.message || "Internal Server Error", "INTERNAL_ERROR", 500);
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : "Internal Server Error";
+    return errorResponse(msg, "INTERNAL_ERROR", 500);
   }
 }

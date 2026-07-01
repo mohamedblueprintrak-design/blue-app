@@ -2,9 +2,8 @@
 
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useTranslations } from 'next-intl';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
@@ -12,7 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
-import { Plus, Target, TrendingUp, DollarSign, Trash2, Edit } from "lucide-react";
+import { Plus, Target, TrendingUp, DollarSign } from "lucide-react";
 import { useLang } from "@/hooks/use-lang";
 import { useToastFeedback } from "@/hooks/use-toast-feedback";
 import { formatCurrency } from "@/lib/formatters";
@@ -38,8 +37,7 @@ const STAGES = [
   { key: "LOST", labelAr: "خسارة", labelEn: "Lost", color: "bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400" },
 ];
 
-export default function CrmOpportunitiesPage({ language }: { language: "ar" | "en" }) {
-  const tAuto = useTranslations();
+export default function CrmOpportunitiesPage({ language: _language }: { language: "ar" | "en" }) {
   const lang = useLang();
   const ar = lang === "ar";
   const toast = useToastFeedback({ ar });
@@ -89,19 +87,6 @@ export default function CrmOpportunitiesPage({ language }: { language: "ar" | "e
     },
   });
 
-  const updateStageMutation = useMutation({
-    mutationFn: async ({ id, stage }: { id: string; stage: string }) => {
-      const res = await fetch(`/api/crm/opportunities/${id}`, {
-        method: "PUT",
-        headers: getMutationHeaders(),
-        body: JSON.stringify({ stage }),
-      });
-      if (!res.ok) throw new Error("Failed");
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["crm-opportunities"] });
-    },
-  });
 
   // Group opportunities by stage
   const byStage = STAGES.map((stage) => ({

@@ -44,8 +44,9 @@ export async function GET(request: NextRequest) {
 
     const accounts = await AccountingService.getAccounts(user.organizationId, filter);
     return successResponse(accounts);
-  } catch (error: any) {
-    return errorResponse(error.message || "Internal Server Error", "INTERNAL_ERROR", 500);
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : "Internal Server Error";
+    return errorResponse(msg, "INTERNAL_ERROR", 500);
   }
 }
 
@@ -99,7 +100,8 @@ export async function POST(request: NextRequest) {
     );
 
     return createdResponse(account);
-  } catch (error: any) {
-    return errorResponse(error.message || "Internal Server Error", "INTERNAL_ERROR", 500);
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : "Internal Server Error";
+    return errorResponse(msg, "INTERNAL_ERROR", 500);
   }
 }

@@ -1,9 +1,8 @@
 import { NextRequest } from "next/server";
-import { errorResponse, successResponse, createdResponse } from "../../utils/response";
+import { errorResponse, createdResponse } from "../../utils/response";
 import { AccountingService } from "@/lib/services/accounting.service";
 import { requireVerifiedPermission } from "../../utils/auth";
 import { Permission } from "@/lib/auth/types";
-import { sanitizeObject } from "@/lib/security/sanitize";
 import { withRateLimit, rateLimitResponse } from "@/lib/rate-limit-middleware";
 import { z } from "zod";
 
@@ -76,7 +75,8 @@ export async function POST(request: NextRequest) {
     );
 
     return createdResponse(entry);
-  } catch (error: any) {
-    return errorResponse(error.message || "Internal Server Error", "INTERNAL_ERROR", 500);
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : "Internal Server Error";
+    return errorResponse(msg, "INTERNAL_ERROR", 500);
   }
 }
