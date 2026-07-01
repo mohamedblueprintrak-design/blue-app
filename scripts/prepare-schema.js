@@ -37,14 +37,28 @@ if (
 let content = fs.readFileSync(schemaPath, 'utf8');
 
 // Replace the provider in the datasource block
-const updatedContent = content.replace(
+let updatedContent = content.replace(
   /(datasource db \{[\s\S]*?provider\s*=\s*")[^"]*("[\s\S]*?\})/g,
   `$1${provider}$2`
 );
 
+// Apply/Remove @db.Decimal(18, 2) based on provider
+if (provider === 'postgresql') {
+  // Add @db.Decimal(18, 2) to all Decimal fields
+  updatedContent = updatedContent.replace(/(\b\w+\s+)Decimal(\s+.*)?$/gm, (match, fieldNameAndSpaces, rest) => {
+    if (rest && rest.includes('@db.Decimal')) {
+      return match;
+    }
+    return `${fieldNameAndSpaces}Decimal @db.Decimal(18, 2)${rest || ''}`;
+  });
+} else {
+  // Remove @db.Decimal(...) if switching back to sqlite
+  updatedContent = updatedContent.replace(/ @db\.Decimal\([^)]*\)/g, '');
+}
+
 if (content !== updatedContent) {
   fs.writeFileSync(schemaPath, updatedContent, 'utf8');
-  console.log(`[Prisma] Updated database provider to "${provider}" in schema.prisma`);
+  console.log(`[Prisma] Updated database provider to "${provider}" and adjusted Decimal precision in schema.prisma`);
 } else {
   console.log(`[Prisma] Database provider is already "${provider}" in schema.prisma`);
 }
