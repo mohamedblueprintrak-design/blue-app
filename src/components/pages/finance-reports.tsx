@@ -29,8 +29,10 @@ const Legend = dynamic<any>(() => import('recharts').then((mod) => mod.Legend as
 
 import { TrendingUp, TrendingDown, Wallet, ArrowUpRight, ArrowDownRight, Briefcase, FileText, FileSpreadsheet, Loader2, Target, Activity, Calendar, AlertCircle, Scale, Percent } from 'lucide-react'
 import { useAuthStore } from "@/store/auth-store";
+import { useNavStore } from "@/store/nav-store";
 import { useLang } from "@/hooks/use-lang";
 import { cn } from "@/lib/utils";
+import { EmptyState } from "@/components/ui/empty-state";
 
 import { useToastFeedback } from "@/hooks/use-toast-feedback";
 import { formatCurrency, formatK } from "@/lib/formatters";
@@ -236,6 +238,23 @@ export default function FinanceReportsPage({ }: Props) {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">{[1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-24 rounded-xl" />)}</div>
         <Skeleton className="h-64 rounded-xl" />
         <Skeleton className="h-64 rounded-xl" />
+      </div>
+    );
+  }
+
+  if (!overview || !financial || !projects || projectProfitability.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center p-6 min-h-[60vh]">
+        <EmptyState
+          titleAr="لا توجد بيانات مالية متاحة حالياً"
+          titleEn="No financial data available yet"
+          descriptionAr="لم تقم بإدخال أي فواتير أو حركات مالية بعد. ابدأ بإضافة فواتير أو دفعات لعرض التحليلات والتقارير المالية هنا."
+          descriptionEn="You have not entered any invoices or financial movements yet. Start by adding invoices or payments to view financial analytics and reports here."
+          iconName="Wallet"
+          actionLabelAr="إضافة فاتورة جديدة"
+          actionLabelEn="Create New Invoice"
+          onAction={() => useNavStore.getState().setCurrentPage("invoices")}
+        />
       </div>
     );
   }

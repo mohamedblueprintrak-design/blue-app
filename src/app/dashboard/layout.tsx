@@ -6,6 +6,7 @@ import { useLang } from "@/hooks/use-lang";
 import LoginPage from "@/components/auth/login-page";
 import AppLayout from "@/components/layout/app-layout";
 import LogoImage from "@/components/ui/logo-image";
+import { ProductTour } from "@/components/ui/product-tour";
 
 /**
  * Dashboard Layout — التخطيط المشترك لصفحات لوحة التحكم
@@ -62,6 +63,7 @@ export default function DashboardLayout({
   return (
     <AppLayout language={language}>
       {children}
+      <ProductTour />
     </AppLayout>
   );
 }

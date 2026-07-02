@@ -184,7 +184,7 @@ function AppSidebar() {
     const isActive = currentPage === item.id || item.children?.some((c) => currentPage === c.id);
 
     return (
-      <SidebarMenuItem key={item.id}>
+      <SidebarMenuItem key={item.id} id={`tour-sidebar-${item.id}`}>
         {hasChildren ? (
           <>
             <SidebarMenuButton

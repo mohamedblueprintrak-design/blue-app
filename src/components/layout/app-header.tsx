@@ -22,7 +22,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Search, Globe, Settings, LogOut } from "lucide-react";
+import { Search, Globe, Settings, LogOut, HelpCircle } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import NotificationDropdown from "@/components/notification-dropdown";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -77,7 +77,7 @@ function AppHeader() {
       {/* Action Buttons */}
       <div className="flex items-center gap-1">
         {/* Search Bar - Desktop */}
-        <div className={cn(
+        <div id="tour-header-search" className={cn(
           "hidden md:flex items-center relative rounded-lg border overflow-hidden transition-all duration-300 ease-out",
           searchFocused
             ? "w-72 border-brand-navy-400/50 bg-white dark:bg-slate-800 search-bar-glow"
@@ -166,7 +166,7 @@ function AppHeader() {
         {/* User Dropdown with Online Indicator */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative h-9 gap-2 px-2 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-all duration-200">
+            <Button id="tour-header-profile" variant="ghost" className="relative h-9 gap-2 px-2 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-all duration-200">
               <div className="relative">
                 <Avatar className="h-7 w-7 ring-1 ring-slate-200/80 dark:ring-slate-700/60">
                   <AvatarImage src={user?.avatar} alt={user?.name} />
@@ -210,6 +210,10 @@ function AppHeader() {
               </Badge>
             </div>
             <DropdownMenuSeparator />
+            <DropdownMenuItem className="cursor-pointer font-sans" onClick={() => window.dispatchEvent(new CustomEvent('restart-blueprint-tour'))}>
+              <HelpCircle className="me-2 h-4 w-4" />
+              {isAr ? 'جولة تعريفية' : 'Product Tour'}
+            </DropdownMenuItem>
             <DropdownMenuItem className="cursor-pointer" onClick={() => useNavStore.getState().setCurrentPage("settings")}>
               <Settings className="me-2 h-4 w-4" />
               {t("settings")}
