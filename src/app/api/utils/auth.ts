@@ -298,6 +298,7 @@ export function canApproveExpense(role: string): boolean {
 
 import { hasPermission, canAccessFinancials, isAdmin as isAdminCheck } from '@/lib/auth/modules/authorization';
 import { Permission } from '@/lib/auth/types';
+import { auditLog } from '@/lib/security/audit-logger';
 
 /**
  * @deprecated REMOVED — Use requireVerifiedPermission() instead.
@@ -524,6 +525,10 @@ export async function requireVerifiedPermission(
   if ('error' in result) return result;
 
   if (!hasPermission(result.user.role, permission)) {
+    await auditLog('permission.denied', { permission, userRole: result.user.role }, result.user.userId, {
+      path: request.nextUrl.pathname,
+      method: request.method,
+    });
     return { error: forbiddenResponse() };
   }
   return result;

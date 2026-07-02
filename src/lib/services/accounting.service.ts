@@ -1,4 +1,4 @@
-import { db } from '@/lib/db';
+import { db, TransactionClient } from '@/lib/db';
 import { logAudit } from './audit.service';
 import { log } from '@/lib/logger';
 import { AccountType, Prisma } from '@prisma/client';
@@ -82,7 +82,7 @@ export class AccountingService {
   /**
    * Seed default Chart of Accounts for an organization
    */
-  static async seedDefaultAccounts(tx: Prisma.TransactionClient, organizationId: string): Promise<void> {
+  static async seedDefaultAccounts(tx: TransactionClient, organizationId: string): Promise<void> {
     log.info(`[Accounting] Seeding default Chart of Accounts for organization: ${organizationId}`);
     
     // Build array of create inputs
@@ -602,7 +602,7 @@ export class AccountingService {
  * Get account by code within an organization.
  * Creates default accounts if they don't exist yet.
  */
-async function getAccountByCode(tx: Prisma.TransactionClient, organizationId: string, code: string): Promise<string> {
+async function getAccountByCode(tx: TransactionClient, organizationId: string, code: string): Promise<string> {
   const account = await tx.account.findFirst({
     where: { organizationId, code },
     select: { id: true },
@@ -627,7 +627,7 @@ async function getAccountByCode(tx: Prisma.TransactionClient, organizationId: st
  * @param userId - User creating the invoice
  */
 export async function createInvoiceJournalEntry(
-  tx: Prisma.TransactionClient,
+  tx: TransactionClient,
   organizationId: string,
   invoiceNumber: string,
   subtotal: Prisma.Decimal | number,
@@ -731,7 +731,7 @@ export async function createInvoiceJournalEntry(
  * @param userId - User recording the payment
  */
 export async function createPaymentJournalEntry(
-  tx: Prisma.TransactionClient,
+  tx: TransactionClient,
   organizationId: string,
   invoiceNumber: string,
   amount: Prisma.Decimal | number,

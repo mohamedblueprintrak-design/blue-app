@@ -116,6 +116,8 @@ export const db = _dbInstance.$extends({
   },
 })
 
+export type TransactionClient = Parameters<Parameters<typeof db.$transaction>[0]>[0];
+
 /**
  * Promise that resolves once the database is fully initialized
  * (FK PRAGMA applied for SQLite). Useful for tests or startup hooks

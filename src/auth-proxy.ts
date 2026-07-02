@@ -53,7 +53,7 @@ const CSRF_EXEMPT_PATHS = [
 const PUBLIC_PAGE_ROUTES = [
   '/', '/services', '/calculator', '/quote', '/portal', '/about',
   '/forgot-password', '/reset-password', '/verify-email', '/2fa-setup',
-  '/login', '/register', '/dashboard', '/setup-complete',
+  '/login', '/register', '/setup-complete',
 ];
 
 function isPublicApiRoute(pathname: string): boolean {
@@ -61,11 +61,7 @@ function isPublicApiRoute(pathname: string): boolean {
 }
 
 function isPublicPageRoute(pathname: string): boolean {
-  return PUBLIC_PAGE_ROUTES.some((route) => {
-    if (pathname === route) return true;
-    if (route === '/dashboard' && pathname.startsWith('/dashboard')) return true;
-    return false;
-  });
+  return PUBLIC_PAGE_ROUTES.some((route) => pathname === route);
 }
 
 function isStaticFile(pathname: string): boolean {
@@ -288,10 +284,12 @@ export async function proxy(request: NextRequest) {
       ? pathname.replace('/api/', '/dashboard/')
       : pathname;
 
+
     if (
       (pathname.startsWith('/dashboard') || pathname.startsWith('/api/')) &&
       !isRouteAllowedForRole(guardPath, role)
     ) {
+      console.warn(`[SECURITY WARNING] Blocked unauthorized access: User ${userId} (role: ${role}) tried to access ${pathname}`);
       if (pathname.startsWith('/api/')) {
         const response = NextResponse.json(
           { error: 'Unauthorized route access' },

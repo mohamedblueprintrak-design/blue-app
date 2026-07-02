@@ -307,7 +307,23 @@ function checkItemAccess(items: NavItem[], pageId: string): boolean {
   return false;
 }
 
-// ===== ROUTE ROLE MATRIX (Server Guard) =====
+// ===== PUBLIC DASHBOARD ROUTES (Allowed for all logged-in roles) =====
+export const PUBLIC_DASHBOARD_ROUTES = [
+  "/dashboard",
+  "/dashboard/profile",
+  "/dashboard/settings",
+  "/dashboard/notifications",
+  "/dashboard/help",
+  "/dashboard/search",
+  "/dashboard/calendar",
+  "/dashboard/ai-assistant",
+  "/dashboard/knowledge",
+  "/dashboard/tasks",
+  "/dashboard/meetings",
+  "/dashboard/team-members",
+];
+
+// ===== ROUTE ROLE MATRIX (Server Guard - Restricted Routes) =====
 const ROUTE_ROLE_MATRIX: Record<string, Role[]> = {
   "/dashboard/admin": ["ADMIN"],
   "/dashboard/automations": ["ADMIN"],
@@ -317,13 +333,34 @@ const ROUTE_ROLE_MATRIX: Record<string, Role[]> = {
   // Clients & CRM
   "/dashboard/clients": ["ADMIN", "MANAGER", "PROJECT_MANAGER", "ACCOUNTANT", "SECRETARY"],
   "/dashboard/crm": ["ADMIN", "MANAGER", "PROJECT_MANAGER"],
+  "/dashboard/crm-leads": ["ADMIN", "MANAGER", "PROJECT_MANAGER"],
+  "/dashboard/proposals": ["ADMIN", "MANAGER", "PROJECT_MANAGER"],
+  "/dashboard/bids": ["ADMIN", "MANAGER", "PROJECT_MANAGER"],
+  "/dashboard/tenders": ["ADMIN", "MANAGER", "PROJECT_MANAGER"],
+  "/dashboard/project-templates": ["ADMIN", "MANAGER", "PROJECT_MANAGER"],
   
-  // Projects
+  // Projects & Technical
   "/dashboard/projects": ["ADMIN", "MANAGER", "PROJECT_MANAGER", "ENGINEER", "DRAFTSMAN", "SECRETARY"],
   "/dashboard/contractors": ["ADMIN", "MANAGER", "PROJECT_MANAGER", "ENGINEER"],
   "/dashboard/gantt": ["ADMIN", "MANAGER", "PROJECT_MANAGER", "ENGINEER"],
+  "/dashboard/contracts": ["ADMIN", "MANAGER", "PROJECT_MANAGER", "ACCOUNTANT"],
+  "/dashboard/boq": ["ADMIN", "MANAGER", "PROJECT_MANAGER", "ENGINEER"],
+  "/dashboard/change-orders": ["ADMIN", "MANAGER", "PROJECT_MANAGER", "ENGINEER"],
+  "/dashboard/defects": ["ADMIN", "MANAGER", "PROJECT_MANAGER", "ENGINEER"],
+  "/dashboard/design-management": ["ADMIN", "MANAGER", "PROJECT_MANAGER", "ENGINEER", "DRAFTSMAN"],
+  "/dashboard/documents": ["ADMIN", "MANAGER", "PROJECT_MANAGER", "ENGINEER", "SECRETARY"],
+  "/dashboard/equipment": ["ADMIN", "MANAGER", "PROJECT_MANAGER", "ENGINEER"],
+  "/dashboard/inspections": ["ADMIN", "MANAGER", "PROJECT_MANAGER", "ENGINEER"],
+  "/dashboard/municipality-correspondence": ["ADMIN", "MANAGER", "PROJECT_MANAGER", "ENGINEER", "SECRETARY"],
+  "/dashboard/rfi": ["ADMIN", "MANAGER", "PROJECT_MANAGER", "ENGINEER"],
+  "/dashboard/risks": ["ADMIN", "MANAGER", "PROJECT_MANAGER", "ENGINEER"],
+  "/dashboard/site-diary": ["ADMIN", "MANAGER", "PROJECT_MANAGER", "ENGINEER"],
+  "/dashboard/site-visits": ["ADMIN", "MANAGER", "PROJECT_MANAGER", "ENGINEER"],
+  "/dashboard/submittals": ["ADMIN", "MANAGER", "PROJECT_MANAGER", "ENGINEER"],
+  "/dashboard/supervision": ["ADMIN", "MANAGER", "PROJECT_MANAGER", "ENGINEER"],
+  "/dashboard/transmittals": ["ADMIN", "MANAGER", "PROJECT_MANAGER", "ENGINEER"],
   
-  // Finance
+  // Finance & Accounting
   "/dashboard/finance": ["ADMIN", "MANAGER", "ACCOUNTANT"],
   "/dashboard/invoices": ["ADMIN", "MANAGER", "ACCOUNTANT"],
   "/dashboard/payments": ["ADMIN", "MANAGER", "ACCOUNTANT"],
@@ -335,37 +372,39 @@ const ROUTE_ROLE_MATRIX: Record<string, Role[]> = {
   "/dashboard/purchase-orders": ["ADMIN", "MANAGER", "ACCOUNTANT"],
   "/dashboard/billing": ["ADMIN", "MANAGER", "ACCOUNTANT"],
   "/dashboard/commissions": ["ADMIN", "MANAGER", "ACCOUNTANT"],
-  
-  // Site / Field
-  "/dashboard/site-diary": ["ADMIN", "MANAGER", "PROJECT_MANAGER", "ENGINEER"],
-  "/dashboard/site-visits": ["ADMIN", "MANAGER", "PROJECT_MANAGER", "ENGINEER"],
-  "/dashboard/inspections": ["ADMIN", "MANAGER", "PROJECT_MANAGER", "ENGINEER"],
-  "/dashboard/defects": ["ADMIN", "MANAGER", "PROJECT_MANAGER", "ENGINEER"],
-  "/dashboard/rfi": ["ADMIN", "MANAGER", "PROJECT_MANAGER", "ENGINEER"],
-  "/dashboard/submittals": ["ADMIN", "MANAGER", "PROJECT_MANAGER", "ENGINEER"],
-  "/dashboard/change-orders": ["ADMIN", "MANAGER", "PROJECT_MANAGER", "ENGINEER"],
-  "/dashboard/transmittals": ["ADMIN", "MANAGER", "PROJECT_MANAGER", "ENGINEER"],
-  "/dashboard/risks": ["ADMIN", "MANAGER", "PROJECT_MANAGER", "ENGINEER"],
-  "/dashboard/equipment": ["ADMIN", "MANAGER", "PROJECT_MANAGER", "ENGINEER"],
   "/dashboard/inventory": ["ADMIN", "MANAGER", "ACCOUNTANT"],
+  "/dashboard/report-builder": ["ADMIN", "MANAGER", "ACCOUNTANT"],
   
-  // HR / Employees
+  // HR & Operations
   "/dashboard/employees": ["ADMIN", "MANAGER", "HR"],
   "/dashboard/attendance": ["ADMIN", "MANAGER", "HR"],
   "/dashboard/leave": ["ADMIN", "MANAGER", "HR"],
   "/dashboard/timesheets": ["ADMIN", "MANAGER", "PROJECT_MANAGER", "ENGINEER", "HR"],
   "/dashboard/workload": ["ADMIN", "MANAGER", "PROJECT_MANAGER", "HR"],
+  "/dashboard/approvals": ["ADMIN", "MANAGER", "PROJECT_MANAGER", "HR"],
 };
 
 export function isRouteAllowedForRole(pathname: string, role: string): boolean {
-  const normalized = normalizeRole(role) as Role;
+  // Support comma-separated multi-roles (e.g. from JWT)
+  const roles = role.split(",").map((r) => normalizeRole(r.trim()) as Role);
   
   // ADMIN is a wildcard, always allowed
-  if (normalized === "ADMIN") {
+  if (roles.includes("ADMIN")) {
     return true;
   }
 
-  // Find longest prefix match in the ROUTE_ROLE_MATRIX
+  // 1. Check if the path is in the public dashboard allowlist (direct match or prefix)
+  const isPublic = PUBLIC_DASHBOARD_ROUTES.some((prefix) => {
+    if (prefix === "/dashboard") {
+      return pathname === "/dashboard";
+    }
+    return pathname === prefix || pathname.startsWith(prefix + "/");
+  });
+  if (isPublic) {
+    return true;
+  }
+
+  // 2. Find longest prefix match in the ROUTE_ROLE_MATRIX
   let matchedPrefix = "";
   let allowedRoles: Role[] = [];
   
@@ -379,11 +418,12 @@ export function isRouteAllowedForRole(pathname: string, role: string): boolean {
   }
 
   if (matchedPrefix === "") {
-    // If no prefix matched (e.g. dashboard home, profile, settings, notifications, help), allow it
-    return true;
+    // Fail-Closed default: if no prefix matched and it is not in the public allowlist, block access
+    return false;
   }
 
-  return allowedRoles.includes(normalized);
+  // If any of the user's roles are in the allowed list, grant access
+  return roles.some((r) => allowedRoles.includes(r));
 }
 
 // ===== PROJECT TAB ITEMS =====
