@@ -119,7 +119,8 @@ export async function GET(request: NextRequest) {
       for (const inv of desyncedInvoices) {
         try {
           await db.$transaction(async (tx) => {
-            await createInvoiceJournalEntry(tx, user.organizationId!, inv.number, inv.subtotal, inv.tax, user.userId);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            await createInvoiceJournalEntry(tx as any, user.organizationId!, inv.number, inv.subtotal, inv.tax, user.userId);
           });
           fixedInvoices.push(inv.number);
         } catch (err) {
@@ -131,7 +132,8 @@ export async function GET(request: NextRequest) {
       for (const pm of desyncedPayments) {
         try {
           await db.$transaction(async (tx) => {
-            await createPaymentJournalEntry(tx, user.organizationId!, pm.number, pm.paidAmount, "bank", user.userId);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            await createPaymentJournalEntry(tx as any, user.organizationId!, pm.number, pm.paidAmount, "bank", user.userId);
           });
           fixedPayments.push(pm.number);
         } catch (err) {

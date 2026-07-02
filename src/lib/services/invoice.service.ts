@@ -363,7 +363,8 @@ class InvoiceService {
         // GL Integration: Auto-create journal entry for the invoice
         try {
           await createInvoiceJournalEntry(
-            tx,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            tx as any,
             organizationId,
             invoice.number,
             Number(invoice.subtotal),
@@ -476,7 +477,8 @@ class InvoiceService {
       // Debit: Cash/Bank, Credit: Accounts Receivable
       try {
         const finalPayMethod = paymentMethod === 'cash' ? 'cash' : 'bank';
-        await createPaymentJournalEntry(tx, organizationId, finalInvoice.number, amount, finalPayMethod, userId);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await createPaymentJournalEntry(tx as any, organizationId, finalInvoice.number, amount, finalPayMethod, userId);
       } catch (glError) {
         log.error('GL: Failed to create journal entry for payment', {
           invoiceId: id,

@@ -83,7 +83,7 @@ const allNavItems: NavItem[] = [
     icon: "UserPlus",
     labelAr: "العملاء",
     labelEn: "Clients",
-    roles: allRoles,
+    roles: ["ADMIN", "MANAGER", "PROJECT_MANAGER", "ACCOUNTANT", "SECRETARY"],
   },
 
   // ───── CRM / Leads (العملاء المحتملين) ─────
@@ -101,7 +101,7 @@ const allNavItems: NavItem[] = [
     icon: "FolderKanban",
     labelAr: "المشاريع",
     labelEn: "Projects",
-    roles: allRoles,
+    roles: ["ADMIN", "MANAGER", "PROJECT_MANAGER", "ENGINEER", "DRAFTSMAN", "SECRETARY"],
   },
 
   // ───── 4. Contractors (صفحة واحدة بتابات: قائمة + إضافة + RFQs) ─────
@@ -249,7 +249,7 @@ const allNavItems: NavItem[] = [
     icon: "Sparkles",
     labelAr: "المميزات المتقدمة",
     labelEn: "Advanced Features",
-    roles: allRoles,
+    roles: ["ADMIN", "MANAGER"],
   },
 
   // ───── 7. System Admin (admin بس) ─────
@@ -305,6 +305,85 @@ function checkItemAccess(items: NavItem[], pageId: string): boolean {
     if (item.children && checkItemAccess(item.children, pageId)) return true;
   }
   return false;
+}
+
+// ===== ROUTE ROLE MATRIX (Server Guard) =====
+const ROUTE_ROLE_MATRIX: Record<string, Role[]> = {
+  "/dashboard/admin": ["ADMIN"],
+  "/dashboard/automations": ["ADMIN"],
+  "/dashboard/activity-log": ["ADMIN"],
+  "/dashboard/features-hub": ["ADMIN", "MANAGER"],
+  
+  // Clients & CRM
+  "/dashboard/clients": ["ADMIN", "MANAGER", "PROJECT_MANAGER", "ACCOUNTANT", "SECRETARY"],
+  "/dashboard/crm": ["ADMIN", "MANAGER", "PROJECT_MANAGER"],
+  
+  // Projects
+  "/dashboard/projects": ["ADMIN", "MANAGER", "PROJECT_MANAGER", "ENGINEER", "DRAFTSMAN", "SECRETARY"],
+  "/dashboard/contractors": ["ADMIN", "MANAGER", "PROJECT_MANAGER", "ENGINEER"],
+  "/dashboard/gantt": ["ADMIN", "MANAGER", "PROJECT_MANAGER", "ENGINEER"],
+  
+  // Finance
+  "/dashboard/finance": ["ADMIN", "MANAGER", "ACCOUNTANT"],
+  "/dashboard/invoices": ["ADMIN", "MANAGER", "ACCOUNTANT"],
+  "/dashboard/payments": ["ADMIN", "MANAGER", "ACCOUNTANT"],
+  "/dashboard/recurring-invoices": ["ADMIN", "MANAGER", "ACCOUNTANT"],
+  "/dashboard/budgets": ["ADMIN", "MANAGER", "PROJECT_MANAGER", "ACCOUNTANT"],
+  "/dashboard/progress-claims": ["ADMIN", "MANAGER", "ACCOUNTANT", "PROJECT_MANAGER"],
+  "/dashboard/guarantee-letters": ["ADMIN", "MANAGER", "ACCOUNTANT"],
+  "/dashboard/suppliers": ["ADMIN", "MANAGER", "ACCOUNTANT"],
+  "/dashboard/purchase-orders": ["ADMIN", "MANAGER", "ACCOUNTANT"],
+  "/dashboard/billing": ["ADMIN", "MANAGER", "ACCOUNTANT"],
+  "/dashboard/commissions": ["ADMIN", "MANAGER", "ACCOUNTANT"],
+  
+  // Site / Field
+  "/dashboard/site-diary": ["ADMIN", "MANAGER", "PROJECT_MANAGER", "ENGINEER"],
+  "/dashboard/site-visits": ["ADMIN", "MANAGER", "PROJECT_MANAGER", "ENGINEER"],
+  "/dashboard/inspections": ["ADMIN", "MANAGER", "PROJECT_MANAGER", "ENGINEER"],
+  "/dashboard/defects": ["ADMIN", "MANAGER", "PROJECT_MANAGER", "ENGINEER"],
+  "/dashboard/rfi": ["ADMIN", "MANAGER", "PROJECT_MANAGER", "ENGINEER"],
+  "/dashboard/submittals": ["ADMIN", "MANAGER", "PROJECT_MANAGER", "ENGINEER"],
+  "/dashboard/change-orders": ["ADMIN", "MANAGER", "PROJECT_MANAGER", "ENGINEER"],
+  "/dashboard/transmittals": ["ADMIN", "MANAGER", "PROJECT_MANAGER", "ENGINEER"],
+  "/dashboard/risks": ["ADMIN", "MANAGER", "PROJECT_MANAGER", "ENGINEER"],
+  "/dashboard/equipment": ["ADMIN", "MANAGER", "PROJECT_MANAGER", "ENGINEER"],
+  "/dashboard/inventory": ["ADMIN", "MANAGER", "ACCOUNTANT"],
+  
+  // HR / Employees
+  "/dashboard/employees": ["ADMIN", "MANAGER", "HR"],
+  "/dashboard/attendance": ["ADMIN", "MANAGER", "HR"],
+  "/dashboard/leave": ["ADMIN", "MANAGER", "HR"],
+  "/dashboard/timesheets": ["ADMIN", "MANAGER", "PROJECT_MANAGER", "ENGINEER", "HR"],
+  "/dashboard/workload": ["ADMIN", "MANAGER", "PROJECT_MANAGER", "HR"],
+};
+
+export function isRouteAllowedForRole(pathname: string, role: string): boolean {
+  const normalized = normalizeRole(role) as Role;
+  
+  // ADMIN is a wildcard, always allowed
+  if (normalized === "ADMIN") {
+    return true;
+  }
+
+  // Find longest prefix match in the ROUTE_ROLE_MATRIX
+  let matchedPrefix = "";
+  let allowedRoles: Role[] = [];
+  
+  for (const prefix of Object.keys(ROUTE_ROLE_MATRIX)) {
+    if (pathname === prefix || pathname.startsWith(prefix + "/")) {
+      if (prefix.length > matchedPrefix.length) {
+        matchedPrefix = prefix;
+        allowedRoles = ROUTE_ROLE_MATRIX[prefix];
+      }
+    }
+  }
+
+  if (matchedPrefix === "") {
+    // If no prefix matched (e.g. dashboard home, profile, settings, notifications, help), allow it
+    return true;
+  }
+
+  return allowedRoles.includes(normalized);
 }
 
 // ===== PROJECT TAB ITEMS =====

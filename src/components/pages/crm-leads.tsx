@@ -357,7 +357,7 @@ export default function CrmLeadsPage({ language = 'ar' }: { language?: 'ar' | 'e
                         key={lead.id}
                         layoutId={lead.id}
                         draggable
-                        onDragStart={e => handleDragStart(e, lead.id)}
+                        onDragStart={e => handleDragStart(e as unknown as React.DragEvent, lead.id)}
                         onClick={() => openEditModal(lead)}
                         className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-md cursor-grab active:cursor-grabbing p-4 rounded-xl shadow-sm transition-all duration-200 relative group"
                       >

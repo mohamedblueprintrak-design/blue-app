@@ -35,9 +35,12 @@ import {
   RefreshCw,
   AlertCircle,
   CheckCircle2,
-  FileDown
+  FileDown,
+  ArrowUpRight,
+  ArrowDownRight
 } from "lucide-react";
 import { formatCurrency } from "@/lib/formatters";
+import { cn } from "@/lib/utils";
 
 export default function FinanceAccountingReportsPage() {
   const { t, isAr } = useLanguage();
@@ -48,6 +51,9 @@ export default function FinanceAccountingReportsPage() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [balanceSheetDate, setBalanceSheetDate] = useState("");
+
+  const [statementTargetType, setStatementTargetType] = useState<"client" | "supplier">("client");
+  const [statementTargetId, setStatementTargetId] = useState("");
 
   // 1. Fetch Accounts (for filter dropdowns)
   const { data: accounts = [] } = useQuery<any[]>({
@@ -113,11 +119,110 @@ export default function FinanceAccountingReportsPage() {
     },
   });
 
+  // 6. Fetch VAT Return
+  const { data: vatReturn, isLoading: isLoadingVAT, refetch: refetchVAT } = useQuery<any>({
+    queryKey: ["finance", "reports", "vat-return", startDate, endDate],
+    queryFn: async () => {
+      const queryParams = new URLSearchParams();
+      if (startDate) queryParams.append("startDate", startDate);
+      if (endDate) queryParams.append("endDate", endDate);
+      const res = await fetch(`/api/finance/reports/vat-return?${queryParams.toString()}`);
+      if (!res.ok) throw new Error("Failed to fetch VAT Return");
+      const json = await res.json();
+      return json.data;
+    },
+    enabled: activeTab === "vat-return",
+  });
+
+  // 7. Fetch AR Aging
+  const { data: arAging = [], isLoading: isLoadingARAging, refetch: refetchARAging } = useQuery<any[]>({
+    queryKey: ["finance", "reports", "ar-aging"],
+    queryFn: async () => {
+      const res = await fetch("/api/finance/reports/ar-aging");
+      if (!res.ok) throw new Error("Failed to fetch AR Aging");
+      const json = await res.json();
+      return json.data;
+    },
+    enabled: activeTab === "ar-aging",
+  });
+
+  // 8. Fetch AP Aging
+  const { data: apAging = [], isLoading: isLoadingAPAging, refetch: refetchAPAging } = useQuery<any[]>({
+    queryKey: ["finance", "reports", "ap-aging"],
+    queryFn: async () => {
+      const res = await fetch("/api/finance/reports/ap-aging");
+      if (!res.ok) throw new Error("Failed to fetch AP Aging");
+      const json = await res.json();
+      return json.data;
+    },
+    enabled: activeTab === "ap-aging",
+  });
+
+  // 9. Fetch Budget vs Actual
+  const { data: budgetVsActual = [], isLoading: isLoadingBvA, refetch: refetchBvA } = useQuery<any[]>({
+    queryKey: ["finance", "reports", "budget-vs-actual"],
+    queryFn: async () => {
+      const res = await fetch("/api/finance/reports/budget-vs-actual");
+      if (!res.ok) throw new Error("Failed to fetch Budget vs Actual");
+      const json = await res.json();
+      return json.data;
+    },
+    enabled: activeTab === "budget-vs-actual",
+  });
+
+  // 10. Fetch Clients
+  const { data: clientsList = [] } = useQuery<any[]>({
+    queryKey: ["finance", "clients-list"],
+    queryFn: async () => {
+      const res = await fetch("/api/clients");
+      if (!res.ok) throw new Error("Failed to fetch clients");
+      const json = await res.json();
+      return json.data || json || [];
+    },
+  });
+
+  // 11. Fetch Suppliers
+  const { data: suppliersList = [] } = useQuery<any[]>({
+    queryKey: ["finance", "suppliers-list"],
+    queryFn: async () => {
+      const res = await fetch("/api/suppliers");
+      if (!res.ok) throw new Error("Failed to fetch suppliers");
+      const json = await res.json();
+      return json.data || json || [];
+    },
+  });
+
+  // 12. Fetch Statement
+  const { data: statementData, isLoading: isLoadingStatement, refetch: refetchStatement } = useQuery<any>({
+    queryKey: ["finance", "reports", "statement", statementTargetType, statementTargetId, startDate, endDate],
+    queryFn: async () => {
+      if (!statementTargetId) return null;
+      const queryParams = new URLSearchParams();
+      if (statementTargetType === "client") {
+        queryParams.append("clientId", statementTargetId);
+      } else {
+        queryParams.append("supplierId", statementTargetId);
+      }
+      if (startDate) queryParams.append("startDate", startDate);
+      if (endDate) queryParams.append("endDate", endDate);
+      const res = await fetch(`/api/finance/reports/statement?${queryParams.toString()}`);
+      if (!res.ok) throw new Error("Failed to fetch statement");
+      const json = await res.json();
+      return json.data;
+    },
+    enabled: activeTab === "statement" && !!statementTargetId,
+  });
+
   const handleRefetch = () => {
     if (activeTab === "ledger") refetchLedger();
     if (activeTab === "trial-balance") refetchTB();
     if (activeTab === "income-statement") refetchIS();
     if (activeTab === "balance-sheet") refetchBS();
+    if (activeTab === "vat-return") refetchVAT();
+    if (activeTab === "ar-aging") refetchARAging();
+    if (activeTab === "ap-aging") refetchAPAging();
+    if (activeTab === "budget-vs-actual") refetchBvA();
+    if (activeTab === "statement") refetchStatement();
   };
 
   const getAccountName = (acc: any) => (isAr ? acc.nameAr : acc.nameEn);
@@ -148,22 +253,42 @@ export default function FinanceAccountingReportsPage() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl w-full sm:w-auto overflow-x-auto h-auto flex gap-1">
-          <TabsTrigger value="ledger" className="rounded-lg py-2 flex items-center gap-1.5 text-xs sm:text-sm">
+        <TabsList className="bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl w-full flex overflow-x-auto h-auto gap-1">
+          <TabsTrigger value="ledger" className="rounded-lg py-2 flex items-center gap-1.5 text-xs sm:text-sm shrink-0">
             <BookOpen className="h-4 w-4" />
             {t("دفتر الأستاذ", "General Ledger")}
           </TabsTrigger>
-          <TabsTrigger value="trial-balance" className="rounded-lg py-2 flex items-center gap-1.5 text-xs sm:text-sm">
+          <TabsTrigger value="trial-balance" className="rounded-lg py-2 flex items-center gap-1.5 text-xs sm:text-sm shrink-0">
             <Scale className="h-4 w-4" />
             {t("ميزان المراجعة", "Trial Balance")}
           </TabsTrigger>
-          <TabsTrigger value="income-statement" className="rounded-lg py-2 flex items-center gap-1.5 text-xs sm:text-sm">
+          <TabsTrigger value="income-statement" className="rounded-lg py-2 flex items-center gap-1.5 text-xs sm:text-sm shrink-0">
             <TrendingUp className="h-4 w-4" />
             {t("قائمة الدخل P&L", "Profit & Loss")}
           </TabsTrigger>
-          <TabsTrigger value="balance-sheet" className="rounded-lg py-2 flex items-center gap-1.5 text-xs sm:text-sm">
+          <TabsTrigger value="balance-sheet" className="rounded-lg py-2 flex items-center gap-1.5 text-xs sm:text-sm shrink-0">
             <Building className="h-4 w-4" />
             {t("الميزانية العمومية", "Balance Sheet")}
+          </TabsTrigger>
+          <TabsTrigger value="vat-return" className="rounded-lg py-2 flex items-center gap-1.5 text-xs sm:text-sm shrink-0">
+            <FileSpreadsheet className="h-4 w-4" />
+            {t("الإقرار الضريبي VAT", "VAT Return")}
+          </TabsTrigger>
+          <TabsTrigger value="ar-aging" className="rounded-lg py-2 flex items-center gap-1.5 text-xs sm:text-sm shrink-0">
+            <Scale className="h-4 w-4" />
+            {t("أعمار الذمم AR", "AR Aging")}
+          </TabsTrigger>
+          <TabsTrigger value="ap-aging" className="rounded-lg py-2 flex items-center gap-1.5 text-xs sm:text-sm shrink-0">
+            <Scale className="h-4 w-4" />
+            {t("أعمار الديون AP", "AP Aging")}
+          </TabsTrigger>
+          <TabsTrigger value="budget-vs-actual" className="rounded-lg py-2 flex items-center gap-1.5 text-xs sm:text-sm shrink-0">
+            <TrendingUp className="h-4 w-4" />
+            {t("الموازنة والفعلي", "Budget vs Actual")}
+          </TabsTrigger>
+          <TabsTrigger value="statement" className="rounded-lg py-2 flex items-center gap-1.5 text-xs sm:text-sm shrink-0">
+            <BookOpen className="h-4 w-4" />
+            {t("كشف حساب", "Statement")}
           </TabsTrigger>
         </TabsList>
 
@@ -614,6 +739,395 @@ export default function FinanceAccountingReportsPage() {
                     </div>
                   </div>
                 </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* 5. VAT Return Tab */}
+        <TabsContent value="vat-return">
+          <Card className="border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 shadow-sm">
+            <CardHeader className="p-6 pb-4 border-b border-slate-100 dark:border-slate-800">
+              <CardTitle className="text-base font-bold flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
+                <FileSpreadsheet className="h-5 w-5" />
+                {t("إقرار ضريبة القيمة المضافة (VAT 201)", "UAE VAT Return (VAT 201)")}
+              </CardTitle>
+              <p className="text-xs text-slate-500 mt-1">
+                {t("حساب الإقرار الضريبي المبسط وفق القوانين الاتحادية للضرائب بدولة الإمارات العربية المتحدة (5%)", "UAE Standard Rated VAT Return (5%) calculation summary")}
+              </p>
+            </CardHeader>
+            <CardContent className="p-6 space-y-6">
+              {/* Date Filters */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 dark:bg-slate-800/30 p-4 rounded-xl">
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold">{t("من تاريخ", "Start Date")}</Label>
+                  <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="h-9" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold">{t("إلى تاريخ", "End Date")}</Label>
+                  <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="h-9" />
+                </div>
+              </div>
+
+              {isLoadingVAT ? (
+                <Skeleton className="h-64 rounded-xl" />
+              ) : vatReturn ? (
+                <div className="space-y-6">
+                  {/* Grid cards */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <Card className="bg-emerald-50/50 dark:bg-emerald-950/10 border-emerald-100 dark:border-emerald-900/50">
+                      <CardContent className="p-4 flex justify-between items-center">
+                        <div>
+                          <p className="text-xs text-emerald-700 dark:text-emerald-400 font-medium">{t("ضريبة المخرجات (المبيعات)", "Output VAT (Sales)")}</p>
+                          <h3 className="text-xl font-bold font-mono mt-1 text-emerald-800 dark:text-emerald-300">{formatCurrency(vatReturn.outputVat, isAr)}</h3>
+                          <p className="text-[10px] text-slate-400 mt-1">{t("الوعاء الخاضع للضريبة:", "Taxable Amount:")} {formatCurrency(vatReturn.taxableSales, isAr)}</p>
+                        </div>
+                        <ArrowUpRight className="h-8 w-8 text-emerald-500/20 shrink-0" />
+                      </CardContent>
+                    </Card>
+
+                    <Card className="bg-rose-50/50 dark:bg-rose-950/10 border-rose-100 dark:border-rose-900/50">
+                      <CardContent className="p-4 flex justify-between items-center">
+                        <div>
+                          <p className="text-xs text-rose-700 dark:text-rose-400 font-medium">{t("ضريبة المدخلات (المشتريات)", "Input VAT (Purchases)")}</p>
+                          <h3 className="text-xl font-bold font-mono mt-1 text-rose-800 dark:text-rose-300">{formatCurrency(vatReturn.inputVat, isAr)}</h3>
+                          <p className="text-[10px] text-slate-400 mt-1">{t("الوعاء الخاضع للضريبة:", "Taxable Amount:")} {formatCurrency(vatReturn.taxableExpenses, isAr)}</p>
+                        </div>
+                        <ArrowDownRight className="h-8 w-8 text-rose-500/20 shrink-0" />
+                      </CardContent>
+                    </Card>
+
+                    <Card className="bg-slate-50 dark:bg-slate-800/40 border-slate-200 dark:border-slate-800">
+                      <CardContent className="p-4 flex justify-between items-center">
+                        <div>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{t("صافي الضريبة المستحقة", "Net VAT Payable")}</p>
+                          <h3 className="text-xl font-bold font-mono mt-1 text-slate-800 dark:text-slate-100">{formatCurrency(vatReturn.netVat, isAr)}</h3>
+                          <Badge className={cn("text-[9px] py-0 mt-1", vatReturn.isPayable ? "bg-amber-100 text-amber-800 dark:bg-amber-950/30 dark:text-amber-400" : "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-400")}>
+                            {vatReturn.isPayable ? t("مستحق الدفع للهيئة", "Payable to Authority") : t("مسترد من الهيئة", "Refundable")}
+                          </Badge>
+                        </div>
+                        <Scale className="h-8 w-8 text-slate-400/20 shrink-0" />
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {/* Summary Table */}
+                  <div className="border rounded-xl overflow-hidden bg-white dark:bg-slate-900/50">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="bg-slate-50 dark:bg-slate-800/30">
+                          <TableHead className="font-semibold">{t("بند الإقرار الضريبي", "VAT Box / Item")}</TableHead>
+                          <TableHead className="text-end font-semibold">{t("المبلغ الخاضع للضريبة (AED)", "Amount Subject to Tax (AED)")}</TableHead>
+                          <TableHead className="text-end font-semibold">{t("قيمة الضريبة (AED)", "Tax Amount (AED)")}</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        <TableRow>
+                          <TableCell className="font-medium">{t("1. التوريدات الخاضعة للنسبة الأساسية (المبيعات)", "1. Standard Rated Supplies (Sales)")}</TableCell>
+                          <TableCell className="text-end font-mono">{formatCurrency(vatReturn.taxableSales, isAr)}</TableCell>
+                          <TableCell className="text-end font-mono text-emerald-600 dark:text-emerald-400 font-semibold">+{formatCurrency(vatReturn.outputVat, isAr)}</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-medium">{t("2. النفقات الخاضعة للنسبة الأساسية (المشتريات)", "2. Standard Rated Expenses (Purchases)")}</TableCell>
+                          <TableCell className="text-end font-mono">{formatCurrency(vatReturn.taxableExpenses, isAr)}</TableCell>
+                          <TableCell className="text-end font-mono text-rose-600 dark:text-rose-400 font-semibold">-{formatCurrency(vatReturn.inputVat, isAr)}</TableCell>
+                        </TableRow>
+                        <TableRow className="border-t-2 font-bold bg-slate-50/50 dark:bg-slate-800/20">
+                          <TableCell>{t("صافي الضريبة القابلة للدفع / (الاسترداد)", "Net VAT Payable / (Refundable)")}</TableCell>
+                          <TableCell className="text-end font-mono">-</TableCell>
+                          <TableCell className="text-end font-mono text-slate-900 dark:text-slate-100">{formatCurrency(vatReturn.netVat, isAr)}</TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-6 text-slate-400">{t("لم يتم العثور على حركات ضريبية", "No VAT entries found")}</div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* 6. AR Aging Tab */}
+        <TabsContent value="ar-aging">
+          <Card className="border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 shadow-sm">
+            <CardHeader className="p-6 pb-4 border-b border-slate-100 dark:border-slate-800">
+              <CardTitle className="text-base font-bold flex items-center gap-2">
+                <Scale className="h-5 w-5 text-indigo-500" />
+                {t("تقرير أعمار الذمم المدينة (Accounts Receivable Aging)", "Accounts Receivable Aging (AR)")}
+              </CardTitle>
+              <p className="text-xs text-slate-500 mt-1">
+                {t("تحليل الفواتير غير المسددة حسب عدد الأيام منذ تاريخ الإصدار لتقييم كفاءة التحصيل ومخاطر الديون", "Unpaid invoice balances categorized by days outstanding to track collection efficiency")}
+              </p>
+            </CardHeader>
+            <CardContent className="p-6">
+              {isLoadingARAging ? (
+                <Skeleton className="h-64 rounded-xl" />
+              ) : arAging.length > 0 ? (
+                <div className="border rounded-xl overflow-hidden">
+                  <Table>
+                    <TableHeader className="bg-slate-50 dark:bg-slate-800/30">
+                      <TableRow>
+                        <TableHead className="font-semibold">{t("العميل", "Client")}</TableHead>
+                        <TableHead className="text-end font-semibold">{t("حالي (0-30 يوم)", "Current (0-30 days)")}</TableHead>
+                        <TableHead className="text-end font-semibold">{t("31 - 60 يوم", "31 - 60 days")}</TableHead>
+                        <TableHead className="text-end font-semibold">{t("61 - 90 يوم", "61 - 90 days")}</TableHead>
+                        <TableHead className="text-end font-semibold">{t("أكثر من 90 يوم", "90+ days")}</TableHead>
+                        <TableHead className="text-end font-semibold font-bold">{t("الإجمالي المستحق", "Total Due")}</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {arAging.map((row: any) => (
+                        <TableRow key={row.clientId}>
+                          <TableCell className="font-medium text-slate-900 dark:text-slate-100">{row.clientName}</TableCell>
+                          <TableCell className="text-end font-mono">{formatCurrency(row.current, isAr)}</TableCell>
+                          <TableCell className="text-end font-mono text-amber-600 dark:text-amber-400">{formatCurrency(row.days30, isAr)}</TableCell>
+                          <TableCell className="text-end font-mono text-orange-600 dark:text-orange-400">{formatCurrency(row.days60, isAr)}</TableCell>
+                          <TableCell className="text-end font-mono text-red-600 dark:text-red-400 font-semibold">{formatCurrency(row.days90, isAr)}</TableCell>
+                          <TableCell className="text-end font-mono font-bold">{formatCurrency(row.total, isAr)}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              ) : (
+                <div className="text-center py-12 text-slate-400">{t("لا توجد مبالغ مستحقة على العملاء حالياً", "No outstanding customer receivables")}</div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* 7. AP Aging Tab */}
+        <TabsContent value="ap-aging">
+          <Card className="border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 shadow-sm">
+            <CardHeader className="p-6 pb-4 border-b border-slate-100 dark:border-slate-800">
+              <CardTitle className="text-base font-bold flex items-center gap-2">
+                <Scale className="h-5 w-5 text-rose-500" />
+                {t("تقرير أعمار الذمم الدائنة (Accounts Payable Aging)", "Accounts Payable Aging (AP)")}
+              </CardTitle>
+              <p className="text-xs text-slate-500 mt-1">
+                {t("تحليل مستحقات الموردين ومقاولين الباطن غير المسددة حسب فترات التأخير لتفادي غرامات التأخير وتخطيط التدفق النقدي", "Unpaid supplier commitments categorized by days outstanding to plan cash outflows")}
+              </p>
+            </CardHeader>
+            <CardContent className="p-6">
+              {isLoadingAPAging ? (
+                <Skeleton className="h-64 rounded-xl" />
+              ) : apAging.length > 0 ? (
+                <div className="border rounded-xl overflow-hidden">
+                  <Table>
+                    <TableHeader className="bg-slate-50 dark:bg-slate-800/30">
+                      <TableRow>
+                        <TableHead className="font-semibold">{t("المورد / المقاول", "Supplier / Subcontractor")}</TableHead>
+                        <TableHead className="text-end font-semibold">{t("حالي (0-30 يوم)", "Current (0-30 days)")}</TableHead>
+                        <TableHead className="text-end font-semibold">{t("31 - 60 يوم", "31 - 60 days")}</TableHead>
+                        <TableHead className="text-end font-semibold">{t("61 - 90 يوم", "61 - 90 days")}</TableHead>
+                        <TableHead className="text-end font-semibold">{t("أكثر من 90 يوم", "90+ days")}</TableHead>
+                        <TableHead className="text-end font-semibold font-bold">{t("الإجمالي المطلوب سداده", "Total Payable")}</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {apAging.map((row: any) => (
+                        <TableRow key={row.supplierId}>
+                          <TableCell className="font-medium text-slate-900 dark:text-slate-100">{row.supplierName}</TableCell>
+                          <TableCell className="text-end font-mono">{formatCurrency(row.current, isAr)}</TableCell>
+                          <TableCell className="text-end font-mono text-amber-600 dark:text-amber-400">{formatCurrency(row.days30, isAr)}</TableCell>
+                          <TableCell className="text-end font-mono text-orange-600 dark:text-orange-400">{formatCurrency(row.days60, isAr)}</TableCell>
+                          <TableCell className="text-end font-mono text-red-600 dark:text-red-400 font-semibold">{formatCurrency(row.days90, isAr)}</TableCell>
+                          <TableCell className="text-end font-mono font-bold">{formatCurrency(row.total, isAr)}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              ) : (
+                <div className="text-center py-12 text-slate-400">{t("لا توجد التزامات معلقة للموردين حالياً", "No outstanding supplier payables")}</div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* 8. Budget vs Actual Tab */}
+        <TabsContent value="budget-vs-actual">
+          <Card className="border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 shadow-sm">
+            <CardHeader className="p-6 pb-4 border-b border-slate-100 dark:border-slate-800">
+              <CardTitle className="text-base font-bold flex items-center gap-2">
+                <TrendingUp className="h-5 w-5 text-indigo-500" />
+                {t("الموازنة مقابل التكلفة الفعلية للمشاريع", "Project Budget vs Actual Cost")}
+              </CardTitle>
+              <p className="text-xs text-slate-500 mt-1">
+                {t("مقارنة موازنة المشروع المخططة مع المصروفات والتكاليف الفعلية ومطابقتها مع حجم الفواتير المصدرة", "Compare project budgets with actual cash spent and invoiced progress amounts")}
+              </p>
+            </CardHeader>
+            <CardContent className="p-6">
+              {isLoadingBvA ? (
+                <Skeleton className="h-64 rounded-xl" />
+              ) : budgetVsActual.length > 0 ? (
+                <div className="border rounded-xl overflow-hidden">
+                  <Table>
+                    <TableHeader className="bg-slate-50 dark:bg-slate-800/30">
+                      <TableRow>
+                        <TableHead className="font-semibold">{t("المشروع", "Project")}</TableHead>
+                        <TableHead className="text-end font-semibold">{t("موازنة المشروع", "Budget")}</TableHead>
+                        <TableHead className="text-end font-semibold">{t("المفوتر (Revenue)", "Invoiced (Revenue)")}</TableHead>
+                        <TableHead className="text-end font-semibold">{t("التكاليف الفعلية (Actual Cost)", "Actual Cost")}</TableHead>
+                        <TableHead className="text-end font-semibold">{t("الفرق (Variance)", "Variance")}</TableHead>
+                        <TableHead className="text-center font-semibold">{t("نسبة الاستهلاك", "Utilization")}</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {budgetVsActual.map((row: any) => {
+                        const isOver = row.utilization > 100;
+                        const isNear = row.utilization > 90 && row.utilization <= 100;
+                        return (
+                          <TableRow key={row.projectId}>
+                            <TableCell className="font-medium text-slate-900 dark:text-slate-100">
+                              {isAr ? row.projectName : row.projectNameEn}
+                            </TableCell>
+                            <TableCell className="text-end font-mono">{formatCurrency(row.budget, isAr)}</TableCell>
+                            <TableCell className="text-end font-mono text-emerald-600 dark:text-emerald-400 font-medium">
+                              {formatCurrency(row.invoiced, isAr)}
+                            </TableCell>
+                            <TableCell className="text-end font-mono text-slate-700 dark:text-slate-300 font-medium">
+                              {formatCurrency(row.actualCost, isAr)}
+                            </TableCell>
+                            <TableCell className={cn("text-end font-mono font-semibold", row.variance >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400")}>
+                              {formatCurrency(row.variance, isAr)}
+                            </TableCell>
+                            <TableCell className="text-center">
+                              <div className="flex flex-col items-center gap-1 min-w-[120px]">
+                                <span className={cn("text-xs font-mono font-bold", isOver ? "text-red-600 dark:text-red-400" : isNear ? "text-amber-600" : "text-emerald-600")}>
+                                  {row.utilization.toFixed(1)}%
+                                </span>
+                                <div className="w-full h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                                  <div className={cn("h-full rounded-full", isOver ? "bg-red-500" : isNear ? "bg-amber-500" : "bg-emerald-500")} style={{ width: `${Math.min(row.utilization, 100)}%` }} />
+                                </div>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </div>
+              ) : (
+                <div className="text-center py-12 text-slate-400">{t("لم يتم العثور على مشاريع ذات موازنات مخصصة", "No budgeted projects found")}</div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* 9. Statements Tab */}
+        <TabsContent value="statement">
+          <Card className="border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900 shadow-sm">
+            <CardHeader className="p-6 pb-4 border-b border-slate-100 dark:border-slate-800">
+              <CardTitle className="text-base font-bold flex items-center gap-2">
+                <BookOpen className="h-5 w-5 text-indigo-500" />
+                {t("كشف حساب العميل والمورد التفاعلي", "Interactive Client & Supplier Statement")}
+              </CardTitle>
+              <p className="text-xs text-slate-500 mt-1">
+                {t("عرض كشوف الحسابات التفصيلية للعملاء أو الموردين مع الرصيد التراكمي وتاريخ الفواتير والمدفوعات", "View granular historical ledger statements for clients or suppliers with running balance")}
+              </p>
+            </CardHeader>
+            <CardContent className="p-6 space-y-6">
+              {/* Statement Filters */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-slate-50 dark:bg-slate-800/30 p-4 rounded-xl items-end">
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold">{t("نوع الحساب", "Account Type")}</Label>
+                  <Select value={statementTargetType} onValueChange={(val: any) => { setStatementTargetType(val); setStatementTargetId(""); }}>
+                    <SelectTrigger className="h-9">
+                      <SelectValue placeholder={t("اختر النوع", "Select Type")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="client">{t("كشف حساب عميل", "Customer Statement")}</SelectItem>
+                      <SelectItem value="supplier">{t("كشف حساب مورد", "Supplier Statement")}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold">
+                    {statementTargetType === "client" ? t("العميل", "Customer") : t("المورد", "Supplier")}
+                  </Label>
+                  <Select value={statementTargetId} onValueChange={setStatementTargetId}>
+                    <SelectTrigger className="h-9">
+                      <SelectValue placeholder={statementTargetType === "client" ? t("اختر العميل", "Select Customer") : t("اختر المورد", "Select Supplier")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {statementTargetType === "client" ? (
+                        clientsList.map((c: any) => (
+                          <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                        ))
+                      ) : (
+                        suppliersList.map((s: any) => (
+                          <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold">{t("من تاريخ", "Start Date")}</Label>
+                  <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="h-9" />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold">{t("إلى تاريخ", "End Date")}</Label>
+                  <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="h-9" />
+                </div>
+              </div>
+
+              {isLoadingStatement ? (
+                <Skeleton className="h-64 rounded-xl" />
+              ) : statementData ? (
+                <div className="space-y-4">
+                  {/* Ending Balance Summary */}
+                  <div className="flex justify-between items-center bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-200 dark:border-slate-800">
+                    <div>
+                      <span className="text-sm font-bold text-slate-700 dark:text-slate-300">
+                        {statementTargetType === "client" ? t("رصيد العميل الختامي", "Ending Customer Balance") : t("رصيد المورد الختامي", "Ending Supplier Balance")}
+                      </span>
+                      <p className="text-[10px] text-slate-400 mt-0.5">{t("صافي الرصيد المستحق للتسوية المباشرة", "Outstanding balance payable/collectible")}</p>
+                    </div>
+                    <span className="text-xl font-mono font-bold text-slate-900 dark:text-slate-100">
+                      {formatCurrency(statementData.endingBalance, isAr)}
+                    </span>
+                  </div>
+
+                  {/* Ledger History Table */}
+                  {statementData.history?.length > 0 ? (
+                    <div className="border rounded-xl overflow-hidden bg-white dark:bg-slate-900/50">
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="bg-slate-50 dark:bg-slate-800/30">
+                            <TableHead className="font-semibold">{t("التاريخ", "Date")}</TableHead>
+                            <TableHead className="font-semibold">{t("المرجع", "Reference")}</TableHead>
+                            <TableHead className="font-semibold">{t("الوصف", "Description")}</TableHead>
+                            <TableHead className="text-end font-semibold">{t("مدين (+)", "Debit (+)")}</TableHead>
+                            <TableHead className="text-end font-semibold">{t("دائن (-)", "Credit (-)")}</TableHead>
+                            <TableHead className="text-end font-semibold font-bold">{t("الرصيد التراكمي", "Balance")}</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {statementData.history.map((tx: any, idx: number) => (
+                            <TableRow key={idx}>
+                              <TableCell className="font-mono text-xs">{new Date(tx.date).toLocaleDateString(isAr ? "ar-AE" : "en-US")}</TableCell>
+                              <TableCell className="font-semibold">{tx.reference}</TableCell>
+                              <TableCell className="text-slate-500 dark:text-slate-400">{tx.description}</TableCell>
+                              <TableCell className="text-end font-mono text-emerald-600 dark:text-emerald-400">{tx.debit > 0 ? `+${formatCurrency(tx.debit, isAr)}` : "-"}</TableCell>
+                              <TableCell className="text-end font-mono text-rose-600 dark:text-rose-400">{tx.credit > 0 ? `-${formatCurrency(tx.credit, isAr)}` : "-"}</TableCell>
+                              <TableCell className="text-end font-mono font-bold">{formatCurrency(tx.balance, isAr)}</TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-slate-400">{t("لا توجد حركات مسجلة للحساب في هذه الفترة", "No ledger entries for this period")}</div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center py-12 text-slate-400">{t("يرجى اختيار العميل أو المورد لعرض كشف الحساب", "Please select a client or supplier to generate statement")}</div>
               )}
             </CardContent>
           </Card>

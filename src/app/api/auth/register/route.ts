@@ -275,7 +275,8 @@ async function handleRegister(
               },
             });
             // Seed default Chart of Accounts for the new organization
-            await AccountingService.seedDefaultAccounts(tx, org.id);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            await AccountingService.seedDefaultAccounts(tx as any, org.id);
             const createdUser = await tx.user.create({
               data: {
                 email: data.email.toLowerCase(),

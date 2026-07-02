@@ -259,16 +259,18 @@ function AppSidebar() {
 
       <SidebarContent className="px-2 py-1.5">
         {/* Main Navigation */}
-        <SidebarGroup>
-          <SidebarGroupLabel>
-            {t("groupMain")}
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu className="gap-0.5">
-              {groups.main.map(renderNavItem)}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {groups.main.length > 0 && (
+          <SidebarGroup>
+            <SidebarGroupLabel>
+              {t("groupMain")}
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu className="gap-0.5">
+                {groups.main.map(renderNavItem)}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
 
         {/* Business Management */}
         {groups.business.length > 0 && (

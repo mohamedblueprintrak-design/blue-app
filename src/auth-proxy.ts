@@ -18,6 +18,7 @@ import {
   getAllowedOrigin,
   buildCsp
 } from '@/lib/middleware/security';
+import { isRouteAllowedForRole } from '@/lib/permissions';
 
 const COOKIE_NAME = 'blue_token';
 
@@ -281,6 +282,26 @@ export async function proxy(request: NextRequest) {
     const role = payload.role as string;
     const name = payload.name as string;
     const organizationId = payload.organizationId as string | undefined;
+
+    // ROLE-BASED ROUTE GUARD: Enforce prefix/page/API access limits from permissions ROUTE_ROLE_MATRIX
+    const guardPath = pathname.startsWith('/api/')
+      ? pathname.replace('/api/', '/dashboard/')
+      : pathname;
+
+    if (
+      (pathname.startsWith('/dashboard') || pathname.startsWith('/api/')) &&
+      !isRouteAllowedForRole(guardPath, role)
+    ) {
+      if (pathname.startsWith('/api/')) {
+        const response = NextResponse.json(
+          { error: 'Unauthorized route access' },
+          { status: 403 }
+        );
+        return addSecurityHeaders(response, nonce, rlInfo);
+      }
+      const unauthorizedUrl = new URL('/unauthorized', request.url);
+      return NextResponse.redirect(unauthorizedUrl);
+    }
 
     const requestHeaders = new Headers(request.headers);
     for (const key of requestHeaders.keys()) {

@@ -7,7 +7,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import {
@@ -27,28 +27,17 @@ const Tooltip = dynamic<any>(() => import('recharts').then((mod) => mod.Tooltip 
 const ResponsiveContainer = dynamic<any>(() => import('recharts').then((mod) => mod.ResponsiveContainer as any), { ssr: false });
 const Legend = dynamic<any>(() => import('recharts').then((mod) => mod.Legend as any), { ssr: false });
 
-import { DollarSign, TrendingUp, TrendingDown, Wallet, ArrowUpRight, ArrowDownRight, Briefcase, FileText, FileSpreadsheet, Loader2, Target, BarChart3, Activity } from 'lucide-react'
-
+import { TrendingUp, TrendingDown, Wallet, ArrowUpRight, ArrowDownRight, Briefcase, FileText, FileSpreadsheet, Loader2, Target, Activity, Calendar, AlertCircle, Scale, Percent } from 'lucide-react'
+import { useAuthStore } from "@/store/auth-store";
 import { useLang } from "@/hooks/use-lang";
 import { cn } from "@/lib/utils";
 
 import { useToastFeedback } from "@/hooks/use-toast-feedback";
 import { formatCurrency, formatK } from "@/lib/formatters";
 
-// ===== Helpers =====
-function formatPct(value: number): string {
-  return `${value >= 0 ? "+" : ""}${value.toFixed(1)}%`;
-}
 
-function TrendIndicator({ value, ar: _ar }: { value: number; ar: boolean }) {
-  const isPositive = value >= 0;
-  return (
-    <div className={cn("flex items-center gap-0.5 text-[10px] font-medium", isPositive ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400")}>
-      {isPositive ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
-      <span>{formatPct(value)}</span>
-    </div>
-  );
-}
+
+
 
 function ChartTooltip({ active, payload, label, ar }: { active?: boolean; payload?: Array<{ name: string; value: number; color: string }>; label?: string; ar: boolean }) {
   if (!active || !payload?.length) return null;
@@ -100,6 +89,7 @@ interface Props {
 
 export default function FinanceReportsPage({ }: Props) {
   const tAuto = useTranslations();
+  const { user } = useAuthStore();
   const lang = useLang();
   const ar = lang === "ar";
   const toastFeedback = useToastFeedback({ ar });
@@ -208,17 +198,7 @@ export default function FinanceReportsPage({ }: Props) {
     }));
   }, [projectProfitability]);
 
-  // Budget by project chart data
-  const budgetChartData = useMemo(() => {
-    return projectProfitability.slice(0, 6).map((p: { name: string; budget: number; totalPaid: number; totalInvoiced: number }) => ({
-      name: p.name.length > 12 ? p.name.substring(0, 12) + "…" : p.name,
-      budget: p.budget,
-      spent: p.totalPaid,
-      invoiced: p.totalInvoiced,
-    }));
-  }, [projectProfitability]);
 
-  const profitIsPositive = pnlData.netProfit >= 0;
 
   // Export handlers
   const handleExportPDF = async () => {
@@ -247,12 +227,7 @@ export default function FinanceReportsPage({ }: Props) {
     finally { setExporting(null); }
   };
 
-  const statusColors: Record<string, string> = {
-    ACTIVE: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300",
-    COMPLETED: "bg-sky-100 text-sky-700 dark:bg-sky-900/50 dark:text-sky-300",
-    DELAYED: "bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300",
-    ON_HOLD: "bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300",
-  };
+
 
   if (isLoading) {
     return (
@@ -266,318 +241,363 @@ export default function FinanceReportsPage({ }: Props) {
   }
 
   return (
-    <div className="space-y-4">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-        <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-lg bg-brand-navy-100 dark:bg-brand-navy-900/30 flex items-center justify-center">
-            <BarChart3 className="h-4.5 w-4.5 text-brand-navy-600 dark:text-brand-navy-400" />
-          </div>
-          <div>
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white">{tAuto('auto.financialReports')}</h2>
-            <p className="text-[10px] text-slate-500 dark:text-slate-400">{tAuto('auto.comprehensiveFinancialAnalysis')}</p>
-          </div>
+    <div className="space-y-6">
+      {/* 1. Welcome Section & Hijri Date */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gradient-to-br from-brand-navy-950 to-slate-900 p-6 rounded-2xl text-white shadow-md relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full translate-x-10 -translate-y-10" />
+        <div className="relative">
+          <h1 className="text-xl font-bold flex items-center gap-2">
+            {ar ? `👋 مرحباً بك، ${user?.name || "المحاسب المالي"}` : `👋 Welcome, ${user?.name || "Financial Manager"}`}
+          </h1>
+          <p className="text-xs text-indigo-200 mt-1">
+            {ar ? "إليك نظرة سريعة على صحة شركتك المالية اليوم وجدول الاستحقاقات والتدفقات النقدية." : "Here is your quick summary of the company's financial health, collections, and cash flows."}
+          </p>
         </div>
-        <div className="flex items-center gap-2 sm:ms-auto">
-          <Button size="sm" variant="outline" className="h-8 gap-1.5 text-xs border-slate-200 dark:border-slate-700 hover:bg-brand-navy-50 dark:hover:bg-brand-navy-900/20" disabled={exporting === "pdf"} onClick={handleExportPDF}>
-            {exporting === "pdf" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileText className="h-3.5 w-3.5" />}
-            {tAuto('auto.exportPDF')}
-          </Button>
-          <Button size="sm" variant="outline" className="h-8 gap-1.5 text-xs border-slate-200 dark:border-slate-700 hover:bg-brand-navy-50 dark:hover:bg-brand-navy-900/20" disabled={exporting === "excel"} onClick={handleExportExcel}>
-            {exporting === "excel" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileSpreadsheet className="h-3.5 w-3.5" />}
-            {tAuto('auto.exportExcel')}
-          </Button>
+        <div className="flex items-center gap-2 shrink-0 relative">
+          <div className="bg-white/10 backdrop-blur-md px-3.5 py-1.5 rounded-xl border border-white/10 flex items-center gap-2 text-xs font-mono">
+            <Calendar className="h-4 w-4 text-indigo-300" />
+            <span>{new Date().toLocaleDateString(ar ? "ar-AE" : "en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button size="sm" variant="outline" className="h-9 gap-1.5 text-xs bg-white/5 border-white/10 hover:bg-white/10 text-white" disabled={exporting === "pdf"} onClick={handleExportPDF}>
+              {exporting === "pdf" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileText className="h-3.5 w-3.5" />}
+              {tAuto('auto.exportPDF')}
+            </Button>
+            <Button size="sm" variant="outline" className="h-9 gap-1.5 text-xs bg-white/5 border-white/10 hover:bg-white/10 text-white" disabled={exporting === "excel"} onClick={handleExportExcel}>
+              {exporting === "excel" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileSpreadsheet className="h-3.5 w-3.5" />}
+              {tAuto('auto.exportExcel')}
+            </Button>
+          </div>
         </div>
       </div>
 
-      {/* ===== P&L Summary Section ===== */}
-      <Card className="border-slate-200 dark:border-slate-700/50 shadow-sm"><CardContent className="p-4">
-        <div className="flex items-center gap-2 mb-4">
-          <div className="p-1.5 rounded-lg bg-brand-navy-100 dark:bg-brand-navy-900/30"><Activity className="h-4 w-4 text-brand-navy-600 dark:text-brand-navy-400" /></div>
-          <h3 className="text-sm font-semibold text-slate-900 dark:text-white">{tAuto('auto.profitLossSummary')}</h3>
-        </div>
-
-        {/* P&L Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-          <Card className="py-0 gap-0 border-0 shadow-sm overflow-hidden">
-            <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 dark:from-emerald-600 dark:to-emerald-700 p-4 relative">
-              <div className="absolute top-0 start-0 w-16 h-16 bg-white/5 rounded-full -translate-x-4 -translate-y-4" />
-              <div className="flex items-center gap-2 mb-2 relative">
-                <div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm"><DollarSign className="h-3.5 w-3.5 text-white" /></div>
-                <span className="text-[11px] text-emerald-100">{tAuto('auto.totalRevenue')}</span>
-              </div>
-              <div className="text-lg font-bold text-white tabular-nums relative">{formatCurrency(pnlData.totalRevenue, ar)}</div>
-              <div className="mt-1.5"><TrendIndicator value={pnlData.revenueGrowth} ar={ar} /></div>
+      {/* 2. Financial Command Center Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Cash Balance */}
+        <Card className="border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden">
+          <CardContent className="p-4 flex items-center justify-between">
+            <div>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{ar ? "رصيد النقدية والبنك" : "Cash & Bank Balance"}</p>
+              <h3 className="text-xl font-bold font-mono mt-1.5 text-slate-900 dark:text-white">
+                {formatCurrency(overview?.cashBalance ?? 0, ar)}
+              </h3>
+              <p className="text-[10px] text-emerald-600 dark:text-emerald-400 mt-1 flex items-center gap-1">
+                <ArrowUpRight className="h-3 w-3" />
+                <span>{ar ? "نشط وجاهز للتغطية" : "Active & liquid"}</span>
+              </p>
             </div>
+            <Wallet className="h-8 w-8 text-slate-400/20 shrink-0" />
+          </CardContent>
+        </Card>
+
+        {/* AR Outstanding */}
+        <Card className="border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden">
+          <CardContent className="p-4 flex items-center justify-between">
+            <div>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{ar ? "مستحق لي (AR)" : "Outstanding Receivables (AR)"}</p>
+              <h3 className="text-xl font-bold font-mono mt-1.5 text-slate-900 dark:text-white">
+                {formatCurrency(overview?.arOutstanding ?? 0, ar)}
+              </h3>
+              <p className="text-[10px] text-amber-600 mt-1 flex items-center gap-1">
+                <AlertCircle className="h-3 w-3" />
+                <span>{ar ? "قيد التحصيل والمتابعة" : "Under collection"}</span>
+              </p>
+            </div>
+            <ArrowUpRight className="h-8 w-8 text-amber-500/20 shrink-0" />
+          </CardContent>
+        </Card>
+
+        {/* AP Outstanding */}
+        <Card className="border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden">
+          <CardContent className="p-4 flex items-center justify-between">
+            <div>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{ar ? "مستحق علي (AP)" : "Outstanding Payables (AP)"}</p>
+              <h3 className="text-xl font-bold font-mono mt-1.5 text-slate-900 dark:text-white">
+                {formatCurrency(overview?.apOutstanding ?? 0, ar)}
+              </h3>
+              <p className="text-[10px] text-rose-600 mt-1 flex items-center gap-1">
+                <TrendingDown className="h-3 w-3" />
+                <span>{ar ? "التزامات سداد موردين" : "Supplier commitments"}</span>
+              </p>
+            </div>
+            <ArrowDownRight className="h-8 w-8 text-rose-500/20 shrink-0" />
+          </CardContent>
+        </Card>
+
+        {/* Net Profit */}
+        <Card className="border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden">
+          <CardContent className="p-4 flex items-center justify-between">
+            <div>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{ar ? "صافي الربح" : "Net Profit"}</p>
+              <h3 className="text-xl font-bold font-mono mt-1.5 text-slate-900 dark:text-white">
+                {formatCurrency(pnlData.netProfit, ar)}
+              </h3>
+              <p className="text-[10px] text-emerald-600 mt-1 flex items-center gap-1">
+                <Percent className="h-3 w-3" />
+                <span>{ar ? "هامش ربح:" : "Margin:"} {pnlData.profitMargin.toFixed(1)}%</span>
+              </p>
+            </div>
+            <TrendingUp className="h-8 w-8 text-emerald-500/20 shrink-0" />
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* 3. Core Dashboard Layout Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Columns (Gantt Chart / Cash Flow Trend & Money Timeline) */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Cash Flow Chart */}
+          <Card className="border-slate-200 dark:border-slate-700/50 shadow-sm">
+            <CardContent className="p-5">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 rounded-lg bg-indigo-100 dark:bg-indigo-900/30"><Wallet className="h-4 w-4 text-indigo-600 dark:text-indigo-400" /></div>
+                  <h3 className="text-sm font-semibold text-slate-900 dark:text-white">{tAuto('auto.cashFlowOverview')}</h3>
+                </div>
+              </div>
+
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={cashFlowData} barGap={4}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridStroke} />
+                    <XAxis dataKey="month" tick={{ fontSize: 11, fill: tickColor }} tickLine={false} />
+                    <YAxis tickFormatter={formatK} tick={{ fontSize: 11, fill: tickColor }} tickLine={false} axisLine={false} />
+                    <Tooltip content={<ChartTooltip ar={ar} />} />
+                    <Legend wrapperStyle={{ fontSize: 12, color: legendColor }} />
+                    <Bar dataKey="inflow" name={tAuto('auto.inflow')} fill="#10b981" radius={[6, 6, 0, 0]} />
+                    <Bar dataKey="outflow" name={tAuto('auto.outflow')} fill="#ef4444" radius={[6, 6, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Monthly Net Trend list */}
+              <NetCashFlowTrend data={cashFlowData} ar={ar} />
+            </CardContent>
           </Card>
 
-          <Card className="py-0 gap-0 border-0 shadow-sm overflow-hidden">
-            <div className="bg-gradient-to-br from-red-500 to-red-600 dark:from-red-600 dark:to-red-700 p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm"><TrendingDown className="h-3.5 w-3.5 text-white" /></div>
-                <span className="text-[11px] text-red-100">{tAuto('auto.totalExpenses')}</span>
+          {/* Money Timeline */}
+          <Card className="border-slate-200 dark:border-slate-700/50 shadow-sm">
+            <CardContent className="p-5">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 rounded-lg bg-indigo-100 dark:bg-indigo-900/30"><Activity className="h-4 w-4 text-indigo-600 dark:text-indigo-400" /></div>
+                  <h3 className="text-sm font-semibold text-slate-900 dark:text-white">{ar ? "الخط الزمني للتحركات المالية" : "Money Timeline"}</h3>
+                </div>
               </div>
-              <div className="text-lg font-bold text-white tabular-nums">{formatCurrency(pnlData.totalExpenses, ar)}</div>
-            </div>
-          </Card>
 
-          <Card className="py-0 gap-0 border-0 shadow-sm overflow-hidden">
-            <div className={cn("p-4 relative", profitIsPositive ? "bg-gradient-to-br from-brand-navy-500 to-brand-navy-600 dark:from-brand-navy-600 dark:to-brand-navy-700" : "bg-gradient-to-br from-red-500 to-rose-600 dark:from-red-600 dark:to-rose-700")}>
-              <div className="absolute top-0 start-0 w-16 h-16 bg-white/5 rounded-full -translate-x-4 -translate-y-4" />
-              <div className="flex items-center gap-2 mb-2 relative">
-                <div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm">{profitIsPositive ? <TrendingUp className="h-3.5 w-3.5 text-white" /> : <TrendingDown className="h-3.5 w-3.5 text-white" />}</div>
-                <span className="text-[11px] text-white/80">{tAuto('auto.netProfit')}</span>
-              </div>
-              <div className="text-lg font-bold text-white tabular-nums relative">{formatCurrency(pnlData.netProfit, ar)}</div>
-            </div>
-          </Card>
-
-          <Card className="py-0 gap-0 border-slate-200 dark:border-slate-700/50">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-1">
-                <div className="p-1.5 rounded-lg bg-violet-100 dark:bg-violet-900/50"><Target className="h-3.5 w-3.5 text-violet-600 dark:text-violet-400" /></div>
-                <span className="text-[11px] text-slate-500 dark:text-slate-400">{tAuto('auto.profitMargin')}</span>
-              </div>
-              <div className={cn("text-xl font-bold tabular-nums", pnlData.profitMargin >= 20 ? "text-emerald-600 dark:text-emerald-400" : pnlData.profitMargin >= 0 ? "text-amber-600 dark:text-amber-400" : "text-red-600 dark:text-red-400")}>
-                {pnlData.profitMargin.toFixed(1)}%
-              </div>
+              {overview?.timeline && overview.timeline.length > 0 ? (
+                <div className="relative border-s border-slate-200 dark:border-slate-800 ms-3 space-y-4 py-2">
+                  {overview.timeline.map((tx: any, idx: number) => (
+                    <div key={idx} className="relative ps-6">
+                      <div className={cn("absolute -start-1.5 top-1.5 w-3 h-3 rounded-full border-2 border-white dark:border-slate-900", 
+                        tx.type === "INFLOW" ? "bg-emerald-500" : tx.type === "OUTFLOW" ? "bg-red-500" : "bg-amber-500"
+                      )} />
+                      <div className="flex items-center justify-between gap-4">
+                        <div>
+                          <p className="text-xs font-semibold text-slate-900 dark:text-white">{tx.title}</p>
+                          <span className="text-[10px] text-slate-400 font-mono">{new Date(tx.date).toLocaleDateString(ar ? "ar-AE" : "en-US")}</span>
+                        </div>
+                        <span className={cn("text-xs font-mono font-bold shrink-0", 
+                          tx.type === "INFLOW" ? "text-emerald-600 dark:text-emerald-400" : tx.type === "OUTFLOW" ? "text-red-600 dark:text-red-400" : "text-amber-600 dark:text-amber-400"
+                        )}>
+                          {tx.type === "INFLOW" ? "+" : tx.type === "OUTFLOW" ? "-" : ""}{formatCurrency(tx.amount, ar)}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-center py-6 text-xs text-slate-400">{ar ? "لا توجد تحركات مالية مسجلة مؤخراً" : "No recent money movements"}</p>
+              )}
             </CardContent>
           </Card>
         </div>
 
-        {/* P&L Breakdown Table */}
-        <div className="rounded-lg border border-slate-100 dark:border-slate-800 overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow className="hover:bg-transparent bg-slate-50/80 dark:bg-slate-800/50">
-                <TableHead className="text-xs font-semibold">{tAuto('auto.item')}</TableHead>
-                <TableHead className="text-xs font-semibold text-start">{tAuto('auto.amount')}</TableHead>
-                <TableHead className="text-xs font-semibold text-start">{tAuto('auto.OfRevenue')}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              <TableRow className="bg-white dark:bg-slate-900">
-                <TableCell className="text-sm font-medium text-emerald-600 dark:text-emerald-400">{tAuto('auto.totalRevenue')}</TableCell>
-                <TableCell className="text-sm text-start font-bold font-mono tabular-nums text-slate-900 dark:text-white">{formatCurrency(pnlData.totalRevenue, ar)}</TableCell>
-                <TableCell className="text-sm text-start font-mono tabular-nums text-slate-600 dark:text-slate-400">100%</TableCell>
-              </TableRow>
-              <TableRow className="bg-slate-50/50 dark:bg-slate-800/20">
-                <TableCell className="text-sm font-medium text-red-600 dark:text-red-400">{tAuto('auto.totalExpenses')}</TableCell>
-                <TableCell className="text-sm text-start font-bold font-mono tabular-nums text-slate-900 dark:text-white">({formatCurrency(pnlData.totalExpenses, ar)})</TableCell>
-                <TableCell className="text-sm text-start font-mono tabular-nums text-red-600 dark:text-red-400">
-                  {pnlData.totalRevenue > 0 ? ((pnlData.totalExpenses / pnlData.totalRevenue) * 100).toFixed(1) : "0"}%
-                </TableCell>
-              </TableRow>
-              <TableRow className="bg-white dark:bg-slate-900">
-                <TableCell className="text-sm font-bold text-slate-900 dark:text-white">{tAuto('auto.netProfit')}</TableCell>
-                <TableCell className={cn("text-sm text-start font-bold font-mono tabular-nums", profitIsPositive ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400")}>
-                  {formatCurrency(pnlData.netProfit, ar)}
-                </TableCell>
-                <TableCell className={cn("text-sm text-start font-bold font-mono tabular-nums", profitIsPositive ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400")}>
-                  {pnlData.profitMargin.toFixed(1)}%
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </div>
-      </CardContent></Card>
-
-      {/* ===== Cash Flow Overview ===== */}
-      <Card className="border-slate-200 dark:border-slate-700/50 shadow-sm"><CardContent className="p-4">
-        <div className="flex items-center gap-2 mb-1">
-          <div className="p-1.5 rounded-lg bg-sky-100 dark:bg-sky-900/30"><Wallet className="h-4 w-4 text-sky-600 dark:text-sky-400" /></div>
-          <h3 className="text-sm font-semibold text-slate-900 dark:text-white">{tAuto('auto.cashFlowOverview')}</h3>
-        </div>
-        <p className="text-[10px] text-slate-400 mb-4">{tAuto('auto.monthlyCashInflowsVsOutflows')}</p>
-
-        {/* Cash flow summary badges */}
-        <div className="flex items-center gap-3 mb-4 flex-wrap">
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/30">
-            <ArrowUpRight className="h-3 w-3 text-emerald-600" />
-            <span className="text-[11px] text-emerald-700 dark:text-emerald-300">{tAuto('auto.totalInflow')}</span>
-            <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 font-mono tabular-nums">{formatCurrency(financial?.collectedInvoices || 0, ar)}</span>
-          </div>
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/30">
-            <ArrowDownRight className="h-3 w-3 text-red-600" />
-            <span className="text-[11px] text-red-700 dark:text-red-300">{tAuto('auto.totalOutflow')}</span>
-            <span className="text-xs font-bold text-red-600 dark:text-red-400 font-mono tabular-nums">{formatCurrency(cashFlowData.reduce((s: number, m: { outflow: number }) => s + m.outflow, 0), ar)}</span>
-          </div>
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand-navy-50 dark:bg-brand-navy-950/20 border border-brand-navy-100 dark:border-brand-navy-900/30">
-            <Wallet className="h-3 w-3 text-brand-navy-600" />
-            <span className="text-[11px] text-brand-navy-700 dark:text-brand-navy-300">{tAuto('auto.netCashFlow')}</span>
-            <span className={cn("text-xs font-bold font-mono tabular-nums", (financial?.collectedInvoices || 0) >= cashFlowData.reduce((s: number, m: { outflow: number }) => s + m.outflow, 0) ? "text-brand-navy-600 dark:text-brand-navy-400" : "text-red-600 dark:text-red-400")}>
-              {formatCurrency((financial?.collectedInvoices || 0) - cashFlowData.reduce((s: number, m: { outflow: number }) => s + m.outflow, 0), ar)}
-            </span>
-          </div>
-        </div>
-
-        <div className="h-64">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={cashFlowData} barGap={4}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridStroke} />
-              <XAxis dataKey="month" tick={{ fontSize: 11, fill: tickColor }} tickLine={false} />
-              <YAxis tickFormatter={formatK} tick={{ fontSize: 11, fill: tickColor }} tickLine={false} axisLine={false} />
-              <Tooltip content={<ChartTooltip ar={ar} />} />
-              <Legend wrapperStyle={{ fontSize: 12, color: legendColor }} />
-              <Bar dataKey="inflow" name={tAuto('auto.inflow')} fill="#10b981" radius={[6, 6, 0, 0]} />
-              <Bar dataKey="outflow" name={tAuto('auto.outflow')} fill="#ef4444" radius={[6, 6, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Net cash flow trend */}
-        <NetCashFlowTrend data={cashFlowData} ar={ar} />
-      </CardContent></Card>
-
-      {/* ===== Project Profitability ===== */}
-      <Card className="border-slate-200 dark:border-slate-700/50 shadow-sm"><CardContent className="p-4">
-        <div className="flex items-center gap-2 mb-1">
-          <div className="p-1.5 rounded-lg bg-emerald-100 dark:bg-emerald-900/30"><Briefcase className="h-4 w-4 text-emerald-600 dark:text-emerald-400" /></div>
-          <h3 className="text-sm font-semibold text-slate-900 dark:text-white">{tAuto('auto.projectProfitability')}</h3>
-        </div>
-        <p className="text-[10px] text-slate-400 mb-4">{tAuto('auto.profitabilityAnalysisPerProject')}</p>
-
-        <div className="h-64 mb-4">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={profitabilityChartData} barGap={4}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridStroke} />
-              <XAxis dataKey="name" tick={{ fontSize: 10, fill: tickColor }} tickLine={false} angle={-15} textAnchor="end" height={50} />
-              <YAxis tickFormatter={formatK} tick={{ fontSize: 11, fill: tickColor }} tickLine={false} axisLine={false} />
-              <Tooltip content={<ChartTooltip ar={ar} />} />
-              <Legend wrapperStyle={{ fontSize: 12, color: legendColor }} />
-              <Bar dataKey="revenue" name={tAuto('auto.revenue')} fill="#10b981" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="cost" name={tAuto('auto.cost')} fill="#ef4444" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="profit" name={tAuto('auto.profit')} fill="#0ea5e9" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Profitability Table */}
-        <div className="rounded-lg border border-slate-100 dark:border-slate-800 overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow className="hover:bg-transparent bg-slate-50/80 dark:bg-slate-800/50">
-                <TableHead className="text-xs font-semibold">{tAuto('auto.project')}</TableHead>
-                <TableHead className="text-xs font-semibold">{tAuto('auto.status1')}</TableHead>
-                <TableHead className="text-xs font-semibold text-start">{tAuto('auto.revenue')}</TableHead>
-                <TableHead className="text-xs font-semibold text-start">{tAuto('auto.cost')}</TableHead>
-                <TableHead className="text-xs font-semibold text-start">{tAuto('auto.profit')}</TableHead>
-                <TableHead className="text-xs font-semibold text-start">{tAuto('auto.margin')}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {projectProfitability.map((p: { name: string; status: string; revenue: number; cost: number; profit: number; margin: number }, idx: number) => (
-                <TableRow key={idx} className={cn(idx % 2 === 0 ? "bg-white dark:bg-slate-900" : "bg-slate-50/50 dark:bg-slate-800/20")}>
-                  <TableCell className="text-sm font-medium text-slate-900 dark:text-white">{p.name}</TableCell>
-                  <TableCell><span className={cn("px-2 py-0.5 rounded-full text-[10px] font-medium", statusColors[p.status] || "")}>{p.status}</span></TableCell>
-                  <TableCell className="text-xs text-start font-mono tabular-nums">{formatCurrency(p.revenue, ar)}</TableCell>
-                  <TableCell className="text-xs text-start font-mono tabular-nums">{formatCurrency(p.cost, ar)}</TableCell>
-                  <TableCell className={cn("text-xs text-start font-bold font-mono tabular-nums", p.profit >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400")}>
-                    {formatCurrency(p.profit, ar)}
-                  </TableCell>
-                  <TableCell className="text-start">
-                    <div className="flex items-center gap-2">
-                      <div className="w-12 h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
-                        <div className={cn("h-full rounded-full", p.margin >= 20 ? "bg-emerald-500" : p.margin >= 0 ? "bg-amber-500" : "bg-red-500")} style={{ width: `${Math.min(Math.abs(p.margin), 100)}%` }} />
-                      </div>
-                      <span className={cn("text-[10px] font-bold tabular-nums", p.margin >= 20 ? "text-emerald-600" : p.margin >= 0 ? "text-amber-600" : "text-red-600")}>{p.margin.toFixed(1)}%</span>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-              {projectProfitability.length === 0 && (
-                <TableRow><TableCell colSpan={6} className="text-center py-8 text-xs text-slate-400">{tAuto('auto.noData')}</TableCell></TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
-      </CardContent></Card>
-
-      {/* ===== Budget Utilization ===== */}
-      <Card className="border-slate-200 dark:border-slate-700/50 shadow-sm"><CardContent className="p-4">
-        <div className="flex items-center gap-2 mb-1">
-          <div className="p-1.5 rounded-lg bg-amber-100 dark:bg-amber-900/30"><Target className="h-4 w-4 text-amber-600 dark:text-amber-400" /></div>
-          <h3 className="text-sm font-semibold text-slate-900 dark:text-white">{tAuto('auto.budgetUtilization')}</h3>
-        </div>
-        <p className="text-[10px] text-slate-400 mb-4">{tAuto('auto.trackProjectBudgetConsumption')}</p>
-
-        {/* Overall Budget Summary */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-          <div className="p-3 rounded-lg border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20">
-            <p className="text-[10px] text-slate-500 dark:text-slate-400 mb-1">{tAuto('auto.totalBudget')}</p>
-            <p className="text-sm font-bold text-slate-900 dark:text-white font-mono tabular-nums">{formatCurrency(budgetUtilization.totalBudget, ar)}</p>
-          </div>
-          <div className="p-3 rounded-lg border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20">
-            <p className="text-[10px] text-slate-500 dark:text-slate-400 mb-1">{tAuto('auto.totalInvoiced')}</p>
-            <p className="text-sm font-bold text-sky-600 dark:text-sky-400 font-mono tabular-nums">{formatCurrency(budgetUtilization.totalInvoiced, ar)}</p>
-          </div>
-          <div className="p-3 rounded-lg border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20">
-            <p className="text-[10px] text-slate-500 dark:text-slate-400 mb-1">{tAuto('auto.totalSpent')}</p>
-            <p className="text-sm font-bold text-amber-600 dark:text-amber-400 font-mono tabular-nums">{formatCurrency(budgetUtilization.totalSpent, ar)}</p>
-          </div>
-          <div className="p-3 rounded-lg border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20">
-            <p className="text-[10px] text-slate-500 dark:text-slate-400 mb-1">{tAuto('auto.remaining')}</p>
-            <p className={cn("text-sm font-bold font-mono tabular-nums", budgetUtilization.remaining >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400")}>
-              {formatCurrency(budgetUtilization.remaining, ar)}
-            </p>
-          </div>
-        </div>
-
-        {/* Budget utilization bars */}
-        <div className="mb-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-medium text-slate-700 dark:text-slate-300">{tAuto('auto.overallBudgetConsumption')}</span>
-            <span className={cn("text-xs font-bold tabular-nums", budgetUtilization.utilization <= 80 ? "text-emerald-600" : budgetUtilization.utilization <= 95 ? "text-amber-600" : "text-red-600")}>
-              {budgetUtilization.utilization.toFixed(1)}%
-            </span>
-          </div>
-          <div className="w-full h-3 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
-            <div className={cn("h-full rounded-full transition-all duration-500", budgetUtilization.utilization <= 80 ? "bg-emerald-500" : budgetUtilization.utilization <= 95 ? "bg-amber-500" : "bg-red-500")} style={{ width: `${Math.min(budgetUtilization.utilization, 100)}%` }} />
-          </div>
-        </div>
-
-        {/* Budget chart */}
-        {budgetChartData.length > 0 && (
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={budgetChartData} barGap={2}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridStroke} />
-                <XAxis dataKey="name" tick={{ fontSize: 10, fill: tickColor }} tickLine={false} angle={-15} textAnchor="end" height={50} />
-                <YAxis tickFormatter={formatK} tick={{ fontSize: 11, fill: tickColor }} tickLine={false} axisLine={false} />
-                <Tooltip content={<ChartTooltip ar={ar} />} />
-                <Legend wrapperStyle={{ fontSize: 12, color: legendColor }} />
-                <Bar dataKey="budget" name={tAuto('auto.budget')} fill="#0ea5e9" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="invoiced" name={tAuto('auto.invoiced')} fill="#8b5cf6" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="spent" name={tAuto('auto.spent')} fill="#f59e0b" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        )}
-
-        {/* Per-project budget bars */}
-        <div className="mt-4 space-y-3">
-          <h4 className="text-xs font-semibold text-slate-700 dark:text-slate-300">{tAuto('auto.budgetConsumptionByProject')}</h4>
-          {projectProfitability.map((p: { name: string; budget: number; totalPaid: number; budgetUsed: number }, idx: number) => (
-            <div key={idx}>
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-xs font-medium text-slate-700 dark:text-slate-300 truncate max-w-[200px]">{p.name}</span>
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] text-slate-400">{formatCurrency(p.totalPaid, ar)} {tAuto('auto.of')} {formatCurrency(p.budget, ar)}</span>
-                  <span className={cn("text-[10px] font-bold tabular-nums w-10 text-end", p.budgetUsed <= 80 ? "text-emerald-600" : p.budgetUsed <= 95 ? "text-amber-600" : "text-red-600")}>
-                    {p.budgetUsed.toFixed(0)}%
-                  </span>
-                </div>
+        {/* Right Column (Actions / Aging / Alerts) */}
+        <div className="lg:col-span-1 space-y-6">
+          {/* Today's Critical Actions */}
+          <Card className="border-slate-200 dark:border-slate-700/50 shadow-sm bg-slate-50/50 dark:bg-slate-900/30">
+            <CardContent className="p-4 space-y-3">
+              <div className="flex items-center gap-2 pb-2 border-b">
+                <div className="p-1 rounded bg-indigo-100 dark:bg-indigo-900/30"><AlertCircle className="h-4 w-4 text-indigo-600 dark:text-indigo-400" /></div>
+                <h3 className="text-xs font-bold text-slate-900 dark:text-white">{ar ? "تنبيهات وإجراءات عاجلة" : "Alerts & Critical Actions"}</h3>
               </div>
-              <div className="w-full h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
-                <div className={cn("h-full rounded-full transition-all duration-500", p.budgetUsed <= 80 ? "bg-emerald-500" : p.budgetUsed <= 95 ? "bg-amber-500" : "bg-red-500")} style={{ width: `${Math.min(p.budgetUsed, 100)}%` }} />
+              <div className="space-y-2">
+                {overview?.alerts?.map((alert: any, idx: number) => (
+                  <div key={idx} className="flex gap-2 p-2.5 rounded-lg bg-white dark:bg-slate-900 border text-xs items-start shadow-xs">
+                    <span className="text-rose-500">⚠️</span>
+                    <p className="text-slate-700 dark:text-slate-300 font-medium">{ar ? alert.messageAr : alert.messageEn}</p>
+                  </div>
+                ))}
+                {(!overview?.alerts || overview.alerts.length === 0) && (
+                  <p className="text-[10px] text-slate-400 text-center py-2">{ar ? "كل شيء على ما يرام اليوم!" : "All clear for today!"}</p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* AR Aging Mini Summary */}
+          <Card className="border-slate-200 dark:border-slate-800 shadow-sm">
+            <CardContent className="p-5 space-y-4">
+              <div className="flex items-center gap-2 pb-2 border-b">
+                <div className="p-1 rounded bg-indigo-100 dark:bg-indigo-900/30"><Scale className="h-4 w-4 text-indigo-600 dark:text-indigo-400" /></div>
+                <h3 className="text-xs font-bold text-slate-900 dark:text-white">{ar ? "تحليل أعمار الذمم المدينة" : "AR Aging Summary"}</h3>
+              </div>
+              {overview?.arAging ? (
+                <div className="space-y-3">
+                  {(() => {
+                    const aging = overview.arAging;
+                    const total = (aging.current + aging.days30 + aging.days60 + aging.days90) || 1;
+                    const pctCurrent = (aging.current / total) * 100;
+                    const pct30 = (aging.days30 / total) * 100;
+                    const pct60 = (aging.days60 / total) * 100;
+                    const pct90 = (aging.days90 / total) * 100;
+
+                    return (
+                      <>
+                        <div className="space-y-1">
+                          <div className="flex justify-between text-[10px] text-slate-500">
+                            <span>{ar ? "حالي (0-30 يوم)" : "Current (0-30 days)"}</span>
+                            <span className="font-mono font-semibold text-slate-700 dark:text-slate-300">{formatCurrency(aging.current, ar)}</span>
+                          </div>
+                          <div className="w-full h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                            <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${pctCurrent}%` }} />
+                          </div>
+                        </div>
+
+                        <div className="space-y-1">
+                          <div className="flex justify-between text-[10px] text-slate-500">
+                            <span>{ar ? "31 - 60 يوم" : "31 - 60 days"}</span>
+                            <span className="font-mono font-semibold text-amber-600">{formatCurrency(aging.days30, ar)}</span>
+                          </div>
+                          <div className="w-full h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                            <div className="h-full bg-amber-500 rounded-full" style={{ width: `${pct30}%` }} />
+                          </div>
+                        </div>
+
+                        <div className="space-y-1">
+                          <div className="flex justify-between text-[10px] text-slate-500">
+                            <span>{ar ? "61 - 90 يوم" : "61 - 90 days"}</span>
+                            <span className="font-mono font-semibold text-orange-600">{formatCurrency(aging.days60, ar)}</span>
+                          </div>
+                          <div className="w-full h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                            <div className="h-full bg-orange-500 rounded-full" style={{ width: `${pct60}%` }} />
+                          </div>
+                        </div>
+
+                        <div className="space-y-1">
+                          <div className="flex justify-between text-[10px] text-slate-500">
+                            <span>{ar ? "أكثر من 90 يوم" : "90+ days"}</span>
+                            <span className="font-mono font-semibold text-rose-600">{formatCurrency(aging.days90, ar)}</span>
+                          </div>
+                          <div className="w-full h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                            <div className="h-full bg-rose-500 rounded-full" style={{ width: `${pct90}%` }} />
+                          </div>
+                        </div>
+                      </>
+                    );
+                  })()}
+                </div>
+              ) : (
+                <p className="text-center text-xs text-slate-400 py-4">{ar ? "لا تتوفر تفاصيل" : "No aging details available"}</p>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      {/* 4. Project Profitability & Budget Utilization sections */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Project Profitability */}
+        <Card className="border border-slate-200 dark:border-slate-800 shadow-sm">
+          <CardHeader className="p-5 pb-3">
+            <CardTitle className="text-sm font-bold flex items-center gap-2">
+              <Briefcase className="h-4.5 w-4.5 text-emerald-600" />
+              {tAuto('auto.projectProfitability')}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-5 pt-0 space-y-4">
+            <div className="h-56">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={profitabilityChartData} barGap={4}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridStroke} />
+                  <XAxis dataKey="name" tick={{ fontSize: 9, fill: tickColor }} tickLine={false} height={30} />
+                  <YAxis tickFormatter={formatK} tick={{ fontSize: 10, fill: tickColor }} tickLine={false} axisLine={false} />
+                  <Tooltip content={<ChartTooltip ar={ar} />} />
+                  <Bar dataKey="revenue" name={tAuto('auto.revenue')} fill="#10b981" radius={[3, 3, 0, 0]} />
+                  <Bar dataKey="cost" name={tAuto('auto.cost')} fill="#ef4444" radius={[3, 3, 0, 0]} />
+                  <Bar dataKey="profit" name={tAuto('auto.profit')} fill="#0ea5e9" radius={[3, 3, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="border rounded-lg overflow-hidden">
+              <Table>
+                <TableHeader className="bg-slate-50 dark:bg-slate-800/30">
+                  <TableRow>
+                    <TableHead className="text-xs font-semibold">{tAuto('auto.project')}</TableHead>
+                    <TableHead className="text-xs font-semibold text-end">{tAuto('auto.profit')}</TableHead>
+                    <TableHead className="text-xs font-semibold text-end">{tAuto('auto.margin')}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {projectProfitability.slice(0, 5).map((p: any, idx: number) => (
+                    <TableRow key={idx}>
+                      <TableCell className="text-xs font-medium truncate max-w-[120px]">{p.name}</TableCell>
+                      <TableCell className={cn("text-xs text-end font-mono font-semibold", p.profit >= 0 ? "text-emerald-600" : "text-rose-600")}>
+                        {formatCurrency(p.profit, ar)}
+                      </TableCell>
+                      <TableCell className="text-end font-mono text-xs font-semibold">{p.margin.toFixed(1)}%</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Budget Utilization */}
+        <Card className="border border-slate-200 dark:border-slate-800 shadow-sm">
+          <CardHeader className="p-5 pb-3">
+            <CardTitle className="text-sm font-bold flex items-center gap-2">
+              <Target className="h-4.5 w-4.5 text-amber-600" />
+              {tAuto('auto.budgetUtilization')}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-5 pt-0 space-y-4">
+            <div className="grid grid-cols-3 gap-2 bg-slate-50 dark:bg-slate-800/20 p-3 rounded-lg border text-center">
+              <div>
+                <p className="text-[9px] text-slate-500">{tAuto('auto.totalBudget')}</p>
+                <span className="text-xs font-bold font-mono text-slate-900 dark:text-white">{formatCurrency(budgetUtilization.totalBudget, ar)}</span>
+              </div>
+              <div>
+                <p className="text-[9px] text-slate-500">{tAuto('auto.totalSpent')}</p>
+                <span className="text-xs font-bold font-mono text-amber-600">{formatCurrency(budgetUtilization.totalSpent, ar)}</span>
+              </div>
+              <div>
+                <p className="text-[9px] text-slate-500">{tAuto('auto.remaining')}</p>
+                <span className={cn("text-xs font-bold font-mono", budgetUtilization.remaining >= 0 ? "text-emerald-600" : "text-rose-600")}>
+                  {formatCurrency(budgetUtilization.remaining, ar)}
+                </span>
               </div>
             </div>
-          ))}
-          {projectProfitability.length === 0 && (
-            <p className="text-center py-4 text-xs text-slate-400">{tAuto('auto.noProjects')}</p>
-          )}
-        </div>
-      </CardContent></Card>
+
+            <div className="space-y-3">
+              {projectProfitability.slice(0, 4).map((p: any, idx: number) => (
+                <div key={idx} className="space-y-1">
+                  <div className="flex justify-between text-xs">
+                    <span className="font-medium text-slate-700 dark:text-slate-300 truncate max-w-[150px]">{p.name}</span>
+                    <span className="font-mono font-bold text-slate-600 dark:text-slate-400">{p.budgetUsed.toFixed(0)}%</span>
+                  </div>
+                  <div className="w-full h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                    <div className={cn("h-full rounded-full", p.budgetUsed <= 80 ? "bg-emerald-500" : p.budgetUsed <= 95 ? "bg-amber-500" : "bg-red-500")} style={{ width: `${Math.min(p.budgetUsed, 100)}%` }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
