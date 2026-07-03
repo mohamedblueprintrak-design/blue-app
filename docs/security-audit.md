@@ -9,7 +9,7 @@
 
 ### 1. الـ Middleware والحماية على الـ API Routes (تم التحقق ✅)
 * **الحالة**: **مكتملة ومؤمنة.**
-* **التفاصيل**: الـ Matcher في [m[m[middleware.ts](src/middleware.ts#L8) يستثني فقط مسارات الصحة والـ cron (`api/health` و `api/cron`) مع استثناءات ثابتة. هذا يعني أن الـ CSRF protection، الـ Rate limiting، والتحقق من توكن الـ JWT تعمل بفاعلية كاملة على جميع مسارات الـ APIs الحساسة في [auth-proxy.ts](src/auth-proxy.ts).
+* **التفاصيل**: الـ Matcher في [middleware.ts](src/middleware.ts#L8) يستثني فقط مسارات الصحة والـ cron (`api/health` و `api/cron`) مع استثناءات ثابتة. هذا يعني أن الـ CSRF protection، الـ Rate limiting، والتحقق من توكن الـ JWT تعمل بفاعلية كاملة على جميع مسارات الـ APIs الحساسة في [auth-proxy.ts](src/auth-proxy.ts).
 
 ### 2. أمان الـ WebSockets وعزل المستأجرين (تم التحقق ✅)
 * **الحالة**: **مكتملة ومؤمنة.**

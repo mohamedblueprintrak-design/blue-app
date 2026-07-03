@@ -130,14 +130,14 @@ export async function POST(request: NextRequest) {
         });
         if (user) {
           const roleNames: Record<string, { ar: string; en: string }> = {
-            admin: { ar: 'المدير العام', en: 'Admin' },
+            ADMIN: { ar: 'المدير العام', en: 'Admin' },
             MANAGER: { ar: 'المدير', en: 'Manager' },
-            project_manager: { ar: 'مدير مشاريع', en: 'Project Manager' },
-            engineer: { ar: 'مهندس', en: 'Engineer' },
-            draftsman: { ar: 'رسام', en: 'Draftsman' },
-            accountant: { ar: 'محاسب', en: 'Accountant' },
-            hr: { ar: 'موارد بشرية', en: 'HR' },
-            secretary: { ar: 'سكرتير', en: 'Secretary' },
+            PROJECT_MANAGER: { ar: 'مدير مشاريع', en: 'Project Manager' },
+            ENGINEER: { ar: 'مهندس', en: 'Engineer' },
+            DRAFTSMAN: { ar: 'رسام', en: 'Draftsman' },
+            ACCOUNTANT: { ar: 'محاسب', en: 'Accountant' },
+            HR: { ar: 'موارد بشرية', en: 'HR' },
+            SECRETARY: { ar: 'سكرتير', en: 'Secretary' },
             VIEWER: { ar: 'مشاهد', en: 'Viewer' },
           };
           const roleInfo = roleNames[user.role] || { ar: user.role, en: user.role };

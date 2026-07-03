@@ -36,6 +36,7 @@ const PUBLIC_API_ROUTES = [
   '/api/stripe/webhook', '/api/public',
   '/api/stripe/plans', '/api/portal',
   '/api/cron/cleanup', '/api/public/stats',
+  '/api/whatsapp/webhook',
 ];
 
 const CSRF_EXEMPT_PATHS = [
@@ -48,6 +49,7 @@ const CSRF_EXEMPT_PATHS = [
   '/api/auth/google', '/api/auth/google/callback', // Google OAuth social login
   '/api/auth/microsoft', '/api/auth/microsoft/callback', // Microsoft OAuth social login
   '/api/auth/setup-complete', // One-time setup token verification
+  '/api/whatsapp/webhook',
 ];
 
 const PUBLIC_PAGE_ROUTES = [

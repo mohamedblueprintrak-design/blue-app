@@ -162,6 +162,18 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ received: true });
   } catch (error) {
+    // Release the claim on failure so that Stripe retries can be processed
+    try {
+      await db.activityLog.deleteMany({
+        where: {
+          action: 'stripe_webhook',
+          entityId: event.id,
+        }
+      });
+    } catch (deleteError) {
+      log.error('Failed to release Stripe idempotency claim', deleteError, { eventId: event.id });
+    }
+
     // Log the full error so we can diagnose issues
     // Return 500 so Stripe retries the webhook
     log.error('Error processing webhook — Stripe will retry', error);

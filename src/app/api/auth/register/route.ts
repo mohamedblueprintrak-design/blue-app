@@ -323,22 +323,44 @@ async function handleRegister(
       // Correct behavior: create the user without an organization.
       // They must receive an invitation to join an org (sent by an existing admin).
       // Their role defaults to VIEWER and orgId is null until they accept an invite.
-      user = await db.user.create({
-        data: {
-          email: data.email.toLowerCase(),
-          password: hashedPassword,
-          name: userName,
-          role: UserRoleValues.VIEWER as UserRole,
-          department: data.department || '',
-          organizationId: null, // Will be stored as NULL in DB — user has no org until invited
-        },
-        include: {
-          organization: {
-            select: { id: true, name: true },
-          },
-        },
-      });
-
+      try {
+        user = await db.$transaction(async (tx) => {
+          const existing = await tx.user.findFirst({
+            where: {
+              email: data.email.toLowerCase(),
+              organizationId: null,
+            },
+          });
+          if (existing) {
+            throw new Error('USER_ALREADY_EXISTS');
+          }
+          return await tx.user.create({
+            data: {
+              email: data.email.toLowerCase(),
+              password: hashedPassword,
+              name: userName,
+              role: UserRoleValues.VIEWER as UserRole,
+              department: data.department || '',
+              organizationId: null, // Will be stored as NULL in DB — user has no org until invited
+            },
+            include: {
+              organization: {
+                select: { id: true, name: true },
+              },
+            },
+          });
+        });
+      } catch (err: unknown) {
+        const error = err as Error;
+        if (error.message === 'USER_ALREADY_EXISTS') {
+          await hash(data.password, 12);
+          return NextResponse.json(
+            { success: true, message: 'إذا كان هذا البريد غير مسجل، سيتم إرسال رسالة تحقق' },
+            { status: 200 }
+          );
+        }
+        throw err;
+      }
     }
 
     // Safety check — user must exist at this point

@@ -239,20 +239,21 @@ export default function SiteDiary({ language, projectId }: SiteDiaryProps) {
     const queued = getQueuedActions()
       .filter((act) => act.type === "create-site-diary")
       .map((act) => {
-        const proj = projects.find((p) => p.id === act.data.projectId);
+        const actData = act.data as Record<string, any>;
+        const proj = projects.find((p) => p.id === actData.projectId);
         return {
           id: act.id,
           isOffline: true,
-          projectId: act.data.projectId,
-          date: act.data.date,
-          weather: act.data.weather || "",
-          workerCount: Number(act.data.workerCount || 0),
-          workDescription: act.data.workDescription || "",
-          issues: act.data.issues || "",
-          safetyNotes: act.data.safetyNotes || "",
-          equipment: act.data.equipment || "",
-          materials: act.data.materials || "",
-          photos: act.data.photos || "",
+          projectId: actData.projectId,
+          date: actData.date,
+          weather: actData.weather || "",
+          workerCount: Number(actData.workerCount || 0),
+          workDescription: actData.workDescription || "",
+          issues: actData.issues || "",
+          safetyNotes: actData.safetyNotes || "",
+          equipment: actData.equipment || "",
+          materials: actData.materials || "",
+          photos: actData.photos || "",
           createdAt: new Date(act.timestamp).toISOString(),
           project: proj ? { id: proj.id, name: proj.name, nameEn: proj.nameEn, number: proj.number } : null,
         } as SiteDiaryItem;

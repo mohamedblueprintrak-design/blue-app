@@ -4,7 +4,6 @@ const jestConfig = {
   testEnvironment: 'node',
   roots: ['<rootDir>/__tests__'],
   setupFiles: ['<rootDir>/jest.setup.ts'],
-  globalTeardown: '<rootDir>/jest.globalTeardown.ts',
   extensionsToTreatAsEsm: ['.ts'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',

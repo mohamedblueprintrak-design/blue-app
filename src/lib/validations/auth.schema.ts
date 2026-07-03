@@ -7,6 +7,8 @@ export const loginSchema = z.object({
   password: z.string()
     .min(1, 'كلمة المرور مطلوبة')
     .max(128, 'كلمة المرور طويلة جداً'),
+  organizationSlug: z.string().optional(),
+  organizationId: z.string().optional(),
 });
 
 export type LoginData = z.infer<typeof loginSchema>;

@@ -144,12 +144,12 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
-    const { email, password } = validation.data;
+    const { email, password, organizationSlug, organizationId } = validation.data;
 
     // Extract client IP for security logging
     const clientIp = getClientIP(request.headers);
 
-    const user = await db.user.findFirst({
+    const users = await db.user.findMany({
       where: { 
         email: email.toLowerCase() 
       },
@@ -168,10 +168,17 @@ export async function POST(request: Request) {
         failedLoginAttempts: true,
         lockedUntil: true,
         passwordChangedAt: true,
+        organization: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          }
+        }
       },
     });
 
-    if (!user) {
+    if (users.length === 0) {
       log.security('Failed login attempt — user not found', { email, clientIp });
       // Timing attack mitigation: always perform bcrypt compare even when user not found
       // This ensures similar response times whether the email exists or not
@@ -180,6 +187,33 @@ export async function POST(request: Request) {
         { error: "بيانات الدخول غير صحيحة" },
         { status: 401 }
       );
+    }
+
+    let user = users[0];
+
+    if (users.length > 1) {
+      if (!organizationSlug && !organizationId) {
+        return NextResponse.json({
+          requiresOrgChoice: true,
+          organizations: users.map(u => u.organization).filter(Boolean),
+          message: "هناك أكثر من مؤسسة مرتبطة بهذا البريد الإلكتروني. يرجى تحديد المؤسسة."
+        });
+      }
+
+      const matched = users.find(u => 
+        u.organizationId === organizationId || 
+        (u.organization && u.organization.slug === organizationSlug)
+      );
+
+      if (!matched) {
+        log.security('Failed login attempt — invalid organization choice', { email, organizationSlug, organizationId, clientIp });
+        return NextResponse.json(
+          { error: "المؤسسة المحددة غير صحيحة" },
+          { status: 400 }
+        );
+      }
+
+      user = matched;
     }
 
     // Account lockout check

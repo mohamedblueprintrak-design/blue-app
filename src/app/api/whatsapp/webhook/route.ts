@@ -200,6 +200,7 @@ async function processIncomingMessages(
 
       // Try to link incoming message to an existing client by phone number
       let clientId: string | undefined;
+      let orgId = 'default';
       try {
         const matchingClient = await db.client.findFirst({
           where: {
@@ -209,11 +210,25 @@ async function processIncomingMessages(
             ],
             deletedAt: null,
           },
-          select: { id: true },
+          select: { id: true, organizationId: true },
         });
         clientId = matchingClient?.id;
+        if (matchingClient?.organizationId) {
+          orgId = matchingClient.organizationId;
+        } else {
+          const firstOrg = await db.organization.findFirst({ select: { id: true } });
+          if (firstOrg) {
+            orgId = firstOrg.id;
+          }
+        }
       } catch {
         // Client lookup is best-effort
+        try {
+          const firstOrg = await db.organization.findFirst({ select: { id: true } });
+          if (firstOrg) {
+            orgId = firstOrg.id;
+          }
+        } catch {}
       }
 
       // Store the incoming message
@@ -226,7 +241,7 @@ async function processIncomingMessages(
           status: 'DELIVERED',
           messageText: content,
           clientId,
-          organizationId: 'default',
+          organizationId: orgId,
         },
       });
 
