@@ -32,21 +32,21 @@ export function buildCsp(nonce: string): string {
   // - Scripts are FULLY protected by nonce — no 'unsafe-inline' for script-src.
   //
   // Reference: https://www.w3.org/TR/CSP3/#match-element-to-source-list
-  const styleSrc = `style-src 'self' 'unsafe-inline' 'nonce-${nonce}' https://fonts.googleapis.com https://unpkg.com`;
+  const styleSrc = `style-src 'self' 'unsafe-inline' 'nonce-${nonce}' https://fonts.googleapis.com`;
 
   const connectSrc = isDev
-    ? "connect-src 'self' https: ws: wss:"
-    : "connect-src 'self' https:";
+    ? "connect-src 'self' https://*.stripe.com ws: wss:"
+    : "connect-src 'self' https://*.stripe.com wss:";
 
   return [
     "default-src 'self'",
     scriptSrc,
     styleSrc,
-    "img-src 'self' data: blob: https:",
+    "img-src 'self' data: blob: https://*.stripe.com https://*.gravatar.com https://*.googleusercontent.com https://images.unsplash.com",
     "font-src 'self' https://fonts.gstatic.com",
     connectSrc,
-    "media-src 'self' https: blob:",
-    "frame-src 'self' https:",
+    "media-src 'self' blob:",
+    "frame-src 'self' https://*.stripe.com",
     "frame-ancestors 'none'",
   ].join('; ');
 }
@@ -100,7 +100,7 @@ export async function timingSafeCompare(a: string, b: string): Promise<boolean> 
   return result === 0;
 }
 
-export function getAllowedOrigin(request: NextRequest): string {
+export function getAllowedOrigin(request: NextRequest): string | null {
   const origin = request.headers.get('origin') || '';
   const allowedOrigins = process.env.CORS_ORIGINS?.split(',').map(o => o.trim()).filter(Boolean) || [];
   
@@ -112,12 +112,13 @@ export function getAllowedOrigin(request: NextRequest): string {
     if (dynamicBase && origin === dynamicBase) {
       return origin;
     }
-    return process.env.NEXTAUTH_URL || process.env.APP_URL || (process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : '');
+    const fallback = process.env.NEXTAUTH_URL || process.env.APP_URL || (process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : null);
+    return fallback;
   }
   
   if (allowedOrigins.includes(origin)) {
     return origin;
   }
   
-  return '';
+  return null;
 }

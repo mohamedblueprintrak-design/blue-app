@@ -20,6 +20,7 @@ import {
   HeadObjectCommand,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { verifyFileContent } from '@/lib/security/magic-bytes';
 
 // Dangerous MIME types that should NEVER be allowed for upload (CWE-434)
 const BLOCKED_MIME_TYPES = [
@@ -116,6 +117,12 @@ export class S3StorageProvider implements StorageProvider {
       // SECURITY: Validate content type against strict allowlist (CWE-434)
       this.validateContentType(contentType);
 
+      // SECURITY: Validate magic bytes (CWE-434)
+      const mimeError = verifyFileContent(data, contentType, '');
+      if (mimeError) {
+        throw new Error(`Magic bytes validation failed: ${mimeError}`);
+      }
+
       const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
       if (data.length > MAX_FILE_SIZE) {
         throw new Error(`File size exceeds maximum allowed (${MAX_FILE_SIZE / 1024 / 1024}MB)`);
@@ -126,6 +133,7 @@ export class S3StorageProvider implements StorageProvider {
         Key: key,
         Body: data,
         ContentType: contentType,
+        ServerSideEncryption: 'aws:kms',
       });
 
       await this.client.send(command);

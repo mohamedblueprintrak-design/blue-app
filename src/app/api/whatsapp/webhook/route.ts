@@ -298,13 +298,38 @@ async function processStatusUpdates(
         log.info('[WhatsApp Webhook] Message status updated', { messageId, status: statusValue });
       } else {
         // No existing record — create one for the status update
+        let orgId = 'default';
+        try {
+          const matchingClient = await db.client.findFirst({
+            where: {
+              OR: [
+                { whatsapp: { contains: recipientId.replace(/[^0-9]/g, '') } },
+                { phone: { contains: recipientId.replace(/[^0-9]/g, '') } },
+              ],
+              deletedAt: null,
+            },
+            select: { organizationId: true },
+          });
+          if (matchingClient?.organizationId) {
+            orgId = matchingClient.organizationId;
+          } else {
+            const firstOrg = await db.organization.findFirst({ select: { id: true } });
+            if (firstOrg) orgId = firstOrg.id;
+          }
+        } catch {
+          try {
+            const firstOrg = await db.organization.findFirst({ select: { id: true } });
+            if (firstOrg) orgId = firstOrg.id;
+          } catch {}
+        }
+
         await db.whatsAppMessage.create({
           data: {
             id: messageId,
             to: recipientId,
             direction: 'OUTBOUND',
             status: statusValue.toUpperCase(),
-            organizationId: 'default',
+            organizationId: orgId,
             errorMessage: statusValue === 'failed' ? 'Failed' : null,
           },
         });

@@ -74,6 +74,15 @@ const userSockets = new Map<string, Set<string>>(); // userId -> Set of socketId
 // Rate Limiting Setup
 // ============================================
 
+function getClientIp(socket: any): string {
+  const forwardedFor = socket.handshake.headers['x-forwarded-for'];
+  if (forwardedFor) {
+    const parts = String(forwardedFor).split(',');
+    return parts[0].trim();
+  }
+  return socket.handshake.address || socket.conn.remoteAddress || 'unknown';
+}
+
 interface RateLimitTracker {
   timestamps: number[];
 }
@@ -88,16 +97,57 @@ const LIMIT_MAX_REQUESTS_IP = 100;      // max 100 requests per IP per 10s
 const LIMIT_MAX_REQUESTS_USER = 50;     // max 50 requests per user per 10s
 const LIMIT_MAX_CONNECTIONS_IP = 10;    // max 10 connections per 10s per IP
 
-function checkRateLimit(key: string, limit: number, map: Map<string, RateLimitTracker>): boolean {
+let redisRateLimitClient: Redis | null = null;
+const REDIS_URL = process.env.REDIS_URL;
+if (REDIS_URL) {
+  try {
+    redisRateLimitClient = new Redis(REDIS_URL, {
+      maxRetriesPerRequest: 1,
+      enableReadyCheck: true,
+      retryStrategy: (times: number) => Math.min(times * 100, 1000),
+    });
+  } catch (err) {
+    console.error('[RateLimit] Failed to initialize Redis for rate limiting:', err);
+  }
+}
+
+async function checkRateLimitAsync(
+  key: string,
+  limit: number,
+  windowMs: number,
+  fallbackMap: Map<string, RateLimitTracker>
+): Promise<boolean> {
+  if (redisRateLimitClient) {
+    try {
+      const now = Date.now();
+      const redisKey = `ratelimit:${key}`;
+      const multi = redisRateLimitClient.multi();
+      multi.zadd(redisKey, now, String(now));
+      multi.zremrangebyscore(redisKey, 0, now - windowMs);
+      multi.zcard(redisKey);
+      multi.expire(redisKey, Math.ceil(windowMs / 1000) + 1);
+      
+      const results = await multi.exec();
+      if (results && results[2]) {
+        // results[2] is the ZCARD result
+        const count = results[2][1] as number;
+        return count <= limit;
+      }
+    } catch (err) {
+      console.error('[RateLimit] Redis rate limit error, falling back to memory:', err);
+    }
+  }
+
+  // Fallback to in-memory rate limiter
   const now = Date.now();
-  let tracker = map.get(key);
+  let tracker = fallbackMap.get(key);
   if (!tracker) {
     tracker = { timestamps: [] };
-    map.set(key, tracker);
+    fallbackMap.set(key, tracker);
   }
   
   // Filter out expired timestamps
-  tracker.timestamps = tracker.timestamps.filter(ts => now - ts < LIMIT_WINDOW_MS);
+  tracker.timestamps = tracker.timestamps.filter(ts => now - ts < windowMs);
   
   if (tracker.timestamps.length >= limit) {
     return false;
@@ -227,9 +277,6 @@ const io: TypedIOServer = new IOServer(httpServer, {
 //   - Presence (online/offline) is shared across instances
 //   - Room joins/leaves are synchronized
 //
-// Without Redis (single-instance mode), everything works locally.
-const REDIS_URL = process.env.REDIS_URL;
-
 if (REDIS_URL) {
   try {
     const pubClient = new Redis(REDIS_URL, {
@@ -264,9 +311,10 @@ if (REDIS_URL) {
 
 io.use(async (socket: TypedSocket, next: (err?: Error) => void) => {
   try {
-    const ip = socket.handshake.address || socket.conn.remoteAddress || 'unknown';
+    const ip = getClientIp(socket);
     // Connection-level rate limiting
-    if (!checkRateLimit(`conn:${ip}`, LIMIT_MAX_CONNECTIONS_IP, rateLimits.ip)) {
+    const isAllowed = await checkRateLimitAsync(`conn:${ip}`, LIMIT_MAX_CONNECTIONS_IP, LIMIT_WINDOW_MS, rateLimits.ip);
+    if (!isAllowed) {
       console.warn(`[RateLimit] Connection rate limit exceeded for IP: ${ip}`);
       return next(new Error('Connection rate limit exceeded'));
     }
@@ -422,20 +470,22 @@ async function handleConnection(socket: TypedSocket) {
   console.info(`[WS] User connected: ${userName} (${userId})`);
 
   // Packet/Event-level rate limiting
-  socket.use((packet: [string, ...unknown[]], next: (err?: Error) => void) => {
-    const ip = socket.handshake.address || socket.conn.remoteAddress || 'unknown';
+  socket.use(async (packet: [string, ...unknown[]], next: (err?: Error) => void) => {
+    const ip = getClientIp(socket);
     const socketUserId = socket.data.userId || 'anonymous';
     const event = packet[0];
 
     // 1. IP-based event rate limiting
-    if (!checkRateLimit(ip, LIMIT_MAX_REQUESTS_IP, rateLimits.ip)) {
+    const ipAllowed = await checkRateLimitAsync(ip, LIMIT_MAX_REQUESTS_IP, LIMIT_WINDOW_MS, rateLimits.ip);
+    if (!ipAllowed) {
       console.warn(`[RateLimit] IP event limit exceeded: ${ip} (event: ${event})`);
       socket.emit('error', { message: 'Too many requests. Please slow down.', code: 'RATE_LIMIT_EXCEEDED' });
       return; // Drop packet
     }
 
     // 2. User-based event rate limiting
-    if (!checkRateLimit(socketUserId, LIMIT_MAX_REQUESTS_USER, rateLimits.user)) {
+    const userAllowed = await checkRateLimitAsync(socketUserId, LIMIT_MAX_REQUESTS_USER, LIMIT_WINDOW_MS, rateLimits.user);
+    if (!userAllowed) {
       console.warn(`[RateLimit] User event limit exceeded: ${socketUserId} (event: ${event})`);
       socket.emit('error', { message: 'Too many requests. Please slow down.', code: 'RATE_LIMIT_EXCEEDED' });
       return; // Drop packet

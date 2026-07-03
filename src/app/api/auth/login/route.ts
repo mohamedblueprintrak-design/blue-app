@@ -182,7 +182,7 @@ export async function POST(request: Request) {
       log.security('Failed login attempt — user not found', { email, clientIp });
       // Timing attack mitigation: always perform bcrypt compare even when user not found
       // This ensures similar response times whether the email exists or not
-      await bcrypt.compare(password, '$2a$10$XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX');
+      await bcrypt.compare(password, '$2a$10$CwTycUXWue0Thq9StjUM0uXJQR3K16B9K121gB3e5G0B.a0Q1e5Q.');
       return NextResponse.json(
         { error: "بيانات الدخول غير صحيحة" },
         { status: 401 }

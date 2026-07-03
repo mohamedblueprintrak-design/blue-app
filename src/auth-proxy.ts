@@ -96,7 +96,10 @@ export async function proxy(request: NextRequest) {
 
   if (request.method === 'OPTIONS') {
     const response = new NextResponse(null, { status: 204 });
-    response.headers.set('Access-Control-Allow-Origin', getAllowedOrigin(request));
+    const allowedOrigin = getAllowedOrigin(request);
+    if (allowedOrigin) {
+      response.headers.set('Access-Control-Allow-Origin', allowedOrigin);
+    }
     response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
     response.headers.set('Access-Control-Allow-Headers', 'Authorization, Content-Type, X-CSRF-Token, Cache-Control');
     response.headers.set('Access-Control-Allow-Credentials', 'true');
