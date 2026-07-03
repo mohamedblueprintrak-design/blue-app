@@ -53,10 +53,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { getMutationHeaders } from "@/lib/csrf-client";
+import { isOfflineClient, queueOfflineAction, getQueuedActions } from "@/lib/offline-sync";
+import { useEffect } from "react";
+import { toast } from "sonner";
 
 // ===== Types =====
 interface SiteDiaryItem {
   id: string;
+  isOffline?: boolean;
   projectId: string;
   date: string;
   weather: string;
@@ -66,6 +70,7 @@ interface SiteDiaryItem {
   safetyNotes: string;
   equipment: string;
   materials: string;
+  photos: string;
   createdAt: string;
   project: { id: string; name: string; nameEn: string; number: string } | null;
 }
@@ -166,6 +171,9 @@ export default function SiteDiary({ language, projectId }: SiteDiaryProps) {
 
 
 
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [offlineEntries, setOfflineEntries] = useState<SiteDiaryItem[]>([]);
+
   const [formData, setFormData] = useState({
     projectId: projectId || "",
     date: new Date().toISOString().split("T")[0],
@@ -176,21 +184,124 @@ export default function SiteDiary({ language, projectId }: SiteDiaryProps) {
     safetyNotes: "",
     equipment: "",
     materials: "",
+    photos: "",
   });
 
-  const resetForm = () => setFormData({
-    projectId: projectId || (filterProject !== "all" ? filterProject : ""),
-    date: new Date().toISOString().split("T")[0],
-    weather: "",
-    workerCount: "",
-    workDescription: "",
-    issues: "",
-    safetyNotes: "",
-    equipment: "",
-    materials: "",
-  });
+  const resetForm = () => {
+    setFormData({
+      projectId: projectId || (filterProject !== "all" ? filterProject : ""),
+      date: new Date().toISOString().split("T")[0],
+      weather: "",
+      workerCount: "",
+      workDescription: "",
+      issues: "",
+      safetyNotes: "",
+      equipment: "",
+      materials: "",
+      photos: "",
+    });
+    setPhotoPreview(null);
+  };
 
-  const grouped = groupByDate(diaries);
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        const MAX_WIDTH = 1024;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > MAX_WIDTH) {
+          height = Math.round((height * MAX_WIDTH) / width);
+          width = MAX_WIDTH;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        ctx?.drawImage(img, 0, 0, width, height);
+
+        const dataUrl = canvas.toDataURL("image/jpeg", 0.75);
+        setPhotoPreview(dataUrl);
+        setFormData((prev) => ({ ...prev, photos: dataUrl }));
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const refreshOfflineEntries = () => {
+    const queued = getQueuedActions()
+      .filter((act) => act.type === "create-site-diary")
+      .map((act) => {
+        const proj = projects.find((p) => p.id === act.data.projectId);
+        return {
+          id: act.id,
+          isOffline: true,
+          projectId: act.data.projectId,
+          date: act.data.date,
+          weather: act.data.weather || "",
+          workerCount: Number(act.data.workerCount || 0),
+          workDescription: act.data.workDescription || "",
+          issues: act.data.issues || "",
+          safetyNotes: act.data.safetyNotes || "",
+          equipment: act.data.equipment || "",
+          materials: act.data.materials || "",
+          photos: act.data.photos || "",
+          createdAt: new Date(act.timestamp).toISOString(),
+          project: proj ? { id: proj.id, name: proj.name, nameEn: proj.nameEn, number: proj.number } : null,
+        } as SiteDiaryItem;
+      });
+
+    const filteredOffline = filterProject !== "all"
+      ? queued.filter(item => item.projectId === filterProject)
+      : queued;
+
+    setOfflineEntries(filteredOffline);
+  };
+
+  useEffect(() => {
+    refreshOfflineEntries();
+    
+    const handleQueueChange = () => {
+      refreshOfflineEntries();
+      queryClient.invalidateQueries({ queryKey: ["site-diary"] });
+    };
+
+    window.addEventListener("blueprint-offline-queue-change", handleQueueChange);
+    window.addEventListener("blueprint-offline-sync-completed", handleQueueChange);
+    window.addEventListener("blueprint-network-status-change", handleQueueChange);
+
+    return () => {
+      window.removeEventListener("blueprint-offline-queue-change", handleQueueChange);
+      window.removeEventListener("blueprint-offline-sync-completed", handleQueueChange);
+      window.removeEventListener("blueprint-network-status-change", handleQueueChange);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [diaries, projects, filterProject]);
+
+  const handleSubmit = () => {
+    if (isOfflineClient()) {
+      queueOfflineAction("create-site-diary", formData);
+      toast.success(
+        ar
+          ? "تم حفظ اليومية دون اتصال وسيتم مزامنتها تلقائياً عند استعادة الاتصال بالإنترنت!"
+          : "Site diary saved offline and will sync automatically when online!"
+      );
+      setShowAddDialog(false);
+      resetForm();
+    } else {
+      createMutation.mutate(formData);
+    }
+  };
+
+  const combined = [...offlineEntries, ...diaries];
+  const grouped = groupByDate(combined);
   const sortedDates = Object.keys(grouped).sort((a, b) => b.localeCompare(a));
 
   return (
@@ -202,9 +313,8 @@ export default function SiteDiary({ language, projectId }: SiteDiaryProps) {
             <BookOpen className="h-4.5 w-4.5 text-brand-navy-600 dark:text-brand-navy-400" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white">{tAuto('auto.siteDiary')}</h2>
-            <p className="text-[10px] text-slate-500 dark:text-slate-400">
-              {diaries.length} {tAuto('auto.entries')}
+                   <p className="text-[10px] text-slate-500 dark:text-slate-400">
+              {combined.length} {tAuto('auto.entries')}
             </p>
           </div>
         </div>
@@ -228,15 +338,18 @@ export default function SiteDiary({ language, projectId }: SiteDiaryProps) {
           </Button>
         </div>
       </div>
-
+ 
       {/* Timeline */}
       {isLoading ? (
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
-            <Card key={i} className="p-4 animate-pulse"><div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/3 mb-3" /><div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-2/3" /></Card>
+            <Card key={i} className="p-4 animate-pulse">
+              <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/3 mb-3" />
+              <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-2/3" />
+            </Card>
           ))}
         </div>
-      ) : diaries.length === 0 ? (
+      ) : combined.length === 0 ? (
         /* Enhanced Empty State */
         <div className="flex flex-col items-center justify-center min-h-[50vh] text-center">
           <div className="relative mb-4">
@@ -359,6 +472,11 @@ export default function SiteDiary({ language, projectId }: SiteDiaryProps) {
                                 {contentCount} {tAuto('auto.items')}
                               </Badge>
                             )}
+                            {entry.isOffline && (
+                              <Badge className="bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 text-[9px] h-5 border-amber-200 animate-pulse">
+                                {ar ? "⏳ قيد المزامنة" : "⏳ Pending Sync"}
+                              </Badge>
+                            )}
                           </div>
                           <div className="flex items-center gap-1">
                             {/* Photo attachment indicator placeholder */}
@@ -456,6 +574,14 @@ export default function SiteDiary({ language, projectId }: SiteDiaryProps) {
                             <span>{tAuto('auto.quickEntryNoDetailsAdded')}</span>
                           </div>
                         )}
+                        {entry.photos && (
+                          <div className="mt-3">
+                            <div className="relative w-28 h-20 rounded-lg overflow-hidden border border-slate-200/80 dark:border-slate-800 shadow-sm hover:scale-[1.02] transition-transform duration-200">
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img src={entry.photos} alt="Site Photo" className="w-full h-full object-cover" />
+                            </div>
+                          </div>
+                        )}
                       </Card>
                     );
                   })}
@@ -524,10 +650,52 @@ export default function SiteDiary({ language, projectId }: SiteDiaryProps) {
                 <Textarea value={formData.materials} onChange={(e) => setFormData({ ...formData, materials: e.target.value })} placeholder={tAuto('auto.materialsArrived')} rows={2} />
               </div>
             </div>
+            <div className="space-y-2">
+              <Label className="text-sm flex items-center gap-1.5">
+                <Camera className="h-4 w-4 text-slate-500" />
+                {ar ? "صور الموقع (الكاميرا)" : "Site Photos (Camera)"}
+              </Label>
+              <div className="flex items-center gap-3">
+                <Input
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  className="hidden"
+                  id="photo-capture-input"
+                  onChange={handlePhotoChange}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => document.getElementById("photo-capture-input")?.click()}
+                  className="h-10 text-xs gap-1.5"
+                >
+                  <Camera className="h-4 w-4" />
+                  {ar ? "التقاط صورة" : "Capture Photo"}
+                </Button>
+                {photoPreview && (
+                  <div className="relative w-12 h-12 rounded-lg overflow-hidden border border-slate-200 shadow-sm">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={photoPreview} alt="Preview" className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPhotoPreview(null);
+                        setFormData((prev) => ({ ...prev, photos: "" }));
+                      }}
+                      className="absolute top-0 right-0 bg-red-500 text-white rounded-bl-lg p-0.5"
+                      style={{ fontSize: "8px" }}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => { setShowAddDialog(false); resetForm(); }}>{tAuto('auto.cancel')}</Button>
-            <Button className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white" onClick={() => createMutation.mutate(formData)} disabled={!formData.projectId || !formData.date || createMutation.isPending}>
+            <Button className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white" onClick={handleSubmit} disabled={!formData.projectId || !formData.date || createMutation.isPending}>
               {createMutation.isPending ? (tAuto('auto.creating')) : (tAuto('auto.create'))}
             </Button>
           </DialogFooter>

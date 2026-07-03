@@ -44,6 +44,8 @@ const moreMenuItems: MoreMenuItem[] = [
   { pageId: "documents", icon: FileText, labelAr: "المستندات", labelEn: "Documents" },
   { pageId: "financial-invoices", icon: CreditCard, labelAr: "الفواتير", labelEn: "Invoices" },
   { pageId: "site-visits", icon: MapPin, labelAr: "زيارات الموقع", labelEn: "Site Visits" },
+  { pageId: "site-diary", icon: BookOpen, labelAr: "اليومية الميدانية", labelEn: "Site Diary" },
+  { pageId: "approvals", icon: Shield, labelAr: "الاعتمادات والموافقات", labelEn: "Approvals" },
   { pageId: "meetings", icon: Calendar, labelAr: "الاجتماعات", labelEn: "Meetings" },
   { pageId: "transmittals", icon: Send, labelAr: "الإحالات", labelEn: "Transmittals" },
   { pageId: "risks", icon: Shield, labelAr: "المخاطر", labelEn: "Risks" },

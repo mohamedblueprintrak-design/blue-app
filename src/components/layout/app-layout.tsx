@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback, Suspense } from "react";
 import { useNavStore } from "@/store/nav-store";
 import { useRouter, usePathname } from "next/navigation";
+import { toast } from "sonner";
+import { isOfflineClient, toggleOfflineOverride } from "@/lib/offline-sync";
 import {
   SidebarInset,
   SidebarProvider,
@@ -80,6 +82,25 @@ export default function AppLayout({ language, children }: AppLayoutProps) {
   const prefersReducedMotion = useReducedMotion();
 
   const [showShortcuts, setShowShortcuts] = useState(false);
+  const [offline, setOffline] = useState(false);
+
+  useEffect(() => {
+    setOffline(isOfflineClient());
+
+    const handleNetworkChange = () => {
+      setOffline(isOfflineClient());
+    };
+
+    window.addEventListener("blueprint-network-status-change", handleNetworkChange);
+    window.addEventListener("online", handleNetworkChange);
+    window.addEventListener("offline", handleNetworkChange);
+
+    return () => {
+      window.removeEventListener("blueprint-network-status-change", handleNetworkChange);
+      window.removeEventListener("online", handleNetworkChange);
+      window.removeEventListener("offline", handleNetworkChange);
+    };
+  }, []);
 
   // ===== Onboarding check =====
   // Check if the user has completed onboarding. We use a combination of:
@@ -147,6 +168,42 @@ export default function AppLayout({ language, children }: AppLayoutProps) {
       <SidebarInset>
         <AppHeader />
         <div className="flex flex-col flex-1">
+          {offline && (
+            <div className="bg-amber-500/10 border-b border-amber-500/20 text-amber-800 dark:text-amber-400 px-4 py-2 text-xs flex items-center justify-between font-sans">
+              <span className="flex items-center gap-1.5">
+                <span className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
+                {_isAr 
+                  ? "⚠️ أنت تعمل الآن بدون اتصال بالإنترنت. سيتم حفظ جميع التعديلات ومزامنتها تلقائياً عند استعادة الاتصال."
+                  : "⚠️ You are working offline. All changes will be saved locally and synced automatically when connection is restored."}
+              </span>
+              <button
+                onClick={() => {
+                  toggleOfflineOverride("online");
+                  toast.success(_isAr ? "تم استعادة الاتصال بالإنترنت!" : "Connection restored!");
+                }}
+                className="bg-amber-500/20 hover:bg-amber-500/30 text-amber-900 dark:text-amber-200 px-2.5 py-1 rounded-md text-[10px] font-medium transition-all"
+              >
+                {_isAr ? "محاكاة اتصال" : "Simulate Online"}
+              </button>
+            </div>
+          )}
+          {!offline && typeof window !== "undefined" && localStorage.getItem("blueprint_offline_override") === "offline" && (
+            <div className="bg-emerald-500/10 border-b border-emerald-500/20 text-emerald-800 dark:text-emerald-400 px-4 py-2 text-xs flex items-center justify-between font-sans">
+              <span className="flex items-center gap-1.5">
+                <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                {_isAr ? "الاتصال بالإنترنت نشط." : "Connection is online."}
+              </span>
+              <button
+                onClick={() => {
+                  toggleOfflineOverride("offline");
+                  toast.warning(_isAr ? "تم قطع الاتصال بالإنترنت!" : "Disconnected!");
+                }}
+                className="bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-900 dark:text-emerald-200 px-2.5 py-1 rounded-md text-[10px] font-medium transition-all"
+              >
+                {_isAr ? "محاكاة انقطاع" : "Simulate Offline"}
+              </button>
+            </div>
+          )}
           <Breadcrumbs language={language} />
           <main className="flex-1 overflow-y-auto">
             <SkipNavContent />
