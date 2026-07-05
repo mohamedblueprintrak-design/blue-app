@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocale } from 'next-intl';
+import { usePathname } from 'next/navigation';
 import { ChevronRight, ChevronLeft, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -11,6 +12,12 @@ interface TourStep {
   titleEn: string;
   contentAr: string;
   contentEn: string;
+  /**
+   * Side of the target where the popover should appear.
+   * Use 'right' / 'left' for sidebar items — the runtime will
+   * auto-flip them based on RTL so the bubble always lands in the
+   * content area rather than off-screen.
+   */
   position?: 'top' | 'bottom' | 'left' | 'right';
 }
 
@@ -39,14 +46,11 @@ const TOUR_STEPS: TourStep[] = [
     contentEn: 'Monitor cash/bank balances, invoices, payments, and UAE VAT returns (5% compliance).',
     position: 'right',
   },
-  {
-    selector: '#tour-sidebar-activity-log',
-    titleAr: 'سجل العمليات والتدقيق',
-    titleEn: 'Activity & Audit Log',
-    contentAr: 'راجع سجل النشاطات الزمني المفصل لكل العمليات عبر مساحة العمل لضمان الامتثال التام والشفافية.',
-    contentEn: 'Review detailed chronological activity across the workspace to ensure full compliance and security transparency.',
-    position: 'right',
-  },
+  // NOTE: a previous step here targeted `#tour-sidebar-activity-log`, but no
+  // such element exists in the sidebar (the `activity-log` nav id only lives
+  // in the `teamSubTabs` config, not in `getNavItems()`). The bubble was
+  // silently falling back to centered mode — which is exactly the
+  // "positioning during the tour" issue users reported. Removed.
   {
     selector: '#tour-header-search',
     titleAr: 'البحث الذكي السريع',
@@ -67,6 +71,7 @@ const TOUR_STEPS: TourStep[] = [
 
 export function ProductTour() {
   const locale = useLocale();
+  const pathname = usePathname();
   const isAr = locale === 'ar';
   
   const [isActive, setIsActive] = useState(false);
@@ -75,18 +80,56 @@ export function ProductTour() {
   
   const bubbleRef = useRef<HTMLDivElement>(null);
 
-  // Initialize tour check
+  // Initialize tour check.
+  //
+  // Two race-condition guards (the previous 1500ms setTimeout was racing
+  // with auth-init + dashboard data fetch and often fired before the
+  // sidebar/header DOM was ready, leaving the spotlight empty):
+  //   1. Only auto-start on the dashboard HOME route — the first tour
+  //      step highlights `#tour-dashboard-overview`, which only exists
+  //      on /dashboard (not on sub-routes like /dashboard/projects).
+  //      Auto-starting on a sub-route caused step 1 to silently fall
+  //      back to centered mode.
+  //   2. Poll for the first step's element to actually be in the DOM
+  //      before activating (max 3s, 100ms tick). This handles slow
+  //      hydration / async sidebar data without a hard-coded delay.
   useEffect(() => {
     const isCompleted = localStorage.getItem('blueprint_tour_completed');
-    if (isCompleted !== 'true') {
-      // Small delay to ensure DOM is fully rendered
-      const timer = setTimeout(() => {
+    if (isCompleted === 'true') return;
+
+    const isDashboardHome =
+      pathname === '/dashboard' || pathname === '/dashboard/';
+    if (!isDashboardHome) return;
+
+    let cancelled = false;
+    let attempts = 0;
+    const MAX_ATTEMPTS = 30; // 30 × 100ms = 3s
+
+    const poll = () => {
+      if (cancelled) return;
+      attempts += 1;
+      const firstStep = TOUR_STEPS[0];
+      if (firstStep && document.querySelector(firstStep.selector)) {
         setIsActive(true);
         setCurrentStepIndex(0);
-      }, 1500);
-      return () => clearTimeout(timer);
-    }
-  }, []);
+        return;
+      }
+      if (attempts < MAX_ATTEMPTS) {
+        setTimeout(poll, 100);
+      }
+      // If we hit MAX_ATTEMPTS without finding the element, we simply
+      // don't auto-start — the user can still trigger the tour manually
+      // via the profile dropdown → "Product Tour".
+    };
+
+    // Seed the first poll on next tick (let DOM settle from route change).
+    const seed = setTimeout(poll, 200);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(seed);
+    };
+  }, [pathname]);
 
   // Listen for custom restart-tour event
   useEffect(() => {
@@ -175,7 +218,14 @@ export function ProductTour() {
     const margin = 12;
     const bubbleWidth = 320;
     const bubbleHeight = 220; // approximate
-    const position = currentStep.position || 'bottom';
+    // RTL flip: sidebar items get position 'right' in LTR (sidebar on
+    // left → bubble lands in the content area) but need 'left' in RTL
+    // (sidebar on right → bubble still lands in the content area).
+    // Without this flip, the bubble gets clamped to the screen edge
+    // and overlaps the sidebar in Arabic mode.
+    let position = currentStep.position || 'bottom';
+    if (position === 'right' && isAr) position = 'left';
+    else if (position === 'left' && isAr) position = 'right';
 
     let top = 0;
     let left = 0;
