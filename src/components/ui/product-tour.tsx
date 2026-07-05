@@ -82,7 +82,7 @@ export function ProductTour() {
 
   // Initialize tour check.
   //
-  // Two race-condition guards (the previous 1500ms setTimeout was racing
+  // Race-condition guards (the previous 1500ms setTimeout was racing
   // with auth-init + dashboard data fetch and often fired before the
   // sidebar/header DOM was ready, leaving the spotlight empty):
   //   1. Only auto-start on the dashboard HOME route — the first tour
@@ -91,11 +91,35 @@ export function ProductTour() {
   //      Auto-starting on a sub-route caused step 1 to silently fall
   //      back to centered mode.
   //   2. Poll for the first step's element to actually be in the DOM
-  //      before activating (max 3s, 100ms tick). This handles slow
-  //      hydration / async sidebar data without a hard-coded delay.
+  //      before activating. This handles slow hydration / async sidebar
+  //      data without a hard-coded delay.
+  //
+  // IMPORTANT (Task 7): the dashboard page (`src/components/pages/
+  // dashboard.tsx`) renders `#tour-dashboard-overview` ONLY AFTER
+  // `useQuery('/api/dashboard')` resolves — while loading it returns
+  // `<DashboardSkeleton />` which does NOT contain that id. On a fresh
+  // login, auth-init + the dashboard data fetch commonly takes 3-8s,
+  // which is LONGER than the previous 3s polling budget — so the
+  // polling silently gave up and the tour never auto-started. That is
+  // exactly the "welcome tour is no longer showing" regression.
+  //
+  // Fixes:
+  //   * Increase the polling budget to 15s (150 × 100ms) so we keep
+  //     waiting while the dashboard data loads.
+  //   * If the element STILL isn't present after 15s, start the tour
+  //     ANYWAY — ProductTour already has a centered fallback when the
+  //     target element isn't found, and steps 2-5 target sidebar /
+  //     header elements that DO exist on every dashboard route. So
+  //     even in the worst case the user still sees the tour instead
+  //     of nothing.
+  //   * In dev mode (`NODE_ENV === 'development'`) bypass the
+  //     localStorage "completed" check so the tour always auto-starts
+  //     for easy local testing — this also lets developers recover
+  //     from a previous run where the tour was skipped.
   useEffect(() => {
+    const isDev = process.env.NODE_ENV === 'development';
     const isCompleted = localStorage.getItem('blueprint_tour_completed');
-    if (isCompleted === 'true') return;
+    if (isCompleted === 'true' && !isDev) return;
 
     const isDashboardHome =
       pathname === '/dashboard' || pathname === '/dashboard/';
@@ -103,23 +127,32 @@ export function ProductTour() {
 
     let cancelled = false;
     let attempts = 0;
-    const MAX_ATTEMPTS = 30; // 30 × 100ms = 3s
+    const MAX_ATTEMPTS = 150; // 150 × 100ms = 15s (covers slow /api/dashboard)
+
+    const startTour = () => {
+      setIsActive(true);
+      setCurrentStepIndex(0);
+    };
 
     const poll = () => {
       if (cancelled) return;
       attempts += 1;
       const firstStep = TOUR_STEPS[0];
       if (firstStep && document.querySelector(firstStep.selector)) {
-        setIsActive(true);
-        setCurrentStepIndex(0);
+        startTour();
         return;
       }
       if (attempts < MAX_ATTEMPTS) {
         setTimeout(poll, 100);
+      } else {
+        // Timeout reached without finding the first step's element.
+        // Start the tour anyway — the bubble will fall back to centered
+        // mode for step 1, and subsequent steps will highlight the
+        // sidebar / header elements (which exist immediately on
+        // dashboard mount). This guarantees the user ALWAYS sees the
+        // tour at least once instead of silently never seeing it.
+        startTour();
       }
-      // If we hit MAX_ATTEMPTS without finding the element, we simply
-      // don't auto-start — the user can still trigger the tour manually
-      // via the profile dropdown → "Product Tour".
     };
 
     // Seed the first poll on next tick (let DOM settle from route change).
