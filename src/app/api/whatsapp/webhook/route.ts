@@ -231,7 +231,9 @@ async function processIncomingMessages(
           if (firstOrg) {
             orgId = firstOrg.id;
           }
-        } catch {}
+        } catch {
+          // Expected: falls through to the warn+continue block below — org lookup is best-effort.
+        }
       }
       if (!orgId) {
         log.warn('[WhatsApp Webhook] Could not resolve organizationId for inbound message — skipping DB write', { messageId, from });
@@ -331,7 +333,9 @@ async function processStatusUpdates(
           try {
             const firstOrg = await db.organization.findFirst({ select: { id: true } });
             if (firstOrg) orgId = firstOrg.id;
-          } catch {}
+          } catch {
+            // Expected: falls through to the warn+continue block below — org lookup is best-effort.
+          }
         }
         if (!orgId) {
           log.warn('[WhatsApp Webhook] Could not resolve organizationId for status update — skipping DB write', { messageId, recipientId });

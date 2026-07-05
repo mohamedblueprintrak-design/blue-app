@@ -77,6 +77,24 @@ interface SiteDiaryItem {
 
 interface ProjectOption { id: string; name: string; nameEn: string; number: string; }
 
+/**
+ * Shape of the form data persisted to the offline-action queue
+ * (matches the `formData` useState initializer below — every field
+ * is a string because the form's number input is uncontrolled-as-string).
+ */
+interface SiteDiaryQueueData {
+  projectId: string;
+  date: string;
+  weather: string;
+  workerCount: string;
+  workDescription: string;
+  issues: string;
+  safetyNotes: string;
+  equipment: string;
+  materials: string;
+  photos: string;
+}
+
 // ===== Helpers =====
 function getWeatherIcon(weather: string) {
   const w = (weather || "").toLowerCase();
@@ -239,7 +257,7 @@ export default function SiteDiary({ language, projectId }: SiteDiaryProps) {
     const queued = getQueuedActions()
       .filter((act) => act.type === "create-site-diary")
       .map((act) => {
-        const actData = act.data as Record<string, any>;
+        const actData = act.data as SiteDiaryQueueData;
         const proj = projects.find((p) => p.id === actData.projectId);
         return {
           id: act.id,

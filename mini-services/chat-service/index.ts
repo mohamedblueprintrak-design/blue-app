@@ -43,7 +43,7 @@ function log(level: LogLevel, message: string, meta?: Record<string, unknown>) {
     : `[${ts}] ${level.toUpperCase()} [chat-service] ${message}`;
   if (level === 'error') console.error(line);
   else if (level === 'warn') console.warn(line);
-  else console.log(line);
+  else console.info(line);
 }
 
 // ============================================
@@ -92,7 +92,7 @@ const userSockets = new Map<string, Set<string>>(); // userId -> Set of socketId
 // Rate Limiting Setup
 // ============================================
 
-function getClientIp(socket: any): string {
+function getClientIp(socket: TypedSocket): string {
   const forwardedFor = socket.handshake.headers['x-forwarded-for'];
   if (forwardedFor) {
     const parts = String(forwardedFor).split(',');
