@@ -118,9 +118,15 @@ export function SkipNavLink({
       href={`#${contentId}`}
       aria-label={tAuto('auto.skipToMainContent')}
       className={cn(
-        'fixed z-[9999] -translate-y-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-md transition-transform focus:translate-y-0 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
-        // Position: right side in RTL, left side in LTR
-        'start-4 top-4',
+        // Visually hidden by default; only visible on keyboard focus.
+        // The previous approach used `-translate-y-full` which is fragile
+        // (depends on the element having a measurable height and on no
+        // ancestor resetting transforms). The `sr-only` + `focus:not-sr-only`
+        // pattern is the standard accessible skip-link pattern and works
+        // regardless of the element's size or parent styles.
+        'sr-only focus:not-sr-only focus:fixed focus:top-2 focus:start-2 focus:z-[9999]',
+        'focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-primary-foreground focus:shadow-md',
+        'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
         className
       )}
     >

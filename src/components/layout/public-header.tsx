@@ -9,7 +9,6 @@ import { Menu, X, Calculator, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LogoImage from "@/components/ui/logo-image";
 import { useLanguage } from "@/hooks/use-lang";
-import { SkipNavLink } from "@/components/common/accessible-components";
 
 const NAV_LINKS = [
   { href: "/", labelAr: "الرئيسية", labelEn: "Home" },
@@ -69,7 +68,6 @@ export default function PublicHeader() {
 
   return (
     <>
-      <SkipNavLink lang={currentLang} />
       <header
       className={`sticky top-0 z-50 transition-all duration-300 ${
         scrolled
