@@ -40,7 +40,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Landmark, Plus, Search, Edit, Trash2, FileText, Clock, CheckCircle2, XCircle, AlertCircle, RefreshCw, Send, Loader2, Building, MessageSquare, Save } from 'lucide-react'
+import { Landmark, Plus, Search, Edit, Trash2, FileText, Clock, CheckCircle2, XCircle, AlertCircle, RefreshCw, Send, Loader2, MessageSquare, Save } from 'lucide-react'
 
 import { cn } from "@/lib/utils";
 import { getMutationHeaders } from "@/lib/csrf-client";

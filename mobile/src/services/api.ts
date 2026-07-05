@@ -31,8 +31,14 @@ export async function fetchAndCacheProjects(): Promise<CachedProject[]> {
 
     if (!response.ok) throw new Error('Failed to fetch projects');
 
-    const data = await response.json();
-    const projects: CachedProject[] = data.map((p: any) => ({
+    const data = (await response.json()) as Array<{
+      id: string;
+      name: string;
+      location?: string;
+      status?: string;
+      progress?: number;
+    }>;
+    const projects: CachedProject[] = data.map((p) => ({
       id: p.id,
       name: p.name,
       location: p.location || 'Dubai, UAE',

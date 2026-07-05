@@ -12,7 +12,6 @@ import {
   ActivityIndicator
 } from 'react-native';
 import * as Location from 'expo-location';
-import { Camera } from 'expo-camera';
 import { getCachedProjects, saveOfflineSiteVisit, getUnsyncedVisits, CachedProject } from './src/services/db';
 import { setAuthToken, fetchAndCacheProjects, syncOfflineData, getAuthToken, removeAuthToken } from './src/services/api';
 
@@ -51,8 +50,8 @@ export default function App() {
       setProjects(cached);
       const unsynced = await getUnsyncedVisits();
       setOfflineCount(unsynced.length);
-    } catch (e) {
-      console.error('Failed to load local DB cache', e);
+    } catch (_e) {
+      console.error('Failed to load local DB cache', _e);
     }
   };
 
@@ -71,14 +70,9 @@ export default function App() {
         setCurrentScreen('dashboard');
         
         // Mock default projects to database cache
-        const mockProjects: CachedProject[] = [
-          { id: '1', name: 'Al Rakiah Residential Villa', location: 'Dubai, Jumeirah', status: 'ACTIVE', progress: 65 },
-          { id: '2', name: 'Marina Heights Commercial Tower', location: 'Dubai Marina', status: 'ACTIVE', progress: 42 },
-          { id: '3', name: 'Sharjah Industrial Warehouse', location: 'Sharjah, Area 12', status: 'ON_HOLD', progress: 90 }
-        ];
         await fetchAndCacheProjects().catch(() => {});
         await loadLocalProjects();
-      } catch (e) {
+      } catch (_e) {
         Alert.alert('فشل الدخول / Login Failed', 'عذراً، حدث خطأ أثناء الاتصال / Connection error');
       } finally {
         setIsLoading(false);
@@ -103,7 +97,7 @@ export default function App() {
         `تم مزامنة ${result.syncedCount} بنجاح، وفشل ${result.failedCount} / Synced ${result.syncedCount} successfully, failed ${result.failedCount}`
       );
       await loadLocalProjects();
-    } catch (e) {
+    } catch (_e) {
       Alert.alert('خطأ المزامنة / Sync Error', 'فشلت عملية المزامنة مع المخدم الرئيسي / Failed to sync');
     } finally {
       setIsSyncing(false);
@@ -127,7 +121,7 @@ export default function App() {
       const loc = await Location.getCurrentPositionAsync({});
       setLocation(loc);
       setCurrentScreen('checkin');
-    } catch (e) {
+    } catch (_e) {
       Alert.alert('Error', 'Unable to fetch current GPS coordinates.');
     } finally {
       setIsLoading(false);
@@ -154,7 +148,7 @@ export default function App() {
       setNotes('');
       setCurrentScreen('dashboard');
       loadLocalProjects();
-    } catch (e) {
+    } catch (_e) {
       Alert.alert('Error', 'Failed to save site visit data offline.');
     }
   };

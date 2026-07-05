@@ -1,12 +1,10 @@
 "use client";
 
 import React, { useRef, useState, useEffect, useLayoutEffect, useCallback } from "react";
-import { useTranslations } from "next-intl";
 import {
   Layers,
   Settings,
   Maximize2,
-  Minimize2,
   ZoomIn,
   ZoomOut,
   Ruler,
@@ -14,15 +12,12 @@ import {
   Download,
   Printer,
   ChevronLeft,
-  ChevronRight,
   Info,
-  RefreshCw,
   FolderOpen,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { useAuthStore } from "@/store/auth-store";
 import { useNavStore } from "@/store/nav-store";
 
 
@@ -112,7 +107,7 @@ const SAMPLE_ENTITIES: CADEntity[] = [
 ];
 
 export default function CADViewer({
-  projectId,
+  projectId: _projectId,
   language,
 }: {
   projectId: string;
@@ -440,7 +435,7 @@ export default function CADViewer({
       );
       setEntities(newEntities);
       resetView();
-      console.log("[CADViewer] DXF layout parsed successfully", file.name, file.size);
+      console.info("[CADViewer] DXF layout parsed successfully", file.name, file.size);
     };
     reader.readAsText(file);
   };
