@@ -38,11 +38,7 @@
   "exclude": [
     "node_modules",
     "skills",
-    "mini-services",
     "blue-app-fix",
-    "jest.setup.ts",
-    "jest.config.ts",
-    "__tests__",
     "src/stories",
     ".storybook"
   ]
