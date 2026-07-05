@@ -200,7 +200,7 @@ async function processIncomingMessages(
 
       // Try to link incoming message to an existing client by phone number
       let clientId: string | undefined;
-      let orgId = 'default';
+      let orgId: string | null = null;
       try {
         const matchingClient = await db.client.findFirst({
           where: {
@@ -215,20 +215,27 @@ async function processIncomingMessages(
         clientId = matchingClient?.id;
         if (matchingClient?.organizationId) {
           orgId = matchingClient.organizationId;
-        } else {
-          const firstOrg = await db.organization.findFirst({ select: { id: true } });
-          if (firstOrg) {
-            orgId = firstOrg.id;
-          }
         }
       } catch {
         // Client lookup is best-effort
+      }
+
+      // SECURITY (P1-8): If we couldn't resolve an org from the client, fall back
+      // to the first organization in the DB. If even that fails (no orgs exist),
+      // skip the DB write — `organizationId` is NOT nullable in the schema and
+      // writing `'default'` would cause a foreign-key violation (and pollute a
+      // fake org). We log a warning and drop the message rather than corrupt data.
+      if (!orgId) {
         try {
           const firstOrg = await db.organization.findFirst({ select: { id: true } });
           if (firstOrg) {
             orgId = firstOrg.id;
           }
         } catch {}
+      }
+      if (!orgId) {
+        log.warn('[WhatsApp Webhook] Could not resolve organizationId for inbound message — skipping DB write', { messageId, from });
+        continue;
       }
 
       // Store the incoming message
@@ -298,7 +305,11 @@ async function processStatusUpdates(
         log.info('[WhatsApp Webhook] Message status updated', { messageId, status: statusValue });
       } else {
         // No existing record — create one for the status update
-        let orgId = 'default';
+        // SECURITY (P1-8): resolve orgId from the matching client/org, with a
+        // first-org fallback. If no org can be resolved, skip the DB write —
+        // `organizationId` is NOT nullable in the schema; writing 'default'
+        // would cause a foreign-key violation and pollute a fake org.
+        let orgId: string | null = null;
         try {
           const matchingClient = await db.client.findFirst({
             where: {
@@ -312,15 +323,19 @@ async function processStatusUpdates(
           });
           if (matchingClient?.organizationId) {
             orgId = matchingClient.organizationId;
-          } else {
-            const firstOrg = await db.organization.findFirst({ select: { id: true } });
-            if (firstOrg) orgId = firstOrg.id;
           }
         } catch {
+          // Client lookup is best-effort
+        }
+        if (!orgId) {
           try {
             const firstOrg = await db.organization.findFirst({ select: { id: true } });
             if (firstOrg) orgId = firstOrg.id;
           } catch {}
+        }
+        if (!orgId) {
+          log.warn('[WhatsApp Webhook] Could not resolve organizationId for status update — skipping DB write', { messageId, recipientId });
+          continue;
         }
 
         await db.whatsAppMessage.create({
