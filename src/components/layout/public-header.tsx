@@ -69,7 +69,7 @@ export default function PublicHeader() {
   return (
     <>
       <header
-      className={`sticky top-0 z-50 transition-all duration-300 ${
+      className={`sticky top-[var(--demo-banner-height,0px)] z-50 transition-all duration-300 ${
         scrolled
           ? "bg-white/[0.97] backdrop-blur-xl shadow-[0_1px_3px_rgba(15,37,87,0.06)] border-b border-blue-100/50"
           : "bg-white/80 backdrop-blur-lg border-b border-transparent"

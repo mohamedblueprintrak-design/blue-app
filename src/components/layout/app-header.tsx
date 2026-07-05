@@ -62,7 +62,7 @@ function AppHeader() {
   }, [setCurrentPage]);
 
   return (
-    <header className="relative sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-slate-200/60 dark:border-slate-700/40 bg-gradient-to-r from-white/90 via-white/85 to-brand-navy-50/80 dark:from-slate-900/90 dark:via-slate-900/85 dark:to-brand-navy-950/80 backdrop-blur-xl shadow-sm shadow-slate-200/30 dark:shadow-slate-900/30 px-4 lg:px-6">
+    <header className="relative sticky top-[var(--demo-banner-height,0px)] z-30 flex h-14 items-center gap-3 border-b border-slate-200/60 dark:border-slate-700/40 bg-gradient-to-r from-white/90 via-white/85 to-brand-navy-50/80 dark:from-slate-900/90 dark:via-slate-900/85 dark:to-brand-navy-950/80 backdrop-blur-xl shadow-sm shadow-slate-200/30 dark:shadow-slate-900/30 px-4 lg:px-6">
       {/* Teal gradient accent line at top */}
       <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-brand-navy-500 via-cyan-400 to-brand-navy-500 dark:from-brand-navy-400 dark:via-cyan-300 dark:to-brand-navy-400" />
 

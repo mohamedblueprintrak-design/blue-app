@@ -779,9 +779,24 @@ html {
   outline-color: var(--color-teal-400, #6089d1);
 }
 
-/* Allow components that manage their own focus ring to opt out */
-.no-ring:focus-visible {
-  outline: none;
+/* ----- Demo Mode Layout Adjustments ----- */
+:root {
+  --demo-banner-height: 0px;
+}
+
+body.has-demo-banner {
+  --demo-banner-height: 56px; /* default on mobile */
+  padding-top: var(--demo-banner-height);
+}
+
+@media (min-width: 640px) {
+  body.has-demo-banner {
+    --demo-banner-height: 38px; /* desktop height */
+  }
+}
+
+body.has-demo-banner [data-slot="sidebar-container"] {
+  top: var(--demo-banner-height) !important;
 }
 
 /* ----- Enhanced Print Styles ----- */

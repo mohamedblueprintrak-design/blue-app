@@ -288,41 +288,37 @@ export function ProductTour() {
 
     switch (position) {
       case 'bottom':
-        top = targetRect.bottom + window.scrollY + margin;
-        left = targetRect.left + window.scrollX + (targetRect.width - bubbleWidth) / 2;
+        top = targetRect.bottom + margin;
+        left = targetRect.left + (targetRect.width - bubbleWidth) / 2;
         break;
       case 'top':
-        top = targetRect.top + window.scrollY - bubbleHeight - margin;
-        left = targetRect.left + window.scrollX + (targetRect.width - bubbleWidth) / 2;
+        top = targetRect.top - bubbleHeight - margin;
+        left = targetRect.left + (targetRect.width - bubbleWidth) / 2;
         break;
       case 'left':
-        top = targetRect.top + window.scrollY + (targetRect.height - bubbleHeight) / 2;
-        left = targetRect.left + window.scrollX - bubbleWidth - margin;
+        top = targetRect.top + (targetRect.height - bubbleHeight) / 2;
+        left = targetRect.left - bubbleWidth - margin;
         break;
       case 'right':
-        top = targetRect.top + window.scrollY + (targetRect.height - bubbleHeight) / 2;
-        left = targetRect.right + window.scrollX + margin;
+        top = targetRect.top + (targetRect.height - bubbleHeight) / 2;
+        left = targetRect.right + margin;
         break;
     }
 
-    // Keep bubble within the current viewport. Because `position: 'absolute'`
-    // uses document coordinates, we must convert the viewport bounds to
-    // document coordinates by adding scrollY/scrollX. Previously this used
-    // raw window.innerWidth/innerHeight, which clamped the bubble to the
-    // TOP of the document whenever the user had scrolled — causing the
-    // bubble to land far above its target.
-    const scrollY = window.scrollY;
-    const scrollX = window.scrollX;
-    const viewportTop = scrollY + margin;
-    const viewportBottom = scrollY + window.innerHeight - bubbleHeight - margin;
-    const viewportLeft = scrollX + margin;
-    const viewportRight = scrollX + window.innerWidth - bubbleWidth - margin;
+    // Keep bubble within the current viewport. Since position is 'fixed',
+    // viewport boundaries are simply relative to the screen.
+    const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 1200;
+    const screenHeight = typeof window !== 'undefined' ? window.innerHeight : 800;
 
+    const viewportTop = margin;
+    const viewportBottom = screenHeight - bubbleHeight - margin;
+    const viewportLeft = margin;
+    const viewportRight = screenWidth - bubbleWidth - margin;
     top = Math.max(viewportTop, Math.min(top, viewportBottom));
     left = Math.max(viewportLeft, Math.min(left, viewportRight));
 
     return {
-      position: 'absolute' as const,
+      position: 'fixed' as const,
       top: `${top}px`,
       left: `${left}px`,
       width: `${bubbleWidth}px`,

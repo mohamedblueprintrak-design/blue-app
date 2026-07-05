@@ -38,7 +38,7 @@ export function DemoBanner() {
   };
 
   return (
-    <div className="bg-blue-600 text-white px-4 py-2 flex items-center justify-between text-sm z-50 sticky top-0">
+    <div className="bg-blue-600 text-white px-4 py-2 flex items-center justify-between text-sm z-50 fixed top-0 left-0 right-0 h-[var(--demo-banner-height)] overflow-hidden">
       <div className="flex items-center gap-2">
         <AlertTriangle className="h-4 w-4" />
         <span className="font-medium hidden sm:inline">DEMO MODE:</span>

@@ -91,7 +91,7 @@ export default async function RootLayout({
         ) : null}
       </head>
       <body
-        className={`${ibmPlexArabic.variable} ${plusJakarta.variable} antialiased bg-background text-foreground font-[family-name:var(--font-ibm-plex-arabic)]`}
+        className={`${ibmPlexArabic.variable} ${plusJakarta.variable} antialiased bg-background text-foreground font-[family-name:var(--font-ibm-plex-arabic)] ${process.env.DEMO_MODE === "true" ? "has-demo-banner" : ""}`}
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem={true} disableTransitionOnChange>
           <ReactQueryProvider>
