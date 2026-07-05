@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.1] - 2026-07-05
+
+### Fixed
+- **critical:** Added missing `/login` route — previously redirected to a non-existent path causing 404 on every dashboard access.
+- **critical:** Added `/dashboard` to `PUBLIC_PAGE_ROUTES` so unauthenticated users see the inline login form (original design intent).
+- **security:** WhatsApp webhook now resolves `organizationId` from the matching client/organization instead of falling back to `'default'` (foreign-key violation + multi-tenancy violation).
+- **security:** Sentry `tracesSampleRate` capped at 0.1 in production (was 1.0 = 100%).
+- **config:** `tsconfig.json` no longer excludes `mini-services`, `__tests__`, `jest.config.ts`, `jest.setup.ts` — type errors in these are now visible.
+- **config:** `.env.example` secrets are now empty with generation instructions (was hardcoded placeholders).
+- **config:** `docker-compose.yml` now requires `REDIS_PASSWORD` to be set (was falling back to `dev_redis_password`).
+- **config:** Removed `vercel.json` (README explicitly states Vercel is unsupported).
+- **quality:** `mini-services/chat-service` now uses a structured logger instead of 37 `console.*` calls.
+- **quality:** AI chat route now tracks real token usage from provider responses instead of `tokens: 0`.
+- **quality:** Removed dead `config` export from `auth-proxy.ts`.
+- **quality:** `prepare-schema.js` now skips when `DATABASE_URL` is unset (prevents accidental schema flipping on `bun install`).
+- **quality:** Removed `/register` from `PUBLIC_PAGE_ROUTES` (no route file exists).
+- **quality:** Removed `/api/seed` from `CSRF_EXEMPT_PATHS` (not a public route).
+
+### Added
+- `SECURITY.md` — vulnerability disclosure policy.
+- `CODE_OF_CONDUCT.md` — Contributor Covenant 2.1.
+- English summary at the top of `docs/security-audit.md`.
+
+### Changed
+- `CONTRIBUTING.md` updated to reflect trunk-based development on `main` (the `develop` branch does not exist).
+
+### Known issues (not addressed in this release)
+- Commits are not yet cryptographically signed (requires GPG/SSH key configuration by the maintainer).
+- Test coverage is ~49% (target: 80% for financial modules).
+- `auth-service.ts` still has duplicated 2FA method names (backward-compat shims) — scheduled for v0.4.0 refactor.
+
 ## [0.3.0] - 2026-06-19
 
 ### Added
