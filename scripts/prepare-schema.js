@@ -1,3 +1,30 @@
+/**
+ * scripts/prepare-schema.js
+ *
+ * This script flips the Prisma datasource provider between `sqlite` and
+ * `postgresql` based on DATABASE_URL / DATABASE_PROVIDER at install time,
+ * and adjusts Decimal precision annotations accordingly.
+ *
+ * DESIGN TRADE-OFF (P3-32, tracked for refactor in v0.4.0):
+ * Mutating `prisma/schema.prisma` in place at install time is not ideal —
+ * it produces surprising diffs on `bun install` and can mask the source of
+ * schema changes. The lower-risk fix applied here (Option B from the audit)
+ * is to GUARD the script so it only mutates when DATABASE_URL is set.
+ * This prevents the schema from flipping to `sqlite` (the default) on every
+ * `bun install` in CI / fresh clones where no .env exists yet. The
+ * mutation is also idempotent (line 59 already skips the write when the
+ * content has not changed).
+ *
+ * The proper long-term fix (Option A) is to render the schema into a
+ * temporary `prisma/schema.generated.prisma` and point `package.json`'s
+ * `prisma.schema` field at it — scheduled for v0.4.0.
+ */
+
+if (!process.env.DATABASE_URL) {
+  console.log('[prepare-schema] DATABASE_URL not set, skipping schema preparation');
+  process.exit(0);
+}
+
 const fs = require('fs');
 const path = require('path');
 
