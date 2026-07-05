@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 
 /**
@@ -17,6 +17,16 @@ import { motion, useScroll, useTransform } from "framer-motion";
  * existing `public/hero-bg.png` — browsers render this automatically if
  * the `<source>` fails to load or if the user agent doesn't support
  * `<video>` (e.g., very old browsers / some accessibility tools).
+ *
+ * AUTOPLAY + THE REACT `muted` BUG (facebook/react#10389):
+ * React does NOT reliably transfer the JSX `muted` attribute to the
+ * `HTMLMediaElement.muted` DOM property at mount time. On Safari/iOS this
+ * means autoplay silently fails (browsers block autoplay of unmuted media
+ * without a user gesture). The fix is to keep the `muted` JSX attribute for
+ * documentation, AND ALSO set `videoRef.current.muted = true` inside a
+ * `useEffect`, then explicitly call `videoRef.current.play()` and swallow
+ * the rejection if the browser still blocks it (the <img> fallback then
+ * covers the visual gap).
  *
  * Autoplay attributes (`autoPlay muted playsInline`) are required for
  * iOS Safari to start playback without a user gesture. `loop` makes the
@@ -36,6 +46,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
  */
 export function HeroVideoBackground() {
   const ref = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start start", "end start"],
@@ -43,10 +54,29 @@ export function HeroVideoBackground() {
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
 
+  // Workaround for facebook/react#10389: the JSX `muted` attribute is not
+  // always applied to the DOM at mount time, which breaks autoplay on
+  // Safari/iOS (browsers refuse to autoplay unmuted media). We force the
+  // property here and explicitly call play(); if autoplay is still blocked,
+  // the rejection is swallowed and the <img> fallback covers the gap.
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.muted = true;
+    const playPromise = video.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(() => {
+        // Autoplay blocked (rare, since we just set muted=true) — the
+        // <img> fallback inside <video> will render in its place.
+      });
+    }
+  }, []);
+
   return (
     <motion.div ref={ref} className="absolute inset-0 overflow-hidden">
       <motion.div style={{ y, opacity }} className="absolute inset-0">
         <video
+          ref={videoRef}
           autoPlay
           muted
           loop

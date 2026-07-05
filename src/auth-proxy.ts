@@ -86,7 +86,16 @@ function isStaticFile(pathname: string): boolean {
     pathname === '/robots.txt' ||
     pathname === '/sitemap.xml' ||
     pathname.endsWith('.webmanifest') ||
-    /\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|map|json|webmanifest)$/i.test(pathname)
+    // NOTE: media extensions (mp4, webm, mov, m4v, mp3, wav, ogg, m4a, aac, flac)
+    // MUST be in this list. Without them, requests for media files in /public
+    // (e.g. /hero.mp4 on the landing page) fall through to the auth check and
+    // get redirected to /login for unauthenticated visitors — which returns an
+    // HTML page instead of the binary asset, so <video> can't decode it and
+    // silently shows its <img> fallback. This was the root cause of the
+    // "hero video not playing" regression after Task 7 (the file was correctly
+    // bundled at public/hero.mp4, but the middleware blocked anonymous
+    // browsers from fetching it).
+    /\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|map|json|webmanifest|mp4|webm|mov|m4v|mp3|wav|ogg|m4a|aac|flac|avi|mkv)$/i.test(pathname)
   );
 }
 
