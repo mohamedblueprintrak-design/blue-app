@@ -277,6 +277,7 @@ export default function DocumentVersionHistory({
   onClose,
 }: DocumentVersionHistoryProps) {
   const t = useTranslations("documentVersionHistory");
+  const tAuto = useTranslations();
   const [showUploadDialog, setShowUploadDialog] = useState(false);
 
   const { data: versionData, isLoading } = useQuery<VersionHistoryData>({
@@ -353,7 +354,7 @@ export default function DocumentVersionHistory({
                 {t("newVersion")}
               </Button>
               {onClose && (
-                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onClose}>
+                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onClose} aria-label={tAuto('auto.close')}>
                   <X className="h-3.5 w-3.5" />
                 </Button>
               )}

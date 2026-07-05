@@ -157,7 +157,7 @@ export function TwoFactorSetup({ isAr }: TwoFactorSetupProps) {
                   navigator.clipboard.writeText(setupData.manualEntryKey);
                   setCopied(true);
                   setTimeout(() => setCopied(false), 2000);
-                }}>
+                }} aria-label={tAuto('auto.copy')}>
                   {copied ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4 text-slate-500" />}
                 </Button>
               </div>
