@@ -11,6 +11,11 @@ export interface EmailOptions {
   html: string;
   text?: string;
   from?: string; // Optional override for "from" address
+  attachments?: Array<{
+    filename: string;
+    content: string | Buffer;
+    contentType?: string;
+  }>;
 }
 
 // ============================================
@@ -311,6 +316,10 @@ async function sendViaResend(options: EmailOptions): Promise<EmailResult> {
         subject,
         html,
         text: text || undefined,
+        attachments: options.attachments?.map((att) => ({
+          filename: att.filename,
+          content: typeof att.content === 'string' ? att.content : Buffer.isBuffer(att.content) ? att.content.toString('base64') : att.content,
+        })) || undefined,
       }),
     });
 
@@ -372,6 +381,7 @@ async function executeSendEmail(options: EmailOptions): Promise<EmailResult> {
       subject,
       html,
       text: text || undefined,
+      attachments: options.attachments || undefined,
     });
 
     log.info('[Email] Email sent successfully via SMTP', { messageId: info.messageId, to, subject });
