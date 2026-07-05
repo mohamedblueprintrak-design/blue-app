@@ -1,13 +1,30 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { Play, Pause } from "lucide-react";
 
+/**
+ * Hero background.
+ *
+ * Previously this component rendered an external `<video>` sourced from
+ * `https://typefive.b-cdn.net/design-system-hero-new.mp4` (a third-party
+ * CDN that appears to be a leftover from a starter template). It never
+ * rendered in production because the project CSP only allows
+ * `media-src 'self' blob:` — the cross-origin video was silently blocked
+ * by the browser, leaving the hero section with only the dark gradient
+ * overlays and no visible imagery.
+ *
+ * Fix: use the existing in-repo `public/hero-bg.png` (already shipped,
+ * already CSP-allowed via `img-src 'self'`) as a parallax background
+ * image. This restores the hero visual, removes the external dependency,
+ * and is guaranteed to load. The parallax motion + gradient overlays are
+ * preserved so the visual design is unchanged.
+ *
+ * Component name kept as `HeroVideoBackground` to avoid touching the
+ * parent import graph (`landing-page-client.tsx`).
+ */
 export function HeroVideoBackground() {
-  const ref = useRef(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [isVideoPlaying, setIsVideoPlaying] = useState(true);
+  const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start start", "end start"],
@@ -15,47 +32,20 @@ export function HeroVideoBackground() {
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
 
-  useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.playbackRate = 0.75;
-    }
-  }, []);
-
-  const toggleVideoPlayback = () => {
-    if (videoRef.current) {
-      if (isVideoPlaying) {
-        videoRef.current.pause();
-      } else {
-        videoRef.current.play();
-      }
-      setIsVideoPlaying(!isVideoPlaying);
-    }
-  };
-
   return (
     <motion.div ref={ref} className="absolute inset-0 overflow-hidden">
       <motion.div style={{ y, opacity }} className="absolute inset-0">
-        <video
-          ref={videoRef}
-          autoPlay
-          loop
-          muted
-          playsInline
+        {/* eslint-disable-next-line @next/next/no-img-element -- decorative background image, no Next/Image optimization needed for a full-bleed hero */}
+        <img
+          src="/hero-bg.png"
+          alt=""
+          aria-hidden="true"
           className="absolute inset-0 w-full h-full object-cover"
           style={{ filter: "brightness(0.9) saturate(1.2)" }}
-        >
-          <source src="https://typefive.b-cdn.net/design-system-hero-new.mp4" type="video/mp4" />
-        </video>
+        />
         <div className="absolute inset-0 bg-gradient-to-b from-[#0A1628]/30 via-[#0A1628]/20 to-[#0A1628]/60" />
         <div className="absolute inset-0 bg-gradient-to-br from-[#2563EB]/5 via-transparent to-[#0F2557]/8" />
       </motion.div>
-      <button
-        onClick={toggleVideoPlayback}
-        aria-label={isVideoPlaying ? "Pause video" : "Play video"}
-        className="absolute bottom-4 right-4 z-10 bg-black/50 text-white rounded-full p-2 hover:bg-black/70 transition-colors"
-      >
-        {isVideoPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
-      </button>
     </motion.div>
   );
 }
