@@ -9,7 +9,14 @@ import { Menu, X, Calculator, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LogoImage from "@/components/ui/logo-image";
 import { useLanguage } from "@/hooks/use-lang";
-import { SkipNavLink } from "@/components/common/accessible-components";
+
+// NOTE: <SkipNavLink /> is intentionally NOT rendered here. It is
+// already mounted once in the root layout (`src/app/layout.tsx`) so
+// that every page (landing, public, dashboard, auth) gets exactly one
+// skip link with a stable `#skip-nav-content` target. Rendering it
+// again here would (a) create a duplicate DOM id, (b) confuse screen
+// readers, and (c) double-mount the focus-management handler. The
+// root-layout instance handles all pages including this header.
 
 const NAV_LINKS = [
   { href: "/", labelAr: "الرئيسية", labelEn: "Home" },
@@ -69,7 +76,6 @@ export default function PublicHeader() {
 
   return (
     <>
-      <SkipNavLink lang={currentLang} />
       <header
       className={`sticky top-0 z-50 transition-all duration-300 ${
         scrolled
