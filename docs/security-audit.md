@@ -1,4 +1,33 @@
-# 🔵 BluePrint ERP — تقرير التدقيق الأمني المحدث (Security Audit Report)
+# 🔵 BluePrint ERP — Security Audit Report
+
+## English Summary
+
+This document is a security audit of BluePrint ERP. Below is an English summary; the full audit is in Arabic (see the next section).
+
+### Architecture
+- **Auth:** JWT (jose) with issuer/audience/type claims, refresh-token rotation with reuse detection, 2FA (TOTP + backup codes + SMS step-up), OAuth (Google + Microsoft).
+- **Authorization:** RBAC route guard in `src/auth-proxy.ts`, org-scoped Prisma queries.
+- **CSRF:** Double-submit cookie pattern with timing-safe comparison.
+- **CSP:** Per-request nonces; `style-src` allows `'unsafe-inline'` as a fallback for Next.js inline styles (CSP3 nonce takes precedence).
+- **Rate limiting:** Tiered (per-route + global) using Redis sliding-window in `mini-services/chat-service`, in-memory for the main app.
+- **Data isolation:** Multi-tenant via `organizationId` on every table; orphan users (`organizationId = null`) cannot access org data.
+- **Audit logging:** `ActivityLog` and `SecurityAuditLog` models.
+- **File uploads:** MIME + magic-byte validation, SSE-KMS encryption on S3.
+
+### Audit history
+- v0.1.0–v0.2.0: Initial security hardening (TOCTOU on registration, IDOR in chat-service, JWT exposure).
+- v0.3.0: Stripe webhook idempotency, WhatsApp webhook signature, CSP nonce-per-request.
+- v0.3.1: This release — `/login` route added, WhatsApp org resolution tightened, Sentry trace rate capped in prod, tsconfig/test coverage hygiene, SECURITY.md + CODE_OF_CONDUCT.md added.
+
+### Known limitations
+- Test coverage is ~49% — below the 80% target for financial modules.
+- Commits are not yet cryptographically signed.
+- `prepare-schema.js` mutates `prisma/schema.prisma` at install time (tracked for refactor).
+
+---
+
+## تقرير التدقيق الأمني المحدث (المحتوى الكامل بالعربية)
+
 ## تاريخ التدقيق الأمني المحدث: 2026-06-19
 
 تمت مراجعة الكود البرمجي للمستودع بشكل كامل وفحص جميع آليات الحماية والأمان للتحقق من الادعاءات السابقة وتأكيد فاعلية الإصلاحات الأمنية.
