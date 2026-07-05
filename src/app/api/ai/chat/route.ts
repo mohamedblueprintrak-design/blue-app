@@ -264,6 +264,10 @@ ${contextSection}`;
             max_tokens: 1500,
           });
           const aiMessage = completion.choices[0]?.message?.content || '';
+          // P3-28: extract real token usage from the provider response when present.
+          // OpenAI-compatible APIs return { usage: { total_tokens, prompt_tokens, completion_tokens } }.
+          const zaiUsage = (completion as { usage?: { total_tokens?: unknown } }).usage;
+          const zaiTokens = typeof zaiUsage?.total_tokens === 'number' ? zaiUsage.total_tokens : 0;
           // ZAI SDK doesn't support streaming → simulate
           usedModel = 'zai-default';
           zaiAvailable = true;
@@ -277,7 +281,7 @@ ${contextSection}`;
                 // Save to DB
                 try {
                   await db.aIChatMessage.create({
-                    data: { conversationId, role: 'assistant', content: fullText, tokens: 0, model: usedModel, ...orgCreate(authCtx) },
+                    data: { conversationId, role: 'assistant', content: fullText, tokens: zaiTokens, model: usedModel, ...orgCreate(authCtx) },
                   });
                   await db.aIChatConversation.update({
                     where: { id: conversationId },
@@ -287,7 +291,7 @@ ${contextSection}`;
                       title: (conversation as Record<string, unknown> & { title?: string })?.title || message.substring(0, 50),
                     },
                   });
-                } catch (dbErr) { 
+                } catch (dbErr) {
                   log.error('[AI Chat] Non-fatal DB error saving ZAI msg:', dbErr);
                   throw dbErr;
                 }
@@ -325,6 +329,10 @@ ${contextSection}`;
               try {
                 await streamFullText(controller, fullText);
                 try {
+                  // TODO(P3-28): callZaiDirect() returns only the message string, not the
+                  // full provider response — so we can't read usage.total_tokens here.
+                  // Refactor callZaiDirect to return { content, usage } to enable real
+                  // token tracking for the Tier-2 fallback path.
                   await db.aIChatMessage.create({
                     data: { conversationId, role: 'assistant', content: fullText, tokens: 0, model: usedModel, ...orgCreate(authCtx) },
                   });
@@ -336,7 +344,7 @@ ${contextSection}`;
                       title: (conversation as Record<string, unknown> & { title?: string })?.title || message.substring(0, 50),
                     },
                   });
-                } catch (dbErr) { 
+                } catch (dbErr) {
                   log.error('[AI Chat] Non-fatal DB error saving ZAI direct msg:', dbErr);
                   throw dbErr;
                 }
@@ -389,6 +397,9 @@ ${contextSection}`;
             try {
               await streamFullText(controller, demoText);
               try {
+                // TODO(P3-28): demo-mode fallback — no real API call, so token usage
+                // is unknown. Acceptable for demo; this path should never fire in
+                // production (DEMO_MODE must be false in NODE_ENV=production).
                 await db.aIChatMessage.create({
                   data: { conversationId, role: 'assistant', content: demoText, tokens: 0, model: usedModel, ...orgCreate(authCtx) },
                 });
@@ -462,6 +473,12 @@ ${contextSection}`;
 
           // Save AI response to database (graceful: skip if db unavailable)
           try {
+            // TODO(P3-28): the AIProvider.chat()/chatStream() abstraction in
+            // src/lib/ai/providers/openai-compatible.ts returns only the message
+            // string, discarding the `usage` object from the provider response.
+            // Refactor the provider interface to return { content, usage } so we
+            // can record real token counts here too. For now, tokens: 0 is the
+            // best we can do without breaking the provider interface.
             await db.aIChatMessage.create({
               data: {
                 conversationId: finalConversationId,
