@@ -29,6 +29,24 @@ import {
 } from './types';
 
 // ============================================
+// Structured Logger (respects LOG_LEVEL env var)
+// ============================================
+
+type LogLevel = 'debug' | 'info' | 'warn' | 'error';
+const LOG_LEVELS: Record<LogLevel, number> = { debug: 10, info: 20, warn: 30, error: 40 };
+const currentLevel: LogLevel = (process.env.LOG_LEVEL as LogLevel) || 'info';
+function log(level: LogLevel, message: string, meta?: Record<string, unknown>) {
+  if (LOG_LEVELS[level] < LOG_LEVELS[currentLevel]) return;
+  const ts = new Date().toISOString();
+  const line = meta
+    ? `[${ts}] ${level.toUpperCase()} [chat-service] ${message} ${JSON.stringify(meta)}`
+    : `[${ts}] ${level.toUpperCase()} [chat-service] ${message}`;
+  if (level === 'error') console.error(line);
+  else if (level === 'warn') console.warn(line);
+  else console.log(line);
+}
+
+// ============================================
 // Configuration
 // ============================================
 
@@ -52,7 +70,7 @@ const CORS_ORIGIN = process.env.CORS_ORIGINS || process.env.NEXT_PUBLIC_APP_URL 
 // ============================================
 
 const prisma = new PrismaClient();
-console.info(`[DB] Initialized Prisma Client`);
+log('info', 'Initialized Prisma Client', { tag: 'DB' });
 
 // ============================================
 // Connected Users Tracking
@@ -107,7 +125,7 @@ if (REDIS_URL) {
       retryStrategy: (times: number) => Math.min(times * 100, 1000),
     });
   } catch (err) {
-    console.error('[RateLimit] Failed to initialize Redis for rate limiting:', err);
+    log('error', 'Failed to initialize Redis for rate limiting', { tag: 'RateLimit', error: err instanceof Error ? err.message : String(err) });
   }
 }
 
@@ -134,7 +152,7 @@ async function checkRateLimitAsync(
         return count <= limit;
       }
     } catch (err) {
-      console.error('[RateLimit] Redis rate limit error, falling back to memory:', err);
+      log('error', 'Redis rate limit error, falling back to memory', { tag: 'RateLimit', error: err instanceof Error ? err.message : String(err) });
     }
   }
 
@@ -242,7 +260,7 @@ const httpServer = createServer(async (req, res) => {
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ status: 'success' }));
     } catch (error) {
-      console.error('[WS API] Broadcast failed:', error);
+        log('error', 'Broadcast failed', { tag: 'WS API', error: error instanceof Error ? error.message : String(error) });
       res.writeHead(500, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'Internal Server Error' }));
     }
@@ -287,22 +305,22 @@ if (REDIS_URL) {
     const subClient = pubClient.duplicate();
 
     pubClient.on('connect', () => {
-      console.info('[Redis Adapter] Connected to Redis for multi-instance WebSocket sync');
+      log('info', 'Connected to Redis for multi-instance WebSocket sync', { tag: 'Redis Adapter' });
     });
     pubClient.on('error', (err: Error) => {
-      console.error('[Redis Adapter] Pub client error:', err.message);
+      log('error', 'Pub client error', { tag: 'Redis Adapter', error: err instanceof Error ? err.message : String(err) });
     });
     subClient.on('error', (err: Error) => {
-      console.error('[Redis Adapter] Sub client error:', err.message);
+      log('error', 'Sub client error', { tag: 'Redis Adapter', error: err instanceof Error ? err.message : String(err) });
     });
 
     io.adapter(createAdapter(pubClient, subClient));
-    console.info('[Redis Adapter] Socket.io Redis adapter enabled — multi-instance ready');
+    log('info', 'Socket.io Redis adapter enabled — multi-instance ready', { tag: 'Redis Adapter' });
   } catch (err) {
-    console.error('[Redis Adapter] Failed to initialize Redis adapter — running in single-instance mode:', err);
+    log('error', 'Failed to initialize Redis adapter — running in single-instance mode', { tag: 'Redis Adapter', error: err instanceof Error ? err.message : String(err) });
   }
 } else {
-  console.info('[Redis Adapter] REDIS_URL not set — running in single-instance mode');
+  log('info', 'REDIS_URL not set — running in single-instance mode', { tag: 'Redis Adapter' });
 }
 
 // ============================================
@@ -315,7 +333,7 @@ io.use(async (socket: TypedSocket, next: (err?: Error) => void) => {
     // Connection-level rate limiting
     const isAllowed = await checkRateLimitAsync(`conn:${ip}`, LIMIT_MAX_CONNECTIONS_IP, LIMIT_WINDOW_MS, rateLimits.ip);
     if (!isAllowed) {
-      console.warn(`[RateLimit] Connection rate limit exceeded for IP: ${ip}`);
+      log('warn', 'Connection rate limit exceeded for IP', { tag: 'RateLimit', ip });
       return next(new Error('Connection rate limit exceeded'));
     }
 
@@ -364,7 +382,7 @@ io.use(async (socket: TypedSocket, next: (err?: Error) => void) => {
 
     next();
   } catch (error) {
-    console.error('[Auth] Authentication error:', error);
+    log('error', 'Authentication error', { tag: 'Auth', error: error instanceof Error ? error.message : String(error) });
     next(new Error('Authentication failed'));
   }
 });
@@ -386,7 +404,7 @@ function joinRoom(socket: TypedSocket, type: RoomType, id: string) {
     userConnection.rooms.add(roomName);
   }
 
-  console.info(`[Room] ${socket.data.userName} joined room: ${roomName}`);
+  log('info', 'User joined room', { tag: 'Room', user: socket.data.userName, roomName });
 }
 
 function leaveRoom(socket: TypedSocket, type: RoomType, id: string) {
@@ -398,7 +416,7 @@ function leaveRoom(socket: TypedSocket, type: RoomType, id: string) {
     userConnection.rooms.delete(roomName);
   }
 
-  console.info(`[Room] ${socket.data.userName} left room: ${roomName}`);
+  log('info', 'User left room', { tag: 'Room', user: socket.data.userName, roomName });
 }
 
 // ============================================
@@ -412,7 +430,7 @@ async function sendNotificationCount(socket: TypedSocket, userId: string): Promi
     });
     socket.emit('notification_count', { count });
   } catch (error) {
-    console.error('[Notification] Error getting notification count:', error);
+    log('error', 'Error getting notification count', { tag: 'Notification', error: error instanceof Error ? error.message : String(error) });
   }
 }
 
@@ -424,7 +442,7 @@ async function sendNotificationCountToUser(userId: string): Promise<void> {
     const userRoom = getRoomName('user', userId);
     io.to(userRoom).emit('notification_count', { count });
   } catch (error) {
-    console.error('[Notification] Error getting notification count for user:', error);
+    log('error', 'Error getting notification count for user', { tag: 'Notification', error: error instanceof Error ? error.message : String(error) });
   }
 }
 
@@ -467,7 +485,7 @@ function findUserConnection(userId: string): ConnectedUser | undefined {
 async function handleConnection(socket: TypedSocket) {
   const { userId, organizationId, userName } = socket.data;
 
-  console.info(`[WS] User connected: ${userName} (${userId})`);
+  log('info', 'User connected', { tag: 'WS', userName, userId });
 
   // Packet/Event-level rate limiting
   socket.use(async (packet: [string, ...unknown[]], next: (err?: Error) => void) => {
@@ -478,7 +496,7 @@ async function handleConnection(socket: TypedSocket) {
     // 1. IP-based event rate limiting
     const ipAllowed = await checkRateLimitAsync(ip, LIMIT_MAX_REQUESTS_IP, LIMIT_WINDOW_MS, rateLimits.ip);
     if (!ipAllowed) {
-      console.warn(`[RateLimit] IP event limit exceeded: ${ip} (event: ${event})`);
+      log('warn', 'IP event limit exceeded', { tag: 'RateLimit', ip, event });
       socket.emit('error', { message: 'Too many requests. Please slow down.', code: 'RATE_LIMIT_EXCEEDED' });
       return; // Drop packet
     }
@@ -486,7 +504,7 @@ async function handleConnection(socket: TypedSocket) {
     // 2. User-based event rate limiting
     const userAllowed = await checkRateLimitAsync(socketUserId, LIMIT_MAX_REQUESTS_USER, LIMIT_WINDOW_MS, rateLimits.user);
     if (!userAllowed) {
-      console.warn(`[RateLimit] User event limit exceeded: ${socketUserId} (event: ${event})`);
+      log('warn', 'User event limit exceeded', { tag: 'RateLimit', user: socketUserId, event });
       socket.emit('error', { message: 'Too many requests. Please slow down.', code: 'RATE_LIMIT_EXCEEDED' });
       return; // Drop packet
     }
@@ -573,11 +591,11 @@ function setupEventHandlers(socket: TypedSocket) {
         select: { id: true, userId: true }
       });
       if (!notification) {
-        console.warn(`[Security] Notification not found: ${notificationId} (user: ${socket.data.userId})`);
+        log('warn', 'Notification not found', { tag: 'Security', notificationId, user: socket.data.userId });
         return;
       }
       if (notification.userId !== socket.data.userId) {
-        console.warn(`[Security] IDOR attempt: user ${socket.data.userId} tried to mark notification ${notificationId} owned by ${notification.userId}`);
+        log('warn', 'IDOR attempt — cross-user notification access', { tag: 'Security', user: socket.data.userId, notificationId, ownerId: notification.userId });
         return;
       }
       await prisma.notification.updateMany({
@@ -586,9 +604,9 @@ function setupEventHandlers(socket: TypedSocket) {
       });
       // Update notification count for this user
       await sendNotificationCount(socket, socket.data.userId);
-      console.info(`[Notification] Marked as read: ${notificationId}`);
+      log('info', 'Notification marked as read', { tag: 'Notification', notificationId });
     } catch (error) {
-      console.error('[Notification] Error marking notification as read:', error);
+      log('error', 'Error marking notification as read', { tag: 'Notification', error: error instanceof Error ? error.message : String(error) });
     }
   });
 
@@ -660,7 +678,7 @@ function setupEventHandlers(socket: TypedSocket) {
 
     const modelName = ENTITY_MODEL_MAP[entityType];
     if (!modelName) {
-      console.warn(`[Security] Unknown entityType '${entityType}' from user ${socket.data.userId}`);
+      log('warn', 'Unknown entityType in subscribe request', { tag: 'Security', entityType, user: socket.data.userId });
       return socket.emit('error', { message: `Unknown entity type: ${entityType}`, code: 'UNKNOWN_ENTITY' });
     }
 
@@ -677,11 +695,11 @@ function setupEventHandlers(socket: TypedSocket) {
       });
 
       if (!result) {
-        console.warn(`[Security] IDOR attempt: user ${socket.data.userId} tried to subscribe to ${entityType} ${entityId} (not found or cross-org)`);
+        log('warn', 'IDOR attempt — cross-org entity subscribe', { tag: 'Security', user: socket.data.userId, entityType, entityId });
         return socket.emit('error', { message: 'Entity not found or access denied', code: 'UNAUTHORIZED' });
       }
     } catch (error) {
-      console.error(`[WS] Entity verification failed for ${entityType} ${entityId}:`, error);
+      log('error', 'Entity verification failed', { tag: 'WS', entityType, entityId, error: error instanceof Error ? error.message : String(error) });
       return socket.emit('error', { message: 'Entity verification failed', code: 'UNAUTHORIZED' });
     }
 
@@ -731,7 +749,7 @@ function setupEventHandlers(socket: TypedSocket) {
 function handleDisconnection(socket: TypedSocket) {
   const { userId, userName } = socket.data;
 
-  console.info(`[WS] User disconnected: ${userName} (${userId})`);
+  log('info', 'User disconnected', { tag: 'WS', userName, userId });
 
   // Remove from tracking
   connectedUsers.delete(socket.id);
@@ -869,12 +887,12 @@ io.on('connection', async (socket) => {
 });
 
 httpServer.listen(PORT, () => {
-  console.info(`[WS] BluePrint WebSocket Chat Service running on port ${PORT}`);
-  console.info(`[WS] Socket.io path: '/'`);
-  console.info(`[WS] CORS origin: ${CORS_ORIGIN}`);
-  console.info(`[WS] JWT auth: enabled`);
-  console.info(`[WS] Database: Prisma Client`);
-  console.info(`[WS] Ready for connections`);
+  log('info', 'BluePrint WebSocket Chat Service running', { tag: 'WS', port: PORT });
+  log('info', "Socket.io path: '/'", { tag: 'WS' });
+  log('info', 'CORS origin configured', { tag: 'WS', corsOrigin: CORS_ORIGIN });
+  log('info', 'JWT auth: enabled', { tag: 'WS' });
+  log('info', 'Database: Prisma Client', { tag: 'WS' });
+  log('info', 'Ready for connections', { tag: 'WS' });
 });
 
 // ============================================
@@ -882,7 +900,7 @@ httpServer.listen(PORT, () => {
 // ============================================
 
 function gracefulShutdown(signal: string) {
-  console.info(`[WS] Received ${signal}, shutting down...`);
+  log('info', 'Received signal, shutting down', { tag: 'WS', signal });
 
   // Clear rate limiter cleanup interval to prevent open handles
   clearInterval(rateLimitCleanupInterval);
@@ -895,18 +913,18 @@ function gracefulShutdown(signal: string) {
     // Close database
     try {
       await prisma.$disconnect();
-      console.info('[DB] Database connection closed');
+      log('info', 'Database connection closed', { tag: 'DB' });
     } catch {
       // Database may already be closed
     }
 
-    console.info('[WS] Server closed');
+    log('info', 'Server closed', { tag: 'WS' });
     process.exit(0);
   });
 
   // Force exit after 5 seconds if graceful shutdown hangs
   setTimeout(() => {
-    console.error('[WS] Forced shutdown after timeout');
+    log('error', 'Forced shutdown after timeout', { tag: 'WS' });
     process.exit(1);
   }, 5000);
 }
