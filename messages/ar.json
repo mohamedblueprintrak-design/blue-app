@@ -254,7 +254,8 @@
       "darkMode": "الوضع الداكن",
       "online": "متصل",
       "settings": "الإعدادات",
-      "signOut": "تسجيل الخروج"
+      "signOut": "تسجيل الخروج",
+      "restartTour": "إعادة الجولة التعريفية"
     }
   },
   "navItems": {

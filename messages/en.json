@@ -254,7 +254,8 @@
       "darkMode": "Dark Mode",
       "online": "Online",
       "settings": "Settings",
-      "signOut": "Sign Out"
+      "signOut": "Sign Out",
+      "restartTour": "Restart Tour"
     }
   },
   "navItems": {

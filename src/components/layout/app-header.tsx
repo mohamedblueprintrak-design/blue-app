@@ -212,7 +212,7 @@ function AppHeader() {
             <DropdownMenuSeparator />
             <DropdownMenuItem className="cursor-pointer font-sans" onClick={() => window.dispatchEvent(new CustomEvent('restart-blueprint-tour'))}>
               <HelpCircle className="me-2 h-4 w-4" />
-              {isAr ? 'جولة تعريفية' : 'Product Tour'}
+              {t("restartTour")}
             </DropdownMenuItem>
             <DropdownMenuItem className="cursor-pointer" onClick={() => useNavStore.getState().setCurrentPage("settings")}>
               <Settings className="me-2 h-4 w-4" />
