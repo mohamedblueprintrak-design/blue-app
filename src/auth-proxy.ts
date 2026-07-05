@@ -44,7 +44,7 @@ const CSRF_EXEMPT_PATHS = [
   '/api/auth/register', '/api/auth/forgot-password',
   '/api/auth/reset-password', '/api/auth/verify-email', '/api/auth/resend-verification',
   '/api/auth/2fa/verify',
-  '/api/auth/refresh', '/api/auth/ws-token', '/api/seed',
+  '/api/auth/refresh', '/api/auth/ws-token',
   '/api/quote-requests', '/api/cron/cleanup', '/api/public/stats',
   '/api/auth/google', '/api/auth/google/callback', // Google OAuth social login
   '/api/auth/microsoft', '/api/auth/microsoft/callback', // Microsoft OAuth social login
@@ -55,7 +55,15 @@ const CSRF_EXEMPT_PATHS = [
 const PUBLIC_PAGE_ROUTES = [
   '/', '/services', '/calculator', '/quote', '/portal', '/about',
   '/forgot-password', '/reset-password', '/verify-email', '/2fa-setup',
-  '/login', '/register', '/setup-complete',
+  '/login', '/setup-complete',
+  // SECURITY: /dashboard is intentionally public so the dashboard layout can
+  // render the login form inline for unauthenticated users (original design
+  // intent — see src/app/dashboard/layout.tsx). Sub-routes (/dashboard/admin,
+  // /dashboard/projects, etc.) are NOT public — they redirect to /login, which
+  // is now a real route. The inline login form in the dashboard layout calls
+  // /api/auth/login on submit; once the JWT cookie is set, the user is
+  // redirected into the authenticated dashboard.
+  '/dashboard',
 ];
 
 function isPublicApiRoute(pathname: string): boolean {
