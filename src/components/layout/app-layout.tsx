@@ -205,7 +205,19 @@ export default function AppLayout({ language, children }: AppLayoutProps) {
             </div>
           )}
           <Breadcrumbs language={language} />
-          <main className="flex-1 overflow-y-auto">
+          {/*
+            Main content area.
+            - `flex-1` so it grows to fill below the header/breadcrumbs.
+            - `overflow-y-auto` is a no-op in the current layout (the
+              SidebarProvider wrapper has `min-h-svh` not `h-svh`, so the
+              body scrolls, not this main) — kept for future-proofing if
+              the wrapper ever gains an explicit height.
+            - `pb-[calc(...)]` reserves room for the fixed MobileBottomNav
+              (~64px tall + iOS safe-area) so the last cards/rows aren't
+              hidden behind it on mobile. `md:pb-6` gives a small breathing
+              room on desktop where the bottom nav is hidden.
+          */}
+          <main className="flex-1 overflow-y-auto pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-6">
             <SkipNavContent />
             <ErrorBoundary locale={language}>
             <Suspense fallback={<PageLoadingSkeleton />}>
