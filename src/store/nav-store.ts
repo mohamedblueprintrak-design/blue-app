@@ -30,6 +30,7 @@ const PAGE_ROUTE_MAP: Record<string, string> = {
   clients: "/dashboard/clients",
   "crm-leads": "/dashboard/crm",
   projects: "/dashboard/projects",
+  "projects-viewer": "/dashboard/projects",
   contractors: "/dashboard/contractors",
   employees: "/dashboard/employees",
   "finance-revenue": "/dashboard/finance/revenue",
@@ -180,6 +181,8 @@ export const useNavStore = create<NavStore>()((set, get) => ({
           const { currentProjectId, router } = get();
           const targetPath = (page === "projects" && currentProjectId)
             ? `${route}/${currentProjectId}`
+            : (page === "projects-viewer" && currentProjectId)
+            ? `${route}/${currentProjectId}/viewer`
             : route;
           
           if (router) {

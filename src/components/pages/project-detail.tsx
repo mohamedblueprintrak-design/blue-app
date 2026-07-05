@@ -23,6 +23,7 @@ import {
   Building2,
   Pencil,
   Sparkles,
+  PenTool,
 } from "lucide-react";
 
 // Import sub-components
@@ -196,6 +197,17 @@ export default function ProjectDetail({ language }: ProjectDetailProps) {
                 </div>
               </div>
               <div className="flex items-center gap-1.5">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 gap-1.5 text-xs bg-brand-navy-50/50 hover:bg-brand-navy-50 text-brand-navy-700 border-brand-navy-200 dark:bg-brand-navy-950/20 dark:hover:bg-brand-navy-950/40 dark:text-brand-navy-400 dark:border-brand-navy-800"
+                  onClick={() => {
+                    setCurrentPage("projects-viewer");
+                  }}
+                >
+                  <PenTool className="h-3.5 w-3.5" />
+                  {t("مستعرض المخططات", "CAD Viewer")}
+                </Button>
                 <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs">
                   <Pencil className="h-3.5 w-3.5" />
                   {t("تعديل", "Edit")}
