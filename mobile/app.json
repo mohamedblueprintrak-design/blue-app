@@ -1,0 +1,40 @@
+{
+  "expo": {
+    "name": "BluePrint ERP Mobile",
+    "slug": "blueprint-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0f172a"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "ae.blueprint.erp"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0f172a"
+      },
+      "package": "ae.blueprint.erp"
+    },
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Allow BluePrint Mobile to access your GPS coordinates for site auditing verification."
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow BluePrint Mobile to access your camera to capture and upload site inspection photos."
+        }
+      ]
+    ]
+  }
+}

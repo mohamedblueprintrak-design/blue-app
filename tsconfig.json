@@ -40,6 +40,7 @@
     "skills",
     "blue-app-fix",
     "src/stories",
-    ".storybook"
+    ".storybook",
+    "mobile"
   ]
 }
