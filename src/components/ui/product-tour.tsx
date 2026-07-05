@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { useLocale } from 'next-intl';
 import { usePathname } from 'next/navigation';
 import { ChevronRight, ChevronLeft, HelpCircle } from 'lucide-react';
@@ -77,8 +77,23 @@ export function ProductTour() {
   const [isActive, setIsActive] = useState(false);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
+  // Measured bubble height — updated via useLayoutEffect after the bubble
+  // mounts. Used by getBubbleStyles for the on-screen clamp so the bubble
+  // doesn't get pushed off-screen by an underestimated height (Arabic
+  // text wraps longer than English, so a hardcoded 220 was too small).
+  const [bubbleHeight, setBubbleHeight] = useState(240);
   
   const bubbleRef = useRef<HTMLDivElement>(null);
+
+  // After the bubble is mounted/updated, measure its actual height.
+  useLayoutEffect(() => {
+    if (bubbleRef.current) {
+      const h = bubbleRef.current.offsetHeight;
+      if (h > 0 && h !== bubbleHeight) {
+        setBubbleHeight(h);
+      }
+    }
+  }, [isActive, currentStepIndex, targetRect, bubbleHeight]);
 
   // Initialize tour check.
   //
@@ -188,9 +203,14 @@ export function ProductTour() {
     const updateRect = () => {
       const element = document.querySelector(step.selector);
       if (element) {
-        // Scroll target into view if needed
-        element.scrollIntoView({ block: 'nearest', inline: 'nearest' });
-        setTargetRect(element.getBoundingClientRect());
+        // Scroll target into view first, then measure on the next frame
+        // (scrollIntoView is async — calling getBoundingClientRect immediately
+        // returns the pre-scroll position, which causes the bubble to land
+        // in the wrong place on long pages).
+        element.scrollIntoView({ block: 'center', inline: 'center' });
+        requestAnimationFrame(() => {
+          setTargetRect(element.getBoundingClientRect());
+        });
       } else {
         // Target element not in DOM, skip or hide overlay
         setTargetRect(null);
@@ -250,7 +270,10 @@ export function ProductTour() {
 
     const margin = 12;
     const bubbleWidth = 320;
-    const bubbleHeight = 220; // approximate
+    // bubbleHeight comes from state (measured by useLayoutEffect). Arabic
+    // text wraps longer than English, so the old hardcoded 220 was too
+    // small and caused the off-screen clamp to push the bubble above the
+    // viewport.
     // RTL flip: sidebar items get position 'right' in LTR (sidebar on
     // left → bubble lands in the content area) but need 'left' in RTL
     // (sidebar on right → bubble still lands in the content area).
@@ -282,12 +305,21 @@ export function ProductTour() {
         break;
     }
 
-    // Keep bubble on screen boundaries
-    const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 1200;
-    const screenHeight = typeof window !== 'undefined' ? window.innerHeight : 800;
+    // Keep bubble within the current viewport. Because `position: 'absolute'`
+    // uses document coordinates, we must convert the viewport bounds to
+    // document coordinates by adding scrollY/scrollX. Previously this used
+    // raw window.innerWidth/innerHeight, which clamped the bubble to the
+    // TOP of the document whenever the user had scrolled — causing the
+    // bubble to land far above its target.
+    const scrollY = window.scrollY;
+    const scrollX = window.scrollX;
+    const viewportTop = scrollY + margin;
+    const viewportBottom = scrollY + window.innerHeight - bubbleHeight - margin;
+    const viewportLeft = scrollX + margin;
+    const viewportRight = scrollX + window.innerWidth - bubbleWidth - margin;
 
-    left = Math.max(margin, Math.min(left, screenWidth - bubbleWidth - margin));
-    top = Math.max(margin, Math.min(top, screenHeight - bubbleHeight - margin));
+    top = Math.max(viewportTop, Math.min(top, viewportBottom));
+    left = Math.max(viewportLeft, Math.min(left, viewportRight));
 
     return {
       position: 'absolute' as const,

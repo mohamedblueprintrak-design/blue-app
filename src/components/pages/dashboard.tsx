@@ -177,9 +177,9 @@ export default function Dashboard({ language }: { language: "ar" | "en" }) {
   };
 
   return (
-    <div id="tour-dashboard-overview" className="space-y-6">
+    <div className="space-y-6">
       {/* ===== Welcome Section with Notification Bell & Quick Create ===== */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div id="tour-dashboard-overview" className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <WelcomeSection
           userName={user?.name}
           alertsCount={alerts.length}
