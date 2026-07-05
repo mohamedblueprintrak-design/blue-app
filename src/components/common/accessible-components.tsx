@@ -113,27 +113,14 @@ export function SkipNavLink({
 }) {
   const tAuto = useTranslations();
   const defaultText = tAuto('auto.skipToMainContent');
-  // When the demo banner is visible (~36-40px tall, mounted in the root
-  // layout above {children}), a skip link at `top-4` (16px) would land
-  // INSIDE the banner's vertical range — overlapping it visually when
-  // keyboard-focused. Push the link down to `top-12` (48px) so it sits
-  // BELOW the banner with a small breathing gap. When demo mode is off
-  // (no banner), keep the default `top-4` so the link hugs the viewport
-  // corner as expected.
-  // `NEXT_PUBLIC_DEMO_MODE` is the client-readable mirror of the server
-  // `DEMO_MODE` flag (see .env.example).
-  const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
   return (
     <a
       href={`#${contentId}`}
       aria-label={tAuto('auto.skipToMainContent')}
       className={cn(
         'fixed z-[9999] -translate-y-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-md transition-transform focus:translate-y-0 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
-        // Position: right side in RTL, left side in LTR.
-        // Vertical offset: below the demo banner when it's visible,
-        // otherwise at the top corner.
-        'start-4',
-        isDemoMode ? 'top-12' : 'top-4',
+        // Position: right side in RTL, left side in LTR
+        'start-4 top-4',
         className
       )}
     >

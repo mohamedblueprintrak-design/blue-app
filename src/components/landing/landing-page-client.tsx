@@ -83,25 +83,10 @@ export default function LandingPageClient() {
   const statsCounter2 = useCounter(stats[2].value, 2000, true);
   const statsCounter3 = useCounter(stats[3].value, 1500, true);
   const statCounters = [statsCounter0, statsCounter1, statsCounter2, statsCounter3];
-  // Mirror of server-side DEMO_MODE — when on, a `<DemoBanner />`
-  // (~36px tall, mounted in src/app/layout.tsx) sits at the very top
-  // of the document in normal flow. The fixed header below would
-  // cover it without the conditional `top-10` offset applied below.
-  const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
   return (
     <div className="min-h-screen bg-[#F8FAFF]" dir={language === "ar" ? "rtl" : "ltr"} style={{ fontFamily: "var(--font-ibm-plex-arabic), var(--font-jakarta), system-ui, sans-serif" }}>
-      {/* ===== HEADER =====
-       * Spacing note: when DEMO_MODE is on, a `<DemoBanner />` (~36px
-       * tall, mounted in `src/app/layout.tsx`) sits at the very top of
-       * the document in normal flow. This header is `fixed`, so by
-       * default it would land at viewport-y=0 and COVER the banner.
-       * Push it down to `top-10` (40px) when demo mode is on so the
-       * banner stays visible with a small breathing gap above the
-       * header. When demo mode is off, the original `top-0` is used so
-       * the hero's video still extends under the transparent header
-       * (the original design intent).
-       */}
-      <header className={`fixed ${isDemoMode ? 'top-10' : 'top-0'} left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-white/95 shadow-md backdrop-blur-sm' : 'bg-transparent'}`}>
+      {/* ===== HEADER ===== */}
+      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-white/95 shadow-md backdrop-blur-sm' : 'bg-transparent'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
             <Link href="/" className="flex items-center gap-3">
