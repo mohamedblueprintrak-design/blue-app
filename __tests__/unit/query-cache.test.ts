@@ -18,9 +18,9 @@ jest.mock('../../src/lib/logger', () => ({
 }));
 
 describe('Query Cache Utilities', () => {
-  let mockGet: jest.SpiedFunction<any>;
-  let mockSet: jest.SpiedFunction<any>;
-  let mockInvalidate: jest.SpiedFunction<any>;
+  let mockGet: jest.SpiedFunction<typeof CacheManager.prototype.get>;
+  let mockSet: jest.SpiedFunction<typeof CacheManager.prototype.set>;
+  let mockInvalidate: jest.SpiedFunction<typeof CacheManager.prototype.invalidate>;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -36,7 +36,7 @@ describe('Query Cache Utilities', () => {
       const cachedData = { id: 1, name: 'Test' };
       mockGet.mockResolvedValue(cachedData);
       
-      const queryFn = jest.fn().mockResolvedValue({ id: 2, name: 'New' });
+      const queryFn = (jest.fn() as jest.MockedFunction<() => Promise<{ id: number; name: string }>>).mockResolvedValue({ id: 2, name: 'New' });
       
       const result = await cachedQuery('test-key', queryFn);
       
@@ -50,7 +50,7 @@ describe('Query Cache Utilities', () => {
       mockGet.mockResolvedValue(null);
       
       const freshData = { id: 2, name: 'New' };
-      const queryFn = jest.fn().mockResolvedValue(freshData);
+      const queryFn = (jest.fn() as jest.MockedFunction<() => Promise<{ id: number; name: string }>>).mockResolvedValue(freshData);
       
       const result = await cachedQuery('test-key', queryFn, 120);
       
@@ -64,7 +64,7 @@ describe('Query Cache Utilities', () => {
       mockGet.mockRejectedValue(new Error('Redis connection failed'));
       
       const freshData = { id: 3, name: 'Fallback' };
-      const queryFn = jest.fn().mockResolvedValue(freshData);
+      const queryFn = (jest.fn() as jest.MockedFunction<() => Promise<{ id: number; name: string }>>).mockResolvedValue(freshData);
       
       const result = await cachedQuery('test-key', queryFn);
       
@@ -78,7 +78,7 @@ describe('Query Cache Utilities', () => {
     it('is a wrapper around cachedQuery', async () => {
       mockGet.mockResolvedValue(null);
       const freshData = [1, 2, 3];
-      const queryFn = jest.fn().mockResolvedValue(freshData);
+      const queryFn = (jest.fn() as jest.MockedFunction<() => Promise<number[]>>).mockResolvedValue(freshData);
       
       const result = await withCache('test-with-cache', queryFn, CACHE_TTL.PROJECTS);
       

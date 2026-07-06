@@ -29,7 +29,7 @@ jest.spyOn(log, 'info').mockImplementation(() => {});
 
 // Mock audit service
 jest.mock('@/lib/services/audit.service', () => ({
-  logAudit: jest.fn().mockResolvedValue(undefined),
+  logAudit: (jest.fn() as jest.MockedFunction<() => Promise<void>>).mockResolvedValue(undefined),
 }));
 
 import {
@@ -40,7 +40,6 @@ import {
   enableTwoFactor,
   disableTwoFactor,
   regenerateBackupCodes,
-  _generate2FASecret,
   enable2FA,
   disable2FA,
   verify2FA,

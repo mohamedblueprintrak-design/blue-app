@@ -568,7 +568,8 @@ describe('Stripe — syncPlansWithStripe', () => {
     currency: 'usd',
     interval: 'month' as const,
     features: ['feature1'],
-    limits: { projects: 5, users: 5, storage: 1 },
+    limits: { projects: 5, users: 5, storage: 1, invoices: 5, aiCalls: 10 },
+    isActive: true,
   };
 
   it('should return results with existing product and matching price', async () => {

@@ -14,8 +14,6 @@ jest.spyOn(log, 'info').mockImplementation(() => {});
 
 import {
   AuditLogger,
-  _getAuditLogger,
-  _initAuditLogger,
   auditLog,
 } from '@/lib/security/audit-logger';
 
@@ -39,7 +37,7 @@ describe('AuditLogger — flush branches', () => {
   it('should flush with prisma client (activity model)', async () => {
     logger = new AuditLogger({ console: false, persist: true, flushInterval: 60000 });
     
-    const mockCreateMany = jest.fn<Promise<{ count: number }>>().mockResolvedValue({ count: 1 });
+    const mockCreateMany = (jest.fn() as jest.MockedFunction<(args: any) => Promise<{ count: number }>>).mockResolvedValue({ count: 1 });
     const mockPrisma = {
       activityLog: { createMany: mockCreateMany },
     };
@@ -55,7 +53,7 @@ describe('AuditLogger — flush branches', () => {
   it('should flush with prisma client (auditLog model fallback)', async () => {
     logger = new AuditLogger({ console: false, persist: true, flushInterval: 60000 });
     
-    const mockCreateMany = jest.fn<Promise<{ count: number }>>().mockResolvedValue({ count: 1 });
+    const mockCreateMany = (jest.fn() as jest.MockedFunction<(args: any) => Promise<{ count: number }>>).mockResolvedValue({ count: 1 });
     const mockPrisma = {
       activityLog: { createMany: mockCreateMany },
       // No activity model
@@ -83,7 +81,7 @@ describe('AuditLogger — flush branches', () => {
   it('should re-add entries to buffer on flush failure if not shutting down', async () => {
     logger = new AuditLogger({ console: false, persist: true, flushInterval: 60000 });
     
-    const mockCreateMany = jest.fn().mockRejectedValue(new Error('DB connection lost'));
+    const mockCreateMany = (jest.fn() as jest.MockedFunction<(args: any) => Promise<{ count: number }>>).mockRejectedValue(new Error('DB connection lost'));
     const mockPrisma = {
       activityLog: { createMany: mockCreateMany },
     };
@@ -99,7 +97,7 @@ describe('AuditLogger — flush branches', () => {
   it('should NOT re-add entries when shutting down', async () => {
     logger = new AuditLogger({ console: false, persist: true, flushInterval: 60000 });
     
-    const mockCreateMany = jest.fn().mockRejectedValue(new Error('DB error'));
+    const mockCreateMany = (jest.fn() as jest.MockedFunction<(args: any) => Promise<{ count: number }>>).mockRejectedValue(new Error('DB error'));
     const mockPrisma = {
       activityLog: { createMany: mockCreateMany },
     };
@@ -133,7 +131,7 @@ describe('AuditLogger — flush branches', () => {
       flushInterval: 60000,
     });
     
-    const mockCreateMany = jest.fn<Promise<{ count: number }>>().mockResolvedValue({ count: 2 });
+    const mockCreateMany = (jest.fn() as jest.MockedFunction<(args: any) => Promise<{ count: number }>>).mockResolvedValue({ count: 2 });
     const mockPrisma = {
       activityLog: { createMany: mockCreateMany },
     };
@@ -168,7 +166,7 @@ describe('AuditLogger — persistToDatabase detail branches', () => {
   it('should handle entries with description in details', async () => {
     logger = new AuditLogger({ console: false, persist: true, flushInterval: 60000 });
     
-    const mockCreateMany = jest.fn<Promise<{ count: number }>>().mockResolvedValue({ count: 1 });
+    const mockCreateMany = (jest.fn() as jest.MockedFunction<(args: any) => Promise<{ count: number }>>).mockResolvedValue({ count: 1 });
     const mockPrisma = {
       activityLog: { createMany: mockCreateMany },
     };
@@ -178,7 +176,7 @@ describe('AuditLogger — persistToDatabase detail branches', () => {
     
     await logger.flush();
     
-    const createCall = mockCreateMany.mock.calls[0][0];
+    const createCall = mockCreateMany.mock.calls[0][0] as { data: any[] };
     const entry = createCall.data[0];
     expect(entry.details).toBe('Custom description');
     expect(entry.organizationId).toBe('org-1');
@@ -188,7 +186,7 @@ describe('AuditLogger — persistToDatabase detail branches', () => {
   it('should handle entries without description (uses action)', async () => {
     logger = new AuditLogger({ console: false, persist: true, flushInterval: 60000 });
     
-    const mockCreateMany = jest.fn<Promise<{ count: number }>>().mockResolvedValue({ count: 1 });
+    const mockCreateMany = (jest.fn() as jest.MockedFunction<(args: any) => Promise<{ count: number }>>).mockResolvedValue({ count: 1 });
     const mockPrisma = {
       activityLog: { createMany: mockCreateMany },
     };
@@ -198,7 +196,7 @@ describe('AuditLogger — persistToDatabase detail branches', () => {
     
     await logger.flush();
     
-    const createCall = mockCreateMany.mock.calls[0][0];
+    const createCall = mockCreateMany.mock.calls[0][0] as { data: any[] };
     const entry = createCall.data[0];
     expect(entry.details).toBe('test.action_no_desc'); // Falls back to action
     // organizationId defaults to '__DENIED__' sentinel when null (not null)
@@ -209,7 +207,7 @@ describe('AuditLogger — persistToDatabase detail branches', () => {
   it('should handle entries with context fields', async () => {
     logger = new AuditLogger({ console: false, persist: true, flushInterval: 60000 });
     
-    const mockCreateMany = jest.fn<Promise<{ count: number }>>().mockResolvedValue({ count: 1 });
+    const mockCreateMany = (jest.fn() as jest.MockedFunction<(args: any) => Promise<{ count: number }>>).mockResolvedValue({ count: 1 });
     const mockPrisma = {
       activityLog: { createMany: mockCreateMany },
     };
@@ -227,7 +225,7 @@ describe('AuditLogger — persistToDatabase detail branches', () => {
     
     await logger.flush();
     
-    const createCall = mockCreateMany.mock.calls[0][0];
+    const createCall = mockCreateMany.mock.calls[0][0] as { data: any[] };
     const entry = createCall.data[0];
     expect(entry.userId).toBe('user-1');
     // Rich audit fields (ip, userAgent, path, method, resource, requestId) are
@@ -268,7 +266,7 @@ describe('AuditLogger — query filter branches', () => {
   });
 
   it('should query with all filter options', async () => {
-    const mockFindMany = jest.fn<Promise<unknown[]>>().mockResolvedValue([]);
+    const mockFindMany = (jest.fn() as jest.MockedFunction<(args: any) => Promise<unknown[]>>).mockResolvedValue([]);
     const mockPrisma = {
       activityLog: { findMany: mockFindMany },
     };
@@ -303,7 +301,7 @@ describe('AuditLogger — query filter branches', () => {
   });
 
   it('should query with only startDate', async () => {
-    const mockFindMany = jest.fn<Promise<unknown[]>>().mockResolvedValue([]);
+    const mockFindMany = (jest.fn() as jest.MockedFunction<(args: any) => Promise<unknown[]>>).mockResolvedValue([]);
     const mockPrisma = {
       activityLog: { findMany: mockFindMany },
     };
@@ -313,14 +311,14 @@ describe('AuditLogger — query filter branches', () => {
       startDate: new Date('2024-01-01'),
     });
     
-    const where = mockFindMany.mock.calls[0][0].where;
+    const where = (mockFindMany.mock.calls[0][0] as { where: any }).where;
     expect(where.timestamp).toBeDefined();
     expect(where.timestamp.gte).toBeDefined();
     expect(where.timestamp.lte).toBeUndefined();
   });
 
   it('should query with only endDate', async () => {
-    const mockFindMany = jest.fn<Promise<unknown[]>>().mockResolvedValue([]);
+    const mockFindMany = (jest.fn() as jest.MockedFunction<(args: any) => Promise<unknown[]>>).mockResolvedValue([]);
     const mockPrisma = {
       activityLog: { findMany: mockFindMany },
     };
@@ -330,13 +328,13 @@ describe('AuditLogger — query filter branches', () => {
       endDate: new Date('2024-12-31'),
     });
     
-    const where = mockFindMany.mock.calls[0][0].where;
+    const where = (mockFindMany.mock.calls[0][0] as { where: any }).where;
     expect(where.timestamp).toBeDefined();
     expect(where.timestamp.lte).toBeDefined();
   });
 
   it('should use default limit and offset', async () => {
-    const mockFindMany = jest.fn<Promise<unknown[]>>().mockResolvedValue([]);
+    const mockFindMany = (jest.fn() as jest.MockedFunction<(args: any) => Promise<unknown[]>>).mockResolvedValue([]);
     const mockPrisma = {
       activityLog: { findMany: mockFindMany },
     };
@@ -359,7 +357,7 @@ describe('AuditLogger — query filter branches', () => {
 
 describe('AuditLogger — console output branches', () => {
   let logger: AuditLogger;
-  let consoleSpy: jest.SpyInstance;
+  let consoleSpy: jest.SpiedFunction<typeof console.info>;
 
   beforeEach(() => {
     consoleSpy = jest.spyOn(console, 'info').mockImplementation(() => {});
@@ -424,7 +422,7 @@ describe('AuditLogger — minimum level filtering', () => {
   });
 
   it('should skip INFO when minimum is WARNING', () => {
-    const mockCreateMany = jest.fn<Promise<{ count: number }>>().mockResolvedValue({ count: 0 });
+    const mockCreateMany = (jest.fn() as jest.MockedFunction<(args: any) => Promise<{ count: number }>>).mockResolvedValue({ count: 0 });
     logger = new AuditLogger({ minLevel: 'WARNING', console: false, persist: true, flushInterval: 60000 });
     logger.setPrismaClient({ activityLog: { createMany: mockCreateMany } });
     
@@ -447,7 +445,7 @@ describe('AuditLogger — minimum level filtering', () => {
   });
 
   it('should skip WARNING when minimum is ERROR', () => {
-    const mockCreateMany = jest.fn<Promise<{ count: number }>>().mockResolvedValue({ count: 0 });
+    const mockCreateMany = (jest.fn() as jest.MockedFunction<(args: any) => Promise<{ count: number }>>).mockResolvedValue({ count: 0 });
     logger = new AuditLogger({ minLevel: 'ERROR', console: false, persist: true, flushInterval: 60000 });
     logger.setPrismaClient({ activityLog: { createMany: mockCreateMany } });
     
@@ -467,7 +465,7 @@ describe('AuditLogger — minimum level filtering', () => {
   });
 
   it('should only allow CRITICAL when minimum is CRITICAL', () => {
-    const mockCreateMany = jest.fn<Promise<{ count: number }>>().mockResolvedValue({ count: 0 });
+    const mockCreateMany = (jest.fn() as jest.MockedFunction<(args: any) => Promise<{ count: number }>>).mockResolvedValue({ count: 0 });
     logger = new AuditLogger({ minLevel: 'CRITICAL', console: false, persist: true, flushInterval: 60000 });
     logger.setPrismaClient({ activityLog: { createMany: mockCreateMany } });
     

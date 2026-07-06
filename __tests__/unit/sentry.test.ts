@@ -10,6 +10,13 @@ import {
 } from '@/lib/monitoring/sentry';
 import { log } from '@/lib/logger';
 
+const setNodeEnv = (value: string) => {
+  (process.env as { NODE_ENV?: string }).NODE_ENV = value;
+};
+const deleteNodeEnv = () => {
+  delete (process.env as { NODE_ENV?: string }).NODE_ENV;
+};
+
 // Mock logger error method using spyOn
 const mockLogError = jest.fn();
 const mockInit = jest.fn();
@@ -33,7 +40,7 @@ describe('Sentry Monitoring Service', () => {
     resetSentryForTesting();
     delete process.env.NEXT_PUBLIC_SENTRY_DSN;
     delete process.env.SENTRY_DSN;
-    delete process.env.NODE_ENV;
+    deleteNodeEnv();
     delete process.env.SENTRY_ENABLE_DEV;
     delete process.env.NEXT_PUBLIC_APP_VERSION;
 
@@ -99,7 +106,7 @@ describe('Sentry Monitoring Service', () => {
   });
 
   it('should filter sensitive headers and body fields in beforeSend', () => {
-    process.env.NODE_ENV = 'production';
+    setNodeEnv('production');
     const mockEvent = {
       request: {
         headers: {
@@ -127,7 +134,7 @@ describe('Sentry Monitoring Service', () => {
   });
 
   it('should return null in development environment unless SENTRY_ENABLE_DEV is active', () => {
-    process.env.NODE_ENV = 'development';
+    setNodeEnv('development');
     delete process.env.SENTRY_ENABLE_DEV;
 
     const event = { request: {} };
@@ -136,7 +143,7 @@ describe('Sentry Monitoring Service', () => {
   });
 
   it('should return the event in development when SENTRY_ENABLE_DEV is set to true', () => {
-    process.env.NODE_ENV = 'development';
+    setNodeEnv('development');
     process.env.SENTRY_ENABLE_DEV = 'true';
 
     const event = { request: {} };

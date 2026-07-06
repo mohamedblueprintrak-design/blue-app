@@ -314,12 +314,12 @@ describe('Authorization — canAccessResource', () => {
   it('should check various resource types with ADMIN', () => {
     expect(canAccessResource('ADMIN', 'project', 'create')).toBe(true);
     expect(canAccessResource('ADMIN', 'invoice', 'read')).toBe(true);
-    expect(canAccessResource('ADMIN', 'task', 'update')).toBe(true);
+    expect(canAccessResource('ADMIN', 'task', 'write')).toBe(true);
     expect(canAccessResource('ADMIN', 'user', 'delete')).toBe(true);
     expect(canAccessResource('ADMIN', 'document', 'create')).toBe(true);
     expect(canAccessResource('ADMIN', 'contract', 'read')).toBe(true);
     expect(canAccessResource('ADMIN', 'budget', 'read')).toBe(true);
-    expect(canAccessResource('ADMIN', 'settings', 'update')).toBe(true);
+    expect(canAccessResource('ADMIN', 'settings', 'write')).toBe(true);
     expect(canAccessResource('ADMIN', 'reports', 'read')).toBe(true);
   });
 

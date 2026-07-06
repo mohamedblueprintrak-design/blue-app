@@ -177,7 +177,7 @@ describe('Password — checkPasswordBreached', () => {
 
   it('should return false when API returns non-ok response', async () => {
     // Mock global fetch to return non-ok
-    const mockFetch = jest.fn<Promise<Response>>().mockResolvedValue({
+    const mockFetch = (jest.fn() as jest.MockedFunction<typeof fetch>).mockResolvedValue({
       ok: false,
       text: async () => '',
     } as unknown as Response);
@@ -188,7 +188,7 @@ describe('Password — checkPasswordBreached', () => {
   });
 
   it('should return false when password is not found in breach data', async () => {
-    const mockFetch = jest.fn<Promise<Response>>().mockResolvedValue({
+    const mockFetch = (jest.fn() as jest.MockedFunction<typeof fetch>).mockResolvedValue({
       ok: true,
       text: async () => 'SOMEOTHERHASH:5\nANOTHERHASH:10',
     } as unknown as Response);
@@ -205,7 +205,7 @@ describe('Password — checkPasswordBreached', () => {
     const _prefix = sha1.substring(0, 5);
     const suffix = sha1.substring(5);
 
-    const mockFetch = jest.fn<Promise<Response>>().mockResolvedValue({
+    const mockFetch = (jest.fn() as jest.MockedFunction<typeof fetch>).mockResolvedValue({
       ok: true,
       text: async () => `${suffix}:5`,
     } as unknown as Response);
@@ -220,7 +220,7 @@ describe('Password — checkPasswordBreached', () => {
     const sha1 = crypto.createHash('sha1').update('testpassword').digest('hex').toUpperCase();
     const suffix = sha1.substring(5);
 
-    const mockFetch = jest.fn<Promise<Response>>().mockResolvedValue({
+    const mockFetch = (jest.fn() as jest.MockedFunction<typeof fetch>).mockResolvedValue({
       ok: true,
       text: async () => `${suffix}:0`,
     } as unknown as Response);

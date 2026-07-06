@@ -1,4 +1,8 @@
 import { jest, describe, it, expect } from '@jest/globals';
+
+const setNodeEnv = (value: string) => {
+  (process.env as { NODE_ENV?: string }).NODE_ENV = value;
+};
 import {
   generateAccessToken,
   generatePasswordResetToken,
@@ -107,7 +111,7 @@ describe('JWT Auth Module', () => {
 
     it('decodes token safely in development', async () => {
       const originalEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'development';
+      setNodeEnv('development');
       
       const token = await generateAccessToken(mockPayload);
       const decoded = decodeToken(token);
@@ -115,19 +119,19 @@ describe('JWT Auth Module', () => {
       expect(decoded).not.toBeNull();
       expect(decoded?.userId).toBe(mockPayload.userId);
       
-      process.env.NODE_ENV = originalEnv;
+      setNodeEnv(originalEnv as string);
     });
 
     it('returns null when decoding token in production', async () => {
       const originalEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'production';
+      setNodeEnv('production');
       
       const token = await generateAccessToken(mockPayload);
       const decoded = decodeToken(token);
       
       expect(decoded).toBeNull();
       
-      process.env.NODE_ENV = originalEnv;
+      setNodeEnv(originalEnv as string);
     });
   });
 });

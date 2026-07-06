@@ -14,11 +14,11 @@ import {
 jest.mock('stripe', () => {
   return jest.fn().mockImplementation(() => ({
     customers: {
-      create: jest.fn().mockResolvedValue({ id: 'cus_123' }),
-      retrieve: jest.fn().mockResolvedValue({ id: 'cus_123' }),
+      create: (jest.fn() as jest.MockedFunction<() => Promise<{ id: string }>>).mockResolvedValue({ id: 'cus_123' }),
+      retrieve: (jest.fn() as jest.MockedFunction<() => Promise<{ id: string }>>).mockResolvedValue({ id: 'cus_123' }),
     },
     paymentIntents: {
-      create: jest.fn().mockResolvedValue({ id: 'pi_123' }),
+      create: (jest.fn() as jest.MockedFunction<() => Promise<{ id: string }>>).mockResolvedValue({ id: 'pi_123' }),
     },
   }));
 });

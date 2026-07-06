@@ -1,4 +1,4 @@
-import { jest, describe, it, expect, beforeEach } from '@jest/globals';
+import { jest, describe, it, expect, beforeEach, afterEach } from '@jest/globals';
 import {
   hashToken,
   normalizeRoleForClient,
@@ -9,6 +9,11 @@ import {
   generateDbRefreshToken
 } from '../../src/lib/auth/token-utils';
 import { db } from '../../src/lib/db';
+
+
+const setNodeEnv = (value: string) => {
+  (process.env as { NODE_ENV?: string }).NODE_ENV = value;
+};
 
 
 // Mock logger
@@ -82,7 +87,7 @@ describe('Auth Token Utils', () => {
     });
 
     it('throws error if ENCRYPTION_KEY is missing in production', () => {
-      process.env.NODE_ENV = 'production';
+      setNodeEnv('production');
       delete process.env.ENCRYPTION_KEY;
       delete process.env.JWT_SECRET;
       
@@ -90,7 +95,7 @@ describe('Auth Token Utils', () => {
     });
 
     it('falls back to JWT_SECRET in development if ENCRYPTION_KEY is missing', () => {
-      process.env.NODE_ENV = 'development';
+      setNodeEnv('development');
       delete process.env.ENCRYPTION_KEY;
       process.env.JWT_SECRET = 'my-dev-secret';
       
@@ -121,7 +126,7 @@ describe('Auth Token Utils', () => {
   describe('getAuthCookieOptions', () => {
     it('returns correct cookie options for development', () => {
       const originalEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'development';
+      setNodeEnv('development');
       
       const options = getAuthCookieOptions(3600);
       expect(options.maxAge).toBe(3600);
@@ -129,17 +134,17 @@ describe('Auth Token Utils', () => {
       expect(options.secure).toBe(false);
       expect(options.sameSite).toBe('lax');
       
-      process.env.NODE_ENV = originalEnv;
+      setNodeEnv(originalEnv as string);
     });
 
     it('returns secure cookie options for production', () => {
       const originalEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'production';
+      setNodeEnv('production');
       
       const options = getAuthCookieOptions(3600);
       expect(options.secure).toBe(true);
       
-      process.env.NODE_ENV = originalEnv;
+      setNodeEnv(originalEnv as string);
     });
   });
 
@@ -160,7 +165,9 @@ describe('Auth Token Utils', () => {
       expect(token).toBe(mockUuid1 + mockUuid2);
       expect(db.refreshToken.create).toHaveBeenCalled();
       
-      const createCallArgs = (db.refreshToken.create as jest.Mock).mock.calls[0][0];
+      const createCallArgs = (db.refreshToken.create as jest.Mock).mock.calls[0][0] as {
+        data: { userId: string; tokenHash: string; expiresAt: Date };
+      };
       expect(createCallArgs.data.userId).toBe(userId);
       expect(createCallArgs.data.tokenHash).toBeDefined();
       expect(createCallArgs.data.expiresAt).toBeInstanceOf(Date);

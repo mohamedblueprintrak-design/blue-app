@@ -12,9 +12,13 @@
 
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 
+const setNodeEnv = (value: string) => {
+  (process.env as { NODE_ENV?: string }).NODE_ENV = value;
+};
+
 // Set JWT_SECRET and ENCRYPTION_KEY BEFORE importing any modules
-process.env.JWT_SECRET = 'blue-test-secret-key-must-be-at-least-32-chars!';
-process.env.ENCRYPTION_KEY = 'a'.repeat(64);
+(process.env as { JWT_SECRET?: string }).JWT_SECRET = 'blue-test-secret-key-must-be-at-least-32-chars!';
+(process.env as { ENCRYPTION_KEY?: string }).ENCRYPTION_KEY = 'a'.repeat(64);
 
 import {
   normalizeRoleForClient,
@@ -205,18 +209,18 @@ describe('Token Utils — getAuthCookieOptions', () => {
 
   it('should set secure to true in production', () => {
     const originalEnv = process.env.NODE_ENV;
-    process.env.NODE_ENV = 'production';
+    setNodeEnv('production');
     const options = getAuthCookieOptions(900);
     expect(options.secure).toBe(true);
-    process.env.NODE_ENV = originalEnv;
+    setNodeEnv(originalEnv as string);
   });
 
   it('should set secure to false in development', () => {
     const originalEnv = process.env.NODE_ENV;
-    process.env.NODE_ENV = 'development';
+    setNodeEnv('development');
     const options = getAuthCookieOptions(900);
     expect(options.secure).toBe(false);
-    process.env.NODE_ENV = originalEnv;
+    setNodeEnv(originalEnv as string);
   });
 });
 

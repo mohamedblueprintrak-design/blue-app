@@ -16,7 +16,7 @@ jest.spyOn(log, 'error').mockImplementation(() => {});
 jest.spyOn(log, 'info').mockImplementation(() => {});
 
 jest.mock('@/lib/services/audit.service', () => ({
-  logAudit: jest.fn().mockResolvedValue(undefined),
+  logAudit: (jest.fn() as jest.MockedFunction<() => Promise<void>>).mockResolvedValue(undefined),
 }));
 
 import {

@@ -9,8 +9,12 @@
 
 import { describe, it, expect, beforeAll, afterEach } from '@jest/globals';
 
+const setNodeEnv = (value: string) => {
+  (process.env as { NODE_ENV?: string }).NODE_ENV = value;
+};
+
 // Set JWT_SECRET before any module loads — getJwtSecretBytes() now requires it
-process.env.JWT_SECRET = 'test-jwt-secret-for-coverage-tests-min-32-chars!';
+(process.env as { JWT_SECRET?: string }).JWT_SECRET = 'test-jwt-secret-for-coverage-tests-min-32-chars!';
 
 // Use dynamic imports throughout to ensure modules load with the test environment.
 
@@ -446,25 +450,25 @@ describe('JWT Module — decodeToken', () => {
     });
     // Now switch to production — decodeToken should return null
     const originalEnv = process.env.NODE_ENV;
-    process.env.NODE_ENV = 'production';
+    setNodeEnv('production');
     const result = decodeToken(token);
     expect(result).toBeNull();
-    process.env.NODE_ENV = originalEnv;
+    setNodeEnv(originalEnv as string);
   });
 
   it('should return null for malformed tokens', () => {
     const originalEnv = process.env.NODE_ENV;
-    process.env.NODE_ENV = 'development';
+    setNodeEnv('development');
     expect(decodeToken('not-a-jwt')).toBeNull();
     expect(decodeToken('only.two')).toBeNull();
-    process.env.NODE_ENV = originalEnv;
+    setNodeEnv(originalEnv as string);
   });
 
   it('should return null for tokens with invalid base64', () => {
     const originalEnv = process.env.NODE_ENV;
-    process.env.NODE_ENV = 'development';
+    setNodeEnv('development');
     expect(decodeToken('a.!!!.c')).toBeNull();
-    process.env.NODE_ENV = originalEnv;
+    setNodeEnv(originalEnv as string);
   });
 });
 

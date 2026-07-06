@@ -57,7 +57,7 @@ describe('Email — Resend provider branches', () => {
     process.env.RESEND_API_KEY = 're_test_key_123';
     
     // Mock fetch to return error response
-    const mockFetch = jest.fn<Promise<Response>>().mockResolvedValue({
+    const mockFetch = (jest.fn() as jest.MockedFunction<typeof fetch>).mockResolvedValue({
       ok: false,
       status: 422,
       json: async () => ({ message: 'Invalid email address', error: { message: 'Invalid email' } }),
@@ -165,7 +165,7 @@ describe('Email — SMTP provider branches', () => {
     process.env.SMTP_PORT = '587';
     
     // Mock nodemailer
-    const mockVerify = jest.fn<Promise<boolean>>().mockResolvedValue(true);
+    const mockVerify = (jest.fn() as jest.MockedFunction<() => Promise<boolean>>).mockResolvedValue(true);
     const mockCreateTransport = jest.fn().mockReturnValue({
       verify: mockVerify,
       sendMail: jest.fn(),
@@ -191,7 +191,7 @@ describe('Email — SMTP provider branches', () => {
     process.env.SMTP_PASSWORD = 'password';
     process.env.SMTP_PORT = '587';
     
-    const mockVerify = jest.fn<Promise<boolean>>().mockRejectedValue(new Error('Connection refused'));
+    const mockVerify = (jest.fn() as jest.MockedFunction<() => Promise<boolean>>).mockRejectedValue(new Error('Connection refused'));
     const mockCreateTransport = jest.fn().mockReturnValue({
       verify: mockVerify,
       sendMail: jest.fn(),
@@ -265,13 +265,13 @@ describe('Email — createTransporter secure/port branches', () => {
   });
 
   it('should use secure=false for other ports', () => {
-    const smtpPort = 587;
+    const smtpPort: number = 587;
     const smtpSecure = process.env.SMTP_SECURE === 'true' || smtpPort === 465;
     expect(smtpSecure).toBe(false);
   });
 
   it('should use secure=true when SMTP_SECURE is true', () => {
-    const smtpPort = 587;
+    const smtpPort: number = 587;
     const smtpSecure = 'true' === 'true' || smtpPort === 465;
     expect(smtpSecure).toBe(true);
   });

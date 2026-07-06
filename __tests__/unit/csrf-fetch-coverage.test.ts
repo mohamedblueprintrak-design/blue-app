@@ -20,7 +20,7 @@ describe('CSRF Fetch — with window mock', () => {
     originalWindow = globalThis.window;
     originalFetch = globalThis.fetch;
     
-    mockFetch = jest.fn<Promise<Response>>().mockResolvedValue(new Response('OK'));
+    mockFetch = (jest.fn() as jest.MockedFunction<typeof fetch>).mockResolvedValue(new Response('OK')) as unknown as jest.Mock;
     
     // Set up window mock before importing
     (globalThis as any).window = {

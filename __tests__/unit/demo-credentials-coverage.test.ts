@@ -5,6 +5,13 @@
 
 import { describe, it, expect, afterEach } from '@jest/globals';
 
+const setNodeEnv = (value: string) => {
+  (process.env as { NODE_ENV?: string }).NODE_ENV = value;
+};
+const deleteNodeEnv = () => {
+  delete (process.env as { NODE_ENV?: string }).NODE_ENV;
+};
+
 import {
   DEMO_CREDENTIALS,
   getDemoPassword,
@@ -150,9 +157,9 @@ describe('Demo Credentials — validateDemoMode', () => {
 
   afterEach(() => {
     if (originalNodeEnv !== undefined) {
-      process.env.NODE_ENV = originalNodeEnv;
+      setNodeEnv(originalNodeEnv);
     } else {
-      delete process.env.NODE_ENV;
+      deleteNodeEnv();
     }
     if (originalDemoMode !== undefined) {
       process.env.DEMO_MODE = originalDemoMode;
@@ -172,19 +179,19 @@ describe('Demo Credentials — validateDemoMode', () => {
   });
 
   it('should throw when DEMO_MODE is true in production', () => {
-    process.env.NODE_ENV = 'production';
+    setNodeEnv('production');
     process.env.DEMO_MODE = 'true';
     expect(() => validateDemoMode()).toThrow('SECURITY');
   });
 
   it('should not throw when DEMO_MODE is false in production', () => {
-    process.env.NODE_ENV = 'production';
+    setNodeEnv('production');
     process.env.DEMO_MODE = 'false';
     expect(() => validateDemoMode()).not.toThrow();
   });
 
   it('should not throw when DEMO_MODE is true in development', () => {
-    process.env.NODE_ENV = 'development';
+    setNodeEnv('development');
     process.env.DEMO_MODE = 'true';
     expect(() => validateDemoMode()).not.toThrow();
   });

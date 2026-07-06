@@ -34,7 +34,7 @@ function makeRequest(
   options: { method?: string; body?: unknown; headers?: Record<string, string> } = {}
 ): NextRequest {
   const url = `http://localhost:3000${path}`;
-  const init: RequestInit = {
+  const init: ConstructorParameters<typeof NextRequest>[1] = {
     method: options.method || 'GET',
     headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
   };
