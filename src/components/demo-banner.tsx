@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { AlertTriangle, RefreshCw } from 'lucide-react';
+import Link from 'next/link';
+import { AlertTriangle, RefreshCw, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 
@@ -39,13 +40,23 @@ export function DemoBanner() {
 
   return (
     <div className="bg-blue-600 text-white px-4 py-2 flex items-center justify-between text-sm z-50 fixed top-0 left-0 right-0 h-[var(--demo-banner-height)] overflow-hidden">
-      <div className="flex items-center gap-2">
-        <AlertTriangle className="h-4 w-4" />
-        <span className="font-medium hidden sm:inline">DEMO MODE:</span>
-        <span>هذه البيئة مخصصة للعرض التجريبي. البيانات وهمية وتُستخدم لغرض التجربة فقط.</span>
+      <div className="flex items-center gap-2 flex-1 min-w-0">
+        <AlertTriangle className="h-4 w-4 flex-shrink-0" />
+        <span className="font-medium hidden sm:inline flex-shrink-0">DEMO MODE:</span>
+        <span className="truncate">هذه البيئة مخصصة للعرض التجريبي. البيانات وهمية وتُستخدم لغرض التجربة فقط.</span>
       </div>
       
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 flex-shrink-0">
+        <Link href="/demo-showcase">
+          <Button 
+            variant="secondary" 
+            size="sm" 
+            className="h-7 text-xs bg-white text-blue-600 hover:bg-blue-50"
+          >
+            <Sparkles className="h-3 w-3 me-2" />
+            عرض المميزات
+          </Button>
+        </Link>
         <Button 
           variant="secondary" 
           size="sm" 
