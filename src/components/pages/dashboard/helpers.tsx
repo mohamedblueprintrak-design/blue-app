@@ -7,6 +7,8 @@ import {
 import type { LucideIcon } from "lucide-react";
 import { StatusIcon } from "@/components/ui/status-icon";
 
+import { formatToHijri } from "@/lib/hijri-utils";
+
 // ===== Formatting Helpers =====
 
 /**
@@ -72,10 +74,7 @@ export function formatDueDate(dueDate: string | null, isAr: boolean): string {
 
     if (isAr) {
       try {
-        const hijri = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', {
-          day: 'numeric',
-          month: 'short',
-        }).format(date);
+        const hijri = formatToHijri(date, { day: 'numeric', month: 'short', locale: 'ar' });
         return `${gregorian} (${hijri})`;
       } catch {
         return gregorian;

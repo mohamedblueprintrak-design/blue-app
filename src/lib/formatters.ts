@@ -2,6 +2,7 @@
 // Centralized formatting utilities to avoid duplication across 20+ page components.
 
 import { formatCurrency as formatCurrencyMulti } from './currency';
+import { formatToHijri } from './hijri-utils';
 
 /**
  * Format a number as AED currency (backward-compatible)
@@ -75,11 +76,7 @@ export function formatDate(
 
     if (shouldShowHijri) {
       try {
-        const hijri = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', {
-          day: 'numeric',
-          month: 'short',
-          year: 'numeric',
-        }).format(date);
+        const hijri = formatToHijri(date, { day: 'numeric', month: 'short', year: 'numeric', locale: ar ? 'ar' : 'en' });
         return ar
           ? `${gregorian} (${hijri} هـ)`
           : `${gregorian} (AH ${hijri})`;

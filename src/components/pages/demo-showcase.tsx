@@ -115,6 +115,7 @@ const SECTIONS: ShowcaseSection[] = [
     descAr: 'تطبيق Expo React Native للمهندسين الميدانيين مع وضع offline ومزامنة تلقائية',
     descEn: 'Expo React Native app for field engineers with offline mode and auto-sync',
     status: 'needs-config',
+    demoUrl: '/dashboard/features-hub',
     features: [
       { ar: 'وضع offline كامل (SQLite)', en: 'Full offline mode (SQLite)', demo: true },
       { ar: 'تسجيل زيارات الموقع بالـ GPS', en: 'GPS site visit logging', demo: true },
@@ -162,7 +163,7 @@ const SECTIONS: ShowcaseSection[] = [
     descAr: 'ذكاء اصطناعي يكشف الفوترة المزدوجة، التأخر غير الطبيعي، وتجاوز الميزانية',
     descEn: 'AI engine detecting double billing, abnormal delays, and budget overruns',
     status: 'needs-config',
-    demoUrl: '/api/cron/audit',
+    demoUrl: '/dashboard/finance',
     features: [
       { ar: 'كشف الدفعات المكررة (7 أيام)', en: 'Duplicate payment detection (7 days)', demo: true },
       { ar: 'تنبيهات التأخر (60+ يوم)', en: 'Overdue alerts (60+ days)', demo: true },
@@ -179,6 +180,7 @@ const SECTIONS: ShowcaseSection[] = [
     descAr: 'توليد تقرير مالي PDF أسبوعيًا وإرساله بالبريد للمدراء تلقائيًا',
     descEn: 'Weekly PDF financial report auto-generated and emailed to managers',
     status: 'needs-config',
+    demoUrl: '/dashboard/report-builder',
     features: [
       { ar: 'تقرير PDF احترافي بالعملة المحلية', en: 'Pro PDF report in local currency', demo: true },
       { ar: 'ملخص آخر 3 شهور', en: '3-month summary', demo: true },
@@ -214,6 +216,7 @@ const SECTIONS: ShowcaseSection[] = [
     descAr: 'Socket.io للـ chat والإشعارات الفورية، Web Push للإشعارات على الموبايل',
     descEn: 'Socket.io for chat & instant notifications, Web Push for mobile push',
     status: 'demo',
+    demoUrl: '/dashboard/features-hub',
     features: [
       { ar: 'Socket.io chat داخل النظام', en: 'In-app Socket.io chat', demo: true },
       { ar: 'إشعارات فورية داخل التطبيق', en: 'In-app instant notifications', demo: true },
@@ -245,6 +248,7 @@ const SECTIONS: ShowcaseSection[] = [
     descAr: 'يعمل كـ app على الموبايل، يدعم offline mode، وقابل للتثبيت',
     descEn: 'Works as a mobile app, supports offline mode, installable',
     status: 'live',
+    demoUrl: '/dashboard',
     features: [
       { ar: 'قابل للتثبيت على الموبايل', en: 'Installable on mobile', demo: true },
       { ar: 'يعمل offline (Serwist)', en: 'Offline support (Serwist)', demo: true },
@@ -259,6 +263,7 @@ const SECTIONS: ShowcaseSection[] = [
     descAr: 'عربي/إنجليزي مع RTL/LTR و تقويم هجري',
     descEn: 'Arabic/English with RTL/LTR and Hijri calendar',
     status: 'live',
+    demoUrl: '/dashboard',
     features: [
       { ar: 'عربي/إنجليزي بالكامل', en: 'Full AR/EN', demo: true },
       { ar: 'RTL/LTR تلقائي', en: 'Auto RTL/LTR', demo: true },

@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl';
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Bell, Plus, UserRoundPlus } from "lucide-react";
+import { formatToHijri } from "@/lib/hijri-utils";
 
 interface WelcomeSectionProps {
   userName: string | undefined;
@@ -31,13 +32,9 @@ export function WelcomeSection({ userName, alertsCount, isAr, onNavigate }: Welc
 
     if (isAr) {
       try {
-        const hijri = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', {
-          weekday: 'long',
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric',
-        }).format(now);
-        setDateStr(`${gregorian} | ${hijri} هـ`);
+        const weekday = new Intl.DateTimeFormat('ar-SA-u-ca-gregory', { weekday: 'long' }).format(now);
+        const hijri = formatToHijri(now, { day: 'numeric', month: 'long', year: 'numeric', locale: 'ar' });
+        setDateStr(`${gregorian} | ${weekday}، ${hijri} هـ`);
       } catch {
         setDateStr(gregorian);
       }

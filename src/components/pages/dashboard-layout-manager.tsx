@@ -43,7 +43,7 @@ interface SavedLayout {
 // ===== Default Widget Configuration =====
 export const defaultWidgets: DashboardWidgetConfig[] = [
   { id: "kpi-cards", title: "المؤشرات الرئيسية", titleEn: "KPI Stats", defaultOrder: 0, defaultVisible: true, defaultSize: "md" },
-  { id: "quick-overview", title: "نظرة سريعة", titleEn: "Quick Overview", defaultOrder: 1, defaultVisible: true, defaultSize: "md" },
+  { id: "quick-overview", title: "نظرة سريعة", titleEn: "Quick Overview", defaultOrder: 1, defaultVisible: false, defaultSize: "md" },
   { id: "revenue-chart", title: "الإيرادات", titleEn: "Revenue Chart", defaultOrder: 2, defaultVisible: true, defaultSize: "md" },
   { id: "my-tasks", title: "مهامي + حالة النظام", titleEn: "My Tasks & System", defaultOrder: 3, defaultVisible: true, defaultSize: "md" },
   { id: "recent-projects", title: "أحدث المشاريع", titleEn: "Recent Projects", defaultOrder: 4, defaultVisible: true, defaultSize: "md" },
