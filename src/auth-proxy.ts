@@ -56,6 +56,10 @@ const PUBLIC_PAGE_ROUTES = [
   '/', '/services', '/calculator', '/quote', '/portal', '/about',
   '/forgot-password', '/reset-password', '/verify-email', '/2fa-setup',
   '/login', '/setup-complete',
+  // /demo-showcase is the public features showcase page — must be
+  // reachable without authentication so it can be used in presentations
+  // to non-logged-in viewers.
+  '/demo-showcase',
   // SECURITY: /dashboard is intentionally public so the dashboard layout can
   // render the login form inline for unauthenticated users (original design
   // intent — see src/app/dashboard/layout.tsx). Sub-routes (/dashboard/admin,
