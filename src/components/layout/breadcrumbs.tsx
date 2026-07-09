@@ -114,7 +114,12 @@ export default function Breadcrumbs({ language }: BreadcrumbsProps) {
     crumbs.push({
       label: parentLabel ? t(parentLabel.ar, parentLabel.en) : parentPage,
       isCurrent: false,
-      onClick: () => setCurrentPage(parentPage),
+      onClick: () => {
+        if (parentPage === "site") setCurrentPage("site-visits");
+        else if (parentPage === "hr") setCurrentPage("hr-employees");
+        else if (parentPage === "procurement") setCurrentPage("procurement-suppliers");
+        else setCurrentPage(parentPage);
+      },
     });
   }
 

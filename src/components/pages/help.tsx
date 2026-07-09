@@ -157,7 +157,7 @@ export default function HelpPage({ language, projectId }: { language: "ar" | "en
   const tAuto = useTranslations();
   const isAr = language === "ar";
   const [searchQuery, setSearchQuery] = useState("");
-  const { setCurrentProjectTab, setCurrentProjectSubTab } = useNavStore();
+  const { setCurrentPage, setCurrentProjectTab, setCurrentProjectSubTab } = useNavStore();
 
   // Fetch knowledge base articles
   const { data: kbArticles = [], isLoading: kbLoading } = useQuery<KnowledgeArticle[]>({
@@ -174,8 +174,7 @@ export default function HelpPage({ language, projectId }: { language: "ar" | "en
 
   // Navigate to Knowledge page
   const navigateToKnowledge = () => {
-    setCurrentProjectTab("help");
-    setCurrentProjectSubTab("knowledge");
+    setCurrentPage("knowledge");
   };
 
   // Filter FAQs based on search
@@ -478,13 +477,17 @@ export default function HelpPage({ language, projectId }: { language: "ar" | "en
               {tAuto('auto.ourSupportTeamIsReadyToHelp')}
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button className="bg-brand-navy-500 hover:bg-brand-navy-600 text-white shadow-md shadow-brand-navy-500/20">
-                <Mail className="w-4 h-4 me-2" />
-                support@blueprint.ae
+              <Button className="bg-brand-navy-500 hover:bg-brand-navy-600 text-white shadow-md shadow-brand-navy-500/20" asChild>
+                <a href="mailto:support@blueprint.ae">
+                  <Mail className="w-4 h-4 me-2" />
+                  support@blueprint.ae
+                </a>
               </Button>
-              <Button variant="outline" className="border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800">
-                <Phone className="w-4 h-4 me-2" />
-                {isAr ? "+971 4 XXX XXXX" : "+971 4 XXX XXXX"}
+              <Button variant="outline" className="border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800" asChild>
+                <a href="tel:+97142438593">
+                  <Phone className="w-4 h-4 me-2" />
+                  {isAr ? "+971 4 243 8593" : "+971 4 243 8593"}
+                </a>
               </Button>
             </div>
           </div>

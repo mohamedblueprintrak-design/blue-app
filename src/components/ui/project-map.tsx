@@ -164,6 +164,21 @@ function FlyToSelected({
   return null;
 }
 
+function AutoInvalidateSize() {
+  const map = useMap();
+  useEffect(() => {
+    const timers = [
+      setTimeout(() => map.invalidateSize(), 50),
+      setTimeout(() => map.invalidateSize(), 200),
+      setTimeout(() => map.invalidateSize(), 500),
+      setTimeout(() => map.invalidateSize(), 1000),
+    ];
+    return () => timers.forEach(t => clearTimeout(t));
+  }, [map]);
+  return null;
+}
+
+
 // ===== Fit Bounds Component =====
 function FitBounds({ projects }: { projects: ProjectMapItem[] }) {
   const map = useMap();
@@ -364,6 +379,7 @@ export default function ProjectMap({
 
         {/* Fly to selected project */}
         <FlyToSelected position={selectedPosition} />
+        <AutoInvalidateSize />
 
         {/* Fit bounds to all projects when no project selected */}
         {!selectedProject && <FitBounds projects={mappedProjects} />}

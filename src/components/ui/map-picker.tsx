@@ -71,6 +71,21 @@ function FlyToLocation({ position }: { position: [number, number] | null }) {
   return null;
 }
 
+function AutoInvalidateSize() {
+  const map = useMap();
+  useEffect(() => {
+    const timers = [
+      setTimeout(() => map.invalidateSize(), 50),
+      setTimeout(() => map.invalidateSize(), 200),
+      setTimeout(() => map.invalidateSize(), 500),
+      setTimeout(() => map.invalidateSize(), 1000),
+    ];
+    return () => timers.forEach(t => clearTimeout(t));
+  }, [map]);
+  return null;
+}
+
+
 // Client-side only wrapper to handle SSR gracefully
 function ClientOnlyWrapper({
   children,
@@ -188,6 +203,7 @@ export default function MapPicker({
           onChange={handleMapClick}
         />
         <FlyToLocation position={mountedPosition} />
+        <AutoInvalidateSize />
       </MapContainer>
     </div>
   );

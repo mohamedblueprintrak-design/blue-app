@@ -4,7 +4,7 @@
 
 import { useTranslations } from 'next-intl';
 import React, { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavStore } from "@/store/nav-store";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -25,6 +25,27 @@ import {
   Sparkles,
   PenTool,
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { getMutationHeaders } from "@/lib/csrf-client";
+import { useToast } from "@/hooks/use-toast";
+
 
 // Import sub-components
 import { StatusBadge, ProgressRing } from "./project-detail/helpers";
@@ -70,6 +91,73 @@ export default function ProjectDetail({ language }: ProjectDetailProps) {
 
   const [activeTab, setActiveTab] = useState(currentProjectTab || "overview");
   const [activeSubTab, setActiveSubTab] = useState(currentProjectSubTab || "");
+
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [editNameEn, setEditNameEn] = useState("");
+  const [editNumber, setEditNumber] = useState("");
+  const [editStatus, setEditStatus] = useState("");
+  const [editProgress, setEditProgress] = useState(0);
+  const [editBudget, setEditBudget] = useState(0);
+  const [editLocation, setEditLocation] = useState("");
+
+  const editMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const headers = await getMutationHeaders();
+      const res = await fetch(`/api/projects/${currentProjectId}`, {
+        method: "PUT",
+        headers: {
+          ...headers,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error("Failed to update project");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["project", currentProjectId] });
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
+      toast({
+        title: isAr ? "تم تحديث المشروع" : "Project updated",
+        description: isAr ? "تم حفظ التعديلات بنجاح." : "Changes saved successfully.",
+      });
+      setShowEditDialog(false);
+    },
+    onError: (err: any) => {
+      toast({
+        title: isAr ? "خطأ في التحديث" : "Update failed",
+        description: err.message,
+        variant: "destructive",
+      });
+    }
+  });
+
+  const handleOpenEditDialog = () => {
+    if (!project) return;
+    setEditName(project.name || "");
+    setEditNameEn(project.nameEn || "");
+    setEditNumber(project.number || "");
+    setEditStatus(project.status || "ACTIVE");
+    setEditProgress(project.progress || 0);
+    setEditBudget(project.budget || 0);
+    setEditLocation(project.location || "");
+    setShowEditDialog(true);
+  };
+
+  const handleSaveProject = () => {
+    editMutation.mutate({
+      name: editName,
+      nameEn: editNameEn,
+      number: editNumber,
+      status: editStatus,
+      progress: editProgress,
+      budget: editBudget,
+      location: editLocation,
+    });
+  };
 
   // Sync with store
   React.useEffect(() => {
@@ -208,7 +296,12 @@ export default function ProjectDetail({ language }: ProjectDetailProps) {
                   <PenTool className="h-3.5 w-3.5" />
                   {t("مستعرض المخططات", "CAD Viewer")}
                 </Button>
-                <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 gap-1.5 text-xs hover:bg-slate-50"
+                  onClick={handleOpenEditDialog}
+                >
                   <Pencil className="h-3.5 w-3.5" />
                   {t("تعديل", "Edit")}
                 </Button>
@@ -243,7 +336,11 @@ export default function ProjectDetail({ language }: ProjectDetailProps) {
         
         {/* Overview Tab */}
         <TabsContent value="overview" className="mt-4">
-          <OverviewTab project={project} language={language} />
+          <OverviewTab
+            project={project}
+            language={language}
+            onViewAllDocuments={() => handleTabChange("documents")}
+          />
         </TabsContent>
 
         {/* Workflow Tab */}
@@ -334,6 +431,101 @@ export default function ProjectDetail({ language }: ProjectDetailProps) {
         <Sparkles className="h-5 w-5 group-hover:animate-pulse" />
         <span className="absolute -top-1 -end-1 w-3 h-3 rounded-full bg-emerald-400 border-2 border-white animate-pulse" />
       </button>
+
+      {/* Edit Project Dialog */}
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>{t("تعديل تفاصيل المشروع", "Edit Project Details")}</DialogTitle>
+            <DialogDescription>
+              {t("تعديل البيانات الأساسية لهذا المشروع المقاولاتي.", "Edit the primary information for this engineering project.")}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="nameAr">{t("اسم المشروع (عربي)", "Project Name (Arabic)")}</Label>
+              <Input
+                id="nameAr"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="nameEn">{t("اسم المشروع (إنجليزي)", "Project Name (English)")}</Label>
+              <Input
+                id="nameEn"
+                value={editNameEn}
+                onChange={(e) => setEditNameEn(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="projNumber">{t("رقم المشروع", "Project Number")}</Label>
+              <Input
+                id="projNumber"
+                value={editNumber}
+                onChange={(e) => setEditNumber(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="projLocation">{t("الموقع", "Location")}</Label>
+              <Input
+                id="projLocation"
+                value={editLocation}
+                onChange={(e) => setEditLocation(e.target.value)}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="projProgress">{t("نسبة الإنجاز (%)", "Progress (%)")}</Label>
+                <Input
+                  id="projProgress"
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={editProgress}
+                  onChange={(e) => setEditProgress(Number(e.target.value))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="projBudget">{t("الميزانية (AED)", "Budget (AED)")}</Label>
+                <Input
+                  id="projBudget"
+                  type="number"
+                  value={editBudget}
+                  onChange={(e) => setEditBudget(Number(e.target.value))}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="projStatus">{t("الحالة", "Status")}</Label>
+              <Select value={editStatus} onValueChange={setEditStatus}>
+                <SelectTrigger>
+                  <SelectValue placeholder={t("اختر الحالة", "Select status")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ACTIVE">{t("نشط", "Active")}</SelectItem>
+                  <SelectItem value="DELAYED">{t("متأخر", "Delayed")}</SelectItem>
+                  <SelectItem value="COMPLETED">{t("مكتمل", "Completed")}</SelectItem>
+                  <SelectItem value="ON_HOLD">{t("متوقف مؤقتاً", "On Hold")}</SelectItem>
+                  <SelectItem value="CANCELLED">{t("ملغي", "Cancelled")}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setShowEditDialog(false)}>
+              {t("إلغاء", "Cancel")}
+            </Button>
+            <Button
+              className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white"
+              onClick={handleSaveProject}
+              disabled={editMutation.isPending}
+            >
+              {editMutation.isPending ? t("جاري الحفظ...", "Saving...") : t("حفظ التعديلات", "Save changes")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

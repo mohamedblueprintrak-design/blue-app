@@ -39,7 +39,15 @@ import { getContractorCategoryLabel } from "./helpers";
 import type { ProjectData } from "./types";
 
 // ===== OVERVIEW TAB CONTENT =====
-export default function OverviewTab({ project, language }: { project: ProjectData; language: "ar" | "en" }) {
+export default function OverviewTab({
+  project,
+  language,
+  onViewAllDocuments,
+}: {
+  project: ProjectData;
+  language: "ar" | "en";
+  onViewAllDocuments?: () => void;
+}) {
   const tAuto = useTranslations();
   const isAr = language === "ar";
   const t = (ar: string, en: string) => (isAr ? ar : en);
@@ -674,7 +682,12 @@ export default function OverviewTab({ project, language }: { project: ProjectDat
                 <FileText className="h-4 w-4 text-amber-500" />
                 {t("مستندات سريعة", "Quick Documents")}
               </CardTitle>
-              <Button variant="ghost" size="sm" className="h-7 text-xs text-brand-navy-600 hover:text-brand-navy-700 gap-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 text-xs text-brand-navy-600 hover:text-brand-navy-700 gap-1"
+                onClick={onViewAllDocuments}
+              >
                 {t("عرض الكل", "View All")}
                 <ArrowUpRight className="h-3 w-3" />
               </Button>

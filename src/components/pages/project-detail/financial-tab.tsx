@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -16,6 +16,22 @@ import BudgetsPage from "@/components/pages/budgets";
 import ProposalsPage from "@/components/pages/proposals";
 import BudgetComparisonTab from "./budget-comparison-tab";
 import type { ProjectData } from "./types";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 // ===== FINANCIAL TAB =====
 interface FinancialTabProps {
@@ -29,6 +45,42 @@ interface FinancialTabProps {
 export default function FinancialTab({ project, language, projectId, activeSubTab, onSubTabChange }: FinancialTabProps) {
   const isAr = language === "ar";
   const t = (ar: string, en: string) => (isAr ? ar : en);
+
+  const [milestones, setMilestones] = useState([
+    { milestoneAr: "دفعة مقدمة", milestoneEn: "Advance Payment", amount: project.budget * 0.2, pct: 20, dueDate: project.startDate, status: "PAID", paidDate: project.startDate },
+    { milestoneAr: "إتمام التصميم", milestoneEn: "Design Completion", amount: project.budget * 0.15, pct: 15, dueDate: null as string | null, status: "PENDING", paidDate: null as string | null },
+    { milestoneAr: "اعتماد البلدية", milestoneEn: "Municipality Approval", amount: project.budget * 0.1, pct: 10, dueDate: null as string | null, status: "NOT_STARTED", paidDate: null as string | null },
+    { milestoneAr: "إتمام الهيكل", milestoneEn: "Structure Completion", amount: project.budget * 0.25, pct: 25, dueDate: null as string | null, status: "NOT_STARTED", paidDate: null as string | null },
+    { milestoneAr: "التشطيبات", milestoneEn: "Finishing Works", amount: project.budget * 0.2, pct: 20, dueDate: null as string | null, status: "NOT_STARTED", paidDate: null as string | null },
+    { milestoneAr: "التسليم النهائي", milestoneEn: "Final Handover", amount: project.budget * 0.1, pct: 10, dueDate: project.endDate, status: "NOT_STARTED", paidDate: null as string | null },
+  ]);
+
+  const [openAddMilestone, setOpenAddMilestone] = useState(false);
+  const [msNameAr, setMsNameAr] = useState("");
+  const [msNameEn, setMsNameEn] = useState("");
+  const [msPct, setMsPct] = useState(10);
+  const [msStatus, setMsStatus] = useState("NOT_STARTED");
+
+  const handleAddMilestone = () => {
+    if (!msNameAr || !msNameEn) return;
+    const amount = project.budget * (msPct / 100);
+    setMilestones(prev => [
+      ...prev,
+      {
+        milestoneAr: msNameAr,
+        milestoneEn: msNameEn,
+        amount,
+        pct: msPct,
+        dueDate: null,
+        status: msStatus,
+        paidDate: msStatus === "PAID" ? new Date().toISOString() : null,
+      }
+    ]);
+    setMsNameAr("");
+    setMsNameEn("");
+    setOpenAddMilestone(false);
+  };
+
 
   return (
     <>
@@ -75,7 +127,11 @@ export default function FinancialTab({ project, language, projectId, activeSubTa
                 <Receipt className="h-4 w-4 text-brand-navy-500" />
                 {t("جدول الدفعات", "Payment Schedule")}
               </CardTitle>
-              <Button size="sm" className="h-7 gap-1 text-xs bg-brand-navy-600 hover:bg-brand-navy-700 text-white">
+              <Button
+                size="sm"
+                className="h-7 gap-1 text-xs bg-brand-navy-600 hover:bg-brand-navy-700 text-white"
+                onClick={() => setOpenAddMilestone(true)}
+              >
                 <Plus className="h-3 w-3" />
                 {t("إضافة مرحلة دفع", "Add Payment Milestone")}
               </Button>
@@ -95,14 +151,7 @@ export default function FinancialTab({ project, language, projectId, activeSubTa
                   </tr>
                 </thead>
                 <tbody>
-                  {[
-                    { milestoneAr: "دفعة مقدمة", milestoneEn: "Advance Payment", amount: project.budget * 0.2, pct: 20, dueDate: project.startDate, status: "PAID", paidDate: project.startDate },
-                    { milestoneAr: "إتمام التصميم", milestoneEn: "Design Completion", amount: project.budget * 0.15, pct: 15, dueDate: null, status: "PENDING", paidDate: null },
-                    { milestoneAr: "اعتماد البلدية", milestoneEn: "Municipality Approval", amount: project.budget * 0.1, pct: 10, dueDate: null, status: "NOT_STARTED", paidDate: null },
-                    { milestoneAr: "إتمام الهيكل", milestoneEn: "Structure Completion", amount: project.budget * 0.25, pct: 25, dueDate: null, status: "NOT_STARTED", paidDate: null },
-                    { milestoneAr: "التشطيبات", milestoneEn: "Finishing Works", amount: project.budget * 0.2, pct: 20, dueDate: null, status: "NOT_STARTED", paidDate: null },
-                    { milestoneAr: "التسليم النهائي", milestoneEn: "Final Handover", amount: project.budget * 0.1, pct: 10, dueDate: project.endDate, status: "NOT_STARTED", paidDate: null },
-                  ].map((row, idx) => (
+                  {milestones.map((row, idx) => (
                     <tr key={idx} className="border-b border-slate-50 dark:border-slate-800/50 hover:bg-slate-50/50 dark:hover:bg-slate-800/30">
                       <td className="p-2.5 font-medium text-slate-800 dark:text-slate-200">{isAr ? row.milestoneAr : row.milestoneEn}</td>
                       <td className="p-2.5 font-mono text-slate-700 dark:text-slate-300">{row.amount.toLocaleString()} AED</td>
@@ -118,8 +167,12 @@ export default function FinancialTab({ project, language, projectId, activeSubTa
                 <tfoot>
                   <tr className="border-t-2 border-slate-200 dark:border-slate-700">
                     <td className="p-2.5 font-bold text-slate-900 dark:text-white">{t("المجموع", "Total")}</td>
-                    <td className="p-2.5 font-bold font-mono text-slate-900 dark:text-white">{project.budget.toLocaleString()} AED</td>
-                    <td className="p-2.5 font-bold text-slate-900 dark:text-white">100%</td>
+                    <td className="p-2.5 font-bold font-mono text-slate-900 dark:text-white">
+                      {milestones.reduce((acc, m) => acc + m.amount, 0).toLocaleString()} AED
+                    </td>
+                    <td className="p-2.5 font-bold text-slate-900 dark:text-white">
+                      {milestones.reduce((acc, m) => acc + m.pct, 0)}%
+                    </td>
                     <td colSpan={3} />
                   </tr>
                 </tfoot>
@@ -136,6 +189,50 @@ export default function FinancialTab({ project, language, projectId, activeSubTa
           {activeSubTab === "proposals" && <ProposalsPage language={language} projectId={projectId} />}
         </div>
       </div>
+
+      {/* Add Payment Milestone Dialog */}
+      <Dialog open={openAddMilestone} onOpenChange={setOpenAddMilestone}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>{t("إضافة مرحلة دفع جديدة", "Add New Payment Milestone")}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-3">
+            <div className="space-y-2">
+              <Label htmlFor="msNameAr">{t("اسم المرحلة (عربي)", "Milestone Name (Arabic)")}</Label>
+              <Input id="msNameAr" value={msNameAr} onChange={e => setMsNameAr(e.target.value)} placeholder="مثال: إتمام الهيكل الخرساني" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="msNameEn">{t("اسم المرحلة (إنجليزي)", "Milestone Name (English)")}</Label>
+              <Input id="msNameEn" value={msNameEn} onChange={e => setMsNameEn(e.target.value)} placeholder="e.g. Concrete Structure Completion" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="msPct">{t("النسبة من قيمة المشروع (%)", "Percentage of Project Budget (%)")}</Label>
+              <Input id="msPct" type="number" min="1" max="100" value={msPct} onChange={e => setMsPct(Number(e.target.value))} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="msStatus">{t("الحالة", "Status")}</Label>
+              <Select value={msStatus} onValueChange={setMsStatus}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="PAID">{t("مدفوعة", "Paid")}</SelectItem>
+                  <SelectItem value="PENDING">{t("قيد الانتظار", "Pending")}</SelectItem>
+                  <SelectItem value="NOT_STARTED">{t("لم تبدأ", "Not Started")}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" size="sm" onClick={() => setOpenAddMilestone(false)}>
+              {t("إلغاء", "Cancel")}
+            </Button>
+            <Button className="bg-brand-navy-600 hover:bg-brand-navy-700 text-white" size="sm" onClick={handleAddMilestone}>
+              {t("إضافة", "Add")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

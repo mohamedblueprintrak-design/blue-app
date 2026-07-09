@@ -14,6 +14,13 @@ import {
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Plus, Building2, Trash2, RefreshCw, Wallet } from "lucide-react";
 import { useLang } from "@/hooks/use-lang";
 import { useToastFeedback } from "@/hooks/use-toast-feedback";
@@ -59,6 +66,65 @@ export default function FinanceBankAccountsPage() {
       const json = await res.json();
       return json.data || [];
     },
+  });
+
+  const [showReconcileDialog, setShowReconcileDialog] = useState(false);
+  const [selectedAccountId, setSelectedAccountId] = useState("");
+  const [reconcileTransactions, setReconcileTransactions] = useState<any[]>([]);
+  const [loadingTx, setLoadingTx] = useState(false);
+
+  const loadTransactionsForAccount = async (accountId: string) => {
+    if (!accountId) return;
+    setLoadingTx(true);
+    try {
+      const res = await fetch(`/api/finance/bank-accounts/${accountId}/transactions?isReconciled=false`);
+      if (res.ok) {
+        const json = await res.json();
+        // The API returns either { data: [...] } or direct array
+        const list = Array.isArray(json) ? json : (json.data || []);
+        setReconcileTransactions(list);
+      } else {
+        setReconcileTransactions([]);
+      }
+    } catch {
+      setReconcileTransactions([]);
+    } finally {
+      setLoadingTx(false);
+    }
+  };
+
+  const handleOpenReconcile = (accountId?: string) => {
+    const id = accountId || (accounts && accounts[0]?.id) || "";
+    setSelectedAccountId(id);
+    setShowReconcileDialog(true);
+    if (id) {
+      loadTransactionsForAccount(id);
+    }
+  };
+
+  const reconcileMutation = useMutation({
+    mutationFn: async ({ accountId, transactionId }: { accountId: string; transactionId: string }) => {
+      const res = await fetch(`/api/finance/bank-accounts/${accountId}/reconcile`, {
+        method: "POST",
+        headers: getMutationHeaders(),
+        body: JSON.stringify({ transactionId, matchType: "MANUAL" }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: "Failed" }));
+        throw new Error(err.error || "Failed");
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      toast.showSuccess(ar ? "تمت تسوية المعاملة بنجاح" : "Transaction reconciled successfully");
+      queryClient.invalidateQueries({ queryKey: ["bank-accounts"] });
+      if (selectedAccountId) {
+        loadTransactionsForAccount(selectedAccountId);
+      }
+    },
+    onError: (err: Error) => {
+      toast.showError(err.message);
+    }
   });
 
   const createMutation = useMutation({
@@ -148,14 +214,14 @@ export default function FinanceBankAccountsPage() {
             </div>
           </CardContent>
         </Card>
-        <Card className="border-slate-200 dark:border-slate-700/50">
+        <Card className="border-slate-200 dark:border-slate-700/50 cursor-pointer hover:shadow-sm hover:border-slate-300 transition-all" onClick={() => handleOpenReconcile()}>
           <CardContent className="p-4 flex items-center gap-3">
             <div className="h-10 w-10 rounded-lg bg-amber-100 dark:bg-amber-950/30 flex items-center justify-center">
               <RefreshCw className="h-5 w-5 text-amber-600 dark:text-amber-400" />
             </div>
             <div>
               <p className="text-[10px] text-slate-500 dark:text-slate-400">{ar ? "تسوية" : "Reconciliation"}</p>
-              <p className="text-lg font-bold text-slate-900 dark:text-white">{ar ? "قريباً" : "Soon"}</p>
+              <p className="text-lg font-bold text-slate-900 dark:text-white">{ar ? "ابدأ التسوية" : "Start Reconcile"}</p>
             </div>
           </CardContent>
         </Card>
@@ -198,14 +264,25 @@ export default function FinanceBankAccountsPage() {
                       {formatCurrency(Number(acc.currentBalance), ar)} {acc.currency}
                     </TableCell>
                     <TableCell className="text-end">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="h-7 w-7 p-0 text-red-500 hover:text-red-600"
-                        onClick={() => deleteMutation.mutate(acc.id)}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
+                      <div className="flex items-center justify-end gap-1.5">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-7 gap-1 text-xs text-brand-navy-600 hover:text-brand-navy-700"
+                          onClick={() => handleOpenReconcile(acc.id)}
+                        >
+                          <RefreshCw className="h-3 w-3" />
+                          {ar ? "تسوية" : "Reconcile"}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-7 w-7 p-0 text-red-500 hover:text-red-600"
+                          onClick={() => deleteMutation.mutate(acc.id)}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -281,6 +358,94 @@ export default function FinanceBankAccountsPage() {
               disabled={!formData.name || !formData.bankName}
             >
               {ar ? "إنشاء" : "Create"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Reconciliation Dialog */}
+      <Dialog open={showReconcileDialog} onOpenChange={setShowReconcileDialog}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="text-sm">
+              {ar ? "تسوية المعاملات البنكية" : "Bank Reconciliation"}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <Label className="text-xs">{ar ? "اختر الحساب البنكي" : "Select Bank Account"}</Label>
+              <Select
+                value={selectedAccountId}
+                onValueChange={(val) => {
+                  setSelectedAccountId(val);
+                  loadTransactionsForAccount(val);
+                }}
+              >
+                <SelectTrigger className="h-8 text-xs">
+                  <SelectValue placeholder={ar ? "اختر حساباً" : "Select an account"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {accounts?.map((acc) => (
+                    <SelectItem key={acc.id} value={acc.id}>
+                      {ar && acc.nameAr ? acc.nameAr : acc.name} ({acc.bankName})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="border rounded-lg overflow-hidden bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+              <div className="p-2.5 bg-slate-100 dark:bg-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300 border-b border-slate-200 dark:border-slate-700">
+                {ar ? "المعاملات غير المسواة" : "Unreconciled Transactions"}
+              </div>
+              <div className="max-h-[220px] overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800 text-xs">
+                {loadingTx ? (
+                  <div className="p-4 text-center text-slate-400">
+                    <RefreshCw className="h-4 w-4 animate-spin mx-auto mb-1" />
+                    {ar ? "جاري تحميل المعاملات..." : "Loading transactions..."}
+                  </div>
+                ) : reconcileTransactions.length === 0 ? (
+                  <div className="p-6 text-center text-slate-400">
+                    {ar ? "كل المعاملات مسواة بالكامل!" : "All transactions are fully reconciled!"}
+                  </div>
+                ) : (
+                  reconcileTransactions.map((tx) => (
+                    <div key={tx.id} className="p-2.5 flex items-center justify-between hover:bg-slate-100/50 dark:hover:bg-slate-800/30">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className={`px-1.5 py-0.5 rounded-[4px] text-[9px] font-bold ${tx.type === "DEPOSIT" ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}>
+                            {tx.type}
+                          </span>
+                          <span className="font-mono text-slate-400">
+                            {new Date(tx.date).toLocaleDateString(ar ? "ar-AE" : "en-US")}
+                          </span>
+                        </div>
+                        <p className="text-slate-700 dark:text-slate-300 font-medium truncate max-w-[240px]">
+                          {tx.description}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono font-bold text-slate-900 dark:text-white">
+                          {tx.amount.toLocaleString()} AED
+                        </span>
+                        <Button
+                          size="sm"
+                          className="h-6 px-2 text-[10px] bg-brand-navy-600 hover:bg-brand-navy-700 text-white"
+                          onClick={() => reconcileMutation.mutate({ accountId: selectedAccountId, transactionId: tx.id })}
+                          disabled={reconcileMutation.isPending}
+                        >
+                          {ar ? "تسوية" : "Reconcile"}
+                        </Button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" size="sm" onClick={() => setShowReconcileDialog(false)}>
+              {ar ? "إغلاق" : "Close"}
             </Button>
           </DialogFooter>
         </DialogContent>

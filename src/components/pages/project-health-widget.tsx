@@ -13,6 +13,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Activity, Clock, Wallet, TrendingUp, ArrowUpRight } from "lucide-react";
 import { useNavStore } from "@/store/nav-store";
+import { useQuery } from "@tanstack/react-query";
 
 // ===== Types =====
 interface HealthProject {
@@ -185,7 +186,36 @@ export default function ProjectHealthWidget({
   const isAr = language === "ar";
   const { setCurrentPage } = useNavStore();
 
-  const projects = getMockProjects(isAr);
+  const { data: dbProjects = [] } = useQuery<any[]>({
+    queryKey: ["projects-health"],
+    queryFn: async () => {
+      const res = await fetch("/api/projects");
+      if (!res.ok) return [];
+      const data = await res.json();
+      return Array.isArray(data) ? data : (data.data || []);
+    },
+  });
+
+  const mappedDbProjects = dbProjects
+    .filter(p => !p.deletedAt)
+    .map(p => {
+      const budgetRemainingPct = p.progress ? Math.max(100 - p.progress, 0) : 100;
+      const onSchedule = p.status === "DELAYED" ? 0 : 1;
+      return {
+        id: p.id,
+        nameAr: p.name || "",
+        nameEn: p.nameEn || p.name || "",
+        progress: p.progress || 0,
+        budgetRemainingPct,
+        onSchedule,
+        endDate: p.endDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        budgetStatusAr: p.status === "DELAYED" ? "تجاوز الميزانية" : "ضمن الميزانية",
+        budgetStatusEn: p.status === "DELAYED" ? "Over Budget" : "Under Budget",
+        lastActivity: p.updatedAt || new Date().toISOString(),
+      };
+    });
+
+  const projects = mappedDbProjects.length > 0 ? mappedDbProjects.slice(0, 5) : getMockProjects(isAr);
 
   return (
     <Card className="rounded-xl border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900 overflow-hidden">
