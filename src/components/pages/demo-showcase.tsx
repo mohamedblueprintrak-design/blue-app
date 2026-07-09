@@ -48,7 +48,7 @@ const SECTIONS: ShowcaseSection[] = [
     descAr: 'نظام محاسبة كامل بقيد مزدوج، شجرة حسابات، ميزان مراجعة، قائمة دخل وميزانية عمومية',
     descEn: 'Full double-entry accounting with chart of accounts, trial balance, P&L, and balance sheet',
     status: 'live',
-    demoUrl: '/dashboard/finance',
+    demoUrl: '/dashboard/finance/accounts',
     features: [
       { ar: 'شجرة الحسابات الهرمية', en: 'Hierarchical chart of accounts', demo: true },
       { ar: 'قيود اليومية المعتمدة', en: 'Approved journal entries', demo: true },
@@ -163,7 +163,7 @@ const SECTIONS: ShowcaseSection[] = [
     descAr: 'ذكاء اصطناعي يكشف الفوترة المزدوجة، التأخر غير الطبيعي، وتجاوز الميزانية',
     descEn: 'AI engine detecting double billing, abnormal delays, and budget overruns',
     status: 'needs-config',
-    demoUrl: '/dashboard/finance',
+    demoUrl: '/dashboard/finance/revenue',
     features: [
       { ar: 'كشف الدفعات المكررة (7 أيام)', en: 'Duplicate payment detection (7 days)', demo: true },
       { ar: 'تنبيهات التأخر (60+ يوم)', en: 'Overdue alerts (60+ days)', demo: true },

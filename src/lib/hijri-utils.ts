@@ -84,32 +84,23 @@ export function formatToHijri(date: Date | string, options: Intl.DateTimeFormatO
   try {
     const dateObj = typeof date === 'string' ? new Date(date) : date;
     
-    // Check if ICU failed and fell back to Gregorian year
-    if (isIntlHijriFallback(dateObj)) {
-      const parts = getTabularHijri(dateObj);
-      const isArabic = !options.locale || options.locale.startsWith('ar');
-      const monthLabel = isArabic ? parts.monthName : parts.monthNameEn;
-      
-      // Format number to Arabic numerals if Arabic
-      const formattedNum = (num: number) => {
-        if (!isArabic) return String(num);
-        return String(num).replace(/[0-9]/g, d => "٠١٢٣٤٥٦٧٨٩"[parseInt(d)]);
-      };
-      
-      return `${formattedNum(parts.day)} ${monthLabel} ${formattedNum(parts.year)}`;
+    // Always use robust tabular calculation to avoid browser-specific ICU calendar fallback bugs
+    const parts = getTabularHijri(dateObj);
+    const isArabic = !options.locale || options.locale.startsWith('ar');
+    const monthLabel = isArabic ? parts.monthName : parts.monthNameEn;
+    
+    // Format number to Arabic numerals if Arabic
+    const formattedNum = (num: number) => {
+      if (!isArabic) return String(num);
+      return String(num).replace(/[0-9]/g, d => "٠١٢٣٤٥٦٧٨٩"[parseInt(d)]);
+    };
+    
+    if (options.day === 'numeric' && options.month === 'short' && !options.year) {
+      // e.g. for due dates without year
+      return `${formattedNum(parts.day)} ${monthLabel}`;
     }
     
-    // Default format options
-    const defaultOptions: Intl.DateTimeFormatOptions = {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-    };
-
-    return new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', {
-      ...defaultOptions,
-      ...options,
-    }).format(dateObj);
+    return `${formattedNum(parts.day)} ${monthLabel} ${formattedNum(parts.year)}`;
   } catch (error) {
     console.error('Error formatting Hijri date:', error);
     return '';
