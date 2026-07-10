@@ -42,11 +42,11 @@ export function buildCsp(nonce: string): string {
     "default-src 'self'",
     scriptSrc,
     styleSrc,
-    "img-src 'self' data: blob: https://*.stripe.com https://*.gravatar.com https://*.googleusercontent.com https://images.unsplash.com",
+    "img-src 'self' data: blob: https://*.stripe.com https://*.gravatar.com https://*.googleusercontent.com https://images.unsplash.com https://*.openstreetmap.org",
     "font-src 'self' https://fonts.gstatic.com",
     connectSrc,
     "media-src 'self' blob:",
-    "frame-src 'self' https://*.stripe.com",
+    "frame-src 'self' https://*.stripe.com https://*.openstreetmap.org",
     "frame-ancestors 'none'",
   ].join('; ');
 }

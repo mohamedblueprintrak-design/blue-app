@@ -32,6 +32,7 @@ import {
 import { ar, enUS } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
+import { getTabularHijri } from "@/lib/hijri-utils";
 
 interface Props {
   language: "ar" | "en";
@@ -381,12 +382,33 @@ export default function CalendarPage({ language: lang, projectId }: Props) {
             <div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm">
               <CalendarIcon className="h-5 w-5 text-white" />
             </div>
-            <div>
+             <div>
               <h2 className="text-xl font-bold text-white">
                 {format(currentMonth, tAuto('auto.mMMMYyyy'), { locale })}
               </h2>
-              <p className="text-sm text-brand-navy-100">
-                {isAr ? `${events.length} حدث مسجل` : `${events.length} events scheduled`}
+              <p className="text-xs text-brand-navy-100 flex items-center gap-1.5 mt-0.5">
+                <span>
+                  {(() => {
+                    const start = startOfMonth(currentMonth);
+                    const end = endOfMonth(currentMonth);
+                    const hStart = getTabularHijri(start);
+                    const hEnd = getTabularHijri(end);
+                    const formatYear = (y: number) => isAr ? String(y).replace(/[0-9]/g, d => "٠١٢٣٤٥٦٧٨٩"[parseInt(d)]) : String(y);
+                    
+                    if (hStart.month === hEnd.month) {
+                      const mName = isAr ? hStart.monthName : hStart.monthNameEn;
+                      return `${mName} ${formatYear(hStart.year)} ${isAr ? 'هـ' : 'AH'}`;
+                    } else {
+                      const mStartName = isAr ? hStart.monthName : hStart.monthNameEn;
+                      const mEndName = isAr ? hEnd.monthName : hEnd.monthNameEn;
+                      return `${mStartName} - ${mEndName} ${formatYear(hStart.year)} ${isAr ? 'هـ' : 'AH'}`;
+                    }
+                  })()}
+                </span>
+                <span className="opacity-40">|</span>
+                <span>
+                  {isAr ? `${events.length} حدث مسجل` : `${events.length} events scheduled`}
+                </span>
               </p>
             </div>
           </div>
@@ -475,18 +497,36 @@ export default function CalendarPage({ language: lang, projectId }: Props) {
                       isWeekend && inMonth && !today && !isSelected && "bg-slate-50/50 dark:bg-slate-900/50"
                     )}
                   >
-                    <span
-                      className={cn(
-                        "text-xs font-medium inline-flex h-6 w-6 items-center justify-center rounded-full",
-                        !inMonth
-                          ? "text-slate-300 dark:text-slate-600"
-                          : today
-                            ? "bg-brand-navy-600 text-white shadow-sm shadow-brand-navy-500/30"
-                            : "text-slate-700 dark:text-slate-300"
+                    <div className="flex items-center justify-between w-full">
+                      <span
+                        className={cn(
+                          "text-xs font-medium inline-flex h-6 w-6 items-center justify-center rounded-full",
+                          !inMonth
+                            ? "text-slate-300 dark:text-slate-600"
+                            : today
+                              ? "bg-brand-navy-600 text-white shadow-sm shadow-brand-navy-500/30"
+                              : "text-slate-700 dark:text-slate-300"
+                        )}
+                      >
+                        {isAr ? String(day.getDate()).replace(/[0-9]/g, d => "٠١٢٣٤٥٦٧٨٩"[parseInt(d)]) : day.getDate()}
+                      </span>
+                      {inMonth && (
+                        <span className="text-[9px] md:text-[10px] text-slate-400 font-normal select-none px-1">
+                          {(() => {
+                            const hijriParts = getTabularHijri(day);
+                            const hijriDayStr = isAr 
+                              ? String(hijriParts.day).replace(/[0-9]/g, d => "٠١٢٣٤٥٦٧٨٩"[parseInt(d)]) 
+                              : String(hijriParts.day);
+                            if (hijriParts.day === 1) {
+                              const mName = isAr ? hijriParts.monthName : hijriParts.monthNameEn;
+                              // Get short name if too long
+                              return `${hijriDayStr} ${mName.split(' ')[0]}`;
+                            }
+                            return hijriDayStr;
+                          })()}
+                        </span>
                       )}
-                    >
-                      {format(day, "d")}
-                    </span>
+                    </div>
 
                     {/* Event indicators */}
                     <div className="mt-0.5 space-y-0.5">
@@ -530,9 +570,27 @@ export default function CalendarPage({ language: lang, projectId }: Props) {
               <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800">
                 <h3 className="text-sm font-semibold text-slate-900 dark:text-white flex items-center gap-2">
                   <CalendarIcon className="h-4 w-4 text-brand-navy-600" />
-                  {selectedDate
-                    ? format(selectedDate, tAuto('auto.eEEEMMMMD'), { locale })
-                    : tAuto('auto.selectADay')}
+                  {selectedDate ? (
+                    <div className="flex flex-col">
+                      <span className="text-slate-900 dark:text-white font-medium">{format(selectedDate, tAuto('auto.eEEEMMMMD'), { locale })}</span>
+                      <span className="text-[10px] font-normal text-slate-400 mt-0.5">
+                        {(() => {
+                          const h = getTabularHijri(selectedDate);
+                          const isArabic = isAr;
+                          const formatNum = (num: number) => {
+                            if (!isArabic) return String(num);
+                            return String(num).replace(/[0-9]/g, d => "٠١٢٣٤٥٦٧٨٩"[parseInt(d)]);
+                          };
+                          const mLabel = isArabic ? h.monthName : h.monthNameEn;
+                          return isArabic
+                            ? `${formatNum(h.day)} ${mLabel} ${formatNum(h.year)} هـ`
+                            : `${h.day} ${mLabel} ${h.year} AH`;
+                        })()}
+                      </span>
+                    </div>
+                  ) : (
+                    <span>{tAuto('auto.selectADay')}</span>
+                  )}
                 </h3>
               </div>
               <div className="p-3 max-h-64 overflow-y-auto">
