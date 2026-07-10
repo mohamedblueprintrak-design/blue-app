@@ -61,7 +61,15 @@ interface SiteVisitItem {
   buildingDesc: string;
   status: string;
   notes: string;
-  project: { id: string; name: string; nameEn: string; number: string; client: { id: string; name: string; company: string } } | null;
+  project: {
+    id: string;
+    name: string;
+    nameEn: string;
+    number: string;
+    latitude?: number | null;
+    longitude?: number | null;
+    client: { id: string; name: string; company: string }
+  } | null;
 }
 
 interface ProjectOption {
@@ -401,30 +409,41 @@ export default function SiteVisits({ language, projectId }: SiteVisitsProps) {
                 )}
 
                 {/* Location Map */}
-                <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800">
-                  <div className="flex items-center gap-1.5 text-[10px] text-slate-400 dark:text-slate-500">
-                    <MapPin className="h-3 w-3" />
-                    <span>{tAuto('auto.locationMap')}</span>
-                  </div>
-                  <div className="mt-1.5 h-32 rounded-lg overflow-hidden border border-slate-200/50 dark:border-slate-700/30">
-                    <iframe
-                      title={tAuto('auto.locationMap')}
-                      width="100%"
-                      height="100%"
-                      style={{ border: 0 }}
-                      loading="lazy"
-                      src={`https://www.openstreetmap.org/export/embed.html?bbox=55.2%2C24.9%2C56.0%2C25.5&layer=mapnik&marker=25.2%2C55.3`}
-                    />
-                  </div>
-                  <a
-                    href={`https://www.openstreetmap.org/?mlat=25.2&mlon=55.3#map=13/25.2/55.3`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-[9px] text-brand-navy-500 hover:text-brand-navy-600 mt-1 inline-block"
-                  >
-                    {tAuto('auto.openLargerMap')}
-                  </a>
-                </div>
+                {(() => {
+                  const lat = visit.project?.latitude ?? 25.7895;
+                  const lon = visit.project?.longitude ?? 55.9432;
+                  const offset = 0.005;
+                  const minLon = lon - offset;
+                  const minLat = lat - offset;
+                  const maxLon = lon + offset;
+                  const maxLat = lat + offset;
+                  return (
+                    <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+                      <div className="flex items-center gap-1.5 text-[10px] text-slate-400 dark:text-slate-500">
+                        <MapPin className="h-3 w-3" />
+                        <span>{tAuto('auto.locationMap')}</span>
+                      </div>
+                      <div className="mt-1.5 h-32 rounded-lg overflow-hidden border border-slate-200/50 dark:border-slate-700/30">
+                        <iframe
+                          title={tAuto('auto.locationMap')}
+                          width="100%"
+                          height="100%"
+                          style={{ border: 0 }}
+                          loading="lazy"
+                          src={`https://www.openstreetmap.org/export/embed.html?bbox=${minLon}%2C${minLat}%2C${maxLon}%2C${maxLat}&layer=mapnik&marker=${lat}%2C${lon}`}
+                        />
+                      </div>
+                      <a
+                        href={`https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=15/${lat}/${lon}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[9px] text-brand-navy-500 hover:text-brand-navy-600 mt-1 inline-block"
+                      >
+                        {tAuto('auto.openLargerMap')}
+                      </a>
+                    </div>
+                  );
+                })()}
               </Card>
             );
           })}

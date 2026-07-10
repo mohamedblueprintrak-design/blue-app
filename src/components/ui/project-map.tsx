@@ -324,7 +324,7 @@ export default function ProjectMap({
   language = "ar",
 }: ProjectMapProps) {
   const tAuto = useTranslations();
-  const [showSidebar, setShowSidebar] = useState(false);
+  const [showSidebar, setShowSidebar] = useState(true);
 
   const isAr = language === "ar";
 
@@ -395,7 +395,9 @@ export default function ProjectMap({
             icon={createStatusIcon(project.status)}
             eventHandlers={{
               click: (e) => {
-                L.DomEvent.stopPropagation(e);
+                if (e.originalEvent) {
+                  L.DomEvent.stopPropagation(e.originalEvent);
+                }
                 onSelectProject(project);
               },
             }}
@@ -449,8 +451,8 @@ export default function ProjectMap({
         )}
       </div>
 
-      {/* Toggle Sidebar Button (mobile) */}
-      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-[400] md:hidden">
+      {/* Toggle Sidebar Button */}
+      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-[400]">
         <Button
           size="sm"
           variant="outline"

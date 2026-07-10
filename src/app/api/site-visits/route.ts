@@ -39,7 +39,15 @@ export async function GET(request: NextRequest) {
           where,
           include: {
             project: {
-              select: { id: true, name: true, nameEn: true, number: true, client: { select: { id: true, name: true, company: true } } },
+              select: {
+                id: true,
+                name: true,
+                nameEn: true,
+                number: true,
+                latitude: true,
+                longitude: true,
+                client: { select: { id: true, name: true, company: true } },
+              },
             },
           },
           orderBy: { date: "desc" },
@@ -57,7 +65,15 @@ export async function GET(request: NextRequest) {
         where,
         include: {
           project: {
-            select: { id: true, name: true, nameEn: true, number: true, client: { select: { id: true, name: true, company: true } } },
+            select: {
+              id: true,
+              name: true,
+              nameEn: true,
+              number: true,
+              latitude: true,
+              longitude: true,
+              client: { select: { id: true, name: true, company: true } },
+            },
           },
         },
         orderBy: { date: "desc" },
