@@ -13,6 +13,7 @@ import { useLanguage } from "@/hooks/use-lang";
 const NAV_LINKS = [
   { href: "/", labelAr: "الرئيسية", labelEn: "Home" },
   { href: "/services", labelAr: "خدماتنا", labelEn: "Services" },
+  { href: "/#projects", labelAr: "مشاريعنا", labelEn: "Projects" },
   { href: "/about", labelAr: "من نحن", labelEn: "About" },
   { href: "/calculator", labelAr: "حاسبة التكاليف", labelEn: "Calculator" },
   { href: "/quote", labelAr: "طلب عرض سعر", labelEn: "Get a Quote" },

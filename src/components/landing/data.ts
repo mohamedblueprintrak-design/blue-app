@@ -4,9 +4,9 @@ import { useInView } from "framer-motion";
 
 // ==================== NAVIGATION ====================
 export const NAV_LINKS = [
-  { href: "#services", label: "خدماتنا", labelEn: "Services" },
-  { href: "#projects", label: "مشاريعنا", labelEn: "Projects" },
-  { href: "#about", label: "من نحن", labelEn: "About" },
+  { href: "/services", label: "خدماتنا", labelEn: "Services" },
+  { href: "/#projects", label: "مشاريعنا", labelEn: "Projects" },
+  { href: "/about", label: "من نحن", labelEn: "About" },
   { href: "/calculator", label: "حاسبة التكاليف", labelEn: "Calculator" },
 ];
 
