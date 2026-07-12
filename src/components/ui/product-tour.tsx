@@ -364,10 +364,10 @@ export function ProductTour() {
       {/* Target Pulsing Highlight Ring */}
       {targetRect && (
         <div
-          className="absolute border-2 border-primary rounded-lg pointer-events-none animate-pulse"
+          className="fixed border-2 border-primary rounded-lg pointer-events-none animate-pulse"
           style={{
-            top: `${targetRect.top + window.scrollY - 8}px`,
-            left: `${targetRect.left + window.scrollX - 8}px`,
+            top: `${targetRect.top - 8}px`,
+            left: `${targetRect.left - 8}px`,
             width: `${targetRect.width + 16}px`,
             height: `${targetRect.height + 16}px`,
             zIndex: 9998,

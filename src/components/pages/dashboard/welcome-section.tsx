@@ -32,9 +32,8 @@ export function WelcomeSection({ userName, alertsCount, isAr, onNavigate }: Welc
 
     if (isAr) {
       try {
-        const weekday = new Intl.DateTimeFormat('ar-SA-u-ca-gregory', { weekday: 'long' }).format(now);
         const hijri = formatToHijri(now, { day: 'numeric', month: 'long', year: 'numeric', locale: 'ar' });
-        setDateStr(`${gregorian} | ${weekday}، ${hijri} هـ`);
+        setDateStr(`${gregorian} | ${hijri} هـ`);
       } catch {
         setDateStr(gregorian);
       }

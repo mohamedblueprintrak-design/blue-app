@@ -184,10 +184,11 @@ function AppSidebar() {
     const isActive = currentPage === item.id || item.children?.some((c) => currentPage === c.id);
 
     return (
-      <SidebarMenuItem key={item.id} id={`tour-sidebar-${item.id}`}>
+      <SidebarMenuItem key={item.id}>
         {hasChildren ? (
           <>
             <SidebarMenuButton
+              id={`tour-sidebar-${item.id}`}
               isActive={isActive}
               onClick={() => handleNavClick(item)}
               tooltip={tNav.has(`${item.id}.label`) ? tNav(`${item.id}.label`) : (isAr ? item.labelAr : item.labelEn)}
@@ -222,6 +223,7 @@ function AppSidebar() {
           </>
         ) : (
           <SidebarMenuButton
+            id={`tour-sidebar-${item.id}`}
             isActive={currentPage === item.id}
             onClick={() => setCurrentPage(item.id)}
             tooltip={tNav.has(`${item.id}.label`) ? tNav(`${item.id}.label`) : (isAr ? item.labelAr : item.labelEn)}
