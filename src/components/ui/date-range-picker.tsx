@@ -1,9 +1,9 @@
 "use client"
 
-
 import { useTranslations } from 'next-intl';
 import * as React from "react"
 import { format } from "date-fns"
+import { ar } from "date-fns/locale"
 import { Calendar as CalendarIcon } from "lucide-react"
 import { DateRange } from "react-day-picker"
 
@@ -29,6 +29,18 @@ export function DatePickerWithRange({
   isAr,
 }: DatePickerWithRangeProps) {
   const tAuto = useTranslations();
+  
+  // Prevent Next.js hydration mismatches by deferring date format rendering
+  const [mounted, setMounted] = React.useState(false)
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  const formatDate = (d: Date) => {
+    return format(d, isAr ? "dd LLL yyyy" : "LLL dd, y", {
+      locale: isAr ? ar : undefined
+    })
+  }
 
   return (
     <div className={cn("grid gap-2", className)}>
@@ -38,20 +50,19 @@ export function DatePickerWithRange({
             id="date"
             variant={"outline"}
             className={cn(
-              "w-[260px] justify-start text-left font-normal",
+              "w-[260px] justify-start font-normal",
               !date && "text-muted-foreground",
               isAr ? "text-right" : "text-left"
             )}
           >
-            <CalendarIcon className={cn("h-4 w-4", tAuto('auto.mr2'))} />
-            {date?.from ? (
+            <CalendarIcon className={cn("h-4 w-4", isAr ? "ml-2" : "mr-2")} />
+            {mounted && date?.from ? (
               date.to ? (
                 <>
-                  {format(date.from, "LLL dd, y")} -{" "}
-                  {format(date.to, "LLL dd, y")}
+                  {formatDate(date.from)} - {formatDate(date.to)}
                 </>
               ) : (
-                format(date.from, "LLL dd, y")
+                formatDate(date.from)
               )
             ) : (
               <span>{tAuto('auto.pickADateRange')}</span>

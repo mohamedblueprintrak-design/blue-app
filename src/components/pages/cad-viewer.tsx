@@ -14,16 +14,18 @@ import {
   ChevronLeft,
   Info,
   FolderOpen,
+  Plus,
+  Type,
+  Undo,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useNavStore } from "@/store/nav-store";
 
-
 interface CADEntity {
   type: "LINE" | "CIRCLE" | "ARC" | "TEXT";
-  layer: "GRID" | "WALLS" | "ELECTRICAL" | "PLUMBING" | "DIMENSIONS";
+  layer: "GRID" | "WALLS" | "ELECTRICAL" | "PLUMBING" | "DIMENSIONS" | "ANNOTATIONS";
   color: string;
   // For Line
   x1?: number;
@@ -42,6 +44,23 @@ interface CADEntity {
   x?: number;
   y?: number;
 }
+
+// Distance helper functions for interactive hover detection
+const getDistanceToLine = (px: number, py: number, x1: number, y1: number, x2: number, y2: number) => {
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  if (dx === 0 && dy === 0) return Math.sqrt((px - x1) ** 2 + (py - y1) ** 2);
+  const t = ((px - x1) * dx + (py - y1) * dy) / (dx * dx + dy * dy);
+  const clampedT = Math.max(0, Math.min(1, t));
+  const nearestX = x1 + clampedT * dx;
+  const nearestY = y1 + clampedT * dy;
+  return Math.sqrt((px - nearestX) ** 2 + (py - nearestY) ** 2);
+};
+
+const getDistanceToCircle = (px: number, py: number, cx: number, cy: number, r: number) => {
+  const distToCenter = Math.sqrt((px - cx) ** 2 + (py - cy) ** 2);
+  return Math.abs(distToCenter - r);
+};
 
 const SAMPLE_ENTITIES: CADEntity[] = [
   // Grid Lines (A-D, 1-4)
@@ -114,7 +133,7 @@ export default function CADViewer({
   language: "ar" | "en";
 }) {
   const isAr = language === "ar";
-  const t = (ar: string, en: string) => (isAr ? ar : en);
+  const t = useCallback((ar: string, en: string) => (isAr ? ar : en), [isAr]);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -127,9 +146,13 @@ export default function CADViewer({
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
   // Tool Selection
-  const [activeTool, setActiveTool] = useState<"pan" | "measure">("pan");
+  const [activeTool, setActiveTool] = useState<"pan" | "measure" | "draw_line" | "draw_text">("pan");
   const [measurePoints, setMeasurePoints] = useState<{ x: number; y: number }[]>([]);
   const [measureDistance, setMeasureDistance] = useState<number | null>(null);
+
+  // Custom annotations
+  const [tempStartPoint, setTempStartPoint] = useState<{ x: number; y: number } | null>(null);
+  const [userAddedCount, setUserAddedCount] = useState(0);
 
   // Layers Toggles
   const [layers, setLayers] = useState({
@@ -138,13 +161,16 @@ export default function CADViewer({
     ELECTRICAL: true,
     PLUMBING: true,
     DIMENSIONS: true,
+    ANNOTATIONS: true,
   });
 
   // CAD Theme: black (classic neon AutoCAD) vs white (blueprint style)
   const [cadTheme, setCadTheme] = useState<"dark" | "light">("dark");
 
-  // Hover Coordinates
+  // Hover Snapped Coordinates & Snap Details
   const [hoverCoords, setHoverCoords] = useState({ x: 0, y: 0 });
+  const [snapInfo, setSnapInfo] = useState<{ x: number; y: number; type: string } | null>(null);
+  const [hoveredEntity, setHoveredEntity] = useState<{ index: number; label: string } | null>(null);
 
   // File Upload State
   const [fileName, setFileName] = useState("A-101_GroundFloor_Layout.dxf");
@@ -160,6 +186,7 @@ export default function CADViewer({
     setPanY(ch / 2 - 100);
     setMeasurePoints([]);
     setMeasureDistance(null);
+    setTempStartPoint(null);
   }, []);
 
   // Set Canvas dimensions to match client container bounding rect
@@ -176,18 +203,100 @@ export default function CADViewer({
     return () => window.removeEventListener("resize", handleResize);
   }, [resetView]);
 
-  // Convert client viewport X/Y to CAD space coordinates
-  const clientToCad = useCallback((clientX: number, clientY: number): { x: number; y: number } => {
-    if (!canvasRef.current) return { x: 0, y: 0 };
-    const rect = canvasRef.current.getBoundingClientRect();
-    const x = clientX - rect.left;
-    const y = clientY - rect.top;
+  // Object Snapping (OSNAP) Endpoint snap finder
+  const getSnappedCoords = useCallback((mouseX: number, mouseY: number): { x: number; y: number; snapPoint: { x: number; y: number; type: string } | null } => {
+    const cadX = (mouseX - panX) / zoom;
+    const cadY = -(mouseY - panY) / zoom;
     
-    // Invert the zoom/pan transform
-    const cadX = (x - panX) / zoom;
-    const cadY = -(y - panY) / zoom; // invert Y axis for standard math coordinate plane
-    return { x: Math.round(cadX), y: Math.round(cadY) };
-  }, [panX, panY, zoom]);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let closestPoint: any = null;
+    let minScreenDist = 16; // Snap tolerance in pixels
+    
+    entities.forEach(entity => {
+      if (!layers[entity.layer]) return;
+      
+      const pointsToCheck: { x: number; y: number; type: string }[] = [];
+      if (entity.type === "LINE" && entity.x1 !== undefined && entity.y1 !== undefined && entity.x2 !== undefined && entity.y2 !== undefined) {
+        pointsToCheck.push({ x: entity.x1, y: entity.y1, type: t("نهاية خط", "Endpoint") });
+        pointsToCheck.push({ x: entity.x2, y: entity.y2, type: t("نهاية خط", "Endpoint") });
+      } else if ((entity.type === "CIRCLE" || entity.type === "ARC") && entity.cx !== undefined && entity.cy !== undefined) {
+        pointsToCheck.push({ x: entity.cx, y: entity.cy, type: t("مركز", "Center") });
+      }
+      
+      pointsToCheck.forEach(pt => {
+        const sx = panX + pt.x * zoom;
+        const sy = panY - pt.y * zoom;
+        const dist = Math.sqrt((mouseX - sx) ** 2 + (mouseY - sy) ** 2);
+        if (dist < minScreenDist) {
+          minScreenDist = dist;
+          closestPoint = pt;
+        }
+      });
+    });
+    
+    if (closestPoint) {
+      return { x: closestPoint.x, y: closestPoint.y, snapPoint: closestPoint };
+    }
+    return { x: Math.round(cadX), y: Math.round(cadY), snapPoint: null };
+  }, [entities, layers, panX, panY, zoom, t]);
+
+  // Find closest entity to mouse cursor for highlighting
+  const getHoveredEntity = useCallback((mouseX: number, mouseY: number): { index: number; label: string } | null => {
+    const cadX = (mouseX - panX) / zoom;
+    const cadY = -(mouseY - panY) / zoom;
+    
+    let closestIndex = -1;
+    let minScreenDist = 12; // Hover tolerance in pixels
+    let closestLabel = "";
+    
+    entities.forEach((entity, index) => {
+      if (!layers[entity.layer]) return;
+      
+      let cadDist = Infinity;
+      let label = "";
+      
+      if (entity.type === "LINE" && entity.x1 !== undefined && entity.y1 !== undefined && entity.x2 !== undefined && entity.y2 !== undefined) {
+        cadDist = getDistanceToLine(cadX, cadY, entity.x1, entity.y1, entity.x2, entity.y2);
+        
+        if (entity.layer === "WALLS") {
+          const len = Math.round(Math.sqrt((entity.x2 - entity.x1) ** 2 + (entity.y2 - entity.y1) ** 2));
+          label = t(`جدار إنشائي (${(len/1000).toFixed(2)} م)`, `Structural Wall (${(len/1000).toFixed(2)} m)`);
+        } else if (entity.layer === "GRID") {
+          label = t("خط المحور الإنشائي", "Structural Grid Axis");
+        } else if (entity.layer === "DIMENSIONS") {
+          label = t("خط أبعاد هندسي", "Dimension Helper Line");
+        } else if (entity.layer === "ANNOTATIONS") {
+          label = t("خط توضيحي مضاف", "Custom Annotation Line");
+        } else if (entity.layer === "PLUMBING") {
+          label = t("أنبوب تغذية المياه", "Plumbing Supply Line");
+        }
+      } else if (entity.type === "CIRCLE" && entity.cx !== undefined && entity.cy !== undefined && entity.r !== undefined) {
+        cadDist = getDistanceToCircle(cadX, cadY, entity.cx, entity.cy, entity.r);
+        if (entity.layer === "PLUMBING") {
+          label = t(`تركيبة صحية (نصف قطر: ${(entity.r/1000).toFixed(2)} م)`, `Plumbing Fixture (Radius: ${(entity.r/1000).toFixed(2)} m)`);
+        } else if (entity.layer === "ELECTRICAL") {
+          label = t("مخرج إضاءة / كهرباء", "Electrical Outlet Node");
+        }
+      } else if (entity.type === "ARC" && entity.cx !== undefined && entity.cy !== undefined && entity.r !== undefined) {
+        cadDist = getDistanceToCircle(cadX, cadY, entity.cx, entity.cy, entity.r);
+        if (entity.layer === "WALLS") {
+          label = t("قوس فتحة الباب المفتوح", "Door Swing Arc");
+        }
+      }
+      
+      const screenDist = cadDist * zoom;
+      if (screenDist < minScreenDist) {
+        minScreenDist = screenDist;
+        closestIndex = index;
+        closestLabel = label;
+      }
+    });
+    
+    if (closestIndex !== -1) {
+      return { index: closestIndex, label: closestLabel };
+    }
+    return null;
+  }, [entities, layers, panX, panY, zoom, t]);
 
   // Handle Redrawing Canvas
   useEffect(() => {
@@ -205,10 +314,10 @@ export default function CADViewer({
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // Grid lines for screen space
-    ctx.strokeStyle = cadTheme === "dark" ? "rgba(71, 85, 105, 0.2)" : "rgba(148, 163, 184, 0.25)";
-    ctx.lineWidth = 1;
+    ctx.strokeStyle = cadTheme === "dark" ? "rgba(71, 85, 105, 0.15)" : "rgba(148, 163, 184, 0.2)";
+    ctx.lineWidth = 0.8;
     const step = 500 * zoom; // Grid lines every 500 mm in CAD space
-    if (step > 5) {
+    if (step > 6) {
       for (let x = panX % step; x < canvas.width; x += step) {
         ctx.beginPath();
         ctx.moveTo(x, 0);
@@ -224,13 +333,16 @@ export default function CADViewer({
     }
 
     // Render CAD Entities
-    entities.forEach((entity) => {
-      // Check if entity layer is active
+    entities.forEach((entity, index) => {
       if (!layers[entity.layer]) return;
 
-      // Color mapping based on theme
+      const isHovered = hoveredEntity && hoveredEntity.index === index;
+
+      // Color mapping based on theme and hover state
       let strokeColor = entity.color;
-      if (cadTheme === "light") {
+      if (isHovered) {
+        strokeColor = "#eab308"; // Highlight color: Gold
+      } else if (cadTheme === "light") {
         if (entity.color === "#00ffff") strokeColor = "#0f2c5f"; // walls -> navy
         if (entity.color === "#475569") strokeColor = "#cbd5e1"; // grid -> slate-300
         if (entity.color === "#94a3b8") strokeColor = "#64748b"; // labels -> slate-500
@@ -238,7 +350,12 @@ export default function CADViewer({
 
       ctx.strokeStyle = strokeColor;
       ctx.fillStyle = strokeColor;
-      ctx.lineWidth = entity.layer === "WALLS" ? 2.5 : 1.2;
+      ctx.lineWidth = entity.layer === "WALLS" ? 2.5 : (isHovered ? 2.0 : 1.2);
+
+      if (isHovered) {
+        ctx.shadowColor = "#eab308";
+        ctx.shadowBlur = 10;
+      }
 
       // LINE
       if (entity.type === "LINE" && entity.x1 !== undefined && entity.y1 !== undefined && entity.x2 !== undefined && entity.y2 !== undefined) {
@@ -270,7 +387,6 @@ export default function CADViewer({
         const cy = panY - entity.cy * zoom;
         const r = entity.r * zoom;
         
-        // In CAD, positive angle goes counterclockwise. Since our Y is inverted, we adjust angles
         ctx.beginPath();
         ctx.arc(cx, cy, r, -entity.endAngle, -entity.startAngle);
         ctx.stroke();
@@ -289,20 +405,62 @@ export default function CADViewer({
           ctx.fillText(entity.text, cx, cy);
         }
       }
+
+      if (isHovered) {
+        ctx.shadowBlur = 0; // Reset shadow glow
+      }
     });
+
+    // Draw full-canvas crosshair reticle cursor
+    if (hoverCoords) {
+      const cx = panX + hoverCoords.x * zoom;
+      const cy = panY - hoverCoords.y * zoom;
+
+      ctx.strokeStyle = cadTheme === "dark" ? "rgba(148, 163, 184, 0.2)" : "rgba(71, 85, 105, 0.2)";
+      ctx.lineWidth = 0.8;
+      
+      // Horizontal crosshair line
+      ctx.beginPath();
+      ctx.moveTo(0, cy);
+      ctx.lineTo(canvas.width, cy);
+      ctx.stroke();
+
+      // Vertical crosshair line
+      ctx.beginPath();
+      ctx.moveTo(cx, 0);
+      ctx.lineTo(cx, canvas.height);
+      ctx.stroke();
+    }
+
+    // Draw Snapping marker (green OSNAP box)
+    if (snapInfo) {
+      const sx = panX + snapInfo.x * zoom;
+      const sy = panY - snapInfo.y * zoom;
+
+      ctx.strokeStyle = "#22c55e"; // Emerald green
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.rect(sx - 6, sy - 6, 12, 12);
+      ctx.stroke();
+
+      // Draw snapping text label
+      ctx.fillStyle = "#22c55e";
+      ctx.font = "9px monospace";
+      ctx.fillText(snapInfo.type, sx + 10, sy - 8);
+    }
 
     // Draw active measurements
     if (measurePoints.length > 0) {
-      ctx.strokeStyle = "#e11d48"; // Rose-600
-      ctx.fillStyle = "#e11d48";
-      ctx.lineWidth = 2;
+      ctx.strokeStyle = "#f43f5e"; // Rose-500
+      ctx.fillStyle = "#f43f5e";
+      ctx.lineWidth = 1.8;
 
       // Draw first point
       const p1 = measurePoints[0];
       const screenP1X = panX + p1.x * zoom;
       const screenP1Y = panY - p1.y * zoom;
       ctx.beginPath();
-      ctx.arc(screenP1X, screenP1Y, 5, 0, 2 * Math.PI);
+      ctx.arc(screenP1X, screenP1Y, 4.5, 0, 2 * Math.PI);
       ctx.fill();
 
       if (measurePoints.length === 2) {
@@ -318,14 +476,14 @@ export default function CADViewer({
 
         // Draw second point
         ctx.beginPath();
-        ctx.arc(screenP2X, screenP2Y, 5, 0, 2 * Math.PI);
+        ctx.arc(screenP2X, screenP2Y, 4.5, 0, 2 * Math.PI);
         ctx.fill();
 
         // Draw distance tag
         if (measureDistance !== null) {
           const midX = (screenP1X + screenP2X) / 2;
-          const midY = (screenP1Y + screenP2Y) / 2 - 15;
-          ctx.font = "bold 12px sans-serif";
+          const midY = (screenP1Y + screenP2Y) / 2 - 14;
+          ctx.font = "bold 11px sans-serif";
           ctx.textAlign = "center";
           
           const label = `${(measureDistance / 1000).toFixed(2)} m (${measureDistance} mm)`;
@@ -333,16 +491,16 @@ export default function CADViewer({
 
           // Label background
           ctx.fillStyle = "rgba(15, 23, 42, 0.85)";
-          ctx.fillRect(midX - textWidth / 2 - 6, midY - 12, textWidth + 12, 20);
+          ctx.fillRect(midX - textWidth / 2 - 5, midY - 10, textWidth + 10, 18);
 
           ctx.fillStyle = "#ffffff";
-          ctx.fillText(label, midX, midY + 2);
+          ctx.fillText(label, midX, midY + 3);
         }
       } else if (activeTool === "measure") {
-        // Draw dashed line from point A to hover cursor
+        // Draw dashed line from point A to snapped cursor
         const hoverPX = panX + hoverCoords.x * zoom;
         const hoverPY = panY - hoverCoords.y * zoom;
-        ctx.setLineDash([5, 5]);
+        ctx.setLineDash([4, 4]);
         ctx.beginPath();
         ctx.moveTo(screenP1X, screenP1Y);
         ctx.lineTo(hoverPX, hoverPY);
@@ -350,21 +508,45 @@ export default function CADViewer({
         ctx.setLineDash([]); // clear dash
       }
     }
-  }, [entities, zoom, panX, panY, layers, cadTheme, measurePoints, measureDistance, hoverCoords, activeTool]);
+
+    // Draw Line annotation preview
+    if (activeTool === "draw_line" && tempStartPoint) {
+      const sx = panX + tempStartPoint.x * zoom;
+      const sy = panY - tempStartPoint.y * zoom;
+      const ex = panX + hoverCoords.x * zoom;
+      const ey = panY - hoverCoords.y * zoom;
+
+      ctx.strokeStyle = "#ef4444";
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath();
+      ctx.moveTo(sx, sy);
+      ctx.lineTo(ex, ey);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+  }, [entities, zoom, panX, panY, layers, cadTheme, measurePoints, measureDistance, hoverCoords, activeTool, snapInfo, hoveredEntity, tempStartPoint]);
 
   // Mouse Interactions handlers
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const rect = canvasRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    
+    // Snapped coordinate selection
+    const snapped = getSnappedCoords(mouseX, mouseY);
+
     if (activeTool === "pan") {
       setIsPanning(true);
       setDragStart({ x: e.clientX - panX, y: e.clientY - panY });
     } else if (activeTool === "measure") {
-      const coords = clientToCad(e.clientX, e.clientY);
       if (measurePoints.length >= 2) {
-        // Reset and seed first point
-        setMeasurePoints([coords]);
+        setMeasurePoints([{ x: snapped.x, y: snapped.y }]);
         setMeasureDistance(null);
       } else {
-        const newPoints = [...measurePoints, coords];
+        const newPoints = [...measurePoints, { x: snapped.x, y: snapped.y }];
         setMeasurePoints(newPoints);
         if (newPoints.length === 2) {
           const dx = newPoints[1].x - newPoints[0].x;
@@ -373,12 +555,59 @@ export default function CADViewer({
           setMeasureDistance(dist);
         }
       }
+    } else if (activeTool === "draw_line") {
+      if (!tempStartPoint) {
+        setTempStartPoint({ x: snapped.x, y: snapped.y });
+      } else {
+        // Create custom line entity
+        const newEntity: CADEntity = {
+          type: "LINE",
+          layer: "ANNOTATIONS",
+          color: "#ef4444",
+          x1: tempStartPoint.x,
+          y1: tempStartPoint.y,
+          x2: snapped.x,
+          y2: snapped.y
+        };
+        setEntities(prev => [...prev, newEntity]);
+        setUserAddedCount(prev => prev + 1);
+        setTempStartPoint(null);
+      }
+    } else if (activeTool === "draw_text") {
+      const text = window.prompt(t("أدخل نص الملاحظة الهندسية للرسم:", "Enter custom annotation note label:"));
+      if (text && text.trim()) {
+        const newEntity: CADEntity = {
+          type: "TEXT",
+          layer: "ANNOTATIONS",
+          color: "#ef4444",
+          text: text.trim(),
+          fontSize: 140,
+          x: snapped.x,
+          y: snapped.y
+        };
+        setEntities(prev => [...prev, newEntity]);
+        setUserAddedCount(prev => prev + 1);
+      }
     }
   };
 
   const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    const coords = clientToCad(e.clientX, e.clientY);
-    setHoverCoords(coords);
+    const rect = canvasRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+
+    const snapped = getSnappedCoords(mouseX, mouseY);
+    setHoverCoords({ x: snapped.x, y: snapped.y });
+    setSnapInfo(snapped.snapPoint);
+
+    // Entity hovering check
+    if (!isPanning && activeTool === "pan") {
+      const hovered = getHoveredEntity(mouseX, mouseY);
+      setHoveredEntity(hovered);
+    } else {
+      setHoveredEntity(null);
+    }
 
     if (isPanning) {
       setPanX(e.clientX - dragStart.x);
@@ -393,13 +622,11 @@ export default function CADViewer({
   // Zoom on wheel scroll
   const handleWheel = (e: React.WheelEvent<HTMLCanvasElement>) => {
     e.preventDefault();
-    const zoomFactor = 1.1;
+    const zoomFactor = 1.15;
     const nextZoom = e.deltaY < 0 ? zoom * zoomFactor : zoom / zoomFactor;
     
-    // Clamp zoom levels
     if (nextZoom < 0.005 || nextZoom > 2.0) return;
 
-    // Center zoom on mouse cursor
     const rect = canvasRef.current?.getBoundingClientRect();
     if (!rect) return;
     const mouseX = e.clientX - rect.left;
@@ -421,13 +648,11 @@ export default function CADViewer({
     setFileName(file.name);
     setMeasurePoints([]);
     setMeasureDistance(null);
+    setTempStartPoint(null);
 
-    // Simulate reading drawing elements
     const reader = new FileReader();
     reader.onload = () => {
-      // Simulate adding custom lines/circles randomly to show dynamic rendering
       const newEntities = [...SAMPLE_ENTITIES];
-      // Push some random geometric shapes representing the custom uploaded design
       newEntities.push(
         { type: "LINE", layer: "WALLS", color: "#00ffff", x1: -500, y1: 500, x2: 2500, y2: 500 },
         { type: "CIRCLE", layer: "PLUMBING", color: "#3b82f6", cx: 1000, cy: -500, r: 400 },
@@ -438,6 +663,16 @@ export default function CADViewer({
       console.info("[CADViewer] DXF layout parsed successfully", file.name, file.size);
     };
     reader.readAsText(file);
+  };
+
+  const undoLastAnnotation = () => {
+    if (userAddedCount > 0) {
+      setEntities(prev => prev.slice(0, -1));
+      setUserAddedCount(prev => prev - 1);
+      setMeasurePoints([]);
+      setMeasureDistance(null);
+      setTempStartPoint(null);
+    }
   };
 
   const { setCurrentPage } = useNavStore();
@@ -505,7 +740,7 @@ export default function CADViewer({
           <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-900 p-2 rounded-xl border border-slate-200 dark:border-slate-800/80 shadow-sm flex-wrap gap-2">
             
             {/* Tool selectors */}
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 flex-wrap">
               <Button
                 variant={activeTool === "pan" ? "default" : "outline"}
                 size="sm"
@@ -513,22 +748,68 @@ export default function CADViewer({
                   setActiveTool("pan");
                   setMeasurePoints([]);
                   setMeasureDistance(null);
+                  setTempStartPoint(null);
                 }}
                 className="h-8 px-3 text-xs gap-1.5"
               >
                 <MousePointer className="h-3.5 w-3.5" />
-                {t("التنقل والتحريك", "Pan / Select")}
+                {t("التنقل والتحديد", "Pan / Select")}
               </Button>
 
               <Button
                 variant={activeTool === "measure" ? "default" : "outline"}
                 size="sm"
-                onClick={() => setActiveTool("measure")}
+                onClick={() => {
+                  setActiveTool("measure");
+                  setTempStartPoint(null);
+                }}
                 className="h-8 px-3 text-xs gap-1.5"
               >
                 <Ruler className="h-3.5 w-3.5" />
-                {t("أداة القياس", "Measure Distance")}
+                {t("أداة القياس", "Measure")}
               </Button>
+
+              <Button
+                variant={activeTool === "draw_line" ? "default" : "outline"}
+                size="sm"
+                onClick={() => {
+                  setActiveTool("draw_line");
+                  setMeasurePoints([]);
+                  setMeasureDistance(null);
+                  setTempStartPoint(null);
+                }}
+                className="h-8 px-3 text-xs gap-1.5 text-red-600 dark:text-red-400 hover:text-red-700 border-red-200/50 dark:border-red-900/30"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                {t("رسم خط ملاحظة", "Draw Line Note")}
+              </Button>
+
+              <Button
+                variant={activeTool === "draw_text" ? "default" : "outline"}
+                size="sm"
+                onClick={() => {
+                  setActiveTool("draw_text");
+                  setMeasurePoints([]);
+                  setMeasureDistance(null);
+                  setTempStartPoint(null);
+                }}
+                className="h-8 px-3 text-xs gap-1.5 text-red-600 dark:text-red-400 hover:text-red-700 border-red-200/50 dark:border-red-900/30"
+              >
+                <Type className="h-3.5 w-3.5" />
+                {t("إضافة ملاحظة نصية", "Add Text Note")}
+              </Button>
+
+              {userAddedCount > 0 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={undoLastAnnotation}
+                  className="h-8 px-2.5 text-xs gap-1.5"
+                >
+                  <Undo className="h-3.5 w-3.5" />
+                  {t("تراجع", "Undo")}
+                </Button>
+              )}
             </div>
 
             {/* Navigation buttons */}
@@ -545,7 +826,7 @@ export default function CADViewer({
               </Button>
             </div>
 
-            {/* Theme & Meta */}
+            {/* Theme Toggle */}
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
@@ -562,7 +843,7 @@ export default function CADViewer({
 
           {/* Interactive Canvas Container */}
           <div 
-            className="relative border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-inner bg-slate-950 flex-1"
+            className="relative border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-inner bg-slate-950 flex-1 min-h-[500px]"
             style={{ cursor: activeTool === "pan" ? (isPanning ? "grabbing" : "grab") : "crosshair" }}
           >
             <canvas
@@ -575,17 +856,32 @@ export default function CADViewer({
               className="block w-full h-full"
             />
 
-            {/* Live Hover coordinates box */}
+            {/* Entity Hover Tooltip */}
+            {hoveredEntity && (
+              <div 
+                className="absolute bg-slate-900/90 dark:bg-slate-950/95 border border-amber-500/30 text-white rounded-lg px-2.5 py-1.5 text-[10px] shadow-lg pointer-events-none select-none backdrop-blur-sm z-10 flex items-center gap-1.5"
+                style={{
+                  top: `${panY - hoverCoords.y * zoom - 36}px`,
+                  left: `${panX + hoverCoords.x * zoom + 16}px`,
+                }}
+              >
+                <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse shrink-0" />
+                <span className="font-semibold whitespace-nowrap">{hoveredEntity.label}</span>
+              </div>
+            )}
+
+            {/* Live Coordinates box */}
             <div className="absolute bottom-4 left-4 bg-slate-900/90 text-white font-mono text-[10px] px-3 py-1.5 rounded-lg border border-slate-700/60 shadow-md pointer-events-none select-none flex gap-3">
               <span>X: {hoverCoords.x.toFixed(2)} mm</span>
               <span>Y: {hoverCoords.y.toFixed(2)} mm</span>
               <span>Z: 0.00 mm</span>
+              {snapInfo && <span className="text-emerald-400 font-bold">● SNAP: {snapInfo.type}</span>}
             </div>
 
             {/* Hint overlay */}
             <div className="absolute top-4 right-4 bg-slate-900/75 text-white/80 text-[10px] px-3 py-1.5 rounded-lg border border-slate-700/40 pointer-events-none select-none flex items-center gap-1.5 backdrop-blur-sm">
               <Info className="h-3.5 w-3.5 text-blue-400" />
-              <span>{t("استخدم عجلة الماوس للتكبير والتصغير", "Scroll wheel to zoom, drag to pan")}</span>
+              <span>{t("اسحب للتحريك، عجلة الماوس للزوم، المس لنقاط الالتقاط", "Drag to pan, wheel to zoom, hover to snap endpoints")}</span>
             </div>
           </div>
         </div>
@@ -610,6 +906,7 @@ export default function CADViewer({
                   ELECTRICAL: { ar: "توزيع الكهرباء والإضاءة", en: "Electrical Layout" },
                   PLUMBING: { ar: "توصيلات المياه والصرف الصحي", en: "Plumbing Fixtures" },
                   DIMENSIONS: { ar: "الأبعاد والقياسات الهندسية", en: "Dimensions & Annotations" },
+                  ANNOTATIONS: { ar: "ملاحظات المستخدم المضافة", en: "User Custom Annotations" },
                 };
 
                 const layerColorMap: Record<string, string> = {
@@ -618,6 +915,7 @@ export default function CADViewer({
                   ELECTRICAL: "#ff00ff",
                   PLUMBING: "#3b82f6",
                   DIMENSIONS: "#22c55e",
+                  ANNOTATIONS: "#ef4444",
                 };
 
                 return (
@@ -693,7 +991,8 @@ export default function CADViewer({
             <ul className="list-disc list-inside space-y-1">
               <li>{t("اضغط باستمرار واسحب للتحرك (Pan) داخل المخطط.", "Hold left-click and drag to move inside the model.")}</li>
               <li>{t("عجلة الماوس لتكبير وتصغير مكان المؤشر.", "Scroll to zoom in/out relative to the cursor.")}</li>
-              <li>{t("استخدم أداة القياس لحساب الأبعاد بين أي نقطتين.", "Select 'Measure' tool, click two points to measure.")}</li>
+              <li>{t("استخدم أداة القياس لحساب الأبعاد الدقيقة بفضل نقاط الالتقاط.", "Use 'Measure' tool; vertices snap automatically.")}</li>
+              <li>{t("استخدم أدوات الرسم الحمراء لإضافة ملاحظات وخطوط توضيحية.", "Use drawing tools to add custom annotations to the sheet.")}</li>
             </ul>
           </div>
 
