@@ -100,12 +100,13 @@ const staggerContainer = {
   },
 };
 
-function formatAED(value: number) {
-  return new Intl.NumberFormat("ar-AE", {
+function formatAED(value: number, lang: "ar" | "en") {
+  const formatted = new Intl.NumberFormat(lang === "ar" ? "ar-AE" : "en-US", {
     style: "decimal",
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
-  }).format(value) + " درهم";
+  }).format(value);
+  return lang === "ar" ? `${formatted} درهم` : `${formatted} AED`;
 }
 
 // Parallax Background Component
@@ -440,7 +441,7 @@ export default function CalculatorPage() {
                           transition={{ delay: 0.2 }}
                           className="text-3xl sm:text-4xl font-bold mb-2"
                         >
-                          {formatAED(calculation.total.min)} - {formatAED(calculation.total.max)}
+                          {formatAED(calculation.total.min, language)} - {formatAED(calculation.total.max, language)}
                         </motion.div>
                         <p className="text-blue-200 text-sm">
                           {t("للمساحة التقريبية", "For approximate area")} {language === "ar" ? areaData.label : areaData.labelEn} ({areaData.avgSqm} م²)
@@ -465,11 +466,11 @@ export default function CalculatorPage() {
                           <div className="flex-1 min-w-0">
                             <div className="text-sm font-medium text-slate-900">{item.label}</div>
                             <div className="text-xs text-slate-500 mt-0.5">
-                              {item.data ? `${formatAED(item.data.min)} - ${formatAED(item.data.max)}` : "-"}
+                              {item.data ? `${formatAED(item.data.min, language)} - ${formatAED(item.data.max, language)}` : "-"}
                             </div>
                           </div>
                           <div className="text-lg font-bold text-slate-900">
-                            {item.data ? formatAED(Math.round((item.data.min + item.data.max) / 2)) : "-"}
+                            {item.data ? formatAED(Math.round((item.data.min + item.data.max) / 2), language) : "-"}
                           </div>
                         </motion.div>
                       );
