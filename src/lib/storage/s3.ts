@@ -242,6 +242,36 @@ export class S3StorageProvider implements StorageProvider {
   }
 
   /**
+   * Get a pre-signed URL for direct client-side upload to S3/MinIO
+   * @param key - The S3 object key
+   * @param contentType - The expected MIME type of the upload
+   * @param expiresIn - URL expiration time in seconds (default: 900 = 15 minutes)
+   * @returns A pre-signed upload URL string
+   */
+  async getSignedUploadUrl(key: string, contentType: string, expiresIn: number = 900): Promise<string> {
+    try {
+      this.validateContentType(contentType);
+
+      const command = new PutObjectCommand({
+        Bucket: this.bucket,
+        Key: key,
+        ContentType: contentType,
+      });
+
+      const uploadUrl = await getSignedUrl(this.client, command, { expiresIn });
+
+      log.info('[S3Storage] Signed upload URL generated', { key, contentType, expiresIn });
+
+      return uploadUrl;
+    } catch (error) {
+      log.error('[S3Storage] Failed to generate signed upload URL:', error, { key, contentType });
+      throw new Error(
+        `Failed to generate signed upload URL: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
+  }
+
+  /**
    * Check if a file exists in S3
    * @param key - The S3 object key
    * @returns Whether the file exists
