@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
           return NextResponse.json({ error: "Missing required initialization fields" }, { status: 400 });
         }
 
-        const session = initChunkUploadSession(fileName, totalChunks, totalSize, mimeType || "application/octet-stream");
+        const session = await initChunkUploadSession(fileName, totalChunks, totalSize, mimeType || "application/octet-stream");
         return NextResponse.json({ success: true, sessionId: session.sessionId, totalChunks: session.totalChunks });
       }
 
@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       isComplete: false,
-      receivedChunks: Array.from(result.session.receivedChunks),
+      receivedChunks: result.session.receivedChunks,
     });
   } catch (error: any) {
     log.error("Error in chunked upload handler:", error);
@@ -94,7 +94,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "sessionId required" }, { status: 400 });
   }
 
-  const session = getUploadSession(sessionId);
+  const session = await getUploadSession(sessionId);
   if (!session) {
     return NextResponse.json({ error: "Session not found" }, { status: 404 });
   }
@@ -103,7 +103,7 @@ export async function GET(request: NextRequest) {
     sessionId: session.sessionId,
     fileName: session.fileName,
     totalChunks: session.totalChunks,
-    receivedCount: session.receivedChunks.size,
-    receivedChunks: Array.from(session.receivedChunks),
+    receivedCount: session.receivedChunks.length,
+    receivedChunks: session.receivedChunks,
   });
 }

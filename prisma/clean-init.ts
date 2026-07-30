@@ -26,8 +26,9 @@ async function main() {
 
   console.log(`✅ Created/Verified Organization: ${primaryOrg.name} (${primaryOrg.id})`);
 
-  // Create super admin user
-  const adminPasswordHash = await bcrypt.hash('Admin@BluePrint2026!', 12);
+  // Create super admin user with password from environment or fallback
+  const rawAdminPassword = process.env.INITIAL_ADMIN_PASSWORD || 'Admin@BluePrint2026!';
+  const adminPasswordHash = await bcrypt.hash(rawAdminPassword, 12);
   const adminUser = await prisma.user.upsert({
     where: {
       email_organizationId: {
