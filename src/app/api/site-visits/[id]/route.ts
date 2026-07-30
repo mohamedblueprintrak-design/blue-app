@@ -85,6 +85,16 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       },
     });
 
+    // Trigger automated WhatsApp notification if status changed to COMPLETED
+    if (status === 'COMPLETED' || siteVisit.status === 'COMPLETED') {
+      try {
+        const { sendSiteVisitCompletionWhatsApp } = await import('@/lib/services/whatsapp-automation.service');
+        await sendSiteVisitCompletionWhatsApp(siteVisit.id, ctx.organizationId || '');
+      } catch (waErr) {
+        log.error('Failed to trigger WhatsApp site visit notification:', waErr);
+      }
+    }
+
     return NextResponse.json(siteVisit);
   } catch (error) {
     log.error("Error updating site visit:", error);

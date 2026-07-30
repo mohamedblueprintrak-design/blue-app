@@ -60,8 +60,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     if (!validation.success) {
       return NextResponse.json({ error: validation.error, errors: validation.errors }, { status: 400 });
     }
-    const { number, title, type, contractor, revisionNumber, status } = validation.data;
-
+    const { number, title, type, contractor, revisionNumber, status, reviewNotes, reviewedBy, reviewedAt } = validation.data;
 
     const submittal = await db.submittal.update({
       where: { id },
@@ -71,8 +70,10 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         ...(type !== undefined && { type }),
         ...(contractor !== undefined && { contractor }),
         ...(revisionNumber !== undefined && { revisionNumber }),
-
         ...(status !== undefined && { status }),
+        ...(reviewNotes !== undefined && { reviewNotes }),
+        ...(reviewedBy !== undefined && { reviewedBy }),
+        ...(reviewedAt !== undefined && { reviewedAt: new Date(reviewedAt) }),
       },
       include: {
         project: {

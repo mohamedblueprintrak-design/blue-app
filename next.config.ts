@@ -30,6 +30,9 @@ const nextConfig: NextConfig = {
 
   // Optimize barrel-file imports to reduce chunk sizes and avoid ChunkLoadError
   experimental: {
+    serverActions: {
+      bodySizeLimit: '500mb',
+    },
     optimizePackageImports: [
       'recharts',
       'framer-motion',

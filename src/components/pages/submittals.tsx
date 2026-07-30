@@ -65,6 +65,9 @@ interface SubmittalItem {
   contractor: string;
   revisionNumber: number;
   status: string;
+  reviewNotes?: string;
+  reviewedBy?: string;
+  reviewedAt?: string;
   createdAt: string;
   updatedAt: string;
   project: { id: string; name: string; nameEn: string; number: string } | null;
@@ -76,8 +79,10 @@ interface ProjectOption { id: string; name: string; nameEn: string; number: stri
 function getStatusConfig(status: string) {
   const configs: Record<string, { label: string; labelEn: string; color: string; gradient: string }> = {
     UNDER_REVIEW: { label: "قيد المراجعة", labelEn: "Under Review", color: "bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300", gradient: "from-amber-500 to-amber-600" },
-    APPROVED: { label: "معتمد", labelEn: "Approved", color: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300", gradient: "from-emerald-500 to-emerald-600" },
-    REJECTED: { label: "مرفوض", labelEn: "Rejected", color: "bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300", gradient: "from-red-500 to-red-600" },
+    APPROVED: { label: "معتمد (A)", labelEn: "Approved (Code A)", color: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300", gradient: "from-emerald-500 to-emerald-600" },
+    APPROVED_AS_NOTED: { label: "معتمد مع الملاحظات (B)", labelEn: "Approved as Noted (Code B)", color: "bg-teal-100 text-teal-700 dark:bg-teal-900/50 dark:text-teal-300", gradient: "from-teal-500 to-teal-600" },
+    REVISE_RESUBMIT: { label: "تعديل وإعادة تقديم (C)", labelEn: "Revise & Resubmit (Code C)", color: "bg-orange-100 text-orange-700 dark:bg-orange-900/50 dark:text-orange-300", gradient: "from-orange-500 to-orange-600" },
+    REJECTED: { label: "مرفوض (D)", labelEn: "Rejected (Code D)", color: "bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300", gradient: "from-red-500 to-red-600" },
     RESUBMIT: { label: "إعادة تقديم", labelEn: "Resubmit", color: "bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300", gradient: "from-blue-500 to-blue-600" },
   };
   return configs[status] || configs.UNDER_REVIEW;

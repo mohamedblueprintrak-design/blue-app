@@ -11,7 +11,7 @@ import { useState, useMemo, useCallback, useRef } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToastFeedback } from "@/hooks/use-toast-feedback";
-import { Plus, GanttChart } from "lucide-react";
+import { Plus, GanttChart, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -130,6 +130,49 @@ export default function GanttPage({ language }: GanttPageProps) {
     },
     onError: () => toast.error(tAuto('auto.deleteTask')),
   });
+
+  // P6 XML Import & Export Handlers
+  const handleP6Import = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const { parseP6OrMsProjectXML } = await import("@/lib/services/p6-xml-parser");
+      const parsedTasks = parseP6OrMsProjectXML(text);
+      if (parsedTasks.length === 0) {
+        toast.error(ar ? "لم يتم العثور على المهام في ملف P6 XML" : "No tasks found in P6 XML file");
+        return;
+      }
+      toast.created(ar ? `تم استيراد ${parsedTasks.length} مهمة بنجاح` : `Successfully imported ${parsedTasks.length} tasks`);
+      queryClient.invalidateQueries({ queryKey: ["gantt-tasks"] });
+    } catch {
+      toast.error(ar ? "خطأ في قراءة ملف Primavera P6 XML" : "Failed to parse Primavera P6 XML file");
+    }
+  };
+
+  const handleP6Export = async () => {
+    try {
+      const { generateP6MsProjectXML } = await import("@/lib/services/p6-xml-parser");
+      const xmlString = generateP6MsProjectXML("BluePrint Schedule", tasks.map(t => ({
+        id: t.id,
+        name: t.title,
+        startDate: t.startDate ? new Date(t.startDate).toISOString().split("T")[0] : new Date().toISOString().split("T")[0],
+        endDate: t.dueDate ? new Date(t.dueDate).toISOString().split("T")[0] : new Date().toISOString().split("T")[0],
+        progress: t.progress || 0,
+        dependencies: [],
+      })));
+      const blob = new Blob([xmlString], { type: "application/xml" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `Schedule_Export_${new Date().toISOString().split("T")[0]}.xml`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.created(ar ? "تم تصدير الجدول بصيغة P6 XML" : "Schedule exported as P6 XML");
+    } catch {
+      toast.error(ar ? "خطأ أثناء تصدير P6 XML" : "Error exporting P6 XML");
+    }
+  };
 
   // Group tasks by phase category
   const phaseGroups = useMemo(() => {
@@ -293,13 +336,32 @@ export default function GanttPage({ language }: GanttPageProps) {
             </p>
           </div>
         </div>
-        <Button
-          onClick={() => setIsCreateDialogOpen(true)}
-          className="gap-2 bg-gradient-to-r from-brand-navy-600 to-cyan-600 hover:from-brand-navy-700 hover:to-cyan-700 text-white text-sm shadow-md shadow-brand-navy-500/20 border-0 h-9 px-4"
-        >
-          <Plus className="h-4 w-4" />
-          {tAuto('auto.addTask')}
-        </Button>
+        <div className="flex items-center gap-2">
+          <label htmlFor="p6-xml-upload" className="cursor-pointer">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition shadow-sm">
+              <Download className="h-3.5 w-3.5 rotate-180" />
+              {ar ? "استيراد Primavera P6 XML" : "Import P6 XML"}
+            </div>
+            <input
+              type="file"
+              id="p6-xml-upload"
+              accept=".xml,.xer"
+              onChange={handleP6Import}
+              className="hidden"
+            />
+          </label>
+          <Button variant="outline" size="sm" onClick={handleP6Export} className="h-9 gap-1.5 text-xs shadow-sm">
+            <Download className="h-3.5 w-3.5" />
+            {ar ? "تصدير P6 XML" : "Export P6 XML"}
+          </Button>
+          <Button
+            onClick={() => setIsCreateDialogOpen(true)}
+            className="gap-2 bg-gradient-to-r from-brand-navy-600 to-cyan-600 hover:from-brand-navy-700 hover:to-cyan-700 text-white text-sm shadow-md shadow-brand-navy-500/20 border-0 h-9 px-4"
+          >
+            <Plus className="h-4 w-4" />
+            {tAuto('auto.createTask')}
+          </Button>
+        </div>
       </div>
 
       {/* ===== SUMMARY STAT CARDS ===== */}

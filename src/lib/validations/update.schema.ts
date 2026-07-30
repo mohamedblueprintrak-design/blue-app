@@ -434,7 +434,10 @@ export const submittalUpdateSchema = z.object({
   type: z.string().max(100).optional(),
   contractor: z.string().max(200).optional(),
   revisionNumber: z.coerce.number().nonnegative().optional(),
-  status: z.string().max(50).optional(),
+  status: z.enum(['UNDER_REVIEW', 'APPROVED', 'APPROVED_AS_NOTED', 'REVISE_RESUBMIT', 'REJECTED', 'RESUBMIT']).optional(),
+  reviewNotes: z.string().max(5000).optional(),
+  reviewedBy: z.string().max(200).optional(),
+  reviewedAt: z.string().optional(),
 });
 
 export type SubmittalUpdateData = z.infer<typeof submittalUpdateSchema>;
