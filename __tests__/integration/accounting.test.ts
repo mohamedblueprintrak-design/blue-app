@@ -45,12 +45,22 @@ describe("Accounting Engine & Double-Entry Ledger", () => {
   });
 
   afterAll(async () => {
-    // Cleanup
+    // Cleanup with FK disabled
+    if (process.env.DATABASE_URL?.startsWith("file:")) {
+      await db.$executeRaw`PRAGMA foreign_keys = OFF`;
+    }
+    await db.invoiceItem.deleteMany();
+    await db.invoice.deleteMany();
+    await db.project.deleteMany();
+    await db.client.deleteMany();
     await db.journalLine.deleteMany();
     await db.journalEntry.deleteMany();
     await db.account.deleteMany();
     await db.user.deleteMany();
     await db.organization.deleteMany();
+    if (process.env.DATABASE_URL?.startsWith("file:")) {
+      await db.$executeRaw`PRAGMA foreign_keys = ON`;
+    }
     await db.$disconnect();
   });
 
@@ -205,5 +215,172 @@ describe("Accounting Engine & Double-Entry Ledger", () => {
     expect(bs.totalLiabilities).toBe(0);
     expect(bs.totalEquity).toBe(1500);
     expect(bs.balancesMatch).toBe(true);
+  });
+
+  it("7. should auto-create balanced journal entries for invoices and VAT", async () => {
+    const { createInvoiceJournalEntry } = await import("@/lib/services/accounting.service");
+    
+    // Subtotal: 10,000 AED, VAT (5%): 500 AED, Total: 10,500 AED
+    const invNumber = "INV-TEST-VAT-001";
+    await db.$transaction(async (tx) => {
+      await createInvoiceJournalEntry(tx, testOrgId, invNumber, 10000, 500, testUserId);
+    });
+
+    const entry = await db.journalEntry.findFirst({
+      where: { reference: invNumber, organizationId: testOrgId },
+      include: { lines: { include: { account: true } } },
+    });
+
+    expect(entry).toBeDefined();
+    expect(entry?.lines.length).toBe(3); // AR (10500 Dr), Rev (10000 Cr), VAT (500 Cr)
+
+    const arLine = entry?.lines.find((l) => l.account.code === "1100");
+    const revLine = entry?.lines.find((l) => l.account.code === "4010");
+    const vatLine = entry?.lines.find((l) => l.account.code === "2200");
+
+    expect(Number(arLine?.debit)).toBe(10500);
+    expect(Number(revLine?.credit)).toBe(10000);
+    expect(Number(vatLine?.credit)).toBe(500);
+  });
+
+  it("7b. should handle invoice items with custom revenue codes and 0 tax", async () => {
+    const { createInvoiceJournalEntry } = await import("@/lib/services/accounting.service");
+
+    // Seed dummy client and invoice with items having custom revenue codes
+    const client = await db.client.create({
+      data: {
+        name: "Invoice Test Client",
+        organizationId: testOrgId,
+      },
+    });
+
+    const project = await db.project.create({
+      data: {
+        number: "PRJ-INV-001",
+        name: "Test Project",
+        organization: { connect: { id: testOrgId } },
+        client: { connect: { id: client.id } },
+      },
+    });
+
+    const invNumber = "INV-ITEM-REV-001";
+    await db.invoice.create({
+      data: {
+        number: invNumber,
+        subtotal: 8000,
+        tax: 0,
+        total: 8000,
+        issueDate: new Date(),
+        dueDate: new Date(),
+        organization: { connect: { id: testOrgId } },
+        client: { connect: { id: client.id } },
+        project: { connect: { id: project.id } },
+        items: {
+          create: [
+            { description: "Design Fee", quantity: 1, unitPrice: 5000, total: 5000, revenueCode: "4010" },
+            { description: "Supervision Fee", quantity: 1, unitPrice: 3000, total: 3000, revenueCode: "4020" },
+          ],
+        },
+      },
+    });
+
+    await db.$transaction(async (tx) => {
+      await createInvoiceJournalEntry(tx, testOrgId, invNumber, 8000, 0, testUserId);
+    });
+
+    const entry = await db.journalEntry.findFirst({
+      where: { reference: invNumber, organizationId: testOrgId },
+      include: { lines: { include: { account: true } } },
+    });
+
+    expect(entry).toBeDefined();
+    expect(entry?.lines.length).toBe(3); // AR (8000 Dr), 4010 (5000 Cr), 4020 (3000 Cr)
+
+    const rev4010 = entry?.lines.find((l) => l.account.code === "4010");
+    const rev4020 = entry?.lines.find((l) => l.account.code === "4020");
+
+    expect(Number(rev4010?.credit)).toBe(5000);
+    expect(Number(rev4020?.credit)).toBe(3000);
+  });
+
+  it("8. should auto-create journal entries for payments (bank vs cash)", async () => {
+    const { createPaymentJournalEntry } = await import("@/lib/services/accounting.service");
+    const invNumber = "INV-TEST-VAT-001";
+
+    // Bank Payment: 5,000 AED
+    await db.$transaction(async (tx) => {
+      await createPaymentJournalEntry(tx, testOrgId, invNumber, 5000, "bank", testUserId);
+    });
+
+    // Cash Payment: 2,000 AED
+    await db.$transaction(async (tx) => {
+      await createPaymentJournalEntry(tx, testOrgId, invNumber, 2000, "cash", testUserId);
+    });
+
+    const entries = await db.journalEntry.findMany({
+      where: { reference: `PAYMENT-${invNumber}`, organizationId: testOrgId },
+      include: { lines: { include: { account: true } } },
+    });
+
+    expect(entries.length).toBe(2);
+
+    const bankEntry = entries.find((e) => e.lines.some((l) => l.account.code === "1020"));
+    const cashEntry = entries.find((e) => e.lines.some((l) => l.account.code === "1010"));
+
+    expect(bankEntry).toBeDefined();
+    expect(cashEntry).toBeDefined();
+
+    // Verify AR is credited in both entries
+    const bankArLine = bankEntry?.lines.find((l) => l.account.code === "1100");
+    expect(Number(bankArLine?.credit)).toBe(5000);
+
+    const cashArLine = cashEntry?.lines.find((l) => l.account.code === "1100");
+    expect(Number(cashArLine?.credit)).toBe(2000);
+  });
+
+  it("9. should throw error when invoice journal entry accounts do not exist", async () => {
+    const { createInvoiceJournalEntry } = await import("@/lib/services/accounting.service");
+    const invalidOrgId = "org-non-existent";
+
+    await expect(
+      db.$transaction(async (tx) => {
+        await createInvoiceJournalEntry(tx, invalidOrgId, "INV-ERR", 1000, 50, testUserId);
+      })
+    ).rejects.toThrow(/Run seedAccounts first/);
+  });
+
+  it("10. should validate negative and double debit/credit lines in journal entry", async () => {
+    const accounts = await AccountingService.getAccounts(testOrgId);
+    const bankAccount = accounts.find((a) => a.code === "1020")!;
+
+    // Negative value check
+    await expect(
+      AccountingService.createJournalEntry(
+        testOrgId,
+        {
+          description: "Negative check",
+          lines: [
+            { accountId: bankAccount.id, debit: -100, credit: 0 },
+            { accountId: bankAccount.id, debit: 0, credit: -100 },
+          ],
+        },
+        testUserId
+      )
+    ).rejects.toThrow(/non-negative/);
+
+    // Both debit and credit in single line check
+    await expect(
+      AccountingService.createJournalEntry(
+        testOrgId,
+        {
+          description: "Both debit & credit check",
+          lines: [
+            { accountId: bankAccount.id, debit: 100, credit: 100 },
+            { accountId: bankAccount.id, debit: 0, credit: 0 },
+          ],
+        },
+        testUserId
+      )
+    ).rejects.toThrow(/cannot contain both debit and credit/);
   });
 });
