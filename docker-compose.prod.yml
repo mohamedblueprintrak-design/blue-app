@@ -1,301 +1,195 @@
 # ============================================
-# BluePrint SaaS - Docker Compose for Production
+# BluePrint Engineering Consultancy ERP
+# Production Orchestration for Synology NAS & Private Servers
 # ============================================
-# 
-# SECURITY:
-# - No exposed database/redis ports (only accessible from app)
-# - Secrets from environment variables
-# - Redis with password authentication
-# - Nginx as reverse proxy with SSL
-#
-# Usage:
-#   docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
-#
-# Required environment variables (set in .env or CI/CD):
-#   - DATABASE_PASSWORD
-#   - JWT_SECRET (min 32 characters)
-#   - ENCRYPTION_KEY (64 hex chars — generate with: openssl rand -hex 32)
-#   - REDIS_PASSWORD
-#   - NEXT_PUBLIC_APP_URL (REQUIRED — used for password reset links, OAuth callbacks)
-#   - SMTP_HOST, SMTP_USER, SMTP_PASSWORD
-#   - STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET
-#   - CRON_SECRET (required for /api/cron/* endpoints)
-#
-# SECURITY FIX (P0-1): MULTI_TENANT now defaults to 'true'. The system is designed
-# as a SaaS multi-tenant product; single-tenant mode must be explicitly opted into
-# by setting MULTI_TENANT=false in .env.
-# SECURITY FIX (P0-7): backup_service is now defined here (was only in docker-compose.yml
-# behind a profile that was never activated in prod).
 
 services:
   # ============================================
-  # Application Service
+  # 1. Next.js Main Application
   # ============================================
   app:
-    image: ${DOCKER_IMAGE:-ghcr.io/mohamedblueprintrak-design/blue-app/app:latest}
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: blueprint-app
-    restart: unless-stopped
-    # SECURITY: Only expose to nginx, not directly to internet
-    expose:
-      - "3000"
+    container_name: blueprint-app-prod
+    restart: always
+    ports:
+      - "3000:3000"
+    env_file: .env
     environment:
       - NODE_ENV=production
-      # SECURITY: Use secrets from environment
-      - DATABASE_URL=postgresql://blueprint:${DATABASE_PASSWORD:?DATABASE_PASSWORD must be set}@postgres:5432/blueprint
-      - JWT_SECRET=${JWT_SECRET:?JWT_SECRET must be set}
-      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
-      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
-      # SMTP Configuration
-      - SMTP_HOST=${SMTP_HOST}
-      - SMTP_PORT=${SMTP_PORT:-587}
-      - SMTP_USER=${SMTP_USER}
-      - SMTP_PASSWORD=${SMTP_PASSWORD:?SMTP_PASSWORD must be set}
-      - SMTP_PASS=${SMTP_PASSWORD:?SMTP_PASSWORD must be set}
-      # Encryption key for sensitive data (64 hex chars = 256 bits)
-      # Generate with: openssl rand -hex 32
-      # SECURITY FIX (P0-4): fail-fast if ENCRYPTION_KEY is missing — was silently empty
-      - ENCRYPTION_KEY=${ENCRYPTION_KEY:?ENCRYPTION_KEY must be set (generate with: openssl rand -hex 32)}
-      # Multi-tenant mode — defaults to 'true' for SaaS data isolation.
-      # Set MULTI_TENANT=false ONLY for self-hosted single-org deployments.
-      - MULTI_TENANT=${MULTI_TENANT:-true}
-      # Stripe Configuration
-      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
-      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
-      # CRON_SECRET — required for /api/cron/* endpoints (cleanup, workers)
-      - CRON_SECRET=${CRON_SECRET:?CRON_SECRET must be set}
+      - PORT=3000
+      - HOSTNAME=0.0.0.0
+      - DATABASE_URL=postgresql://blueprint:${DATABASE_PASSWORD:?DATABASE_PASSWORD must be set in .env}@postgres:5432/blueprint?schema=public
+      - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD must be set in .env}@redis:6379
+      - MINIO_ENDPOINT=minio
+      - MINIO_PORT=9000
+      - MINIO_USE_SSL=false
+      - MINIO_ACCESS_KEY=${MINIO_ROOT_USER:-blueprint_minio}
+      - MINIO_SECRET_KEY=${MINIO_ROOT_PASSWORD:-blueprint_minio_secret}
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
     networks:
-      - blueprint-network
+      - blueprint-prod-network
     volumes:
-      - uploads:/app/uploads
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-    security_opt:
-      - no-new-privileges:true
-    read_only: false
-    cap_drop:
-      - ALL
-    cap_add:
-      - CHOWN
-      - SETGID
-      - SETUID
-      - NET_BIND_SERVICE
+      - uploads_data:/app/uploads
+    deploy:
+      resources:
+        limits:
+          memory: 1536M
+          cpus: '2.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"
 
   # ============================================
-  # PostgreSQL Database - SECURED
+  # 2. PostgreSQL 16 Database
   # ============================================
   postgres:
     image: postgres:16-alpine
-    container_name: blueprint-postgres
-    restart: unless-stopped
+    container_name: blueprint-postgres-prod
+    restart: always
+    env_file: .env
     environment:
       POSTGRES_USER: blueprint
-      # SECURITY: Password from environment variable
-      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:?DATABASE_PASSWORD must be set}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:?DATABASE_PASSWORD must be set in .env}
       POSTGRES_DB: blueprint
-    # SECURITY: NO exposed ports - only accessible from app container
-    # Remove the ports section entirely for production
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - postgres_backup:/var/backups/postgresql
+      - postgres_prod_data:/var/lib/postgresql/data
     networks:
-      - blueprint-network
+      - blueprint-prod-network
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
+          cpus: '1.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "15m"
+        max-file: "4"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U blueprint -d blueprint"]
       interval: 10s
       timeout: 5s
       retries: 5
-    security_opt:
-      - no-new-privileges:true
-    # SECURITY: Limit resources
-    deploy:
-      resources:
-        limits:
-          memory: 1G
-        reservations:
-          memory: 256M
 
   # ============================================
-  # Redis Cache - SECURED
+  # 3. Redis Cache & BullMQ Queue Server
   # ============================================
   redis:
     image: redis:7-alpine
-    container_name: blueprint-redis
-    restart: unless-stopped
-    # SECURITY: NO exposed ports - only accessible from app container
+    container_name: blueprint-redis-prod
+    restart: always
+    env_file: .env
     volumes:
-      - redis_data:/data
+      - redis_prod_data:/data
     networks:
-      - blueprint-network
-    environment:
-      - REDIS_PASSWORD=${REDIS_PASSWORD:?REDIS_PASSWORD must be set}
-    # SECURITY: Use password authentication with fail-fast
+      - blueprint-prod-network
     command: >
-      redis-server 
-      --appendonly yes 
-      --requirepass ${REDIS_PASSWORD:?REDIS_PASSWORD must be set}
-      --maxmemory 256mb
+      redis-server
+      --appendonly yes
+      --requirepass ${REDIS_PASSWORD:?REDIS_PASSWORD must be set in .env}
+      --maxmemory 512mb
       --maxmemory-policy allkeys-lru
-    # SECURITY: Use REDISCLI_AUTH env var instead of -a flag to avoid
-    # exposing password in /proc/<pid>/cmdline (visible to other users on the host)
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.75'
+        reservations:
+          memory: 128M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     healthcheck:
-      test: ["CMD-SHELL", "REDISCLI_AUTH=\"$$REDIS_PASSWORD\" redis-cli ping"]
+      test: ["CMD-SHELL", "REDISCLI_AUTH=$REDIS_PASSWORD redis-cli ping"]
       interval: 10s
       timeout: 5s
       retries: 5
-    security_opt:
-      - no-new-privileges:true
+
+  # ============================================
+  # 4. MinIO S3 Local High-Speed Storage
+  # ============================================
+  minio:
+    image: minio/minio:latest
+    container_name: blueprint-minio-prod
+    restart: always
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-blueprint_minio}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-blueprint_minio_secret}
+    ports:
+      - "9000:9000"  # S3 API Port
+      - "9001:9001"  # Web Console Port
+    volumes:
+      - minio_prod_data:/data
+    networks:
+      - blueprint-prod-network
     deploy:
       resources:
         limits:
-          memory: 512M
+          memory: 768M
+          cpus: '1.0'
         reservations:
-          memory: 128M
-
-  # ============================================
-  # Nginx Reverse Proxy - PRODUCTION REQUIRED
-  # ============================================
-  nginx:
-    image: nginx:alpine
-    container_name: blueprint-nginx
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/conf.d:/etc/nginx/conf.d:ro
-      - ./certbot/conf:/etc/letsencrypt:ro
-      - ./certbot/www:/var/www/certbot:ro
-    depends_on:
-      app:
-        condition: service_healthy
-    networks:
-      - blueprint-network
-    security_opt:
-      - no-new-privileges:true
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "15m"
+        max-file: "3"
     healthcheck:
-      test: ["CMD", "nginx", "-t"]
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
       timeout: 10s
       retries: 3
-    deploy:
-      resources:
-        limits:
-          memory: 128M
-        reservations:
-          memory: 32M
 
   # ============================================
-  # Certbot for SSL Auto-Renewal
+  # 5. Automated Database Daily Backup
   # ============================================
-  certbot:
-    image: certbot/certbot
-    container_name: blueprint-certbot
-    volumes:
-      - ./certbot/conf:/etc/letsencrypt
-      - ./certbot/www:/var/www/certbot
-    # Renew certificates every 12 hours
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --quiet; sleep 12h & wait $${!}; done;'"
-    networks:
-      - blueprint-network
-
-  # ============================================
-  # Backup Service — Daily PostgreSQL backups with 10-day retention
-  # SECURITY FIX (P0-7): This service was previously only defined in docker-compose.yml
-  # behind `profiles: [production]` which was never activated, so backups silently
-  # never ran in production. It is now defined here unconditionally.
-  # ============================================
-  backup_service:
+  backup:
     image: postgres:16-alpine
-    container_name: blueprint-backup
-    restart: unless-stopped
+    container_name: blueprint-backup-prod
+    restart: always
     environment:
-      - PGHOST=postgres
-      - PGPORT=5432
-      - PGUSER=blueprint
-      - PGPASSWORD=${DATABASE_PASSWORD:?DATABASE_PASSWORD must be set}
-      - PGDATABASE=blueprint
-      - RETENTION_DAYS=${BACKUP_RETENTION_DAYS:-10}
+      - PGPASSWORD=${DATABASE_PASSWORD}
     volumes:
-      - postgres_backup:/backups
-      - ./scripts/backup-entrypoint.sh:/backup-entrypoint.sh:ro
-    entrypoint: ["/bin/sh", "/backup-entrypoint.sh"]
+      - backup_prod_data:/backups
+    command: >
+      /bin/sh -c '
+        echo "0 2 * * * pg_dump -U blueprint -h postgres -d blueprint -F c -f /backups/blueprint-db-$$(date +\\%Y\\%m\\%d-\\%H\\%M).dump" > /etc/crontabs/root && crond -f
+      '
     depends_on:
       postgres:
         condition: service_healthy
     networks:
-      - blueprint-network
-    security_opt:
-      - no-new-privileges:true
-    deploy:
-      resources:
-        limits:
-          memory: 256M
-        reservations:
-          memory: 64M
+      - blueprint-prod-network
 
-  # ============================================
-  # WebSocket Chat Service
-  # ============================================
-  chat-service:
-    build:
-      context: .
-      dockerfile: mini-services/chat-service/Dockerfile
-    container_name: blueprint-chat
-    restart: unless-stopped
-    expose:
-      - "3003"
-    environment:
-      - PORT=3003
-      - DATABASE_URL=postgresql://blueprint:${DATABASE_PASSWORD:?DATABASE_PASSWORD must be set}@postgres:5432/blueprint
-      - JWT_SECRET=${JWT_SECRET:?JWT_SECRET must be set}
-      - CORS_ORIGINS=${NEXT_PUBLIC_APP_URL}
-      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
-      - INTERNAL_API_SECRET=${INTERNAL_API_SECRET:?INTERNAL_API_SECRET must be set}
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - blueprint-network
-    security_opt:
-      - no-new-privileges:true
-    deploy:
-      resources:
-        limits:
-          memory: 512M
-          cpus: '0.5'
-
-# ============================================
-# Networks - Internal Only
-# ============================================
 networks:
-  blueprint-network:
+  blueprint-prod-network:
     driver: bridge
-    internal: false  # Allow external access only through nginx
 
-# ============================================
-# Volumes
-# ============================================
 volumes:
-  postgres_data:
+  postgres_prod_data:
     driver: local
-  redis_data:
+  redis_prod_data:
     driver: local
-  postgres_backup:
+  uploads_data:
     driver: local
-  uploads:
+  minio_prod_data:
+    driver: local
+  backup_prod_data:
     driver: local

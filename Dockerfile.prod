@@ -1,0 +1,63 @@
+# ============================================
+# BluePrint SaaS - Optimized Standalone Production Dockerfile
+# Optimized for Synology Container Manager & VPS/Docker environments
+# ============================================
+
+# Stage 1: Build & Dependencies
+FROM node:20.18-alpine AS builder
+
+WORKDIR /app
+RUN apk add --no-cache libc6-compat openssl python3 make g++
+
+COPY package.json package-lock.json* bun.lock* ./
+COPY prisma ./prisma/
+
+# Install all dependencies including devDependencies for compilation
+RUN npm ci || npm install
+
+# Generate Prisma Client
+RUN npx prisma generate
+
+# Copy source code and build Next.js application
+COPY . .
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=production
+
+RUN npm run build
+
+# Stage 2: Minimal Production Runtime
+FROM node:20.18-alpine AS runner
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
+
+# Copy standalone output & static assets
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/docker-entrypoint.sh ./docker-entrypoint.sh
+
+# Install runtime utilities & Prisma CLI for migrations
+RUN apk add --no-cache postgresql-client tini curl && \
+    chmod +x ./docker-entrypoint.sh && \
+    mkdir -p /app/uploads && \
+    chown -R nextjs:nodejs /app
+
+USER nextjs
+
+EXPOSE 3000
+
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
+    CMD curl -f http://localhost:3000/api/health || exit 1
+
+ENTRYPOINT ["/sbin/tini", "--", "./docker-entrypoint.sh"]
+CMD ["node", "server.js"]
