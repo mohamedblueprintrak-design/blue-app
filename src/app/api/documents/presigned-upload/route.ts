@@ -1,9 +1,40 @@
 /**
- * Presigned Direct S3 / MinIO Upload Endpoint
- * 
- * Generates temporary presigned PUT URLs enabling browser clients
- * to upload large files (CAD, BIM, High-Res PDFs) directly to S3 / MinIO
- * without consuming Next.js server memory.
+ * @openapi
+ * /api/documents/presigned-upload:
+ *   post:
+ *     summary: Generate a presigned S3 / MinIO upload URL for large files
+ *     tags:
+ *       - Documents
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - fileName
+ *               - contentType
+ *               - fileSize
+ *             properties:
+ *               fileName:
+ *                 type: string
+ *               contentType:
+ *                 type: string
+ *               fileSize:
+ *                 type: number
+ *               projectId:
+ *                 type: string
+ *               category:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Presigned upload URL generated successfully
+ *       400:
+ *         description: Invalid input or S3 storage not configured
+ *       401:
+ *         description: Unauthorized
  */
 
 import { NextRequest, NextResponse } from 'next/server';
