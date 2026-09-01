@@ -42,6 +42,9 @@ export type IdParamData = z.infer<typeof idParamSchema>;
 export const paymentCreateSchema = z.object({
   voucherNumber: z.string().max(50).optional().default(''),
   projectId: z.string().cuid().optional(),
+  // Optional invoice link: when provided, the payment is applied to the invoice
+  // (paidAmount/status updated + AR journal entry posted atomically via recordPayment)
+  invoiceId: z.string().cuid().optional(),
   amount: z.coerce.number().positive('المبلغ مطلوب ويجب أن يكون أكبر من صفر').max(999999999),
   payMethod: z.string().min(1, 'طريقة الدفع مطلوبة').max(50),
   beneficiary: z.string().max(300).optional().default(''),

@@ -9,8 +9,9 @@ import { parsePaginationParams, buildPaginationMeta, calculateSkip } from '../ut
 import { insensitiveContains } from '../utils/db';
 import { sanitizeObject } from '@/lib/security/sanitize';
 import { cachedQuery, invalidateCache, CACHE_TTL, buildCacheKey } from '@/lib/cache/query-cache';
-import { cacheGet, cacheSet } from '@/lib/cache/redis';
+import { cacheGet, cacheSet, cacheDeletePattern } from '@/lib/cache/redis';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
+import { invoiceService } from '@/lib/services/invoice.service';
 
 /**
  * @openapi
@@ -119,7 +120,7 @@ export async function POST(request: NextRequest) {
     }
     const _sanitizedBody = sanitizeObject(validation.data);
 
-    const { voucherNumber, projectId, amount, payMethod, beneficiary, referenceNumber, description } = validation.data;
+    const { voucherNumber, projectId, amount, payMethod, beneficiary, referenceNumber, description, invoiceId } = validation.data;
 
     // Verify project belongs to organization (if provided)
     if (projectId) {
@@ -157,6 +158,84 @@ export async function POST(request: NextRequest) {
     if (recentDuplicate) {
       log.warn("Prevented double-charge (time-based)", { userId: ctx.userId, amount, projectId });
       return NextResponse.json(recentDuplicate, { status: 200 });
+    }
+
+    // ── Customer payment applied to an invoice ──
+    // Routes through invoiceService.recordPayment: atomically updates paidAmount/status,
+    // applies overpayment protection, and posts the AR journal entry (Debit Cash/Bank,
+    // Credit Accounts Receivable). The voucher row below links the payment to the
+    // invoice so statements and the payments list stay consistent.
+    if (invoiceId) {
+      if (!ctx.organizationId) {
+        return NextResponse.json({ error: "Organization context is required" }, { status: 400 });
+      }
+      const invoice = await db.invoice.findFirst({
+        where: { id: invoiceId, organizationId: ctx.organizationId, deletedAt: null },
+        select: { id: true, number: true },
+      });
+      if (!invoice) {
+        return NextResponse.json({ error: "الفاتورة المحددة غير موجودة أو لا تنتمي لمؤسستك" }, { status: 400 });
+      }
+
+      try {
+        // Money state first (atomic: paidAmount + status + journal entry + audit log)
+        const updatedInvoice = await invoiceService.recordPayment(
+          invoiceId,
+          amount,
+          ctx.organizationId,
+          ctx.userId,
+          payMethod === 'cash' ? 'cash' : 'bank'
+        );
+
+        // Voucher row linked to the invoice for lists/statements
+        const payment = await db.payment.create({
+          data: {
+            voucherNumber: voucherNumber || "",
+            projectId: projectId || null,
+            invoiceId,
+            amount,
+            payMethod: payMethod,
+            beneficiary: beneficiary || "",
+            referenceNumber: referenceNumber || "",
+            description: description || `دفعة على الفاتورة ${updatedInvoice.number}`,
+            status: "APPROVED",
+            ...orgCreate(ctx),
+            createdById: ctx.userId,
+          },
+          include: {
+            approver: { select: { id: true, name: true } },
+            project: { select: { id: true, name: true, nameEn: true, number: true } },
+            invoice: { select: { id: true, number: true, status: true, paidAmount: true, remaining: true } },
+          },
+        });
+
+        // Invalidate payment + invoice + dashboard caches after creation
+        await invalidateCache('payments');
+        await invalidateCache('invoices');
+        await cacheDeletePattern(`dashboard:${ctx.organizationId || 'global'}:*`);
+
+        if (idempotencyKey) {
+          const redisKey = `idempotency:payment:${ctx.userId}:${idempotencyKey}`;
+          await cacheSet(redisKey, payment, 86400);
+        }
+
+        log.info("Invoice payment recorded", {
+          userId: ctx.userId,
+          invoiceId,
+          invoiceNumber: updatedInvoice.number,
+          amount,
+          newStatus: updatedInvoice.status,
+        });
+        return NextResponse.json(payment, { status: 201 });
+      } catch (paymentError) {
+        // recordPayment throws clear business errors (overpayment, concurrent update)
+        const message = paymentError instanceof Error ? paymentError.message : "Failed to record payment";
+        log.error("Error recording invoice payment:", paymentError);
+        return NextResponse.json(
+          { error: message.includes('exceeds remaining balance') || message.includes('positive') || message.includes('CONCURRENT') ? message : "Failed to record payment" },
+          { status: message.includes('CONCURRENT') ? 409 : 400 }
+        );
+      }
     }
 
     const payment = await db.payment.create({

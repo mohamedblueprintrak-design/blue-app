@@ -368,6 +368,17 @@ export async function POST(request: NextRequest) {
       ctx.userId
     );
 
+    // GL wiring: creating an invoice directly as SENT must post the AR journal entry
+    // (markAsSent is atomic: status flip + journal entry, rolls back on GL failure).
+    if (status === 'SENT' && ctx.organizationId) {
+      const sentInvoice = await invoiceService.markAsSent(invoice.id, ctx.organizationId, ctx.userId);
+      // Invalidate dashboard and invoice caches after invoice creation
+      await cacheDeletePattern(`dashboard:${ctx.organizationId || 'global'}:*`);
+      await invalidateCache('invoices');
+      log.info("Invoice created and sent", { invoiceId: invoice.id, number: invoice.number, createdBy: ctx.userId });
+      return NextResponse.json(sentInvoice, { status: 201 });
+    }
+
     // If a custom status or number was provided (for migration/testing), we could update it, 
     // but typically creation defaults to DRAFT.
     if (status && status !== 'DRAFT') {

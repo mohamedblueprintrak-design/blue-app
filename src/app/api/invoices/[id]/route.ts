@@ -9,6 +9,7 @@ import { Permission } from '@/lib/auth/types';
 import { log } from '@/lib/logger';
 import { sanitizeObject } from '@/lib/security/sanitize';
 import { withRateLimit, rateLimitResponse } from '@/lib/rate-limit-middleware';
+import { invoiceService } from '@/lib/services/invoice.service';
 
 // Tax rate - configurable via environment variable (default from shared constants)
 import { VAT_RATE } from '@/lib/constants';
@@ -88,6 +89,14 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     const orgError = orgCheck(user, existing);
     if (orgError) return orgError;
 
+    // GL wiring: DRAFT → SENT transition must go through markAsSent so the
+    // accounts-receivable journal entry is posted atomically with the status flip.
+    const requestedStatus = typeof validatedData.status === 'string' ? validatedData.status : undefined;
+    const draftToSent = existing.status === 'DRAFT' && requestedStatus === 'SENT';
+    if (draftToSent && !user.organizationId) {
+      return errorResponse('Organization context is required to send invoices', 'ORG_REQUIRED', 400);
+    }
+
     const _validatedUpdateData = validation.data;
 
     // Validate invoice items if provided
@@ -139,7 +148,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
           ...(validatedData.projectId !== undefined && { projectId: validatedData.projectId }),
           ...(validatedData.issueDate !== undefined && { issueDate: new Date(validatedData.issueDate) }),
           ...(validatedData.dueDate !== undefined && { dueDate: new Date(validatedData.dueDate) }),
-          ...(validatedData.status !== undefined && { status: validatedData.status }),
+          ...(validatedData.status !== undefined && !draftToSent && { status: validatedData.status }),
           subtotal,
           tax,
           total,
@@ -153,6 +162,13 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         },
       });
     });
+
+    // DRAFT → SENT: flip status + post AR journal entry atomically (after the
+    // field updates above have committed). Rolls back the transition on GL failure.
+    if (draftToSent) {
+      const sentInvoice = await invoiceService.markAsSent(id, user.organizationId as string, user.userId);
+      return NextResponse.json(sentInvoice);
+    }
 
     return NextResponse.json(invoice);
   } catch (error) {
