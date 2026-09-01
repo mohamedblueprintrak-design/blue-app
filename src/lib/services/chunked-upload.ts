@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import crypto from "crypto";
-import { getRedisClient } from "@/lib/redis";
+import { getRedis } from "@/lib/cache/redis";
 import { log } from "@/lib/logger";
 
 export interface ChunkUploadSession {
@@ -53,12 +53,12 @@ export async function initChunkUploadSession(
     fs.mkdirSync(sessionTempDir, { recursive: true });
   }
 
-  const redis = getRedisClient();
+  const redis = await getRedis();
   if (redis) {
     try {
-      await redis.setex(getRedisSessionKey(sessionId), SESSION_TTL_SECONDS, JSON.stringify(session));
+      await redis.setEx(getRedisSessionKey(sessionId), SESSION_TTL_SECONDS, JSON.stringify(session));
     } catch (err) {
-      log.warn("[ChunkedUpload] Redis setex failed, falling back to in-memory store", err);
+      log.warn("[ChunkedUpload] Redis setex failed, falling back to in-memory store", { error: err instanceof Error ? err.message : String(err) });
       memorySessions.set(sessionId, session);
     }
   } else {
@@ -69,7 +69,7 @@ export async function initChunkUploadSession(
 }
 
 export async function getUploadSession(sessionId: string): Promise<ChunkUploadSession | null> {
-  const redis = getRedisClient();
+  const redis = await getRedis();
   if (redis) {
     try {
       const data = await redis.get(getRedisSessionKey(sessionId));
@@ -77,7 +77,7 @@ export async function getUploadSession(sessionId: string): Promise<ChunkUploadSe
         return JSON.parse(data) as ChunkUploadSession;
       }
     } catch (err) {
-      log.warn("[ChunkedUpload] Redis get failed, checking memory store", err);
+      log.warn("[ChunkedUpload] Redis get failed, checking memory store", { error: err instanceof Error ? err.message : String(err) });
     }
   }
 
@@ -85,13 +85,13 @@ export async function getUploadSession(sessionId: string): Promise<ChunkUploadSe
 }
 
 async function saveUploadSession(session: ChunkUploadSession): Promise<void> {
-  const redis = getRedisClient();
+  const redis = await getRedis();
   if (redis) {
     try {
-      await redis.setex(getRedisSessionKey(session.sessionId), SESSION_TTL_SECONDS, JSON.stringify(session));
+      await redis.setEx(getRedisSessionKey(session.sessionId), SESSION_TTL_SECONDS, JSON.stringify(session));
       return;
     } catch (err) {
-      log.warn("[ChunkedUpload] Redis update failed, updating memory store", err);
+      log.warn("[ChunkedUpload] Redis update failed, updating memory store", { error: err instanceof Error ? err.message : String(err) });
     }
   }
 
@@ -99,12 +99,12 @@ async function saveUploadSession(session: ChunkUploadSession): Promise<void> {
 }
 
 async function deleteUploadSession(sessionId: string): Promise<void> {
-  const redis = getRedisClient();
+  const redis = await getRedis();
   if (redis) {
     try {
       await redis.del(getRedisSessionKey(sessionId));
     } catch (err) {
-      log.warn("[ChunkedUpload] Redis del failed", err);
+      log.warn("[ChunkedUpload] Redis del failed", { error: err instanceof Error ? err.message : String(err) });
     }
   }
   memorySessions.delete(sessionId);
