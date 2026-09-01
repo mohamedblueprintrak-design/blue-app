@@ -115,6 +115,14 @@ export async function POST(request: NextRequest) {
 
   const { user } = rbac;
 
+  // Organization context is required: WhatsAppMessage.organizationId is a required FK.
+  // Without it the Meta API call would succeed and then the DB write would fail (500),
+  // losing the message log for a message we already paid to send. Fail fast instead.
+  const organizationId = user.organizationId || '';
+  if (!organizationId) {
+    return errorResponse('Organization context is required to send WhatsApp messages', 'ORG_REQUIRED', 400);
+  }
+
   // Step 2: Rate limit check
   const clientIp = getClientIP(request.headers);
   const rateLimitResult = await whatsappRateLimiter.check(clientIp || user.userId);
@@ -174,7 +182,7 @@ export async function POST(request: NextRequest) {
         if (textBody.message.length > 4096) {
           return validationErrorResponse('Message body exceeds 4096 character limit', 'message');
         }
-        result = await whatsappService.sendTextMessage(textBody.to, textBody.message);
+        result = await whatsappService.sendTextMessage(textBody.to, textBody.message, organizationId);
         break;
       }
 
@@ -187,7 +195,8 @@ export async function POST(request: NextRequest) {
           templateBody.to,
           templateBody.template,
           templateBody.language || 'ar',
-          templateBody.components
+          templateBody.components,
+          organizationId
         );
         break;
       }
@@ -204,7 +213,8 @@ export async function POST(request: NextRequest) {
           docBody.to,
           docBody.document.url,
           docBody.document.filename,
-          docBody.document.caption
+          docBody.document.caption,
+          organizationId
         );
         break;
       }
@@ -220,7 +230,7 @@ export async function POST(request: NextRequest) {
         if (typeof invoiceBody.invoice?.amount !== 'number' || invoiceBody.invoice.amount <= 0) {
           return validationErrorResponse('Invoice amount must be a positive number', 'invoice.amount');
         }
-        result = await whatsappService.sendInvoiceNotification(invoiceBody.to, invoiceBody.invoice);
+        result = await whatsappService.sendInvoiceNotification(invoiceBody.to, invoiceBody.invoice, organizationId);
         break;
       }
 
@@ -235,7 +245,7 @@ export async function POST(request: NextRequest) {
         if (!projectBody.project?.update) {
           return validationErrorResponse('Project update text is required', 'project.update');
         }
-        result = await whatsappService.sendProjectUpdate(projectBody.to, projectBody.project);
+        result = await whatsappService.sendProjectUpdate(projectBody.to, projectBody.project, organizationId);
         break;
       }
 

@@ -31,19 +31,22 @@ export async function GET(request: NextRequest) {
   if ('error' in rbac) return rbac.error;
 
   try {
+    // Tenant isolation: only return this organization's templates
+    const orgId = rbac.user.organizationId || undefined;
+
     // Check if WhatsApp service is configured
     if (!whatsappService.isConfigured) {
       // Even if not fully configured, return predefined templates as reference
       log.info('[WhatsApp Templates] Service not configured, returning predefined templates');
       return successResponse({
-        templates: await whatsappService.getTemplates(),
+        templates: await whatsappService.getTemplates(orgId),
         source: 'predefined',
         configured: false,
       });
     }
 
     // Fetch templates from Meta API (falls back to predefined on failure)
-    const templates = await whatsappService.getTemplates();
+    const templates = await whatsappService.getTemplates(orgId);
 
     log.info('[WhatsApp Templates] Templates fetched', {
       count: templates.length,

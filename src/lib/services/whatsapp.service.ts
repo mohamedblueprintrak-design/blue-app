@@ -180,11 +180,14 @@ export const whatsappService = {
     to: string,
     templateName: string,
     paramsOrLanguage: Record<string, string> | string,
-    componentsOrOrgId?: unknown
+    componentsOrOrgId?: unknown,
+    organizationIdOverride?: string
   ) {
     let templateParams: Record<string, string> = {};
     let organizationId = '';
     if (typeof paramsOrLanguage === 'string') {
+      // Language-path: explicit org override (5th param) prevents FK violation on message logging
+      organizationId = typeof organizationIdOverride === 'string' ? organizationIdOverride : '';
       const components = componentsOrOrgId as Array<Record<string, unknown>> | undefined;
       if (components) {
         components.forEach((c, cIdx) => {
@@ -200,7 +203,12 @@ export const whatsappService = {
       }
     } else {
       templateParams = paramsOrLanguage || {};
-      organizationId = typeof componentsOrOrgId === 'string' ? componentsOrOrgId : '';
+      organizationId =
+        typeof organizationIdOverride === 'string' && organizationIdOverride
+          ? organizationIdOverride
+          : typeof componentsOrOrgId === 'string'
+            ? componentsOrOrgId
+            : '';
     }
     const result = await sendWhatsAppMessage({ to, templateName, templateParams, organizationId });
     return result;
@@ -209,13 +217,15 @@ export const whatsappService = {
   async sendDocument(
     to: string,
     documentUrl: string,
-    caption: string,
+    filename: string,
+    caption?: string,
     organizationId?: string
   ) {
     // For now, send text with link (document upload requires WhatsApp Business API media upload)
+    const captionLine = caption ? `${caption}\n\n` : '';
     const result = await sendWhatsAppMessage({
       to,
-      message: `${caption}\n\nDocument: ${documentUrl}`,
+      message: `${captionLine}Document: ${filename}\n${documentUrl}`,
       organizationId: organizationId || '',
     });
     return result;
@@ -248,10 +258,10 @@ export const whatsappService = {
     });
   },
 
-  async sendInvoiceNotification(to: string, invoiceData: InvoiceNotificationData) {
+  async sendInvoiceNotification(to: string, invoiceData: InvoiceNotificationData, organizationId?: string) {
     if (invoiceData.pdfUrl) {
       const caption = `فاتورة رقم ${invoiceData.number} - ${invoiceData.client}\nالمبلغ: ${invoiceData.amount} ${invoiceData.currency}\nتاريخ الاستحقاق: ${invoiceData.dueDate}`;
-      return await this.sendDocument(to, invoiceData.pdfUrl, caption);
+      return await this.sendDocument(to, invoiceData.pdfUrl, 'فاتورة PDF', caption, organizationId);
     }
     const templateParams = {
       '0': invoiceData.number,
@@ -259,16 +269,16 @@ export const whatsappService = {
       '2': `${invoiceData.amount} ${invoiceData.currency}`,
       '3': invoiceData.dueDate,
     };
-    return await this.sendTemplateMessage(to, 'invoice_notification', templateParams);
+    return await this.sendTemplateMessage(to, 'invoice_notification', templateParams, organizationId);
   },
 
-  async sendProjectUpdate(to: string, projectData: ProjectUpdateData) {
+  async sendProjectUpdate(to: string, projectData: ProjectUpdateData, organizationId?: string) {
     const templateParams = {
       '0': projectData.name,
       '1': projectData.status,
       '2': projectData.update,
     };
-    return await this.sendTemplateMessage(to, 'project_update', templateParams);
+    return await this.sendTemplateMessage(to, 'project_update', templateParams, organizationId);
   },
 };
 
