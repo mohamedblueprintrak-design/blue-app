@@ -228,14 +228,14 @@ model User {
   twoFactorSecret         TwoFactorSecret?
   twoFactorChallenges     TwoFactorChallenge[]
   pushSubscriptions       PushSubscription[]
-  designPhases            DesignPhase[]             @relation("DesignPhaseDesigner")
-  projectStages           ProjectStage[]            @relation("ProjectStageEngineer")
-  supervisionChecklists   SupervisionChecklist[]    @relation("SupervisionChecklistEngineer")
-  approvedChecklists      SupervisionChecklist[]    @relation("SupervisionChecklistApprover")
-  designDrawings          DesignDrawing[]           @relation("DesignDrawingUploader")
+  designPhases            DesignPhase[]            @relation("DesignPhaseDesigner")
+  projectStages           ProjectStage[]           @relation("ProjectStageEngineer")
+  supervisionChecklists   SupervisionChecklist[]   @relation("SupervisionChecklistEngineer")
+  approvedChecklists      SupervisionChecklist[]   @relation("SupervisionChecklistApprover")
+  designDrawings          DesignDrawing[]          @relation("DesignDrawingUploader")
   designRevisions         DesignRevision[]         @relation("DesignRevisionUploader")
-  certifiedProgressClaims ProgressClaim[]           @relation("ProgressClaimCertifier")
-  securityAuditLogs       SecurityAuditLog[]        @relation("SecurityAuditLogUser")
+  certifiedProgressClaims ProgressClaim[]          @relation("ProgressClaimCertifier")
+  securityAuditLogs       SecurityAuditLog[]       @relation("SecurityAuditLogUser")
   crmActivities           CRMActivity[]
 
   @@unique([email, organizationId])
@@ -733,7 +733,7 @@ model ContractAmendment {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  contract Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  contract     Contract     @relation(fields: [contractId], references: [id], onDelete: Cascade)
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@index([contractId])
@@ -794,7 +794,7 @@ model InvoiceItem {
   revenueCode String   @default("4010")
   createdAt   DateTime @default(now())
 
-  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  invoice Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
   boqItem BOQItem? @relation(fields: [boqItemId], references: [id], onDelete: SetNull)
 
   @@index([invoiceId])
@@ -831,7 +831,7 @@ model Payment {
   payMethod       String   @default("transfer") // cash, cheque, transfer, online
   beneficiary     String   @default("")
   referenceNumber String   @default("")
-  status          String   @default("pending") // pending, approved, completed, cancelled
+  status          String   @default("PENDING") // PENDING, APPROVED, COMPLETED, CANCELLED (uppercase everywhere — see migration 20260901000000_payment_status_normalize)
   approvedById    String?
   description     String   @default("")
   organizationId  String
@@ -1403,8 +1403,8 @@ model BOQItem {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  project      Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  project      Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  organization Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   invoiceItems InvoiceItem[]
   deletedAt    DateTime? // Soft delete
 
@@ -1732,16 +1732,16 @@ model ActivityLog {
   project      Project?     @relation(fields: [projectId], references: [id], onDelete: SetNull)
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
-  @@index([userId, createdAt])
-  @@index([createdAt])
-  @@index([entityType, entityId])
-  @@index([projectId])
-  @@index([organizationId])
   // SECURITY: Unique constraint enables atomic idempotency for Stripe webhooks
   // and any other event-source that needs dedup. The webhook handler does
   // activityLog.create() as an atomic "claim" — P2002 means another request
   // already claimed this event.
   @@unique([action, entityId])
+  @@index([userId, createdAt])
+  @@index([createdAt])
+  @@index([entityType, entityId])
+  @@index([projectId])
+  @@index([organizationId])
 }
 
 // ==================== APPROVALS ====================
@@ -1825,7 +1825,7 @@ model InspectionFinding {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  inspection BuildingInspection @relation(fields: [inspectionId], references: [id], onDelete: Cascade)
+  inspection       BuildingInspection @relation(fields: [inspectionId], references: [id], onDelete: Cascade)
   inspectionPhotos InspectionPhoto[]
 
   @@index([status])
@@ -1948,8 +1948,8 @@ model DesignRevision {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  drawing DesignDrawing @relation(fields: [drawingId], references: [id], onDelete: Cascade)
-  uploadedBy User? @relation("DesignRevisionUploader", fields: [uploadedById], references: [id], onDelete: SetNull)
+  drawing    DesignDrawing @relation(fields: [drawingId], references: [id], onDelete: Cascade)
+  uploadedBy User?         @relation("DesignRevisionUploader", fields: [uploadedById], references: [id], onDelete: SetNull)
 
   @@index([drawingId])
   @@index([uploadedById])
@@ -2213,10 +2213,10 @@ model WorkflowTemplateStage {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  template      WorkflowTemplate       @relation(fields: [templateId], references: [id], onDelete: Cascade)
-  steps         WorkflowTemplateStep[]
+  template       WorkflowTemplate       @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  steps          WorkflowTemplateStep[]
   workflowStages WorkflowStage[]
-  organization  Organization           @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization   Organization           @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@index([templateId, order])
   @@index([organizationId])
@@ -2238,9 +2238,9 @@ model WorkflowTemplateStep {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  stage        WorkflowTemplateStage @relation(fields: [stageId], references: [id], onDelete: Cascade)
+  stage         WorkflowTemplateStage @relation(fields: [stageId], references: [id], onDelete: Cascade)
   workflowSteps WorkflowStep[]
-  organization Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization  Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@index([stageId, order])
   @@index([organizationId])
@@ -2290,11 +2290,11 @@ model WorkflowStage {
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
-  assignee       User?                @relation("WorkflowStageAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
-  workflow       ProjectWorkflow      @relation(fields: [workflowId], references: [id], onDelete: Cascade)
-  templateStage  WorkflowTemplateStage? @relation(fields: [templateStageId], references: [id], onDelete: SetNull)
-  steps          WorkflowStep[]
-  organization   Organization         @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  assignee      User?                  @relation("WorkflowStageAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  workflow      ProjectWorkflow        @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  templateStage WorkflowTemplateStage? @relation(fields: [templateStageId], references: [id], onDelete: SetNull)
+  steps         WorkflowStep[]
+  organization  Organization           @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@index([workflowId, order])
   @@index([status])
@@ -2324,10 +2324,10 @@ model WorkflowStep {
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
-  assignee      User?                 @relation("WorkflowStepAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
-  stage         WorkflowStage         @relation(fields: [stageId], references: [id], onDelete: Cascade)
-  templateStep  WorkflowTemplateStep? @relation(fields: [templateStepId], references: [id], onDelete: SetNull)
-  organization  Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  assignee     User?                 @relation("WorkflowStepAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  stage        WorkflowStage         @relation(fields: [stageId], references: [id], onDelete: Cascade)
+  templateStep WorkflowTemplateStep? @relation(fields: [templateStepId], references: [id], onDelete: SetNull)
+  organization Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@index([stageId, order])
   @@index([status])
@@ -2927,21 +2927,21 @@ model PushSubscription {
 
 // Dashboard Presets for role-specific dashboard layouts
 model DashboardPreset {
-  id             String    @id @default(cuid())
+  id             String   @id @default(cuid())
   name           String
   nameEn         String
   role           UserRole
-  isDefault      Boolean   @default(false)
-  isSystem       Boolean   @default(false) // System presets are shared across all orgs
-  layout         String    @default("[]") // JSON string layout
-  widgets        String    @default("[]") // JSON string widgets
+  isDefault      Boolean  @default(false)
+  isSystem       Boolean  @default(false) // System presets are shared across all orgs
+  layout         String   @default("[]") // JSON string layout
+  widgets        String   @default("[]") // JSON string widgets
   organizationId String?
   createdById    String?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
-  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  createdBy      User?         @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdBy    User?         @relation(fields: [createdById], references: [id], onDelete: SetNull)
 
   @@index([role])
   @@index([organizationId])
@@ -2974,23 +2974,23 @@ enum AccountType {
 }
 
 model Account {
-  id               String        @id @default(cuid())
-  code             String
-  nameAr           String
-  nameEn           String
-  description      String?
-  type             AccountType
-  parentAccountId  String?
-  organizationId   String
-  isActive         Boolean       @default(true)
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
+  id              String      @id @default(cuid())
+  code            String
+  nameAr          String
+  nameEn          String
+  description     String?
+  type            AccountType
+  parentAccountId String?
+  organizationId  String
+  isActive        Boolean     @default(true)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
 
-  organization     Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  parentAccount    Account?      @relation("AccountHierarchy", fields: [parentAccountId], references: [id], onDelete: Cascade)
-  childAccounts    Account[]     @relation("AccountHierarchy")
-  journalLines     JournalLine[]
-  bankAccounts     BankAccount[]
+  organization  Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  parentAccount Account?      @relation("AccountHierarchy", fields: [parentAccountId], references: [id], onDelete: Cascade)
+  childAccounts Account[]     @relation("AccountHierarchy")
+  journalLines  JournalLine[]
+  bankAccounts  BankAccount[]
 
   @@unique([organizationId, code])
   @@index([organizationId])
@@ -2998,16 +2998,16 @@ model Account {
 }
 
 model JournalEntry {
-  id             String        @id @default(cuid())
-  date           DateTime      @default(now())
-  reference      String?       // e.g. Invoice Number, Receipt Number
+  id             String   @id @default(cuid())
+  date           DateTime @default(now())
+  reference      String? // e.g. Invoice Number, Receipt Number
   description    String
   organizationId String
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
-  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  lines          JournalLine[]
+  organization     Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  lines            JournalLine[]
   bankTransactions BankTransaction[]
 
   @@index([organizationId])
@@ -3015,16 +3015,16 @@ model JournalEntry {
 }
 
 model JournalLine {
-  id             String        @id @default(cuid())
+  id             String   @id @default(cuid())
   journalEntryId String
   accountId      String
-  debit          Decimal       @default(0)
-  credit         Decimal       @default(0)
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  debit          Decimal  @default(0)
+  credit         Decimal  @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
-  journalEntry   JournalEntry  @relation(fields: [journalEntryId], references: [id], onDelete: Cascade)
-  account        Account       @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  journalEntry JournalEntry @relation(fields: [journalEntryId], references: [id], onDelete: Cascade)
+  account      Account      @relation(fields: [accountId], references: [id], onDelete: Cascade)
 
   @@index([journalEntryId])
   @@index([accountId])
@@ -3044,7 +3044,7 @@ model Lead {
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization  Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   opportunities Opportunity[]
   activities    CRMActivity[]
 
@@ -3054,18 +3054,17 @@ model Lead {
   @@map("leads")
 }
 
-
 // ==================== BANK ACCOUNTS & RECONCILIATION ====================
 
 model BankAccount {
   id             String   @id @default(cuid())
-  name           String   // e.g. "ADCB Current Account"
-  nameAr         String?  // e.g. "حساب ADCB الجاري"
-  bankName       String   // e.g. "ADCB", "Emirates NBD"
+  name           String // e.g. "ADCB Current Account"
+  nameAr         String? // e.g. "حساب ADCB الجاري"
+  bankName       String // e.g. "ADCB", "Emirates NBD"
   iban           String?  @unique // International Bank Account Number
-  accountNumber  String?  // Last 4 digits for display
+  accountNumber  String? // Last 4 digits for display
   currency       String   @default("AED")
-  accountId      String?  // Link to Chart of Accounts (GL account 1020)
+  accountId      String? // Link to Chart of Accounts (GL account 1020)
   organizationId String
   isActive       Boolean  @default(true)
   openingBalance Decimal  @default(0)
@@ -3073,35 +3072,35 @@ model BankAccount {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  account        Account?     @relation(fields: [accountId], references: [id], onDelete: SetNull)
-  transactions   BankTransaction[]
+  organization Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  account      Account?          @relation(fields: [accountId], references: [id], onDelete: SetNull)
+  transactions BankTransaction[]
 
   @@index([organizationId])
   @@index([isActive])
 }
 
 model BankTransaction {
-  id              String   @id @default(cuid())
-  bankAccountId   String
-  date            DateTime
-  description     String
-  reference       String?  // Cheque number, transfer ref, etc.
-  amount          Decimal  // Positive = deposit, Negative = withdrawal
-  balanceAfter    Decimal  // Running balance after this transaction
-  type            String   @default("OTHER") // DEPOSIT, WITHDRAWAL, TRANSFER, FEE, INTEREST, OTHER
-  isReconciled    Boolean  @default(false)
-  reconciledAt    DateTime?
-  journalEntryId  String?  // Link to GL journal entry if matched
-  matchType       String?  // "AUTO" or "MANUAL" or null
-  matchDetails    String?  // JSON string: what was matched (invoice, payment, etc.)
-  organizationId  String
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id             String    @id @default(cuid())
+  bankAccountId  String
+  date           DateTime
+  description    String
+  reference      String? // Cheque number, transfer ref, etc.
+  amount         Decimal // Positive = deposit, Negative = withdrawal
+  balanceAfter   Decimal // Running balance after this transaction
+  type           String    @default("OTHER") // DEPOSIT, WITHDRAWAL, TRANSFER, FEE, INTEREST, OTHER
+  isReconciled   Boolean   @default(false)
+  reconciledAt   DateTime?
+  journalEntryId String? // Link to GL journal entry if matched
+  matchType      String? // "AUTO" or "MANUAL" or null
+  matchDetails   String? // JSON string: what was matched (invoice, payment, etc.)
+  organizationId String
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
-  bankAccount     BankAccount  @relation(fields: [bankAccountId], references: [id], onDelete: Cascade)
-  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  journalEntry    JournalEntry? @relation(fields: [journalEntryId], references: [id], onDelete: SetNull)
+  bankAccount  BankAccount   @relation(fields: [bankAccountId], references: [id], onDelete: Cascade)
+  organization Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  journalEntry JournalEntry? @relation(fields: [journalEntryId], references: [id], onDelete: SetNull)
 
   @@index([bankAccountId])
   @@index([organizationId])
@@ -3116,22 +3115,22 @@ model BankTransaction {
 
 model WhatsAppTemplate {
   id             String   @id @default(cuid())
-  name           String   // Template name (unique per org)
+  name           String // Template name (unique per org)
   language       String   @default("ar") // ar, en
   category       String   @default("MARKETING") // MARKETING, UTILITY, AUTHENTICATION
   status         String   @default("PENDING") // PENDING, APPROVED, REJECTED
-  headerType     String?  // TEXT, IMAGE, DOCUMENT, VIDEO
+  headerType     String? // TEXT, IMAGE, DOCUMENT, VIDEO
   headerText     String?
-  bodyText       String   // Template body with {{1}}, {{2}} placeholders
+  bodyText       String // Template body with {{1}}, {{2}} placeholders
   footerText     String?
-  buttonType     String?  // NONE, QUICK_REPLY, CALL_TO_ACTION
-  buttons        String?  // JSON string of buttons
+  buttonType     String? // NONE, QUICK_REPLY, CALL_TO_ACTION
+  buttons        String? // JSON string of buttons
   organizationId String
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  messages       WhatsAppMessage[]
+  organization Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  messages     WhatsAppMessage[]
 
   @@unique([organizationId, name])
   @@index([organizationId])
@@ -3139,23 +3138,23 @@ model WhatsAppTemplate {
 }
 
 model WhatsAppMessage {
-  id              String   @id @default(cuid())
-  to              String   // Phone number (with country code)
-  from            String?  // Sender phone number (WhatsApp Business number)
-  messageText     String?  // Text content
-  templateId      String?  // If sent via template
-  templateParams  String?  // JSON string of template parameters
-  status          String   @default("QUEUED") // QUEUED, SENT, DELIVERED, READ, FAILED
-  direction       String   @default("OUTBOUND") // OUTBOUND, INBOUND
-  errorMessage    String?
-  invoiceId       String?  // If linked to an invoice
-  clientId        String?  // If linked to a client
-  organizationId  String
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id             String   @id @default(cuid())
+  to             String // Phone number (with country code)
+  from           String? // Sender phone number (WhatsApp Business number)
+  messageText    String? // Text content
+  templateId     String? // If sent via template
+  templateParams String? // JSON string of template parameters
+  status         String   @default("QUEUED") // QUEUED, SENT, DELIVERED, READ, FAILED
+  direction      String   @default("OUTBOUND") // OUTBOUND, INBOUND
+  errorMessage   String?
+  invoiceId      String? // If linked to an invoice
+  clientId       String? // If linked to a client
+  organizationId String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
-  organization    Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  template        WhatsAppTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  organization Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  template     WhatsAppTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
 
   @@index([organizationId])
   @@index([status])
@@ -3167,25 +3166,25 @@ model WhatsAppMessage {
 // ==================== CRM: OPPORTUNITIES & ACTIVITIES ====================
 
 model Opportunity {
-  id             String    @id @default(cuid())
-  title          String
-  leadId         String?   // Link to Lead (if originated from a lead)
-  clientId       String?   // Link to Client (if converted)
-  projectId      String?   // Link to Project (if won and project created)
-  stage          String    @default("QUALIFICATION") // QUALIFICATION, NEEDS_ANALYSIS, PROPOSAL, NEGOTIATION, WON, LOST
-  probability    Int       @default(10) // 0-100
-  estimatedValue Decimal   @default(0)
+  id                String    @id @default(cuid())
+  title             String
+  leadId            String? // Link to Lead (if originated from a lead)
+  clientId          String? // Link to Client (if converted)
+  projectId         String? // Link to Project (if won and project created)
+  stage             String    @default("QUALIFICATION") // QUALIFICATION, NEEDS_ANALYSIS, PROPOSAL, NEGOTIATION, WON, LOST
+  probability       Int       @default(10) // 0-100
+  estimatedValue    Decimal   @default(0)
   expectedCloseDate DateTime?
-  description    String?
-  lostReason     String?
-  organizationId String
-  deletedAt      DateTime?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  description       String?
+  lostReason        String?
+  organizationId    String
+  deletedAt         DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  lead           Lead?       @relation(fields: [leadId], references: [id], onDelete: SetNull)
-  activities     CRMActivity[]
+  organization Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  lead         Lead?         @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  activities   CRMActivity[]
 
   @@index([organizationId])
   @@index([stage])
@@ -3194,25 +3193,25 @@ model Opportunity {
 }
 
 model CRMActivity {
-  id             String   @id @default(cuid())
-  type           String   // CALL, MEETING, EMAIL, TASK, NOTE, WHATSAPP
+  id             String    @id @default(cuid())
+  type           String // CALL, MEETING, EMAIL, TASK, NOTE, WHATSAPP
   title          String
   description    String?
   dueDate        DateTime?
   completedAt    DateTime?
-  status         String   @default("PENDING") // PENDING, COMPLETED, CANCELLED
+  status         String    @default("PENDING") // PENDING, COMPLETED, CANCELLED
   leadId         String?
   opportunityId  String?
   clientId       String?
-  assignedToId   String?  // User ID
+  assignedToId   String? // User ID
   organizationId String
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
-  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  lead           Lead?         @relation(fields: [leadId], references: [id], onDelete: Cascade)
-  opportunity    Opportunity?  @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
-  assignedTo     User?         @relation(fields: [assignedToId], references: [id], onDelete: SetNull)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  lead         Lead?        @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  opportunity  Opportunity? @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  assignedTo   User?        @relation(fields: [assignedToId], references: [id], onDelete: SetNull)
 
   @@index([organizationId])
   @@index([leadId])

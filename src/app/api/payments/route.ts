@@ -32,7 +32,7 @@ import { invoiceService } from '@/lib/services/invoice.service';
  *         schema: { type: string }
  *       - name: status
  *         in: query
- *         schema: { type: string, enum: [PENDING, SUCCEEDED, FAILED, REFUNDED] }
+ *         schema: { type: string, enum: [PENDING, APPROVED, COMPLETED, CANCELLED] }
  *       - name: invoiceId
  *         in: query
  *         schema: { type: string }
@@ -247,6 +247,11 @@ export async function POST(request: NextRequest) {
         beneficiary: beneficiary || "",
         referenceNumber: referenceNumber || "",
         description: description || "",
+        // Explicit uppercase status — do NOT rely on the column default.
+        // The whole payments workflow (UI filters, approve/complete mutations,
+        // Stripe webhook) uses PENDING/APPROVED/COMPLETED/CANCELLED; a lowercase
+        // legacy default made new vouchers invisible in the "pending" filter.
+        status: "PENDING",
         ...orgCreate(ctx),
         createdById: ctx.userId,
       },
