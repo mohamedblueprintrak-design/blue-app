@@ -92,11 +92,13 @@ export default function InvoicesPage({ language, projectId }: InvoicesPageProps)
   const invoices = Array.isArray(invoicesData) ? invoicesData : [];
 
   // Fetch clients
-  const { data: clientsData } = useQuery<ClientOption[]>({
+  const { data: clientsData, isError: clientsError } = useQuery<ClientOption[]>({
     queryKey: ["clients-list"],
     queryFn: async () => {
       const res = await fetch("/api/clients");
-      if (!res.ok) return [];
+      // Surface failures instead of silently showing an empty client list —
+      // a silent [] made users think they had no clients during an API outage.
+      if (!res.ok) throw new Error("Failed to fetch clients");
       const json = await res.json();
       return json.data || json;
     },
@@ -104,14 +106,30 @@ export default function InvoicesPage({ language, projectId }: InvoicesPageProps)
   const clients = Array.isArray(clientsData) ? clientsData : [];
 
   // Fetch projects
-  const { data: projects = [] } = useQuery<ProjectOption[]>({
+  const { data: projects = [], isError: projectsError } = useQuery<ProjectOption[]>({
     queryKey: ["projects-list"],
     queryFn: async () => {
       const res = await fetch("/api/projects-simple");
-      if (!res.ok) return [];
+      if (!res.ok) throw new Error("Failed to fetch projects");
       return res.json();
     },
   });
+
+  // Surface lookup failures — the invoice form needs these lists to be usable.
+  // NOTE: toast helpers are recreated each render, so deps track only the error flags
+  // (fires once per false -> true transition, no toast spam on re-renders).
+  useEffect(() => {
+    if (clientsError) {
+      toast.showError(ar ? "فشل تحميل قائمة العملاء — حاول تحديث الصفحة" : "Failed to load clients — please refresh");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [clientsError, ar]);
+  useEffect(() => {
+    if (projectsError) {
+      toast.showError(ar ? "فشل تحميل قائمة المشاريع — حاول تحديث الصفحة" : "Failed to load projects — please refresh");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projectsError, ar]);
 
   // Create mutation
   const createMutation = useMutation({

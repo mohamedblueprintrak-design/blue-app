@@ -2,8 +2,10 @@
 
 
 import { useTranslations } from 'next-intl';
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useToastFeedback } from "@/hooks/use-toast-feedback";
+import { extractErrorMessage } from "@/lib/api/fetch-client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -150,6 +152,7 @@ interface PaymentsPageProps {
 export default function PaymentsPage({ language, projectId }: PaymentsPageProps) {
   const tAuto = useTranslations();
   const ar = language === "ar";
+  const toast = useToastFeedback({ ar });
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
@@ -173,14 +176,23 @@ export default function PaymentsPage({ language, projectId }: PaymentsPageProps)
   });
 
   // Fetch projects
-  const { data: projects = [] } = useQuery<ProjectOption[]>({
+  const { data: projects = [], isError: projectsError } = useQuery<ProjectOption[]>({
     queryKey: ["projects-list"],
     queryFn: async () => {
       const res = await fetch("/api/projects-simple");
-      if (!res.ok) return [];
+      // Throw instead of silent [] — an API outage must not look like "no projects"
+      if (!res.ok) throw new Error("Failed to fetch projects");
       return res.json();
     },
   });
+
+  // Surface lookup failure once per false -> true transition (no toast spam)
+  useEffect(() => {
+    if (projectsError) {
+      toast.showError(ar ? "فشل تحميل قائمة المشاريع — حاول تحديث الصفحة" : "Failed to load projects — please refresh");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projectsError, ar]);
 
   // Create mutation
   const createMutation = useMutation({
@@ -190,13 +202,20 @@ export default function PaymentsPage({ language, projectId }: PaymentsPageProps)
         headers: getMutationHeaders(),
         body: JSON.stringify(data),
       });
-      if (!res.ok) throw new Error("Failed");
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(extractErrorMessage(errData.error, "Failed to create payment"));
+      }
       return res.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["payments", projectId] });
       setShowDialog(false);
       setFormData(emptyForm);
+      toast.created(tAuto('auto.payment'));
+    },
+    onError: (error: Error) => {
+      toast.showError(ar ? `فشل في تسجيل الدفعة: ${error.message}` : `Failed to record payment: ${error.message}`);
     },
   });
 
@@ -208,11 +227,17 @@ export default function PaymentsPage({ language, projectId }: PaymentsPageProps)
         headers: getMutationHeaders(),
         body: JSON.stringify({ status }),
       });
-      if (!res.ok) throw new Error("Failed");
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(extractErrorMessage(errData.error, "Failed to update payment status"));
+      }
       return res.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["payments", projectId] });
+    },
+    onError: (error: Error) => {
+      toast.showError(ar ? `فشل تحديث حالة السند: ${error.message}` : `Failed to update voucher status: ${error.message}`);
     },
   });
 
