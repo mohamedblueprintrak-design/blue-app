@@ -42,7 +42,10 @@ export async function GET(
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `inline; filename="invoice-${id}.pdf"`,
-        'Cache-Control': 'public, max-age=3600',
+        // Financial document — must not be stored by shared/proxy caches.
+        // 'public' previously allowed CDN/proxy caching of an authenticated
+        // tenant's tax invoice.
+        'Cache-Control': 'private, max-age=300',
       },
     });
   } catch (error: unknown) {

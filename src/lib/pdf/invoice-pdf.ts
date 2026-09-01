@@ -19,6 +19,17 @@ function formatCurrency(amount: number): string {
   return `${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} AED`;
 }
 
+/**
+ * Format the tax rate for the VAT label from the invoice's own taxRate column
+ * (PERCENT convention: 5 -> "5%", 5.5 -> "5.5%"). Never hardcode 5% — a
+ * zero-rated or custom-rate invoice must print its real rate (FTA requirement).
+ * Accepts Prisma Decimal values via Number() coercion at the call site.
+ */
+function formatTaxRateLabel(taxRate: number, lang: 'ar' | 'en'): string {
+  const rateStr = (Number(taxRate) || 0).toLocaleString('en-US', { maximumFractionDigits: 2 });
+  return lang === 'ar' ? `ضريبة القيمة المضافة (${rateStr}%)` : `VAT (${rateStr}%)`;
+}
+
 function formatDate(date: Date | string | undefined): string {
   if (!date) return '-';
   const d = typeof date === 'string' ? new Date(date) : date;
@@ -42,8 +53,14 @@ export async function generateInvoicePDFBuffer(invoiceId: string, lang: 'ar' | '
     throw new Error('Invoice not found');
   }
 
-  // Fetch company settings
-  const settings = await db.companySettings.findFirst();
+  // Fetch company settings — SECURITY: scoped to the invoice's organization.
+  // The previous findFirst() without a filter could print ANOTHER tenant's
+  // company name/address/TRN on this tax invoice (cross-tenant data leak).
+  // The caller has already verified the invoice belongs to the requesting
+  // user's organization, so invoice.organizationId is the trusted scope.
+  const settings = await db.companySettings.findFirst({
+    where: { organizationId: invoice.organizationId },
+  });
   const orgName = lang === 'ar' ? (settings?.name || 'BluePrint') : (settings?.nameEn || 'BluePrint Engineering');
 
   const { jsPDF, autoTable } = await getJsPDF();
@@ -131,6 +148,14 @@ export async function generateInvoicePDFBuffer(invoiceId: string, lang: 'ar' | '
     y += 5;
     doc.setFontSize(9);
     doc.text(invoice.client.email, margin, y);
+  }
+
+  // Buyer TRN — required on UAE tax invoices for registered buyers (FTA)
+  if (invoice.client.taxNumber) {
+    y += 5;
+    doc.setFontSize(9);
+    doc.setTextColor(100, 116, 139);
+    doc.text(`${lang === 'ar' ? 'الرقم الضريبي للعميل' : 'Buyer TRN'}: ${invoice.client.taxNumber}`, margin, y);
   }
 
   // Invoice details (right side)
@@ -238,11 +263,11 @@ export async function generateInvoicePDFBuffer(invoiceId: string, lang: 'ar' | '
   doc.setFont('helvetica', 'bold');
   doc.text(formatCurrency(Number(invoice.subtotal)), pageWidth - margin, totalsY + 2, { align: 'right' });
 
-  // VAT
+  // VAT — rate comes from the invoice itself, not a hardcoded 5%
   totalsY += 7;
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(100, 116, 139);
-  doc.text(lang === 'ar' ? 'ضريبة القيمة المضافة (5%)' : 'VAT (5%)', pageWidth - margin - 30, totalsY + 2, { align: 'right' });
+  doc.text(formatTaxRateLabel(Number(invoice.taxRate), lang), pageWidth - margin - 30, totalsY + 2, { align: 'right' });
   doc.setTextColor(30, 41, 59);
   doc.setFont('helvetica', 'bold');
   doc.text(formatCurrency(Number(invoice.tax)), pageWidth - margin, totalsY + 2, { align: 'right' });
