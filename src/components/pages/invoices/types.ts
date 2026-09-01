@@ -14,6 +14,8 @@ export interface Invoice {
   dueDate: string;
   subtotal: number;
   tax: number;
+  // VAT rate as PERCENT (5 = 5%) — API returns Prisma Decimal (serialized as string)
+  taxRate?: number | string;
   total: number;
   paidAmount: number;
   remaining: number;

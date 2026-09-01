@@ -100,8 +100,11 @@ export async function GET(
     });
 
     // Fetch payments for this project
+    // NOTE: Payment.status is UPPERCASE (PENDING/APPROVED/COMPLETED/CANCELLED —
+    // see migration 20260901000000_payment_status_normalize); the old lowercase
+    // "completed" literal matched nothing after normalization.
     const payments = await db.payment.findMany({
-      where: { projectId, status: "completed", ...orgFilter(ctx) },
+      where: { projectId, status: "COMPLETED", ...orgFilter(ctx) },
       select: {
         id: true,
         amount: true,

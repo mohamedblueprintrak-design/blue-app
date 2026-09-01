@@ -61,8 +61,12 @@ export async function generateContractPDFBuffer(contractId: string, lang: 'ar' |
     throw new Error('Contract not found');
   }
 
-  // Fetch company settings
-  const settings = await db.companySettings.findFirst();
+  // Fetch company settings — SECURITY: scoped to the contract's organization
+  // (the caller already verified the contract belongs to the requesting org).
+  // An unfiltered findFirst() could print ANOTHER tenant's company identity.
+  const settings = await db.companySettings.findFirst({
+    where: { organizationId: contract.organizationId },
+  });
   const orgName = lang === 'ar' ? (settings?.name || 'BluePrint') : (settings?.nameEn || 'BluePrint Engineering');
 
   const { jsPDF, autoTable } = await getJsPDF();

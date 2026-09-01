@@ -50,8 +50,12 @@ export async function generateProposalPDFBuffer(proposalId: string, lang: 'ar' |
     throw new Error('Proposal not found');
   }
 
-  // Fetch company settings
-  const settings = await db.companySettings.findFirst();
+  // Fetch company settings — SECURITY: scoped to the proposal's organization
+  // (the caller already verified the proposal belongs to the requesting org).
+  // An unfiltered findFirst() could print ANOTHER tenant's company identity.
+  const settings = await db.companySettings.findFirst({
+    where: { organizationId: proposal.organizationId },
+  });
   const orgName = lang === 'ar' ? (settings?.name || 'BluePrint') : (settings?.nameEn || 'BluePrint Engineering');
 
   const { jsPDF, autoTable } = await getJsPDF();

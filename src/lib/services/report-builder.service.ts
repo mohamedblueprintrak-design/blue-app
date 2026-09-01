@@ -816,7 +816,8 @@ export async function formatAsPDF(
   result: ReportResult,
   title: string,
   language: 'ar' | 'en' = 'en',
-  currency: string = 'AED'
+  currency: string = 'AED',
+  organizationId?: string | null
 ): Promise<Buffer> {
   // Dynamic import to avoid bundling jsPDF in client
   const { generateGenericReportPDF } = await import('@/lib/pdf/generic-report-pdf');
@@ -826,6 +827,8 @@ export async function formatAsPDF(
     rows: result.rows,
     language,
     currency,
+    // SECURITY: scope the printed company identity to the caller's organization
+    organizationId: organizationId || undefined,
   });
 }
 

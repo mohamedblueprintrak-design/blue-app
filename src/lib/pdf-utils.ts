@@ -18,6 +18,8 @@ interface InvoicePDFData {
   dueDate: string;
   subtotal: number;
   tax: number;
+  // VAT rate as PERCENT (5 = 5%) — optional; derived from tax/subtotal when absent
+  taxRate?: number | string;
   total: number;
   clientName: string;
   clientCompany?: string;
@@ -34,6 +36,22 @@ function formatDate(dateStr: string): string {
 
 function formatAED(amount: number): string {
   return `${amount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} AED`;
+}
+
+/**
+ * VAT label from the invoice's own rate (PERCENT convention: 5 -> "5%").
+ * Falls back to deriving the rate from tax/subtotal for legacy data, then 5%.
+ * Never hardcode 5% — zero-rated / custom-rate invoices must print their real
+ * rate (FTA requirement).
+ */
+function formatVatLabel(invoice: InvoicePDFData, isAr: boolean): string {
+  let rate = Number(invoice.taxRate);
+  if (!rate && invoice.subtotal > 0) {
+    rate = Number(((invoice.tax / invoice.subtotal) * 100).toFixed(2));
+  }
+  if (!rate) rate = 5;
+  const rateStr = rate.toLocaleString("en-US", { maximumFractionDigits: 2 });
+  return isAr ? `ضريبة القيمة المضافة (${rateStr}%)` : `VAT (${rateStr}%)`;
 }
 
 function getStatusLabel(status: string): string {
@@ -227,11 +245,11 @@ export async function generateInvoicePDF(invoice: InvoicePDFData, lang: 'ar' | '
   doc.setFont("Cairo", "bold");
   doc.text(preprocessArabicText(formatAED(invoice.subtotal)), pageWidth - margin, totalsY + 2, { align: "right" });
 
-  // VAT
+  // VAT — rate from the invoice data, not hardcoded
   totalsY += 7;
   doc.setFont("Cairo", "normal");
   doc.setTextColor(100, 116, 139);
-  doc.text(preprocessArabicText(isAr ? "ضريبة القيمة المضافة (5%)" : "VAT (5%)"), pageWidth - margin - 30, totalsY + 2, { align: "right" });
+  doc.text(preprocessArabicText(formatVatLabel(invoice, isAr)), pageWidth - margin - 30, totalsY + 2, { align: "right" });
   doc.setTextColor(30, 41, 59);
   doc.setFont("Cairo", "bold");
   doc.text(preprocessArabicText(formatAED(invoice.tax)), pageWidth - margin, totalsY + 2, { align: "right" });

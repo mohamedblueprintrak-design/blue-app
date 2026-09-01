@@ -86,8 +86,12 @@ export async function generateSiteReportPDFBuffer(siteDiaryId: string, lang: 'ar
     throw new Error('Site diary not found');
   }
 
-  // Fetch company settings
-  const settings = await db.companySettings.findFirst();
+  // Fetch company settings — SECURITY: scoped to the site diary's organization
+  // (the caller already verified ownership). Unfiltered findFirst() could print
+  // ANOTHER tenant's company identity on the report.
+  const settings = await db.companySettings.findFirst({
+    where: { organizationId: siteDiary.organizationId },
+  });
   const orgName = lang === 'ar' ? (settings?.name || 'BluePrint') : (settings?.nameEn || 'BluePrint Engineering');
 
   const { jsPDF, autoTable } = await getJsPDF();

@@ -236,6 +236,7 @@ export default function InvoicesPage({ language, projectId }: InvoicesPageProps)
         dueDate: inv.dueDate,
         subtotal: inv.subtotal,
         tax: inv.tax,
+        taxRate: inv.taxRate,
         total: inv.total,
         clientName: inv.client.name,
         clientCompany: inv.client.company,

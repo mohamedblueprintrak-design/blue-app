@@ -21,6 +21,9 @@ interface GenericReportData {
   rows: Record<string, unknown>[];
   language: 'ar' | 'en';
   currency?: string;
+  // SECURITY: scope company identity (header/footer/TRN) to this organization —
+  // prevents printing another tenant's identity on the report PDF
+  organizationId?: string;
 }
 
 // Teal accent color matching BluePrint branding
@@ -47,7 +50,7 @@ export async function generateGenericReportPDF(data: GenericReportData): Promise
   await setupArabicPdf(doc);
 
   const isRTL = data.language === 'ar';
-  const settings = await getCompanySettings();
+  const settings = await getCompanySettings(data.organizationId);
 
   // Header
   if (settings.pdfHeader) {
