@@ -19,6 +19,17 @@ import { defaultAccounts } from '../src/lib/services/accounting.service';
  */
 
 async function main() {
+  // Production safety guard: this seed creates accounts with publicly-known demo
+  // passwords (see src/lib/demo-credentials.ts). Never run it against production
+  // unless you explicitly acknowledge the risk via ALLOW_SEED_IN_PRODUCTION=true.
+  if (process.env.NODE_ENV === 'production' && process.env.ALLOW_SEED_IN_PRODUCTION !== 'true') {
+    console.error('❌ Refusing to seed a production database (NODE_ENV=production).');
+    console.error('   This script creates demo accounts with publicly-known passwords.');
+    console.error('   For clean production init, use: npx tsx prisma/clean-init.ts');
+    console.error('   If you truly intend to seed production, set ALLOW_SEED_IN_PRODUCTION=true.');
+    process.exit(1);
+  }
+
   console.info('🌱 Seeding BluePrint database...');
   console.info('📧 Demo passwords are defined in src/lib/demo-credentials.ts');
   console.info('⚠️  These are for development/demo only — never use in production!\n');
