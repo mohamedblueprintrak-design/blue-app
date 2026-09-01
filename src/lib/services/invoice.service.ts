@@ -78,9 +78,17 @@ export interface InvoiceStats {
   outstandingAmount: number;
 }
 
+// VAT FILS ROUNDING (FTA-compliant): monetary values are rounded to 2 decimal
+// places (fils) with ROUND_HALF_UP at LINE level — the invoice subtotal is the sum
+// of rounded line totals, so stored items, subtotal, tax and total always agree
+// with what is printed on the tax invoice PDF. No more 5.2775-style fractions.
+// Module-level helper shared by createInvoice / updateInvoice / recordPayment.
+const round2 = (d: Prisma.Decimal) => d.toDecimalPlaces(2, Prisma.Decimal.ROUND_HALF_UP);
+
 /**
  * Invoice Service
  * Handles all business logic related to invoices
+ * taxRate convention: PERCENT (5.0 = 5%) — matches the DB column, UI and PDF.
  */
 class InvoiceService {
   /**
@@ -171,13 +179,16 @@ class InvoiceService {
   ): Promise<Invoice> {
     // Calculate subtotal from items if available to prevent client-side desync,
     // fallback to data.subtotal or 0.
-    const subtotalDec = data.items && data.items.length > 0
-      ? data.items.reduce((sum, item) => sum.add(new Prisma.Decimal(item.quantity || 1).mul(new Prisma.Decimal(item.unitPrice || 0))), new Prisma.Decimal(0))
-      : new Prisma.Decimal(data.subtotal || 0);
+    // Line-level fils rounding — see round2 at module scope.
 
+    const subtotalDec = data.items && data.items.length > 0
+      ? data.items.reduce((sum, item) => sum.add(round2(new Prisma.Decimal(item.quantity || 1).mul(new Prisma.Decimal(item.unitPrice || 0)))), new Prisma.Decimal(0))
+      : round2(new Prisma.Decimal(data.subtotal || 0));
+
+    // NOTE: taxRate convention is PERCENT (5.0 = 5%), matching the DB column and UI.
     const defaultTaxRate = new Prisma.Decimal(5.0);
     const taxRateDec = data.taxRate !== undefined ? new Prisma.Decimal(data.taxRate) : defaultTaxRate;
-    const taxDec = subtotalDec.mul(taxRateDec.div(100));
+    const taxDec = round2(subtotalDec.mul(taxRateDec.div(100)));
     const totalDec = subtotalDec.add(taxDec);
 
     // Use transaction for safe creation
@@ -204,7 +215,9 @@ class InvoiceService {
               create: data.items.map(item => {
                 const itemQty = new Prisma.Decimal(item.quantity || 1);
                 const itemPrice = new Prisma.Decimal(item.unitPrice || 0);
-                const itemTotal = itemQty.mul(itemPrice);
+                // Line-level fils rounding — keeps item.total consistent with the
+                // rounded-line subtotal used for the invoice header above.
+                const itemTotal = round2(itemQty.mul(itemPrice));
                 return {
                   description: item.description,
                   quantity: itemQty,
@@ -274,9 +287,10 @@ class InvoiceService {
 
       // Recalculate totals if subtotal, tax rate, or paidAmount changed
       if (data.subtotal !== undefined || data.taxRate !== undefined || data.paidAmount !== undefined) {
-        const subtotal = new Prisma.Decimal(data.subtotal !== undefined ? data.subtotal : currentInvoice.subtotal);
+        // Same fils-rounding convention as createInvoice (ROUND_HALF_UP, 2dp).
+        const subtotal = round2(new Prisma.Decimal(data.subtotal !== undefined ? data.subtotal : currentInvoice.subtotal));
         const taxRate = new Prisma.Decimal(data.taxRate !== undefined ? data.taxRate : currentInvoice.taxRate);
-        const tax = subtotal.mul(taxRate.div(100));
+        const tax = round2(subtotal.mul(taxRate.div(100)));
         const total = subtotal.add(tax);
         const paidAmount = new Prisma.Decimal(data.paidAmount !== undefined ? data.paidAmount : currentInvoice.paidAmount);
         updateData.tax = tax;
@@ -405,14 +419,16 @@ class InvoiceService {
    */
   async recordPayment(
     id: string,
-    amount: number,
+    amountInput: number,
     organizationId: string,
     userId: string,
     paymentMethod: 'cash' | 'bank' = 'bank'
   ): Promise<Invoice> {
-    if (amount <= 0) {
+    if (amountInput <= 0) {
       throw new Error('Payment amount must be positive');
     }
+    // Defensive fils rounding: keep paidAmount/remaining at money precision (2dp)
+    const amount = round2(new Prisma.Decimal(amountInput)).toNumber();
 
     return await db.$transaction(async (tx) => {
       // First verify the invoice belongs to the organization and is not deleted
