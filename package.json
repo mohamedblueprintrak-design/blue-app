@@ -164,7 +164,10 @@
     "js-yaml": "^4.2.0",
     "uuid": "^14.0.0",
     "ws": "^8.21.0",
-    "@opentelemetry/core": "^2.8.0"
+    "@opentelemetry/core": "^2.8.0",
+    "sharp": "^0.35.4",
+    "deepmerge-ts": "^8.0.2",
+    "immutable": "^4.3.9"
   },
   "resolutions": {
     "postcss": "^8.5.10",
