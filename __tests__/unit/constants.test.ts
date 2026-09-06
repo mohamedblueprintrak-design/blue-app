@@ -83,8 +83,10 @@ describe('calculateVat', () => {
     expect(calculateVat(1000, 0.10)).toBe(100);
   });
 
-  it('should handle decimal amounts', () => {
-    expect(calculateVat(99.99)).toBeCloseTo(4.9995, 4);
+  it('should handle decimal amounts (fils-rounded to 2dp)', () => {
+    // 99.99 × 0.05 = 4.9995 — fils rounding (2dp, ROUND_HALF_UP) yields 5.00,
+    // matching invoice.service.ts Prisma.Decimal rounding for tax invoices.
+    expect(calculateVat(99.99)).toBe(5);
   });
 
   it('should handle negative amounts (returns/credits)', () => {
