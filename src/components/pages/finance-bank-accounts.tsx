@@ -40,6 +40,14 @@ interface BankAccount {
   createdAt: string;
 }
 
+interface ReconcileTransaction {
+  id: string;
+  type: string;
+  date: string;
+  description: string;
+  amount: number;
+}
+
 export default function FinanceBankAccountsPage() {
   const tAuto = useTranslations();
   const lang = useLang();
@@ -70,7 +78,7 @@ export default function FinanceBankAccountsPage() {
 
   const [showReconcileDialog, setShowReconcileDialog] = useState(false);
   const [selectedAccountId, setSelectedAccountId] = useState("");
-  const [reconcileTransactions, setReconcileTransactions] = useState<any[]>([]);
+  const [reconcileTransactions, setReconcileTransactions] = useState<ReconcileTransaction[]>([]);
   const [loadingTx, setLoadingTx] = useState(false);
 
   const loadTransactionsForAccount = async (accountId: string) => {

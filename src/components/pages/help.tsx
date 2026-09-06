@@ -157,7 +157,7 @@ export default function HelpPage({ language, projectId }: { language: "ar" | "en
   const tAuto = useTranslations();
   const isAr = language === "ar";
   const [searchQuery, setSearchQuery] = useState("");
-  const { setCurrentPage, setCurrentProjectTab, setCurrentProjectSubTab } = useNavStore();
+  const { setCurrentPage } = useNavStore();
 
   // Fetch knowledge base articles
   const { data: kbArticles = [], isLoading: kbLoading } = useQuery<KnowledgeArticle[]>({

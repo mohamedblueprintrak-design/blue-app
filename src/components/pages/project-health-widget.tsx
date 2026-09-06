@@ -16,6 +16,17 @@ import { useNavStore } from "@/store/nav-store";
 import { useQuery } from "@tanstack/react-query";
 
 // ===== Types =====
+interface RawDbProject {
+  id: string;
+  name: string;
+  nameEn: string | null;
+  progress: number | null;
+  status: string | null;
+  endDate: string | null;
+  updatedAt: string | null;
+  deletedAt: string | null;
+}
+
 interface HealthProject {
   id: string;
   nameAr: string;
@@ -186,7 +197,7 @@ export default function ProjectHealthWidget({
   const isAr = language === "ar";
   const { setCurrentPage } = useNavStore();
 
-  const { data: dbProjects = [] } = useQuery<any[]>({
+  const { data: dbProjects = [] } = useQuery<RawDbProject[]>({
     queryKey: ["projects-health"],
     queryFn: async () => {
       const res = await fetch("/api/projects");

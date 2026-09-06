@@ -35,7 +35,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -75,6 +74,16 @@ import DocumentsPage from "@/components/pages/documents";
 import type { ProjectDetailProps, ProjectData } from "./project-detail/types";
 
 // ===== MAIN COMPONENT =====
+interface ProjectEditPayload {
+  name: string;
+  nameEn: string;
+  number: string;
+  status: string;
+  progress: number;
+  budget: number;
+  location: string;
+}
+
 export default function ProjectDetail({ language }: ProjectDetailProps) {
   const tAuto = useTranslations();
   const isAr = language === "ar";
@@ -104,7 +113,7 @@ export default function ProjectDetail({ language }: ProjectDetailProps) {
   const [editLocation, setEditLocation] = useState("");
 
   const editMutation = useMutation({
-    mutationFn: async (data: any) => {
+    mutationFn: async (data: ProjectEditPayload) => {
       const headers = await getMutationHeaders();
       const res = await fetch(`/api/projects/${currentProjectId}`, {
         method: "PUT",
@@ -126,7 +135,7 @@ export default function ProjectDetail({ language }: ProjectDetailProps) {
       });
       setShowEditDialog(false);
     },
-    onError: (err: any) => {
+    onError: (err: Error) => {
       toast({
         title: isAr ? "خطأ في التحديث" : "Update failed",
         description: err.message,

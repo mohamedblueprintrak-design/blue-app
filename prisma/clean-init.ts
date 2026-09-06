@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs';
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Starting Clean Production Database Initialization...');
+  console.info('🌱 Starting Clean Production Database Initialization...');
 
   // Create primary system organization
   const primaryOrg = await prisma.organization.upsert({
@@ -24,7 +24,7 @@ async function main() {
     },
   });
 
-  console.log(`✅ Created/Verified Organization: ${primaryOrg.name} (${primaryOrg.id})`);
+  console.info(`✅ Created/Verified Organization: ${primaryOrg.name} (${primaryOrg.id})`);
 
   // Create super admin user with password from environment — no fallback.
   // A hardcoded default here would leave a known-password ADMIN account in production.
@@ -61,8 +61,8 @@ async function main() {
     },
   });
 
-  console.log(`✅ Created/Verified Production Admin: ${adminUser.email}`);
-  console.log('🚀 Production Database Initialization Completed Successfully!');
+  console.info(`✅ Created/Verified Production Admin: ${adminUser.email}`);
+  console.info('🚀 Production Database Initialization Completed Successfully!');
 }
 
 main()

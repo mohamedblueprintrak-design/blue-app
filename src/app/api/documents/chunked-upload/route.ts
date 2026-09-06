@@ -81,9 +81,10 @@ export async function POST(request: NextRequest) {
       isComplete: false,
       receivedChunks: result.session.receivedChunks,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error("Error in chunked upload handler:", error);
-    return NextResponse.json({ error: error.message || "Failed to process upload" }, { status: 500 });
+    const message = error instanceof Error ? error.message : "Failed to process upload";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
